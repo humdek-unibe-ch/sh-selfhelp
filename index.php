@@ -50,6 +50,7 @@ if( $router->route && is_callable( $router->route['target'] ) ) {
     call_user_func_array( $router->route['target'], array_merge( array( $router ), $router->route['params'] ) );
 } else {
     // no route was matched
+    echo "Missing";
 }
 
 ?>
