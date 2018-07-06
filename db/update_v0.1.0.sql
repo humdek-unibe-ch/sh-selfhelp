@@ -96,7 +96,6 @@ ALTER TABLE `languages`
 
 CREATE TABLE `sections` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) NOT NULL,
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -142,6 +141,31 @@ ALTER TABLE `sections_translation`
 ALTER TABLE `sections_translation` CHANGE `id_languages` `id_languages` INT(10) UNSIGNED ZEROFILL NULL;
 
 --
+-- Table structure for table `pages_sections`
+--
+
+CREATE TABLE `pages_sections` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `position` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for table `pages_sections`
+--
+ALTER TABLE `pages_sections`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_pages` (`id_pages`),
+  ADD KEY `id_sections` (`id_sections`);
+
+--
+-- AUTO_INCREMENT for table `pages_sections`
+--
+ALTER TABLE `pages_sections`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
+--
 -- Table structure for table `styles`
 --
 
@@ -181,3 +205,10 @@ ALTER TABLE `sections_translation`
 --
 ALTER TABLE `sections`
   ADD CONSTRAINT `sections_fk_id_styles` FOREIGN KEY (`id_styles`) REFERENCES `styles`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+--
+-- Add foreign key constraints for table `pages_sections`
+--
+ALTER TABLE `pages_sections`
+  ADD CONSTRAINT `pages_sections_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `pages_sections_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
