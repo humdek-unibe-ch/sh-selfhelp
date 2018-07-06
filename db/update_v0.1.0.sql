@@ -187,6 +187,34 @@ ALTER TABLE `styles`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 --
+-- Table structure for table `acl`
+--
+
+CREATE TABLE `acl` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `acl_select` tinyint(1) NOT NULL DEFAULT '1',
+  `acl_insert` tinyint(1) NOT NULL DEFAULT '0',
+  `acl_update` tinyint(1) NOT NULL DEFAULT '0',
+  `acl_delete` tinyint(1) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for table `acl`
+--
+ALTER TABLE `acl`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_users` (`id_users`),
+  ADD KEY `id_pages` (`id_pages`);
+
+--
+-- AUTO_INCREMENT for table `acl`
+--
+ALTER TABLE `acl`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
+--
 -- Add foreign key constraints for table `pages_translation`
 --
 ALTER TABLE `pages_translation`
@@ -212,3 +240,10 @@ ALTER TABLE `sections`
 ALTER TABLE `pages_sections`
   ADD CONSTRAINT `pages_sections_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_sections_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Add foreign key constraints for table `acl`
+--
+ALTER TABLE `acl`
+  ADD CONSTRAINT `acl_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `acl_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
