@@ -58,6 +58,7 @@ class BaseDb {
         catch(PDOException $e)
         {
             if(DEBUG == 1) echo "BaseDb::query_db: ".$e->getMessage();
+            return false;
         }
     }
 

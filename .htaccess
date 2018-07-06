@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule . index.php [L]
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule . index.php [L]
 #RewriteRule . test/pw_hash.php [L]
-#RewriteRule . test/login.php [L]
+RewriteRule . test/login.php [L]

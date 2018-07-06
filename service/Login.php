@@ -30,14 +30,14 @@ class Login
     {
         $sql = "SELECT id, password FROM users WHERE email = :email";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
-        if(($user != false) && password_verify($password, $user['password']))
+        if($user && password_verify($password, $user['password']))
         {
             $_SESSION['id_user'] = $user['id'];
             return true;
         }
         else
         {
-            $this->logout();
+            $_SESSION = array();
             return false;
         }
     }
@@ -61,6 +61,13 @@ class Login
     public function logout()
     {
         $_SESSION = array();
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
         session_destroy();
     }
 }
