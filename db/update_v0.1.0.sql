@@ -145,7 +145,6 @@ ALTER TABLE `sections_translation` CHANGE `id_languages` `id_languages` INT(10) 
 --
 
 CREATE TABLE `pages_sections` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `position` int(11) NOT NULL
@@ -155,15 +154,9 @@ CREATE TABLE `pages_sections` (
 -- Indexes for table `pages_sections`
 --
 ALTER TABLE `pages_sections`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id_pages`,`id_sections`),
   ADD KEY `id_pages` (`id_pages`),
   ADD KEY `id_sections` (`id_sections`);
-
---
--- AUTO_INCREMENT for table `pages_sections`
---
-ALTER TABLE `pages_sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 --
 -- Table structure for table `styles`
@@ -191,7 +184,6 @@ ALTER TABLE `styles`
 --
 
 CREATE TABLE `acl` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `acl_select` tinyint(1) NOT NULL DEFAULT '1',
@@ -204,15 +196,9 @@ CREATE TABLE `acl` (
 -- Indexes for table `acl`
 --
 ALTER TABLE `acl`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id_users`,`id_pages`),
   ADD KEY `id_users` (`id_users`),
   ADD KEY `id_pages` (`id_pages`);
-
---
--- AUTO_INCREMENT for table `acl`
---
-ALTER TABLE `acl`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 --
 -- Add foreign key constraints for table `pages_translation`

@@ -263,7 +263,10 @@ class BaseDb {
                 ." (".$columnStr.") VALUES(".$valueStr.")";
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($data);
-            return $this->dbh->lastInsertId();
+            $new_id = $this->dbh->lastInsertId();
+            if($new_id > 0) return $new_id; // might be zero if no id is available
+            else return true;
+
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::insert: ".$e->getMessage();
@@ -294,7 +297,9 @@ class BaseDb {
                 .$columnStr." VALUES ".$valueStr;
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($data);
-            return $this->dbh->lastInsertId();
+            $new_id = $this->dbh->lastInsertId();
+            if($new_id > 0) return $new_id; // might be zero if no id is available
+            else return true;
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::insert_mult: ".$e->getMessage();
@@ -303,20 +308,29 @@ class BaseDb {
     }
 
     /**
-     * Update values in db defined by id.
+     * Update values in db defined by one or several ids.
      *
      * @param string $table
      *  The name of the db table.
      * @param array $entries
      *  An associative array of db entries e.g. $["colname1"] = "foo".
-     * @param int $id
-     *  The unique id of the row to be selected.
+     * @param array $ids
+     *  An associative array of where conditions e.g WHERE $key = $value. The
+     *  conditions are concatenated with AND.
      * @retval bool
      *  true if succeded, false otherwise.
      */
-    public function update_by_uid($table, $entries, $id) {
+    public function update_by_ids($table, $entries, $ids) {
         try {
-            $data = array(':hid' => $id);
+            $data = array();
+            $where_cond = "";
+            $first = true;
+            foreach($ids as $key => $value) {
+                $data[':' . $key] = $value;
+                if($first) $where_cond = " WHERE $key = :$key";
+                else $where_cond .= " AND $key = :$key";
+                $first = false;
+            }
             $insertStr = "";
             foreach($entries as $i => $value) {
                 $id = ":".$i;
@@ -324,13 +338,13 @@ class BaseDb {
                 $data[$id] = $value;
             }
             $insertStr = rtrim($insertStr, ", ");
-            $sql = "UPDATE ".$table." SET ".$insertStr." WHERE id=:hid";
+            $sql = "UPDATE ".$table." SET ".$insertStr.$where_cond;
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($data);
             return true;
         }
         catch(PDOException $e) {
-            if(DEBUG == 1) echo "BaseDb::update_by_uid: ".$e->getMessage();
+            if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();
             return false;
         }
     }
