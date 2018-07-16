@@ -5,9 +5,9 @@ require_once __DIR__ . "/FooterModel.php";
 
 class FooterComponent extends BaseComponent
 {
-    public function __construct($router)
+    public function __construct($router, $db)
     {
-        $model = new FooterModel();
+        $model = new FooterModel($db);
         $view = new FooterView($router, $model);
         parent::__construct($view);
     }

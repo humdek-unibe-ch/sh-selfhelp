@@ -42,6 +42,11 @@ ALTER TABLE `pages`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 --
+-- Further changes to table `pages`
+--
+ALTER TABLE `pages` ADD `nav_position` INT NULL DEFAULT NULL AFTER `url`, ADD `footer_position` INT NULL DEFAULT NULL AFTER `nav_position`;
+
+--
 -- Table structure for table `pages_translation`
 --
 
@@ -66,6 +71,9 @@ ALTER TABLE `pages_translation`
 ALTER TABLE `pages_translation`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
+--
+-- Further changes to table `pages_translation`
+--
 ALTER TABLE `pages_translation` CHANGE `id_languages` `id_languages` INT(10) UNSIGNED ZEROFILL NULL;
 
 --

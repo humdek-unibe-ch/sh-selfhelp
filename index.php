@@ -13,15 +13,15 @@ $router->map( 'GET', '/', function( $router ) {
     $page = new HomePage($router);
     $page->output();
 }, 'home');
-$router->map( 'GET', '/sessions', function( $router ) {
+$router->map( 'GET', '/sitzungen', function( $router ) {
     $page = new HomePage($router);
     $page->output();
 }, 'sessions');
-$router->map( 'GET', '/protocols', function( $router ) {
+$router->map( 'GET', '/protokolle', function( $router ) {
     $page = new HomePage($router);
     $page->output();
 }, 'protocols');
-$router->map( 'GET', '/contact', function( $router ) {
+$router->map( 'GET', '/kontakt', function( $router ) {
     $page = new HomePage($router);
     $page->output();
 }, 'contact');

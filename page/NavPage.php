@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/BasePage.php";
+require_once __DIR__ . "/../service/BaseDb.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
 
@@ -11,6 +12,7 @@ abstract class NavPage extends BasePage
 {
     private $css_includes;
     private $js_includes;
+    protected $db;
 
     /* Constructors ***********************************************************/
 
@@ -23,11 +25,12 @@ abstract class NavPage extends BasePage
      */
     public function __construct($router, $title)
     {
+        $this->db = new BaseDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->css_includes = array();
         $this->js_includes = array();
         parent::__construct($router, $title);
-        $this->add_component("nav", new NavComponent($router));
-        $this->add_component("footer", new FooterComponent($router));
+        $this->add_component("nav", new NavComponent($this->router, $this->db));
+        $this->add_component("footer", new FooterComponent($this->router, $this->db));
     }
 
     /* Protected Methods ******************************************************/

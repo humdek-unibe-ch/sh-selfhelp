@@ -7,7 +7,7 @@ abstract class BasePage
 {
     /* Private Properties *****************************************************/
 
-    private $router;
+    protected $router;
     private $title;
     private $css_includes;
     private $js_includes;

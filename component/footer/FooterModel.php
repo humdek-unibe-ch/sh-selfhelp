@@ -1,15 +1,13 @@
 <?php
-class FooterModel
+class FooterModel extends LinkModel
 {
-    public $impressum;
-    public $disclaimer;
-    public $agb;
-
-    public function __construct()
+    public function __construct($db)
     {
-        $this->impressum = "Impressum";
-        $this->disclaimer = "Disclaimer";
-        $this->agb = "AGB";
+        parent::__construct($db);
     }
+
+    public function get_impressum() { return $this->get_link("impressum"); }
+    public function get_agb() { return $this->get_link("agb"); }
+    public function get_disclaimer() { return $this->get_link("disclaimer"); }
 }
 ?>

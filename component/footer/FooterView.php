@@ -19,9 +19,9 @@ class FooterView implements IView
 
     public function output_content()
     {
-        $impressum = $this->model->impressum;
-        $disclaimer = $this->model->disclaimer;
-        $agb = $this->model->agb;
+        $impressum = $this->model->get_impressum();
+        $disclaimer = $this->model->get_disclaimer();
+        $agb = $this->model->get_agb();
         require __DIR__ . "/tpl_footer.php";
     }
 }
