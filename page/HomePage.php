@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . "/../NavPage.php";
-require_once __DIR__ . "/../../component/well/WellComponent.php";
+require_once __DIR__ . "/NavPage.php";
+require_once __DIR__ . "/../component/well/WellComponent.php";
 
 class HomePage extends NavPage
 {
     public function __construct($router)
     {
-        parent::__construct($router, "Schlaf Coach");
+        parent::__construct($router, "home");
         $this->add_component("home", new WellComponent());
     }
 

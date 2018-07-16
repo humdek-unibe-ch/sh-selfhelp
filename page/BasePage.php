@@ -7,8 +7,10 @@ abstract class BasePage
 {
     /* Private Properties *****************************************************/
 
+    protected $db;
     protected $router;
-    private $title;
+    protected $title;
+    protected $keyword;
     private $css_includes;
     private $js_includes;
     private $components;
@@ -22,10 +24,12 @@ abstract class BasePage
      * @param object $router
      *  The router instance is used to generate valid links.
      */
-    public function __construct($router, $title)
+    public function __construct($router, $keyword)
     {
+        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->router = $router;
-        $this->title = $title;
+        $this->keyword = $keyword;
+        $this->title = $this->db->get_link_title($keyword);
         $this->components = array();
         $this->css_includes = array(
             "/css/bootstrap.min.css",
@@ -71,26 +75,18 @@ abstract class BasePage
     /* Protected Abstract Methods ***********************************************/
 
     /**
-     * Get custom css include files required to style the page.
-     *
-     * @retval array
-     *  An array of css include file paths.
+     * Render the content of the page.
      */
-    abstract protected function get_css_includes();
-
-    /**
-     * Get custom js include files to perform page specific client-side
-     * computations.
-     *
-     * @retval array
-     *  An array of js include file paths.
-     */
-    abstract protected function get_js_includes();
+    protected function output_base_content()
+    {
+        $this->output_content();
+    }
 
     /**
      * Render the content of the page.
+     * This page needs to be implemented by the class extending the BasePage.
      */
-    abstract protected function output_base_content();
+    abstract protected function output_content();
 
     /**
      * Render the meta tags of the page.
@@ -120,6 +116,23 @@ abstract class BasePage
     }
 
     /**
+     * Get custom css include files required to style the page.
+     *
+     * @retval array
+     *  An array of css include file paths.
+     */
+    protected function get_css_includes() { return array(); }
+
+    /**
+     * Get custom js include files to perform page specific client-side
+     * computations.
+     *
+     * @retval array
+     *  An array of js include file paths.
+     */
+    protected function get_js_includes() { return array(); }
+
+    /**
      * Renders the content of the component.
      *
      * @param string $key
@@ -139,6 +152,11 @@ abstract class BasePage
     {
         $title = $this->title;
         require_once __DIR__ . '/tpl_page.php';
+    }
+
+    public function set_title($title)
+    {
+        $this->title = $title;
     }
 }
 ?>

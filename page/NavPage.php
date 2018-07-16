@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/BasePage.php";
-require_once __DIR__ . "/../service/BaseDb.php";
+require_once __DIR__ . "/../service/PageDb.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
 
@@ -12,7 +12,6 @@ abstract class NavPage extends BasePage
 {
     private $css_includes;
     private $js_includes;
-    protected $db;
 
     /* Constructors ***********************************************************/
 
@@ -23,12 +22,11 @@ abstract class NavPage extends BasePage
      * @param object $router
      *  The router instance is used to generate valid links.
      */
-    public function __construct($router, $title)
+    public function __construct($router, $keyword)
     {
-        $this->db = new BaseDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->css_includes = array();
         $this->js_includes = array();
-        parent::__construct($router, $title);
+        parent::__construct($router, $keyword);
         $this->add_component("nav", new NavComponent($this->router, $this->db));
         $this->add_component("footer", new FooterComponent($this->router, $this->db));
     }
@@ -60,11 +58,11 @@ abstract class NavPage extends BasePage
     /**
      * See BasePage::get_css_includes()
      */
-    protected function get_css_includes() { return $this->css_includes; }
+    protected function get_css_includes() { return array(); }
 
     /**
      * See BasePage::get_js_includes()
      */
-    protected function get_js_includes() { return $this->js_includes; }
+    protected function get_js_includes() { return array(); }
 }
 ?>

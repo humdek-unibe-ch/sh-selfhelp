@@ -1,16 +1,17 @@
 <?php
 require_once __DIR__ . "/INav.php";
-require_once __DIR__ . "/../LinkModel.php";
 
-class NavModel extends LinkModel implements INav
+class NavModel implements INav
 {
+    private $db;
+
     public function __construct($db)
     {
-        parent::__construct($db);
+       $this->db = $db;
     }
 
-    public function get_home() { return $this->get_link("home"); }
-    public function get_login() { return $this->get_link("login"); }
+    public function get_home() { return $this->db->get_link_title("home"); }
+    public function get_login() { return $this->db->get_link_title("login"); }
     public function get_pages()
     {
         $sql = "SELECT p.keyword, pt.title FROM pages_translation AS pt

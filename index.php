@@ -3,7 +3,8 @@ $_SERVER['DOCUMENT_ROOT']  = __DIR__;
 session_start();
 require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
-require_once "./page/home/HomePage.php";
+require_once "./page/HomePage.php";
+require_once "./page/LoginPage.php";
 
 $router = new Router();
 
@@ -26,7 +27,7 @@ $router->map( 'GET', '/kontakt', function( $router ) {
     $page->output();
 }, 'contact');
 $router->map( 'GET', '/login', function( $router ) {
-    $page = new HomePage($router);
+    $page = new LoginPage($router);
     $page->output();
 }, 'login');
 $router->map( 'GET', '/imressum', function( $router ) {
