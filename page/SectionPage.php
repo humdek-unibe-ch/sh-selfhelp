@@ -68,4 +68,3 @@ class SectionPage extends NavPage
     protected function output_meta_tags() {}
 }
 ?>
-

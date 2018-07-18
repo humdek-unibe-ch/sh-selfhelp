@@ -52,9 +52,12 @@ class NavView implements IView
     private function output_nav_items()
     {
         $pages = $this->model->get_pages();
-        foreach($pages as $key => $page_name)
+        foreach($pages as $key => $page)
         {
-            $this->output_nav_item($key, $page_name);
+            if(empty($page['children']))
+                $this->output_nav_item($key, $page['title']);
+            else
+                $this->output_nav_menu($key, $page['title'], $page['children']);
         }
     }
 
@@ -69,6 +72,53 @@ class NavView implements IView
     private function output_nav_item($key, $page_name)
     {
         require __DIR__ . "/tpl_nav_item.php";
+    }
+
+    /**
+     * Render a navigation menu, given a keyword and a page name.
+     *
+     * @param string $key
+     *  The identification string of a route.
+     * @param string $page_name
+     *  The title of the page the link is pointing to.
+     */
+    private function output_nav_menu($key, $page_name, $children, $right=false)
+    {
+        $align = "";
+        if($right) $align = "dropdown-menu-right";
+        require __DIR__ . "/tpl_nav_menu.php";
+    }
+
+    /**
+     * Render a menu item, given a keyword and a page name.
+     *
+     * @param string $key
+     *  The identification string of a route.
+     * @param string $page_name
+     *  The title of the page the link is pointing to.
+     */
+    private function output_nav_menu_item($key, $page_name)
+    {
+        require __DIR__ . "/tpl_nav_menu_item.php";
+    }
+
+    /**
+     * Render a menu item, given a keyword and a page name.
+     *
+     * @param string $key
+     *  The identification string of a route.
+     * @param string $page_name
+     *  The title of the page the link is pointing to.
+     */
+    private function output_nav_menu_items($children)
+    {
+        foreach($children as $key => $page)
+        {
+            if(empty($page['children']))
+                $this->output_nav_menu_item($key, $page['title']);
+            else
+                $this->output_nav_menu($key, $page['title'], $page['children']);
+        }
     }
 
     /* Public Methods *********************************************************/

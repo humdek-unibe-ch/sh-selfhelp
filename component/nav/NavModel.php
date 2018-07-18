@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This class is used to prepare all data related to the navigation component
  * such that the data can easily be displayed in the view of the component.
@@ -28,6 +27,81 @@ class NavModel
         $this->acl = $acl;
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     * Fetches all children page links of a page from the database.
+     *
+     * @param int $id_parent
+     *  The id of the parent page.
+     * @retval array
+     *  An array prepared by NavModel::prepare_pages.
+     */
+    private function fetch_children($id_parent)
+    {
+        $sql = "SELECT p.id, p.keyword, pt.title FROM pages_translation AS pt
+            LEFT JOIN pages AS p ON p.id = pt.id_pages
+            LEFT JOIN languages AS l ON l.id = pt.id_languages
+            WHERE p.parent = :parent AND l.locale = :locale
+            ORDER BY p.nav_position";
+        $pages_db = $this->db->query_db($sql,
+            array(
+                ":locale" => $_SESSION['language'],
+                ":parent" => $id_parent
+            )
+        );
+        return $this->prepare_pages($pages_db);
+    }
+
+    /**
+     * Fetches all root page links that are placed in the navbar from the
+     * database.
+     *
+     * @retval array
+     *  An array prepared by NavModel::prepare_pages.
+     */
+    private function fetch_pages()
+    {
+        $sql = "SELECT p.id, p.keyword, pt.title FROM pages_translation AS pt
+            LEFT JOIN pages AS p ON p.id = pt.id_pages
+            LEFT JOIN languages AS l ON l.id = pt.id_languages
+            WHERE p.nav_position > 0 AND l.locale = :locale
+            ORDER BY p.nav_position";
+        $pages_db = $this->db->query_db($sql,
+            array(':locale' => $_SESSION['language']));
+        return $this->prepare_pages($pages_db);
+    }
+
+    /**
+     * Prepare a hierarchical array that contains the page links.
+     * Note that only page links are returned with matching access rights.
+     *
+     * @param array $pages_db
+     *  An associative array returned by a db querry.
+     * @retval array
+     *  A <page array> of the from
+     *   <keyword> =>
+     *      "title" => <page_title>
+     *      "children" => <page array>
+     *  where the keyword corresponds to the route identifier.
+     */
+    private function prepare_pages($pages_db)
+    {
+        $pages = array();
+        foreach($pages_db as $item)
+        {
+            if($this->acl->has_access_select($_SESSION['id_user'], $item['id']))
+            {
+                $children = $this->fetch_children(intval($item['id']));
+                $pages[$item['keyword']] = array(
+                    "title" => $item['title'],
+                    "children" => $children
+                );
+            }
+        }
+        return $pages;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -52,31 +126,21 @@ class NavModel
      * @retval string
      *  The name of the profile page.
      */
-    public function get_profile() { return $this->db->get_link_title("profile"); }
+    public function get_profile() {
+        $db_page = $this->db->fetch_page_info("profile");
+        $pages = $this->prepare_pages(array($db_page));
+        if(array_key_exists("profile", $pages))
+            return $pages["profile"];
+        else
+            return array();
+    }
 
     /**
-     * Fetches all page links that are placed in the footer from the database.
-     * Note that only page links are returned with matching access rights.
+     * Fetches all page links that are placed in the navbar from the database.
      *
      * @retval array
-     *  An associative array of the from (<keyword> => <page_title>) where the
-     *  keyword corresponds to the route identifier.
+     *  An array prepared by NavModel::prepare_pages.
      */
-    public function get_pages()
-    {
-        $sql = "SELECT p.id, p.keyword, pt.title FROM pages_translation AS pt
-            LEFT JOIN pages AS p ON p.id = pt.id_pages
-            LEFT JOIN languages AS l ON l.id = pt.id_languages
-            WHERE p.nav_position > 0 AND l.locale = :locale
-            ORDER BY p.nav_position";
-        $pages_db = $this->db->query_db($sql, array(':locale' => $_SESSION['language']));
-        $pages = array();
-        foreach($pages_db as $item)
-        {
-            if($this->acl->has_access_select($_SESSION['id_user'], $item['id']))
-            $pages[$item['keyword']] = $item['title'];
-        }
-        return $pages;
-    }
+    public function get_pages() { return $this->fetch_pages(); }
 }
 ?>
