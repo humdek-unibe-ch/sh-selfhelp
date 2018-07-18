@@ -1,4 +1,9 @@
-INSERT INTO `users` (`id`, `email`, `password`) VALUES (NULL, 'me@mydomain.com', '$2y$10$wAbSIxVz.l75x/DkgGExZ.fqVfzoyPHJKK77OwTxZNLlKFq1hWVaq');
+INSERT INTO `users` (`id`, `email`, `password`) VALUES
+(0000000001, 'guest', '$2y$10$YAGdZtBk.eLsC48iaNG2huAcjppEQ7EusPaJRdRYa86PPfv4FFEBG'),
+(NULL, 'me@mydomain.com', '$2y$10$wAbSIxVz.l75x/DkgGExZ.fqVfzoyPHJKK77OwTxZNLlKFq1hWVaq');
+
+INSERT INTO `acl` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES
+(0000000001, 0000000005, 1, 0, 0, 0);
 
 INSERT INTO `languages` (`id`, `locale`, `language`) VALUES (NULL, 'de-CH', 'Deutsch (Schweiz)');
 

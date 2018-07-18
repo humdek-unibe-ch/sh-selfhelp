@@ -11,8 +11,19 @@ class Login
      */
     public function __construct($db)
     {
-        session_start();
+        $this->init_session();
         $this->db = $db;
+    }
+
+    private function init_session()
+    {
+        session_start();
+        $_SESSION['language'] = "de-CH";
+        if(!$this->is_logged_in())
+        {
+            $_SESSION['logged_in'] = false;
+            $_SESSION['id_user'] = GUEST_USER_ID;
+        }
     }
 
     /**
@@ -32,12 +43,14 @@ class Login
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
         {
+            $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             return true;
         }
         else
         {
-            $_SESSION = array();
+            $_SESSION['logged_in'] = false;
+            $_SESSION['id_user'] = GUEST_USER_ID;
             return false;
         }
     }
@@ -51,7 +64,7 @@ class Login
      */
     public function is_logged_in()
     {
-        return isset($_SESSION['id_user']);
+        return (isset($_SESSION['logged_in']) && $_SESSION['logged_in']);
     }
 
     /**
@@ -69,6 +82,7 @@ class Login
             );
         }
         session_destroy();
+        $this->init_session();
     }
 }
 ?>

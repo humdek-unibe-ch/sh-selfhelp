@@ -3,11 +3,29 @@ require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/NavView.php";
 require_once __DIR__ . "/NavModel.php";
 
+/**
+ * The class to define the navigation component.
+ */
 class NavComponent extends BaseComponent
 {
-    public function __construct($router, $db)
+    /* Constructors ***********************************************************/
+
+    /**
+     * The constructor creates an instance of the NavModel class and the
+     * NavView class and passes the view instance to the constructor of the
+     * parent class.
+     *
+     * @param object $router
+     *  The router instance which is used to generate valid links.
+     * @param object $db
+     *  The db instance which grants access to the DB.
+     * @param object $acl
+     *  The instnce of the access control layer (ACL) which allows to decide
+     *  which links to display.
+     */
+    public function __construct($router, $db, $acl)
     {
-        $model = new NavModel($db);
+        $model = new NavModel($db, $acl);
         $view = new NavView($router, $model);
         parent::__construct($view);
     }

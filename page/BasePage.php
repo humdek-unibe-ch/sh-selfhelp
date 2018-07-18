@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . "/../service/PageDb.php";
+require_once __DIR__ . "/../service/globals_untracked.php";
+require_once __DIR__ . "/../service/Login.php";
+require_once __DIR__ . "/../service/Acl.php";
+require_once __DIR__ . "/../component/style/StyleComponent.php";
+
 /**
  * This abstract class serves as staring point for pages.
  * It allow to render the basic html header elememnts, css, and js files.
@@ -8,9 +14,13 @@ abstract class BasePage
     /* Private Properties *****************************************************/
 
     protected $db;
+    protected $acl;
+    protected $login;
     protected $router;
     protected $title;
     protected $keyword;
+    protected $id_page;
+    protected $url;
     private $css_includes;
     private $js_includes;
     private $components;
@@ -23,13 +33,17 @@ abstract class BasePage
      *
      * @param object $router
      *  The router instance is used to generate valid links.
+     * @param string $keyword
+     *  The identification name of the page.
      */
     public function __construct($router, $keyword)
     {
         $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->acl = new Acl($this->db);
+        $this->login = new Login($this->db);
         $this->router = $router;
         $this->keyword = $keyword;
-        $this->title = $this->db->get_link_title($keyword);
+        $this->fetch_page_info($keyword);
         $this->components = array();
         $this->css_includes = array(
             "/css/bootstrap.min.css",
@@ -40,9 +54,27 @@ abstract class BasePage
             "/js/bootstrap.min.js",
             "/js/main.js"
         );
+        $this->add_component("denied-guest",
+            new StyleComponent($this->router, $this->db, NO_ACCESS_GUEST_ID, "jumbotron"));
+        $this->add_component("denied",
+            new StyleComponent( $this->router, $this->db,NO_ACCESS_ID, "jumbotron"));
     }
 
     /* Private Metods *********************************************************/
+
+    /**
+     * Fetch the main page information from the database.
+     *
+     * @param string $keyword
+     *  The keyword identifying the page.
+     */
+    private function fetch_page_info($keyword)
+    {
+        $info = $this->db->fetch_page_info($keyword);
+        $this->title = $info['title'];
+        $this->url = $info['url'];
+        $this->id_page = intval($info['id']);
+    }
 
     /**
      * Add page include files and render the css include directives.
@@ -76,20 +108,13 @@ abstract class BasePage
 
     /**
      * Render the content of the page.
-     */
-    protected function output_base_content()
-    {
-        $this->output_content();
-    }
-
-    /**
-     * Render the content of the page.
-     * This page needs to be implemented by the class extending the BasePage.
+     * This function needs to be implemented by the class extending the BasePage.
      */
     abstract protected function output_content();
 
     /**
      * Render the meta tags of the page.
+     * This function needs to be implemented by the class extending the BasePage.
      */
     abstract protected function output_meta_tags();
 
@@ -133,6 +158,19 @@ abstract class BasePage
     protected function get_js_includes() { return array(); }
 
     /**
+     * Render the content of the page.
+     */
+    protected function output_base_content()
+    {
+        if($this->acl->has_access_select($_SESSION['id_user'], $this->id_page))
+            $this->output_content();
+        else if($this->login->is_logged_in())
+            $this->output_component("denied");
+        else
+            $this->output_component("denied-guest");
+    }
+
+    /**
      * Renders the content of the component.
      *
      * @param string $key
@@ -140,7 +178,8 @@ abstract class BasePage
      */
     protected function output_component($key)
     {
-        $this->components[$key]->output_content();
+        if(array_key_exists($key, $this->components))
+            $this->components[$key]->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -152,11 +191,6 @@ abstract class BasePage
     {
         $title = $this->title;
         require_once __DIR__ . '/tpl_page.php';
-    }
-
-    public function set_title($title)
-    {
-        $this->title = $title;
     }
 }
 ?>

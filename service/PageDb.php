@@ -36,15 +36,31 @@ class PageDb extends BaseDb {
      */
     public function get_link_title($keyword)
     {
-        $sql = "SELECT title FROM pages_translation AS pt
-            LEFT JOIN pages AS p ON p.id = pt.id_pages
-            LEFT JOIN languages AS l ON l.id = pt.id_languages
-            WHERE p.keyword = :key AND l.locale = :locale";
-        $res = $this->query_db_first($sql,
-            array(':key' => $keyword, ':locale' => "de-CH"));
-        if($res)
-            return $res['title'];
+        $info = $this->fetch_page_info($keyword);
+        return $info['title'];
+    }
+
+    /**
+     * Fetch the main page information from the database.
+     *
+     * @param string $keyword
+     *  The keyword identifying the page.
+     */
+    public function fetch_page_info($keyword)
+    {
+        $sql = "SELECT p.id, p.url, pt.title FROM pages AS p
+            LEFT JOIN pages_translation AS pt ON pt.id_pages = p.id
+            LEFT JOIN languages AS l ON pt.id_languages = l.id
+            WHERE keyword=:keyword AND locale=:locale";
+        $info = $this->query_db_first($sql,
+            array(":keyword" => $keyword, ":locale" => $_SESSION['language']));
+        if($info)
+            return $info;
         else
-            return "Unknown";
+            return array(
+                "title" => "Unknown",
+                "url" => "/",
+                "id" => 0
+            );
     }
 }

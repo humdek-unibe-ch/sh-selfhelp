@@ -1,4 +1,4 @@
-<div class="container-fluid my-3">
+<div class="container<?php echo $fluid; ?> my-3">
     <div class="card">
         <div class="card-body">
             <h1><?php echo $title; ?></h1>

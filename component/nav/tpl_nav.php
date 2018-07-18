@@ -15,7 +15,10 @@
             </ul>
             <ul class="navbar-nav navbar-right">
                 <?php
-                    $this->output_nav_item('login', $login);
+                    if($_SESSION['logged_in'])
+                        $this->output_nav_item('profile', $profile);
+                    else
+                        $this->output_nav_item('login', $login);
                 ?>
             </ul>
             </a>
