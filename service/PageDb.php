@@ -48,7 +48,7 @@ class PageDb extends BaseDb {
      */
     public function fetch_page_info($keyword)
     {
-        $sql = "SELECT p.id, p.url, pt.title FROM pages AS p
+        $sql = "SELECT p.id, p.keyword, p.url, pt.title FROM pages AS p
             LEFT JOIN pages_translation AS pt ON pt.id_pages = p.id
             LEFT JOIN languages AS l ON pt.id_languages = l.id
             WHERE keyword=:keyword AND locale=:locale";
@@ -59,8 +59,10 @@ class PageDb extends BaseDb {
         else
             return array(
                 "title" => "Unknown",
+                "keyword" => "",
                 "url" => "/",
                 "id" => 0
             );
     }
 }
+?>

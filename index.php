@@ -51,5 +51,4 @@ else {
     $page = new SectionPage($router, 'missing');
     $page->output();
 }
-
 ?>
