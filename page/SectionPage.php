@@ -28,10 +28,8 @@ class SectionPage extends NavPage
     public function __construct($router, $keyword)
     {
         parent::__construct($router, $keyword);
-        $sql = "SELECT s.id, styles.style
-            FROM sections_translation AS s
-            LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
-            LEFT JOIN styles ON ps.id_styles = styles.id
+        $sql = "SELECT ps.id_sections AS id
+            FROM pages_sections AS ps
             WHERE ps.id_pages = :id_page
             ORDER BY ps.position";
         $this->sections = $this->db->query_db($sql,
@@ -42,7 +40,7 @@ class SectionPage extends NavPage
         foreach($this->sections as $section)
         {
             $this->add_component("section-" . $section['id'],
-                new StyleComponent($this->router, $this->db, $section['id'], $section['style']));
+                new StyleComponent($this->router, $this->db, $section['id']));
         }
     }
 

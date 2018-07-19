@@ -52,11 +52,11 @@ class LoginView implements IView
     {
         $user_label = $this->model->get_db_field('user_label');
         $pw_label = $this->model->get_db_field('pw_label');
-        $login_label = $this->model->get_db_field('login_button_label');
-        $reset_label = $this->model->get_db_field('reset_button_label');
+        $login_label = $this->model->get_db_field('login_label');
+        $reset_label = $this->model->get_db_field('reset_pw_label');
         $login_title = $this->model->get_db_field('login_title');
         $intro_title = $this->model->get_db_field('intro_title');
-        $intro_content = $this->model->get_db_field('intro_content');
+        $intro_content = $this->model->get_db_field('intro_text');
         require __DIR__ . "/tpl_login.php";
     }
 }

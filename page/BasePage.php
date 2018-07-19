@@ -55,9 +55,9 @@ abstract class BasePage
             "/js/main.js"
         );
         $this->add_component("denied-guest",
-            new StyleComponent($this->router, $this->db, NO_ACCESS_GUEST_ID, "jumbotron"));
+            new StyleComponent($this->router, $this->db, NO_ACCESS_GUEST_ID));
         $this->add_component("denied",
-            new StyleComponent( $this->router, $this->db,NO_ACCESS_ID, "jumbotron"));
+            new StyleComponent( $this->router, $this->db,NO_ACCESS_ID));
     }
 
     /* Private Metods *********************************************************/

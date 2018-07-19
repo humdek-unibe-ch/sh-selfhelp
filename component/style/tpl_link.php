@@ -1,3 +1,3 @@
-<a href="<?php echo $url; ?>" class="btn btn-primary">
-    <?php echo $label; ?>
+<a href="<?php echo $this->get_db_field("url"); ?>">
+    <?php echo $this->get_db_field("label"); ?>
 </a>

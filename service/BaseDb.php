@@ -227,7 +227,7 @@ class BaseDb {
                 $sql .= " FROM $table t0$join WHERE t0.id = :id";
                 $stmt = $this->dbh->prepare($sql);
                 $stmt->execute(array(':id' => $id));
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $stmt->fetch(PDO::FETCH_ASSOC);
             }
         }
         catch(PDOException $e) {

@@ -13,8 +13,8 @@ class StyleComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the NavModel class and the
-     * NavView class and passes the view instance to the constructor of the
+     * The constructor creates an instance of the StyleModel class and the
+     * StyleView class and passes the view instance to the constructor of the
      * parent class.
      *
      * @param object $router
@@ -23,16 +23,19 @@ class StyleComponent extends BaseComponent
      *  The db instance which grants access to the DB.
      * @param int $id
      *  The id of the database section item to be rendered.
-     * @param string $style
-     *  A string specifying the syle to be used to render the content.
      * @param bool $fluid
      *  If set to true the content will be rendered in a container-fluid
      *  bootstrap element, if set to false in a container. The defualt is true.
      */
-    public function __construct($router, $db, $id, $style, $fluid=true)
+    public function __construct($router, $db, $id, $fluid=true)
     {
         $model = new StyleModel($router, $db, $id);
-        $view = new StyleView($model, $style, $fluid);
+        $children = array();
+        $db_children = $model->fetch_section_children($id);
+        foreach($db_children as $child)
+            array_push($children,
+                new StyleComponent($router, $db, $child['id']));
+        $view = new StyleView($model, $children, $fluid);
         parent::__construct($view);
     }
 }
