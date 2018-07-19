@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/SectionPage.php";
-require_once __DIR__ . "/../component/style/StyleComponent.php";
 
 /**
  * The class to handle the home page. It extends the SectionPage and will render
