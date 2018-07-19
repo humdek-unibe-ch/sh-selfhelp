@@ -46,15 +46,14 @@ class StyleModel
      */
     private function fetch_section_content($id)
     {
+        $locale_cond = $this->db->get_locale_condition();
         $sql = "SELECT f.name, sft.content
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
-            WHERE sft.id_sections = :id
-            AND (l.locale = :locale OR l.locale IS NULL)";
+            WHERE sft.id_sections = :id AND $locale_cond";
 
-        $db_fields = $this->db->query_db($sql,
-            array(":id" => $id, ":locale" => $_SESSION['language']));
+        $db_fields = $this->db->query_db($sql, array(":id" => $id));
         return $this->prepare_section($id, $db_fields);
     }
 

@@ -21,14 +21,14 @@ class LoginModel
     public function __construct($db)
     {
         $this->db = $db;
-        $sql = "SELECT f.name, sft.content
-            FROM sections_fields_translation AS sft
-            LEFT JOIN fields AS f ON f.id = sft.id_fields
-            LEFT JOIN languages AS l ON l.id = sft.id_languages
-            LEFT JOIN sections AS s ON s.id = sft.id_sections
-            WHERE s.name = 'login' AND l.locale = :locale";
-        $fields = $db->query_db($sql,
-            array(":locale" => $_SESSION['language']));
+        $locale_cond = $db->get_locale_condition();
+        $sql = "SELECT f.name, pft.content
+            FROM pages_fields_translation AS pft
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            LEFT JOIN pages AS p ON p.id = pft.id_pages
+            WHERE p.keyword = 'login' AND $locale_cond";
+        $fields = $db->query_db($sql, array());
         foreach($fields as $field)
             $this->db_fields[$field['name']] = $field['content'];
     }

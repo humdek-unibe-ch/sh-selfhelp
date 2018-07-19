@@ -39,17 +39,14 @@ class NavModel
      */
     private function fetch_children($id_parent)
     {
-        $sql = "SELECT p.id, p.keyword, pt.title FROM pages_translation AS pt
-            LEFT JOIN pages AS p ON p.id = pt.id_pages
-            LEFT JOIN languages AS l ON l.id = pt.id_languages
-            WHERE p.parent = :parent AND l.locale = :locale
+        $locale_cond = $this->db->get_locale_condition();
+        $sql = "SELECT p.id, p.keyword, pft.content AS title FROM pages AS p
+            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            WHERE p.parent = :parent AND $locale_cond AND f.name = 'label'
             ORDER BY p.nav_position";
-        $pages_db = $this->db->query_db($sql,
-            array(
-                ":locale" => $_SESSION['language'],
-                ":parent" => $id_parent
-            )
-        );
+        $pages_db = $this->db->query_db($sql, array(":parent" => $id_parent));
         return $this->prepare_pages($pages_db);
     }
 
@@ -62,13 +59,14 @@ class NavModel
      */
     private function fetch_pages()
     {
-        $sql = "SELECT p.id, p.keyword, pt.title FROM pages_translation AS pt
-            LEFT JOIN pages AS p ON p.id = pt.id_pages
-            LEFT JOIN languages AS l ON l.id = pt.id_languages
-            WHERE p.nav_position > 0 AND l.locale = :locale
+        $locale_cond = $this->db->get_locale_condition();
+        $sql = "SELECT p.id, p.keyword, pft.content AS title FROM pages AS p
+            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            WHERE p.nav_position > 0 AND $locale_cond AND f.name = 'label'
             ORDER BY p.nav_position";
-        $pages_db = $this->db->query_db($sql,
-            array(':locale' => $_SESSION['language']));
+        $pages_db = $this->db->query_db($sql, array());
         return $this->prepare_pages($pages_db);
     }
 
