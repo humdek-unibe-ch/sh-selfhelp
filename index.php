@@ -2,10 +2,11 @@
 $_SERVER['DOCUMENT_ROOT']  = __DIR__;
 require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
+require_once "./service/Login.php";
 require_once "./page/HomePage.php";
+require_once "./page/LoginPage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/ComponentPage.php";
-require_once "./service/Login.php";
 
 $router = new Router();
 
@@ -20,7 +21,10 @@ $router->map( 'GET', '/', function($router) {
 $router->map( 'GET', '/sitzungen', 'component', 'sessions');
 $router->map( 'GET', '/protokolle', 'sections', 'protocols');
 $router->map( 'GET', '/kontakt', 'sections', 'contact');
-$router->map( 'GET|POST', '/login', 'component', 'login');
+$router->map( 'GET|POST', '/login', function($router) {
+    $page = new LoginPage($router);
+    $page->output();
+}, 'login');
 $router->map( 'GET', '/profile', 'sections', 'profile');
 $router->map( 'GET', '/impressum', 'sections', 'impressum');
 $router->map( 'GET', '/disclaimer', 'sections', 'disclaimer');
