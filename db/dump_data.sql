@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 19, 2018 at 10:56 AM
+-- Generation Time: Jul 19, 2018 at 02:44 PM
 -- Server version: 5.7.22-0ubuntu18.04.1
 -- PHP Version: 7.2.7-0ubuntu0.18.04.2
 
@@ -30,10 +30,11 @@ INSERT INTO `acl` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_upda
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000004, 1, 0, 0, 0),
-(0000000002, 0000000008, 1, 0, 0, 0),
+(0000000002, 0000000006, 1, 0, 0, 0),
 (0000000002, 0000000009, 1, 0, 0, 0),
 (0000000002, 0000000010, 1, 0, 0, 0),
-(0000000002, 0000000011, 1, 0, 0, 0);
+(0000000002, 0000000011, 1, 0, 0, 0),
+(0000000002, 0000000012, 1, 0, 0, 0);
 
 --
 -- Dumping data for table `fields`
@@ -59,7 +60,8 @@ INSERT INTO `fields` (`id`, `name`) VALUES
 --
 
 INSERT INTO `languages` (`id`, `locale`, `language`) VALUES
-(0000000001, 'de-CH', 'Deutsch (Schweiz)');
+(0000000001, 'all', 'All languages'),
+(0000000002, 'de-CH', 'Deutsch (Schweiz)');
 
 --
 -- Dumping data for table `pages`
@@ -74,9 +76,36 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `parent`, `nav_position`, `footer_p
 (0000000006, 'sessions', '/sitzungen', NULL, 100, NULL),
 (0000000007, 'protocols', '/protokolle', NULL, 200, NULL),
 (0000000008, 'contact', '/kontakt', NULL, 300, NULL),
-(0000000009, 'profile', '/profil', NULL, NULL, NULL),
-(0000000010, 'missing', '', NULL, NULL, NULL),
-(0000000011, 'login', '/login', 0000000009, NULL, NULL);
+(0000000009, 'profile', '/profil', 0000000012, NULL, NULL),
+(0000000010, 'missing', NULL, NULL, NULL, NULL),
+(0000000011, 'login', '/login', 0000000012, NULL, NULL),
+(0000000012, 'profile-link', NULL, NULL, NULL, NULL);
+
+--
+-- Dumping data for table `pages_fields_translation`
+--
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES
+(0000000001, 0000000002, 0000000002, 'Schlaf Coach'),
+(0000000002, 0000000002, 0000000002, 'AGB'),
+(0000000003, 0000000002, 0000000002, 'Impressum'),
+(0000000004, 0000000002, 0000000002, 'Disclaimer'),
+(0000000005, 0000000002, 0000000002, 'Login'),
+(0000000005, 0000000004, 0000000002, 'Benutzername'),
+(0000000005, 0000000005, 0000000002, 'Passwort'),
+(0000000005, 0000000006, 0000000002, 'Anmelden'),
+(0000000005, 0000000007, 0000000002, 'Passwort vergessen?'),
+(0000000005, 0000000008, 0000000002, 'Bitte einloggen'),
+(0000000005, 0000000009, 0000000002, 'Anmeldung zum Schlaf Coach'),
+(0000000005, 0000000010, 0000000002, 'Kurzer Enführungstext der etwas über das Projekt erzählt.'),
+(0000000005, 0000000011, 0000000002, 'Der Benutzername oder das Passwort ist nicht korrekt.'),
+(0000000006, 0000000002, 0000000002, 'Sitzungen'),
+(0000000007, 0000000002, 0000000002, 'Protokolle'),
+(0000000008, 0000000002, 0000000002, 'Kontakt'),
+(0000000009, 0000000002, 0000000002, 'Einstellungen'),
+(0000000010, 0000000002, 0000000002, 'Seite nicht gefunden'),
+(0000000011, 0000000002, 0000000002, 'Abmelden'),
+(0000000012, 0000000002, 0000000002, 'Profil');
 
 --
 -- Dumping data for table `pages_sections`
@@ -84,32 +113,13 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `parent`, `nav_position`, `footer_p
 
 INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 (0000000001, 0000000009, NULL),
-(0000000005, 0000000001, NULL),
 (0000000010, 0000000012, NULL);
-
---
--- Dumping data for table `pages_translation`
---
-
-INSERT INTO `pages_translation` (`id`, `id_pages`, `id_languages`, `title`) VALUES
-(0000000001, 0000000001, 0000000001, 'Schlaf Coach'),
-(0000000002, 0000000005, 0000000001, 'Login'),
-(0000000003, 0000000002, 0000000001, 'AGB'),
-(0000000004, 0000000004, 0000000001, 'Disclaimer'),
-(0000000005, 0000000003, 0000000001, 'Impressum'),
-(0000000006, 0000000006, 0000000001, 'Sitzungen'),
-(0000000007, 0000000007, 0000000001, 'Protokolle'),
-(0000000008, 0000000008, 0000000001, 'Kontakt'),
-(0000000009, 0000000009, 0000000001, 'Profil'),
-(0000000010, 0000000010, 0000000001, 'Seite nicht gefunden'),
-(0000000011, 0000000011, 0000000001, 'Abmelden');
 
 --
 -- Dumping data for table `sections`
 --
 
 INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
-(0000000001, 0000000001, 'login', NULL),
 (0000000002, 0000000003, 'no-access-guest', NULL),
 (0000000003, 0000000003, 'no-access', NULL),
 (0000000004, 0000000009, 'no-access-title', NULL),
@@ -130,27 +140,19 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 --
 
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `content`) VALUES
-(0000000001, 0000000004, 0000000001, 'Benutzername'),
-(0000000001, 0000000005, 0000000001, 'Passwort'),
-(0000000001, 0000000006, 0000000001, 'Anmelden'),
-(0000000001, 0000000007, 0000000001, 'Passwort vergessen?'),
-(0000000001, 0000000008, 0000000001, 'Bitte einloggen'),
-(0000000001, 0000000009, 0000000001, 'Anmeldung zum Schlaf Coach'),
-(0000000001, 0000000010, 0000000001, 'Kurzer Enführungstext der etwas über das Projekt erzählt.'),
-(0000000001, 0000000011, 0000000001, 'Der Benutzername oder das Passwort ist nicht korrekt.'),
-(0000000004, 0000000013, 0000000001, 'Kein Zugriff'),
-(0000000005, 0000000013, 0000000001, 'Sie haben keine Zugriffsrechte für diese Seite.'),
-(0000000006, 0000000013, 0000000001, 'Um diese Seite zu erreichen müssen Sie eingeloggt sein.'),
-(0000000007, 0000000002, 0000000001, 'Zurück'),
-(0000000007, 0000000003, NULL, ':back'),
-(0000000008, 0000000002, 0000000001, 'Zum Login'),
-(0000000008, 0000000003, NULL, 'login'),
-(0000000010, 0000000013, 0000000001, 'Willkommen zum Schlaf Coach'),
-(0000000011, 0000000013, 0000000001, 'Eine kurze Enführung zum Schlaf Coach.'),
-(0000000013, 0000000013, 0000000001, 'Seite nicht gefunden'),
-(0000000014, 0000000013, 0000000001, 'Diese Seite konnete leider nicht gefunden werden.'),
-(0000000015, 0000000002, 0000000001, 'Zur Startseite'),
-(0000000015, 0000000003, NULL, 'home');
+(0000000004, 0000000013, 0000000002, 'Kein Zugriff'),
+(0000000005, 0000000013, 0000000002, 'Sie haben keine Zugriffsrechte für diese Seite.'),
+(0000000006, 0000000013, 0000000002, 'Um diese Seite zu erreichen müssen Sie eingeloggt sein.'),
+(0000000007, 0000000002, 0000000002, 'Zurück'),
+(0000000007, 0000000003, 0000000001, ':back'),
+(0000000008, 0000000002, 0000000002, 'Zum Login'),
+(0000000008, 0000000003, 0000000001, 'login'),
+(0000000010, 0000000013, 0000000002, 'Willkommen zum Schlaf Coach'),
+(0000000011, 0000000013, 0000000002, 'Eine kurze Enführung zum Schlaf Coach.'),
+(0000000013, 0000000013, 0000000002, 'Seite nicht gefunden'),
+(0000000014, 0000000013, 0000000002, 'Diese Seite konnte leider nicht gefunden werden.'),
+(0000000015, 0000000002, 0000000002, 'Zur Startseite'),
+(0000000015, 0000000003, 0000000001, 'home');
 
 --
 -- Dumping data for table `sections_hierarchy`
@@ -174,7 +176,6 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 --
 
 INSERT INTO `styles` (`id`, `name`) VALUES
-(0000000001, 'login'),
 (0000000003, 'jumbotron'),
 (0000000004, 'button'),
 (0000000005, 'link'),
@@ -220,14 +221,6 @@ INSERT INTO `styles_content` (`id_styles`, `content`) VALUES
 --
 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
-(0000000001, 0000000004),
-(0000000001, 0000000005),
-(0000000001, 0000000006),
-(0000000001, 0000000007),
-(0000000001, 0000000008),
-(0000000001, 0000000009),
-(0000000001, 0000000010),
-(0000000001, 0000000011),
 (0000000003, 0000000012),
 (0000000004, 0000000002),
 (0000000004, 0000000003),

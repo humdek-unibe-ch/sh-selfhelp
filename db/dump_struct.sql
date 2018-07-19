@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 19, 2018 at 10:56 AM
+-- Generation Time: Jul 19, 2018 at 02:44 PM
 -- Server version: 5.7.22-0ubuntu18.04.1
 -- PHP Version: 7.2.7-0ubuntu0.18.04.2
 
@@ -67,10 +67,23 @@ CREATE TABLE `languages` (
 CREATE TABLE `pages` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `keyword` varchar(100) NOT NULL,
-  `url` varchar(255) NOT NULL,
+  `url` varchar(255) DEFAULT NULL,
   `parent` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `nav_position` int(11) DEFAULT NULL,
   `footer_position` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pages_fields_translation`
+--
+
+CREATE TABLE `pages_fields_translation` (
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
+  `content` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -83,19 +96,6 @@ CREATE TABLE `pages_sections` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `position` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `pages_translation`
---
-
-CREATE TABLE `pages_translation` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_languages` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `title` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -120,7 +120,7 @@ CREATE TABLE `sections` (
 CREATE TABLE `sections_fields_translation` (
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_languages` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
   `content` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -213,20 +213,21 @@ ALTER TABLE `pages`
   ADD KEY `parent` (`parent`);
 
 --
+-- Indexes for table `pages_fields_translation`
+--
+ALTER TABLE `pages_fields_translation`
+  ADD PRIMARY KEY (`id_pages`,`id_fields`,`id_languages`),
+  ADD KEY `id_pages` (`id_pages`),
+  ADD KEY `id_fields` (`id_fields`),
+  ADD KEY `id_languages` (`id_languages`);
+
+--
 -- Indexes for table `pages_sections`
 --
 ALTER TABLE `pages_sections`
   ADD PRIMARY KEY (`id_pages`,`id_sections`),
   ADD KEY `id_pages` (`id_pages`),
   ADD KEY `id_sections` (`id_sections`);
-
---
--- Indexes for table `pages_translation`
---
-ALTER TABLE `pages_translation`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_languages` (`id_languages`) USING BTREE;
 
 --
 -- Indexes for table `sections`
@@ -240,7 +241,7 @@ ALTER TABLE `sections`
 -- Indexes for table `sections_fields_translation`
 --
 ALTER TABLE `sections_fields_translation`
-  ADD PRIMARY KEY (`id_sections`,`id_fields`),
+  ADD PRIMARY KEY (`id_sections`,`id_fields`,`id_languages`),
   ADD KEY `id_sections` (`id_sections`),
   ADD KEY `id_fields` (`id_fields`),
   ADD KEY `id_languages` (`id_languages`);
@@ -294,17 +295,12 @@ ALTER TABLE `fields`
 -- AUTO_INCREMENT for table `languages`
 --
 ALTER TABLE `languages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
---
--- AUTO_INCREMENT for table `pages_translation`
---
-ALTER TABLE `pages_translation`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 --
 -- AUTO_INCREMENT for table `sections`
 --
@@ -338,18 +334,19 @@ ALTER TABLE `pages`
   ADD CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `pages_fields_translation`
+--
+ALTER TABLE `pages_fields_translation`
+  ADD CONSTRAINT `pages_fields_translation_fk_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `pages_fields_translation_fk_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `pages_fields_translation_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `pages_sections`
 --
 ALTER TABLE `pages_sections`
   ADD CONSTRAINT `pages_sections_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_sections_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `pages_translation`
---
-ALTER TABLE `pages_translation`
-  ADD CONSTRAINT `pages_translation_fk_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `pages_translation_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `sections`
