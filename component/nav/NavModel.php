@@ -125,10 +125,11 @@ class NavModel
      *  The name of the profile page.
      */
     public function get_profile() {
-        $db_page = $this->db->fetch_page_info("profile");
+        $keyword = "profile-link";
+        $db_page = $this->db->fetch_page_info($keyword);
         $pages = $this->prepare_pages(array($db_page));
-        if(array_key_exists("profile", $pages))
-            return $pages["profile"];
+        if(array_key_exists($keyword, $pages))
+            return $pages[$keyword];
         else
             return array();
     }
