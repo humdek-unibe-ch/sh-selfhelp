@@ -60,27 +60,116 @@ class PageDb extends BaseDb
      *
      * @param string $keyword
      *  The keyword identifying the page.
+     * @retval array
+     *  The db result array.
      */
     public function fetch_page_info($keyword)
     {
-        $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT p.id, p.keyword, p.url, pft.content AS title
-            FROM pages AS p
-            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE keyword=:keyword AND $locale_cond
-            AND f.name = 'label'";
+        $page_info = array(
+            "title" => "Unknown",
+            "keyword" => $keyword,
+            "url" => "",
+            "id" => 0
+        );
+        $sql = "SELECT p.id, p.keyword, p.url
+            FROM pages AS p WHERE keyword=:keyword";
         $info = $this->query_db_first($sql, array(":keyword" => $keyword));
         if($info)
-            return $info;
-        else
-            return array(
-                "title" => "Unknown",
-                "keyword" => "",
-                "url" => "/",
-                "id" => 0
-            );
+        {
+            $page_info["url"] = $info["url"];
+            $page_info["id"] = intval($info["id"]);
+            $locale_cond = $this->get_locale_condition();
+            $sql = "SELECT pft.content AS title
+                FROM pages_fields_translation AS pft
+                LEFT JOIN languages AS l ON l.id = pft.id_languages
+                LEFT JOIN fields AS f ON f.id = pft.id_fields
+                WHERE pft.id_pages = :id AND $locale_cond AND f.name = 'label'";
+            $info = $this->query_db_first($sql,
+                array(":id" => $page_info["id"]));
+            if($info)
+                $page_info["title"] = $info["title"];
+        }
+        return $page_info;
+
+    }
+
+    /**
+     * Fetch all section ids that are associated to a page.
+     *
+     * @param string $keyword
+     *  The router keyword of the page.
+     * @retval array
+     *  The db result array where each entry has an 'id' field.
+     */
+    public function fetch_page_sections($keyword)
+    {
+        $sql = "SELECT ps.id_sections AS id FROM pages_sections AS ps
+            LEFT JOIN pages AS p ON ps.id_pages = p.id
+            WHERE p.keyword = :keyword
+            ORDER BY ps.position";
+        return $this->query_db($sql, array(":keyword" => $keyword));
+    }
+
+    /**
+     * Fetch the content of the page fields from the database given a page
+     * keyword.
+     *
+     * @param string $keyword
+     *  The router keyword of the page.
+     * @retval array
+     *  The db result array where each entry has the following fields
+     *   'name': the name of the page field
+     *   'content': the content of the page field
+     */
+    public function fetch_page_fields($keyword)
+    {
+        $locale_cond = $this->get_locale_condition();
+        $sql = "SELECT f.name, pft.content
+            FROM pages_fields_translation AS pft
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            LEFT JOIN pages AS p ON p.id = pft.id_pages
+            WHERE p.keyword = :keyword AND $locale_cond";
+        return $this->query_db($sql, array(":keyword" => $keyword));
+    }
+
+    /**
+     * Fetch all section ids that are associated to a parent section.
+     *
+     * @param int $id
+     *  The id of the section.
+     * @retval array
+     *  The db result array where each entry has an 'id' field.
+     */
+    public function fetch_section_children($id)
+    {
+        $sql = "SELECT sh.child AS id FROM sections_hierarchy AS sh
+            WHERE sh.parent = :id
+            ORDER BY sh.position";
+        return $this->query_db($sql, array(":id" => $id));
+    }
+
+    /**
+     * Fetch the content of the section fields from the database given a section
+     * id.
+     *
+     * @param int $id
+     *  The id of the section.
+     * @retval array
+     *  The db result array where each entry has the following fields
+     *   'name': the name of the section field
+     *   'content': the content of the section field
+     */
+    public function fetch_section_fields($id)
+    {
+        $locale_cond = $this->get_locale_condition();
+        $sql = "SELECT f.name, sft.content
+            FROM sections_fields_translation AS sft
+            LEFT JOIN fields AS f ON f.id = sft.id_fields
+            LEFT JOIN languages AS l ON l.id = sft.id_languages
+            WHERE sft.id_sections = :id AND $locale_cond";
+
+        return $this->query_db($sql, array(":id" => $id));
     }
 }
 ?>
