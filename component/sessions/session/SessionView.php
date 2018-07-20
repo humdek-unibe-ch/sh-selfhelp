@@ -1,0 +1,81 @@
+<?php
+require_once __DIR__ . "/../../IView.php";
+
+/**
+ * The view class of the session component.
+ */
+class SessionView implements IView
+{
+    /* Private Properties *****************************************************/
+
+    private $router;
+    private $model;
+    private $nav;
+
+    /* Constructors ***********************************************************/
+
+    /**
+     * The constructor.
+     *
+     * @param object $router
+     *  The router instance which is used to generate valid links.
+     * @param object $model
+     *  The model instance of the login component.
+     * @param object $nav
+     *  The session navigation component.
+     */
+    public function __construct($router, $model, $nav)
+    {
+        $this->nav = $nav;
+        $this->router = $router;
+        $this->model = $model;
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * Render the session navigation component.
+     */
+    private function output_nav()
+    {
+        $this->nav->output_content();
+    }
+
+    /**
+     * Render a button if the url is not empty.
+     *
+     * @param string $label
+     *  The label of the button.
+     * @param string $url
+     *  The url of the button.
+     */
+    private function output_button($label, $url)
+    {
+        if($url == "") return;
+        require __DIR__ . "/tpl_button.php";
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Render the login view.
+     */
+    public function output_content()
+    {
+        $url_next = "";
+        $next_id = $this->nav->get_next_session_id();
+        if($next_id != false)
+            $url_next = $this->router->generate("session",
+                array("id" => $next_id));
+        $label_next = $this->model->get_next_label();;
+        $url_back = "";
+        $prev_id = $this->nav->get_previous_session_id();
+        if($prev_id != false)
+            $url_back = $this->router->generate("session",
+                array("id" => $prev_id));
+        $label_back = $this->model->get_back_label();
+        $title = $this->model->get_title();
+        require __DIR__ . "/tpl_session.php";
+    }
+}
+?>

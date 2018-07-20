@@ -6,6 +6,7 @@ require_once "./service/Login.php";
 require_once "./page/HomePage.php";
 require_once "./page/LoginPage.php";
 require_once "./page/SectionPage.php";
+require_once "./page/SessionPage.php";
 require_once "./page/ComponentPage.php";
 
 $router = new Router();
@@ -19,6 +20,10 @@ $router->map( 'GET', '/', function($router) {
     $page->output();
 }, 'home');
 $router->map( 'GET', '/sitzungen', 'component', 'sessions');
+$router->map( 'GET', '/sitzungen/[i:id]', function($router, $id) {
+    $page = new SessionPage($router, intval($id));
+    $page->output();
+}, 'session');
 $router->map( 'GET', '/protokolle', 'sections', 'protocols');
 $router->map( 'GET', '/kontakt', 'sections', 'contact');
 $router->map( 'GET|POST', '/login', function($router) {
