@@ -45,6 +45,7 @@ class NavModel
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
             WHERE p.parent = :parent AND $locale_cond AND f.name = 'label'
+            AND p.nav_position > 0
             ORDER BY p.nav_position";
         $pages_db = $this->db->query_db($sql, array(":parent" => $id_parent));
         return $this->prepare_pages($pages_db);
@@ -65,6 +66,7 @@ class NavModel
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
             WHERE p.nav_position > 0 AND $locale_cond AND f.name = 'label'
+            AND p.parent IS NULL
             ORDER BY p.nav_position";
         $pages_db = $this->db->query_db($sql, array());
         return $this->prepare_pages($pages_db);
