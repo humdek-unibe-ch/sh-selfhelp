@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../../style/BaseStyleComponent.php";
 
 /**
  * The view class of the session component.
@@ -47,7 +48,9 @@ class SessionView extends BaseView
     private function output_button($label, $url)
     {
         if($url == "") return;
-        require __DIR__ . "/tpl_button.php";
+        $button = new BaseStyleComponent("button",
+            array("label" => $label, "url" => $url));
+        $button->output_content();
     }
 
     /* Public Methods *********************************************************/

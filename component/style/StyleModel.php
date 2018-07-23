@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
+require_once __DIR__ . "/StyleComponent.php";
 /**
  * This class is used to prepare all data related to the style component such
  * that the data can easily be displayed in the view of the component.
@@ -22,14 +23,19 @@ class StyleModel extends BaseModel
      *  The db instance which grants access to the DB.
      * @param int $id
      *  The id of the database section item to be rendered.
+     * @param array $children
+     *  An array of StyleComponent() obejcts, representing the children of this
+     *  style.
      */
-    public function __construct($router, $db, $id)
+    public function __construct($router, $db, $id, $children)
     {
         parent::__construct($router, $db);
         $this->section = $db->select_by_uid_join("sections", $id);
 
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
+
+        $this->db_fields["children"] = $children;
     }
 
     /* Private Methods ********************************************************/
@@ -59,6 +65,8 @@ class StyleModel extends BaseModel
         }
     }
 
+    /* Protected Methods ******************************************************/
+
     /**
      * Overrides the method BaseModel::set_db_fields($fields).
      * Set the db_fields attribute of the model. Each field is assigned as an
@@ -87,32 +95,28 @@ class StyleModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
+     * Returns the db field array where each field item is stores as a key,
+     * value pair. The key corresponds to the name of the field and the value to
+     * the content of the field.
+     *
+     * @retval array
+     *  The key, value pairs describing data fields.
+     */
+    public function get_db_fields()
+    {
+        return $this->db_fields;
+    }
+
+    /**
      * Returns the style name. This will be used to load the corresponding
      * template.
      *
      * @retval string
      *  The style name.
      */
-    public function get_tpl_name()
+    public function get_style_name()
     {
         return $this->section['name_styles'];
-    }
-
-    /**
-     * Returns the children section ids of a saection fomr the database.
-     *
-     * @param int $id
-     *  The id of the parent section.
-     * @retval array
-     *  An array containing the children section ids stored as 'id' => <id>.
-     */
-    public function fetch_section_children($id)
-    {
-        $sql = "SELECT child AS id FROM sections_hierarchy
-            WHERE parent = :id
-            ORDER BY position";
-
-        return $this->db->query_db($sql, array(":id" => $id));
     }
 }
 ?>

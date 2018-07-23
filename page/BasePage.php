@@ -81,8 +81,8 @@ abstract class BasePage
      */
     private function output_css_includes()
     {
-        $this->css_includes = array_merge($this->css_includes,
-            $this->get_css_includes());
+        $this->css_includes = array_unique(array_merge($this->css_includes,
+            $this->get_css_includes()));
         foreach($this->css_includes as $css_include)
         {
             $include_path = $this->router->get_asset_path($css_include);
@@ -95,8 +95,8 @@ abstract class BasePage
      */
     private function output_js_includes()
     {
-        $this->js_includes = array_merge($this->js_includes,
-            $this->get_js_includes());
+        $this->js_includes = array_unique(array_merge($this->js_includes,
+            $this->get_js_includes()));
         foreach($this->js_includes as $js_include)
         {
             $include_path = $this->router->get_asset_path($js_include);

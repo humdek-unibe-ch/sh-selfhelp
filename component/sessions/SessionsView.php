@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseView.php";
+require_once __DIR__ . "/../style/BaseStyleComponent.php";
 
 /**
  * The view class of the sessions component.
@@ -33,9 +34,9 @@ class SessionsView extends BaseView
      */
     private function output_intro()
     {
-        $paragraphs = preg_split("/\R\R+/", $this->model->get_db_field('text'));
-        foreach($paragraphs as $text)
-            require __DIR__ . "/tpl_paragraph.php";
+        $text = new BaseStyleComponent("plaintext",
+            array("text" => $this->model->get_db_field('text')));
+        $text->output_content();
     }
 
     /**

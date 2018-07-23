@@ -19,7 +19,7 @@ abstract class BaseView
      * @param object $controller
      *  The controler instance that is used to handle user interaction.
      */
-    public function __construct($model, $controller = Null)
+    public function __construct($model = null, $controller = null)
     {
         $this->model = $model;
         $this->controller = $controller;
