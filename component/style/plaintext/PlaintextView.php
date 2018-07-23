@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../../BaseView.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Parsedown.php";
 
 /**
  * The view class of the plaintext style component.
@@ -26,9 +27,8 @@ class PLaintextView extends BaseView
      */
     public function output_content()
     {
-        $paragraphs = preg_split("/\R\R+/", $this->model->get_db_field('text'));
-        foreach($paragraphs as $text)
-            require __DIR__ . "/tpl_plaintext.php";
+        $parsedown = new Parsedown();
+        echo $parsedown->text($this->model->get_db_field('text'));
     }
 }
 ?>
