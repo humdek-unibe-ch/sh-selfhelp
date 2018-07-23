@@ -13,7 +13,7 @@
                     <h5 class="m-0"><?php echo $login_title; ?></h5>
                 </div>
                 <div class="card-body">
-                    <form action="<?php echo $this->router->generate("login"); ?>" method="post">
+                    <form action="<?php echo $url; ?>" method="post">
                         <div class="form-group">
                             <input type="email" class="form-control" name="email" placeholder="<?php echo $user_label; ?>" required>
                         </div>

@@ -1,48 +1,25 @@
 <?php
+require_once __DIR__ . "/../BaseView.php";
+
 /**
  * The view class of the footer component.
  */
-class FooterView implements IView
+class FooterView extends BaseView
 {
-    /* Private Properties *****************************************************/
-
-    private $router;
-    private $model;
-
     /* Constructors ***********************************************************/
 
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
      * @param object $model
      *  The model instance of the footer component.
      */
-    public function __construct($router, $model)
+    public function __construct($model)
     {
-        $this->router = $router;
-        $this->model = $model;
+        parent::__construct($model);
     }
 
     /* Private Methods ********************************************************/
-
-    /**
-     * Determines wheter a link is active or not and returns a css class
-     * accordingly.
-     *
-     * @param string $route_name
-     *  The identification string of a route.
-     * @retval string
-     *  Returns "active" if the route is the active route, an empty string
-     *  otherwise.
-     */
-    private function get_active_css($route_name)
-    {
-        if($this->router->is_active($route_name))
-            return "active";
-        return '';
-    }
 
     /**
      * Render a footer link.
@@ -54,6 +31,8 @@ class FooterView implements IView
      */
     private function output_footer_link($key, $page_name)
     {
+        $active = ($this->model->is_link_active($key)) ? "active" : "";
+        $url = $this->model->get_link_url($key);
         require __DIR__ . "/tpl_footer_link.php";
     }
 
@@ -73,6 +52,20 @@ class FooterView implements IView
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Get css include files required for this component. This overrides the 
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes()
+    {
+        return array(
+            __DIR__ . "/footer.css"
+        );
+    }
 
     /**
      * Render the footer view.

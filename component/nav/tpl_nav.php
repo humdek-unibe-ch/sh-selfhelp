@@ -1,6 +1,6 @@
 <div class="container-fluid p-0">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="<?php echo $this->router->generate( 'home' ); ?>">
+        <a class="navbar-brand" href="<?php echo $home_url; ?>">
             <?php echo $home; ?>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

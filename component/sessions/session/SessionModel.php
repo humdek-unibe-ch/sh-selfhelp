@@ -1,13 +1,13 @@
 <?php
+require_once __DIR__ . "/../../BaseModel.php";
 /**
  * This class is used to prepare all data related to the session component such
  * that the data can easily be displayed in the view of the component.
  */
-class SessionModel
+class SessionModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
-    private $db;
     private $id;
     private $section_fields;
     private $page_fields;
@@ -17,13 +17,16 @@ class SessionModel
     /**
      * The constructor fetches all session related fields from the database.
      *
+     * @param object $router
+     *  The router instance which is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
      */
-    public function __construct($db, $id)
+    public function __construct($router, $db, $id)
     {
-        $this->db = $db;
-        $this->fields = array();
+        parent::__construct($router, $db);
+        $this->section_fields = array();
+        $this->page_fields = array();
         $db_fields = $this->db->fetch_section_fields($id);
         foreach($db_fields as $field)
             $this->section_fields[$field['name']] = $field['content'];

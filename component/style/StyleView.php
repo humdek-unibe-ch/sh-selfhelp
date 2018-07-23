@@ -1,14 +1,13 @@
 <?php
-require_once __DIR__ . "/../IView.php";
+require_once __DIR__ . "/../BaseView.php";
 
 /**
  * The view class of the style component.
  */
-class StyleView implements IView
+class StyleView extends BaseView
 {
     /* Private Properties *****************************************************/
 
-    private $model;
     private $fluid;
     private $children;
 
@@ -25,8 +24,8 @@ class StyleView implements IView
      */
     public function __construct($model, $children, $fluid)
     {
+        parent::__construct($model);
         $this->children = $children;
-        $this->model = $model;
         $this->fluid = $fluid;
     }
 

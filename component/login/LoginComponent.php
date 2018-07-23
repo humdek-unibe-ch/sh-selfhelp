@@ -25,26 +25,10 @@ class LoginComponent extends BaseComponent
      */
     public function __construct($router, $db, $login)
     {
-        $model = new LoginModel($db);
+        $model = new LoginModel($router, $db);
         $controller = new LoginController($router, $login);
-        $view = new LoginView($router, $model, $controller);
+        $view = new LoginView($model, $controller);
         parent::__construct($view);
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes()
-    {
-        return array(
-            __DIR__ . "/login.css"
-        );
     }
 }
 ?>

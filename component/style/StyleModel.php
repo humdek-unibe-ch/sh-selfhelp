@@ -1,16 +1,14 @@
 <?php
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the style component such
  * that the data can easily be displayed in the view of the component.
  */
-class StyleModel
+class StyleModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
     private $section;
-    private $fields;
-    private $router;
-    private $db;
 
     /* Constructors ***********************************************************/
 
@@ -27,28 +25,14 @@ class StyleModel
      */
     public function __construct($router, $db, $id)
     {
-        $this->router = $router;
-        $this->db = $db;
+        parent::__construct($router, $db);
         $this->section = $db->select_by_uid_join("sections", $id);
 
-        $this->fields = $this->fetch_section_content($id);
+        $fields = $this->db->fetch_section_fields($id);
+        $this->set_db_fields($fields);
     }
-    /* Private Methods ********************************************************/
 
-    /**
-     * Fetch the content of the section fields from the database given a section
-     * id.
-     *
-     * @param int $id
-     *  The id of the section.
-     * @retval array
-     *  An array prepared by StyleModel::prepare_section.
-     */
-    private function fetch_section_content($id)
-    {
-        $db_fields = $this->db->fetch_section_fields($id);
-        return $this->prepare_section($id, $db_fields);
-    }
+    /* Private Methods ********************************************************/
 
     /**
      * Returns an url given a router keyword. The keyword :back will generate
@@ -76,46 +60,31 @@ class StyleModel
     }
 
     /**
-     * Prepare the fields array of section fields.
+     * Overrides the method BaseModel::set_db_fields($fields).
+     * Set the db_fields attribute of the model. Each field is assigned as an
+     * key => value element where the key is the field name and the value the
+     * field content.
      *
-     * @param int $id
-     *  The id of the section.
-     * @param array $db_fields
-     *  An associative array returned by a db querry.
-     * @retval array
-     *  An array of the from <field_name> => <field_content>.
+     * If the field name is 'url', a specifig url is generated. See
+     * StyleModel::get_url($url).
+     *
+     * @param array $fields
+     *  An array of field items where one item is an associative array of the
+     *  form:
+     *   "name" => name of the db field
+     *   "content" => the content of the db field
      */
-    private function prepare_section($id, $db_fields)
+    protected function set_db_fields($fields)
     {
-        $fields = array();
-        foreach($db_fields as $field)
+        foreach($fields as $field)
         {
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);
-            $fields[$field['name']] = $field['content'];
+            $this->db_fields[$field['name']] = $field['content'];
         }
-        return $fields;
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Returns the data filed given a specific key. If the key does not exist,
-     * an empty string is returned.
-     *
-     * @param string $key
-     *  The field name.
-     * @retval string
-     *  The content of the filed specified by the key. An empty string if the
-     *  key does not exist.
-     */
-    public function get_db_field($key)
-    {
-        if(array_key_exists($key, $this->fields))
-            return $this->fields[$key];
-        else
-            return "";
-    }
 
     /**
      * Returns the style name. This will be used to load the corresponding

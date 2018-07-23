@@ -1,3 +1,3 @@
-<a class="text-dark small <?php echo $this->get_active_css($key); ?>" href="<?php echo $this->router->generate($key); ?>">
+<a class="text-dark small <?php echo $active; ?>" href="<?php echo $url; ?>">
     <?php echo $page_name; ?>
 </a>

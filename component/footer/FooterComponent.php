@@ -25,25 +25,9 @@ class FooterComponent extends BaseComponent
      */
     public function __construct($router, $db, $acl)
     {
-        $model = new FooterModel($db, $acl);
-        $view = new FooterView($router, $model);
+        $model = new FooterModel($router, $db, $acl);
+        $view = new FooterView($model);
         parent::__construct($view);
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the 
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes()
-    {
-        return array(
-            __DIR__ . "/footer.css"
-        );
     }
 }
 ?>

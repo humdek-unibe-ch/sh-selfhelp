@@ -25,8 +25,8 @@ class NavComponent extends BaseComponent
      */
     public function __construct($router, $db, $acl)
     {
-        $model = new NavModel($db, $acl);
-        $view = new NavView($router, $model);
+        $model = new NavModel($router, $db, $acl);
+        $view = new NavView($model);
         parent::__construct($view);
     }
 }

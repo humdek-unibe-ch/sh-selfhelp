@@ -28,8 +28,8 @@ class SessionComponent extends BaseComponent
     public function __construct($router, $db, $id)
     {
         $this->nav = new NavSectionComponent($router, $db, "session-navigation", $id);
-        $model = new SessionModel($db, $id);
-        $view = new SessionView($router, $model, $this->nav);
+        $model = new SessionModel($router, $db, $id);
+        $view = new SessionView($model, $this->nav);
         parent::__construct($view);
     }
 

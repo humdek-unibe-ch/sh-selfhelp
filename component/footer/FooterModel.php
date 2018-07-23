@@ -1,13 +1,13 @@
 <?php
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the footer component such
  * that the data can easily be displayed in the view of the component.
  */
-class FooterModel
+class FooterModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
-    private $db;
     private $acl;
 
     /* Constructors ***********************************************************/
@@ -15,16 +15,18 @@ class FooterModel
     /**
      * The constructor.
      *
+     * @param object $router
+     *  The router instance which is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
      * @param object $acl
      *  The instnce of the access control layer (ACL) which allows to decide
      *  which links to display.
      */
-    public function __construct($db, $acl)
+    public function __construct($router, $db, $acl)
     {
+        parent::__construct($router, $db);
         $this->acl = $acl;
-        $this->db = $db;
     }
 
     /* Public Methods *********************************************************/

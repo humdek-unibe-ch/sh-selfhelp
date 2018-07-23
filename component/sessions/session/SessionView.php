@@ -1,15 +1,13 @@
 <?php
-require_once __DIR__ . "/../../IView.php";
+require_once __DIR__ . "/../../BaseView.php";
 
 /**
  * The view class of the session component.
  */
-class SessionView implements IView
+class SessionView extends BaseView
 {
     /* Private Properties *****************************************************/
 
-    private $router;
-    private $model;
     private $nav;
 
     /* Constructors ***********************************************************/
@@ -17,18 +15,15 @@ class SessionView implements IView
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
      * @param object $model
      *  The model instance of the login component.
      * @param object $nav
      *  The session navigation component.
      */
-    public function __construct($router, $model, $nav)
+    public function __construct($model, $nav)
     {
+        parent::__construct($model);
         $this->nav = $nav;
-        $this->router = $router;
-        $this->model = $model;
     }
 
     /* Private Methods ********************************************************/
@@ -65,13 +60,13 @@ class SessionView implements IView
         $url_next = "";
         $next_id = $this->nav->get_next_id();
         if($next_id != false)
-            $url_next = $this->router->generate("session",
+            $url_next = $this->model->get_link_url("session",
                 array("id" => $next_id));
         $label_next = $this->model->get_next_label();;
         $url_back = "";
         $prev_id = $this->nav->get_previous_id();
         if($prev_id != false)
-            $url_back = $this->router->generate("session",
+            $url_back = $this->model->get_link_url("session",
                 array("id" => $prev_id));
         $label_back = $this->model->get_back_label();
         $title = $this->model->get_title();

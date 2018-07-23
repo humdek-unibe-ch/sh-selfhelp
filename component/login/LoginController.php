@@ -1,9 +1,10 @@
 <?php
+require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the login component. Note that this class performs
  * a page redirect upon successful login.
  */
-class LoginController
+class LoginController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -24,6 +25,7 @@ class LoginController
      */
     public function __construct($router, $login)
     {
+        parent::__construct();
         $this->failed = false;
         if($login->is_logged_in())
             $login->logout();

@@ -1,13 +1,13 @@
 <?php
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the navSection component
  * such that the data can easily be displayed in the view of the component.
  */
-class NavSectionModel
+class NavSectionModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
-    private $db;
     private $items_tree;
     private $items_list;
     private $root_id;
@@ -19,6 +19,8 @@ class NavSectionModel
     /**
      * The constructor.
      *
+     * @param object $router
+     *  The router instance which is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
      * @param int $root_id
@@ -26,9 +28,9 @@ class NavSectionModel
      * @param int $current_id
      *  The id of the current section.
      */
-    public function __construct($db, $root_id, $current_id)
+    public function __construct($router, $db, $root_id, $current_id)
     {
-        $this->db = $db;
+        parent::__construct($router, $db);
         $this->root_id = $root_id;
         $this->current_id = ($current_id == 0) ? $root_id : $current_id;
         $this->items_list = array();

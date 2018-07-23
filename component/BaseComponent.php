@@ -7,17 +7,22 @@ abstract class BaseComponent
     /* Private Properties *****************************************************/
 
     private $view;
+    private $controller;
 
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor requires the view instance of a component to iprovide a 
-     * function to render the output of the component.
+     * The constructor requires the view instance of a component to iprovide a
+     * function to render the output of the component. It further requires the
+     * view and the controller instance to include the necessary css and js
+     * files.
      *
      * @param object $view
      *  The view instance of the component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
-    public function __construct($view)
+    public function __construct($view, $controller=null)
     {
         $this->view = $view;
     }
@@ -43,7 +48,7 @@ abstract class BaseComponent
      */
     public function get_css_includes()
     {
-        return array();
+        return $this->view->get_css_includes();
     }
 
     /**
@@ -57,7 +62,10 @@ abstract class BaseComponent
      */
     public function get_js_includes()
     {
-        return array();
+        if($this->controller == null)
+            return array();
+        else
+            return $this->controller->get_js_includes();
     }
 }
 ?>

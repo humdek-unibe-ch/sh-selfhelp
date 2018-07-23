@@ -34,8 +34,8 @@ class NavSectionComponent extends BaseComponent
         $id_db = $db->query_db_first($sql, array(":keyword" => $keyword));
         if($id_db) $root_id = $id_db['id'];
         else throw new Exception("unknown navigation name '$keyword'");
-        $this->model = new NavSectionModel($db, $root_id, $current_id);
-        $view = new NavSectionView($router, $this->model);
+        $this->model = new NavSectionModel($router, $db, $root_id, $current_id);
+        $view = new NavSectionView($this->model);
         parent::__construct($view);
     }
 

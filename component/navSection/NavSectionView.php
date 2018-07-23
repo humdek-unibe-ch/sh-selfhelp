@@ -1,30 +1,22 @@
 <?php
-require_once __DIR__ . "/../IView.php";
+require_once __DIR__ . "/../BaseView.php";
 
 /**
  * The view class of the section navigation component.
  */
-class NavSectionView implements IView
+class NavSectionView extends BaseView
 {
-    /* Private Properties *****************************************************/
-
-    private $router;
-    private $model;
-
     /* Constructors ***********************************************************/
 
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
      * @param object $model
      *  The model instance of the login component.
      */
-    public function __construct($router, $model)
+    public function __construct($model)
     {
-        $this->router = $router;
-        $this->model = $model;
+        parent::__construct($model);
     }
 
     /* Private Methods ********************************************************/
@@ -93,7 +85,7 @@ class NavSectionView implements IView
         $active = "";
         if($child['id'] == $this->model->get_current_id())
             $active = "active";
-        $child['url'] = $this->router->generate("session",
+        $child['url'] = $this->model->get_link_url("session",
             array("id" => intval($child['id'])));
         if($first)
         {

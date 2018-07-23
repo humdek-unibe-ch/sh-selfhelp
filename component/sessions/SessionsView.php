@@ -1,15 +1,13 @@
 <?php
-require_once __DIR__ . "/../IView.php";
+require_once __DIR__ . "/../BaseView.php";
 
 /**
  * The view class of the sessions component.
  */
-class SessionsView implements IView
+class SessionsView extends BaseView
 {
     /* Private Properties *****************************************************/
 
-    private $router;
-    private $model;
     private $nav;
 
     /* Constructors ***********************************************************/
@@ -17,18 +15,15 @@ class SessionsView implements IView
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
      * @param object $model
      *  The model instance of the login component.
      * @param object $nav
      *  The session navigation component.
      */
-    public function __construct($router, $model, $nav)
+    public function __construct($model, $nav)
     {
+        parent::__construct($model);
         $this->nav = $nav;
-        $this->router = $router;
-        $this->model = $model;
     }
 
     /* Private Methods ********************************************************/
