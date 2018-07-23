@@ -73,7 +73,7 @@ class SessionsView implements IView
     public function output_content()
     {
         $count = 0;
-        $count_max = $this->nav->get_session_count();
+        $count_max = $this->nav->get_count();
         $progress = round($count / $count_max * 100);
         $next_url = "#";
         $title = $this->model->get_db_field('title');

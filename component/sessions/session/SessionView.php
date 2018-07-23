@@ -63,13 +63,13 @@ class SessionView implements IView
     public function output_content()
     {
         $url_next = "";
-        $next_id = $this->nav->get_next_session_id();
+        $next_id = $this->nav->get_next_id();
         if($next_id != false)
             $url_next = $this->router->generate("session",
                 array("id" => $next_id));
         $label_next = $this->model->get_next_label();;
         $url_back = "";
-        $prev_id = $this->nav->get_previous_session_id();
+        $prev_id = $this->nav->get_previous_id();
         if($prev_id != false)
             $url_back = $this->router->generate("session",
                 array("id" => $prev_id));

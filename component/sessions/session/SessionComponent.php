@@ -2,7 +2,7 @@
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/SessionView.php";
 require_once __DIR__ . "/SessionModel.php";
-require_once __DIR__ . "/../sessionsNav/SessionsNavComponent.php";
+require_once __DIR__ . "/../../navSection/NavSectionComponent.php";
 
 /**
  * A component to for a single, generic session
@@ -27,7 +27,7 @@ class SessionComponent extends BaseComponent
      */
     public function __construct($router, $db, $id)
     {
-        $this->nav = new SessionsNavComponent($router, $db, $id);
+        $this->nav = new NavSectionComponent($router, $db, "session-navigation", $id);
         $model = new SessionModel($db, $id);
         $view = new SessionView($router, $model, $this->nav);
         parent::__construct($view);

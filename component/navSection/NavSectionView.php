@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../IView.php";
+require_once __DIR__ . "/../IView.php";
 
 /**
- * The view class of the sessions navigation component.
+ * The view class of the section navigation component.
  */
-class SessionsNavView implements IView
+class NavSectionView implements IView
 {
     /* Private Properties *****************************************************/
 
@@ -30,19 +30,19 @@ class SessionsNavView implements IView
     /* Private Methods ********************************************************/
 
     /**
-     * Checks whether the current session id belongs to the root section in
-     * order to decide whether a root session element needs to be expanded.
+     * Checks whether the current item id belongs to the root section in
+     * order to decide whether a root item element needs to be expanded.
      *
      * @param array $child_root
-     *  A root session array.
+     *  A root navigation array.
      *
      * @return bool
-     *  true if the current session id belongs to the root session, false
+     *  true if the current item id belongs to the root item, false
      *  otherwise.
      */
     private function is_child_active($child_root)
     {
-        $id = $this->model->get_current_session_id();
+        $id = $this->model->get_current_id();
         if($child_root['id'] == $id)
             return true;
         foreach($child_root['children'] as $child)
@@ -52,11 +52,11 @@ class SessionsNavView implements IView
     }
 
     /**
-     * Render all root session items.
+     * Renders all root navigation items.
      */
     private function output_root_children()
     {
-        $item_label = $this->model->get_item_label();
+        $item_label = $this->model->get_item_prefix();
         $children = $this->model->get_children();
         foreach($children as $index => $child)
         {
@@ -68,7 +68,7 @@ class SessionsNavView implements IView
     }
 
     /**
-     * Render all child session items.
+     * Renders all child navigation items.
      *
      * @param array $children
      *  An array hodling the session children to be rendered.
@@ -80,18 +80,18 @@ class SessionsNavView implements IView
     }
 
     /**
-     * Render a session item.
+     * Renders a navigation item.
      *
      * @param array $child
-     *  An associative array holding the fields of a session item.
+     *  An associative array holding the fields of a navigation item.
      * @param bool $first
-     *  A flag, indicating whether the item to be rendered is the first item,
-     *  which corresponds to the root session.
+     *  A flag, indicating whether the item to be rendered is the first item
+     *  (which corresponds to the root navigation item).
      */
     private function output_child($child, $first=false)
     {
         $active = "";
-        if($child['id'] == $this->model->get_current_session_id())
+        if($child['id'] == $this->model->get_current_id())
             $active = "active";
         $child['url'] = $this->router->generate("session",
             array("id" => intval($child['id'])));
@@ -110,7 +110,7 @@ class SessionsNavView implements IView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_sessionsNav.php";
+        require __DIR__ . "/tpl_navSection.php";
     }
 }
 ?>
