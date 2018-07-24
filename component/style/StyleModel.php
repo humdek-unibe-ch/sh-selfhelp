@@ -30,6 +30,8 @@ class StyleModel extends BaseModel
     public function __construct($router, $db, $id, $children)
     {
         parent::__construct($router, $db);
+        $this->db_fields['id'] = $id;
+
         $this->section = $db->select_by_uid_join("sections", $id);
 
         $fields = $this->db->fetch_section_fields($id);

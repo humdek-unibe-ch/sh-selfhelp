@@ -63,10 +63,7 @@ abstract class BaseComponent
      */
     public function get_js_includes()
     {
-        if($this->controller == null)
-            return array();
-        else
-            return $this->controller->get_js_includes();
+        return $this->view->get_js_includes();
     }
 }
 ?>

@@ -47,12 +47,12 @@ abstract class BasePage
         $this->components = array();
         $this->css_includes = array(
             "/css/bootstrap.min.css",
-            "/css/main.css"
+            "/css/main.css",
         );
         $this->js_includes = array(
             "/js/jquery.min.js",
             "/js/bootstrap.min.js",
-            "/js/main.js"
+            "/js/main.js",
         );
         $this->add_component("denied-guest",
             new StyleComponent($this->router, $this->db, NO_ACCESS_GUEST_ID));

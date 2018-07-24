@@ -53,5 +53,17 @@ class StyleView extends BaseView
     {
         return $this->style->get_css_includes();
     }
+
+    /**
+     * Get js include files required for this component. This overrides the 
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes()
+    {
+        return $this->style->get_js_includes();
+    }
 }
 ?>

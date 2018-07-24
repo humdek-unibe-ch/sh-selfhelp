@@ -64,5 +64,22 @@ abstract class BaseView
                 $child->get_css_includes());
         return array_unique($css_includes);
     }
+
+    /**
+     * Get js include files required for this view. By default the js files of
+     * the children of a section are included.
+     *
+     * @retval array
+     *  An array of js include files the view requires. If no overridden, an
+     *  empty array is returned.
+     */
+    public function get_js_includes()
+    {
+        $js_includes = array();
+        foreach($this->children as $child)
+            $js_includes = array_merge($js_includes,
+                $child->get_js_includes());
+        return array_unique($js_includes);
+    }
 }
 ?>
