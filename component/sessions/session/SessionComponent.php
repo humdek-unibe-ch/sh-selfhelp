@@ -24,6 +24,8 @@ class SessionComponent extends BaseComponent
      *  The router instance which is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
+     * @param int $id
+     *  The section id of this session.
      */
     public function __construct($router, $db, $id)
     {

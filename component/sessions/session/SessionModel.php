@@ -6,12 +6,6 @@ require_once __DIR__ . "/../../BaseModel.php";
  */
 class SessionModel extends BaseModel
 {
-    /* Private Properties *****************************************************/
-
-    private $id;
-    private $section_fields;
-    private $page_fields;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -21,6 +15,8 @@ class SessionModel extends BaseModel
      *  The router instance which is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
+     * @param int $id
+     *  The section id of this session.
      */
     public function __construct($router, $db, $id)
     {
@@ -28,12 +24,16 @@ class SessionModel extends BaseModel
         $this->section_fields = array();
         $this->page_fields = array();
         $db_fields = $this->db->fetch_section_fields($id);
-        foreach($db_fields as $field)
-            $this->section_fields[$field['name']] = $field['content'];
+        $this->set_db_fields($db_fields);
 
         $db_fields = $this->db->fetch_page_fields("session");
-        foreach($db_fields as $field)
-            $this->page_fields[$field['name']] = $field['content'];
+        $this->set_db_fields($db_fields);
+
+        $this->db_fields["content"] = array();
+        $children = $this->db->fetch_section_children($id);
+        foreach($children as $child)
+            array_push($this->db_fields["content"],
+               new StyleComponent($router, $db, intval($child['id'])));
     }
 
     /* Public Methods *********************************************************/
@@ -46,7 +46,7 @@ class SessionModel extends BaseModel
      */
     public function get_title()
     {
-        return $this->section_fields["title"];
+        return $this->get_db_field("title");
     }
 
     /**
@@ -57,7 +57,7 @@ class SessionModel extends BaseModel
      */
     public function get_back_label()
     {
-        return $this->page_fields["back"];
+        return $this->get_db_field("back");
     }
 
     /**
@@ -68,7 +68,7 @@ class SessionModel extends BaseModel
      */
     public function get_next_label()
     {
-        return $this->page_fields["next"];
+        return $this->get_db_field("next");
     }
 }
 ?>

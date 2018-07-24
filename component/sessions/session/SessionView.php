@@ -53,6 +53,17 @@ class SessionView extends BaseView
         $button->output_content();
     }
 
+    /**
+     * Render the content of the session view. The content is composed of child
+     * sections.
+     */
+    private function output_section_content()
+    {
+        $children = $this->model->get_db_field("content");
+        foreach($children as $child)
+            $child->output_content();
+    }
+
     /* Public Methods *********************************************************/
 
     /**

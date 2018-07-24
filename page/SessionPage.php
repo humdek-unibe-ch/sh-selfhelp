@@ -22,7 +22,7 @@ class SessionPage extends NavPage
      * @param object $router
      *  The router instance is used to generate valid links.
      * @param string $id
-     *  The d of the session to display.
+     *  The id of the session to display.
      */
     public function __construct($router, $id)
     {
