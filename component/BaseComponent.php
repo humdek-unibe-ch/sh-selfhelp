@@ -25,6 +25,7 @@ abstract class BaseComponent
     public function __construct($view, $controller=null)
     {
         $this->view = $view;
+        $this->controller = $controller;
     }
 
     /* Public Methods *********************************************************/
