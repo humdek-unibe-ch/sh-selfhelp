@@ -1356,7 +1356,7 @@ class Parsedown
                     'src' => $Link['element']['attributes']['href'],
                     'alt' => $Link['element']['handler']['argument'],
                     'style' => $Link['element']['styles'],
-                    'class' => "img-fluid m-3",
+                    'class' => "img-fluid m-3 img-thumbnail",
                 ),
                 'autobreak' => true,
             ),

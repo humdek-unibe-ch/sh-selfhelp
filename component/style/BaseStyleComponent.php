@@ -7,6 +7,7 @@ require_once __DIR__ . "/jumbotron/JumbotronView.php";
 require_once __DIR__ . "/title/TitleView.php";
 require_once __DIR__ . "/plaintext/PlaintextView.php";
 require_once __DIR__ . "/alert/AlertView.php";
+require_once __DIR__ . "/figure/FigureView.php";
 
 /**
  * The class to define the base style component. A base style component serves
@@ -51,6 +52,8 @@ class BaseStyleComponent extends BaseComponent
             $type = $styles[1];
             $view = new AlertView($model, $type, $fluid);
         }
+        else if($styles[0] == "figure")
+            $view = new FigureView($model);
         else
             throw new Exception("unknown style '$style'");
         parent::__construct($view);
