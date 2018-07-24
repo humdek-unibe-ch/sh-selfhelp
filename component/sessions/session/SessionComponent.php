@@ -44,7 +44,8 @@ class SessionComponent extends BaseComponent
      */
     public function get_css_includes()
     {
-        return parent::get_css_includes() + $this->nav->get_css_includes();
+        return array_merge(parent::get_css_includes(),
+            $this->nav->get_css_includes());
     }
 }
 ?>

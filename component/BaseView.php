@@ -60,7 +60,8 @@ abstract class BaseView
     {
         $css_includes = array();
         foreach($this->children as $child)
-            $css_includes += $child->get_css_includes();
+            $css_includes = array_merge($css_includes,
+                $child->get_css_includes());
         return array_unique($css_includes);
     }
 }
