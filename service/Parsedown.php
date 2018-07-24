@@ -1355,6 +1355,8 @@ class Parsedown
                 'attributes' => array(
                     'src' => $Link['element']['attributes']['href'],
                     'alt' => $Link['element']['handler']['argument'],
+                    'style' => $Link['element']['styles'],
+                    'class' => "img-fluid m-3",
                 ),
                 'autobreak' => true,
             ),
@@ -1381,6 +1383,7 @@ class Parsedown
                 'href' => null,
                 'title' => null,
             ),
+            'styles' => array(),
         );
 
         $extent = 0;
@@ -1402,7 +1405,7 @@ class Parsedown
 
         if (preg_match('/^[(]\s*+((?:[^ ()]++|[(][^ )]+[)])++)(?:[ ]+("[^"]*+"|\'[^\']*+\'))?\s*+[)]/', $remainder, $matches))
         {
-            $Element['attributes']['href'] = $matches[1];
+            $Element['attributes']['href'] = BASE_PATH . $matches[1];
 
             if (isset($matches[2]))
             {
@@ -1410,6 +1413,7 @@ class Parsedown
             }
 
             $extent += strlen($matches[0]);
+            $remainder = substr($remainder, strlen($matches[0]));
         }
         else
         {
@@ -1434,6 +1438,12 @@ class Parsedown
 
             $Element['attributes']['href'] = $Definition['url'];
             $Element['attributes']['title'] = $Definition['title'];
+        }
+
+        if (preg_match('/{((?:[^}{]++|(?R))*+)\}/', $remainder, $matches))
+        {
+            $Element['styles'] = $matches[1];
+            $extent += strlen($matches[0]);
         }
 
         return array(
