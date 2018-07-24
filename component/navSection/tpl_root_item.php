@@ -8,7 +8,7 @@
         <div class="card-body">
             <?php
                 $this->output_child($child, true);
-                $this->output_children($child['children']);
+                $this->output_nav_children($child['children']);
             ?>
         </div>
     </div>

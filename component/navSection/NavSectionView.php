@@ -65,7 +65,7 @@ class NavSectionView extends BaseView
      * @param array $children
      *  An array hodling the session children to be rendered.
      */
-    private function output_children($children)
+    private function output_nav_children($children)
     {
         foreach($children as $index => $child)
             $this->output_child($child);
@@ -92,6 +92,7 @@ class NavSectionView extends BaseView
             $child['title'] = "Intro";
             $child['children'] = array();
         }
+        $title = (array_key_exists("title", $child)) ? $child["title"] : "";
         require __DIR__ . "/tpl_item.php";
     }
 

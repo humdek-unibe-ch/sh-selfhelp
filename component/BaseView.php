@@ -8,6 +8,7 @@ abstract class BaseView
 
     protected $model;
     protected $controller;
+    private $children;
 
     /* Constructors ***********************************************************/
 
@@ -23,6 +24,21 @@ abstract class BaseView
     {
         $this->model = $model;
         $this->controller = $controller;
+        if($model != null)
+            $this->children = $this->model->get_db_field("content");
+        if(($this->children == null) || ($this->children == ""))
+            $this->children = array();
+    }
+
+    /* Protected Methods ******************************************************/
+
+    /**
+     * Render the content of all children of this view instance.
+     */
+    protected function output_children()
+    {
+        foreach($this->children as $child)
+            $child->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -33,9 +49,8 @@ abstract class BaseView
     abstract public function output_content();
 
     /**
-     * Get css include files required for this view. Extensions of this class
-     * ought to override this method. By default, a component includes no css
-     * files.
+     * Get css include files required for this view. By default the css files of
+     * the children of a section are included.
      *
      * @retval array
      *  An array of css include files the view requires. If no overridden, an
@@ -43,7 +58,10 @@ abstract class BaseView
      */
     public function get_css_includes()
     {
-        return array();
+        $css_includes = array();
+        foreach($this->children as $child)
+            $css_includes += $child->get_css_includes();
+        return array_unique($css_includes);
     }
 }
 ?>

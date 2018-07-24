@@ -35,6 +35,9 @@ class StyleModel extends BaseModel
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
 
+        $fields = $this->db->fetch_style_fields($this->section['id_styles']);
+        $this->set_db_fields($fields);
+
         $this->db_fields["content"] = $children;
     }
 

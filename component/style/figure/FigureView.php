@@ -20,11 +20,16 @@ class FigureView extends BaseView
         parent::__construct($model);
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     * Render the caption of a figure if it is available.
+     */
     private function output_caption()
     {
         $caption_text = $this->model->get_db_field("caption");
         if($caption_text == "") return;
-        $caption_title = "Abbildung";
+        $caption_title = $this->model->get_db_field("caption_title");
         $parsedown = new parsedown();
         $caption = strip_tags($parsedown->text($caption_text), "<strong><em>");
         require __DIR__ . "/tpl_caption.php";
@@ -38,7 +43,7 @@ class FigureView extends BaseView
     public function output_content()
     {
         $title = $this->model->get_db_field("title");
-        $url = BASE_PATH . $this->model->get_db_field("source");
+        $url = ASSET_PATH . $this->model->get_db_field("source");
         $alt = $this->model->get_db_field("alt");
         require __DIR__ . "/tpl_figure.php";
     }

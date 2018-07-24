@@ -5,7 +5,7 @@
         </div>
         <div class="col-12 col-lg-9">
             <h1><?php echo $title; ?></h1>
-            <?php $this->output_section_content(); ?>
+            <?php $this->output_children(); ?>
             <div>
                 <?php $this->output_button($label_back, $url_back); ?>
                 <?php $this->output_button($label_next, $url_next); ?>

@@ -171,5 +171,28 @@ class PageDb extends BaseDb
 
         return $this->query_db($sql, array(":id" => $id));
     }
+
+    /**
+     * Fetch the content of the style fields from the database given a style
+     * name.
+     *
+     * @param int $id
+     *  The id of the style.
+     * @retval array
+     *  The db result array where each entry has the following fields
+     *   'name': the name of the section field
+     *   'content': the content of the section field
+     */
+    public function fetch_style_fields($id)
+    {
+        $locale_cond = $this->get_locale_condition();
+        $sql = "SELECT f.name, sft.content
+            FROM styles_fields_translation AS sft
+            LEFT JOIN fields AS f ON f.id = sft.id_fields
+            LEFT JOIN languages AS l ON l.id = sft.id_languages
+            WHERE sft.id_styles = :id AND $locale_cond";
+
+        return $this->query_db($sql, array(":id" => $id));
+    }
 }
 ?>

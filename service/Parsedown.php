@@ -1405,7 +1405,7 @@ class Parsedown
 
         if (preg_match('/^[(]\s*+((?:[^ ()]++|[(][^ )]+[)])++)(?:[ ]+("[^"]*+"|\'[^\']*+\'))?\s*+[)]/', $remainder, $matches))
         {
-            $Element['attributes']['href'] = BASE_PATH . $matches[1];
+            $Element['attributes']['href'] = ASSET_PATH . $matches[1];
 
             if (isset($matches[2]))
             {

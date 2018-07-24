@@ -32,22 +32,10 @@ class AlertView extends BaseView
         parent::__construct($model);
     }
 
-    /**
-     * Render the content of the style view. The content is composed of child
-     * sections.
-     */
-    private function output_section_content()
-    {
-        $children = $this->model->get_db_field("content");
-        foreach($children as $child)
-            $child->output_content();
-    }
-
-
     /* Public Methods *********************************************************/
 
     /**
-     * Get css include files required for this component. This overrides the 
+     * Get css include files required for this component. This overrides the
      * parent implementation.
      *
      * @retval array
@@ -55,7 +43,7 @@ class AlertView extends BaseView
      */
     public function get_css_includes()
     {
-        return array(
+        return parent::get_css_includes() + array(
             __DIR__ . "/alert.css"
         );
     }
