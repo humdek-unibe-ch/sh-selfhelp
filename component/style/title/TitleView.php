@@ -6,6 +6,8 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class TitleView extends BaseView
 {
+    /* Private Properties******************************************************/
+
     private $level;
 
     /* Constructors ***********************************************************/

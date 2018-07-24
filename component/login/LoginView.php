@@ -1,11 +1,16 @@
 <?php
 require_once __DIR__ . "/../BaseView.php";
+require_once __DIR__ . "/../style/BaseStyleComponent.php";
 
 /**
  * The view class of the login component.
  */
 class LoginView extends BaseView
 {
+    /* Private Properties******************************************************/
+
+    private $alert;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -19,6 +24,9 @@ class LoginView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
+        $this->alert = new BaseStyleComponent("alert-danger",
+            array("content" => array( new BaseStyleComponent("plaintext",
+                array("text" => $this->model->get_db_field('alert'))))));
     }
 
     /* Private Methods ********************************************************/
@@ -28,9 +36,8 @@ class LoginView extends BaseView
      */
     private function output_alert()
     {
-        $alert = $this->model->get_db_field('alert');
         if($this->controller->has_login_failed())
-            require __DIR__ . "/tpl_alert.php";
+            $this->alert->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -44,9 +51,9 @@ class LoginView extends BaseView
      */
     public function get_css_includes()
     {
-        return array(
-            __DIR__ . "/login.css"
-        );
+        $res = ($this->alert == null) ? array() : $this->alert->get_css_includes();
+        array_push($res, __DIR__ . "/login.css");
+        return $res;
     }
 
     /**

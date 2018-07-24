@@ -6,6 +6,7 @@ require_once __DIR__ . "/link/LinkView.php";
 require_once __DIR__ . "/jumbotron/JumbotronView.php";
 require_once __DIR__ . "/title/TitleView.php";
 require_once __DIR__ . "/plaintext/PlaintextView.php";
+require_once __DIR__ . "/alert/AlertView.php";
 
 /**
  * The class to define the base style component. A base style component serves
@@ -30,22 +31,28 @@ class BaseStyleComponent extends BaseComponent
      */
     public function __construct($style, $fields, $fluid=false)
     {
+        $styles = explode('-', $style);
         $model = new BaseStyleModel($fields);
-        if($style == "button")
+        if($styles[0] == "button")
             $view = new ButtonView($model);
-        else if($style == "link")
+        else if($styles[0] == "link")
             $view = new LinkView($model);
-        else if($style == "jumbotron")
+        else if($styles[0] == "jumbotron")
             $view = new JumbotronView($model, $fluid);
-        else if($style == "plaintext")
+        else if($styles[0] == "plaintext")
             $view = new PlaintextView($model);
-        else if(preg_replace("/[0-9]+/", "", $style) == "title")
+        else if($styles[0] == "title")
         {
-            $level = intval(str_replace("title", "", $style));
+            $level = intval($styles[1]);
             $view = new TitleView($model, $level);
         }
+        else if($styles[0] == "alert")
+        {
+            $type = $styles[1];
+            $view = new AlertView($model, $type, $fluid);
+        }
         else
-            throw("unknown style '$style'");
+            throw new Exception("unknown style '$style'");
         parent::__construct($view);
     }
 }
