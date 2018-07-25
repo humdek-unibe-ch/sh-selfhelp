@@ -112,6 +112,10 @@ class NavView extends BaseView
         $home = $this->model->get_home();
         $login = $this->model->get_login();
         $profile = $this->model->get_profile();
+        $profile_title = array_key_exists("title", $profile) ?
+            $profile["title"] : "";
+        $profile_children = array_key_exists("children", $profile) ?
+            $profile["children"] : array();
         require __DIR__ . "/tpl_nav.php";
     }
 }
