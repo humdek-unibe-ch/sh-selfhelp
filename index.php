@@ -26,7 +26,7 @@ $router->map( 'GET', '/sitzungen/[i:id]', function($router, $id) {
 $router->map( 'GET', '/protokolle', 'sections', 'protocols');
 $router->map( 'GET', '/kontakt', 'sections', 'contact');
 $router->map( 'GET|POST', '/login', 'component', 'login');
-$router->map( 'GET', '/profile', 'sections', 'profile');
+$router->map( 'GET|POST', '/profile', 'component', 'profile');
 $router->map( 'GET', '/impressum', 'sections', 'impressum');
 $router->map( 'GET', '/disclaimer', 'sections', 'disclaimer');
 $router->map( 'GET', '/agb', 'sections', 'agb');

@@ -1,0 +1,8 @@
+div.card.danger {
+    border-color: #dc3545;
+}
+
+div.card.danger > div.card-header {
+    background-color: #dc3545;
+    color:white;
+}
