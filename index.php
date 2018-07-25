@@ -64,7 +64,7 @@ if($router->route)
                 array_merge(array($router, $db), $router->route['params'])
             );
         else
-            throw new Exception("Cannor call custom function '$function_name'");
+            throw new Exception("Cannot call custom function '$function_name'");
     }
 }
 else {

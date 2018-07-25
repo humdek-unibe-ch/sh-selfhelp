@@ -48,12 +48,30 @@ class SessionView extends BaseView
         $this->nav->output_content();
     }
 
+    /**
+     * Create and return the url for a session, given the session id.
+     *
+     * @param int $id
+     *  The session id.
+     * @retval string
+     *  The generated url.
+     */
     private function get_button_url($id)
     {
         if($id == false) return "";
         else return $this->model->get_link_url("session", array("id" => $id));
     }
 
+    /**
+     * Add a button component to the local component list.
+     *
+     * @param string $name
+     *  The button style type.
+     * @param string $label
+     *  The label of the button.
+     * @param string $url
+     *  The url of the button.
+     */
     private function add_button_component($name, $label, $url)
     {
         $this->add_local_component($name,
