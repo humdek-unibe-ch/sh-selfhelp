@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 19, 2018 at 02:44 PM
+-- Generation Time: Jul 25, 2018 at 02:56 PM
 -- Server version: 5.7.22-0ubuntu18.04.1
 -- PHP Version: 7.2.7-0ubuntu0.18.04.2
 
@@ -139,6 +139,18 @@ CREATE TABLE `sections_hierarchy` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sections_navigation`
+--
+
+CREATE TABLE `sections_navigation` (
+  `parent` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `child` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `position` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `styles`
 --
 
@@ -155,7 +167,7 @@ CREATE TABLE `styles` (
 
 CREATE TABLE `styles_content` (
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `content` int(10) UNSIGNED ZEROFILL NOT NULL COMMENT 'The id of a style that can be assigned to the content of a style.'
+  `content` int(10) UNSIGNED ZEROFILL NOT NULL COMMENT 'The style that can be assigned to the content of a style.'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Defines which styles can be used in the content of a style';
 
 -- --------------------------------------------------------
@@ -167,6 +179,19 @@ CREATE TABLE `styles_content` (
 CREATE TABLE `styles_fields` (
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `styles_fields_translation`
+--
+
+CREATE TABLE `styles_fields_translation` (
+  `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
+  `content` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -255,6 +280,14 @@ ALTER TABLE `sections_hierarchy`
   ADD KEY `child` (`child`);
 
 --
+-- Indexes for table `sections_navigation`
+--
+ALTER TABLE `sections_navigation`
+  ADD PRIMARY KEY (`parent`,`child`),
+  ADD KEY `child` (`child`),
+  ADD KEY `parent` (`parent`);
+
+--
 -- Indexes for table `styles`
 --
 ALTER TABLE `styles`
@@ -277,6 +310,15 @@ ALTER TABLE `styles_fields`
   ADD KEY `id_fields` (`id_fields`);
 
 --
+-- Indexes for table `styles_fields_translation`
+--
+ALTER TABLE `styles_fields_translation`
+  ADD PRIMARY KEY (`id_styles`,`id_fields`,`id_languages`),
+  ADD KEY `id_styles` (`id_styles`),
+  ADD KEY `id_fields` (`id_fields`),
+  ADD KEY `id_languages` (`id_languages`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -290,7 +332,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 --
 -- AUTO_INCREMENT for table `languages`
 --
@@ -300,17 +342,17 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 --
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 --
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 --
 -- AUTO_INCREMENT for table `users`
 --
@@ -371,6 +413,13 @@ ALTER TABLE `sections_hierarchy`
   ADD CONSTRAINT `sections_hierarchy_fk_parent` FOREIGN KEY (`parent`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `sections_navigation`
+--
+ALTER TABLE `sections_navigation`
+  ADD CONSTRAINT `sections_navigation_fk_child` FOREIGN KEY (`child`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `sections_navigation_fk_parent` FOREIGN KEY (`parent`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `styles_content`
 --
 ALTER TABLE `styles_content`
@@ -383,6 +432,14 @@ ALTER TABLE `styles_content`
 ALTER TABLE `styles_fields`
   ADD CONSTRAINT `styles_fields_fk_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `styles_fields_fk_id_styles` FOREIGN KEY (`id_styles`) REFERENCES `styles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `styles_fields_translation`
+--
+ALTER TABLE `styles_fields_translation`
+  ADD CONSTRAINT `styles_fields_translation_fk_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `styles_fields_translation_fk_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `styles_fields_translation_fk_id_styles` FOREIGN KEY (`id_styles`) REFERENCES `styles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
