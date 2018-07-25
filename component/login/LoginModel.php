@@ -19,14 +19,7 @@ class LoginModel extends BaseModel
     public function __construct($router, $db)
     {
         parent::__construct($router, $db);
-        $locale_cond = $db->get_locale_condition();
-        $sql = "SELECT f.name, pft.content
-            FROM pages_fields_translation AS pft
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            LEFT JOIN pages AS p ON p.id = pft.id_pages
-            WHERE p.keyword = 'login' AND $locale_cond";
-        $fields = $db->query_db($sql, array());
+        $fields = $db->fetch_page_fields("login");
         $this->set_db_fields($fields);
     }
 }
