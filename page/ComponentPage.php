@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/NavPage.php";
+require_once __DIR__ . "/BasePage.php";
 spl_autoload_register(function ($class_name) {
     $folder = strtolower(str_replace("Component", "", $class_name));
     require_once __DIR__ . "/../component/" . $folder . "/" . $class_name . ".php";
@@ -11,7 +11,7 @@ spl_autoload_register(function ($class_name) {
  * A page with the keyword "foo" will search for the component class
  * "component/foo/FooComponent.php".
  */
-class ComponentPage extends NavPage
+class ComponentPage extends BasePage
 {
     /* Private Properties *****************************************************/
 

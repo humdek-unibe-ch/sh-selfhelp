@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/NavPage.php";
+require_once __DIR__ . "/BasePage.php";
 require_once __DIR__ . "/../component/sessions/session/SessionComponent.php";
 
 /**
  * This class serves as a wrapper for a session component.
  */
-class SessionPage extends NavPage
+class SessionPage extends BasePage
 {
     /* Private Properties *****************************************************/
 

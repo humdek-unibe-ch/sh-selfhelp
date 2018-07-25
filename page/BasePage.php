@@ -24,6 +24,8 @@ abstract class BasePage
     private $css_includes;
     private $js_includes;
     private $components;
+    private $render_nav;
+    private $render_footer;
 
     /* Constructors ***********************************************************/
 
@@ -40,6 +42,8 @@ abstract class BasePage
      */
     public function __construct($router, $db, $keyword)
     {
+        $this->render_nav = true;
+        $this->render_footer = true;
         $this->db = $db;
         $this->acl = new Acl($this->db);
         $this->login = new Login($this->db);
@@ -60,6 +64,10 @@ abstract class BasePage
             new StyleComponent($this->router, $this->db, NO_ACCESS_GUEST_ID));
         $this->add_component("denied",
             new StyleComponent( $this->router, $this->db,NO_ACCESS_ID));
+        $this->add_component("nav",
+            new NavComponent($this->router, $this->db, $this->acl));
+        $this->add_component("footer",
+            new FooterComponent($this->router, $this->db, $this->acl));
     }
 
     /* Private Metods *********************************************************/
@@ -164,12 +172,14 @@ abstract class BasePage
      */
     protected function output_base_content()
     {
+        if($this->render_nav) $this->output_component("nav");
         if($this->acl->has_access_select($_SESSION['id_user'], $this->id_page))
             $this->output_content();
         else if($this->login->is_logged_in())
             $this->output_component("denied");
         else
             $this->output_component("denied-guest");
+        if($this->render_footer) $this->output_component("footer");
     }
 
     /**
@@ -185,6 +195,15 @@ abstract class BasePage
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Do not render the navigation bar and the footer.
+     */
+    public function disable_navigation()
+    {
+        $this->render_nav = false;
+        $this->render_footer = false;
+    }
 
     /**
      * Render the page view.

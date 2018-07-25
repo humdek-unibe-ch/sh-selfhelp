@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . "/NavPage.php";
+require_once __DIR__ . "/BasePage.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 
 /**
  * This class maps the section structure of the DB. A section page consists
  * solely of a collection of sections as defined in the database.
  */
-class SectionPage extends NavPage
+class SectionPage extends BasePage
 {
     /* Private Properties *****************************************************/
 

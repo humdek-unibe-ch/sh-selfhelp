@@ -4,7 +4,6 @@ require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
 require_once "./service/Login.php";
 require_once "./page/HomePage.php";
-require_once "./page/LoginPage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/SessionPage.php";
 require_once "./page/ComponentPage.php";
@@ -22,7 +21,8 @@ function create_session_page($router, $db, $id)
 }
 function create_login_page($router, $db)
 {
-    $page = new LoginPage($router, $db);
+    $page = new ComponentPage($router, $db, "login");
+    $page->disable_navigation();
     $page->output();
 }
 function create_home_page($router, $db)
