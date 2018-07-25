@@ -22,12 +22,14 @@ class SectionPage extends NavPage
      *
      * @param object $router
      *  The router instance is used to generate valid links.
+     * @param object $db
+     *  The db instance which grants access to the DB.
      * @param string $keyword
      *  The identification name of the page.
      */
-    public function __construct($router, $keyword)
+    public function __construct($router, $db, $keyword)
     {
-        parent::__construct($router, $keyword);
+        parent::__construct($router, $db, $keyword);
         $sql = "SELECT ps.id_sections AS id
             FROM pages_sections AS ps
             WHERE ps.id_pages = :id_page

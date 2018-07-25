@@ -17,14 +17,18 @@ abstract class NavPage extends BasePage
      *
      * @param object $router
      *  The router instance is used to generate valid links.
+     * @param object $db
+     *  The db instance which grants access to the DB.
      * @param string $keyword
      *  The identification name of the page.
      */
-    public function __construct($router, $keyword)
+    public function __construct($router, $db, $keyword)
     {
-        parent::__construct($router, $keyword);
-        $this->add_component("nav", new NavComponent($this->router, $this->db, $this->acl));
-        $this->add_component("footer", new FooterComponent($this->router, $this->db, $this->acl));
+        parent::__construct($router, $db, $keyword);
+        $this->add_component("nav",
+            new NavComponent($this->router, $this->db, $this->acl));
+        $this->add_component("footer",
+            new FooterComponent($this->router, $this->db, $this->acl));
     }
 
     /* Protected Methods ******************************************************/

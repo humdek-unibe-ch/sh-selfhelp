@@ -33,12 +33,14 @@ abstract class BasePage
      *
      * @param object $router
      *  The router instance is used to generate valid links.
+     * @param object $db
+     *  The db instance which grants access to the DB.
      * @param string $keyword
      *  The identification name of the page.
      */
-    public function __construct($router, $keyword)
+    public function __construct($router, $db, $keyword)
     {
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->db = $db;
         $this->acl = new Acl($this->db);
         $this->login = new Login($this->db);
         $this->router = $router;

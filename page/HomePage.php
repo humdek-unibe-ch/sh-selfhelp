@@ -14,12 +14,12 @@ class HomePage extends SectionPage
      *
      * @param object $router
      *  The router instance is used to generate valid links.
-     * @param string $keyword
-     *  The identification name of the page.
+     * @param object $db
+     *  The db instance which grants access to the DB.
      */
-    public function __construct($router)
+    public function __construct($router, $db)
     {
-        parent::__construct($router, "home");
+        parent::__construct($router, $db, "home");
     }
 
     /**

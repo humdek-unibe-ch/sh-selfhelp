@@ -25,12 +25,14 @@ class ComponentPage extends NavPage
      *
      * @param object $router
      *  The router instance is used to generate valid links.
+     * @param object $db
+     *  The db instance which grants access to the DB.
      * @param string $component
      *  The component name. This name will be used to construct the class name.
      */
-    public function __construct($router, $keyword)
+    public function __construct($router, $db, $keyword)
     {
-        parent::__construct($router, $keyword);
+        parent::__construct($router, $db, $keyword);
         $componentClass = ucfirst($keyword) . "Component";
         $componentInstance = new $componentClass(
             $this->router,

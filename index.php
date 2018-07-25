@@ -4,32 +4,41 @@ require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
 require_once "./service/Login.php";
 require_once "./page/HomePage.php";
+require_once "./page/LoginPage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/SessionPage.php";
 require_once "./page/ComponentPage.php";
 
 $router = new Router();
-
-// map homepage
 $router->setBasePath(BASE_PATH);
 
+$db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+
+// custom page creation functions
+function create_session_page($router, $db, $id)
+{
+    $page = new SessionPage($router, $db, intval($id));
+    $page->output();
+}
+function create_login_page($router, $db)
+{
+    $page = new LoginPage($router, $db);
+    $page->output();
+}
+function create_home_page($router, $db)
+{
+    $page = new HomePage($router, $db);
+    $page->output();
+}
+
 // define routing paths
-$router->map( 'GET', '/', function($router) {
-    $page = new HomePage($router);
-    $page->output();
-}, 'home');
-$router->map( 'GET', '/sitzungen', 'component', 'sessions');
-$router->map( 'GET', '/sitzungen/[i:id]', function($router, $id) {
-    $page = new SessionPage($router, intval($id));
-    $page->output();
-}, 'session');
-$router->map( 'GET', '/protokolle', 'sections', 'protocols');
-$router->map( 'GET', '/kontakt', 'sections', 'contact');
-$router->map( 'GET|POST', '/login', 'component', 'login');
-$router->map( 'GET|POST', '/profile', 'component', 'profile');
-$router->map( 'GET', '/impressum', 'sections', 'impressum');
-$router->map( 'GET', '/disclaimer', 'sections', 'disclaimer');
-$router->map( 'GET', '/agb', 'sections', 'agb');
+$sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword FROM pages AS p
+    LEFT JOIN actions AS a ON a.id = p.id_actions
+    WHERE protocol IS NOT NULL";
+$pages = $db->query_db($sql, array());
+foreach($pages as $page)
+    $router->map( $page['protocol'], $page['url'], $page['action'],
+        $page['keyword']);
 
 // match current request url
 $router->update_route();
@@ -39,19 +48,23 @@ if($router->route)
 {
     if($router->route['target'] == "sections")
     {
-        $page = new SectionPage($router, $router->route['name']);
+        $page = new SectionPage($router, $db, $router->route['name']);
         $page->output();
     }
     else if($router->route['target'] == "component")
     {
-        $page = new ComponentPage($router, $router->route['name']);
+        $page = new ComponentPage($router, $db, $router->route['name']);
         $page->output();
     }
-    else if(is_callable($router->route['target']))
+    else if($router->route['target'] == "custom")
     {
-        call_user_func_array($router->route['target'],
-            array_merge(array($router), $router->route['params'])
-        );
+        $function_name = "create_" . $router->route['name'] . "_page";
+        if(is_callable($function_name))
+            call_user_func_array($function_name,
+                array_merge(array($router, $db), $router->route['params'])
+            );
+        else
+            throw new Exception("Cannor call custom function '$function_name'");
     }
 }
 else {
