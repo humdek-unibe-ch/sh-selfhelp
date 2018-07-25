@@ -10,6 +10,7 @@ class SessionView extends BaseView
     /* Private Properties *****************************************************/
 
     private $nav;
+    private $button;
     private $css_includes;
 
     /* Constructors ***********************************************************/
@@ -26,6 +27,15 @@ class SessionView extends BaseView
     {
         parent::__construct($model);
         $this->nav = $nav;
+        $this->add_button_component("button_next",
+            $this->model->get_next_label(),
+            $this->get_button_url($this->nav->get_next_id())
+        );
+        $this->add_button_component("button_back",
+            $this->model->get_back_label(),
+            $this->get_button_url($this->nav->get_previous_id())
+        );
+
     }
 
     /* Private Methods ********************************************************/
@@ -38,6 +48,19 @@ class SessionView extends BaseView
         $this->nav->output_content();
     }
 
+    private function get_button_url($id)
+    {
+        if($id == false) return "";
+        else return $this->model->get_link_url("session", array("id" => $id));
+    }
+
+    private function add_button_component($name, $label, $url)
+    {
+        $this->add_local_component($name,
+            new BaseStyleComponent("button"),
+            array("label" => $label, "url" => $url));
+    }
+
     /**
      * Render a button if the url is not empty.
      *
@@ -46,12 +69,9 @@ class SessionView extends BaseView
      * @param string $url
      *  The url of the button.
      */
-    private function output_button($label, $url)
+    private function output_button($name)
     {
-        if($url == "") return;
-        $button = new BaseStyleComponent("button",
-            array("label" => $label, "url" => $url));
-        $button->output_content();
+        $this->output_local_component($name);
     }
 
     /* Public Methods *********************************************************/
@@ -61,18 +81,8 @@ class SessionView extends BaseView
      */
     public function output_content()
     {
-        $url_next = "";
-        $next_id = $this->nav->get_next_id();
-        if($next_id != false)
-            $url_next = $this->model->get_link_url("session",
-                array("id" => $next_id));
-        $label_next = $this->model->get_next_label();;
-        $url_back = "";
-        $prev_id = $this->nav->get_previous_id();
-        if($prev_id != false)
-            $url_back = $this->model->get_link_url("session",
-                array("id" => $prev_id));
-        $label_back = $this->model->get_back_label();
+        $button_next = "button_next";
+        $button_back = "button_back";
         $title = $this->model->get_title();
         require __DIR__ . "/tpl_session.php";
     }

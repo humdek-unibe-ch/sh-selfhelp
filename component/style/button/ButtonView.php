@@ -28,6 +28,7 @@ class ButtonView extends BaseView
     {
         $label = $this->model->get_db_field("label");
         $url = $this->model->get_db_field("url");
+        if($url == "") return;
         require __DIR__ . "/tpl_button.php";
     }
 }

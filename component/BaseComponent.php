@@ -43,13 +43,17 @@ abstract class BaseComponent
      * class ought to override this method. By default, a component includes no
      * css files.
      *
+     * @param array $local
+     *  An array of inlcude files that can be passed from a class implementing
+     *  this base class.
      * @retval array
      *  An array of css include files the component requires. If no overridden,
      *  an empty array is returned.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        return $this->view->get_css_includes();
+        return array_unique(array_merge($local,
+            $this->view->get_css_includes()));
     }
 
     /**
@@ -57,13 +61,17 @@ abstract class BaseComponent
      * class ought to override this method. By default, a component includes no
      * js files.
      *
+     * @param array $local
+     *  An array of inlcude files that can be passed from a class implementing
+     *  this base class.
      * @retval array
      *  An array of js include files the component requires. If no overridden,
      *  an empty array is returned.
      */
-    public function get_js_includes()
+    public function get_js_includes($local = array())
     {
-        return $this->view->get_js_includes();
+        return array_unique(array_merge($local,
+            $this->view->get_js_includes()));
     }
 }
 ?>

@@ -9,22 +9,6 @@ class BaseStyleModel
 
     private $fields;
 
-    /* Constructors ***********************************************************/
-
-    /**
-     * The constructor.
-     *
-     * @param array $fields
-     *  An array containing fields for the view to render to content. The
-     *  required are dependent of the style. The array must contain key, value
-     *  pairs where the key is the name of the field and the value the content
-     *  of the field.
-     */
-    public function __construct($fields)
-    {
-        $this->fields = $fields;
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -44,6 +28,20 @@ class BaseStyleModel
             return $this->fields[$key];
         else
             return "";
+    }
+
+    /**
+     * Set the fields that are required by the component model.
+     *
+     * @param array $fields
+     *  An array containing fields for the view to render to content. The
+     *  required are dependent of the style. The array must contain key, value
+     *  pairs where the key is the name of the field and the value the content
+     *  of the field.
+     */
+    public function set_fields($fields)
+    {
+        $this->fields = $fields;
     }
 }
 ?>

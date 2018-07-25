@@ -26,10 +26,10 @@ class StyleView extends BaseView
     public function __construct($model, $fluid=false)
     {
         parent::__construct($model);
-        $this->style = new BaseStyleComponent(
-            $this->model->get_style_name(),
-            $this->model->get_db_fields(),
-            $fluid);
+
+        $style = new BaseStyleComponent($this->model->get_style_name(), $fluid);
+        $this->add_local_component("style", $style,
+            $this->model->get_db_fields());
     }
 
     /* Public Methods *********************************************************/
@@ -39,31 +39,7 @@ class StyleView extends BaseView
      */
     public function output_content()
     {
-        $this->style->output_content();
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the 
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes()
-    {
-        return $this->style->get_css_includes();
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the 
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes()
-    {
-        return $this->style->get_js_includes();
+        $this->output_local_component("style");
     }
 }
 ?>

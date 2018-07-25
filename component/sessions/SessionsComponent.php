@@ -40,9 +40,21 @@ class SessionsComponent extends BaseComponent
      * @retval array
      *  An array of css include files the component requires.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        return $this->nav->get_css_includes();
+        return parent::get_css_includes($this->nav->get_css_includes());
+    }
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        return parent::get_js_includes($this->nav->get_js_includes());
     }
 }
 ?>

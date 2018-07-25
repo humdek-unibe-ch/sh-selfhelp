@@ -9,6 +9,7 @@ abstract class BaseView
     protected $model;
     protected $controller;
     private $children;
+    private $local_components;
 
     /* Constructors ***********************************************************/
 
@@ -24,21 +25,90 @@ abstract class BaseView
     {
         $this->model = $model;
         $this->controller = $controller;
-        if($model != null)
-            $this->children = $this->model->get_db_field("content");
-        if(($this->children == null) || ($this->children == ""))
-            $this->children = array();
+        $this->local_components = array();
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * Get the children from the model if a model is a vailabel and the model
+     * has chlidren.
+     *
+     * @retval array
+     *  An array of child components.
+     */
+    private function get_children()
+    {
+        $children = array();
+        if($this->model != null)
+        {
+            $children = $this->model->get_db_field("content");
+            if($children == "")
+                $children = array();
+        }
+        return $children;
     }
 
     /* Protected Methods ******************************************************/
+
+    /**
+     * Add a component to the local component list. Thes components were
+     * instantiated inside this view.
+     *
+     * @param string name
+     *  The name of the component.
+     * @param object $component
+     *  A component object.
+     * @param array $fields
+     *  An array containing fields for the view to render to content. The
+     *  required are dependent of the style. The array must contain key, value
+     *  pairs where the key is the name of the field and the value the content
+     *  of the field.
+     */
+    protected function add_local_component($name, $component, $fields)
+    {
+        $component->set_fields($fields);
+        $this->local_components[$name] = $component;
+    }
 
     /**
      * Render the content of all children of this view instance.
      */
     protected function output_children()
     {
-        foreach($this->children as $child)
+        $children = $this->get_children();
+        foreach($children as $child)
             $child->output_content();
+    }
+
+    /**
+     * Get a local component given a component name.
+     *
+     * @param string name
+     *  The name of the component.
+     * @retval object
+     *  A component object.
+     */
+    protected function output_local_component($name)
+    {
+        $component = $this->get_local_component($name);
+        $component->output_content();
+    }
+
+    /**
+     * Get a local component given a component name.
+     *
+     * @param string name
+     *  The name of the component.
+     * @retval object
+     *  A component object.
+     */
+    protected function get_local_component($name)
+    {
+        if(array_key_exists($name, $this->local_components))
+            return $this->local_components[$name];
+        else
+            throw new Exception("Cannot find local component '$name'");
     }
 
     /* Public Methods *********************************************************/
@@ -52,34 +122,48 @@ abstract class BaseView
      * Get css include files required for this view. By default the css files of
      * the children of a section are included.
      *
+     * @param array $local
+     *  An array of inlcude files that can be passed from a class implementing
+     *  this base class.
      * @retval array
      *  An array of css include files the view requires. If no overridden, an
      *  empty array is returned.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
+        $children = $this->get_children();
         $css_includes = array();
-        foreach($this->children as $child)
+        foreach($children as $child)
             $css_includes = array_merge($css_includes,
                 $child->get_css_includes());
-        return array_unique($css_includes);
+        foreach($this->local_components as $component)
+            $css_includes = array_merge($css_includes,
+                $component->get_css_includes());
+        return array_unique(array_merge($local, $css_includes));
     }
 
     /**
      * Get js include files required for this view. By default the js files of
      * the children of a section are included.
      *
+     * @param array $local
+     *  An array of inlcude files that can be passed from a class implementing
+     *  this base class.
      * @retval array
      *  An array of js include files the view requires. If no overridden, an
      *  empty array is returned.
      */
-    public function get_js_includes()
+    public function get_js_includes($local = array())
     {
+        $children = $this->get_children();
         $js_includes = array();
-        foreach($this->children as $child)
+        foreach($children as $child)
             $js_includes = array_merge($js_includes,
                 $child->get_js_includes());
-        return array_unique($js_includes);
+        foreach($this->local_components as $component)
+            $js_includes = array_merge($js_includes,
+                $component->get_js_includes());
+        return array_unique(array_merge($local, $js_includes));
     }
 }
 ?>

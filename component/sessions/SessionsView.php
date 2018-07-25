@@ -10,6 +10,7 @@ class SessionsView extends BaseView
     /* Private Properties *****************************************************/
 
     private $nav;
+    private $text;
 
     /* Constructors ***********************************************************/
 
@@ -25,6 +26,8 @@ class SessionsView extends BaseView
     {
         parent::__construct($model);
         $this->nav = $nav;
+        $this->add_local_component("text", new BaseStyleComponent("plaintext"),
+            array("text" => $this->model->get_db_field('text')));
     }
 
     /* Private Methods ********************************************************/
@@ -34,9 +37,7 @@ class SessionsView extends BaseView
      */
     private function output_intro()
     {
-        $text = new BaseStyleComponent("plaintext",
-            array("text" => $this->model->get_db_field('text')));
-        $text->output_content();
+        $this->output_local_component("text");
     }
 
     /**

@@ -41,11 +41,10 @@ class AlertView extends BaseView
      * @retval array
      *  An array of css include files the component requires.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        return parent::get_css_includes() + array(
-            __DIR__ . "/alert.css"
-        );
+        $local = array(__DIR__ . "/alert.css");
+        return parent::get_css_includes($local);
     }
 
     /**

@@ -23,11 +23,8 @@ class StyleModel extends BaseModel
      *  The db instance which grants access to the DB.
      * @param int $id
      *  The id of the database section item to be rendered.
-     * @param array $children
-     *  An array of StyleComponent() obejcts, representing the children of this
-     *  style.
      */
-    public function __construct($router, $db, $id, $children)
+    public function __construct($router, $db, $id)
     {
         parent::__construct($router, $db);
         $this->db_fields['id'] = $id;
@@ -40,7 +37,11 @@ class StyleModel extends BaseModel
         $fields = $this->db->fetch_style_fields($this->section['id_styles']);
         $this->set_db_fields($fields);
 
-        $this->db_fields["content"] = $children;
+        $this->db_fields["content"] = array();
+        $db_children = $db->fetch_section_children($id);
+        foreach($db_children as $child)
+            array_push($this->db_fields["content"],
+                new StyleComponent($router, $db, $child['id']));
     }
 
     /* Private Methods ********************************************************/

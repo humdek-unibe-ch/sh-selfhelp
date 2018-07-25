@@ -24,9 +24,13 @@ class LoginView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->alert = new BaseStyleComponent("alert-danger",
-            array("content" => array( new BaseStyleComponent("plaintext",
-                array("text" => $this->model->get_db_field('alert'))))));
+        $alert_content = new BaseStyleComponent("plaintext");
+        $alert_content->set_fields(
+            array("text" => $this->model->get_db_field('alert_fail')));
+        $this->add_local_component("alert",
+            $this->alert = new BaseStyleComponent("alert-danger"),
+            array("content" => array($alert_content))
+        );
     }
 
     /* Private Methods ********************************************************/
@@ -37,7 +41,7 @@ class LoginView extends BaseView
     private function output_alert()
     {
         if($this->controller->has_login_failed())
-            $this->alert->output_content();
+            $this->output_local_component("alert");
     }
 
     /* Public Methods *********************************************************/
@@ -49,11 +53,10 @@ class LoginView extends BaseView
      * @retval array
      *  An array of css include files the component requires.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        $res = ($this->alert == null) ? array() : $this->alert->get_css_includes();
-        array_push($res, __DIR__ . "/login.css");
-        return $res;
+        $local = array(__DIR__ . "/login.css");
+        return parent::get_css_includes($local);
     }
 
     /**
@@ -64,8 +67,8 @@ class LoginView extends BaseView
         $url = $this->model->get_link_url('login');
         $user_label = $this->model->get_db_field('user_label');
         $pw_label = $this->model->get_db_field('pw_label');
-        $login_label = $this->model->get_db_field('login_label');
-        $reset_label = $this->model->get_db_field('reset_pw_label');
+        $login_label = $this->model->get_db_field('login_action_label');
+        $reset_label = $this->model->get_db_field('reset_pw_action_label');
         $login_title = $this->model->get_db_field('login_title');
         $intro_title = $this->model->get_db_field('intro_title');
         $intro_content = $this->model->get_db_field('intro_text');

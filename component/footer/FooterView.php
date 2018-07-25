@@ -60,11 +60,10 @@ class FooterView extends BaseView
      * @retval array
      *  An array of css include files the component requires.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        return array(
-            __DIR__ . "/footer.css"
-        );
+        $local = array(__DIR__ . "/footer.css");
+        return parent::get_css_includes($local);
     }
 
     /**

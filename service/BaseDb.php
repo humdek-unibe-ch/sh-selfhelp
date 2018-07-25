@@ -98,16 +98,19 @@ class BaseDb {
      *  The name of the foreign key.
      * @param int $id
      *  The foreign key of the row to be selected
+     * @retval bool
+     *  True on success, false otherwise.
      */
     public function remove_by_fk($table, $fk, $id) {
         try {
             $sql = "DELETE FROM $table WHERE $fk = :fk";
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute(array(':fk' => $id));
+            return $stmt->execute(array(':fk' => $id));
         }
         catch(PDOException $e) {
             if(DEBUG == 1)
                 echo "BaseDb::remove_by_fk: ".$e->getMessage();
+            return false;
         }
     }
 

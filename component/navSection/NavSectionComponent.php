@@ -79,11 +79,10 @@ class NavSectionComponent extends BaseComponent
      * @retval array
      *  An array of css include files the component requires.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        return array(
-            __DIR__ . "/navSection.css"
-        );
+        $local = array(__DIR__ . "/navSection.css");
+        return parent::get_css_includes($local);
     }
 }
 ?>

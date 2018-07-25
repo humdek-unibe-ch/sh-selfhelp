@@ -32,11 +32,10 @@ class QuizView extends BaseView
      * @retval array
      *  An array of css include files the component requires.
      */
-    public function get_css_includes()
+    public function get_css_includes($local = array())
     {
-        return parent::get_css_includes() + array(
-            __DIR__ . "/quiz.css"
-        );
+        $local = array(__DIR__ . "/quiz.css");
+        return parent::get_css_includes($local);
     }
 
     /**
@@ -46,11 +45,10 @@ class QuizView extends BaseView
      * @retval array
      *  An array of js include files the component requires.
      */
-    public function get_js_includes()
+    public function get_js_includes($local = array())
     {
-        return parent::get_js_includes() + array(
-            __DIR__ . "/quiz.js"
-        );
+        $local = array(__DIR__ . "/quiz.js");
+        return parent::get_js_includes($local);
     }
 
     /**
