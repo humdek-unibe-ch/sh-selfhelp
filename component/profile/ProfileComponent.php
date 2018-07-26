@@ -26,7 +26,7 @@ class ProfileComponent extends BaseComponent
     public function __construct($services)
     {
         $model = new ProfileModel($services);
-        $controller = new ProfileController($services['login']);
+        $controller = new ProfileController($model);
         $view = new ProfileView($model, $controller);
         parent::__construct($view);
     }

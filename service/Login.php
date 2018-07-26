@@ -63,14 +63,11 @@ class Login
      *
      * @param string $password
      *  The new password.
-     * @param string $verification
-     *  A seperate string that must also hold the new password.
      * @retval bool
      *  True if the change was successful, false otherwise
      */
-    public function change_password($password, $verification)
+    public function change_password($password)
     {
-        if($password != $verification) return false;
         return $this->db->update_by_ids(
             "users",
             array("password" => password_hash($password, PASSWORD_DEFAULT)),
@@ -80,22 +77,23 @@ class Login
     }
 
     /**
-     * Delete the active user if the given email address matches with the email
-     * address of the current user.
+     * Delete the user if the given email address matches with the email
+     * address stored in the database.
      *
+     * @param int $uid
+     *  The user id.
      * @param string $email
-     *  The user email address
+     *  The user email address.
      * @retval bool
-     *  True if the deleting process was successful, false otherwise
+     *  True if the deleting process was successful, false otherwise.
      */
-    public function delete_user($email)
+    public function delete_user($uid, $email)
     {
         $sql = "SELECT email FROM users WHERE id = :id";
         $user = $this->db->query_db_first($sql,
-            array(':id' => $_SESSION['id_user']));
+            array(':id' => $uid));
         if($email != $user['email']) return false;
-        return $this->db->remove_by_fk("users", "id", $_SESSION['id_user']);
-
+        return $this->db->remove_by_fk("users", "id", $uid);
     }
 
     /**

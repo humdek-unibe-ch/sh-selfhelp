@@ -18,10 +18,10 @@ class ProfileController extends BaseController
      * The constructor submits the new password data to the database to update
      * the password.
      *
-     * @param object $login
-     *  The login class that allows to check user credentials.
+     * @param object $model
+     *  The model instance of the user profile component.
      */
-    public function __construct($login)
+    public function __construct($model)
     {
         parent::__construct();
         $this->success_change = false;
@@ -31,15 +31,14 @@ class ProfileController extends BaseController
 
         if(isset($_POST['email']))
         {
-            $res = $login->delete_user($_POST['email']);
-            if($res) $login->logout();
+            $res = $model->delete_user($_POST['email']);
             $this->success_delete = $res;
             $this->fail_delete = !$res;
         }
 
         if(isset($_POST['password']) && isset($_POST['verification']))
         {
-            $res = $login->change_password($_POST['password'],
+            $res = $model->change_password($_POST['password'],
                 $_POST['verification']);
             $this->success_change = $res;
             $this->fail_change = !$res;
