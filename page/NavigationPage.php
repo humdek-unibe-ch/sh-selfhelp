@@ -32,9 +32,10 @@ class NavigationPage extends BasePage
     public function __construct($router, $db, $keyword, $id)
     {
         parent::__construct($router, $db, $keyword);
+        $this->sections = array();
+        $this->section_id = $id;
         if($id == null) return;
 
-        $this->section_id = $id;
         $this->sections = $db->fetch_page_sections($this->keyword);
         $nav_id = $this->get_nav_id();
         if($nav_id == false)
@@ -109,13 +110,23 @@ class NavigationPage extends BasePage
     {
         if($this->section_id_exists())
         {
+            // the current section id exists
             if($component == null)
                 $component = new StyleComponent($this->services,
                     $this->section_id);
             $this->add_component("section", $component);
         }
+        else if($this->section_id == null)
+        {
+            // just a single component and no navigation
+            $this->add_component("section", $component);
+        }
         else
-            $this->add_component("section", null);
+        {
+            // navigation component and current id is non-existent
+            $this->add_component("section",
+                new StyleComponent($this->services, MISSING_ID));
+        }
     }
 }
 ?>

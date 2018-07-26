@@ -35,19 +35,10 @@ class ComponentPage extends NavigationPage
         parent::__construct($router, $db, $keyword, $id);
         $componentClass = ucfirst($keyword) . "Component";
         $componentInstance = new $componentClass($this->services, $id);
-        $this->add_component("component", $componentInstance);
+        $this->add_navigation_component($componentInstance);
     }
 
     /* Protected Methods ******************************************************/
-
-    /**
-     * See BasePage::output_content(). This implementation renders the
-     * specified component.
-     */
-    protected function output_content()
-    {
-        $this->output_component("component");
-    }
 
     /**
      * See BasePage::output_meta_tags()
