@@ -48,7 +48,7 @@ class BaseDb {
      * @retval array
      *  An array with all row entries or false if no entry was selected.
      */
-    public function query_db($sql, $arguments)
+    public function query_db($sql, $arguments=array())
     {
         try {
             $stmt = $this->dbh->prepare($sql);
@@ -75,7 +75,7 @@ class BaseDb {
      * @retval array
      *  All row entries or false if no entry was selected.
      */
-    public function query_db_first($sql, $arguments)
+    public function query_db_first($sql, $arguments=array())
     {
         try {
             $stmt = $this->dbh->prepare($sql);
