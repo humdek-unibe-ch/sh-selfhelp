@@ -27,8 +27,7 @@ class LoginComponent extends BaseComponent
     public function __construct($services)
     {
         $model = new LoginModel($services);
-        $controller = new LoginController($services['router'],
-            $services['login']);
+        $controller = new LoginController($model);
         $view = new LoginView($model, $controller);
         parent::__construct($view);
     }

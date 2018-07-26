@@ -13,27 +13,21 @@ class LoginController extends BaseController
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor does several things:
-     * First, if a user is already logged in, the user is logged out.
-     * Second, submitted credentials are checked and if successful, the user is
-     * redirected to the home page.
+     * The constructor. Submitted credentials are checked and if successful,
+     * the user is redirected to the home page.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $login
-     *  The login class that allows to check user credentials.
+     * @param object $model
+     *  The model instance of the login component.
      */
-    public function __construct($router, $login)
+    public function __construct($model)
     {
         parent::__construct();
         $this->failed = false;
-        if($login->is_logged_in())
-            $login->logout();
 
         if(isset($_POST['email']) && isset($_POST['password']))
         {
-            if($login->check_credentials($_POST['email'], $_POST['password']))
-                header('Location: ' . $router->generate("home"));
+            if($model->check_login_credentials($_POST['email'], $_POST['password']))
+                header('Location: ' . $model->get_link_url("home"));
             else
                 $this->failed = true;
         }
