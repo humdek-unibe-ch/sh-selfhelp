@@ -6,27 +6,18 @@ require_once __DIR__ . "/../BaseModel.php";
  */
 class FooterModel extends BaseModel
 {
-    /* Private Properties *****************************************************/
-
-    private $acl;
-
     /* Constructors ***********************************************************/
 
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
-     * @param object $acl
-     *  The instnce of the access control layer (ACL) which allows to decide
-     *  which links to display.
+     * @param array $services
+     *  An associative array holding the differnt available services. See the
+     *  class definition BasePage for a list of all services.
      */
-    public function __construct($router, $db, $acl)
+    public function __construct($services)
     {
-        parent::__construct($router, $db);
-        $this->acl = $acl;
+        parent::__construct($services);
     }
 
     /* Public Methods *********************************************************/

@@ -19,16 +19,13 @@ class ProfileComponent extends BaseComponent
      * ProfileView class, and the ProfileController class and passes the view
      * instance to the constructor of the parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
-     * @param object $login
-     *  The login class that allows to check user credentials.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      */
     public function __construct($services)
     {
-        $model = new ProfileModel($services['router'], $services['db']);
+        $model = new ProfileModel($services);
         $controller = new ProfileController($services['login']);
         $view = new ProfileView($model, $controller);
         parent::__construct($view);

@@ -15,14 +15,11 @@ class SessionComponent extends BaseComponent
      * SessionView class and passes the view instance to the constructor of the
      * parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
      * @param int $id
      *  The section id of this session.
-     * @param object $nav
-     *  The session navigation component.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      */
     public function __construct($services, $id)
     {

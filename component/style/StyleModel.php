@@ -17,21 +17,18 @@ class StyleModel extends BaseModel
      * The constructor fetches a section item from the database and assignes
      * the fetched content to private class properties.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
      */
     public function __construct($services, $id)
     {
-        $router = $services['router'];
-        $db = $services['db'];
-        parent::__construct($router, $db);
+        parent::__construct($services);
         $this->db_fields['id'] = $id;
 
-        $this->section = $db->select_by_uid_join("sections", $id);
+        $this->section = $this->db->select_by_uid_join("sections", $id);
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
         $this->set_db_fields($fields);
@@ -43,7 +40,7 @@ class StyleModel extends BaseModel
         $this->set_db_fields($fields);
 
         $this->db_fields["content"] = array();
-        $db_children = $db->fetch_section_children($id);
+        $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
             array_push($this->db_fields["content"],
                 new StyleComponent($services, intval($child['id'])));

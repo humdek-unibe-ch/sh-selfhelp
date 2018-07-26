@@ -16,14 +16,13 @@ class CmsComponent extends BaseComponent
      * class, and the CmsController class and passes the view instance to the
      * constructor of the parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the differnt available services. See the
+     *  class definition BasePage for a list of all services.
      */
     public function __construct($services)
     {
-        $model = new CmsModel($services['router'], $services['db']);
+        $model = new CmsModel($services);
         $controller = new CmsController();
         $view = new CmsView($model, $controller);
         parent::__construct($view);

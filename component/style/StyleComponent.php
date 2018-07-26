@@ -18,10 +18,9 @@ class StyleComponent extends BaseComponent
      * StyleView class and passes the view instance to the constructor of the
      * parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
      * @param bool $fluid

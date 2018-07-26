@@ -13,10 +13,9 @@ class SessionModel extends StyleModel
     /**
      * The constructor fetches all session related fields from the database.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this session.
      */

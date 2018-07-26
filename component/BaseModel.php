@@ -8,6 +8,9 @@ abstract class BaseModel
 
     protected $router;
     protected $db;
+    protected $nav;
+    protected $login;
+    protected $acl;
     protected $db_fields;
 
     /* Constructors ***********************************************************/
@@ -15,15 +18,17 @@ abstract class BaseModel
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance that allows to generate and parse links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the differnt available services. See the
+     *  class definition BasePage for a list of all services.
      */
-    public function __construct($router, $db)
+    public function __construct($services)
     {
-        $this->router = $router;
-        $this->db = $db;
+        $this->router = $services['router'];
+        $this->db = $services['db'];
+        $this->acl = $services['acl'];
+        $this->login = $services['login'];
+        $this->nav = $services['nav'];
         $this->db_fields = array();
     }
 

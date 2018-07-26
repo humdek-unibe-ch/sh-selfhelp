@@ -28,10 +28,9 @@ class SessionsComponent extends BaseComponent
      * SessionsView class and passes the view instance to the constructor of the
      * parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      */
     public function __construct($services)
     {
@@ -44,7 +43,7 @@ class SessionsComponent extends BaseComponent
                 break;
             }
         $this->nav = new NavSectionComponent($services, $id_nav);
-        $model = new SessionsModel($services['router'], $services['db']);
+        $model = new SessionsModel($services);
         $view = new SessionsView($model, $this->nav);
         parent::__construct($view);
     }

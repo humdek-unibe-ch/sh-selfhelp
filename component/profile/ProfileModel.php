@@ -11,15 +11,14 @@ class ProfileModel extends BaseModel
     /**
      * The constructor fetches all profile related fields from the database.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      */
-    public function __construct($router, $db)
+    public function __construct($services)
     {
-        parent::__construct($router, $db);
-        $fields = $db->fetch_page_fields("profile");
+        parent::__construct($services);
+        $fields = $this->db->fetch_page_fields("profile");
         $this->set_db_fields($fields);
     }
 }

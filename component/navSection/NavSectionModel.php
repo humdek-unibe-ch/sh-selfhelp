@@ -19,18 +19,17 @@ class NavSectionModel extends BaseModel
     /**
      * The constructor.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      * @param int $root_id
      *  The id of the root section.
      * @param int $current_id
      *  The id of the current section.
      */
-    public function __construct($router, $db, $root_id, $current_id)
+    public function __construct($services, $root_id, $current_id)
     {
-        parent::__construct($router, $db);
+        parent::__construct($services);
         $this->root_id = $root_id;
         $this->current_id = ($current_id == 0) ? $root_id : $current_id;
         $this->items_list = array();

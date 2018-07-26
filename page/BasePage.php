@@ -57,10 +57,19 @@ abstract class BasePage
             "/js/main.js",
         );
         $this->services = array(
+            // The router instance which is used to generate valid links.
             "router" => $router,
+            //  The db instance which grants access to the DB.
             "db" => $db,
+            // The login instance that allows to check user credentials.
             "login" => new Login($db),
+            // The instnce of the access control layer (ACL) which allows to
+            // decide which links to display.
             "acl" => new Acl($db),
+            // A navigation component that allows to switch between sections,
+            // associated to a specific page. Unlike the other elements in this
+            // array, "nav" is a component that can also be rendered. It is
+            // set in the NavigationPage class which extends the BasePage class.
             "nav" => null,
         );
         $this->fetch_page_info($keyword);

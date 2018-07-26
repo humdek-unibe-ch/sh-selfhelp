@@ -20,16 +20,13 @@ class LoginComponent extends BaseComponent
      * LoginView class and passes the view instance to the constructor of the
      * parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
-     * @param object $login
-     *  The login class that allows to check user credentials.
+     * @param array $services
+     *  An associative array holding the differnt available services. See the
+     *  class definition BasePage for a list of all services.
      */
     public function __construct($services)
     {
-        $model = new LoginModel($services['router'], $services['db']);
+        $model = new LoginModel($services);
         $controller = new LoginController($services['router'],
             $services['login']);
         $view = new LoginView($model, $controller);

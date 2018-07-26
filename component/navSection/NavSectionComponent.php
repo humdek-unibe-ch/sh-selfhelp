@@ -27,10 +27,9 @@ class NavSectionComponent extends BaseComponent
      * SessionsNavView class and passes the view instance to the constructor of
      * the parent class.
      *
-     * @param object $router
-     *  The router instance which is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param array $services
+     *  An associative array holding the different available services. See the
+     *  class definition basepage for a list of all services.
      * @param string $root_id
      *  The identifier of the navigation section.
      * @param int $current_id
@@ -38,8 +37,7 @@ class NavSectionComponent extends BaseComponent
      */
     public function __construct($services, $root_id, $current_id=0)
     {
-        $this->model = new NavSectionModel($services['router'], $services['db'],
-            $root_id, $current_id);
+        $this->model = new NavSectionModel($services, $root_id, $current_id);
         $view = new NavSectionView($this->model);
         parent::__construct($view);
     }
