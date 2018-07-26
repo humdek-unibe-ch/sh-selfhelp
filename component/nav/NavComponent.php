@@ -4,7 +4,9 @@ require_once __DIR__ . "/NavView.php";
 require_once __DIR__ . "/NavModel.php";
 
 /**
- * The class to define the navigation component.
+ * The class to define the navigation component. This component has a
+ * non-standard model which constructs the hierarchical menu structure from the
+ * pages database table.
  */
 class NavComponent extends BaseComponent
 {

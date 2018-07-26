@@ -6,6 +6,14 @@ require_once __DIR__ . "/../navSection/NavSectionComponent.php";
 
 /**
  * A component to provide an overview of the available sessions.
+ *
+ * This component uses the navSection component as a content element which is
+ * not a simple style but has its own model. Therefore it is necessary to create
+ * a custom sessions component that can propagate the necessary information.
+ *
+ * Note that it would also be possible to not instantiate the nav component in
+ * this class here but instantiate the nav model in the SessionsModel class and
+ * the NavView in the SessionsView class.
  */
 class SessionsComponent extends BaseComponent
 {
@@ -27,7 +35,15 @@ class SessionsComponent extends BaseComponent
      */
     public function __construct($router, $db)
     {
-        $this->nav = new NavSectionComponent($router, $db, "session-navigation");
+        $sections = $db->fetch_page_sections("sessions");
+        $id_nav = 0;
+        foreach($sections as $section)
+            if(intval($section['id_styles']) == NAVIGATION_STYLE_ID)
+            {
+                $id_nav = intval($section['id']);
+                break;
+            }
+        $this->nav = new NavSectionComponent($router, $db, $id_nav);
         $model = new SessionsModel($router, $db);
         $view = new SessionsView($model, $this->nav);
         parent::__construct($view);
@@ -42,7 +58,8 @@ class SessionsComponent extends BaseComponent
      */
     public function get_css_includes($local = array())
     {
-        return parent::get_css_includes($this->nav->get_css_includes());
+        $local = $this->nav->get_css_includes();
+        return parent::get_css_includes($local);
     }
 
     /**
@@ -54,7 +71,8 @@ class SessionsComponent extends BaseComponent
      */
     public function get_js_includes($local = array())
     {
-        return parent::get_js_includes($this->nav->get_js_includes());
+        $local = $this->nav->get_js_includes();
+        return parent::get_js_includes($local);
     }
 }
 ?>

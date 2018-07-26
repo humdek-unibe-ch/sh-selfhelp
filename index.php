@@ -4,6 +4,7 @@ require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
 require_once "./service/Login.php";
 require_once "./page/HomePage.php";
+require_once "./page/NavigationPage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/SessionPage.php";
 require_once "./page/ComponentPage.php";
@@ -54,6 +55,13 @@ if($router->route)
     else if($router->route['target'] == "component")
     {
         $page = new ComponentPage($router, $db, $router->route['name']);
+        $page->output();
+    }
+    else if($router->route['target'] == "navigation")
+    {
+        $page = new NavigationPage($router, $db, $router->route['name'],
+            intval($router->route['params']['id']));
+        $page->add_navigation_component();
         $page->output();
     }
     else if($router->route['target'] == "custom")

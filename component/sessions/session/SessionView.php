@@ -28,11 +28,11 @@ class SessionView extends BaseView
         parent::__construct($model);
         $this->nav = $nav;
         $this->add_button_component("button_next",
-            $this->model->get_next_label(),
+            $this->model->get_db_field("next"),
             $this->get_button_url($this->nav->get_next_id())
         );
         $this->add_button_component("button_back",
-            $this->model->get_back_label(),
+            $this->model->get_db_field("back"),
             $this->get_button_url($this->nav->get_previous_id())
         );
 
@@ -101,7 +101,7 @@ class SessionView extends BaseView
     {
         $button_next = "button_next";
         $button_back = "button_back";
-        $title = $this->model->get_title();
+        $title = $this->model->get_db_field("title");
         require __DIR__ . "/tpl_session.php";
     }
 }

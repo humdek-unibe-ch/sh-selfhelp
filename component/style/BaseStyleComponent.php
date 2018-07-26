@@ -31,8 +31,10 @@ class BaseStyleComponent extends BaseComponent
      * @param bool $fluid
      *  If set to true the jumbotron gets the bootstrap class "container-fluid",
      *  othetwise the class "container" is used. The default is false.
+     * @param object $nav
+     *  The section navigation component.
      */
-    public function __construct($style, $fluid=false)
+    public function __construct($style, $fluid=false, $nav=null)
     {
         $styles = explode('-', $style);
         $this->model = new BaseStyleModel();

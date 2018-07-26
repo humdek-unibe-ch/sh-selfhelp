@@ -5,6 +5,14 @@ require_once __DIR__ . "/NavSectionModel.php";
 
 /**
  * A component to allow to navigate sections.
+ *
+ * The navSection component builds a hierarchical naviagion element from
+ * sections. The section dependencies are defined in the 'sections_navigation'
+ * database table. This table is specifically used for this component.
+ *
+ * Note that the 'sections_hierarchy' database table has the same structure but
+ * serves to hierarchically compose sections without building a navigation
+ * dependency.
  */
 class NavSectionComponent extends BaseComponent
 {
@@ -23,17 +31,13 @@ class NavSectionComponent extends BaseComponent
      *  The router instance which is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
-     * @param string $keyword
-     *  The identifier of the navication section.
+     * @param string $root_id
+     *  The identifier of the navigation section.
      * @param int $current_id
      *  The id of the current section.
      */
-    public function __construct($router, $db, $keyword, $current_id=0)
+    public function __construct($router, $db, $root_id, $current_id=0)
     {
-        $sql = "SELECT id FROM sections WHERE name=:keyword";
-        $id_db = $db->query_db_first($sql, array(":keyword" => $keyword));
-        if($id_db) $root_id = $id_db['id'];
-        else throw new Exception("unknown navigation name '$keyword'");
         $this->model = new NavSectionModel($router, $db, $root_id, $current_id);
         $view = new NavSectionView($this->model);
         parent::__construct($view);

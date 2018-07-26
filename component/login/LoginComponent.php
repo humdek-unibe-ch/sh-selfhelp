@@ -6,6 +6,10 @@ require_once __DIR__ . "/LoginController.php";
 
 /**
  * The login component.
+ *
+ * It has a very simple model where page fields are fetched from the database
+ * (no sections). What makes this component special is the controller and,
+ * consequently, the view that is depending on the controller.
  */
 class LoginComponent extends BaseComponent
 {

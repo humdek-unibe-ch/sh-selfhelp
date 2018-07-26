@@ -30,6 +30,11 @@ abstract class BaseComponent
 
     /* Public Methods *********************************************************/
 
+    protected function set_view($view)
+    {
+        $this->view = $view;
+    }
+
     /**
      * Render the component view.
      */
@@ -52,6 +57,7 @@ abstract class BaseComponent
      */
     public function get_css_includes($local = array())
     {
+        if($this->view == null) return $local;
         return array_unique(array_merge($local,
             $this->view->get_css_includes()));
     }
@@ -70,6 +76,7 @@ abstract class BaseComponent
      */
     public function get_js_includes($local = array())
     {
+        if($this->view == null) return $local;
         return array_unique(array_merge($local,
             $this->view->get_js_includes()));
     }

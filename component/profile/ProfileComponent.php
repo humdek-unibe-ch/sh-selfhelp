@@ -6,6 +6,9 @@ require_once __DIR__ . "/ProfileController.php";
 
 /**
  * The user profile component.
+ *
+ * Similar to the login component, the profile component has a very basic model
+ * but needs a custom controller to handle the input data.
  */
 class ProfileComponent extends BaseComponent
 {

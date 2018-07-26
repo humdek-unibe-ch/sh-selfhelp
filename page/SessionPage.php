@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/BasePage.php";
+require_once __DIR__ . "/NavigationPage.php";
 require_once __DIR__ . "/../component/sessions/session/SessionComponent.php";
 
 /**
  * This class serves as a wrapper for a session component.
  */
-class SessionPage extends BasePage
+class SessionPage extends NavigationPage
 {
     /* Private Properties *****************************************************/
 
@@ -28,9 +28,9 @@ class SessionPage extends BasePage
      */
     public function __construct($router, $db, $id)
     {
-        parent::__construct($router, $db, "session");
-        $this->add_component("component",
-            new SessionComponent($this->router, $this->db, $id));
+        parent::__construct($router, $db, "session", $id);
+        $this->add_navigation_component(new SessionComponent($this->router,
+            $this->db, $id, $this->get_nav()));
     }
 
     /* Protected Methods ******************************************************/
@@ -42,7 +42,7 @@ class SessionPage extends BasePage
      */
     protected function output_content()
     {
-        $this->output_component("component");
+        parent::output_content();
     }
 
     /**

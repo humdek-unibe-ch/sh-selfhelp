@@ -103,8 +103,10 @@ class PageDb extends BaseDb
      */
     public function fetch_page_sections($keyword)
     {
-        $sql = "SELECT ps.id_sections AS id FROM pages_sections AS ps
+        $sql = "SELECT ps.id_sections AS id, s.id_styles
+            FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
+            LEFT JOIN sections AS s ON ps.id_sections = s.id
             WHERE p.keyword = :keyword
             ORDER BY ps.position";
         return $this->query_db($sql, array(":keyword" => $keyword));

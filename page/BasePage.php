@@ -151,6 +151,21 @@ abstract class BasePage
     }
 
     /**
+     * Gets a component, given a key.
+     *
+     * @param string $key
+     *  The unique identifier of the component.
+     * @retval object
+     *  The component if it exists or null otherwise
+     */
+    protected function get_component($key)
+    {
+        if(array_key_exists($key, $this->components))
+            return $this->components[$key];
+        return null;
+    }
+
+    /**
      * Get custom css include files required to style the page.
      *
      * @retval array
@@ -190,8 +205,9 @@ abstract class BasePage
      */
     protected function output_component($key)
     {
-        if(array_key_exists($key, $this->components))
-            $this->components[$key]->output_content();
+        $component = $this->get_component($key);
+        if($component != null)
+            $component->output_content();
     }
 
     /* Public Methods *********************************************************/

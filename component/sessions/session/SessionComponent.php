@@ -2,17 +2,12 @@
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/SessionView.php";
 require_once __DIR__ . "/SessionModel.php";
-require_once __DIR__ . "/../../navSection/NavSectionComponent.php";
 
 /**
  * A component to for a single, generic session
  */
 class SessionComponent extends BaseComponent
 {
-    /* Private Properties *****************************************************/
-
-    private $nav;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -26,37 +21,14 @@ class SessionComponent extends BaseComponent
      *  The db instance which grants access to the DB.
      * @param int $id
      *  The section id of this session.
+     * @param object $nav
+     *  The session navigation component.
      */
-    public function __construct($router, $db, $id)
+    public function __construct($router, $db, $id, $nav)
     {
-        $this->nav = new NavSectionComponent($router, $db, "session-navigation", $id);
         $model = new SessionModel($router, $db, $id);
-        $view = new SessionView($model, $this->nav);
+        $view = new SessionView($model, $nav);
         parent::__construct($view);
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        return parent::get_css_includes($this->nav->get_css_includes());
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        return parent::get_js_includes($this->nav->get_js_includes());
     }
 }
 ?>

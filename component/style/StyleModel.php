@@ -31,6 +31,9 @@ class StyleModel extends BaseModel
 
         $this->section = $db->select_by_uid_join("sections", $id);
 
+        $fields = $this->db->fetch_page_fields($this->get_style_name());
+        $this->set_db_fields($fields);
+
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
 
@@ -41,7 +44,7 @@ class StyleModel extends BaseModel
         $db_children = $db->fetch_section_children($id);
         foreach($db_children as $child)
             array_push($this->db_fields["content"],
-                new StyleComponent($router, $db, $child['id']));
+                new StyleComponent($router, $db, intval($child['id'])));
     }
 
     /* Private Methods ********************************************************/

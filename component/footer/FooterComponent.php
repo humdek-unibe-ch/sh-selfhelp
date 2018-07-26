@@ -4,7 +4,8 @@ require_once __DIR__ . "/FooterView.php";
 require_once __DIR__ . "/FooterModel.php";
 
 /**
- * The footer component.
+ * The footer component. The footer component is similar to the nav component
+ * but is simpler as it does not support a hierarchical menu structure.
  */
 class FooterComponent extends BaseComponent
 {
