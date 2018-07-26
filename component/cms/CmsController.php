@@ -11,10 +11,13 @@ class CmsController extends BaseController
 
     /**
      * The constructor.
+     *
+     * @param object $model
+     *  The model instance of the cms component.
      */
-    public function __construct()
+    public function __construct($model)
     {
-        parent::__construct();
+        parent::__construct($model);
     }
 
     /* Public Methods *********************************************************/

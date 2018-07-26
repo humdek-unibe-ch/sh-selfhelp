@@ -21,7 +21,7 @@ class LoginController extends BaseController
      */
     public function __construct($model)
     {
-        parent::__construct();
+        parent::__construct($model);
         $this->failed = false;
 
         if(isset($_POST['email']) && isset($_POST['password']))

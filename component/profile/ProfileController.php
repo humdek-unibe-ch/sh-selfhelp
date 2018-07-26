@@ -23,7 +23,7 @@ class ProfileController extends BaseController
      */
     public function __construct($model)
     {
-        parent::__construct();
+        parent::__construct($model);
         $this->success_change = false;
         $this->fail_change = false;
         $this->success_delete = false;

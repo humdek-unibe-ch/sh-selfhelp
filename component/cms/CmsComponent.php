@@ -23,7 +23,7 @@ class CmsComponent extends BaseComponent
     public function __construct($services)
     {
         $model = new CmsModel($services);
-        $controller = new CmsController();
+        $controller = new CmsController($model);
         $view = new CmsView($model, $controller);
         parent::__construct($view);
     }
