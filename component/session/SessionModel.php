@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../BaseModel.php";
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the session component such
  * that the data can easily be displayed in the view of the component.

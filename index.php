@@ -6,7 +6,6 @@ require_once "./service/Login.php";
 require_once "./page/HomePage.php";
 require_once "./page/NavigationPage.php";
 require_once "./page/SectionPage.php";
-require_once "./page/SessionPage.php";
 require_once "./page/ComponentPage.php";
 
 $router = new Router();
@@ -15,11 +14,6 @@ $router->setBasePath(BASE_PATH);
 $db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
 // custom page creation functions
-function create_session_page($router, $db, $id)
-{
-    $page = new SessionPage($router, $db, intval($id));
-    $page->output();
-}
 function create_login_page($router, $db)
 {
     $page = new ComponentPage($router, $db, "login");
@@ -61,13 +55,6 @@ if($router->route)
         $page->output();
     }
     else if($router->route['target'] == "navigation")
-    {
-        $page = new NavigationPage($router, $db, $router->route['name'],
-            intval($router->route['params']['id']));
-        $page->add_navigation_component();
-        $page->output();
-    }
-    else if($router->route['target'] == "navigation-component")
     {
         $page = new NavigationPage($router, $db, $router->route['name'],
             intval($router->route['params']['id']));
