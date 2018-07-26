@@ -24,8 +24,10 @@ class StyleModel extends BaseModel
      * @param int $id
      *  The id of the database section item to be rendered.
      */
-    public function __construct($router, $db, $id)
+    public function __construct($services, $id)
     {
+        $router = $services['router'];
+        $db = $services['db'];
         parent::__construct($router, $db);
         $this->db_fields['id'] = $id;
 
@@ -44,7 +46,7 @@ class StyleModel extends BaseModel
         $db_children = $db->fetch_section_children($id);
         foreach($db_children as $child)
             array_push($this->db_fields["content"],
-                new StyleComponent($router, $db, intval($child['id'])));
+                new StyleComponent($services, intval($child['id'])));
     }
 
     /* Private Methods ********************************************************/

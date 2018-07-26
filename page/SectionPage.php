@@ -34,7 +34,7 @@ class SectionPage extends BasePage
             FROM pages_sections AS ps
             WHERE ps.id_pages = :id_page
             ORDER BY ps.position";
-        $this->sections = $this->db->query_db($sql,
+        $this->sections = $db->query_db($sql,
             array(
                 ":id_page" => $this->id_page
             )
@@ -42,7 +42,7 @@ class SectionPage extends BasePage
         foreach($this->sections as $section)
         {
             $this->add_component("section-" . $section['id'],
-                new StyleComponent($this->router, $this->db, $section['id']));
+                new StyleComponent($this->services, $section['id']));
         }
     }
 

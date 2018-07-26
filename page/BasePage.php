@@ -21,6 +21,7 @@ abstract class BasePage
     protected $keyword;
     protected $id_page;
     protected $url;
+    protected $services;
     private $css_includes;
     private $js_includes;
     private $components;
@@ -44,12 +45,7 @@ abstract class BasePage
     {
         $this->render_nav = true;
         $this->render_footer = true;
-        $this->db = $db;
-        $this->acl = new Acl($this->db);
-        $this->login = new Login($this->db);
-        $this->router = $router;
         $this->keyword = $keyword;
-        $this->fetch_page_info($keyword);
         $this->components = array();
         $this->css_includes = array(
             "/css/bootstrap.min.css",
@@ -60,14 +56,22 @@ abstract class BasePage
             "/js/bootstrap.min.js",
             "/js/main.js",
         );
+        $this->services = array(
+            "router" => $router,
+            "db" => $db,
+            "login" => new Login($db),
+            "acl" => new Acl($db),
+            "nav" => null,
+        );
+        $this->fetch_page_info($keyword);
         $this->add_component("denied-guest",
-            new StyleComponent($this->router, $this->db, NO_ACCESS_GUEST_ID));
+            new StyleComponent($this->services, NO_ACCESS_GUEST_ID));
         $this->add_component("denied",
-            new StyleComponent( $this->router, $this->db,NO_ACCESS_ID));
+            new StyleComponent($this->services, NO_ACCESS_ID));
         $this->add_component("nav",
-            new NavComponent($this->router, $this->db, $this->acl));
+            new NavComponent($this->services));
         $this->add_component("footer",
-            new FooterComponent($this->router, $this->db, $this->acl));
+            new FooterComponent($this->services));
     }
 
     /* Private Metods *********************************************************/
@@ -80,7 +84,7 @@ abstract class BasePage
      */
     private function fetch_page_info($keyword)
     {
-        $info = $this->db->fetch_page_info($keyword);
+        $info = $this->services['db']->fetch_page_info($keyword);
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
@@ -95,7 +99,7 @@ abstract class BasePage
             $this->get_css_includes()));
         foreach($this->css_includes as $css_include)
         {
-            $include_path = $this->router->get_asset_path($css_include);
+            $include_path = $this->services['router']->get_asset_path($css_include);
             require __DIR__ . '/tpl_css_include.php';
         }
     }
@@ -109,7 +113,7 @@ abstract class BasePage
             $this->get_js_includes()));
         foreach($this->js_includes as $js_include)
         {
-            $include_path = $this->router->get_asset_path($js_include);
+            $include_path = $this->services['router']->get_asset_path($js_include);
             require __DIR__ . '/tpl_js_include.php';
         }
     }
@@ -188,7 +192,8 @@ abstract class BasePage
     protected function output_base_content()
     {
         if($this->render_nav) $this->output_component("nav");
-        if($this->acl->has_access_select($_SESSION['id_user'], $this->id_page))
+        if($this->services['acl']->has_access_select($_SESSION['id_user'],
+            $this->id_page))
             $this->output_content();
         else if($this->login->is_logged_in())
             $this->output_component("denied");

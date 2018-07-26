@@ -54,10 +54,20 @@ if($router->route)
     }
     else if($router->route['target'] == "component")
     {
-        $page = new ComponentPage($router, $db, $router->route['name']);
+        $id = null;
+        if(array_key_exists('id', $router->route['params']))
+            $id = $router->route['params']['id'];
+        $page = new ComponentPage($router, $db, $router->route['name'], $id);
         $page->output();
     }
     else if($router->route['target'] == "navigation")
+    {
+        $page = new NavigationPage($router, $db, $router->route['name'],
+            intval($router->route['params']['id']));
+        $page->add_navigation_component();
+        $page->output();
+    }
+    else if($router->route['target'] == "navigation-component")
     {
         $page = new NavigationPage($router, $db, $router->route['name'],
             intval($router->route['params']['id']));

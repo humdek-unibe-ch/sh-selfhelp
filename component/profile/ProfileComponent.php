@@ -26,10 +26,10 @@ class ProfileComponent extends BaseComponent
      * @param object $login
      *  The login class that allows to check user credentials.
      */
-    public function __construct($router, $db, $login)
+    public function __construct($services)
     {
-        $model = new ProfileModel($router, $db);
-        $controller = new ProfileController($login);
+        $model = new ProfileModel($services['router'], $services['db']);
+        $controller = new ProfileController($services['login']);
         $view = new ProfileView($model, $controller);
         parent::__construct($view);
     }

@@ -24,10 +24,10 @@ class SessionComponent extends BaseComponent
      * @param object $nav
      *  The session navigation component.
      */
-    public function __construct($router, $db, $id, $nav)
+    public function __construct($services, $id)
     {
-        $model = new SessionModel($router, $db, $id);
-        $view = new SessionView($model, $nav);
+        $model = new SessionModel($services, $id);
+        $view = new SessionView($model, $services['nav']);
         parent::__construct($view);
     }
 }

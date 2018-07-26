@@ -36,9 +36,10 @@ class NavSectionComponent extends BaseComponent
      * @param int $current_id
      *  The id of the current section.
      */
-    public function __construct($router, $db, $root_id, $current_id=0)
+    public function __construct($services, $root_id, $current_id=0)
     {
-        $this->model = new NavSectionModel($router, $db, $root_id, $current_id);
+        $this->model = new NavSectionModel($services['router'], $services['db'],
+            $root_id, $current_id);
         $view = new NavSectionView($this->model);
         parent::__construct($view);
     }

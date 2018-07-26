@@ -25,9 +25,10 @@ class NavComponent extends BaseComponent
      *  The instnce of the access control layer (ACL) which allows to decide
      *  which links to display.
      */
-    public function __construct($router, $db, $acl)
+    public function __construct($services)
     {
-        $model = new NavModel($router, $db, $acl);
+        $model = new NavModel($services['router'], $services['db'],
+            $services['acl']);
         $view = new NavView($model);
         parent::__construct($view);
     }

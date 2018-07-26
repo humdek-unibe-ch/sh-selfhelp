@@ -33,9 +33,9 @@ class SessionsComponent extends BaseComponent
      * @param object $db
      *  The db instance which grants access to the DB.
      */
-    public function __construct($router, $db)
+    public function __construct($services)
     {
-        $sections = $db->fetch_page_sections("sessions");
+        $sections = $services['db']->fetch_page_sections("sessions");
         $id_nav = 0;
         foreach($sections as $section)
             if(intval($section['id_styles']) == NAVIGATION_STYLE_ID)
@@ -43,8 +43,8 @@ class SessionsComponent extends BaseComponent
                 $id_nav = intval($section['id']);
                 break;
             }
-        $this->nav = new NavSectionComponent($router, $db, $id_nav);
-        $model = new SessionsModel($router, $db);
+        $this->nav = new NavSectionComponent($services, $id_nav);
+        $model = new SessionsModel($services['router'], $services['db']);
         $view = new SessionsView($model, $this->nav);
         parent::__construct($view);
     }

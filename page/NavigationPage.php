@@ -32,13 +32,16 @@ class NavigationPage extends BasePage
     public function __construct($router, $db, $keyword, $id)
     {
         parent::__construct($router, $db, $keyword);
+        if($id == null) return;
+
         $this->section_id = $id;
         $this->sections = $db->fetch_page_sections($this->keyword);
         $nav_id = $this->get_nav_id();
         if($nav_id == false)
             throw new Exception("Trying to create a navigation page without associating a navigation section.");
-        $this->add_component("section-navigation",
-            new NavSectionComponent($router, $db, $nav_id, $id));
+        $this->services["nav"] = new NavSectionComponent($this->services,
+            $nav_id, $id);
+        $this->add_component("section-navigation", $this->services["nav"]);
     }
 
     /* Private Methods ********************************************************/
@@ -75,17 +78,6 @@ class NavigationPage extends BasePage
     /* Protected Methods ******************************************************/
 
     /**
-     * Return the navigation component.
-     *
-     * @retval object
-     *  The navigation component.
-     */
-    protected function get_nav()
-    {
-        return $this->get_component("section-navigation");
-    }
-
-    /**
      * See BasePage::output_content(). This implementation renders all
      * components that are assigned to the current page (as specified in the
      * DB).
@@ -118,8 +110,8 @@ class NavigationPage extends BasePage
         if($this->section_id_exists())
         {
             if($component == null)
-                $component = new StyleComponent($this->router, $this->db,
-                    $this->section_id, true, $this->nav);
+                $component = new StyleComponent($this->services,
+                    $this->section_id);
             $this->add_component("section", $component);
         }
         else

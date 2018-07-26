@@ -27,13 +27,11 @@ class StyleComponent extends BaseComponent
      * @param bool $fluid
      *  If set to true the content will be rendered in a container-fluid
      *  bootstrap element, if set to false in a container. The defualt is true.
-     * @param object $nav
-     *  The section navigation component.
      */
-    public function __construct($router, $db, $id, $fluid=true, $nav=null)
+    public function __construct($services, $id, $fluid=true)
     {
-        $model = new StyleModel($router, $db, $id);
-        $view = new StyleView($model, $fluid, $nav);
+        $model = new StyleModel($services, $id);
+        $view = new StyleView($model, $fluid, $services['nav']);
         parent::__construct($view);
     }
 }

@@ -21,9 +21,9 @@ class CmsComponent extends BaseComponent
      * @param object $db
      *  The db instance which grants access to the DB.
      */
-    public function __construct($router, $db)
+    public function __construct($services)
     {
-        $model = new CmsModel($router, $db);
+        $model = new CmsModel($services['router'], $services['db']);
         $controller = new CmsController();
         $view = new CmsView($model, $controller);
         parent::__construct($view);

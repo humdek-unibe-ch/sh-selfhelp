@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/BasePage.php";
+require_once __DIR__ . "/NavigationPage.php";
 spl_autoload_register(function ($class_name) {
     $folder = strtolower(str_replace("Component", "", $class_name));
     require_once __DIR__ . "/../component/" . $folder . "/" . $class_name . ".php";
@@ -11,7 +11,7 @@ spl_autoload_register(function ($class_name) {
  * A page with the keyword "foo" will search for the component class
  * "component/foo/FooComponent.php".
  */
-class ComponentPage extends BasePage
+class ComponentPage extends NavigationPage
 {
     /* Private Properties *****************************************************/
 
@@ -30,15 +30,11 @@ class ComponentPage extends BasePage
      * @param string $component
      *  The component name. This name will be used to construct the class name.
      */
-    public function __construct($router, $db, $keyword)
+    public function __construct($router, $db, $keyword, $id=null)
     {
-        parent::__construct($router, $db, $keyword);
+        parent::__construct($router, $db, $keyword, $id);
         $componentClass = ucfirst($keyword) . "Component";
-        $componentInstance = new $componentClass(
-            $this->router,
-            $this->db,
-            $this->login,
-            $this->acl);
+        $componentInstance = new $componentClass($this->services, $id);
         $this->add_component("component", $componentInstance);
     }
 

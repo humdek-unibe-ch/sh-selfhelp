@@ -24,9 +24,10 @@ class FooterComponent extends BaseComponent
      *  The instnce of the access control layer (ACL) which allows to decide
      *  which links to display.
      */
-    public function __construct($router, $db, $acl)
+    public function __construct($services)
     {
-        $model = new FooterModel($router, $db, $acl);
+        $model = new FooterModel($services['router'], $services['db'],
+            $services['acl']);
         $view = new FooterView($model);
         parent::__construct($view);
     }

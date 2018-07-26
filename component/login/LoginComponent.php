@@ -27,10 +27,11 @@ class LoginComponent extends BaseComponent
      * @param object $login
      *  The login class that allows to check user credentials.
      */
-    public function __construct($router, $db, $login)
+    public function __construct($services)
     {
-        $model = new LoginModel($router, $db);
-        $controller = new LoginController($router, $login);
+        $model = new LoginModel($services['router'], $services['db']);
+        $controller = new LoginController($services['router'],
+            $services['login']);
         $view = new LoginView($model, $controller);
         parent::__construct($view);
     }

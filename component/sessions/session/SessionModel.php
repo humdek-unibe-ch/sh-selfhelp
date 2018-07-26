@@ -18,8 +18,10 @@ class SessionModel extends BaseModel
      * @param int $id
      *  The section id of this session.
      */
-    public function __construct($router, $db, $id)
+    public function __construct($services, $id)
     {
+        $router = $services['router'];
+        $db = $services['db'];
         parent::__construct($router, $db);
         $this->section_fields = array();
         $this->page_fields = array();
@@ -33,7 +35,7 @@ class SessionModel extends BaseModel
         $children = $this->db->fetch_section_children($id);
         foreach($children as $child)
             array_push($this->db_fields["content"],
-               new StyleComponent($router, $db, intval($child['id'])));
+               new StyleComponent($services, intval($child['id'])));
     }
 
     /* Public Methods *********************************************************/

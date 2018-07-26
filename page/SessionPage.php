@@ -23,14 +23,14 @@ class SessionPage extends NavigationPage
      *  The router instance is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
-     * @param string $id
+     * @param int $id
      *  The id of the session to display.
      */
     public function __construct($router, $db, $id)
     {
         parent::__construct($router, $db, "session", $id);
-        $this->add_navigation_component(new SessionComponent($this->router,
-            $this->db, $id, $this->get_nav()));
+        $this->add_navigation_component(
+            new SessionComponent($this->services, $id));
     }
 
     /* Protected Methods ******************************************************/
