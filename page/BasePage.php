@@ -13,10 +13,6 @@ abstract class BasePage
 {
     /* Private Properties *****************************************************/
 
-    protected $db;
-    protected $acl;
-    protected $login;
-    protected $router;
     protected $title;
     protected $keyword;
     protected $id_page;
@@ -204,7 +200,7 @@ abstract class BasePage
         if($this->services['acl']->has_access_select($_SESSION['id_user'],
             $this->id_page))
             $this->output_content();
-        else if($this->login->is_logged_in())
+        else if($this->services['login']->is_logged_in())
             $this->output_component("denied");
         else
             $this->output_component("denied-guest");
