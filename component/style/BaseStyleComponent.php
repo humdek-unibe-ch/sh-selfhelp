@@ -11,6 +11,7 @@ require_once __DIR__ . "/figure/FigureView.php";
 require_once __DIR__ . "/video/VideoView.php";
 require_once __DIR__ . "/video/VideoSourceView.php";
 require_once __DIR__ . "/quiz/QuizView.php";
+require_once __DIR__ . "/nestedList/NestedListView.php";
 
 /**
  * The class to define the base style component. A base style component serves
@@ -64,6 +65,8 @@ class BaseStyleComponent extends BaseComponent
             $view = new VideoSourceView($this->model);
         else if($styles[0] == "quiz")
             $view = new QuizView($this->model);
+        else if($styles[0] == "nested_list")
+            $view = new NestedListView($this->model);
         else
             throw new Exception("unknown style '$style'");
         parent::__construct($view);
