@@ -68,7 +68,7 @@ class NestedListView extends BaseView
     private function output_list_item($id, $item)
     {
         $id_prefix = $this->model->get_db_field("id_prefix");
-        $id = $id_prefix . "-" . $id;
+        $id = "collapse-item-" . $id_prefix . "-" . $id;
         $has_children = (count($item['children']) > 0);
         $children = $item['children'];
         $name = $item['name'];
@@ -140,6 +140,7 @@ class NestedListView extends BaseView
         $this->is_expanded = $this->model->get_db_field("is_expanded");
         $items = $this->model->get_db_field("items");
         $search_text = $this->model->get_db_field("search_text");
+        $title = $this->model->get_db_field("title");
         require __DIR__ . "/tpl_list.php";
     }
 }
