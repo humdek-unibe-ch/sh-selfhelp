@@ -45,6 +45,7 @@ abstract class BasePage
         $this->components = array();
         $this->css_includes = array(
             "/css/bootstrap.min.css",
+            "/css/fontawesome.css",
             "/css/main.css",
         );
         $this->js_includes = array(
