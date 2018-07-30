@@ -2,4 +2,4 @@
     <?php $this->output_chevron($has_children, $is_expanded); ?>
     <span class="label"><?php echo $name?></span>
 </a>
-<?php $this->output_children_container($id, $children, $is_expanded); ?>
+<?php $this->output_children_container($id, $item_root, $children, $is_expanded, $first); ?>

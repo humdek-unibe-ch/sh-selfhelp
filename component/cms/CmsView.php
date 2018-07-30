@@ -21,7 +21,8 @@ class CmsView extends BaseView
     {
         parent::__construct($model);
         $pages = $this->model->get_pages();
-        $this->add_list_component("page-list", "Pages", $pages, "page");
+        $this->add_list_component("page-list", "Pages", $pages, "page",
+            $this->model->get_active_page_id());
         $global_sections = $this->model->get_global_sections();
         $this->add_list_component("global-section-list", "Global Sections",
             $global_sections["page"], "global-sections");
@@ -34,7 +35,8 @@ class CmsView extends BaseView
 
     /* Private Methods ********************************************************/
 
-    private function add_list_component($name, $title, $items, $prefix)
+    private function add_list_component($name, $title, $items, $prefix,
+        $id_active = 0)
     {
         if(count($items) == 0) return;
         $this->add_local_component($name,
@@ -45,7 +47,8 @@ class CmsView extends BaseView
                 "items" => $items,
                 "id_prefix" => $prefix,
                 "is_expanded" => false,
-                "id_active" => $this->model->get_active_page_id()
+                "id_active" => $id_active,
+                "root_name" => "root element"
             )
         );
     }

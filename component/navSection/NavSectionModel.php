@@ -51,6 +51,7 @@ class NavSectionModel extends BaseModel
      *   'id': the section id
      *   'title': the section title
      *   'children': the children of this section
+     *   'url': the target url
      */
     private function fetch_children($id_section)
     {
@@ -68,6 +69,8 @@ class NavSectionModel extends BaseModel
             $fields['id'] = intval($id['id']);
             array_push($this->items_list, $fields);
             $fields['children'] = $this->fetch_children(intval($id['id']));
+            $fields['url'] = $this->get_link_url("session",
+                array("id" => intval($id['id'])));
             array_push($children, $fields);
         }
         return $children;

@@ -27,6 +27,16 @@ class CmsModel extends BaseModel
         $this->id_page = $id_page;
     }
 
+    private function add_item($id, $title, $children, $url)
+    {
+        return array(
+            "id" => $id,
+            "title" => $title,
+            "children" => $children,
+            "url" => $url
+        );
+    }
+
     private function prepare_page_list_root($items)
     {
         $res = array();
@@ -36,13 +46,21 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
                 continue;
-            $res[$id] = array(
-                "name" => $item['keyword'],
-                "children" => array(),
-                "url" => $this->router->generate("cms_show", array("id" => $id))
+            $res[] = $this->add_item($id, $item['keyword'], array(),
+                $this->router->generate("cms_show", array("id" => $id))
             );
+            if($item['url'] == "")
+                $res[count($res)-1]['root-link'] = false;
         }
         return $res;
+    }
+
+    private function get_item_index($id, $items)
+    {
+        for($idx = 0; $idx < count($items); $idx++)
+            if($items[$idx]['id'] == $id)
+                return $idx;
+        return -1;
     }
 
     private function add_page_list_children($root_items, $items)
@@ -53,11 +71,32 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
                 continue;
-            $root_items[intval($item['parent'])]['children'][$id] = array(
-                "name" => $item['keyword'],
-                "children" => array(),
-                "url" => $this->router->generate("cms_show", array("id" => $id))
+            $root_idx = $this->get_item_index(intval($item['parent']),
+                $root_items);
+            $root_items[$root_idx]['children'][] = $this->add_item($id,
+                $item['keyword'], array(),
+                $this->router->generate("cms_show", array("id" => $id))
             );
+        }
+        return $root_items;
+    }
+
+    private function add_page_list_children_root($root_items)
+    {
+        foreach($root_items as $index => $item)
+        {
+            $id = $item['id'];
+            if(($item['root-url'] != "") && (count($item['children']) > 0))
+            {
+                array_unshift($root_items[$index]['children'], array(
+                    "id" => $id,
+                    "title" => "root (" . $item['title'] . ")",
+                    "children" => array(),
+                    "url" => $item['url']
+                ));
+                $root_items[$index]['url'] = "";
+                $root_items[$index]['id'] = $id . "-root";
+            }
         }
         return $root_items;
     }
@@ -69,8 +108,9 @@ class CmsModel extends BaseModel
         {
             $id = intval($item['id']);
             if(intval($item['id_styles']) == NAVIGATION_STYLE_ID)
-                $res["nav"][$id] = array(
-                    "name" => $item['name'],
+                $res["nav"][] = array(
+                    "id" => $id,
+                    "title" => $item['name'],
                     "children" => array(),
                     "url" => "#"
                 );
@@ -78,8 +118,9 @@ class CmsModel extends BaseModel
             {
                 $children_db = $this->db->fetch_section_children($id);
                 $children = $this->prepare_section_list($children_db);
-                $res["page"][$id] = array(
-                    "name" => $item['name'],
+                $res["page"][] = array(
+                    "id" => $id,
+                    "title" => $item['name'],
                     "children" => $children["page"],
                     "url" => "#"
                 );
