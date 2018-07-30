@@ -74,6 +74,8 @@ abstract class BasePage
             new StyleComponent($this->services, NO_ACCESS_GUEST_ID));
         $this->add_component("denied",
             new StyleComponent($this->services, NO_ACCESS_ID));
+        $this->add_component("missing",
+            new StyleComponent($this->services, MISSING_ID));
         $this->add_component("nav",
             new NavComponent($this->services));
         $this->add_component("footer",

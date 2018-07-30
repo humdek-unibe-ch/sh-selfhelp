@@ -56,6 +56,20 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Fetch all pages that are not internal.
+     *
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_accessible_pages()
+    {
+        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name FROM pages AS p
+            LEFT JOIN actions AS a ON p.id_actions = a.id
+            WHERE p.intern = 0";
+        return $this->query_db($sql);
+    }
+
+    /**
      * Fetch the main page information from the database.
      *
      * @param string $keyword
@@ -103,12 +117,12 @@ class PageDb extends BaseDb
      */
     public function fetch_page_sections($keyword)
     {
-        $sql = "SELECT ps.id_sections AS id, s.id_styles
+        $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner
             FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
             LEFT JOIN sections AS s ON ps.id_sections = s.id
             WHERE p.keyword = :keyword
-            ORDER BY ps.position";
+            ORDER BY ps.position, id";
         return $this->query_db($sql, array(":keyword" => $keyword));
     }
 
@@ -145,9 +159,11 @@ class PageDb extends BaseDb
      */
     public function fetch_section_children($id)
     {
-        $sql = "SELECT sh.child AS id FROM sections_hierarchy AS sh
+        $sql = "SELECT s.id, s.name, s.id_styles
+            FROM sections_hierarchy AS sh
+            LEFT JOIN sections AS s ON s.id = sh.child
             WHERE sh.parent = :id
-            ORDER BY sh.position";
+            ORDER BY sh.position, s.id";
         return $this->query_db($sql, array(":id" => $id));
     }
 

@@ -7,6 +7,7 @@ require_once "./page/HomePage.php";
 require_once "./page/NavigationPage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/ComponentPage.php";
+require_once "./page/CmsPage.php";
 
 $router = new Router();
 $router->setBasePath(BASE_PATH);
@@ -23,6 +24,26 @@ function create_login_page($router, $db)
 function create_home_page($router, $db)
 {
     $page = new HomePage($router, $db);
+    $page->output();
+}
+function create_cms_edit_page($router, $db, $id_page)
+{
+    $page = new CmsPage($router, $db, "cms_edit", intval($id_page));
+    $page->output();
+}
+function create_cms_show_page($router, $db, $id_page)
+{
+    $page = new CmsPage($router, $db, "cms_show", intval($id_page));
+    $page->output();
+}
+function create_cms_new_page($router, $db, $id_page)
+{
+    $page = new CmsPage($router, $db, "cms_new", intval($id_page));
+    $page->output();
+}
+function create_cms_remove_page($router, $db, $id_page)
+{
+    $page = new CmsPage($router, $db, "cms_remove", intval($id_page));
     $page->output();
 }
 

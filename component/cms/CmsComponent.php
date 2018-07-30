@@ -19,10 +19,12 @@ class CmsComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
+     * @param int $id_page
+     *  The id of the page that is currently edited.
      */
-    public function __construct($services)
+    public function __construct($services, $id_page=0)
     {
-        $model = new CmsModel($services);
+        $model = new CmsModel($services, $id_page);
         $controller = new CmsController($model);
         $view = new CmsView($model, $controller);
         parent::__construct($view);
