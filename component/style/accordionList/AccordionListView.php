@@ -2,7 +2,28 @@
 require_once __DIR__ . "/../../BaseView.php";
 
 /**
- * The view class of the section navigation component.
+ * The view class of the accordion list style component.
+ * This style requires the following fields:
+ *  'id_active':
+ *   the active id of the list (to be marked as active).
+ *  'title_prefix':
+ *   a prefix that will be appended to the title of each root item.
+ *  'items':
+ *   a hierarchical array holding the list items
+ *  'root_name':
+ *   as the root item is expandable, it cannot be clicked itself. Hence, in
+ *   order to show the content of the root a new item is intruduced. This item
+ *   has the name that is provided by this field.
+ *
+ * An item in the items list must have the following keys:
+ *  'id':
+ *   the item id
+ *  'title':
+ *   the title of the item
+ *  'children':
+ *   the children of this item
+ *  'url':
+ *   the target url
  */
 class AccordionListView extends BaseView
 {
@@ -63,7 +84,7 @@ class AccordionListView extends BaseView
      * Renders all child navigation items.
      *
      * @param array $children
-     *  An array hodling the session children to be rendered.
+     *  An array hodling the children to be rendered.
      */
     private function output_nav_children($children)
     {

@@ -27,6 +27,20 @@ class CmsModel extends BaseModel
         $this->id_page = $id_page;
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     * Add a new list item.
+     *
+     * @param int $id
+     *  The id of the list item.
+     * @param string $title
+     *  The stitle of the list item.
+     * @param array $children
+     *  The children of the list item which is an array of list items.
+     * @param string $url
+     *  The target url of the list item.
+     */
     private function add_item($id, $title, $children, $url)
     {
         return array(
@@ -37,32 +51,18 @@ class CmsModel extends BaseModel
         );
     }
 
-    private function prepare_page_list_root($items)
-    {
-        $res = array();
-        foreach($items as $item)
-        {
-            if($item['parent'] != "") continue;
-            $id = intval($item["id"]);
-            if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
-                continue;
-            $res[] = $this->add_item($id, $item['keyword'], array(),
-                $this->router->generate("cms_show", array("id" => $id))
-            );
-            if($item['url'] == "")
-                $res[count($res)-1]['root-link'] = false;
-        }
-        return $res;
-    }
-
-    private function get_item_index($id, $items)
-    {
-        for($idx = 0; $idx < count($items); $idx++)
-            if($items[$idx]['id'] == $id)
-                return $idx;
-        return -1;
-    }
-
+    /**
+     * Add children to the root page list
+     *
+     * @param array $root_items
+     *  An array of prepared (i.e. put into a form such that they can be passed
+     *  to a list style) root page items.
+     * @param array $items
+     *  The page items as they are teyrned from the db query.
+     * @retval array
+     *  A prepared hierarchical array such that it can be passed to a list
+     *  style.
+     */
     private function add_page_list_children($root_items, $items)
     {
         foreach($items as $item)
@@ -81,26 +81,64 @@ class CmsModel extends BaseModel
         return $root_items;
     }
 
-    private function add_page_list_children_root($root_items)
+    /**
+     * Return the index of an itme, given its id.
+     *
+     * @param int $id
+     *  The id of the item to be found.
+     * @param array $items
+     *  The array to search for the item with the id in question.
+     * @retval int
+     *  The index of the item with the goven id or -1 if the item was not found.
+     */
+    private function get_item_index($id, $items)
     {
-        foreach($root_items as $index => $item)
-        {
-            $id = $item['id'];
-            if(($item['root-url'] != "") && (count($item['children']) > 0))
-            {
-                array_unshift($root_items[$index]['children'], array(
-                    "id" => $id,
-                    "title" => "root (" . $item['title'] . ")",
-                    "children" => array(),
-                    "url" => $item['url']
-                ));
-                $root_items[$index]['url'] = "";
-                $root_items[$index]['id'] = $id . "-root";
-            }
-        }
-        return $root_items;
+        for($idx = 0; $idx < count($items); $idx++)
+            if($items[$idx]['id'] == $id)
+                return $idx;
+        return -1;
     }
 
+    /**
+     * Prepare an array with the root page items such that it can be passed to a
+     * list style.
+     *
+     * @param array $items
+     *  The page items as they are returned from the db query.
+     * @retval array
+     *  A prepared array such that it can be passed to a list style.
+     */
+    private function prepare_page_list_root($items)
+    {
+        $res = array();
+        foreach($items as $item)
+        {
+            if($item['parent'] != "") continue;
+            $id = intval($item["id"]);
+            if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
+                continue;
+            $res[] = $this->add_item($id, $item['keyword'], array(),
+                $this->router->generate("cms_show", array("id" => $id))
+            );
+            if($item['url'] == "")
+                $res[count($res)-1]['disable-root-link'] = true;
+        }
+        return $res;
+    }
+
+    /**
+     * Prepare an array with section items such that it can be passed to a list
+     * style.
+     *
+     * @param array $items
+     *  The section items as they are returned from the db query.
+     * @retval array
+     *  An array with two keys 'page' and 'nav' where
+     *   'page' holds a prepared array of displayable sections such that it can
+     *   be passed to a list style.
+     *   'nav' hodls a prepared array of navigation sections such that it can
+     *   be passed to a list style.
+     */
     private function prepare_section_list($items)
     {
         $res = array("page" => array(), "nav" => array());
@@ -129,6 +167,15 @@ class CmsModel extends BaseModel
         return $res;
     }
 
+    /* Public Methods *********************************************************/
+
+    /**
+     * Fetch page data from the database and return a heirarchical array such
+     * that it can be passed to a list style.
+     *
+     *  A prepared hierarchical array of page items such that it can be passed
+     *  to a list style.
+     */
     public function get_pages()
     {
         $pages_db = $this->db->fetch_accessible_pages();
@@ -136,6 +183,13 @@ class CmsModel extends BaseModel
         return $this->add_page_list_children($pages, $pages_db);
     }
 
+    /**
+     * Fetch gloabl section data from the database and return a heirarchical
+     * array such that it can be passed to a list style.
+     *
+     *  A prepared hierarchical array of global section items such that it can
+     *  be passed to a list style.
+     */
     public function get_global_sections()
     {
         $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
@@ -146,6 +200,17 @@ class CmsModel extends BaseModel
         return $this->prepare_section_list($sections_db);
     }
 
+    /**
+     * Fetch section data from the database and return a heirarchical array such
+     * that it can be passed to a list style.
+     *
+     * @retval array
+     *  An array with two keys 'page' and 'nav' where
+     *   'page' holds a prepared array of displayable sections such that it can
+     *   be passed to a list style.
+     *   'nav' hodls a prepared array of navigation sections such that it can
+     *   be passed to a list style.
+     */
     public function get_page_sections()
     {
         $sql = "SELECT keyword FROM pages WHERE id = :id";
@@ -155,6 +220,12 @@ class CmsModel extends BaseModel
         return $this->prepare_section_list($sections_db);
     }
 
+    /**
+     * Gets the currently active page id.
+     *
+     * @retval int
+     *  The currently active page id.
+     */
     public function get_active_page_id()
     {
         return $this->id_page;
