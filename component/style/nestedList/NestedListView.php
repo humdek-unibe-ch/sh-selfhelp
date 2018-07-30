@@ -7,6 +7,7 @@ require_once __DIR__ . "/../../BaseView.php";
 class NestedListView extends BaseView
 {
     private $is_expanded;
+    private $id_active;
 
     /* Constructors ***********************************************************/
 
@@ -19,6 +20,8 @@ class NestedListView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->id_active = 0;
+        $this->is_expanded = false;
     }
 
     /* Private Methods ********************************************************/
@@ -29,11 +32,11 @@ class NestedListView extends BaseView
      * @param bool $has_children
      *  Indicates whether the element has children.
      */
-    private function output_chevron($has_children)
+    private function output_chevron($has_children, $is_expanded)
     {
         if($has_children)
         {
-            $direction = ($this->is_expanded) ? "down" : "right";
+            $direction = ($is_expanded) ? "down" : "right";
             require __DIR__ . "/tpl_chevron.php";
         }
         else
@@ -48,10 +51,10 @@ class NestedListView extends BaseView
      * @param bool $has_children
      *  Indicates whether the element has children.
      */
-    private function output_collapse($id, $has_children)
+    private function output_collapse($id, $has_children, $is_expanded)
     {
         if(!$has_children) return;
-        $is_expanded = ($this->is_expanded) ? "true" : "false";
+        $is_expanded = ($is_expanded) ? "true" : "false";
         require __DIR__ . "/tpl_collapse.php";
     }
 
@@ -67,11 +70,25 @@ class NestedListView extends BaseView
      */
     private function output_list_item($id, $item)
     {
-        $id_prefix = $this->model->get_db_field("id_prefix");
-        $id = "collapse-item-" . $id_prefix . "-" . $id;
-        $has_children = (count($item['children']) > 0);
         $children = $item['children'];
         $name = $item['name'];
+        $url = $item['url'];
+
+        $is_expanded = $this->model->get_db_field("is_expanded");
+        $id_active = $this->model->get_db_field("id_active");
+        $id_prefix = $this->model->get_db_field("id_prefix");
+
+        $has_children = (count($item['children']) > 0);
+        $active = "";
+        if($id_active == $id)
+        {
+            $active = "active";
+            $is_expanded = true;
+        }
+        foreach($children as $id => $item)
+            if($id_active == $id)
+                $is_expanded = true;
+        $id = "collapse-item-" . $id_prefix . "-" . $id;
         require __DIR__ . "/tpl_list_item.php";
     }
 
@@ -97,10 +114,10 @@ class NestedListView extends BaseView
      *  An array with key => value pairs where the key is the numeric id of a
      *  list item and the value an associative array, holding the itme content.
      */
-    private function output_children_container($id_root, $items)
+    private function output_children_container($id_root, $items, $is_expanded)
     {
         if(count($items) == 0) return;
-        $show = ($this->is_expanded) ? "show" : "";
+        $show = ($is_expanded) ? "show" : "";
         require __DIR__ . "/tpl_children_container.php";
     }
 
@@ -137,7 +154,6 @@ class NestedListView extends BaseView
      */
     public function output_content()
     {
-        $this->is_expanded = $this->model->get_db_field("is_expanded");
         $items = $this->model->get_db_field("items");
         $search_text = $this->model->get_db_field("search_text");
         $title = $this->model->get_db_field("title");
