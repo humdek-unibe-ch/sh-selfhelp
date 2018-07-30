@@ -92,7 +92,8 @@ abstract class BaseView
     protected function output_local_component($name)
     {
         $component = $this->get_local_component($name);
-        $component->output_content();
+        if($component != null)
+            $component->output_content();
     }
 
     /**
@@ -108,7 +109,7 @@ abstract class BaseView
         if(array_key_exists($name, $this->local_components))
             return $this->local_components[$name];
         else
-            throw new Exception("Cannot find local component '$name'");
+            return null;
     }
 
     /* Public Methods *********************************************************/
