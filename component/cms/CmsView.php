@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseView.php";
 require_once __DIR__ . "/../style/BaseStyleComponent.php";
+require_once __DIR__ . "/../style/StyleComponent.php";
 
 /**
  * The view class of the cms component.
@@ -8,6 +9,7 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
 class CmsView extends BaseView
 {
     private $page_info;
+    private $page_sections;
 
     /* Constructors ***********************************************************/
 
@@ -23,21 +25,37 @@ class CmsView extends BaseView
     {
         parent::__construct($model);
         $this->page_info = $this->model->get_page_info();
+
         $pages = $this->model->get_pages();
         $this->add_list_component("page-list", "Pages", $pages, "page",
-            $this->model->get_active_page_id());
+            $this->model->get_active_id());
+
         $global_sections = $this->model->get_global_sections();
         $this->add_list_component("global-section-list", "Global Sections",
-            $global_sections["page"], "global-sections");
-        $sections = $this->model->get_page_sections();
+            $global_sections, "global-sections");
+
+        $this->page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
-            $sections["page"], "page-sections");
-        $this->add_list_component("navigation-list", "Page Navigation Sections",
-            $sections["nav"], "navigation");
+            $this->page_sections, "page-sections");
+
+        $sections = $this->model->get_section_hierarchy();
+        $this->add_list_component("section-hierarchy-list", "Section Hierarchy",
+            $sections, "sections");
+
         if($this->page_info['action'] == "component")
         {
             $this->add_local_component("component",
                 $this->model->get_component());
+        }
+        else if($this->page_info['action'] == "sections"
+            || $this->page_info['action'] == "custom")
+        {
+            foreach($this->page_sections as $section)
+            {
+                $this->add_local_component("section-" . $section['id'],
+                    new StyleComponent($this->model->get_services(),
+                    $section['id']));
+            }
         }
     }
 
@@ -66,11 +84,6 @@ class CmsView extends BaseView
         $this->output_local_component("page-list");
     }
 
-    private function output_navigation_list()
-    {
-        $this->output_local_component("navigation-list");
-    }
-
     private function output_global_section_list()
     {
         $this->output_local_component("global-section-list");
@@ -81,12 +94,21 @@ class CmsView extends BaseView
         $this->output_local_component("page-section-list");
     }
 
+    private function output_section_hierarchy_list()
+    {
+        $this->output_local_component("section-hierarchy-list");
+    }
+
     private function output_page_content()
     {
         $title = "Page Fields";
         $function_name = "output_page_fields";
         require __DIR__ . "/tpl_field_wrapper.php";
         $this->output_local_component("component");
+        foreach($this->page_sections as $section)
+        {
+            $this->output_local_component("section-" . $section['id']);
+        }
     }
 
     private function output_page_fields()

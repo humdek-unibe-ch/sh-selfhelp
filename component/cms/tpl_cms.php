@@ -9,7 +9,7 @@
         <div class="col-auto">
             <?php $this->output_global_section_list(); ?>
             <?php $this->output_page_section_list(); ?>
-            <?php $this->output_navigation_list(); ?>
+            <?php $this->output_section_hierarchy_list(); ?>
         </div>
     </div>
 </div>

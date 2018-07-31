@@ -39,7 +39,8 @@ class StyleView extends BaseView
      */
     public function output_content()
     {
-        $this->output_local_component("style");
+        $id = $this->model->get_db_field("id");
+        require __DIR__ . "/tpl_style.php";
     }
 }
 ?>

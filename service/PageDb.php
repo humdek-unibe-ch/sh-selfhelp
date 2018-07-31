@@ -175,6 +175,40 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Fetch all section ids that are associated to a page.
+     *
+     * @param string $keyword
+     *  The router keyword of the page.
+     * @retval array
+     *  The db result array where each entry has an 'id' field.
+     */
+    public function fetch_page_navigation_sections($keyword)
+    {
+        $sql = "SELECT psn.id_sections AS id
+            FROM pages_sections_navigation AS psn
+            LEFT JOIN pages AS p ON ps.id_pages = p.id
+            WHERE p.keyword = :keyword";
+        return $this->query_db($sql, array(":keyword" => $keyword));
+    }
+
+    /**
+     * Fetch all section ids that are associated to a page.
+     *
+     * @param string $keyword
+     *  The router keyword of the page.
+     * @retval array
+     *  The db result array where each entry has an 'id' field.
+     */
+    public function fetch_page_navigation_sections_by_id($id)
+    {
+        $sql = "SELECT psn.id_sections AS id, s.name
+            FROM pages_sections_navigation AS psn
+            LEFT JOIN sections AS s ON psn.id_sections = s.id
+            WHERE psn.id_pages = :id";
+        return $this->query_db($sql, array(":id" => $id));
+    }
+
+    /**
      * Fetch the content of the page fields from the database given a page id.
      *
      * @param int $id

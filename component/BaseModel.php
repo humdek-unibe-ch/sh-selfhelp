@@ -134,6 +134,11 @@ abstract class BaseModel
         return 0;
     }
 
+    public function has_navigation()
+    {
+        return ($this->nav != null);
+    }
+
     /**
      * Gets a navigation itme prefix if available. The prefix corresponds to
      * the title field of the navigation section.
@@ -162,7 +167,7 @@ abstract class BaseModel
 
         if($this->nav != null)
             return $this->nav->get_navigation_items();
-        return null;
+        return array();
     }
 }
 ?>

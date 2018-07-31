@@ -36,10 +36,7 @@ class NavigationPage extends BasePage
         $this->section_id = $id;
         if($id == null) return;
 
-        $sql = "SELECT psn.id_sections AS id
-            FROM pages_sections_navigation AS psn
-            WHERE psn.id_pages = :id";
-        $this->sections = $db->query_db($sql, array(":id" => $this->id_page));
+        $this->sections = $db->fetch_page_navigation_sections_by_id($this->id_page);
         if($this->id_navigation_section === null)
             throw new Exception("Trying to create a navigation page without associating a navigation section.");
         $this->services["nav"] = new Navigation($router, $db, $keyword,

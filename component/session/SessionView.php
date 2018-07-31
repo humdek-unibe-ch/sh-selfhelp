@@ -108,7 +108,10 @@ class SessionView extends BaseView
         $button_next = "button_next";
         $button_back = "button_back";
         $title = $this->model->get_db_field("title");
-        require __DIR__ . "/tpl_session.php";
+        if($this->model->has_navigation())
+            require __DIR__ . "/tpl_session.php";
+        else
+            require __DIR__ . "/tpl_session_no_nav.php";
     }
 }
 ?>

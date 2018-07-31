@@ -123,7 +123,10 @@ class NestedListView extends BaseView
         if($item == null) return;
         $children = $item['children'];
         $name = $item['title'];
-        $url = $item['url'];
+        $url = "";
+        if($item['url'] != "")
+            $url = 'href="'.$item['url'].'"';
+        $id_number = $item['id'];
         $id = (string)$item['id'];
 
         $is_expanded = $this->model->get_db_field("is_expanded");
