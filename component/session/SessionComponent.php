@@ -15,16 +15,16 @@ class SessionComponent extends BaseComponent
      * SessionView class and passes the view instance to the constructor of the
      * parent class.
      *
-     * @param int $id
-     *  The section id of this session.
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
+     * @param int $id
+     *  The section id of this session.
      */
     public function __construct($services, $id)
     {
         $model = new SessionModel($services, $id);
-        $view = new SessionView($model, $services['nav']);
+        $view = new SessionView($model);
         parent::__construct($view);
     }
 }

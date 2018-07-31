@@ -9,9 +9,6 @@ class SessionsView extends BaseView
 {
     /* Private Properties *****************************************************/
 
-    private $nav;
-    private $text;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -19,15 +16,29 @@ class SessionsView extends BaseView
      *
      * @param object $model
      *  The model instance of the login component.
-     * @param object $nav
-     *  The session navigation component.
      */
-    public function __construct($model, $nav)
+    public function __construct($model)
     {
         parent::__construct($model);
-        $this->nav = $nav;
+        $this->add_local_component("progress",
+            new BaseStyleComponent("progress-primary"),
+            array(
+                "count" => 0,
+                "count_max" => $this->model->get_count()
+            )
+        );
         $this->add_local_component("text", new BaseStyleComponent("plaintext"),
             array("text" => $this->model->get_db_field('text')));
+        $this->add_local_component("nav",
+            new BaseStyleComponent("accordion_list"),
+            array(
+                "items" => $this->model->get_navigation_items(),
+                "title_prefix" => $this->model->get_item_prefix(),
+                "id_active" => 0,
+                "is_expanded" => false,
+                "root_name" => "Intro"
+            )
+        );
     }
 
     /* Private Methods ********************************************************/
@@ -45,7 +56,7 @@ class SessionsView extends BaseView
      */
     private function output_nav()
     {
-        $this->nav->output_content();
+        $this->output_local_component("nav");
     }
 
     /**
@@ -56,10 +67,9 @@ class SessionsView extends BaseView
      * @param int $max_count
      *  The session count.
      */
-    private function output_progress_label($count, $count_max)
+    private function output_progress_bar()
     {
-        if($count == 0) return;
-        require __DIR__ . "/tpl_progress_label.php";
+        $this->output_local_component("progress");
     }
 
     /* Public Methods *********************************************************/
@@ -70,7 +80,7 @@ class SessionsView extends BaseView
     public function output_content()
     {
         $count = 0;
-        $count_max = $this->nav->get_count();
+        $count_max = $this->model->get_count();
         $progress = round($count / $count_max * 100);
         $next_url = "#";
         $title = $this->model->get_db_field('title');

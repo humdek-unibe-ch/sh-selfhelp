@@ -30,7 +30,7 @@ class StyleComponent extends BaseComponent
     public function __construct($services, $id, $fluid=true)
     {
         $model = new StyleModel($services, $id);
-        $view = new StyleView($model, $fluid, $services['nav']);
+        $view = new StyleView($model, $fluid);
         parent::__construct($view);
     }
 }

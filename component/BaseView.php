@@ -65,9 +65,10 @@ abstract class BaseView
      *  pairs where the key is the name of the field and the value the content
      *  of the field.
      */
-    protected function add_local_component($name, $component, $fields)
+    protected function add_local_component($name, $component, $fields=null)
     {
-        $component->set_fields($fields);
+        if($fields != null)
+            $component->set_fields($fields);
         $this->local_components[$name] = $component;
     }
 

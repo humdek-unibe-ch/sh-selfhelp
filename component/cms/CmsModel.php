@@ -9,6 +9,9 @@ class CmsModel extends BaseModel
     /* Private Properties *****************************************************/
 
     private $id_page;
+    private $page_info;
+    private $style_components;
+    private $page_sections;
 
     /* Constructors ***********************************************************/
 
@@ -25,6 +28,8 @@ class CmsModel extends BaseModel
     {
         parent::__construct($services);
         $this->id_page = $id_page;
+        $this->page_info = $this->db->fetch_page_info_by_id($this->id_page);
+        $this->page_sections = $this->db->fetch_page_sections_by_id($id_page);
     }
 
     /* Private Methods ********************************************************/
@@ -169,6 +174,22 @@ class CmsModel extends BaseModel
 
     /* Public Methods *********************************************************/
 
+    public function get_page_info()
+    {
+        return $this->page_info;
+    }
+
+    public function get_page_fields()
+    {
+        return $this->db->fetch_page_fields_by_id($this->id_page);
+    }
+
+    public function get_component()
+    {
+        $componentClass = ucfirst($this->page_info['keyword']) . "Component";
+        return new $componentClass($this->services);
+    }
+
     /**
      * Fetch page data from the database and return a heirarchical array such
      * that it can be passed to a list style.
@@ -213,11 +234,7 @@ class CmsModel extends BaseModel
      */
     public function get_page_sections()
     {
-        $sql = "SELECT keyword FROM pages WHERE id = :id";
-        $keyword_db = $this->db->query_db_first($sql,
-            array(":id" => $this->id_page));
-        $sections_db = $this->db->fetch_page_sections($keyword_db['keyword']);
-        return $this->prepare_section_list($sections_db);
+        return $this->prepare_section_list($this->page_sections);
     }
 
     /**

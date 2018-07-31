@@ -8,6 +8,7 @@ require_once __DIR__ . "/../style/StyleModel.php";
  */
 class SessionModel extends StyleModel
 {
+    private $id;
     /* Constructors ***********************************************************/
 
     /**
@@ -22,6 +23,18 @@ class SessionModel extends StyleModel
     public function __construct($services, $id)
     {
         parent::__construct($services, $id);
+        $this->id = $id;
+    }
+
+    /**
+     * Gets the current navigation item id.
+     *
+     * @retval int
+     *  The current navigation item id.
+     */
+    public function get_current_id()
+    {
+        return $this->id;
     }
 }
 ?>

@@ -2,7 +2,6 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/SessionsView.php";
 require_once __DIR__ . "/SessionsModel.php";
-require_once __DIR__ . "/../navSection/NavSectionComponent.php";
 
 /**
  * A component to provide an overview of the available sessions.
@@ -34,44 +33,9 @@ class SessionsComponent extends BaseComponent
      */
     public function __construct($services)
     {
-        $sections = $services['db']->fetch_page_sections("sessions");
-        $id_nav = 0;
-        foreach($sections as $section)
-            if(intval($section['id_styles']) == NAVIGATION_STYLE_ID)
-            {
-                $id_nav = intval($section['id']);
-                break;
-            }
-        $this->nav = new NavSectionComponent($services, $id_nav);
         $model = new SessionsModel($services);
-        $view = new SessionsView($model, $this->nav);
+        $view = new SessionsView($model);
         parent::__construct($view);
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = $this->nav->get_css_includes();
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = $this->nav->get_js_includes();
-        return parent::get_js_includes($local);
     }
 }
 ?>

@@ -8,6 +8,7 @@ abstract class BaseComponent
 
     private $view;
     private $controller;
+    private $components;
 
     /* Constructors ***********************************************************/
 
@@ -24,15 +25,26 @@ abstract class BaseComponent
      */
     public function __construct($view, $controller=null)
     {
+        $this->components = array();
         $this->view = $view;
         $this->controller = $controller;
     }
 
     /* Public Methods *********************************************************/
 
-    protected function set_view($view)
+    /**
+     * Adds a component to the list of child components.
+     *
+     * @param string $key
+     *  A unique component identifier.
+     * @param object $component
+     *  The component instance to be added.
+     */
+    protected function add_child($key, $component)
     {
-        $this->view = $view;
+        if(array_key_exists($key, $this->components))
+            throw new Exception("Child component '$key' already exists.");
+        $this->components[$key] = $component;
     }
 
     /**
@@ -58,8 +70,7 @@ abstract class BaseComponent
     public function get_css_includes($local = array())
     {
         if($this->view == null) return $local;
-        return array_unique(array_merge($local,
-            $this->view->get_css_includes()));
+        return array_merge($local, $this->view->get_css_includes());
     }
 
     /**
@@ -77,8 +88,18 @@ abstract class BaseComponent
     public function get_js_includes($local = array())
     {
         if($this->view == null) return $local;
-        return array_unique(array_merge($local,
-            $this->view->get_js_includes()));
+        return array_merge($local, $this->view->get_js_includes());
+    }
+
+    /**
+     * Gets all the child components of this component.
+     *
+     * @return array
+     *  A key => value array of components.
+     */
+    public function get_children()
+    {
+        return $this->components;
     }
 }
 ?>

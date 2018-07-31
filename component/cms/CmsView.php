@@ -7,6 +7,8 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
  */
 class CmsView extends BaseView
 {
+    private $page_info;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,6 +22,7 @@ class CmsView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model);
+        $this->page_info = $this->model->get_page_info();
         $pages = $this->model->get_pages();
         $this->add_list_component("page-list", "Pages", $pages, "page",
             $this->model->get_active_page_id());
@@ -31,6 +34,11 @@ class CmsView extends BaseView
             $sections["page"], "page-sections");
         $this->add_list_component("navigation-list", "Page Navigation Sections",
             $sections["nav"], "navigation");
+        if($this->page_info['action'] == "component")
+        {
+            $this->add_local_component("component",
+                $this->model->get_component());
+        }
     }
 
     /* Private Methods ********************************************************/
@@ -71,6 +79,25 @@ class CmsView extends BaseView
     private function output_page_section_list()
     {
         $this->output_local_component("page-section-list");
+    }
+
+    private function output_page_content()
+    {
+        $title = "Page Fields";
+        $function_name = "output_page_fields";
+        require __DIR__ . "/tpl_field_wrapper.php";
+        $this->output_local_component("component");
+    }
+
+    private function output_page_fields()
+    {
+        $fields = $this->model->get_page_fields();
+        foreach($fields as $field)
+        {
+            $name = $field['name'];
+            $content = $field['content'];
+            require __DIR__. "/tpl_page_field.php";
+        }
     }
 
     /* Public Methods *********************************************************/

@@ -1,13 +1,15 @@
 <?php
-require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the navSection component
  * such that the data can easily be displayed in the view of the component.
  */
-class NavSectionModel extends BaseModel
+class Navigation
 {
     /* Private Properties *****************************************************/
 
+    private $db;
+    private $router;
+    private $keyword;
     private $items_tree;
     private $items_list;
     private $root_id;
@@ -27,9 +29,12 @@ class NavSectionModel extends BaseModel
      * @param int $current_id
      *  The id of the current section.
      */
-    public function __construct($services, $root_id, $current_id)
+    public function __construct($router, $db, $keyword, $root_id,
+        $current_id = 0)
     {
-        parent::__construct($services);
+        $this->db = $db;
+        $this->router = $router;
+        $this->keyword = $keyword;
         $this->root_id = $root_id;
         $this->current_id = ($current_id == 0) ? $root_id : $current_id;
         $this->items_list = array();
@@ -69,7 +74,7 @@ class NavSectionModel extends BaseModel
             $fields['id'] = intval($id['id']);
             array_push($this->items_list, $fields);
             $fields['children'] = $this->fetch_children(intval($id['id']));
-            $fields['url'] = $this->get_link_url("session",
+            $fields['url'] = $this->router->generate($this->keyword,
                 array("id" => intval($id['id'])));
             array_push($children, $fields);
         }
@@ -97,30 +102,25 @@ class NavSectionModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
-     * Gets a navigation itme prefix if available. The prefix corresponds to
-     * the title field of the navigation section.
-     *
-     * @return string
-     *  The navigation item prefix.
-     */
-    public function get_item_prefix()
-    {
-        $db_fields = $this->db->fetch_section_fields($this->root_id);
-        foreach($db_fields as $field)
-            if($field['name'] == "title")
-                return $field['content'];
-        return "";
-    }
-
-    /**
      * Gets the hierarchical assembled navigation items.
      *
      * @return array
      *  A hierarchical array. See NavSectionModel::fetch_children($id_section).
      */
-    public function get_children()
+    public function get_navigation_items()
     {
         return $this->items_tree;
+    }
+
+    /**
+     * Gets the root navigation item id.
+     *
+     * @retval int
+     *  The root navigation item id.
+     */
+    public function get_root_id()
+    {
+        return $this->root_id;
     }
 
     /**

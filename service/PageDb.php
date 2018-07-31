@@ -68,6 +68,34 @@ class PageDb extends BaseDb
             WHERE p.intern = 0";
         return $this->query_db($sql);
     }
+    /**
+     * Fetch the page keyword from the database, given a page id.
+     *
+     * @param int $id
+     *  The page id.
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_page_keyword($id)
+    {
+        $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
+        $keyword = $this->query_db_first($sql, array(":id" => $id));
+        return $keyword['keyword'];
+    }
+
+    /**
+     * Fetch the main page information from the database, given a page id.
+     *
+     * @param int $id
+     *  The page id.
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_page_info_by_id($id)
+    {
+        $keyword = $this->fetch_page_keyword($id);
+        return $this->fetch_page_info($keyword);
+    }
 
     /**
      * Fetch the main page information from the database.
@@ -82,16 +110,22 @@ class PageDb extends BaseDb
         $page_info = array(
             "title" => "Unknown",
             "keyword" => $keyword,
+            "action" => "unknown",
             "url" => "",
-            "id" => 0
+            "id" => 0,
+            "id_navigation_section" => null
         );
-        $sql = "SELECT p.id, p.keyword, p.url
-            FROM pages AS p WHERE keyword=:keyword";
+        $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
+            a.name AS action FROM pages AS p
+            LEFT JOIN actions AS a ON a.id = p.id_actions
+            WHERE keyword=:keyword";
         $info = $this->query_db_first($sql, array(":keyword" => $keyword));
         if($info)
         {
             $page_info["url"] = $info["url"];
             $page_info["id"] = intval($info["id"]);
+            $page_info["action"] = $info["action"];
+            $page_info["id_navigation_section"] = $info["id_navigation_section"];
             $locale_cond = $this->get_locale_condition();
             $sql = "SELECT pft.content AS title
                 FROM pages_fields_translation AS pft
@@ -105,6 +139,20 @@ class PageDb extends BaseDb
         }
         return $page_info;
 
+    }
+
+    /**
+     * Fetch all section ids that are associated to a page, given a page id.
+     *
+     * @param int $id
+     *  The page id.
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_page_sections_by_id($id)
+    {
+        $keyword = $this->fetch_page_keyword($id);
+        return $this->fetch_page_sections($keyword);
     }
 
     /**
@@ -124,6 +172,20 @@ class PageDb extends BaseDb
             WHERE p.keyword = :keyword
             ORDER BY ps.position, id";
         return $this->query_db($sql, array(":keyword" => $keyword));
+    }
+
+    /**
+     * Fetch the content of the page fields from the database given a page id.
+     *
+     * @param int $id
+     *  The page id.
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_page_fields_by_id($id)
+    {
+        $keyword = $this->fetch_page_keyword($id);
+        return $this->fetch_page_fields($keyword);
     }
 
     /**

@@ -22,15 +22,12 @@ class StyleView extends BaseView
      * @param bool $fluid
      *  If set to true the content will be rendered in a container-fluid
      *  bootstrap element, if set to false in a container.
-     * @param object $nav
-     *  The section navigation component.
      */
-    public function __construct($model, $fluid=false, $nav=null)
+    public function __construct($model, $fluid=false)
     {
         parent::__construct($model);
 
-        $style = new BaseStyleComponent($this->model->get_style_name(), $fluid, 
-            $nav);
+        $style = new BaseStyleComponent($this->model->get_style_name(), $fluid);
         $this->add_local_component("style", $style,
             $this->model->get_db_fields());
     }

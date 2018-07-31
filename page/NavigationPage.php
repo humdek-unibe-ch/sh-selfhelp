@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/BasePage.php";
-require_once __DIR__ . "/../component/navSection/NavSectionComponent.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Navigation.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 
 /**
@@ -36,30 +36,17 @@ class NavigationPage extends BasePage
         $this->section_id = $id;
         if($id == null) return;
 
-        $this->sections = $db->fetch_page_sections($this->keyword);
-        $nav_id = $this->get_nav_id();
-        if($nav_id == false)
+        $sql = "SELECT psn.id_sections AS id
+            FROM pages_sections_navigation AS psn
+            WHERE psn.id_pages = :id";
+        $this->sections = $db->query_db($sql, array(":id" => $this->id_page));
+        if($this->id_navigation_section === null)
             throw new Exception("Trying to create a navigation page without associating a navigation section.");
-        $this->services["nav"] = new NavSectionComponent($this->services,
-            $nav_id, $id);
-        $this->add_component("section-navigation", $this->services["nav"]);
+        $this->services["nav"] = new Navigation($router, $db, $keyword,
+            $this->id_navigation_section, $id);
     }
 
     /* Private Methods ********************************************************/
-
-    /**
-     * Returns the id of the navigation section.
-     *
-     * @retval int
-     *  The id of the navigation section or false if no id was found.
-     */
-    private function get_nav_id()
-    {
-        foreach($this->sections as $section)
-            if(intval($section['id_styles']) == NAVIGATION_STYLE_ID)
-                return intval($section['id']);
-        return false;
-    }
 
     /**
      * Returns true if the current section id can be found in the list of

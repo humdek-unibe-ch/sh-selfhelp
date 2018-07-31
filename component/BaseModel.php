@@ -12,6 +12,7 @@ abstract class BaseModel
     protected $login;
     protected $acl;
     protected $db_fields;
+    protected $services;
 
     /* Constructors ***********************************************************/
 
@@ -24,6 +25,7 @@ abstract class BaseModel
      */
     public function __construct($services)
     {
+        $this->services = $services;
         $this->router = $services['router'];
         $this->db = $services['db'];
         $this->acl = $services['acl'];
@@ -98,6 +100,69 @@ abstract class BaseModel
     public function is_link_active($key)
     {
         return $this->router->is_active($key);
+    }
+
+    /**
+     * Get the model services.
+     *
+     * @retval array
+     *  An associative array with the available services.
+     */
+    public function get_services()
+    {
+        return $this->services;
+    }
+
+    public function get_next_nav_id()
+    {
+        if($this->nav != null)
+            return $this->nav->get_next_id();
+        return 0;
+    }
+
+    public function get_previous_nav_id()
+    {
+        if($this->nav != null)
+            return $this->nav->get_previous_id();
+        return 0;
+    }
+
+    public function get_count()
+    {
+        if($this->nav != null)
+            return $this->nav->get_count();
+        return 0;
+    }
+
+    /**
+     * Gets a navigation itme prefix if available. The prefix corresponds to
+     * the title field of the navigation section.
+     *
+     * @return string
+     *  The navigation item prefix.
+     */
+    public function get_item_prefix()
+    {
+        if($this->nav == null) return "";
+        $db_fields = $this->db->fetch_section_fields($this->nav->get_root_id());
+        foreach($db_fields as $field)
+            if($field['name'] == "title")
+                return $field['content'];
+        return "";
+    }
+
+    /**
+     * Gets the hierarchical assembled navigation items.
+     *
+     * @return array
+     *  A hierarchical array. See NavSectionModel::fetch_children($id_section).
+     */
+    public function get_navigation_items()
+    {
+
+        if($this->nav != null)
+            return $this->nav->get_navigation_items();
+        return null;
     }
 }
 ?>

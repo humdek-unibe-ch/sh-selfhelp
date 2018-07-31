@@ -27,9 +27,11 @@
                 </div>
                 <div class="card-body">
                     <?php echo $delete_content; ?>
-                    <button class="btn btn-danger" data-toggle="collapse" data-target="#confirmation" aria-expanded="false" aria-controls="confirmation">
-                        <?php echo $delete_label; ?>
-                    </button>
+                    <div class="mt-3">
+                        <button class="btn btn-danger" data-toggle="collapse" data-target="#confirmation" aria-expanded="false" aria-controls="confirmation">
+                            <?php echo $delete_label; ?>
+                        </button>
+                    </div>
                     <div class="collapse" id="confirmation">
                         <div class="card card-body">
                             <?php echo $delete_confirm_content; ?>

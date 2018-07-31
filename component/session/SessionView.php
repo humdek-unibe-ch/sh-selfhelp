@@ -20,22 +20,28 @@ class SessionView extends BaseView
      *
      * @param object $model
      *  The model instance of the login component.
-     * @param object $nav
-     *  The session navigation component.
      */
-    public function __construct($model, $nav)
+    public function __construct($model)
     {
         parent::__construct($model);
-        $this->nav = $nav;
         $this->add_button_component("button_next",
             $this->model->get_db_field("next"),
-            $this->get_button_url($this->nav->get_next_id())
+            $this->get_button_url($model->get_next_nav_id())
         );
         $this->add_button_component("button_back",
             $this->model->get_db_field("back"),
-            $this->get_button_url($this->nav->get_previous_id())
+            $this->get_button_url($model->get_previous_nav_id())
         );
-
+        $this->add_local_component("nav-section",
+            new BaseStyleComponent("accordion_list"),
+            array(
+                "items" => $this->model->get_navigation_items(),
+                "title_prefix" => $this->model->get_item_prefix(),
+                "id_active" => $this->model->get_current_id(),
+                "is_expanded" => false,
+                "root_name" => "Intro"
+            )
+        );
     }
 
     /* Private Methods ********************************************************/
@@ -45,7 +51,7 @@ class SessionView extends BaseView
      */
     private function output_nav()
     {
-        $this->nav->output_content();
+        $this->output_local_component("nav-section");
     }
 
     /**

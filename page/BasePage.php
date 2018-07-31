@@ -16,6 +16,7 @@ abstract class BasePage
     protected $title;
     protected $keyword;
     protected $id_page;
+    protected $id_navigation_section;
     protected $url;
     protected $services;
     private $css_includes;
@@ -96,6 +97,7 @@ abstract class BasePage
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
+        $this->id_navigation_section = intval($info['id_navigation_section']);
     }
 
     /**
