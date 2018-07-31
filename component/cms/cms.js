@@ -1,11 +1,11 @@
 $(document).ready(function() {
-    $('a[id|=list-item-section]').hover(
+    $('a[id|=page_sections],a[id|=sections]').hover(
         function() {
             var ids = $(this).attr('id').split('-');
-            $('div#style-section-' + ids[3]).addClass("highlight");
+            $('div#style-section-' + ids[1]).addClass("highlight");
         }, function() {
             var ids = $(this).attr('id').split('-');
-            $('div#style-section-' + ids[3]).removeClass("highlight");
+            $('div#style-section-' + ids[1]).removeClass("highlight");
         }
     );
 });

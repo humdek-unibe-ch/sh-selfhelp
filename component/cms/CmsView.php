@@ -32,11 +32,11 @@ class CmsView extends BaseView
 
         $global_sections = $this->model->get_global_sections();
         $this->add_list_component("global-section-list", "Global Sections",
-            $global_sections, "global-sections");
+            $global_sections, "global_sections");
 
         $this->page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
-            $this->page_sections, "page-sections");
+            $this->page_sections, "page_sections");
 
         $sections = $this->model->get_section_hierarchy();
         $this->add_list_component("section-hierarchy-list", "Section Hierarchy",
