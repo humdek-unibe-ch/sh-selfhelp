@@ -223,9 +223,11 @@ class NestedListView extends BaseView
      */
     public function output_content()
     {
+        $show = $this->model->get_db_field("is_expanded_root") ? "show" : "";
         $items = $this->model->get_db_field("items");
         $search_text = $this->model->get_db_field("search_text");
         $title = $this->model->get_db_field("title");
+        $id_prefix = $this->model->get_db_field("id_prefix");
         require __DIR__ . "/tpl_list.php";
     }
 }

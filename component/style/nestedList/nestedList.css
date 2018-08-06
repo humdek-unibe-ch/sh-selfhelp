@@ -24,3 +24,14 @@ button.clear-search {
     margin-top:-1.3em;
     margin-right:0.3em;
 }
+
+div.card-header.nested-list
+{
+    cursor:pointer;
+}
+
+div.card-header.nested-list:hover
+{
+    background-color: #d6d8d9;
+    border-color: #c6c8ca;
+}

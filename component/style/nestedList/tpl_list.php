@@ -1,8 +1,8 @@
 <div class="card mb-3">
-    <div class="card-header">
+    <div class="card-header nested-list">
         <?php echo $title; ?>
     </div>
-    <div class="card-body">
+    <div class="card-body collapse <?php echo $show; ?>">
         <form class="mb-1">
             <input class="form-control list-search" placeholder="<?php echo $search_text; ?>">
             <button type="button" class="close clear-search" aria-label="Close">
