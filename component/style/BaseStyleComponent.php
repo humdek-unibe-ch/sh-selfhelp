@@ -9,7 +9,6 @@ require_once __DIR__ . "/plaintext/PlaintextView.php";
 require_once __DIR__ . "/alert/AlertView.php";
 require_once __DIR__ . "/figure/FigureView.php";
 require_once __DIR__ . "/video/VideoView.php";
-require_once __DIR__ . "/video/VideoSourceView.php";
 require_once __DIR__ . "/quiz/QuizView.php";
 require_once __DIR__ . "/nestedList/NestedListView.php";
 require_once __DIR__ . "/accordionList/AccordionListView.php";
@@ -63,8 +62,6 @@ class BaseStyleComponent extends BaseComponent
             $view = new FigureView($this->model);
         else if($styles[0] == "video")
             $view = new VideoView($this->model);
-        else if($styles[0] == "video_source")
-            $view = new VideoSourceView($this->model);
         else if($styles[0] == "quiz")
             $view = new QuizView($this->model);
         else if($styles[0] == "nested_list")
