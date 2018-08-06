@@ -18,15 +18,17 @@ $(document).ready(function() {
             $(this).show();
         });
     });
-    $('div[id|=collapse-item]').on('shown.bs.collapse', function() {
+    $('div[id|=collapse-item]').on('shown.bs.collapse', function( e ) {
         $(this).prev().children('.fas:first')
         .removeClass('fa-chevron-right')
         .addClass('fa-chevron-down');
+        e.stopPropagation();
     });
     $('div[id|=collapse-item]').on('hidden.bs.collapse', function() {
         $(this).prev().children('.fas:first')
         .addClass('fa-chevron-right')
         .removeClass('fa-chevron-down');
+        e.stopPropagation();
     });
     $('div.card-header.nested-list').on('click', function() {
         var $collapsible = $(this).next();
