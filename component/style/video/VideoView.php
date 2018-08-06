@@ -26,9 +26,14 @@ class VideoView extends BaseView
      */
     private function output_video_sources()
     {
-        $children = $this->model->get_db_field("content");
-        foreach($children as $child)
-            $child->output_content();
+        $sources = explode(',', $this->model->get_db_field("sources"));
+        foreach($sources as $source)
+        {
+            $items = explode('#', $source);
+            $url = ASSET_PATH . $items[0];
+            $type = $items[1];
+            require __DIR__ . "/tpl_video_source.php";
+        }
     }
 
     /* Public Methods *********************************************************/
