@@ -18,10 +18,10 @@ class SessionsModel extends BaseModel
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $id)
     {
         parent::__construct($services);
-        $db_fields = $this->db->fetch_page_fields("sessions");
+        $db_fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($db_fields);
         $this->nav = new Navigation($this->router, $this->db, "session", 25);
     }

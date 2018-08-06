@@ -8,8 +8,6 @@ require_once __DIR__ . "/SessionModel.php";
  */
 class SessionComponent extends BaseComponent
 {
-    private $view;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -26,13 +24,8 @@ class SessionComponent extends BaseComponent
     public function __construct($services, $id)
     {
         $model = new SessionModel($services, $id);
-        $this->view = new SessionView($model);
-        parent::__construct($this->view);
-    }
-
-    public function get_view()
-    {
-        return $this->view;
+        $view = new SessionView($model);
+        parent::__construct($view);
     }
 }
 ?>

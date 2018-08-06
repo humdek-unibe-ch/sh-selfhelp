@@ -19,7 +19,6 @@ class SessionsComponent extends BaseComponent
     /* Private Properties *****************************************************/
 
     private $nav;
-    private $view;
 
     /* Constructors ***********************************************************/
 
@@ -32,16 +31,11 @@ class SessionsComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $id)
     {
-        $model = new SessionsModel($services);
-        $this->view = new SessionsView($model);
-        parent::__construct($this->view);
-    }
-
-    public function get_view()
-    {
-        return $this->view;
+        $model = new SessionsModel($services, $id);
+        $view = new SessionsView($model);
+        parent::__construct($view);
     }
 }
 ?>

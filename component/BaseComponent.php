@@ -101,5 +101,16 @@ abstract class BaseComponent
     {
         return $this->components;
     }
+
+    /**
+     * Returns the view instance of this component.
+     *
+     * @retval object
+     *  The view instance of this component.
+     */
+    public function get_view()
+    {
+        return $this->view;
+    }
 }
 ?>
