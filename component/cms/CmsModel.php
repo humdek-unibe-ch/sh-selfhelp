@@ -33,14 +33,6 @@ class CmsModel extends BaseModel
         $this->id_page = $id_page;
         $this->id_section = $id_section;
         $this->page_info = $this->db->fetch_page_info_by_id($id_page);
-        // create navigation service if cms content has a navigation
-        if($this->page_info['id_navigation_section'] != null)
-        {
-            $this->services['nav'] = new Navigation($this->router, $this->db,
-                $this->page_info['keyword'],
-                $this->page_info['id_navigation_section']);
-            $this->services['nav']->set_current_index($id_section);
-        }
     }
 
     /* Private Methods ********************************************************/
@@ -140,6 +132,22 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch the children of a section from the database and return a
+     * heirarchical array such that it can be passed to a list style.
+     *
+     * @param int $id
+     *  the id of the section to fetch the children
+     * @retval array
+     *  A prepared hierarchical array of section items such that it can
+     *  be passed to a list style.
+     */
+    private function get_section_hierarchy($id)
+    {
+        $db_sections = $this->db->fetch_section_children($id);
+        return $this->prepare_section_list($db_sections);
+    }
+
+    /**
      * Prepare an array with the root page items such that it can be passed to a
      * list style.
      *
@@ -187,6 +195,30 @@ class CmsModel extends BaseModel
             $children = $this->prepare_section_list($children_db);
             $res[] = $this->add_item($id,
                 $item['name'], $children, "");
+        }
+        return $res;
+    }
+
+    /**
+     *
+     * @retval array
+     *  A prepared hierarchical array of section items such that it can
+     *  be passed to a list style.
+     */
+    public function fetch_navigation_items($id)
+    {
+        $res = array();
+        $sql = "SELECT sn.child AS id, s.name FROM sections_navigation AS sn
+            LEFT JOIN sections AS s ON sn.child = s.id
+            WHERE sn.parent = :id";
+        $items_db = $this->db->query_db($sql, array(":id" => $id));
+        foreach($items_db as $item_db)
+        {
+            $id_item = intval($item_db['id']);
+            $children = $this->fetch_navigation_items($id_item);
+            $res[] = $this->add_item($id_item, $item_db['name'], $children,
+                $this->router->generate("cms_show_nav",
+                    array("pid" => $this->id_page, "sid" => $id_item)));
         }
         return $res;
     }
@@ -256,21 +288,30 @@ class CmsModel extends BaseModel
     public function get_page_sections()
     {
         $page_sections = $this->db->fetch_page_sections_by_id($this->id_page);
-        return $this->prepare_section_list($page_sections);
+        $pages = $this->prepare_section_list($page_sections);
+        if($this->page_info['id_navigation_section'] != null)
+        {
+            $sql = "SELECT name FROM sections WHERE id = :id";
+            $section = $this->db->query_db_first($sql,
+                array(":id" => $this->id_section));
+            $pages[] = $this->add_item($this->id_section, $section['name'],
+                $this->get_section_hierarchy($this->id_section), "");
+        }
+        return $pages;
     }
 
     /**
-     * Fetch the children of a section from the database and return a
-     * heirarchical array such that it can be passed to a list style.
      *
      * @retval array
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
      */
-    public function get_section_hierarchy()
+    public function get_navigation_hierarchy()
     {
-        $db_sections = $this->db->fetch_section_children($this->id_section);
-        return $this->prepare_section_list($db_sections);
+        if($this->page_info['id_navigation_section'] != null)
+            return $this->fetch_navigation_items(
+                $this->page_info['id_navigation_section']);
+        return array();
     }
 
     /**

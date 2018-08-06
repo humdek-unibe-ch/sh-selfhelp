@@ -27,7 +27,7 @@ class CmsView extends BaseView
         $this->page_info = $this->model->get_page_info();
 
         $pages = $this->model->get_pages();
-        $this->add_list_component("page-list", "Pages", $pages, "page",
+        $this->add_list_component("page-list", "Pages", $pages, "page", true,
             $this->model->get_active_page_id());
 
         $global_sections = $this->model->get_global_sections();
@@ -36,11 +36,11 @@ class CmsView extends BaseView
 
         $this->page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
-            $this->page_sections, "page_sections");
+            $this->page_sections, "page_sections", true);
 
-        $sections = $this->model->get_section_hierarchy();
-        $this->add_list_component("section-hierarchy-list", "Section Hierarchy",
-            $sections, "sections");
+        $this->add_list_component("navigation-hierarchy-list",
+            "Navigation Hierarchy", $this->model->get_navigation_hierarchy(),
+            "navigation_sections", true, $this->model->get_active_section_id());
 
         if($this->page_info['action'] == "component")
         {
@@ -56,20 +56,13 @@ class CmsView extends BaseView
                     new StyleComponent($this->model->get_services(),
                     $section['id']));
             }
-            $id_section = $this->model->get_active_section_id();
-            if($id_section != null)
-            {
-                $this->add_local_component("section-" . $id_section,
-                    new StyleComponent($this->model->get_services(),
-                        $id_section));
-            }
         }
     }
 
     /* Private Methods ********************************************************/
 
     private function add_list_component($name, $title, $items, $prefix,
-        $id_active = 0)
+        $is_expanded_root = false, $id_active = 0)
     {
         if(count($items) == 0) return;
         $this->add_local_component($name,
@@ -80,6 +73,7 @@ class CmsView extends BaseView
                 "items" => $items,
                 "id_prefix" => $prefix,
                 "is_expanded" => false,
+                "is_expanded_root" => $is_expanded_root,
                 "id_active" => $id_active,
                 "root_name" => "root element"
             )
@@ -101,9 +95,9 @@ class CmsView extends BaseView
         $this->output_local_component("page-section-list");
     }
 
-    private function output_section_hierarchy_list()
+    private function output_navigation_hierarchy_list()
     {
-        $this->output_local_component("section-hierarchy-list");
+        $this->output_local_component("navigation-hierarchy-list");
     }
 
     private function output_page_content()
@@ -113,8 +107,6 @@ class CmsView extends BaseView
         {
             $this->output_local_component("section-" . $section['id']);
         }
-        $this->output_local_component("section-"
-            . $this->model->get_active_section_id());
     }
 
     private function output_page_properties()
@@ -129,6 +121,8 @@ class CmsView extends BaseView
         foreach($this->page_info as $name => $content)
         {
             if($content == null) continue;
+            if($name == "id") continue;
+            if($name == "id_navigation_section") continue;
             require __DIR__. "/tpl_page_info.php";
         }
     }
