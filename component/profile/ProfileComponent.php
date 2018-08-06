@@ -23,9 +23,9 @@ class ProfileComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $id)
     {
-        $model = new ProfileModel($services);
+        $model = new ProfileModel($services, $id);
         $controller = new ProfileController($model);
         $view = new ProfileView($model, $controller);
         parent::__construct($view);

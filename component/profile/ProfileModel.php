@@ -15,10 +15,10 @@ class ProfileModel extends BaseModel
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $id)
     {
         parent::__construct($services);
-        $fields = $this->db->fetch_page_fields("profile");
+        $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
     }
 
