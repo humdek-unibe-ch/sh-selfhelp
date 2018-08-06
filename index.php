@@ -4,7 +4,6 @@ require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
 require_once "./service/Login.php";
 require_once "./page/HomePage.php";
-require_once "./page/NavigationPage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/ComponentPage.php";
 require_once "./page/CmsPage.php";
@@ -70,7 +69,10 @@ if($router->route)
 {
     if($router->route['target'] == "sections")
     {
-        $page = new SectionPage($router, $db, $router->route['name']);
+        $id = null;
+        if(array_key_exists('id', $router->route['params']))
+            $id = $router->route['params']['id'];
+        $page = new SectionPage($router, $db, $router->route['name'], $id);
         $page->output();
     }
     else if($router->route['target'] == "component")
@@ -79,13 +81,6 @@ if($router->route)
         if(array_key_exists('id', $router->route['params']))
             $id = $router->route['params']['id'];
         $page = new ComponentPage($router, $db, $router->route['name'], $id);
-        $page->output();
-    }
-    else if($router->route['target'] == "navigation")
-    {
-        $page = new NavigationPage($router, $db, $router->route['name'],
-            intval($router->route['params']['id']));
-        $page->add_navigation_component();
         $page->output();
     }
     else if($router->route['target'] == "custom")

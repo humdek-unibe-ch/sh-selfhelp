@@ -3,6 +3,7 @@ require_once __DIR__ . "/../service/PageDb.php";
 require_once __DIR__ . "/../service/globals_untracked.php";
 require_once __DIR__ . "/../service/Login.php";
 require_once __DIR__ . "/../service/Acl.php";
+require_once __DIR__ . "/../service/Navigation.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 
 /**
@@ -64,13 +65,16 @@ abstract class BasePage
             // The instnce of the access control layer (ACL) which allows to
             // decide which links to display.
             "acl" => new Acl($db),
-            // A navigation component that allows to switch between sections,
-            // associated to a specific page. Unlike the other elements in this
-            // array, "nav" is a component that can also be rendered. It is
-            // set in the NavigationPage class which extends the BasePage class.
+            // The instance to the navigation service which allows to switch
+            // between sections, associated to a specific page. Unlike the
+            // other elements in this array, "nav" may be null if a page has
+            // only one view.
             "nav" => null,
         );
         $this->fetch_page_info($keyword);
+        if($this->id_navigation_section != null)
+            $this->services['nav'] = new Navigation($router, $db, $keyword,
+                $this->id_navigation_section);
         $this->add_component("denied-guest",
             new StyleComponent($this->services, NO_ACCESS_GUEST_ID));
         $this->add_component("denied",
@@ -97,7 +101,9 @@ abstract class BasePage
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
-        $this->id_navigation_section = intval($info['id_navigation_section']);
+        $this->id_navigation_section = null;
+        if($info['id_navigation_section'] != null)
+            $this->id_navigation_section = intval($info['id_navigation_section']);
     }
 
     /**

@@ -19,6 +19,7 @@ class SessionsComponent extends BaseComponent
     /* Private Properties *****************************************************/
 
     private $nav;
+    private $view;
 
     /* Constructors ***********************************************************/
 
@@ -34,8 +35,13 @@ class SessionsComponent extends BaseComponent
     public function __construct($services)
     {
         $model = new SessionsModel($services);
-        $view = new SessionsView($model);
-        parent::__construct($view);
+        $this->view = new SessionsView($model);
+        parent::__construct($this->view);
+    }
+
+    public function get_view()
+    {
+        return $this->view;
     }
 }
 ?>

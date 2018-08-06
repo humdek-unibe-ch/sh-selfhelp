@@ -28,7 +28,7 @@ class CmsView extends BaseView
 
         $pages = $this->model->get_pages();
         $this->add_list_component("page-list", "Pages", $pages, "page",
-            $this->model->get_active_id());
+            $this->model->get_active_page_id());
 
         $global_sections = $this->model->get_global_sections();
         $this->add_list_component("global-section-list", "Global Sections",
@@ -55,6 +55,13 @@ class CmsView extends BaseView
                 $this->add_local_component("section-" . $section['id'],
                     new StyleComponent($this->model->get_services(),
                     $section['id']));
+            }
+            $id_section = $this->model->get_active_section_id();
+            if($id_section != null)
+            {
+                $this->add_local_component("section-" . $id_section,
+                    new StyleComponent($this->model->get_services(),
+                        $id_section));
             }
         }
     }
@@ -101,17 +108,39 @@ class CmsView extends BaseView
 
     private function output_page_content()
     {
-        $title = "Page Fields";
-        $function_name = "output_page_fields";
-        require __DIR__ . "/tpl_field_wrapper.php";
         $this->output_local_component("component");
         foreach($this->page_sections as $section)
         {
             $this->output_local_component("section-" . $section['id']);
         }
+        $this->output_local_component("section-"
+            . $this->model->get_active_section_id());
+    }
+
+    private function output_page_properties()
+    {
+        $title = "Page Properties";
+        $function_name = "output_page_property_items";
+        require __DIR__ . "/tpl_field_wrapper.php";
+    }
+
+    private function output_page_property_items()
+    {
+        foreach($this->page_info as $name => $content)
+        {
+            if($content == null) continue;
+            require __DIR__. "/tpl_page_info.php";
+        }
     }
 
     private function output_page_fields()
+    {
+        $title = "Page Fields";
+        $function_name = "output_page_field_items";
+        require __DIR__ . "/tpl_field_wrapper.php";
+    }
+
+    private function output_page_field_items()
     {
         $fields = $this->model->get_page_fields();
         foreach($fields as $field)

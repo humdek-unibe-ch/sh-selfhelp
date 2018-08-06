@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/NavigationPage.php";
+require_once __DIR__ . "/BasePage.php";
 spl_autoload_register(function ($class_name) {
     $folder = strtolower(str_replace("Component", "", $class_name));
     require_once __DIR__ . "/../component/" . $folder . "/" . $class_name . ".php";
@@ -11,7 +11,7 @@ spl_autoload_register(function ($class_name) {
  * A page with the keyword "foo" will search for the component class
  * "component/foo/FooComponent.php".
  */
-class ComponentPage extends NavigationPage
+class ComponentPage extends BasePage
 {
     /* Private Properties *****************************************************/
 
@@ -34,11 +34,20 @@ class ComponentPage extends NavigationPage
     {
         parent::__construct($router, $db, $keyword, $id);
         $componentClass = ucfirst($keyword) . "Component";
-        $componentInstance = new $componentClass($this->services, $id);
-        $this->add_navigation_component($componentInstance);
+        $this->add_component("comp", new $componentClass($this->services, $id));
     }
 
     /* Protected Methods ******************************************************/
+
+    /**
+     * See BasePage::output_content(). This implementation renders all
+     * components that are assigned to the current page (as specified in the
+     * DB).
+     */
+    protected function output_content()
+    {
+        $this->output_component("comp");
+    }
 
     /**
      * See BasePage::output_meta_tags()

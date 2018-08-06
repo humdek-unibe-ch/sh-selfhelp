@@ -2,6 +2,10 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/StyleView.php";
 require_once __DIR__ . "/StyleModel.php";
+spl_autoload_register(function ($class_name) {
+    $folder = strtolower(str_replace("Component", "", $class_name));
+    require_once __DIR__ . "/../" . $folder . "/" . $class_name . ".php";
+});
 
 /**
  * The class to define the style component. A style component serves to render
@@ -30,7 +34,23 @@ class StyleComponent extends BaseComponent
     public function __construct($services, $id, $fluid=true)
     {
         $model = new StyleModel($services, $id);
-        $view = new StyleView($model, $fluid);
+        if($model->get_style_type() == "view")
+            $view = new StyleView($model, $fluid);
+        else if($model->get_style_type() == "component")
+        {
+            $className = ucfirst($model->get_style_name()) . "Component";
+            $inst = new $className($services, $id);
+            $view = $inst->get_view();
+        }
+        else if($model->get_style_type() == "navigation")
+        {
+            throw new Exception("connot render a navigation style");
+        }
+        else
+        {
+            $model = new StyleModel($services, MISSING_ID);
+            $view = new StyleView($model, $fluid);
+        }
         parent::__construct($view);
     }
 }

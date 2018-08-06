@@ -26,20 +26,16 @@ class Navigation
      *  class definition basepage for a list of all services.
      * @param int $root_id
      *  The id of the root section.
-     * @param int $current_id
-     *  The id of the current section.
      */
-    public function __construct($router, $db, $keyword, $root_id,
-        $current_id = 0)
+    public function __construct($router, $db, $keyword, $root_id)
     {
         $this->db = $db;
         $this->router = $router;
         $this->keyword = $keyword;
         $this->root_id = $root_id;
-        $this->current_id = ($current_id == 0) ? $root_id : $current_id;
+        $this->current_id = $root_id;
         $this->items_list = array();
         $this->items_tree = $this->fetch_children($root_id);
-        $this->set_current_index($current_id);
     }
 
     /* Private Methods ********************************************************/
@@ -79,24 +75,6 @@ class Navigation
             array_push($children, $fields);
         }
         return $children;
-    }
-
-    /**
-     * Given the current id, set the current index of the flattened item list.
-     *
-     * @param int $id
-     *  The current navigation item id.
-     */
-    private function set_current_index($id)
-    {
-        foreach($this->items_list as $index => $item)
-        {
-            if($item['id'] == $id)
-            {
-                $this->current_idx = $index;
-                return;
-            }
-        }
     }
 
     /* Public Methods *********************************************************/
@@ -173,6 +151,42 @@ class Navigation
     public function get_count()
     {
         return count($this->items_tree);
+    }
+
+    /**
+     * Returns true if a given  section id can be found in the list of
+     * sections associated to the navigation page.
+     *
+     * @param int $id
+     *  The id to check.
+     * @retval bool
+     *  True if the id exists, false otherwise.
+     */
+    public function section_id_exists($id)
+    {
+        foreach($this->items_list as $item)
+            if(intval($item['id']) == $id)
+                return true;
+        return false;
+    }
+
+    /**
+     * Given the current id, set the current index of the flattened item list.
+     *
+     * @param int $id
+     *  The current navigation item id.
+     */
+    public function set_current_index($id)
+    {
+        $this->current_id = $id;
+        foreach($this->items_list as $index => $item)
+        {
+            if($item['id'] == $id)
+            {
+                $this->current_idx = $index;
+                return;
+            }
+        }
     }
 }
 ?>

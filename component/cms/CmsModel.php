@@ -33,6 +33,14 @@ class CmsModel extends BaseModel
         $this->id_page = $id_page;
         $this->id_section = $id_section;
         $this->page_info = $this->db->fetch_page_info_by_id($id_page);
+        // create navigation service if cms content has a navigation
+        if($this->page_info['id_navigation_section'] != null)
+        {
+            $this->services['nav'] = new Navigation($this->router, $this->db,
+                $this->page_info['keyword'],
+                $this->page_info['id_navigation_section']);
+            $this->services['nav']->set_current_index($id_section);
+        }
     }
 
     /* Private Methods ********************************************************/
@@ -230,8 +238,9 @@ class CmsModel extends BaseModel
             LEFT JOIN sections_hierarchy AS sh ON s.id = sh.child
             LEFT JOIN pages_sections AS ps ON s.id = ps.id_sections
             LEFT JOIN pages_sections_navigation AS psn ON s.id = psn.id_sections
+            LEFT JOIN sections_navigation AS sn ON s.id = sn.parent
             WHERE sh.child IS NULL AND ps.id_sections IS NULL
-            AND psn.id_sections IS NULL";
+            AND psn.id_sections IS NULL AND sn.parent IS NULL";
         $sections_db = $this->db->query_db($sql);
         return $this->prepare_section_list($sections_db);
     }
@@ -270,12 +279,23 @@ class CmsModel extends BaseModel
      * @retval int
      *  The currently active page id.
      */
-    public function get_active_id()
+    public function get_active_page_id()
     {
         $id = $this->id_page;
         if($this->id_section != 0)
             $id .= "-" . $this->id_section;
         return $id;
+    }
+
+    /**
+     * Gets the currently active page id.
+     *
+     * @retval int
+     *  The currently active page id.
+     */
+    public function get_active_section_id()
+    {
+        return $this->id_section;
     }
 }
 ?>

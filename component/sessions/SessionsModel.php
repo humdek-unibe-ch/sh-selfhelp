@@ -23,16 +23,7 @@ class SessionsModel extends BaseModel
         parent::__construct($services);
         $db_fields = $this->db->fetch_page_fields("sessions");
         $this->set_db_fields($db_fields);
-        $sections = $this->db->fetch_page_sections("sessions");
-        $this->id_nav = 0;
-        foreach($sections as $section)
-            if(intval($section['id_styles']) == NAVIGATION_STYLE_ID)
-            {
-                $this->id_nav = intval($section['id']);
-                break;
-            }
-        $this->nav = new Navigation($this->router, $this->db, "session",
-            $this->id_nav);
+        $this->nav = new Navigation($this->router, $this->db, "session", 25);
     }
 }
 ?>

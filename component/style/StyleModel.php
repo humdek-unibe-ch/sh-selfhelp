@@ -9,7 +9,9 @@ class StyleModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
-    private $section;
+    private $section_name;
+    private $style_name;
+    private $style_type;
 
     /* Constructors ***********************************************************/
 
@@ -28,7 +30,16 @@ class StyleModel extends BaseModel
         parent::__construct($services);
         $this->db_fields['id'] = $id;
 
-        $this->section = $this->db->select_by_uid_join("sections", $id);
+        $sql = "SELECT s.id, sec.name, s.name AS style, t.name AS type
+            FROM styles AS s
+            LEFT JOIN styleType AS t ON t.id = s.id_type
+            LEFT JOIN sections AS sec ON sec.id_styles = s.id
+            WHERE sec.id = :id";
+        $style = $this->db->query_db_first($sql, array(":id" => $id));
+        if(!$style) return;
+        $this->style_name = $style['style'];
+        $this->style_type = $style['type'];
+        $this->section_name = $style['name'];
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
         $this->set_db_fields($fields);
@@ -36,7 +47,7 @@ class StyleModel extends BaseModel
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
 
-        $fields = $this->db->fetch_style_fields($this->section['id_styles']);
+        $fields = $this->db->fetch_style_fields($style['id']);
         $this->set_db_fields($fields);
 
         $this->db_fields["content"] = array();
@@ -124,7 +135,29 @@ class StyleModel extends BaseModel
      */
     public function get_style_name()
     {
-        return $this->section['name_styles'];
+        return $this->style_name;
+    }
+
+    /**
+     * Returns the style type.
+     *
+     * @retval string
+     *  The style type.
+     */
+    public function get_style_type()
+    {
+        return $this->style_type;
+    }
+
+    /**
+     * Returns the section name.
+     *
+     * @retval string
+     *  The section name.
+     */
+    public function get_section_name()
+    {
+        return $this->section_name;
     }
 }
 ?>

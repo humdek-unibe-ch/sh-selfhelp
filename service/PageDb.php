@@ -125,7 +125,7 @@ class PageDb extends BaseDb
             $page_info["url"] = $info["url"];
             $page_info["id"] = intval($info["id"]);
             $page_info["action"] = $info["action"];
-            $page_info["id_navigation_section"] = $info["id_navigation_section"];
+            $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
             $locale_cond = $this->get_locale_condition();
             $sql = "SELECT pft.content AS title
                 FROM pages_fields_translation AS pft

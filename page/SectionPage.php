@@ -11,6 +11,7 @@ class SectionPage extends BasePage
     /* Private Properties *****************************************************/
 
     private $sections;
+    private $nav_section_id;
 
     /* Constructors ***********************************************************/
 
@@ -27,9 +28,10 @@ class SectionPage extends BasePage
      * @param string $keyword
      *  The identification name of the page.
      */
-    public function __construct($router, $db, $keyword)
+    public function __construct($router, $db, $keyword, $id=null)
     {
         parent::__construct($router, $db, $keyword);
+        $this->nav_section_id = $id;
         $sql = "SELECT ps.id_sections AS id
             FROM pages_sections AS ps
             WHERE ps.id_pages = :id_page
@@ -42,7 +44,13 @@ class SectionPage extends BasePage
         foreach($this->sections as $section)
         {
             $this->add_component("section-" . $section['id'],
-                new StyleComponent($this->services, $section['id']));
+                new StyleComponent($this->services, intval($section['id'])));
+        }
+        if($id != null)
+        {
+            $this->services['nav']->set_current_index($id);
+            $this->add_component("section-" . $id,
+                new StyleComponent($this->services, $id));
         }
     }
 
@@ -59,6 +67,7 @@ class SectionPage extends BasePage
         {
             $this->output_component("section-" . $section['id']);
         }
+        $this->output_component("section-" . $this->nav_section_id);
     }
 
     /**
