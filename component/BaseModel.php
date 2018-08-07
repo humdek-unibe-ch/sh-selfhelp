@@ -99,6 +99,12 @@ abstract class BaseModel
      */
     public function is_link_active($key)
     {
+        $sql = "SELECT pj.keyword FROM pages AS p
+            LEFT JOIN pages AS pj ON p.id = pj.parent
+            WHERE p.keyword = :keyword";
+        $matches = $this->db->query_db($sql, array(":keyword" => $key));
+        foreach($matches as $match)
+            if($this->router->is_active($match['keyword'])) return true;
         return $this->router->is_active($key);
     }
 
