@@ -9,15 +9,9 @@ require_once __DIR__ . "/../../BaseView.php";
  *  'id_prefix':
  *   an id prefix that is used if multiple lists are used on the same page.
  *  'is_expanded':
- *   defines whether the itesm are expanded by default.
+ *   defines whether the items are expanded by default.
  *  'items':
  *   a hierarchical array holding the list items
- *  'root_name':
- *   as the root item is expandable, it cannot be clicked itself. Hence, in
- *   order to show the content of the root a new item is intruduced. This item
- *   has the name that is provided by this field.
- *  'title':
- *   the title of the list.
  *  'search_text':
  *   the default text displayed in the search field.
  *
@@ -30,11 +24,11 @@ require_once __DIR__ . "/../../BaseView.php";
  *   the children of this item
  *  'url':
  *   the target url
- *  'disable-root-link':
- *   [optional] if set to true the root link is not shown (see key 'root_name').
  */
 class NestedListView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
     private $is_expanded;
     private $id_active;
 
@@ -75,28 +69,12 @@ class NestedListView extends BaseView
     }
 
     /**
-     * Render the collapsable attributes of a children container.
-     *
-     * @param string $id
-     *  The id string of the data source.
-     * @param bool $has_children
-     *  Indicates whether the element has children.
-     * @param bool $is_expanded
-     *  Indicates whether the element is expanded or not.
-     */
-    private function output_collapse($id, $has_children, $is_expanded)
-    {
-        if(!$has_children) return;
-        $is_expanded = ($is_expanded) ? "true" : "false";
-        require __DIR__ . "/tpl_collapse.php";
-    }
-
-    /**
      * Checks whether a child is active.
      *
      * @param array $children
-     *  an array of items (see class NestedListView description).
+     *  An array of items (see class NestedListView description).
      * @param int $id_active
+     *  The id of the curently active item.
      */
     private function is_child_active($children, $id_active)
     {
@@ -115,43 +93,53 @@ class NestedListView extends BaseView
      * @param array $item
      *  An associative array holding item information (see class NestedListView
      *  description).
-     * @param bool $first
-     *  A flag indication whether the item is a root item.
      */
-    private function output_list_item($item, $first=false)
+    private function output_list_item($item)
     {
         if($item == null) return;
         $children = $item['children'];
-        $name = $item['title'];
-        $url = "";
-        if($item['url'] != "")
-            $url = 'href="'.$item['url'].'"';
-        $id = (string)$item['id'];
+        $id = $item['id'];
+        $id_html = $this->model->get_db_field("id_prefix") . "-" . $id;
 
         $is_expanded = $this->model->get_db_field("is_expanded");
-        $id_active = (string)$this->model->get_db_field("id_active");
-        $id_prefix = $this->model->get_db_field("id_prefix");
-        $id_html = $id_prefix . "-" . $id;
+        $id_active = $this->model->get_db_field("id_active");
 
         $has_children = (count($item['children']) > 0);
+        $collapsible = $has_children ? "collapsible" : "";
         $active = "";
         if($id_active === $id)
         {
-            $active = "active";
+            $active = "bg-primary text-white";
             $is_expanded = true;
         }
         if($this->is_child_active($children, $id_active))
             $is_expanded = true;
-        $id = "collapse-item-" . $id_prefix . "-" . $id;
-        $item_root = null;
-        if(!array_key_exists("disable-root-link", $item)
-            || !$item['disable-root-link'])
-        {
-            $item_root = $item;
-            $item_root['children'] = array();
-            $item_root['title'] =  $this->model->get_db_field("root_name");
-        }
         require __DIR__ . "/tpl_list_item.php";
+    }
+
+    /**
+     * Render the name of a list item.
+     *
+     * @param array $item
+     *  An associative array holding item information (see class NestedListView
+     *  description).
+     * @param string $active
+     *  The css class string indicating whether an item is currently active or
+     *  not
+     * @param string $id_html
+     *  The unique id string of the item.
+     */
+    private function output_list_item_name($item, $active, $id_html)
+    {
+        $name = $item['title'];
+        if($item['url'] != "")
+        {
+            $url = $item['url'];
+            require __DIR__ . "/tpl_link.php";
+        }
+        else
+            require __DIR__ . "/tpl_name.php";
+
     }
 
     /**
@@ -169,22 +157,13 @@ class NestedListView extends BaseView
     /**
      * Render the collapsable container which holds the child items of an item.
      *
-     * @param string $id_root
-     *  The id string of the root item.
-     * @param array $item_root
-     *  An associative array holding the root item information (see classr
-     *  NestedListView description). This item must be stripped of all children.
      * @param array $items
      *  an array of items (see class NestedListView description).
      * @param bool $is_expanded
      *  Indicates whether the element is expanded or not.
-     * @param bool $first
-     *  A flag indication whether the item is a root item.
      */
-    private function output_children_container($id_root, $item_root, $items,
-        $is_expanded, $first)
+    private function output_children_container($items, $is_expanded)
     {
-        if($first) return;
         if(count($items) == 0) return;
         $show = ($is_expanded) ? "show" : "";
         require __DIR__ . "/tpl_children_container.php";
@@ -223,11 +202,8 @@ class NestedListView extends BaseView
      */
     public function output_content()
     {
-        $show = $this->model->get_db_field("is_expanded_root") ? "show" : "";
         $items = $this->model->get_db_field("items");
         $search_text = $this->model->get_db_field("search_text");
-        $title = $this->model->get_db_field("title");
-        $id_prefix = $this->model->get_db_field("id_prefix");
         require __DIR__ . "/tpl_list.php";
     }
 }

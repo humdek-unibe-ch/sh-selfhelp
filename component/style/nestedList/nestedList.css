@@ -1,37 +1,27 @@
-.just-padding {
-    padding: 15px;
+.nested-list > .list-group-item-action, .nested-list * .list-group-item-action
+{
+    cursor: pointer;
 }
-
-.list-group.list-group-root {
-    padding: 0;
-    overflow: hidden;
+.nested-list > .list-group-item, .nested-list * .list-group-item
+{
+    border:none;
 }
-
-.list-group.list-group-root .list-group {
-    margin-bottom: 0;
-}
-
-.list-group.list-group-root .list-group-item {
-    border-radius: 0;
-    border-width: 1px 0 0 0;
-}
-
-.list-group.list-group-root > .list-group-item:first-child {
-    border-top-width: 0;
-}
-
 button.clear-search {
     margin-top:-1.3em;
     margin-right:0.3em;
 }
-
-div.card-header.nested-list
-{
-    cursor:pointer;
+.nested-list * a, .nested-list * span {
+    margin-left: 1.6em;
+    display: block;
+    padding: 0.2em 0.4em;
 }
-
-div.card-header.nested-list:hover
-{
-    background-color: #d6d8d9;
-    border-color: #c6c8ca;
+.nested-list * .chevron {
+    width: 0.8em;
+    display: inline-block;
+    float: left;
+    margin-top:0.5em;
+    margin-left:0.4em;
+}
+.nested-list-item-name:hover {
+    text-decoration: none;
 }

@@ -1,5 +1,5 @@
-<a id="<?php echo $id_html; ?>" <?php echo $url; ?> class="list-group-item list-group-item-action p-1 <?php echo $active; ?>" <?php $this->output_collapse($id, $has_children, $is_expanded); ?>>
+<div class="list-group-item list-group-item-action p-0 <?php echo $collapsible; ?>">
     <?php $this->output_chevron($has_children, $is_expanded); ?>
-    <span class="label"><?php echo $name?></span>
-</a>
-<?php $this->output_children_container($id, $item_root, $children, $is_expanded, $first); ?>
+    <?php $this->output_list_item_name($item, $active, $id_html); ?>
+</div>
+<?php $this->output_children_container($children, $is_expanded); ?>

@@ -1,37 +1,28 @@
 $(document).ready(function() {
     $('.list-search').on('keyup', function() {
         var pattern = $(this).val();
-        var $list = $(this).parents('.card-body:first').find('a.list-group-item');
+        var $list = $(this).parent().next().find('a,span');
         $list.each(function(index) {
-            var label = $(this).children('span.label').text();
-            if(label.search(pattern) < 0) $(this).hide();
+            var label = $(this).text();
+            if(label.search(pattern) < 0) $(this).parent().hide();
             else {
-                $(this).show();
+                $(this).parent().show();
                 $(this).parents('div.collapse').collapse('show');
             }
         });
     });
     $('.clear-search').on('click', function() {
         $(this).prev().val("");
-        var $list = $(this).parents('.card-body:first').find('a.list-group-item');
+        var $list = $(this).parent().next().find('a');
         $list.each(function(index) {
-            $(this).show();
+            $(this).parent().show();
         });
     });
-    $('div[id|=collapse-item]').on('shown.bs.collapse', function( e ) {
-        $(this).prev().children('.fas:first')
-        .removeClass('fa-chevron-right')
-        .addClass('fa-chevron-down');
+    $('.nested-list a').on('click', function( e ) {
         e.stopPropagation();
     });
-    $('div[id|=collapse-item]').on('hidden.bs.collapse', function() {
-        $(this).prev().children('.fas:first')
-        .addClass('fa-chevron-right')
-        .removeClass('fa-chevron-down');
-        e.stopPropagation();
-    });
-    $('div.card-header.nested-list').on('click', function() {
-        var $collapsible = $(this).next();
+    $('.nested-list div.collapsible').on('click', function( e ) {
+        $collapsible = $(this).next();
         if($collapsible.hasClass("show")) {
             $collapsible.hide('fast', function() {
                 $collapsible.removeClass("show");
@@ -43,5 +34,14 @@ $(document).ready(function() {
                 $collapsible.addClass("show");
             });
         }
+        $chevron = $(this).children('.fas:first');
+        if($chevron.hasClass('fa-chevron-right'))
+            $chevron
+                .removeClass('fa-chevron-right')
+                .addClass('fa-chevron-down');
+        else if($chevron.hasClass('fa-chevron-down'))
+            $chevron
+                .removeClass('fa-chevron-down')
+                .addClass('fa-chevron-right');
     });
 });
