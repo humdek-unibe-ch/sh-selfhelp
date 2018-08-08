@@ -14,7 +14,7 @@ class CmsView extends BaseView
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor.
+     * The constructor. Here all the main style components are created.
      *
      * @param object $model
      *  The model instance of the cms component.
@@ -73,6 +73,24 @@ class CmsView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Helper function to create a nested list style component, wrapped by a
+     * card style component. The created component is added to the local
+     * components list.
+     *
+     * @param string $name
+     *  The name of the local component.
+     * @param string $title
+     *  The title to appear in the card header.
+     * @param array $items
+     *  The item list to be rendered as a nested list.
+     * @param string $prefix
+     *  A unique id prefix that is used to identify a list.
+     * @param bool $is_expanded_root
+     *  Indicates wheter the card style is expanded or not.
+     * @param int $id_active
+     *  The id of the currently active item.
+     */
     private function add_list_component($name, $title, $items, $prefix,
         $is_expanded_root = false, $id_active = 0)
     {
@@ -97,6 +115,20 @@ class CmsView extends BaseView
         );
     }
 
+    /**
+     * Helper function to create a description list style component, wrapped by
+     * a card style component. The created component is added to the local
+     * components list.
+     *
+     * @param string $name
+     *  The name of the local component.
+     * @param string $title
+     *  The title to appear in the card header.
+     * @param array $fields
+     *  The list of fields to be rendered as a description list.
+     * @param bool $is_expanded
+     *  Indicates wheter the card style is expanded or not.
+     */
     private function add_description_list_component($name, $title, $fields,
         $is_expanded=false)
     {
@@ -115,12 +147,18 @@ class CmsView extends BaseView
         );
     }
 
+    /**
+     * Renders the control buttons.
+     */
     private function output_controls()
     {
         if($this->model->get_active_page_id() == null) return;
         require __DIR__ . "/tpl_controls.php";
     }
 
+    /**
+     * Renders all the nested lists.
+     */
     private function output_lists()
     {
         $this->output_local_component("page-list");
@@ -129,6 +167,9 @@ class CmsView extends BaseView
         $this->output_local_component("page-section-list");
     }
 
+    /**
+     * Renders the main content.
+     */
     private function output_page_content()
     {
         if($this->model->is_navigation_main())
@@ -145,12 +186,19 @@ class CmsView extends BaseView
         }
     }
 
+    /**
+     * Renders the description list components.
+     */
     private function output_fields()
     {
         $this->output_local_component("page-fields");
         $this->output_local_component("section-fields");
     }
 
+    /**
+     * Renders the page properties. Page properties only rendered of a page is
+     * active and the active page is not a navigation item.
+     */
     private function output_page_properties()
     {
         if($this->model->is_navigation_item()) return;
@@ -158,11 +206,23 @@ class CmsView extends BaseView
         require __DIR__ . "/tpl_page_properties.php";
     }
 
+    /**
+     * Renders the page property items.
+     */
     private function output_page_property_items()
     {
         $this->output_local_component("page-properties");
     }
 
+    /**
+     * Helper function to prepare the page fields such that they can be rendered
+     * as a description list.
+     *
+     * @retval array
+     *  An array of field arrays where each field has the following keys:
+     *   'name':    the name of the field.
+     *   'content': the content of the field.
+     */
     private function prepare_page_fields()
     {
         if($this->model->is_navigation_item())
@@ -173,6 +233,15 @@ class CmsView extends BaseView
         return $fields;
     }
 
+    /**
+     * Helper function to prepare the page properties such that they can be
+     * rendered as a description list.
+     *
+     * @retval array
+     *  An array of field arrays where each field has the following keys:
+     *   'name':    the name of the field.
+     *   'content': the content of the field.
+     */
     private function prepare_page_properties()
     {
         $fields = array();
