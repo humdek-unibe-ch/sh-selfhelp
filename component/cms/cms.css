@@ -1,3 +1,13 @@
-.highlight {
-    box-shadow: 0 0 5px rgba(40, 167, 69, 1);
+.highlight, .highlight.highlight-hover
+{
+    box-shadow: 0 0 5px #007bff;
+}
+.highlight-hover
+{
+    box-shadow: 0 0 5px #28a745;
+}
+pre.db-fields
+{
+    white-space: pre-wrap;
+    padding-top: 3px;
 }

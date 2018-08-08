@@ -63,7 +63,8 @@ class PageDb extends BaseDb
      */
     public function fetch_accessible_pages()
     {
-        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name FROM pages AS p
+        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action
+            FROM pages AS p
             LEFT JOIN actions AS a ON p.id_actions = a.id
             WHERE p.intern = 0";
         return $this->query_db($sql);
@@ -108,7 +109,7 @@ class PageDb extends BaseDb
     public function fetch_page_info($keyword)
     {
         $page_info = array(
-            "title" => "Unknown",
+            "title" => "unknown",
             "keyword" => $keyword,
             "action" => "unknown",
             "url" => "",

@@ -1,11 +1,13 @@
 $(document).ready(function() {
-    $('a[id|=page_sections],a[id|=sections]').hover(
+    $('a[id|=sections]').hover(
         function() {
             var ids = $(this).attr('id').split('-');
-            $('div#style-section-' + ids[1]).addClass("highlight");
+            var id = ids[ids.length-1];
+            $('div#style-section-' + id).addClass("highlight-hover");
         }, function() {
             var ids = $(this).attr('id').split('-');
-            $('div#style-section-' + ids[1]).removeClass("highlight");
+            var id = ids[ids.length-1];
+            $('div#style-section-' + id).removeClass("highlight-hover");
         }
     );
 });

@@ -35,10 +35,17 @@ function create_cms_show_page($router, $db, $id_page)
     $page = new CmsPage($router, $db, "cms_show", intval($id_page));
     $page->output();
 }
-function create_cms_show_nav_page($router, $db, $id_page, $id_section)
+function create_cms_show_section_page($router, $db, $id_page, $id_section)
 {
-    $page = new CmsPage($router, $db, "cms_show_nav", intval($id_page),
+    $page = new CmsPage($router, $db, "cms_show_section", intval($id_page),
         intval($id_section));
+    $page->output();
+}
+function create_cms_show_nav_page($router, $db, $id_page, $id_root_section,
+    $id_section)
+{
+    $page = new CmsPage($router, $db, "cms_show_section", intval($id_page),
+        intval($id_root_section), intval($id_section));
     $page->output();
 }
 function create_cms_new_page($router, $db, $id_page)

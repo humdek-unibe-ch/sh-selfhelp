@@ -29,16 +29,20 @@ class CmsPage extends BasePage
      *  The identification name of the page.
      * @param int $id_page
      *  The id of the page that is currently edited.
+     * @param int $id_root_section
+     *  The root id of a page or the section that is currently selected.
      * @param int $id_section
-     *  The id of the section that is currently edited (only relevant for
+     *  The id of the section that is currently selected (only relevant for
      *  navigation pages).
      */
-    public function __construct($router, $db, $keyword, $id_page, $id_section=0)
+    public function __construct($router, $db, $keyword, $id_page,
+        $id_root_section=null, $id_section=null)
     {
         $this->cms_page_id = $id_page;
         parent::__construct($router, $db, $keyword);
         $this->add_component("cms",
-            new CmsComponent($this->services, $id_page, $id_section));
+            new CmsComponent($this->services, $id_page, $id_root_section,
+                $id_section));
     }
 
     /* Private Methods ********************************************************/

@@ -27,8 +27,9 @@ class CmsView extends BaseView
         $this->page_info = $this->model->get_page_info();
 
         $pages = $this->model->get_pages();
-        $this->add_list_component("page-list", "Pages", $pages, "page", true,
-            $this->model->get_active_page_id());
+        $expand_pages = !$this->model->is_navigation_item();
+        $this->add_list_component("page-list", "Page Index", $pages, "page",
+            $expand_pages, $this->model->get_active_page_id());
 
         $global_sections = $this->model->get_global_sections();
         $this->add_list_component("global-section-list", "Global Sections",
@@ -36,26 +37,37 @@ class CmsView extends BaseView
 
         $this->page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
-            $this->page_sections, "page_sections", true);
+            $this->page_sections, "sections-page", true,
+            $this->model->get_active_section_id());
 
         $this->add_list_component("navigation-hierarchy-list",
             "Navigation Hierarchy", $this->model->get_navigation_hierarchy(),
-            "navigation_sections", true, $this->model->get_active_section_id());
+            "navigation_sections", true,
+            $this->model->get_active_root_section_id());
 
-        if($this->page_info['action'] == "component")
-        {
-            $this->add_local_component("component",
-                $this->model->get_component());
-        }
-        else if($this->page_info['action'] == "sections"
-            || $this->page_info['action'] == "custom")
+        $this->add_description_list_component("page-fields",
+            "Page Fields", $this->prepare_page_fields());
+        $this->add_description_list_component("section-fields",
+            "Section Fields", $this->model->get_section_fields());
+        $this->add_description_list_component("page-properties",
+            "Page Properties", $this->prepare_page_properties(), true);
+
+        if($this->model->get_active_root_section_id() == null)
         {
             foreach($this->page_sections as $section)
             {
                 $this->add_local_component("section-" . $section['id'],
                     new StyleComponent($this->model->get_services(),
-                    $section['id']));
+                        intval($section['id']),
+                        $this->model->get_active_section_id()));
             }
+        }
+        else
+        {
+            $this->add_local_component("section",
+                new StyleComponent($this->model->get_services(),
+                    $this->model->get_active_root_section_id(),
+                    $this->model->get_active_section_id()));
         }
     }
 
@@ -65,84 +77,117 @@ class CmsView extends BaseView
         $is_expanded_root = false, $id_active = 0)
     {
         if(count($items) == 0) return;
-        $this->add_local_component($name,
-            new BaseStyleComponent("nested_list"),
-            array(
-                "title" => $title,
+        $nestedList = new BaseStyleComponent("nested_list");
+        $nestedList->set_fields(array(
                 "search_text" => "Search",
                 "items" => $items,
                 "id_prefix" => $prefix,
                 "is_expanded" => false,
-                "is_expanded_root" => $is_expanded_root,
                 "id_active" => $id_active,
                 "root_name" => "root element"
             )
         );
+        $this->add_local_component($name, new BaseStyleComponent("card"),
+            array(
+                "is_expanded" => $is_expanded_root,
+                "is_collapsible" => true,
+                "title" => $title,
+                "content" => array($nestedList)
+            )
+        );
     }
 
-    private function output_page_list()
+    private function add_description_list_component($name, $title, $fields,
+        $is_expanded=false)
+    {
+        if(count($fields) == 0) return;
+        $descriptionList = new BaseStyleComponent("description_list");
+        $descriptionList->set_fields(array(
+            "fields" => $fields
+        ));
+        $this->add_local_component($name, new BaseStyleComponent("card"),
+            array(
+                "is_expanded" => $is_expanded,
+                "is_collapsible" => true,
+                "title" => $title,
+                "content" => array($descriptionList)
+            )
+        );
+    }
+
+    private function output_controls()
+    {
+        if($this->model->get_active_page_id() == null) return;
+        require __DIR__ . "/tpl_controls.php";
+    }
+
+    private function output_lists()
     {
         $this->output_local_component("page-list");
-    }
-
-    private function output_global_section_list()
-    {
-        $this->output_local_component("global-section-list");
-    }
-
-    private function output_page_section_list()
-    {
-        $this->output_local_component("page-section-list");
-    }
-
-    private function output_navigation_hierarchy_list()
-    {
         $this->output_local_component("navigation-hierarchy-list");
+        $this->output_local_component("global-section-list");
+        $this->output_local_component("page-section-list");
     }
 
     private function output_page_content()
     {
-        $this->output_local_component("component");
-        foreach($this->page_sections as $section)
+        if($this->model->is_navigation_main())
+            echo "Here comes the description of how to handle a naviagtion page";
+        else if($this->model->get_active_page_id() == null)
+            echo "Here comes the description of how the cms works";
+        else
         {
-            $this->output_local_component("section-" . $section['id']);
+            $this->output_local_component("section");
+            foreach($this->page_sections as $section)
+            {
+                $this->output_local_component("section-" . $section['id']);
+            }
         }
+    }
+
+    private function output_fields()
+    {
+        $this->output_local_component("page-fields");
+        $this->output_local_component("section-fields");
     }
 
     private function output_page_properties()
     {
-        $title = "Page Properties";
-        $function_name = "output_page_property_items";
-        require __DIR__ . "/tpl_field_wrapper.php";
+        if($this->model->is_navigation_item()) return;
+        if($this->model->get_active_page_id() == null) return;
+        require __DIR__ . "/tpl_page_properties.php";
     }
 
     private function output_page_property_items()
     {
+        $this->output_local_component("page-properties");
+    }
+
+    private function prepare_page_fields()
+    {
+        if($this->model->is_navigation_item())
+            return array();
+        $fields = $this->model->get_page_fields();
+        foreach($fields as $index => $field)
+            if($field['name'] == "label") unset($fields[$index]);
+        return $fields;
+    }
+
+    private function prepare_page_properties()
+    {
+        $fields = array();
         foreach($this->page_info as $name => $content)
         {
             if($content == null) continue;
+            if($content == "unknown") continue;
             if($name == "id") continue;
             if($name == "id_navigation_section") continue;
-            require __DIR__. "/tpl_page_info.php";
+            $fields[] = array(
+                "name" => $name,
+                "content" => $content
+            );
         }
-    }
-
-    private function output_page_fields()
-    {
-        $title = "Page Fields";
-        $function_name = "output_page_field_items";
-        require __DIR__ . "/tpl_field_wrapper.php";
-    }
-
-    private function output_page_field_items()
-    {
-        $fields = $this->model->get_page_fields();
-        foreach($fields as $field)
-        {
-            $name = $field['name'];
-            $content = $field['content'];
-            require __DIR__. "/tpl_page_field.php";
-        }
+        return $fields;
     }
 
     /* Public Methods *********************************************************/

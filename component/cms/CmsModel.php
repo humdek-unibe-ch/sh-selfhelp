@@ -10,6 +10,7 @@ class CmsModel extends BaseModel
 
     private $id_page;
     private $id_section;
+    private $id_root_section;
     private $page_info;
     private $style_components;
 
@@ -23,15 +24,19 @@ class CmsModel extends BaseModel
      *  class definition BasePage for a list of all services.
      * @param int $id_page
      *  The id of the page that is currently edited.
+     * @param int $id_root_section
+     *  The root id of a page or the section that is currently selected.
      * @param int $id_section
-     *  The id of the section that is currently edited (only relevant for
+     *  The id of the section that is currently selected (only relevant for
      *  navigation pages).
      */
-    public function __construct($services, $id_page, $id_section)
+    public function __construct($services, $id_page, $id_root_section,
+        $id_section)
     {
         parent::__construct($services);
         $this->id_page = $id_page;
         $this->id_section = $id_section;
+        $this->id_root_section = $id_root_section;
         $this->page_info = $this->db->fetch_page_info_by_id($id_page);
     }
 
@@ -81,14 +86,23 @@ class CmsModel extends BaseModel
                 continue;
             $root_idx = $this->get_item_index(intval($item['parent']),
                 $root_items);
-            $nav_sections = $this->get_navigation_sections($id);
-            $count = array_push($root_items[$root_idx]['children'],
-                $this->add_item($id, $item['keyword'], $nav_sections,
-                    $this->router->generate("cms_show", array("id" => $id))));
-            if(count($nav_sections) > 0)
-                $root_items[$root_idx]['children'][$count-1]['disable-root-link'] = true;
+            array_push($root_items[$root_idx]['children'],
+                $this->add_item($id, $item['keyword'], array(),
+                    $this->get_item_url($id)));
         }
         return $root_items;
+    }
+
+    private function get_item_url($pid, $sid=null, $ssid=null)
+    {
+        if($sid != null && $ssid != null)
+            return $this->router->generate("cms_show_nav",
+                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
+        else if($sid != null)
+            return $this->router->generate("cms_show_section",
+                array("pid" => $pid, "sid" => $sid));
+        else
+            return $this->router->generate("cms_show", array("id" => $pid));
     }
 
     /**
@@ -107,28 +121,6 @@ class CmsModel extends BaseModel
             if($items[$idx]['id'] == $id)
                 return $idx;
         return -1;
-    }
-
-    /**
-     * Fetch gloabl section data from the database and return a heirarchical
-     * array such that it can be passed to a list style.
-     *
-     * @retval array
-     *  A prepared hierarchical array of global section items such that it can
-     *  be passed to a list style.
-     */
-    private function get_navigation_sections($id_page)
-    {
-        $sections_db = $this->db->fetch_page_navigation_sections_by_id($id_page);
-        $res = array();
-        foreach($sections_db as $item)
-        {
-            $id = intval($item['id']);
-            $res[] = $this->add_item($id_page."-".$id, $item['name'], array(),
-                $this->router->generate("cms_show_nav",
-                    array("pid" => $id_page, "sid" => $id)));
-        }
-        return $res;
     }
 
     /**
@@ -165,14 +157,9 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
                 continue;
-            $nav_sections = $this->get_navigation_sections($id);
-            $count = array_push($res,
-                $this->add_item($id, $item['keyword'], $nav_sections,
-                    $this->router->generate("cms_show", array("id" => $id))));
-            if($item['url'] == "")
-                $res[$count-1]['disable-root-link'] = true;
-            if(count($nav_sections) > 0)
-                $res[$count-1]['disable-root-link'] = true;
+            $url = ($item['action'] == null) ? "" : $this->get_item_url($id);
+            array_push($res, $this->add_item($id, $item['keyword'], array(),
+                $url));
         }
         return $res;
     }
@@ -193,8 +180,16 @@ class CmsModel extends BaseModel
             $id = intval($item['id']);
             $children_db = $this->db->fetch_section_children($id);
             $children = $this->prepare_section_list($children_db);
+            $id_root = $this->id_root_section;
+            $id_child = $id;
+            if($this->page_info['id_navigation_section'] == null)
+            {
+                $id_root = $id;
+                $id_child = null;
+            }
             $res[] = $this->add_item($id,
-                $item['name'], $children, "");
+                $item['name'], $children,
+                $this->get_item_url($this->id_page, $id_root, $id_child));
         }
         return $res;
     }
@@ -217,8 +212,7 @@ class CmsModel extends BaseModel
             $id_item = intval($item_db['id']);
             $children = $this->fetch_navigation_items($id_item);
             $res[] = $this->add_item($id_item, $item_db['name'], $children,
-                $this->router->generate("cms_show_nav",
-                    array("pid" => $this->id_page, "sid" => $id_item)));
+                $this->get_item_url($this->id_page, $id_item));
         }
         return $res;
     }
@@ -235,10 +229,15 @@ class CmsModel extends BaseModel
         return $this->db->fetch_page_fields_by_id($this->id_page);
     }
 
+    public function get_section_fields()
+    {
+        return $this->db->fetch_section_fields($this->get_active_section_id());
+    }
+
     public function get_component()
     {
         $componentClass = ucfirst($this->page_info['keyword']) . "Component";
-        return new $componentClass($this->services, $this->id_section);
+        return new $componentClass($this->services, $this->id_root_section);
     }
 
     /**
@@ -289,13 +288,15 @@ class CmsModel extends BaseModel
     {
         $page_sections = $this->db->fetch_page_sections_by_id($this->id_page);
         $pages = $this->prepare_section_list($page_sections);
-        if($this->page_info['id_navigation_section'] != null)
+        if($this->is_navigation_item())
         {
             $sql = "SELECT name FROM sections WHERE id = :id";
             $section = $this->db->query_db_first($sql,
-                array(":id" => $this->id_section));
-            $pages[] = $this->add_item($this->id_section, $section['name'],
-                $this->get_section_hierarchy($this->id_section), "");
+                array(":id" => $this->id_root_section));
+            $pages[] = $this->add_item($this->id_root_section, $section['name'],
+                $this->get_section_hierarchy($this->id_root_section),
+                $this->get_item_url($this->id_page, $this->id_root_section,
+                    $this->id_root_section));
         }
         return $pages;
     }
@@ -322,21 +323,49 @@ class CmsModel extends BaseModel
      */
     public function get_active_page_id()
     {
-        $id = $this->id_page;
-        if($this->id_section != 0)
-            $id .= "-" . $this->id_section;
-        return $id;
+        return $this->id_page;
     }
 
     /**
-     * Gets the currently active page id.
+     * Gets the currently active root section id.
      *
      * @retval int
-     *  The currently active page id.
+     *  The currently active root section id or null if there is no root
+     *  section.
+     */
+    public function get_active_root_section_id()
+    {
+        if($this->page_info['id_navigation_section'] != null)
+            return $this->id_root_section;
+        return null;
+    }
+
+    /**
+     * Gets the currently active section id.
+     *
+     * @retval int
+     *  The currently active section id.
      */
     public function get_active_section_id()
     {
-        return $this->id_section;
+        if($this->id_section != null)
+            return $this->id_section;
+        else if($this->id_root_section != null)
+            return $this->id_root_section;
+        else
+            return null;
+    }
+
+    public function is_navigation_main()
+    {
+        return ($this->page_info['id_navigation_section'] != null
+            && $this->id_root_section == null);
+    }
+
+    public function is_navigation_item()
+    {
+        return ($this->page_info['id_navigation_section'] != null
+            && $this->id_root_section != null);
     }
 }
 ?>
