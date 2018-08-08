@@ -19,6 +19,16 @@ class DescriptionListView extends BaseView
         parent::__construct($model);
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     * Render the list item pairs
+     *
+     * @param array $fields
+     *  An array of fields where each field has the following keys
+     *   'name':    the name of the field.
+     *   'content': the content to be rendered next to the name.
+     */
     private function output_field_items($fields)
     {
         foreach($fields as $field)

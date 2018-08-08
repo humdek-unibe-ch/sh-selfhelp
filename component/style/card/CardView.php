@@ -6,7 +6,10 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class CardView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
     private $fluid;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -23,6 +26,8 @@ class CardView extends BaseView
         $this->fluid = $fluid;
         parent::__construct($model);
     }
+
+    /* Private Methods ********************************************************/
 
     /**
      * Render the card header if a title is set. The card can be collapsible
