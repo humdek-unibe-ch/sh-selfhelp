@@ -39,6 +39,7 @@ class StyleView extends BaseView
      */
     public function output_content()
     {
+        $highlight = $this->model->get_db_field("is_active") ? "highlight" : "";
         $id = $this->model->get_db_field("id");
         require __DIR__ . "/tpl_style.php";
     }

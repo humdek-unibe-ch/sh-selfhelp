@@ -27,19 +27,18 @@ class StyleComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
-     * @param bool $fluid
-     *  If set to true the content will be rendered in a container-fluid
-     *  bootstrap element, if set to false in a container. The defualt is true.
+     * @param int $id_active
+     *  The id of the currently active section (this is used for the cms)
      */
-    public function __construct($services, $id, $fluid=true)
+    public function __construct($services, $id, $id_active=null)
     {
-        $model = new StyleModel($services, $id);
+        $model = new StyleModel($services, $id, $id_active);
         if($model->get_style_type() == "view")
-            $view = new StyleView($model, $fluid);
+            $view = new StyleView($model, true);
         else if($model->get_style_type() == "component")
         {
             $className = ucfirst($model->get_style_name()) . "Component";
-            $inst = new $className($services, $id);
+            $inst = new $className($services, $id, $id_active);
             $view = $inst->get_view();
         }
         else if($model->get_style_type() == "navigation")
@@ -49,7 +48,7 @@ class StyleComponent extends BaseComponent
         else
         {
             $model = new StyleModel($services, MISSING_ID);
-            $view = new StyleView($model, $fluid);
+            $view = new StyleView($model, true);
         }
         parent::__construct($view);
     }

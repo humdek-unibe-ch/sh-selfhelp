@@ -21,9 +21,9 @@ class SessionComponent extends BaseComponent
      * @param int $id
      *  The section id of this session.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $id_active=null)
     {
-        $model = new SessionModel($services, $id);
+        $model = new SessionModel($services, $id, $id_active);
         $view = new SessionView($model);
         parent::__construct($view);
     }

@@ -20,9 +20,9 @@ class SessionModel extends StyleModel
      * @param int $id
      *  The section id of this session.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $id_active=null)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $id_active);
         $this->id = $id;
     }
 

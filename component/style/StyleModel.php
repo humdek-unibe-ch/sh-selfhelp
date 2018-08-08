@@ -24,8 +24,10 @@ class StyleModel extends BaseModel
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
+     * @param int $id_active
+     *  The id of the currently active section (this is used for the cms)
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $id_active=null)
     {
         parent::__construct($services);
         $this->db_fields['id'] = $id;
@@ -40,6 +42,7 @@ class StyleModel extends BaseModel
         $this->style_name = $style['style'];
         $this->style_type = $style['type'];
         $this->section_name = $style['name'];
+        $this->db_fields['is_active'] = ($id === $id_active);
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
         $this->set_db_fields($fields);
@@ -54,7 +57,7 @@ class StyleModel extends BaseModel
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
             array_push($this->db_fields["content"],
-                new StyleComponent($services, intval($child['id'])));
+                new StyleComponent($services, intval($child['id']), $id_active));
     }
 
     /* Private Methods ********************************************************/

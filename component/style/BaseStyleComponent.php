@@ -2,6 +2,7 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleModel.php";
 require_once __DIR__ . "/button/ButtonView.php";
+require_once __DIR__ . "/card/CardView.php";
 require_once __DIR__ . "/link/LinkView.php";
 require_once __DIR__ . "/jumbotron/JumbotronView.php";
 require_once __DIR__ . "/title/TitleView.php";
@@ -12,6 +13,7 @@ require_once __DIR__ . "/video/VideoView.php";
 require_once __DIR__ . "/quiz/QuizView.php";
 require_once __DIR__ . "/nestedList/NestedListView.php";
 require_once __DIR__ . "/accordionList/AccordionListView.php";
+require_once __DIR__ . "/descriptionList/DescriptionListView.php";
 require_once __DIR__ . "/progressBar/ProgressBarView.php";
 
 /**
@@ -42,6 +44,8 @@ class BaseStyleComponent extends BaseComponent
         $this->model = new BaseStyleModel();
         if($styles[0] == "button")
             $view = new ButtonView($this->model);
+        else if($styles[0] == "card")
+            $view = new CardView($this->model, $fluid);
         else if($styles[0] == "link")
             $view = new LinkView($this->model);
         else if($styles[0] == "jumbotron")
@@ -68,6 +72,8 @@ class BaseStyleComponent extends BaseComponent
             $view = new NestedListView($this->model);
         else if($styles[0] == "accordion_list")
             $view = new AccordionListView($this->model);
+        else if($styles[0] == "description_list")
+            $view = new DescriptionListView($this->model);
         else if($styles[0] == "progress")
         {
             $type = $styles[1];
