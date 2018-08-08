@@ -21,17 +21,19 @@ class CmsComponent extends BaseComponent
      *  class definition BasePage for a list of all services.
      * @param int $id_page
      *  The id of the page that is currently edited.
+     * @param string $mode
+     *  The mode of the page: 'select', 'update', 'insert', or 'delete'
      * @param int $id_root_section
      *  The root id of a page or the section that is currently selected.
      * @param int $id_section
      *  The id of the section that is currently selected (only relevant for
      *  navigation pages).
      */
-    public function __construct($services, $id_page=null, $id_root_section=null,
-        $id_section=null)
+    public function __construct($services, $id_page=null, $mode='select',
+        $id_root_section=null, $id_section=null)
     {
         $model = new CmsModel($services, $id_page, $id_root_section,
-            $id_section);
+            $id_section, $mode);
         $controller = new CmsController($model);
         $view = new CmsView($model, $controller);
         parent::__construct($view);

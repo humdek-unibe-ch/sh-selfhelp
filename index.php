@@ -25,37 +25,32 @@ function create_home_page($router, $db)
     $page = new HomePage($router, $db);
     $page->output();
 }
-function create_cms_edit_page($router, $db, $id_page)
+function create_cms_select_page($router, $db, $id_page, $id_root_section=null,
+    $id_section=null)
 {
-    $page = new CmsPage($router, $db, "cms_edit", intval($id_page));
+    $page = new CmsPage($router, $db, "cms_select", intval($id_page),
+        "select", intval($id_root_section), intval($id_section));
     $page->output();
 }
-function create_cms_select_page($router, $db, $id_page)
+function create_cms_insert_page($router, $db, $id_page, $id_root_section=null,
+    $id_section=null)
 {
-    $page = new CmsPage($router, $db, "cms_select", intval($id_page));
+    $page = new CmsPage($router, $db, "cms_insert", intval($id_page),
+        "insert", intval($id_root_section), intval($id_section));
     $page->output();
 }
-function create_cms_select_section_page($router, $db, $id_page, $id_section)
+function create_cms_update_page($router, $db, $id_page, $id_root_section=null,
+    $id_section=null)
 {
-    $page = new CmsPage($router, $db, "cms_select_section", intval($id_page),
-        intval($id_section));
+    $page = new CmsPage($router, $db, "cms_update", intval($id_page),
+        "update", intval($id_root_section), intval($id_section));
     $page->output();
 }
-function create_cms_select_nav_page($router, $db, $id_page, $id_root_section,
-    $id_section)
+function create_cms_delete_page($router, $db, $id_page, $id_root_section=null,
+    $id_section=null)
 {
-    $page = new CmsPage($router, $db, "cms_select_section", intval($id_page),
-        intval($id_root_section), intval($id_section));
-    $page->output();
-}
-function create_cms_new_page($router, $db, $id_page)
-{
-    $page = new CmsPage($router, $db, "cms_new", intval($id_page));
-    $page->output();
-}
-function create_cms_remove_page($router, $db, $id_page)
-{
-    $page = new CmsPage($router, $db, "cms_remove", intval($id_page));
+    $page = new CmsPage($router, $db, "cms_delete", intval($id_page),
+        "delete", intval($id_root_section), intval($id_section));
     $page->output();
 }
 

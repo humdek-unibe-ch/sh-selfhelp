@@ -12,6 +12,7 @@ class CmsPage extends BasePage
     /* Private Properties *****************************************************/
 
     private $cms_page_id;
+    private $mode;
 
     /* Constructors ***********************************************************/
 
@@ -29,19 +30,22 @@ class CmsPage extends BasePage
      *  The identification name of the page.
      * @param int $id_page
      *  The id of the page that is currently edited.
+     * @param string $mode
+     *  The mode of the page: 'select', 'update', 'insert', or 'delete'
      * @param int $id_root_section
      *  The root id of a page or the section that is currently selected.
      * @param int $id_section
      *  The id of the section that is currently selected (only relevant for
      *  navigation pages).
      */
-    public function __construct($router, $db, $keyword, $id_page,
+    public function __construct($router, $db, $keyword, $id_page, $mode,
         $id_root_section=null, $id_section=null)
     {
+        $this->mode = $mode;
         $this->cms_page_id = $id_page;
         parent::__construct($router, $db, $keyword);
         $this->add_component("cms",
-            new CmsComponent($this->services, $id_page, $id_root_section,
+            new CmsComponent($this->services, $id_page, $mode, $id_root_section,
                 $id_section));
     }
 
@@ -68,11 +72,10 @@ class CmsPage extends BasePage
         $acl = $this->services['acl'];
         $uid = $_SESSION['id_user'];
         $pid = $this->cms_page_id;
-        $key = $this->keyword;
-        if(($key == "cms_remove" && !$acl->has_access_delete($uid, $pid))
-            || ($key == "cms_show" && !$acl->has_access_select($uid, $pid))
-            || ($key == "cms_new" && !$acl->has_access_insert($uid, $pid))
-            || ($key == "cms_edit" && !$acl->has_access_update($uid, $pid))
+        if(($this->mode == "delete" && !$acl->has_access_delete($uid, $pid))
+            || ($this->mode == "select" && !$acl->has_access_select($uid, $pid))
+            || ($this->mode == "insert" && !$acl->has_access_insert($uid, $pid))
+            || ($this->mode == "update" && !$acl->has_access_update($uid, $pid))
             || !$this->does_page_exist($pid))
                 $this->output_component("denied");
         else

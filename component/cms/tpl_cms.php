@@ -5,8 +5,8 @@
         </div>
         <div class="col d-block">
             <?php $this->output_controls(); ?>
-            <?php $this->output_fields(); ?>
             <?php $this->output_page_content(); ?>
+            <?php $this->output_fields(); ?>
         </div>
         <?php $this->output_page_properties(); ?>
     </div>

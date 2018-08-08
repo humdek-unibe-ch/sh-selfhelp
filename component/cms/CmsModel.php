@@ -30,12 +30,14 @@ class CmsModel extends BaseModel
      * @param int $id_section
      *  The id of the section that is currently selected (only relevant for
      *  navigation pages).
+     * @param string $mode
+     *  The mode of the page: 'select', 'update', 'insert', or 'delete'
      */
     public function __construct($services, $id_page, $id_root_section,
-        $id_section)
+        $id_section, $mode)
     {
         parent::__construct($services);
-        $this->mode = "select";
+        $this->mode = $mode;
         $this->id_page = $id_page;
         $this->id_section = $id_section;
         $this->id_root_section = $id_root_section;
@@ -110,15 +112,8 @@ class CmsModel extends BaseModel
      */
     private function get_item_url($pid, $sid=null, $ssid=null)
     {
-        if($sid != null && $ssid != null)
-            return $this->router->generate("cms_" . $this->mode . "_nav",
-                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
-        else if($sid != null)
-            return $this->router->generate("cms_" . $this->mode . "_section",
-                array("pid" => $pid, "sid" => $sid));
-        else
-            return $this->router->generate("cms_" . $this->mode,
-                array("id" => $pid));
+        return $this->router->generate("cms_" . $this->mode,
+            array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
     }
 
     /**
