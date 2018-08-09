@@ -1,4 +1,11 @@
 <div class="container-fluid">
+    <div class="jumbotron my-3">
+        <h1><?php echo $title ?></h1>
+        <?php echo $text; ?>
+        <a href="<?php echo $next_url; ?>" class="btn btn-primary">
+            <?php echo $continue_label; ?>
+        </a>
+    </div>
     <div class="card mb-3">
         <div class="row">
             <div class="col-auto align-self-center d-none d-sm-flex">

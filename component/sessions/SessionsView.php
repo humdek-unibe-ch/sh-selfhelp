@@ -28,8 +28,6 @@ class SessionsView extends BaseView
                 "type" => "primary"
             )
         );
-        $this->add_local_component("text", new BaseStyleComponent("plaintext"),
-            array("text" => $this->model->get_db_field('text')));
         $this->add_local_component("nav",
             new BaseStyleComponent("accordion_list"),
             array(
@@ -43,14 +41,6 @@ class SessionsView extends BaseView
     }
 
     /* Private Methods ********************************************************/
-
-    /**
-     * Render the introduction text.
-     */
-    private function output_intro()
-    {
-        $this->output_local_component("text");
-    }
 
     /**
      * Render the session navigation component.
@@ -80,8 +70,11 @@ class SessionsView extends BaseView
      */
     public function output_content()
     {
-        $this->output_children();
+        $title = $this->model->get_db_field('title');
+        $text = $this->model->get_db_field('text_markdown');;
+        $next_url = "#";
         $progress_label = $this->model->get_db_field('progress_label');
+        $continue_label = $this->model->get_db_field('continue_label');
         require __DIR__ . "/tpl_sessions.php";
     }
 }

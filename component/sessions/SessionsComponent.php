@@ -13,6 +13,17 @@ require_once __DIR__ . "/SessionsModel.php";
  * Note that it would also be possible to not instantiate the nav component in
  * this class here but instantiate the nav model in the SessionsModel class and
  * the NavView in the SessionsView class.
+ *
+ * The component requires the following fields:
+ *  'title':
+ *      The title rendered into a jumbotron.
+ *  'text_markdown':
+ *      A description of sessions page that is rendered below the title.
+ *  'continue_label':
+ *      The button label that leads to the session the user is currently working
+ *      on.
+ *  'progress_label':
+ *      The label that is rendered next to the progress bar.
  */
 class SessionsComponent extends BaseComponent
 {
