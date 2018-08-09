@@ -4,6 +4,7 @@ require_once __DIR__ . "/../service/globals_untracked.php";
 require_once __DIR__ . "/../service/Login.php";
 require_once __DIR__ . "/../service/Acl.php";
 require_once __DIR__ . "/../service/Navigation.php";
+require_once __DIR__ . "/../service/Parsedown.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 
 /**
@@ -65,12 +66,15 @@ abstract class BasePage
             // The instnce of the access control layer (ACL) which allows to
             // decide which links to display.
             "acl" => new Acl($db),
+            // A markdown parser.
+            "parsedown" => new Parsedown(),
             // The instance to the navigation service which allows to switch
             // between sections, associated to a specific page. Unlike the
             // other elements in this array, "nav" may be null if a page has
             // only one view.
             "nav" => null,
         );
+        $this->services['parsedown']->setSafeMode(true);
         $this->fetch_page_info($keyword);
         if($this->id_navigation_section != null)
             $this->services['nav'] = new Navigation($router, $db, $keyword,
