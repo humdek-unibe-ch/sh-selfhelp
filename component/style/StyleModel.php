@@ -70,9 +70,9 @@ class StyleModel extends BaseModel
      * @retval string
      *  The generated url.
      */
-    private function get_url($url)
+    protected function get_url($url)
     {
-        if($url == ":back")
+        if($url == "#back")
         {
             if(isset($_SERVER['HTTP_REFERER'])
                     && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
@@ -81,9 +81,13 @@ class StyleModel extends BaseModel
             }
             return $this->router->generate("home");
         }
+        else if($url[0] == "#")
+        {
+            return $this->router->generate(substr($url, 1));
+        }
         else
         {
-            return $this->router->generate($url);
+            return $url;
         }
     }
 
