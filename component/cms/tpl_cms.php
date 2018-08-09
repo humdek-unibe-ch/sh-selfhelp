@@ -4,10 +4,18 @@
             <?php $this->output_lists(); ?>
         </div>
         <div class="col d-block">
-            <?php $this->output_controls(); ?>
-            <?php $this->output_page_content(); ?>
-            <?php $this->output_fields(); ?>
+            <div class="row">
+                <div class="col fields">
+                    <?php $this->output_fields(); ?>
+                </div>
+                <div class="col d-block">
+                    <?php $this->output_page_content(); ?>
+                </div>
+            </div>
         </div>
-        <?php $this->output_page_properties(); ?>
+        <div class="col-auto">
+            <?php $this->output_controls(); ?>
+            <?php $this->output_page_property_items(); ?>
+        </div>
     </div>
 </div>

@@ -86,7 +86,7 @@ class CmsModel extends BaseModel
         {
             if($item['parent'] == "") continue;
             $id = intval($item["id"]);
-            if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
+            if(!$this->has_access($this->mode, $id))
                 continue;
             $root_idx = $this->get_item_index(intval($item['parent']),
                 $root_items);
@@ -191,7 +191,7 @@ class CmsModel extends BaseModel
         {
             if($item['parent'] != "") continue;
             $id = intval($item["id"]);
-            if(!$this->acl->has_access_select($_SESSION['id_user'], $id))
+            if(!$this->has_access($this->mode, $id))
                 continue;
             $url = ($item['action'] == null) ? "" : $this->get_item_url($id);
             array_push($res, $this->add_item($id, $item['keyword'], array(),
@@ -230,6 +230,44 @@ class CmsModel extends BaseModel
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Check page access rights of the the current user given an ACL mode.
+     *
+     * @param string $mode
+     *  A valid ACL mode.
+     * @param int $pid
+     *  The page id to check for.
+     * @retval bool
+     *  True if access is granted, false otherwise.
+     */
+    public function has_access($mode, $pid)
+    {
+        $acl_function = "has_access_". $mode;
+        if(is_callable(array($this->acl, $acl_function)))
+            return $this->acl->$acl_function($_SESSION['id_user'], $pid);
+        return false;
+    }
+
+    public function get_field_type($name)
+    {
+        $sql = "SELECT t.name AS type FROM fieldType AS t
+            LEFT JOIN fields AS f on t.id = f.id_type
+            WHERE f.name = :name";
+        $type = $this->db->query_db_first($sql, array(":name" => $name));
+        return $type['type'];
+    }
+
+    /**
+     * Get the current page acl mode.
+     *
+     * @retval string
+     *  The current page acl mode.
+     */
+    public function get_mode()
+    {
+        return $this->mode;
+    }
 
     /**
      * Return the page info array.

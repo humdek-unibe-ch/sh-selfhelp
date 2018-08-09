@@ -7,6 +7,8 @@ class CmsController extends BaseController
 {
     /* Private Properties *****************************************************/
 
+    private $fields;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -18,6 +20,20 @@ class CmsController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->fields = array();
+        foreach($_POST as $name => $content)
+        {
+            $type = $this->model->get_field_type($name);
+            $this->fields[$name] = $this->secure_field($type, $content);
+        }
+    }
+
+    /* Private Methods ********************************************************/
+
+    private function secure_field($type, $content)
+    {
+        if($type === "input")
+            echo htmlspecialchars($content);
     }
 
     /* Public Methods *********************************************************/

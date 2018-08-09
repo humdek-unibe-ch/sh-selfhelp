@@ -1,6 +1,6 @@
 <div class="row px-3">
-    <a href="" class="mb-3 btn btn-light">New Page</a>
-    <a href="" class="mb-3 ml-3 btn btn-light">View Page</a>
-    <a href="" class="mb-3 ml-3 btn btn-warning">Edit Page</a>
-    <a href="" class="mb-3 ml-3 btn btn-danger">Delete Page</a>
+    <?php $this->output_control_item("select", $params, "View Page"); ?>
+    <?php $this->output_control_item("update", $params, "Edit Page"); ?>
+    <?php $this->output_control_item("delete", $params, "Delete Page"); ?>
+    <?php $this->output_control_item("insert", $params, "Create New Section"); ?>
 </div>

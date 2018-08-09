@@ -45,30 +45,45 @@ class CmsView extends BaseView
             "navigation_sections", true,
             $this->model->get_active_root_section_id());
 
-        $this->add_description_list_component("page-fields",
-            "Page Fields", $this->prepare_page_fields());
-        $this->add_description_list_component("section-fields",
-            "Section Fields", $this->model->get_section_fields());
-        $this->add_description_list_component("page-properties",
-            "Page Properties", $this->prepare_page_properties(), true);
+        if($this->model->get_active_page_id())
+        {
+            $this->add_description_list_component("page-fields",
+                "Page Fields", $this->prepare_page_fields(), true);
+            $this->add_description_list_component("page-properties",
+                "Page Properties", $this->prepare_page_properties(), true);
+        }
+        if($this->model->get_active_section_id())
+            $this->add_description_list_component("section-fields",
+                "Section Fields", $this->model->get_section_fields(), true);
 
+        $page_components = array();
         if($this->model->get_active_root_section_id() == null)
-        {
             foreach($this->page_sections as $section)
-            {
-                $this->add_local_component("section-" . $section['id'],
-                    new StyleComponent($this->model->get_services(),
-                        intval($section['id']),
-                        $this->model->get_active_section_id()));
-            }
-        }
+                $page_components[] = new StyleComponent(
+                    $this->model->get_services(),
+                    intval($section['id']),
+                    $this->model->get_active_section_id());
         else
+            $page_components[] = new StyleComponent(
+                $this->model->get_services(),
+                $this->model->get_active_root_section_id(),
+                $this->model->get_active_section_id());
+        if(count($page_components) == 0)
         {
-            $this->add_local_component("section",
-                new StyleComponent($this->model->get_services(),
-                    $this->model->get_active_root_section_id(),
-                    $this->model->get_active_section_id()));
+            $text = new BaseStyleComponent("plaintext");
+            $text->set_fields(array(
+                "text" => "No CMS view available for this page."
+            ));
+            $page_components[] = $text;
         }
+        $this->add_local_component("page-view",
+            new BaseStyleComponent("card"), array(
+                "is_expanded" => true,
+                "is_collapsible" => true,
+                "title" => "Page View",
+                "content" => $page_components
+            )
+        );
     }
 
     /* Private Methods ********************************************************/
@@ -95,8 +110,8 @@ class CmsView extends BaseView
         $is_expanded_root = false, $id_active = 0)
     {
         if(count($items) == 0) return;
-        $nestedList = new BaseStyleComponent("nested_list");
-        $nestedList->set_fields(array(
+        $content = new BaseStyleComponent("nested_list");
+        $content->set_fields(array(
                 "search_text" => "Search",
                 "items" => $items,
                 "id_prefix" => $prefix,
@@ -110,7 +125,7 @@ class CmsView extends BaseView
                 "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
-                "content" => array($nestedList)
+                "content" => array($content)
             )
         );
     }
@@ -132,17 +147,27 @@ class CmsView extends BaseView
     private function add_description_list_component($name, $title, $fields,
         $is_expanded=false)
     {
-        if(count($fields) == 0) return;
-        $descriptionList = new BaseStyleComponent("description_list");
-        $descriptionList->set_fields(array(
-            "fields" => $fields
-        ));
+        if(count($fields) == 0)
+        {
+            $content = new BaseStyleComponent("plaintext");
+            $content->set_fields(array(
+                "text" => "No " . strtolower($title). " defined."
+            ));
+        }
+        else
+        {
+            $content = new BaseStyleComponent("description_list");
+            $content->set_fields(array(
+                "mode" => $this->model->get_mode(),
+                "fields" => $fields
+            ));
+        }
         $this->add_local_component($name, new BaseStyleComponent("card"),
             array(
                 "is_expanded" => $is_expanded,
                 "is_collapsible" => true,
                 "title" => $title,
-                "content" => array($descriptionList)
+                "content" => array($content)
             )
         );
     }
@@ -153,7 +178,32 @@ class CmsView extends BaseView
     private function output_controls()
     {
         if($this->model->get_active_page_id() == null) return;
+        $sid = $this->model->get_active_root_section_id();
+        $ssid = $this->model->get_active_section_id();
+        if($sid == null)
+        {
+            $sid = $ssid;
+            $ssid = null;
+        }
+        $params = array(
+            "pid" => $this->model->get_active_page_id(),
+            "sid" => $sid,
+            "ssid" => $ssid
+        );
         require __DIR__ . "/tpl_controls.php";
+    }
+
+    private function output_control_item($mode, $params, $title)
+    {
+        if($this->model->get_mode() == $mode) return;
+        if(!$this->model->has_access($mode,
+            $this->model->get_active_page_id())) return;
+
+        $type = "light";
+        if($mode == "update") $type = "warning";
+        if($mode == "delete") $type = "danger";
+        $url = $this->model->get_link_url("cms_" . $mode, $params);
+        require __DIR__ . "/tpl_control_item.php";
     }
 
     /**
@@ -177,13 +227,7 @@ class CmsView extends BaseView
         else if($this->model->get_active_page_id() == null)
             echo "Here comes the description of how the cms works";
         else
-        {
-            $this->output_local_component("section");
-            foreach($this->page_sections as $section)
-            {
-                $this->output_local_component("section-" . $section['id']);
-            }
-        }
+            $this->output_local_component("page-view");
     }
 
     /**
@@ -201,8 +245,6 @@ class CmsView extends BaseView
      */
     private function output_page_properties()
     {
-        if($this->model->is_navigation_item()) return;
-        if($this->model->get_active_page_id() == null) return;
         require __DIR__ . "/tpl_page_properties.php";
     }
 
@@ -225,8 +267,6 @@ class CmsView extends BaseView
      */
     private function prepare_page_fields()
     {
-        if($this->model->is_navigation_item())
-            return array();
         $fields = $this->model->get_page_fields();
         foreach($fields as $index => $field)
             if($field['name'] == "label") unset($fields[$index]);
