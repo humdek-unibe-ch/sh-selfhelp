@@ -29,13 +29,16 @@ class DescriptionListView extends BaseView
      *   'name':    the name of the field.
      *   'content': the content to be rendered next to the name.
      */
-    private function output_field_items($fields)
+    private function output_field_items($fields, $mode = "")
     {
         foreach($fields as $field)
         {
             $name = $field['name'];
             $content = $field['content'];
-            require __DIR__. "/tpl_field.php";
+            if($mode == "update")
+                require __DIR__ . "/tpl_field_cms.php";
+            else
+                require __DIR__. "/tpl_field.php";
         }
     }
 
@@ -60,7 +63,11 @@ class DescriptionListView extends BaseView
     public function output_content()
     {
         $fields = $this->model->get_db_field("fields");
-        require __DIR__ . "/tpl_list.php";
+        $mode = $this->model->get_db_field("mode");
+        if($mode == "update")
+            require __DIR__ . "/tpl_list_cms.php";
+        else
+            require __DIR__ . "/tpl_list.php";
     }
 }
 ?>
