@@ -27,8 +27,7 @@ class PLaintextView extends BaseView
      */
     public function output_content()
     {
-        $parsedown = new Parsedown();
-        echo $parsedown->text($this->model->get_db_field('text'));
+        echo htmlspecialchars($this->model->get_db_field('text'));
     }
 }
 ?>
