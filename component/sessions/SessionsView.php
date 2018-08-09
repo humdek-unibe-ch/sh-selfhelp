@@ -80,13 +80,8 @@ class SessionsView extends BaseView
      */
     public function output_content()
     {
-        $count = 0;
-        $count_max = $this->model->get_count();
-        $progress = round($count / $count_max * 100);
-        $next_url = "#";
-        $title = $this->model->get_db_field('title');
+        $this->output_children();
         $progress_label = $this->model->get_db_field('progress_label');
-        $continue_label = $this->model->get_db_field('continue_label');
         require __DIR__ . "/tpl_sessions.php";
     }
 }
