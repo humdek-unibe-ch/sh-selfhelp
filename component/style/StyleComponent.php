@@ -34,12 +34,14 @@ class StyleComponent extends BaseComponent
     {
         $model = new StyleModel($services, $id, $id_active);
         if($model->get_style_type() == "view")
-            $view = new StyleView($model, true);
+        {
+            $style = new BaseStyleComponent($model->get_style_name(), true);
+            $style->set_fields($model->get_db_fields());
+        }
         else if($model->get_style_type() == "component")
         {
             $className = ucfirst($model->get_style_name()) . "Component";
-            $inst = new $className($services, $id, $id_active);
-            $view = $inst->get_view();
+            $style = new $className($services, $id, $id_active);
         }
         else if($model->get_style_type() == "navigation")
         {
@@ -47,9 +49,9 @@ class StyleComponent extends BaseComponent
         }
         else
         {
-            $model = new StyleModel($services, MISSING_ID);
-            $view = new StyleView($model, true);
+            $style = new StyleComponent($services, MISSING_ID);
         }
+        $view = new StyleView($model, $style, true);
         parent::__construct($view);
     }
 }

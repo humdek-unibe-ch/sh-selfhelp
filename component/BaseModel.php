@@ -31,6 +31,7 @@ abstract class BaseModel
         $this->acl = $services['acl'];
         $this->login = $services['login'];
         $this->nav = $services['nav'];
+        $this->parsedown = $services['parsedown'];
         $this->db_fields = array();
     }
 
