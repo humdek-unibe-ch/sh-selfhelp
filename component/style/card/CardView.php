@@ -35,6 +35,7 @@ class CardView extends BaseView
      */
     private function output_card_header()
     {
+        $show = $this->model->get_db_field("is_expanded") ? "" : "collapsed";
         $title = $this->model->get_db_field("title");
         if($title == "") return;
         $collapsible = $this->model->get_db_field("is_collapsible") ? "collapsible" : "";
