@@ -6,10 +6,6 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class TitleView extends BaseView
 {
-    /* Private Properties******************************************************/
-
-    private $level;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -17,13 +13,10 @@ class TitleView extends BaseView
      *
      * @param object $model
      *  The model instance of the component.
-     * @param int $level
-     *  The level of the title
      */
-    public function __construct($model, $level)
+    public function __construct($model)
     {
         parent::__construct($model);
-        $this->level = $level;
     }
 
     /* Public Methods *********************************************************/
@@ -33,8 +26,9 @@ class TitleView extends BaseView
      */
     public function output_content()
     {
-        $level = $this->level;
         $text = $this->model->get_db_field("text");
+        $level = $this->model->get_db_field("level");
+        if($level == "") $level = 1;
         require __DIR__ . "/tpl_title.php";
     }
 }

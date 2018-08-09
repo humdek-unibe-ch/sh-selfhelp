@@ -21,10 +21,11 @@ class SessionsView extends BaseView
     {
         parent::__construct($model);
         $this->add_local_component("progress",
-            new BaseStyleComponent("progress-primary"),
+            new BaseStyleComponent("progress"),
             array(
                 "count" => 0,
-                "count_max" => $this->model->get_count()
+                "count_max" => $this->model->get_count(),
+                "type" => "primary"
             )
         );
         $this->add_local_component("text", new BaseStyleComponent("plaintext"),

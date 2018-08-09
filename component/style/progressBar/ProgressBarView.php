@@ -13,13 +13,9 @@ class ProgressBarView extends BaseView
      *
      * @param object $model
      *  The model instance of the footer component.
-     * @param string $type
-     *  The background type. This can be anything offered by bootstrap (e.g.
-     *  success, warning, primary, etc.)
      */
-    public function __construct($model, $type)
+    public function __construct($model)
     {
-        $this->type = $type;
         parent::__construct($model);
     }
 
@@ -50,7 +46,7 @@ class ProgressBarView extends BaseView
         $count = $this->model->get_db_field('count');
         $count_max = $this->model->get_db_field('count_max');
         $progress = round($count / $count_max * 100);
-        $type = "bg-" . $this->type;
+        $type = "bg-" . $this->model->get_db_field("type");
         require __DIR__ . "/tpl_progress.php";
     }
 }

@@ -28,8 +28,11 @@ class LoginView extends BaseView
         $alert_content->set_fields(
             array("text" => $this->model->get_db_field('alert_fail')));
         $this->add_local_component("alert",
-            $this->alert = new BaseStyleComponent("alert-danger"),
-            array("content" => array($alert_content))
+            $this->alert = new BaseStyleComponent("alert"),
+            array(
+                "content" => array($alert_content),
+                "type" => "danger"
+            )
         );
     }
 

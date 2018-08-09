@@ -9,7 +9,6 @@ class AlertView extends BaseView
     /* Private Properties******************************************************/
 
     private $fluid;
-    private $type;
 
     /* Constructors ***********************************************************/
 
@@ -18,17 +17,13 @@ class AlertView extends BaseView
      *
      * @param object $model
      *  The model instance of the footer component.
-     * @param string $type
-     *  The alert type. This can be anything offered by bootstrap (e.g. success,
-     *  warning, primary, etc.)
      * @param bool $fluid
      *  If set to true the jumbotron gets the bootstrap class "container-fluid",
      *  othetwise the class "container" is used.
      */
-    public function __construct($model, $type, $fluid)
+    public function __construct($model, $fluid)
     {
         $this->fluid = $fluid;
-        $this->type = $type;
         parent::__construct($model);
     }
 
@@ -53,7 +48,7 @@ class AlertView extends BaseView
     public function output_content()
     {
         $fluid = ($this->fluid) ? "-fluid" : "";
-        $type = "alert-" . $this->type;
+        $type = "alert-" . $this->model->get_db_field("type");
         require __DIR__ . "/tpl_alert.php";
     }
 }

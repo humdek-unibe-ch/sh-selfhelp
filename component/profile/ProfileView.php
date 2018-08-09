@@ -25,13 +25,13 @@ class ProfileView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->add_alert_component("alert-danger", "alert_pw_fail",
+        $this->add_alert_component("danger", "alert_pw_fail",
             $this->model->get_db_field('alert_pw_fail'));
-        $this->add_alert_component("alert-success", "alert_pw_success",
+        $this->add_alert_component("success", "alert_pw_success",
             $this->model->get_db_field('alert_pw_success'));
-        $this->add_alert_component("alert-danger", "alert_del_fail",
+        $this->add_alert_component("danger", "alert_del_fail",
             $this->model->get_db_field('alert_del_fail'));
-        $this->add_alert_component("alert-success", "alert_del_success",
+        $this->add_alert_component("success", "alert_del_success",
             $this->model->get_db_field('alert_del_success'));
     }
 
@@ -50,11 +50,12 @@ class ProfileView extends BaseView
     private function add_alert_component($type, $name, $content)
     {
         $alert_content = new BaseStyleComponent("plaintext");
-        $alert_content->set_fields(
-            array("text" => $content));
+        $alert_content->set_fields(array("text" => $content));
         $this->add_local_component($name,
-            new BaseStyleComponent($type, true),
-            array("content" => array($alert_content))
+            new BaseStyleComponent("alert", true), array(
+                "content" => array($alert_content),
+                "type" => $type
+            )
         );
     }
 

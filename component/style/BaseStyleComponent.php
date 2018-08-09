@@ -40,45 +40,35 @@ class BaseStyleComponent extends BaseComponent
      */
     public function __construct($style, $fluid=false, $nav=null)
     {
-        $styles = explode('-', $style);
         $this->model = new BaseStyleModel();
-        if($styles[0] == "button")
+        if($style == "button")
             $view = new ButtonView($this->model);
-        else if($styles[0] == "card")
+        else if($style == "card")
             $view = new CardView($this->model, $fluid);
-        else if($styles[0] == "link")
+        else if($style == "link")
             $view = new LinkView($this->model);
-        else if($styles[0] == "jumbotron")
+        else if($style == "jumbotron")
             $view = new JumbotronView($this->model, $fluid);
-        else if($styles[0] == "plaintext")
+        else if($style == "plaintext")
             $view = new PlaintextView($this->model);
-        else if($styles[0] == "title")
-        {
-            $level = intval($styles[1]);
-            $view = new TitleView($this->model, $level);
-        }
-        else if($styles[0] == "alert")
-        {
-            $type = $styles[1];
-            $view = new AlertView($this->model, $type, $fluid);
-        }
-        else if($styles[0] == "figure")
+        else if($style == "title")
+            $view = new TitleView($this->model);
+        else if($style == "alert")
+            $view = new AlertView($this->model, $fluid);
+        else if($style == "figure")
             $view = new FigureView($this->model);
-        else if($styles[0] == "video")
+        else if($style == "video")
             $view = new VideoView($this->model);
-        else if($styles[0] == "quiz")
+        else if($style == "quiz")
             $view = new QuizView($this->model);
-        else if($styles[0] == "nested_list")
+        else if($style == "nested_list")
             $view = new NestedListView($this->model);
-        else if($styles[0] == "accordion_list")
+        else if($style == "accordion_list")
             $view = new AccordionListView($this->model);
-        else if($styles[0] == "description_list")
+        else if($style == "description_list")
             $view = new DescriptionListView($this->model);
-        else if($styles[0] == "progress")
-        {
-            $type = $styles[1];
-            $view = new ProgressBarView($this->model, $type);
-        }
+        else if($style == "progress")
+            $view = new ProgressBarView($this->model);
         else
             throw new Exception("unknown style '$style'");
         parent::__construct($view);
