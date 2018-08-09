@@ -27,11 +27,9 @@ class FigureView extends BaseView
      */
     private function output_caption()
     {
-        $caption_text = $this->model->get_db_field("caption");
-        if($caption_text == "") return;
+        $caption = $this->model->get_db_field("caption");
+        if($caption == "") return;
         $caption_title = $this->model->get_db_field("caption_title");
-        $parsedown = new Parsedown();
-        $caption = strip_tags($parsedown->text($caption_text), "<strong><em>");
         require __DIR__ . "/tpl_caption.php";
     }
 

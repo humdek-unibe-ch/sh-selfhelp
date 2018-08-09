@@ -45,19 +45,19 @@ class StyleModel extends BaseModel
         $this->db_fields['is_active'] = ($id === $id_active);
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
-        $this->set_db_fields($fields);
+        $this->set_db_fields($fields, $id, $id_active);
 
         $fields = $this->db->fetch_section_fields($id);
-        $this->set_db_fields($fields);
+        $this->set_db_fields($fields, $id, $id_active);
 
         $fields = $this->db->fetch_style_fields($style['id']);
-        $this->set_db_fields($fields);
+        $this->set_db_fields($fields, $id, $id_active);
 
         $this->db_fields["content"] = array();
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
-            array_push($this->db_fields["content"],
-                new StyleComponent($services, intval($child['id']), $id_active));
+            $this->db_fields["content"][] = new StyleComponent(
+                $services, intval($child['id']), $id_active);
     }
 
     /* Private Methods ********************************************************/
@@ -108,12 +108,16 @@ class StyleModel extends BaseModel
      *   "name" => name of the db field
      *   "content" => the content of the db field
      */
-    protected function set_db_fields($fields)
+    protected function set_db_fields($fields, $id=null, $id_active=null)
     {
         foreach($fields as $field)
         {
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);
+            if($field['type'] == "markdown")
+                $field['content'] = $this->parsedown->text($field['content']);
+            if($field['type'] == "markdown-inline")
+                $field['content'] = $this->parsedown->line($field['content']);
             $this->db_fields[$field['name']] = $field['content'];
         }
     }
