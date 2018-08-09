@@ -3,6 +3,17 @@ require_once __DIR__ . "/../../BaseView.php";
 
 /**
  * The view class of the card style component.
+ * A card style supports the following fields:
+ *  'title':
+ *      The title of the card, displayed in a card-header. If this is not set
+ *      or set to the empty string the card header is omitted.
+ *  'is_expanded':
+ *      If set to true and the card is collapsible, it is not collpsed by
+ *      default. If set to false the card is collapsed by default.
+ *  'is_collapsible':
+ *      If set to true, the card is collapsible.
+ *  'content':
+ *      A list of style components to be displayed in the card body.
  */
 class CardView extends BaseView
 {

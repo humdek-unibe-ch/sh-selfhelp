@@ -5,6 +5,11 @@ require_once __DIR__ . "/SessionModel.php";
 
 /**
  * A component to for a single, generic session
+ * A session style components supports the following fields:
+ *  'title':
+ *      The title of the session. This is a title style component.
+ *  'content':
+ *      A list of style components to fill up the content of the session.
  */
 class SessionComponent extends BaseComponent
 {
