@@ -33,7 +33,7 @@ class SessionView extends BaseView
             $this->get_button_url($model->get_previous_nav_id())
         );
         $this->add_local_component("nav-section",
-            new BaseStyleComponent("accordion_list", array(
+            new BaseStyleComponent("accordionList", array(
                 "items" => $this->model->get_navigation_items(),
                 "title_prefix" => $this->model->get_item_prefix(),
                 "id_active" => $this->model->get_current_id(),

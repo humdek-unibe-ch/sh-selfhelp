@@ -109,7 +109,7 @@ class CmsView extends BaseView
         $is_expanded_root = false, $id_active = 0)
     {
         if(count($items) == 0) return;
-        $content = new BaseStyleComponent("nested_list", array(
+        $content = new BaseStyleComponent("nestedList", array(
             "search_text" => "Search",
             "items" => $items,
             "id_prefix" => $prefix,
@@ -152,7 +152,7 @@ class CmsView extends BaseView
         }
         else
         {
-            $content = new BaseStyleComponent("description_list", array(
+            $content = new BaseStyleComponent("descriptionList", array(
                 "mode" => $this->model->get_mode(),
                 "fields" => $fields
             ));

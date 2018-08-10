@@ -1,20 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleModel.php";
-require_once __DIR__ . "/button/ButtonView.php";
-require_once __DIR__ . "/card/CardView.php";
-require_once __DIR__ . "/link/LinkView.php";
-require_once __DIR__ . "/jumbotron/JumbotronView.php";
-require_once __DIR__ . "/title/TitleView.php";
-require_once __DIR__ . "/plaintext/PlaintextView.php";
-require_once __DIR__ . "/alert/AlertView.php";
-require_once __DIR__ . "/figure/FigureView.php";
-require_once __DIR__ . "/video/VideoView.php";
-require_once __DIR__ . "/quiz/QuizView.php";
-require_once __DIR__ . "/nestedList/NestedListView.php";
-require_once __DIR__ . "/accordionList/AccordionListView.php";
-require_once __DIR__ . "/descriptionList/DescriptionListView.php";
-require_once __DIR__ . "/progressBar/ProgressBarView.php";
 
 /**
  * The class to define the base style component. A base style component serves
@@ -44,34 +30,9 @@ class BaseStyleComponent extends BaseComponent
     public function __construct($style, $fields, $fluid=false)
     {
         $this->model = new BaseStyleModel($fields);
-        if($style == "button")
-            $view = new ButtonView($this->model);
-        else if($style == "card")
-            $view = new CardView($this->model, $fluid);
-        else if($style == "link")
-            $view = new LinkView($this->model);
-        else if($style == "jumbotron")
-            $view = new JumbotronView($this->model, $fluid);
-        else if($style == "plaintext")
-            $view = new PlaintextView($this->model);
-        else if($style == "title")
-            $view = new TitleView($this->model);
-        else if($style == "alert")
-            $view = new AlertView($this->model, $fluid);
-        else if($style == "figure")
-            $view = new FigureView($this->model);
-        else if($style == "video")
-            $view = new VideoView($this->model);
-        else if($style == "quiz")
-            $view = new QuizView($this->model);
-        else if($style == "nested_list")
-            $view = new NestedListView($this->model);
-        else if($style == "accordion_list")
-            $view = new AccordionListView($this->model);
-        else if($style == "description_list")
-            $view = new DescriptionListView($this->model);
-        else if($style == "progress")
-            $view = new ProgressBarView($this->model);
+        $className = ucfirst($style) . "View";
+        if(class_exists($className))
+            $view = new $className($this->model, $fluid);
         else
             throw new Exception("unknown style '$style'");
         parent::__construct($view);

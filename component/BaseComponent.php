@@ -1,4 +1,9 @@
 <?php
+spl_autoload_register(function ($class_name) {
+    $folder = str_replace("Component", "", $class_name);
+    $folder = lcfirst(str_replace("View", "", $folder));
+    require_once __DIR__ . "/style/" . $folder . "/" . $class_name . ".php";
+});
 /**
  * The class to define the basic functionality of a component.
  */
