@@ -34,9 +34,29 @@ class DescriptionListView extends BaseView
         foreach($fields as $field)
         {
             $name = $field['name'];
+            $id = $field['id'];
+            $db_type = $field['type'];
             $content = $field['content'];
             if($mode == "update")
-                require __DIR__ . "/tpl_field_cms.php";
+            {
+                require __DIR__ . "/tpl_field_label.php";
+                if(in_array($field['type'],
+                    array("text", "number", "checkbox")))
+                {
+                    $type = $field['type'];
+                    require __DIR__ . "/tpl_field_input.php";
+                }
+                else if($field['type'] == "markdown-inline")
+                {
+                    $type = "text";
+                    require __DIR__ . "/tpl_field_input.php";
+                }
+                else if(in_array($field['type'],
+                    array("textarea","markdown")))
+                {
+                    require __DIR__ . "/tpl_field_textarea.php";
+                }
+            }
             else
                 require __DIR__. "/tpl_field.php";
         }

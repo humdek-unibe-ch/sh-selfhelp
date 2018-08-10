@@ -27,6 +27,7 @@ class BaseStyleModel implements IStyleModel
     public function __construct($fields)
     {
         $this->children = array();
+        $index = 0;
         foreach($fields as $key => $content)
         {
             if($key == "children")
@@ -36,8 +37,10 @@ class BaseStyleModel implements IStyleModel
             }
             $this->fields[$key] = array(
                 "content" => $content,
-                "type" => "internal"
+                "type" => "internal",
+                "id" => $index
             );
+            $index++;
         }
     }
 

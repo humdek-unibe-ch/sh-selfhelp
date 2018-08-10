@@ -7,7 +7,8 @@ class CmsController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    private $fields;
+    private $update_sucess_count;
+    private $update_fail_count;
 
     /* Constructors ***********************************************************/
 
@@ -20,11 +21,25 @@ class CmsController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->fields = array();
-        foreach($_POST as $name => $content)
+        $this->update_sucess_count = 0;
+        $this->update_fail_count = 0;
+        foreach($_POST as $name => $field)
         {
-            $type = $this->model->get_field_type($name);
-            $this->fields[$name] = $this->secure_field($type, $content);
+            $fields = array();
+            $type = $field['type'];
+            $id = intval($field['id']);
+            $content = $field['content'];
+            if($type == "internal")
+            {
+                $info = $this->model->get_field_info($name);
+                $type = $info['type'];
+                $id = intval($info['id']);
+            }
+            $fields["content"] = $this->secure_field($type, $content);
+            if($this->model->update_db($id, $fields))
+                $this->update_sucess_count++;
+            else
+                $this->update_fail_count++;
         }
     }
 
@@ -32,10 +47,22 @@ class CmsController extends BaseController
 
     private function secure_field($type, $content)
     {
-        if($type === "input")
-            echo htmlspecialchars($content);
+        if(in_array($type, array("text", "markdown", "textarea", "markdown-inline")))
+            return htmlspecialchars($content);
+        if($type === "number")
+            return intval($content);
     }
 
     /* Public Methods *********************************************************/
+
+    public function get_update_sucess_count()
+    {
+        return $this->update_sucess_count;
+    }
+
+    public function get_update_fail_count()
+    {
+        return $this->update_fail_count;
+    }
 }
 ?>

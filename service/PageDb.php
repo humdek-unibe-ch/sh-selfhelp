@@ -237,7 +237,7 @@ class PageDb extends BaseDb
     public function fetch_page_fields($keyword)
     {
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.name, pft.content, ft.name AS type
+        $sql = "SELECT f.id AS id, f.name, pft.content, ft.name AS type
             FROM pages_fields_translation AS pft
             LEFT JOIN fields AS f ON f.id = pft.id_fields
             LEFT JOIN languages AS l ON l.id = pft.id_languages
@@ -279,7 +279,7 @@ class PageDb extends BaseDb
     public function fetch_section_fields($id)
     {
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.name, sft.content, ft.name AS type
+        $sql = "SELECT f.id AS id, f.name, sft.content, ft.name AS type
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
@@ -303,7 +303,7 @@ class PageDb extends BaseDb
     public function fetch_style_fields($id)
     {
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.name, sft.content, ft.name AS type
+        $sql = "SELECT f.id AS id, f.name, sft.content, ft.name AS type
             FROM styles_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages

@@ -31,7 +31,7 @@ class TitleView extends BaseView
      */
     public function output_content()
     {
-        $text = $this->model->get_db_field("text");
+        $text = $this->model->get_db_field("title");
         $level = $this->model->get_db_field("level");
         if($level == "") $level = 1;
         if($level < 1) $level = 1;

@@ -120,7 +120,8 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = $this->parsedown->line($field['content']);
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
-                "type" => $field['type']
+                "type" => $field['type'],
+                "id" => $field['id']
             );
         }
     }

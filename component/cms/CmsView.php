@@ -280,6 +280,7 @@ class CmsView extends BaseView
     private function prepare_page_properties()
     {
         $fields = array();
+        $index = 0;
         foreach($this->page_info as $name => $content)
         {
             if($content == null) continue;
@@ -288,7 +289,9 @@ class CmsView extends BaseView
             if($name == "id_navigation_section") continue;
             $fields[] = array(
                 "name" => $name,
-                "content" => $content
+                "content" => $content,
+                "id" => "property-" . $index,
+                "type" => "text"
             );
         }
         return $fields;

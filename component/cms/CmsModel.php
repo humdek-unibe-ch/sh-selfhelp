@@ -249,13 +249,13 @@ class CmsModel extends BaseModel
         return false;
     }
 
-    public function get_field_type($name)
+    public function get_field_info($name)
     {
-        $sql = "SELECT t.name AS type FROM fieldType AS t
+        $sql = "SELECT f.id AS id, t.name AS type FROM fieldType AS t
             LEFT JOIN fields AS f on t.id = f.id_type
             WHERE f.name = :name";
-        $type = $this->db->query_db_first($sql, array(":name" => $name));
-        return $type['type'];
+        $info = $this->db->query_db_first($sql, array(":name" => $name));
+        return $info;
     }
 
     /**
@@ -449,6 +449,17 @@ class CmsModel extends BaseModel
     {
         return ($this->page_info['id_navigation_section'] != null
             && $this->id_root_section != null);
+    }
+
+    public function update_db($id, $fields)
+    {
+        $this->db->update_by_ids("sections_fields_translation", $fields,
+            array(
+                "id_sections" => $this->get_active_section_id(),
+                "id_fields" => $id,
+                "id_languages" => $_SESSION['language_id']
+            )
+        );
     }
 }
 ?>

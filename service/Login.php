@@ -22,6 +22,7 @@ class Login
     {
         session_start();
         $_SESSION['language'] = "de-CH";
+        $_SESSION['language_id'] = 2;
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
