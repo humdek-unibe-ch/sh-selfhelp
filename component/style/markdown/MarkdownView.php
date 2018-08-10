@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../BaseView.php";
+require_once __DIR__ . "/../../BaseView.php";
 
 /**
  * The view class of the markdown component.

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../BaseComponent.php";
+require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/MarkdownView.php";
 require_once __DIR__ . "/MarkdownModel.php";
 

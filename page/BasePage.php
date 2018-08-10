@@ -6,6 +6,8 @@ require_once __DIR__ . "/../service/Acl.php";
 require_once __DIR__ . "/../service/Navigation.php";
 require_once __DIR__ . "/../service/Parsedown.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
+require_once __DIR__ . "/../component/nav/NavComponent.php";
+require_once __DIR__ . "/../component/footer/FooterComponent.php";
 
 /**
  * This abstract class serves as staring point for pages.

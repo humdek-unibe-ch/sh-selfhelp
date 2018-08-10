@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../style/StyleModel.php";
+require_once __DIR__ . "/../StyleModel.php";
 /**
  * This class is used to prpare markdown content.
  */

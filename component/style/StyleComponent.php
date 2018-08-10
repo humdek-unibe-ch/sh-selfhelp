@@ -4,7 +4,7 @@ require_once __DIR__ . "/StyleView.php";
 require_once __DIR__ . "/StyleModel.php";
 spl_autoload_register(function ($class_name) {
     $folder = strtolower(str_replace("Component", "", $class_name));
-    require_once __DIR__ . "/../" . $folder . "/" . $class_name . ".php";
+    require_once __DIR__ . "/" . $folder . "/" . $class_name . ".php";
 });
 
 /**

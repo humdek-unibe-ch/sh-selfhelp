@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../BaseComponent.php";
+require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/SessionsView.php";
 require_once __DIR__ . "/SessionsModel.php";
 

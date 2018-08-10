@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . "/../BaseView.php";
-require_once __DIR__ . "/../style/BaseStyleComponent.php";
+require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the user profile component.

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../BaseController.php";
+require_once __DIR__ . "/../../BaseController.php";
 /**
  * The controller class of the login component. Note that this class performs
  * a page redirect upon successful login.

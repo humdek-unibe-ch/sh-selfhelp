@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../style/StyleModel.php";
+require_once __DIR__ . "/../StyleModel.php";
 /**
  * This class is used to prepare all data related to the profile component such
  * that the data can easily be displayed in the view of the component.

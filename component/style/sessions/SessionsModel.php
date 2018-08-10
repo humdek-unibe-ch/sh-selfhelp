@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../style/StyleModel.php";
+require_once __DIR__ . "/../StyleModel.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Navigation.php";
 /**
  * This class is used to prepare all data related to the sessions component such
