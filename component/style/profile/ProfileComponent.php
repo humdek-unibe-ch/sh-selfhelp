@@ -29,7 +29,7 @@ class ProfileComponent extends BaseComponent
     {
         $model = new ProfileModel($services, $id);
         $controller = null;
-        if(!$model->is_link_active("cms"))
+        if(!$model->is_cms_page())
             $controller = new ProfileController($model);
         $view = new ProfileView($model, $controller);
         parent::__construct($view);

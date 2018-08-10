@@ -38,21 +38,6 @@ abstract class BaseComponent
     /* Public Methods *********************************************************/
 
     /**
-     * Adds a component to the list of child components.
-     *
-     * @param string $key
-     *  A unique component identifier.
-     * @param object $component
-     *  The component instance to be added.
-     */
-    protected function add_child($key, $component)
-    {
-        if(array_key_exists($key, $this->components))
-            throw new Exception("Child component '$key' already exists.");
-        $this->components[$key] = $component;
-    }
-
-    /**
      * Render the component view.
      */
     public function output_content()

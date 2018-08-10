@@ -125,6 +125,23 @@ class StyleModel extends BaseModel implements IStyleModel
         }
     }
 
+    /**
+     * Checks whether the current page is a CMS page.
+     *
+     * @retval bool
+     *  true if the current page is a CMS page, false otherwise.
+     */
+    public function is_cms_page()
+    {
+        return ($this->is_link_active("cms")
+            || $this->is_link_active("cms_select")
+            || $this->is_link_active("cms_update")
+            || $this->is_link_active("cms_insert")
+            || $this->is_link_active("cms_delete")
+        );
+
+    }
+
     /* Public Methods *********************************************************/
 
     /**

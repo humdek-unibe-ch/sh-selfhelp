@@ -30,7 +30,7 @@ class LoginComponent extends BaseComponent
     {
         $model = new LoginModel($services, $id);
         $controller = null;
-        if(!$model->is_link_active("cms"))
+        if(!$model->is_cms_page())
             $controller = new LoginController($model);
         $view = new LoginView($model, $controller);
         parent::__construct($view);
