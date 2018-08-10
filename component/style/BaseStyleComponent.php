@@ -43,8 +43,7 @@ class BaseStyleComponent extends BaseComponent
      */
     public function __construct($style, $fields, $fluid=false)
     {
-        $this->model = new BaseStyleModel();
-        $this->model->set_fields($fields);
+        $this->model = new BaseStyleModel($fields);
         if($style == "button")
             $view = new ButtonView($this->model);
         else if($style == "card")

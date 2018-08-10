@@ -8,8 +8,8 @@ abstract class BaseView
 
     protected $model;
     protected $controller;
-    private $children;
     private $local_components;
+    private $children;
 
     /* Constructors ***********************************************************/
 
@@ -24,29 +24,10 @@ abstract class BaseView
     public function __construct($model = null, $controller = null)
     {
         $this->model = $model;
+        $this->children = array();
+        if($model != null) $this->children = $model->get_children();
         $this->controller = $controller;
         $this->local_components = array();
-    }
-
-    /* Private Methods ********************************************************/
-
-    /**
-     * Get the children from the model if a model is a vailabel and the model
-     * has chlidren.
-     *
-     * @retval array
-     *  An array of child components.
-     */
-    private function get_children()
-    {
-        $children = array();
-        if($this->model != null)
-        {
-            $children = $this->model->get_db_field("children");
-            if($children == "")
-                $children = array();
-        }
-        return $children;
     }
 
     /* Protected Methods ******************************************************/
@@ -70,8 +51,7 @@ abstract class BaseView
      */
     protected function output_children()
     {
-        $children = $this->get_children();
-        foreach($children as $child)
+        foreach($this->children as $child)
             $child->output_content();
     }
 
@@ -126,9 +106,8 @@ abstract class BaseView
      */
     public function get_css_includes($local = array())
     {
-        $children = $this->get_children();
         $css_includes = array();
-        foreach($children as $child)
+        foreach($this->children as $child)
         {
             $css_includes = array_merge($css_includes,
                 $child->get_css_includes());
@@ -152,9 +131,8 @@ abstract class BaseView
      */
     public function get_js_includes($local = array())
     {
-        $children = $this->get_children();
         $js_includes = array();
-        foreach($children as $child)
+        foreach($this->children as $child)
             $js_includes = array_merge($js_includes,
                 $child->get_js_includes());
         foreach($this->local_components as $component)

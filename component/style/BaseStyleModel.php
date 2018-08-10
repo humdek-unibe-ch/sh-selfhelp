@@ -1,15 +1,58 @@
 <?php
+require_once __DIR__ . "/IStyleModel.php";
+
 /**
  * This class is used to prepare all data related to the base style component
  * such that the data can easily be displayed in the view of the component.
  */
-class BaseStyleModel
+class BaseStyleModel implements IStyleModel
 {
     /* Private Properties *****************************************************/
 
     private $fields;
+    private $children;
+
+    /**
+     * The constructor.
+     *
+     * @param array $services
+     *  An associative array holding the differnt available services. See the
+     *  class definition BasePage for a list of all services.
+     * @param array $fields
+     *  An array containing fields for the view to render to content. The
+     *  required are dependent of the style. The array must contain key, value
+     *  pairs where the key is the name of the field and the value the content
+     *  of the field.
+     */
+    public function __construct($fields)
+    {
+        $this->children = array();
+        foreach($fields as $key => $content)
+        {
+            if($key == "children")
+            {
+                $this->children += $content;
+                continue;
+            }
+            $this->fields[$key] = array(
+                "content" => $content,
+                "type" => "internal"
+            );
+        }
+    }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Gets the children components.
+     *
+     * @return array
+     *  An array of children components.
+     */
+    public function get_children()
+    {
+        return $this->children;
+    }
 
     /**
      * Returns the content of a data field given a specific key. If the key does
@@ -62,25 +105,8 @@ class BaseStyleModel
      */
     public function set_fields_full($fields)
     {
-        $this->fields = $fields;
-    }
-
-    /**
-     * Set the fields that are required by the component model.
-     *
-     * @param array $fields
-     *  An array containing fields for the view to render to content. The
-     *  required are dependent of the style. The array must contain key, value
-     *  pairs where the key is the name of the field and the value the content
-     *  of the field.
-     */
-    public function set_fields($fields)
-    {
         foreach($fields as $key => $content)
-            $this->fields[$key] = array(
-                "content" => $content,
-                "type" => "internal"
-            );
+            $this->fields[$key] = $content;
     }
 }
 ?>

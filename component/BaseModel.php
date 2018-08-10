@@ -13,6 +13,7 @@ abstract class BaseModel
     protected $acl;
     protected $db_fields;
     protected $services;
+    protected $children;
 
     /* Constructors ***********************************************************/
 
@@ -25,6 +26,7 @@ abstract class BaseModel
      */
     public function __construct($services)
     {
+        $this->children = array();
         $this->services = $services;
         $this->router = $services['router'];
         $this->db = $services['db'];
@@ -35,119 +37,7 @@ abstract class BaseModel
         $this->db_fields = array();
     }
 
-    /* Protected Methods ******************************************************/
-
-    /**
-     * Returns an url given a router keyword. The keyword :back will generate
-     * the url of the last visited page or the home page if the last visited
-     * page is the current page or unknown.
-     *
-     * @retval string
-     *  The generated url.
-     */
-    protected function get_url($url)
-    {
-        if($url == "#back")
-        {
-            if(isset($_SERVER['HTTP_REFERER'])
-                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
-            {
-                return htmlspecialchars($_SERVER['HTTP_REFERER']);
-            }
-            return $this->router->generate("home");
-        }
-        else if($url[0] == "#")
-        {
-            return $this->router->generate(substr($url, 1));
-        }
-        else
-        {
-            return $url;
-        }
-    }
-
-    /**
-     * Set the db_fields attribute of the model. Each field is assigned as an
-     * key => value element where the key is the field name and the value the
-     * field content.
-     *
-     * @param array $fields
-     *  An array of field items where one item is an associative array of the
-     *  form:
-     *   "name" => name of the db field
-     *   "content" => the content of the db field
-     */
-    protected function set_db_fields($fields)
-    {
-        foreach($fields as $field)
-        {
-            if($field['name'] == "url")
-                $field['content'] = $this->get_url($field['content']);
-            else if($field['type'] == "markdown")
-                $field['content'] = $this->parsedown->text($field['content']);
-            else if($field['type'] == "markdown-inline")
-                $field['content'] = $this->parsedown->line($field['content']);
-            $this->db_fields[$field['name']] = array(
-                "content" => $field['content'],
-                "type" => $field['type']
-            );
-        }
-    }
-
-    /**
-     * Set the db_fields attribute of the model. Each field is assigned as an
-     * key => value element where the key is the field name and the value the
-     * field content.
-     *
-     * @param array $fields
-     *  An array of field items where one item is an associative array of the
-     *  form:
-     *   "name" => name of the db field
-     *   "content" => the content of the db field
-     */
-    protected function set_db_fields_full($fields)
-    {
-        $this->db_fields = $fields;
-    }
-
     /* Public Methods *********************************************************/
-
-    /**
-     * Returns the content of a data field given a specific key. If the key does
-     * not exist an empty string is returned.
-     *
-     * @param string $key
-     *  A database field name.
-     *
-     * @retval string
-     *  The content of the field specified by the key. An empty string if the
-     *  key does not exist.
-     */
-    public function get_db_field($key)
-    {
-        $field = $this->get_db_field_full($key);
-        if($field == "") return "";
-        return $field['content'];
-    }
-
-    /**
-     * Returns the data field given a specific key. If the key does not exist,
-     * an empty string is returned.
-     *
-     * @param string $key
-     *  A database field name.
-     *
-     * @retval string
-     *  The field specified by the key. An empty string if the
-     *  key does not exist.
-     */
-    public function get_db_field_full($key)
-    {
-        if(array_key_exists($key, $this->db_fields))
-            return $this->db_fields[$key];
-        else
-            return "";
-    }
 
     /**
      * Generates the url of a link, given a router keyword.
@@ -184,6 +74,17 @@ abstract class BaseModel
     }
 
     /**
+     * Gets the child components.
+     *
+     * @retval array
+     *  An array of style components.
+     */
+    public function get_children()
+    {
+        return $this->children;
+    }
+
+    /**
      * Get the model services.
      *
      * @retval array
@@ -194,6 +95,13 @@ abstract class BaseModel
         return $this->services;
     }
 
+    /**
+     * Return the id of the next navigation section if a navigation exists.
+     *
+     * @retval int
+     *  The id of the next navigation section or 0 if no navigation is
+     *  avaliable.
+     */
     public function get_next_nav_id()
     {
         if($this->nav != null)
@@ -201,6 +109,13 @@ abstract class BaseModel
         return 0;
     }
 
+    /**
+     * Return the id of the previous navigation section if a navigation exists.
+     *
+     * @retval int
+     *  The id of the previous navigation section or 0 if no navigation is
+     *  avaliable.
+     */
     public function get_previous_nav_id()
     {
         if($this->nav != null)
@@ -208,6 +123,12 @@ abstract class BaseModel
         return 0;
     }
 
+    /**
+     * Gets the number of navigation items.
+     *
+     * @retval int
+     *  The number of navigation items.
+     */
     public function get_count()
     {
         if($this->nav != null)
@@ -215,6 +136,12 @@ abstract class BaseModel
         return 0;
     }
 
+    /**
+     * Checks whether a navigation is available.
+     *
+     * @retval bool
+     *  True if a navigation is available, false otherwise.
+     */
     public function has_navigation()
     {
         return ($this->nav != null);

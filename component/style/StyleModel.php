@@ -1,11 +1,12 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/StyleComponent.php";
+require_once __DIR__ . "/IStyleModel.php";
 /**
  * This class is used to prepare all data related to the style component such
  * that the data can easily be displayed in the view of the component.
  */
-class StyleModel extends BaseModel
+class StyleModel extends BaseModel implements IStyleModel
 {
     /* Private Properties *****************************************************/
 
@@ -59,21 +60,109 @@ class StyleModel extends BaseModel
         $fields = $this->db->fetch_style_fields($style['id']);
         $this->set_db_fields($fields);
 
-        $this->db_fields["children"] = array(
-            "content" => array(),
-            "type" => "internal"
-        );
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
-            $this->db_fields["children"]["content"][] = new StyleComponent(
+            $this->children[] = new StyleComponent(
                 $services, intval($child['id']), $id_active);
     }
 
-    /* Private Methods ********************************************************/
-
     /* Protected Methods ******************************************************/
 
+    /**
+     * Returns an url given a router keyword. The keyword :back will generate
+     * the url of the last visited page or the home page if the last visited
+     * page is the current page or unknown.
+     *
+     * @retval string
+     *  The generated url.
+     */
+    protected function get_url($url)
+    {
+        if($url == "#back")
+        {
+            if(isset($_SERVER['HTTP_REFERER'])
+                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
+            {
+                return htmlspecialchars($_SERVER['HTTP_REFERER']);
+            }
+            return $this->router->generate("home");
+        }
+        else if($url[0] == "#")
+        {
+            return $this->router->generate(substr($url, 1));
+        }
+        else
+        {
+            return $url;
+        }
+    }
+
+    /**
+     * Set the db_fields attribute of the model. Each field is assigned as an
+     * key => value element where the key is the field name and the value the
+     * field content.
+     *
+     * @param array $fields
+     *  An array of field items where one item is an associative array of the
+     *  form:
+     *   "name" => name of the db field
+     *   "content" => the content of the db field
+     */
+    protected function set_db_fields($fields)
+    {
+        foreach($fields as $field)
+        {
+            if($field['name'] == "url")
+                $field['content'] = $this->get_url($field['content']);
+            else if($field['type'] == "markdown")
+                $field['content'] = $this->parsedown->text($field['content']);
+            else if($field['type'] == "markdown-inline")
+                $field['content'] = $this->parsedown->line($field['content']);
+            $this->db_fields[$field['name']] = array(
+                "content" => $field['content'],
+                "type" => $field['type']
+            );
+        }
+    }
+
     /* Public Methods *********************************************************/
+
+    /**
+     * Returns the content of a data field given a specific key. If the key does
+     * not exist an empty string is returned.
+     *
+     * @param string $key
+     *  A database field name.
+     *
+     * @retval string
+     *  The content of the field specified by the key. An empty string if the
+     *  key does not exist.
+     */
+    public function get_db_field($key)
+    {
+        $field = $this->get_db_field_full($key);
+        if($field == "") return "";
+        return $field['content'];
+    }
+
+    /**
+     * Returns the data field given a specific key. If the key does not exist,
+     * an empty string is returned.
+     *
+     * @param string $key
+     *  A database field name.
+     *
+     * @retval string
+     *  The field specified by the key. An empty string if the
+     *  key does not exist.
+     */
+    public function get_db_field_full($key)
+    {
+        if(array_key_exists($key, $this->db_fields))
+            return $this->db_fields[$key];
+        else
+            return "";
+    }
 
     /**
      * Returns the db field array where each field item is stores as a key,
