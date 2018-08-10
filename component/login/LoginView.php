@@ -30,7 +30,7 @@ class LoginView extends BaseView
         $this->add_local_component("alert",
             $this->alert = new BaseStyleComponent("alert"),
             array(
-                "content" => array($alert_content),
+                "children" => array($alert_content),
                 "type" => "danger"
             )
         );

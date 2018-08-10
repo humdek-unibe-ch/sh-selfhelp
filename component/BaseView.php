@@ -42,7 +42,7 @@ abstract class BaseView
         $children = array();
         if($this->model != null)
         {
-            $children = $this->model->get_db_field("content");
+            $children = $this->model->get_db_field("children");
             if($children == "")
                 $children = array();
         }
@@ -136,8 +136,10 @@ abstract class BaseView
         $children = $this->get_children();
         $css_includes = array();
         foreach($children as $child)
+        {
             $css_includes = array_merge($css_includes,
                 $child->get_css_includes());
+        }
         foreach($this->local_components as $component)
             $css_includes = array_merge($css_includes,
                 $component->get_css_includes());

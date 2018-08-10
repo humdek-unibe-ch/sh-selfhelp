@@ -30,7 +30,10 @@ class StyleModel extends BaseModel
     public function __construct($services, $id, $id_active=null)
     {
         parent::__construct($services);
-        $this->db_fields['id'] = $id;
+        $this->db_fields['id'] = array(
+            "content" => $id,
+            "type" => "internal"
+        );
 
         $sql = "SELECT s.id, sec.name, s.name AS style, t.name AS type
             FROM styles AS s
@@ -42,85 +45,33 @@ class StyleModel extends BaseModel
         $this->style_name = $style['style'];
         $this->style_type = $style['type'];
         $this->section_name = $style['name'];
-        $this->db_fields['is_active'] = ($id === $id_active);
+        $this->db_fields['is_active'] = array(
+            "content" => ($id === $id_active),
+            "type" => "internal"
+        );
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
-        $this->set_db_fields($fields, $id, $id_active);
+        $this->set_db_fields($fields);
 
         $fields = $this->db->fetch_section_fields($id);
-        $this->set_db_fields($fields, $id, $id_active);
+        $this->set_db_fields($fields);
 
         $fields = $this->db->fetch_style_fields($style['id']);
-        $this->set_db_fields($fields, $id, $id_active);
+        $this->set_db_fields($fields);
 
-        $this->db_fields["content"] = array();
+        $this->db_fields["children"] = array(
+            "content" => array(),
+            "type" => "internal"
+        );
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
-            $this->db_fields["content"][] = new StyleComponent(
+            $this->db_fields["children"]["content"][] = new StyleComponent(
                 $services, intval($child['id']), $id_active);
     }
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Returns an url given a router keyword. The keyword :back will generate
-     * the url of the last visited page or the home page if the last visited
-     * page is the current page or unknown.
-     *
-     * @retval string
-     *  The generated url.
-     */
-    protected function get_url($url)
-    {
-        if($url == "#back")
-        {
-            if(isset($_SERVER['HTTP_REFERER'])
-                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
-            {
-                return htmlspecialchars($_SERVER['HTTP_REFERER']);
-            }
-            return $this->router->generate("home");
-        }
-        else if($url[0] == "#")
-        {
-            return $this->router->generate(substr($url, 1));
-        }
-        else
-        {
-            return $url;
-        }
-    }
-
     /* Protected Methods ******************************************************/
-
-    /**
-     * Overrides the method BaseModel::set_db_fields($fields).
-     * Set the db_fields attribute of the model. Each field is assigned as an
-     * key => value element where the key is the field name and the value the
-     * field content.
-     *
-     * If the field name is 'url', a specifig url is generated. See
-     * StyleModel::get_url($url).
-     *
-     * @param array $fields
-     *  An array of field items where one item is an associative array of the
-     *  form:
-     *   "name" => name of the db field
-     *   "content" => the content of the db field
-     */
-    protected function set_db_fields($fields, $id=null, $id_active=null)
-    {
-        foreach($fields as $field)
-        {
-            if($field['name'] == "url")
-                $field['content'] = $this->get_url($field['content']);
-            if($field['type'] == "markdown")
-                $field['content'] = $this->parsedown->text($field['content']);
-            if($field['type'] == "markdown-inline")
-                $field['content'] = $this->parsedown->line($field['content']);
-            $this->db_fields[$field['name']] = $field['content'];
-        }
-    }
 
     /* Public Methods *********************************************************/
 

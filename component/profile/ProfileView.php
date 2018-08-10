@@ -53,7 +53,7 @@ class ProfileView extends BaseView
         $alert_content->set_fields(array("text" => $content));
         $this->add_local_component($name,
             new BaseStyleComponent("alert", true), array(
-                "content" => array($alert_content),
+                "children" => array($alert_content),
                 "type" => $type
             )
         );

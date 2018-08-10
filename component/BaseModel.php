@@ -38,6 +38,35 @@ abstract class BaseModel
     /* Protected Methods ******************************************************/
 
     /**
+     * Returns an url given a router keyword. The keyword :back will generate
+     * the url of the last visited page or the home page if the last visited
+     * page is the current page or unknown.
+     *
+     * @retval string
+     *  The generated url.
+     */
+    protected function get_url($url)
+    {
+        if($url == "#back")
+        {
+            if(isset($_SERVER['HTTP_REFERER'])
+                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
+            {
+                return htmlspecialchars($_SERVER['HTTP_REFERER']);
+            }
+            return $this->router->generate("home");
+        }
+        else if($url[0] == "#")
+        {
+            return $this->router->generate(substr($url, 1));
+        }
+        else
+        {
+            return $url;
+        }
+    }
+
+    /**
      * Set the db_fields attribute of the model. Each field is assigned as an
      * key => value element where the key is the field name and the value the
      * field content.
@@ -51,23 +80,68 @@ abstract class BaseModel
     protected function set_db_fields($fields)
     {
         foreach($fields as $field)
-            $this->db_fields[$field['name']] = $field['content'];
+        {
+            if($field['name'] == "url")
+                $field['content'] = $this->get_url($field['content']);
+            else if($field['type'] == "markdown")
+                $field['content'] = $this->parsedown->text($field['content']);
+            else if($field['type'] == "markdown-inline")
+                $field['content'] = $this->parsedown->line($field['content']);
+            $this->db_fields[$field['name']] = array(
+                "content" => $field['content'],
+                "type" => $field['type']
+            );
+        }
+    }
+
+    /**
+     * Set the db_fields attribute of the model. Each field is assigned as an
+     * key => value element where the key is the field name and the value the
+     * field content.
+     *
+     * @param array $fields
+     *  An array of field items where one item is an associative array of the
+     *  form:
+     *   "name" => name of the db field
+     *   "content" => the content of the db field
+     */
+    protected function set_db_fields_full($fields)
+    {
+        $this->db_fields = $fields;
     }
 
     /* Public Methods *********************************************************/
 
     /**
-     * Returns the data filed given a specific key. If the key does not exist,
+     * Returns the content of a data field given a specific key. If the key does
+     * not exist an empty string is returned.
+     *
+     * @param string $key
+     *  A database field name.
+     *
+     * @retval string
+     *  The content of the field specified by the key. An empty string if the
+     *  key does not exist.
+     */
+    public function get_db_field($key)
+    {
+        $field = $this->get_db_field_full($key);
+        if($field == "") return "";
+        return $field['content'];
+    }
+
+    /**
+     * Returns the data field given a specific key. If the key does not exist,
      * an empty string is returned.
      *
      * @param string $key
      *  A database field name.
      *
      * @retval string
-     *  The content of the filed specified by the key. An empty string if the
+     *  The field specified by the key. An empty string if the
      *  key does not exist.
      */
-    public function get_db_field($key)
+    public function get_db_field_full($key)
     {
         if(array_key_exists($key, $this->db_fields))
             return $this->db_fields[$key];

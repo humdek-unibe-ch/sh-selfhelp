@@ -81,7 +81,7 @@ class CmsView extends BaseView
                 "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Page View",
-                "content" => $page_components
+                "children" => $page_components
             )
         );
     }
@@ -125,7 +125,7 @@ class CmsView extends BaseView
                 "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
-                "content" => array($content)
+                "children" => array($content)
             )
         );
     }
@@ -167,7 +167,7 @@ class CmsView extends BaseView
                 "is_expanded" => $is_expanded,
                 "is_collapsible" => true,
                 "title" => $title,
-                "content" => array($content)
+                "children" => array($content)
             )
         );
     }

@@ -36,7 +36,7 @@ class StyleComponent extends BaseComponent
         if($model->get_style_type() == "view")
         {
             $style = new BaseStyleComponent($model->get_style_name(), true);
-            $style->set_fields($model->get_db_fields());
+            $style->set_fields_full($model->get_db_fields());
         }
         else if($model->get_style_type() == "component")
         {
