@@ -23,11 +23,15 @@ class LoginComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
+     * @param int $id
+     *  The id of the section associated to the profile page.
      */
-    public function __construct($services)
+    public function __construct($services, $id)
     {
-        $model = new LoginModel($services);
-        $controller = new LoginController($model);
+        $model = new LoginModel($services, $id);
+        $controller = null;
+        if(!$model->is_link_active("cms"))
+            $controller = new LoginController($model);
         $view = new LoginView($model, $controller);
         parent::__construct($view);
     }

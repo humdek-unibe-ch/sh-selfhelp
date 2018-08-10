@@ -70,19 +70,18 @@ class CmsView extends BaseView
                 $this->model->get_active_section_id());
         if(count($page_components) == 0)
         {
-            $text = new BaseStyleComponent("plaintext");
-            $text->set_fields(array(
+            $text = new BaseStyleComponent("plaintext", array(
                 "text" => "No CMS view available for this page."
             ));
             $page_components[] = $text;
         }
         $this->add_local_component("page-view",
-            new BaseStyleComponent("card"), array(
+            new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Page View",
                 "children" => $page_components
-            )
+            ))
         );
     }
 
@@ -110,24 +109,22 @@ class CmsView extends BaseView
         $is_expanded_root = false, $id_active = 0)
     {
         if(count($items) == 0) return;
-        $content = new BaseStyleComponent("nested_list");
-        $content->set_fields(array(
-                "search_text" => "Search",
-                "items" => $items,
-                "id_prefix" => $prefix,
-                "is_expanded" => false,
-                "id_active" => $id_active,
-                "root_name" => "root element"
-            )
-        );
-        $this->add_local_component($name, new BaseStyleComponent("card"),
+        $content = new BaseStyleComponent("nested_list", array(
+            "search_text" => "Search",
+            "items" => $items,
+            "id_prefix" => $prefix,
+            "is_expanded" => false,
+            "id_active" => $id_active,
+            "root_name" => "root element"
+        ));
+        $this->add_local_component($name, new BaseStyleComponent("card",
             array(
                 "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content)
             )
-        );
+        ));
     }
 
     /**
@@ -149,27 +146,25 @@ class CmsView extends BaseView
     {
         if(count($fields) == 0)
         {
-            $content = new BaseStyleComponent("plaintext");
-            $content->set_fields(array(
+            $content = new BaseStyleComponent("plaintext", array(
                 "text" => "No " . strtolower($title). " defined."
             ));
         }
         else
         {
-            $content = new BaseStyleComponent("description_list");
-            $content->set_fields(array(
+            $content = new BaseStyleComponent("description_list", array(
                 "mode" => $this->model->get_mode(),
                 "fields" => $fields
             ));
         }
-        $this->add_local_component($name, new BaseStyleComponent("card"),
+        $this->add_local_component($name, new BaseStyleComponent("card",
             array(
                 "is_expanded" => $is_expanded,
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content)
             )
-        );
+        ));
     }
 
     /**

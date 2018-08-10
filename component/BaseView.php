@@ -59,16 +59,9 @@ abstract class BaseView
      *  The name of the component.
      * @param object $component
      *  A component object.
-     * @param array $fields
-     *  An array containing fields for the view to render to content. The
-     *  required are dependent of the style. The array must contain key, value
-     *  pairs where the key is the name of the field and the value the content
-     *  of the field.
      */
-    protected function add_local_component($name, $component, $fields=null)
+    protected function add_local_component($name, $component)
     {
-        if($fields != null)
-            $component->set_fields($fields);
         $this->local_components[$name] = $component;
     }
 

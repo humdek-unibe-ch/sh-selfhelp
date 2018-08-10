@@ -53,9 +53,12 @@ class BaseStyleModel
      *
      * @param array $fields
      *  An array containing fields for the view to render to content. The
-     *  required are dependent of the style. The array must contain key, value
-     *  pairs where the key is the name of the field and the value the content
-     *  of the field.
+     *  required fields are dependent of the style. The array must contain key,
+     *  value pairs where the key is the name of the field and the value an
+     *  array with the following keys:
+     *   'content': hodling the content of the field that will be rendered.
+     *   'type':    the type of the field indication how to render the field.
+     *   'id':      a unique numerical value, describing this field.
      */
     public function set_fields_full($fields)
     {

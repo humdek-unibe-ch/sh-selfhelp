@@ -32,15 +32,19 @@ class BaseStyleComponent extends BaseComponent
      *
      * @param string $style
      *  The style of the component.
+     * @param array $fields
+     *  An array containing fields for the view to render to content. The
+     *  required are dependent of the style. The array must contain key, value
+     *  pairs where the key is the name of the field and the value the content
+     *  of the field.
      * @param bool $fluid
      *  If set to true the jumbotron gets the bootstrap class "container-fluid",
      *  othetwise the class "container" is used. The default is false.
-     * @param object $nav
-     *  The section navigation component.
      */
-    public function __construct($style, $fluid=false, $nav=null)
+    public function __construct($style, $fields, $fluid=false)
     {
         $this->model = new BaseStyleModel();
+        $this->model->set_fields($fields);
         if($style == "button")
             $view = new ButtonView($this->model);
         else if($style == "card")
@@ -79,23 +83,12 @@ class BaseStyleComponent extends BaseComponent
      *
      * @param array $fields
      *  An array containing fields for the view to render to content. The
-     *  required are dependent of the style. The array must contain key, value
-     *  pairs where the key is the name of the field and the value the content
-     *  of the field.
-     */
-    public function set_fields($fields)
-    {
-        $this->model->set_fields($fields);
-    }
-
-    /**
-     * Set the fields that are required by the component model.
-     *
-     * @param array $fields
-     *  An array containing fields for the view to render to content. The
-     *  required are dependent of the style. The array must contain key, value
-     *  pairs where the key is the name of the field and the value the content
-     *  of the field.
+     *  required fields are dependent of the style. The array must contain key,
+     *  value pairs where the key is the name of the field and the value an
+     *  array with the following keys:
+     *   'content': hodling the content of the field that will be rendered.
+     *   'type':    the type of the field indication how to render the field.
+     *   'id':      a unique numerical value, describing this field.
      */
     public function set_fields_full($fields)
     {

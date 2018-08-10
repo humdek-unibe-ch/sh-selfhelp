@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/../BaseView.php";
-require_once __DIR__ . "/BaseStyleComponent.php";
 
 /**
  * The view class of the style component.

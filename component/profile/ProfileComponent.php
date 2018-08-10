@@ -22,11 +22,15 @@ class ProfileComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
+     * @param int $id
+     *  The id of the section associated to the profile page.
      */
     public function __construct($services, $id)
     {
         $model = new ProfileModel($services, $id);
-        $controller = new ProfileController($model);
+        $controller = null;
+        if(!$model->is_link_active("cms"))
+            $controller = new ProfileController($model);
         $view = new ProfileView($model, $controller);
         parent::__construct($view);
     }

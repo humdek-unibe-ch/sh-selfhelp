@@ -24,15 +24,14 @@ class LoginView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $alert_content = new BaseStyleComponent("plaintext");
-        $alert_content->set_fields(
+        $alert_content = new BaseStyleComponent("plaintext",
             array("text" => $this->model->get_db_field('alert_fail')));
         $this->add_local_component("alert",
-            $this->alert = new BaseStyleComponent("alert"),
+            $this->alert = new BaseStyleComponent("alert",
             array(
                 "children" => array($alert_content),
                 "type" => "danger"
-            )
+            ))
         );
     }
 
@@ -43,7 +42,7 @@ class LoginView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_login_failed())
+        if($this->controller == null || $this->controller->has_login_failed())
             $this->output_local_component("alert");
     }
 

@@ -49,13 +49,13 @@ class ProfileView extends BaseView
      */
     private function add_alert_component($type, $name, $content)
     {
-        $alert_content = new BaseStyleComponent("plaintext");
-        $alert_content->set_fields(array("text" => $content));
+        $alert_content = new BaseStyleComponent("plaintext",
+            array("text" => $content));
         $this->add_local_component($name,
-            new BaseStyleComponent("alert", true), array(
+            new BaseStyleComponent("alert", array(
                 "children" => array($alert_content),
                 "type" => $type
-            )
+            ), true)
         );
     }
 
@@ -64,9 +64,10 @@ class ProfileView extends BaseView
      */
     private function output_alert_delete()
     {
-        if($this->controller->has_delete_failed())
+        if($this->controller == null || $this->controller->has_delete_failed())
             $this->output_local_component("alert_del_fail");
-        else if($this->controller->has_delete_succeeded())
+        if($this->controller == null ||
+                $this->controller->has_delete_succeeded())
             $this->output_local_component("alert_del_success");
     }
 
@@ -75,9 +76,11 @@ class ProfileView extends BaseView
      */
     private function output_alert_pw_change()
     {
-        if($this->controller->has_pw_change_failed())
+        if($this->controller == null ||
+                $this->controller->has_pw_change_failed())
             $this->output_local_component("alert_pw_fail");
-        else if($this->controller->has_pw_change_succeeded())
+        if($this->controller == null ||
+                $this->controller->has_pw_change_succeeded())
             $this->output_local_component("alert_pw_success");
     }
 

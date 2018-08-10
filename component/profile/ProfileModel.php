@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../BaseModel.php";
+require_once __DIR__ . "/../style/StyleModel.php";
 /**
  * This class is used to prepare all data related to the profile component such
  * that the data can easily be displayed in the view of the component.
  */
-class ProfileModel extends BaseModel
+class ProfileModel extends StyleModel
 {
     /* Constructors ***********************************************************/
 
@@ -17,7 +17,7 @@ class ProfileModel extends BaseModel
      */
     public function __construct($services, $id)
     {
-        parent::__construct($services);
+        parent::__construct($services, $id);
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
     }

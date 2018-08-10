@@ -16,7 +16,7 @@ $db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 // custom page creation functions
 function create_login_page($router, $db)
 {
-    $page = new ComponentPage($router, $db, "login");
+    $page = new SectionPage($router, $db, "login");
     $page->disable_navigation();
     $page->output();
 }
