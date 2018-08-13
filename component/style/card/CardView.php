@@ -14,6 +14,9 @@ require_once __DIR__ . "/../../BaseView.php";
  *      If set to true, the card is collapsible.
  *  'content':
  *      A list of style components to be displayed in the card body.
+ *  'type':
+ *      The style of the card. E.g. 'warning', 'danger', etc., The default is
+ *      'light'.
  */
 class CardView extends BaseView
 {
@@ -56,6 +59,19 @@ class CardView extends BaseView
     /* Public Methods *********************************************************/
 
     /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(__DIR__ . "/card.css");
+        return parent::get_css_includes($local);
+    }
+
+    /**
      * Get js include files required for this component. This overrides the
      * parent implementation.
      *
@@ -73,6 +89,8 @@ class CardView extends BaseView
      */
     public function output_content()
     {
+        $type = $this->model->get_db_field("type");
+        if($type == "") $type = "light";
         $fluid = ($this->fluid) ? "-fluid" : "";
         $show = $this->model->get_db_field("is_expanded") ? "show" : "";
         $collapse = $this->model->get_db_field("is_collapsible") ? "collapse" : "";
