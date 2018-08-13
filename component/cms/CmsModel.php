@@ -142,7 +142,7 @@ class CmsModel extends BaseModel
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
      */
-    public function fetch_navigation_items($id)
+    private function fetch_navigation_items($id)
     {
         $res = array();
         $sql = "SELECT sn.child AS id, s.name FROM sections_navigation AS sn
@@ -173,6 +173,96 @@ class CmsModel extends BaseModel
     {
         $db_sections = $this->db->fetch_section_children($id);
         return $this->prepare_section_list($db_sections);
+    }
+
+    /**
+     * Fetch all translations of the content of a specific page field,
+     * except the 'all' language.
+     *
+     * @param int $id_page
+     *  The id of the page the field is part of.
+     * @param int $id_field
+     *  The id of the field from which the translations shall be fetched.
+     * @retval array
+     *  An array of database items.
+     */
+    private function fetch_page_field_languages($id_page, $id_field)
+    {
+        $sql = "SELECT l.locale AS locale, l.id, pft.content
+            FROM languages AS l
+            LEFT JOIN pages_fields_translation AS pft
+            ON l.id = pft.id_languages AND pft.id_pages = :pid
+            AND pft.id_fields = :fid
+            WHERE l.locale <> 'all'";
+
+        return $this->db->query_db($sql,
+            array(":pid" => $id_page, ":fid" => $id_field));
+    }
+
+    /**
+     * Fetch all translations of the content of a specific section field,
+     * except the 'all' language.
+     *
+     * @param int $id_section
+     *  The id of the section the field is part of.
+     * @param int $id_field
+     *  The id of the field from which the translations shall be fetched.
+     * @retval array
+     *  An array of database items.
+     */
+    private function fetch_section_field_languages($id_section, $id_field)
+    {
+        $sql = "SELECT l.locale AS locale, l.id, sft.content
+            FROM languages AS l
+            LEFT JOIN sections_fields_translation AS sft
+            ON l.id = sft.id_languages AND sft.id_sections = :sid
+            AND sft.id_fields = :fid
+            WHERE l.locale <> 'all'";
+
+        return $this->db->query_db($sql,
+            array(":sid" => $id_section, ":fid" => $id_field));
+    }
+
+    /**
+     * Fetch the 'all' language content of a specific section field.
+     *
+     * @param int $id_section
+     *  The id of the section the field is part of.
+     * @param int $id_field
+     *  The id of the field from which the translations shall be fetched.
+     * @retval array
+     *  An array with one database item.
+     */
+    private function fetch_section_field_independent($id_section, $id_field)
+    {
+        $sql = "SELECT l.locale, l.id, sft.content
+            FROM sections_fields_translation AS sft
+            LEFT JOIN languages AS l ON l.id = sft.id_languages
+            WHERE sft.id_fields = :fid AND sft.id_sections = :sid";
+
+        return $this->db->query_db($sql,
+            array(":sid" => $id_section, ":fid" => $id_field));
+    }
+
+    /**
+     * Fetsch all fields that are associated to the style of the specified
+     * section.
+     *
+     * @param int $id_section
+     *  The id of the section the field is part of.
+     * @retval array
+     *  An array of database items.
+     */
+    private function fetch_style_fields_by_section_id($id)
+    {
+        $sql = "SELECT f.id, f.display, f.name, ft.name AS type
+            FROM sections AS s
+            LEFT JOIN styles AS st ON st.id = s.id_styles
+            LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
+            LEFT JOIN fields AS f ON f.id = sf.id_fields
+            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            WHERE s.id = :id";
+        return $this->db->query_db($sql, array(":id" => $id));
     }
 
     /**
@@ -280,75 +370,34 @@ class CmsModel extends BaseModel
         return $this->page_info;
     }
 
-    public function get_page_field_languages($id_page, $id_field)
-    {
-        $sql = "SELECT l.locale AS locale, l.id, pft.content
-            FROM languages AS l
-            LEFT JOIN pages_fields_translation AS pft
-            ON l.id = pft.id_languages AND pft.id_pages = :pid
-            AND pft.id_fields = :fid
-            WHERE l.locale <> 'all' ";
-
-        return $this->db->query_db($sql,
-            array(":pid" => $id_page, ":fid" => $id_field));
-    }
-
-    public function get_section_field_languages($id_section, $id_field)
-    {
-        $sql = "SELECT l.locale AS locale, l.id, sft.content
-            FROM languages AS l
-            LEFT JOIN sections_fields_translation AS sft
-            ON l.id = sft.id_languages AND sft.id_sections = :sid
-            AND sft.id_fields = :fid
-            WHERE l.locale <> 'all' ";
-
-        return $this->db->query_db($sql,
-            array(":sid" => $id_section, ":fid" => $id_field));
-    }
-
-    public function get_section_independent_fields($id_section)
-    {
-        $sql = "SELECT CAST(f.id AS UNSIGNED) AS id, f.name, sft.content,
-            ft.name AS type, CAST(sft.id_languages AS UNSIGNED) AS id_language
-            FROM sections_fields_translation AS sft
-            LEFT JOIN fields AS f ON f.id = sft.id_fields
-            LEFT JOIN languages AS l ON l.id = sft.id_languages
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE sft.id_sections = :id AND l.locale = 'all'";
-        return $this->db->query_db($sql,
-            array(":id" => $this->get_active_section_id()));
-    }
-
-    public function get_section_language_fields($id_section)
-    {
-        $sql = "SELECT DISTINCT id_fields AS id, f.name, ft.name AS type
-            FROM sections_fields_translation AS sft
-            LEFT JOIN languages AS l ON id_languages = l.id
-            LEFT JOIN fields AS f ON f.id = sft.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE id_sections = :id AND l.locale <> 'all'";
-        return $this->db->query_db($sql, array(":id" => $id_section));
-    }
 
     public function get_section_fields()
     {
         $id_section = $this->get_active_section_id();
-        $fields = $this->get_section_independent_fields($id_section);
-        $ids = $this->get_section_language_fields($id_section);
-        foreach($ids as $id)
+        $res = array();
+        $fields = $this->fetch_style_fields_by_section_id($id_section);
+        foreach($fields as $field)
         {
-            $contents = $this->get_section_field_languages($id_section, $id['id']);
+            $id = intval($field['id']);
+            if($field['display'] == '1')
+                $contents = $this->fetch_section_field_languages($id_section, $id);
+            else
+            {
+                $contents = $this->fetch_section_field_independent($id_section, $id);
+            }
             foreach($contents as $content)
-                $fields[] = array(
-                    "id" => intval($id['id']),
+            {
+                $res[] = array(
+                    "id" => $id,
                     "id_language" => intval($content['id']),
-                    "name" => $id['name'],
+                    "name" => $field['name'],
                     "locale" => $content['locale'],
-                    "type" => $id['type'],
+                    "type" => $field['type'],
                     "content" => $content['content']
                 );
+            }
         }
-        return $fields;
+        return $res;
     }
 
     /**
@@ -473,7 +522,7 @@ class CmsModel extends BaseModel
     public function get_page_properties()
     {
         $fields = array();
-        $page_title = $this->get_page_field_languages($this->id_page, 2);
+        $page_title = $this->fetch_page_field_languages($this->id_page, 2);
         foreach($page_title as $content)
         {
             $fields[] = array(

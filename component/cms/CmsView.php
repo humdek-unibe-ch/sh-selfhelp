@@ -46,11 +46,8 @@ class CmsView extends BaseView
             $this->model->get_active_root_section_id());
 
         if($this->model->get_active_page_id())
-        {
-            $type = ($this->model->get_mode() == "update") ? "danger" : "light";
             $this->add_description_list_component("page-properties",
-                "Page Properties", $this->model->get_page_properties(), true, $type);
-        }
+                "Page Properties", $this->model->get_page_properties(), true);
         if($this->model->get_active_section_id())
             $this->add_description_list_component("section-fields",
                 "Section Fields", $this->model->get_section_fields(), true);
@@ -162,8 +159,15 @@ class CmsView extends BaseView
      *  The style of the card.
      */
     private function add_description_list_component($name, $title, $fields,
-        $is_expanded=false, $type="light")
+        $is_expanded=false, $type=null)
     {
+        if($type == null)
+        {
+            if($this->model->get_mode() == "update")
+                $type = "warning";
+            else
+                $type = "light";
+        }
         if(count($fields) == 0)
         {
             $content = new BaseStyleComponent("plaintext", array(
