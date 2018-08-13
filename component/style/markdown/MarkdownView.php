@@ -26,7 +26,7 @@ class MarkdownView extends BaseView
      */
     public function output_content()
     {
-        echo $this->model->get_markdown_text();
+        echo $this->model->get_db_field('text_markdown');
     }
 }
 ?>
