@@ -7,7 +7,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Parsedown.php";
  * A plaintext style supports the following fields:
  *  'text': The text to be rendered.
  */
-class PLaintextView extends BaseView
+class PlaintextView extends BaseView
 {
     /* Constructors ***********************************************************/
 
