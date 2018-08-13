@@ -26,18 +26,18 @@ class CmsController extends BaseController
         foreach($_POST as $name => $fields)
             foreach($fields as $id_language => $field)
             {
-                $fields = array();
                 $type = $field['type'];
                 $id = intval($field['id']);
                 $content = $field['content'];
+                $is_page_field = ($field['is_page_field'] == '1') ? true : false;
                 if($type == "internal")
                 {
                     $info = $this->model->get_field_info($name);
                     $type = $info['type'];
                     $id = intval($info['id']);
                 }
-                $fields["content"] = $this->secure_field($type, $content);
-                if($this->model->update_db($id, $id_language, $fields))
+                if($this->model->update_db($id, $id_language,
+                        $this->secure_field($type, $content), $is_page_field))
                     $this->update_success_count++;
                 else
                     $this->update_fail_count++;

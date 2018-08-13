@@ -41,6 +41,8 @@ class DescriptionListView extends BaseView
             $content = $field['content'];
             $edit = isset($field['edit']) ? $field['edit'] : true;
             $locale = isset($field['locale']) ? $field['locale'] : "";
+            $is_page_field = isset($field['is_page_field']) ?
+                $field['is_page_field'] : false;
             if($mode == "update" && $edit)
             {
                 require __DIR__ . "/tpl_field_label.php";

@@ -49,7 +49,7 @@ class CmsView extends BaseView
         {
             $type = ($this->model->get_mode() == "update") ? "danger" : "light";
             $this->add_description_list_component("page-properties",
-                "Page Properties", $this->prepare_page_properties(), true, $type);
+                "Page Properties", $this->model->get_page_properties(), true, $type);
         }
         if($this->model->get_active_section_id())
             $this->add_description_list_component("section-fields",
@@ -218,6 +218,16 @@ class CmsView extends BaseView
         require __DIR__ . "/tpl_controls.php";
     }
 
+    /**
+     * Render a control button
+     *
+     * @param string $mode
+     *  Indication the current cms mode. E.g 'update', 'select', etc.
+     * @param array $params
+     *  An array where the link parameter are stored as key => value pairs.
+     * @param string $title
+     *  The title of the control button
+     */
     private function output_control_item($mode, $params, $title)
     {
         if($this->model->get_mode() == $mode) return;

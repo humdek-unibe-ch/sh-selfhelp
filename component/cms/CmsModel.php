@@ -280,27 +280,19 @@ class CmsModel extends BaseModel
         return $this->page_info;
     }
 
-    /**
-     * Gets the active page fields from the database.
-     *
-     * @retval array
-     *  An array of field arrays where each field has the following keys:
-     *   'name':    the name of the field.
-     *   'content': the content of the field.
-     */
-    public function get_page_fields()
+    public function get_page_field_languages($id_page, $id_field)
     {
-        return $this->db->fetch_page_fields_by_id($this->id_page);
+        $sql = "SELECT l.locale AS locale, l.id, pft.content
+            FROM languages AS l
+            LEFT JOIN pages_fields_translation AS pft
+            ON l.id = pft.id_languages AND pft.id_pages = :pid
+            AND pft.id_fields = :fid
+            WHERE l.locale <> 'all' ";
+
+        return $this->db->query_db($sql,
+            array(":pid" => $id_page, ":fid" => $id_field));
     }
 
-    /**
-     * Gets the active section fields from the database.
-     *
-     * @retval array
-     *  An array of field arrays where each field has the following keys:
-     *   'name':    the name of the field.
-     *   'content': the content of the field.
-     */
     public function get_section_field_languages($id_section, $id_field)
     {
         $sql = "SELECT l.locale AS locale, l.id, sft.content
@@ -478,6 +470,44 @@ class CmsModel extends BaseModel
             return null;
     }
 
+    public function get_page_properties()
+    {
+        $fields = array();
+        $page_title = $this->get_page_field_languages($this->id_page, 2);
+        foreach($page_title as $content)
+        {
+            $fields[] = array(
+                "id" => 2,
+                "id_language" => intval($content['id']),
+                "name" => "title",
+                "locale" => $content['locale'],
+                "type" => "text",
+                "content" => $content['content'],
+                "is_page_field" => true
+            );
+        }
+        $sql = "SELECT url, keyword, a.name as action FROM pages
+            LEFT JOIN actions AS a ON a.id = pages.id_actions
+            WHERE pages.id = :id";
+        $page_info = $this->db->query_db_first($sql,
+            array(":id" => $this->id_page));
+        $index = 0;
+        foreach($page_info as $name => $content)
+        {
+            $fields[] = array(
+                "name" => $name,
+                "content" => $content,
+                "id" => "property-" . $index,
+                "type" => "text",
+                "id_language" => 1,
+                "edit" => false
+            );
+            $index++;
+        }
+        return $fields;
+    }
+
+
     /**
      * Checks whether the current page is a main page of a navigation set.
      *
@@ -504,14 +534,34 @@ class CmsModel extends BaseModel
             && $this->id_root_section != null);
     }
 
-    public function update_db($id, $id_language, $fields)
+    /**
+     * Update the database, given the field data from one field.
+     *
+     * @param int $id
+     *  The id of the field to update.
+     * @param int $id_language
+     *  The id of the language of the field to update.
+     * @param string $content
+     *  The content of the field to be updated.
+     */
+    public function update_db($id, $id_language, $content, $is_page_field)
     {
+        $fields = array();
+        $fields["content"] = $content;
         $insert_fields = $fields;
-        $insert_fields["id_sections"] = $this->get_active_section_id();
         $insert_fields["id_fields"] = $id;
         $insert_fields["id_languages"] = $id_language;
-        return $this->db->insert("sections_fields_translation", $insert_fields,
-            $fields);
+        if($is_page_field)
+        {
+            $table_name = "pages_fields_translation";
+            $insert_fields["id_pages"] = $this->id_page;
+        }
+        else
+        {
+            $table_name = "sections_fields_translation";
+            $insert_fields["id_sections"] = $this->get_active_section_id();
+        }
+        return $this->db->insert($table_name, $insert_fields, $fields);
     }
 }
 ?>
