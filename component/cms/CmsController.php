@@ -28,6 +28,7 @@ class CmsController extends BaseController
             $fields = array();
             $type = $field['type'];
             $id = intval($field['id']);
+            $id_language = intval($field['id_language']);
             $content = $field['content'];
             if($type == "internal")
             {
@@ -36,7 +37,7 @@ class CmsController extends BaseController
                 $id = intval($info['id']);
             }
             $fields["content"] = $this->secure_field($type, $content);
-            if($this->model->update_db($id, $fields))
+            if($this->model->update_db($id, $id_language, $fields))
                 $this->update_sucess_count++;
             else
                 $this->update_fail_count++;
@@ -47,8 +48,10 @@ class CmsController extends BaseController
 
     private function secure_field($type, $content)
     {
-        if(in_array($type, array("text", "markdown", "textarea", "markdown-inline")))
+        if(in_array($type, array("text", "textarea")))
             return htmlspecialchars($content);
+        if(in_array($type, array("markdown", "markdown-inline")))
+            return $content;
         if($type === "number")
             return intval($content);
     }

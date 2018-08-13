@@ -47,10 +47,9 @@ class CmsView extends BaseView
 
         if($this->model->get_active_page_id())
         {
-            $this->add_description_list_component("page-fields",
-                "Page Fields", $this->prepare_page_fields(), true);
+            $type = ($this->model->get_mode() == "update") ? "danger" : "light";
             $this->add_description_list_component("page-properties",
-                "Page Properties", $this->prepare_page_properties(), true);
+                "Page Properties", $this->prepare_page_properties(), true, $type);
         }
         if($this->model->get_active_section_id())
             $this->add_description_list_component("section-fields",
@@ -140,9 +139,11 @@ class CmsView extends BaseView
      *  The list of fields to be rendered as a description list.
      * @param bool $is_expanded
      *  Indicates wheter the card style is expanded or not.
+     * @param string $type
+     *  The style of the card.
      */
     private function add_description_list_component($name, $title, $fields,
-        $is_expanded=false)
+        $is_expanded=false, $type="light")
     {
         if(count($fields) == 0)
         {
@@ -162,7 +163,8 @@ class CmsView extends BaseView
                 "is_expanded" => $is_expanded,
                 "is_collapsible" => true,
                 "title" => $title,
-                "children" => array($content)
+                "children" => array($content),
+                "type" => $type
             )
         ));
     }
@@ -195,8 +197,8 @@ class CmsView extends BaseView
             $this->model->get_active_page_id())) return;
 
         $type = "light";
-        if($mode == "update") $type = "warning";
-        if($mode == "delete") $type = "danger";
+        if($mode == "update") $type = "warning text-white";
+        if($mode == "delete") $type = "danger text-white";
         $url = $this->model->get_link_url("cms_" . $mode, $params);
         require __DIR__ . "/tpl_control_item.php";
     }
@@ -230,7 +232,15 @@ class CmsView extends BaseView
      */
     private function output_fields()
     {
-        $this->output_local_component("page-fields");
+        if($this->model->get_active_section_id())
+            require __DIR__ . "/tpl_fields.php";
+    }
+
+    /**
+     * Renders the description list components.
+     */
+    private function output_section_fields()
+    {
         $this->output_local_component("section-fields");
     }
 
@@ -249,23 +259,6 @@ class CmsView extends BaseView
     private function output_page_property_items()
     {
         $this->output_local_component("page-properties");
-    }
-
-    /**
-     * Helper function to prepare the page fields such that they can be rendered
-     * as a description list.
-     *
-     * @retval array
-     *  An array of field arrays where each field has the following keys:
-     *   'name':    the name of the field.
-     *   'content': the content of the field.
-     */
-    private function prepare_page_fields()
-    {
-        $fields = $this->model->get_page_fields();
-        foreach($fields as $index => $field)
-            if($field['name'] == "label") unset($fields[$index]);
-        return $fields;
     }
 
     /**
@@ -291,7 +284,9 @@ class CmsView extends BaseView
                 "name" => $name,
                 "content" => $content,
                 "id" => "property-" . $index,
-                "type" => "text"
+                "type" => "text",
+                "id_language" => 1,
+                "edit" => ($name == "title")
             );
         }
         return $fields;

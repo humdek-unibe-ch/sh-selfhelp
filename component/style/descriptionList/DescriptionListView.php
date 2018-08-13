@@ -33,13 +33,18 @@ class DescriptionListView extends BaseView
     {
         foreach($fields as $field)
         {
+            $border = "";
             $name = $field['name'];
             $id = $field['id'];
+            $id_language = $field['id_language'];
             $db_type = $field['type'];
             $content = $field['content'];
-            if($mode == "update")
+            $edit = isset($field['edit']) ? $field['edit'] : true;
+            $locale = isset($field['locale']) ? $field['locale'] : "";
+            if($mode == "update" && $edit)
             {
                 require __DIR__ . "/tpl_field_label.php";
+                require __DIR__ . "/tpl_field_hidden.php";
                 if(in_array($field['type'],
                     array("text", "number", "checkbox")))
                 {
@@ -58,7 +63,13 @@ class DescriptionListView extends BaseView
                 }
             }
             else
+            {
+                if($content == null)
+                    $content = "<i>field is not set</i>";
+                $border = "border-top";
+                require __DIR__ . "/tpl_field_label.php";
                 require __DIR__. "/tpl_field.php";
+            }
         }
     }
 

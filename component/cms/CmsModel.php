@@ -301,9 +301,62 @@ class CmsModel extends BaseModel
      *   'name':    the name of the field.
      *   'content': the content of the field.
      */
+    public function get_section_field_languages($id_section, $id_field)
+    {
+        $sql = "SELECT l.locale AS locale, l.id, sft.content
+            FROM languages AS l
+            LEFT JOIN sections_fields_translation AS sft
+            ON l.id = sft.id_languages AND sft.id_sections = :sid
+            AND sft.id_fields = :fid
+            WHERE l.locale <> 'all' ";
+
+        return $this->db->query_db($sql,
+            array(":sid" => $id_section, ":fid" => $id_field));
+    }
+
+    public function get_section_independent_fields($id_section)
+    {
+        $sql = "SELECT CAST(f.id AS UNSIGNED) AS id, f.name, sft.content,
+            ft.name AS type, CAST(sft.id_languages AS UNSIGNED) AS id_language
+            FROM sections_fields_translation AS sft
+            LEFT JOIN fields AS f ON f.id = sft.id_fields
+            LEFT JOIN languages AS l ON l.id = sft.id_languages
+            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            WHERE sft.id_sections = :id AND l.locale = 'all'";
+        return $this->db->query_db($sql,
+            array(":id" => $this->get_active_section_id()));
+    }
+
+    public function get_section_language_fields($id_section)
+    {
+        $sql = "SELECT DISTINCT id_fields AS id, f.name, ft.name AS type
+            FROM sections_fields_translation AS sft
+            LEFT JOIN languages AS l ON id_languages = l.id
+            LEFT JOIN fields AS f ON f.id = sft.id_fields
+            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            WHERE id_sections = :id AND l.locale <> 'all'";
+        return $this->db->query_db($sql, array(":id" => $id_section));
+    }
+
     public function get_section_fields()
     {
-        return $this->db->fetch_section_fields($this->get_active_section_id());
+        $id_section = $this->get_active_section_id();
+        $fields = $this->get_section_independent_fields($id_section);
+        $ids = $this->get_section_language_fields($id_section);
+        foreach($ids as $id)
+        {
+            $contents = $this->get_section_field_languages($id_section, $id['id']);
+            foreach($contents as $content)
+                $fields[] = array(
+                    "id" => intval($id['id']),
+                    "id_language" => intval($content['id']),
+                    "name" => $id['name'],
+                    "locale" => $content['locale'],
+                    "type" => $id['type'],
+                    "content" => $content['content']
+                );
+        }
+        return $fields;
     }
 
     /**
@@ -451,13 +504,13 @@ class CmsModel extends BaseModel
             && $this->id_root_section != null);
     }
 
-    public function update_db($id, $fields)
+    public function update_db($id, $id_language, $fields)
     {
         $this->db->update_by_ids("sections_fields_translation", $fields,
             array(
                 "id_sections" => $this->get_active_section_id(),
                 "id_fields" => $id,
-                "id_languages" => $_SESSION['language_id']
+                "id_languages" => $id_language
             )
         );
     }

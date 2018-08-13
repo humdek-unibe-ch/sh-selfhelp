@@ -3,12 +3,10 @@
         <div class="col-auto">
             <?php $this->output_lists(); ?>
         </div>
-        <div class="col d-block">
+        <div class="col">
             <div class="row">
-                <div class="col fields">
-                    <?php $this->output_fields(); ?>
-                </div>
-                <div class="col d-block">
+                <?php $this->output_fields(); ?>
+                <div class="col">
                     <?php $this->output_page_content(); ?>
                 </div>
             </div>
