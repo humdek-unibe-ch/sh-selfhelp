@@ -55,6 +55,25 @@ class CmsView extends BaseView
             $this->add_description_list_component("section-fields",
                 "Section Fields", $this->model->get_section_fields(), true);
 
+        $success_count = $controller->get_update_success_count();
+        if($success_count > 0)
+            $this->add_local_component("alert_success", new BaseStyleComponent(
+                "alert", array("type" => "success", "children" => array(
+                    new BaseStyleComponent("plaintext",
+                    array("text" => "Successfully updated " . $success_count
+                    . " fields"))
+                )), true
+            ));
+        $fail_count = $controller->get_update_fail_count();
+        if($fail_count > 0)
+            $this->add_local_component("alert_failed", new BaseStyleComponent(
+                "alert", array("type" => "danger", "children" => array(
+                    new BaseStyleComponent("plaintext",
+                    array("text" => "Failed to update " . $fail_count
+                    . " fields"))
+                )), true
+            ));
+
         $page_components = array();
         if($this->model->get_active_root_section_id() == null)
             foreach($this->page_sections as $section)
@@ -167,6 +186,15 @@ class CmsView extends BaseView
                 "type" => $type
             )
         ));
+    }
+
+    /**
+     * Renders alerts.
+     */
+    private function output_alerts()
+    {
+        $this->output_local_component("alert_failed");
+        $this->output_local_component("alert_success");
     }
 
     /**

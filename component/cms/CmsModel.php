@@ -506,13 +506,12 @@ class CmsModel extends BaseModel
 
     public function update_db($id, $id_language, $fields)
     {
-        $this->db->update_by_ids("sections_fields_translation", $fields,
-            array(
-                "id_sections" => $this->get_active_section_id(),
-                "id_fields" => $id,
-                "id_languages" => $id_language
-            )
-        );
+        $insert_fields = $fields;
+        $insert_fields["id_sections"] = $this->get_active_section_id();
+        $insert_fields["id_fields"] = $id;
+        $insert_fields["id_languages"] = $id_language;
+        return $this->db->insert("sections_fields_translation", $insert_fields,
+            $fields);
     }
 }
 ?>

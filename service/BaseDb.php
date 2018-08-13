@@ -250,7 +250,7 @@ class BaseDb {
      * @retval int
      *  The inserted id if succeded, false otherwise.
      */
-    public function insert($table, $entries) {
+    public function insert($table, $entries, $update_entries = array()) {
         try {
             $data = array();
             $columnStr = "";
@@ -263,8 +263,13 @@ class BaseDb {
             }
             $columnStr = rtrim($columnStr, ", ");
             $valueStr = rtrim($valueStr, ", ");
+            $onDuplicate = "ON DUPLICATE KEY UPDATE ";
+            if(count($update_entries) == 0) $update_entries = $entries;
+            foreach($update_entries as $key => $value)
+                $onDuplicate .= $key . "=:" . $key .",";
+            $onDuplicate = rtrim($onDuplicate, ", ");
             $sql = "INSERT INTO ".$table
-                ." (".$columnStr.") VALUES(".$valueStr.")";
+                ." (".$columnStr.") VALUES(".$valueStr.") ". $onDuplicate;
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($data);
             $new_id = $this->dbh->lastInsertId();
@@ -344,8 +349,7 @@ class BaseDb {
             $insertStr = rtrim($insertStr, ", ");
             $sql = "UPDATE ".$table." SET ".$insertStr.$where_cond;
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute($data);
-            return true;
+            return $stmt->execute($data);
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();

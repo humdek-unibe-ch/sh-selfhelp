@@ -7,7 +7,7 @@ class CmsController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    private $update_sucess_count;
+    private $update_success_count;
     private $update_fail_count;
 
     /* Constructors ***********************************************************/
@@ -21,27 +21,27 @@ class CmsController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->update_sucess_count = 0;
+        $this->update_success_count = 0;
         $this->update_fail_count = 0;
-        foreach($_POST as $name => $field)
-        {
-            $fields = array();
-            $type = $field['type'];
-            $id = intval($field['id']);
-            $id_language = intval($field['id_language']);
-            $content = $field['content'];
-            if($type == "internal")
+        foreach($_POST as $name => $fields)
+            foreach($fields as $id_language => $field)
             {
-                $info = $this->model->get_field_info($name);
-                $type = $info['type'];
-                $id = intval($info['id']);
+                $fields = array();
+                $type = $field['type'];
+                $id = intval($field['id']);
+                $content = $field['content'];
+                if($type == "internal")
+                {
+                    $info = $this->model->get_field_info($name);
+                    $type = $info['type'];
+                    $id = intval($info['id']);
+                }
+                $fields["content"] = $this->secure_field($type, $content);
+                if($this->model->update_db($id, $id_language, $fields))
+                    $this->update_success_count++;
+                else
+                    $this->update_fail_count++;
             }
-            $fields["content"] = $this->secure_field($type, $content);
-            if($this->model->update_db($id, $id_language, $fields))
-                $this->update_sucess_count++;
-            else
-                $this->update_fail_count++;
-        }
     }
 
     /* Private Methods ********************************************************/
@@ -58,9 +58,9 @@ class CmsController extends BaseController
 
     /* Public Methods *********************************************************/
 
-    public function get_update_sucess_count()
+    public function get_update_success_count()
     {
-        return $this->update_sucess_count;
+        return $this->update_success_count;
     }
 
     public function get_update_fail_count()
