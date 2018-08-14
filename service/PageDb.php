@@ -99,6 +99,23 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Fetch the main section information from the database, given a section id.
+     *
+     * @param int $id
+     *  The section id.
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_section_info_by_id($id)
+    {
+        $sql = "SELECT s.id, s.name, s.id_styles, st.name AS style
+            FROM sections AS s
+            LEFT JOIN styles AS st ON st.id = s.id_styles
+            WHERE s.id = :id";
+        return $this->query_db_first($sql, array(":id" => $id));
+    }
+
+    /**
      * Fetch the main page information from the database.
      *
      * @param string $keyword

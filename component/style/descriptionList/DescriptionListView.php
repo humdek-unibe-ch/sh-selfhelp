@@ -35,44 +35,86 @@ class DescriptionListView extends BaseView
         {
             $border = "";
             $name = $field['name'];
-            $id = $field['id'];
-            $id_language = $field['id_language'];
-            $db_type = $field['type'];
             $content = $field['content'];
             $edit = isset($field['edit']) ? $field['edit'] : true;
             $locale = isset($field['locale']) ? $field['locale'] : "";
-            $is_page_field = isset($field['is_page_field']) ?
-                $field['is_page_field'] : false;
+            $type = $field['type'];
             if($mode == "update" && $edit)
             {
+                $id = $field['id'];
+                $id_language = $field['id_language'];
+                $relation = "section_field";
                 require __DIR__ . "/tpl_field_label.php";
-                require __DIR__ . "/tpl_field_hidden.php";
-                if(in_array($field['type'],
+                if(in_array($type,
                     array("text", "number", "checkbox")))
                 {
-                    $type = $field['type'];
+                    require __DIR__ . "/tpl_field_hidden.php";
                     require __DIR__ . "/tpl_field_input.php";
                 }
-                else if($field['type'] == "markdown-inline")
+                else if($type == "markdown-inline")
                 {
+                    require __DIR__ . "/tpl_field_hidden.php";
                     $type = "text";
                     require __DIR__ . "/tpl_field_input.php";
                 }
-                else if(in_array($field['type'],
+                else if(in_array($type,
                     array("textarea","markdown")))
                 {
+                    require __DIR__ . "/tpl_field_hidden.php";
                     require __DIR__ . "/tpl_field_textarea.php";
+                }
+                else if($type == "page-text")
+                {
+                    $type = "text";
+                    $relation = "page_field";
+                    require __DIR__ . "/tpl_field_hidden.php";
+                    require __DIR__ . "/tpl_field_input.php";
+                }
+                else if($type == "style-list")
+                {
+                    $relation = "section_children_order";
+                    $type = "text";
+                    require __DIR__ . "/tpl_field_hidden.php";
+                    require __DIR__ . "/tpl_field_hidden_order.php";
+                    $this->output_style_list($content, true);
                 }
             }
             else
             {
-                if($content == null)
-                    $content = "<i>field is not set</i>";
                 $border = "border-top";
                 require __DIR__ . "/tpl_field_label.php";
-                require __DIR__. "/tpl_field.php";
+                if($content == null)
+                {
+                    $content = "<i>field is not set</i>";
+                    require __DIR__. "/tpl_field.php";
+                }
+                else if($type == "style-list")
+                    $this->output_style_list($content);
+                else
+                    require __DIR__. "/tpl_field.php";
             }
         }
+    }
+    private function output_style_item_index($index, $edit)
+    {
+        if(!$edit) return;
+        require __DIR__. "/tpl_style_item_index.php";
+    }
+
+    private function output_style_list_items($items, $edit)
+    {
+        foreach($items as $index => $item)
+        {
+            $id = $item['id'];
+            $name = $item['title'];
+            require __DIR__ . "/tpl_field_child.php";
+        }
+    }
+
+    private function output_style_list($items, $edit=false)
+    {
+        $sortable = ($edit) ? "sortable" : "";
+        require __DIR__ . "/tpl_field_children.php";
     }
 
     /* Public Methods *********************************************************/
@@ -88,6 +130,23 @@ class DescriptionListView extends BaseView
     {
         $local = array(__DIR__ . "/descriptionList.css");
         return parent::get_css_includes($local);
+    }
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $local = array(
+            __DIR__ . "/sortable.min.js",
+            __DIR__ . "/sortable.jquery.binding.js",
+            __DIR__ . "/descriptionList.js"
+        );
+        return parent::get_js_includes($local);
     }
 
     /**

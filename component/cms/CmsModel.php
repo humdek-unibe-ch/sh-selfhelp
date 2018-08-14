@@ -370,7 +370,34 @@ class CmsModel extends BaseModel
         return $this->page_info;
     }
 
+    /**
+     * Return the section info array.
+     *
+     * @retval array
+     *  The db result array.
+     */
+    public function get_section_info()
+    {
+        $section_id = $this->get_active_section_id();
+        if($section_id == null) return null;
+        return $this->db->fetch_section_info_by_id($section_id);
+    }
 
+
+    /**
+     * Get an array of section fields, defined by the style associated to a
+     * section. If multiple languages are available, each field is replicated
+     * for each language except the 'all' language.
+     *
+     * @retval array
+     *  An array of fields where each field has the following keys:
+     *   'id':          The id of the field.
+     *   'id_language': The id of the language of the field.
+     *   'name':        The name of the field.
+     *   'locale':      The locale string of the language.
+     *   'type':        The type of the field.
+     *   'content';     The content of the field.
+     */
     public function get_section_fields()
     {
         $id_section = $this->get_active_section_id();
@@ -380,11 +407,17 @@ class CmsModel extends BaseModel
         {
             $id = intval($field['id']);
             if($field['display'] == '1')
-                $contents = $this->fetch_section_field_languages($id_section, $id);
+                $contents = $this->fetch_section_field_languages($id_section,
+                    $id);
+            else if($field['type'] == "style-list")
+                $contents = array(array(
+                    "id" => $id,
+                    "locale" => "",
+                    "content" => $this->fetch_section_hierarchy($id_section),
+                ));
             else
-            {
-                $contents = $this->fetch_section_field_independent($id_section, $id);
-            }
+                $contents = $this->fetch_section_field_independent($id_section,
+                    $id);
             foreach($contents as $content)
             {
                 $res[] = array(
@@ -530,9 +563,8 @@ class CmsModel extends BaseModel
                 "id_language" => intval($content['id']),
                 "name" => "title",
                 "locale" => $content['locale'],
-                "type" => "text",
-                "content" => $content['content'],
-                "is_page_field" => true
+                "type" => "page-text",
+                "content" => $content['content']
             );
         }
         $sql = "SELECT url, keyword, a.name as action FROM pages
@@ -583,6 +615,50 @@ class CmsModel extends BaseModel
             && $this->id_root_section != null);
     }
 
+    private function update_page_fields_db($id, $id_language, $content)
+    {
+        $update = array(
+            "content" => $content
+        );
+        $insert = array(
+            "content" => $content,
+            "id_fields" => $id,
+            "id_languages" => $id_language,
+            "id_pages" => $this->id_page
+        );
+        return $this->db->insert("pages_fields_translation", $insert, $update);
+    }
+
+    private function update_section_fields_db($id, $id_language, $content)
+    {
+        $update = array(
+            "content" => $content
+        );
+        $insert = array(
+            "content" => $content,
+            "id_fields" => $id,
+            "id_languages" => $id_language,
+            "id_sections" => $this->get_active_section_id()
+        );
+        return $this->db->insert("sections_fields_translation", $insert, $update);
+    }
+
+    private function update_section_children_order_db($id, $order)
+    {
+        if($order == "") return null;
+        $orders = explode(',', $order);
+        $children = $this->db->fetch_section_children($id);
+        $res = true;
+        foreach($children as $index => $child)
+        {
+            $res &= $this->db->update_by_ids("sections_hierarchy",
+                array("position" => $orders[$index]),
+                array("parent" => $id, "child" => $child['id'])
+            );
+        }
+        return $res;
+    }
+
     /**
      * Update the database, given the field data from one field.
      *
@@ -593,24 +669,15 @@ class CmsModel extends BaseModel
      * @param string $content
      *  The content of the field to be updated.
      */
-    public function update_db($id, $id_language, $content, $is_page_field)
+    public function update_db($id, $id_language, $content, $relation)
     {
-        $fields = array();
-        $fields["content"] = $content;
-        $insert_fields = $fields;
-        $insert_fields["id_fields"] = $id;
-        $insert_fields["id_languages"] = $id_language;
-        if($is_page_field)
-        {
-            $table_name = "pages_fields_translation";
-            $insert_fields["id_pages"] = $this->id_page;
-        }
-        else
-        {
-            $table_name = "sections_fields_translation";
-            $insert_fields["id_sections"] = $this->get_active_section_id();
-        }
-        return $this->db->insert($table_name, $insert_fields, $fields);
+        if($relation == "page_field")
+            return $this->update_page_fields_db($id, $id_language, $content);
+        else if($relation == "section_field")
+            return $this->update_section_fields_db($id, $id_language, $content);
+        else if($relation == "section_children_order")
+            return $this->update_section_children_order_db(
+                $this->get_active_section_id(), $content);
     }
 }
 ?>

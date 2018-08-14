@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/CmsView.php";
+require_once __DIR__ . "/CmsInsertView.php";
 require_once __DIR__ . "/CmsModel.php";
 require_once __DIR__ . "/CmsController.php";
 
@@ -35,7 +36,10 @@ class CmsComponent extends BaseComponent
         $model = new CmsModel($services, $id_page, $id_root_section,
             $id_section, $mode);
         $controller = new CmsController($model);
-        $view = new CmsView($model, $controller);
+        if($mode == "select" || $mode == "update")
+            $view = new CmsView($model, $controller);
+        if($mode == "insert")
+            $view = new CmsInsertView($model, $controller);
         parent::__construct($view);
     }
 }

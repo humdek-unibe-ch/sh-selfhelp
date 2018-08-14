@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $('a[id|=sections]').hover(
+    $('[id|=sections]').hover(
         function() {
             var ids = $(this).attr('id').split('-');
             var id = ids[ids.length-1];

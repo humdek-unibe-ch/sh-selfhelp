@@ -1,5 +1,5 @@
 <?php
-$_SERVER['DOCUMENT_ROOT']  = __DIR__;
+$_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
 require_once "./service/Login.php";

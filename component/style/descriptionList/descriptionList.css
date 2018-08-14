@@ -3,3 +3,35 @@ pre.db-fields
     white-space: pre-wrap;
     padding-top: 3px;
 }
+
+.children-list
+{
+    padding-left: 1rem;
+}
+
+.children-list > li
+{
+    list-style: none;
+    padding: 0.2rem 0.4rem;
+}
+
+.children-list.sortable > li
+{
+    cursor: move;
+}
+
+.children-list > li:hover
+{
+    background-color: #f8f9fa;
+}
+
+.children-list.sortable > li.sortable-chosen
+{
+    background-color: white;
+}
+
+.children-list.sortable > li.sortable-ghost
+{
+    background-color: #d4edda;
+    color: #155724;
+}

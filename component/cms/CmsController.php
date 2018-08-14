@@ -29,17 +29,19 @@ class CmsController extends BaseController
                 $type = $field['type'];
                 $id = intval($field['id']);
                 $content = $field['content'];
-                $is_page_field = ($field['is_page_field'] == '1') ? true : false;
+                $relation = $field['relation'];
                 if($type == "internal")
                 {
                     $info = $this->model->get_field_info($name);
                     $type = $info['type'];
                     $id = intval($info['id']);
                 }
-                if($this->model->update_db($id, $id_language,
-                        $this->secure_field($type, $content), $is_page_field))
+                $res = $this->model->update_db($id, $id_language,
+                    $this->secure_field($type, $content), $relation);
+                // res can be null which means that nothing was changed
+                if($res === true)
                     $this->update_success_count++;
-                else
+                else if($res === false)
                     $this->update_fail_count++;
             }
     }

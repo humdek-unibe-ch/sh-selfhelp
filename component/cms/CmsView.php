@@ -23,7 +23,7 @@ class CmsView extends BaseView
      */
     public function __construct($model, $controller)
     {
-        parent::__construct($model);
+        parent::__construct($model, $controller);
         $this->page_info = $this->model->get_page_info();
 
         $pages = $this->model->get_pages();
@@ -46,30 +46,22 @@ class CmsView extends BaseView
             $this->model->get_active_root_section_id());
 
         if($this->model->get_active_page_id())
-            $this->add_description_list_component("page-properties",
-                "Page Properties", $this->model->get_page_properties(), true);
+            $this->add_page_property_list();
         if($this->model->get_active_section_id())
-            $this->add_description_list_component("section-fields",
-                "Section Fields", $this->model->get_section_fields(), true);
+            $this->add_section_field_list();
 
         $success_count = $controller->get_update_success_count();
         if($success_count > 0)
-            $this->add_local_component("alert_success", new BaseStyleComponent(
-                "alert", array("type" => "success", "children" => array(
-                    new BaseStyleComponent("plaintext",
-                    array("text" => "Successfully updated " . $success_count
-                    . " fields"))
-                )), true
-            ));
+        {
+            $msg = "Successfully updated " . $success_count . " fields";
+            $this->add_alert_component("alert_success", "success", $msg);
+        }
         $fail_count = $controller->get_update_fail_count();
         if($fail_count > 0)
-            $this->add_local_component("alert_failed", new BaseStyleComponent(
-                "alert", array("type" => "danger", "children" => array(
-                    new BaseStyleComponent("plaintext",
-                    array("text" => "Failed to update " . $fail_count
-                    . " fields"))
-                )), true
-            ));
+        {
+            $msg = "Failed to update " . $fail_count . " fields";
+            $this->add_alert_component("alert_failed", "danger", $msg);
+        }
 
         $page_components = array();
         if($this->model->get_active_root_section_id() == null)
@@ -101,6 +93,31 @@ class CmsView extends BaseView
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Helper function to create an alert component and add it to the local
+     * component list.
+     *
+     * @param string $name
+     *  The name of the local component.
+     * @param string $type
+     *  The type of the alert, e.g 'success', 'danger', etc.
+     * @param string $msg
+     *  The message to be displayed in the alert.
+     */
+    private function add_alert_component($name, $type, $msg)
+    {
+        $this->add_local_component($name, new BaseStyleComponent( "alert",
+            array(
+                "type" => $type,
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array("text" => $msg))
+                ),
+                "dismiss" => true
+            ),
+            true
+        ));
+    }
 
     /**
      * Helper function to create a nested list style component, wrapped by a
@@ -143,35 +160,49 @@ class CmsView extends BaseView
     }
 
     /**
-     * Helper function to create a description list style component, wrapped by
-     * a card style component. The created component is added to the local
-     * components list.
-     *
-     * @param string $name
-     *  The name of the local component.
-     * @param string $title
-     *  The title to appear in the card header.
-     * @param array $fields
-     *  The list of fields to be rendered as a description list.
-     * @param bool $is_expanded
-     *  Indicates wheter the card style is expanded or not.
-     * @param string $type
-     *  The style of the card.
+     * Add the page property list to the local component list. The page property
+     * list is wrapped by a collapsible card component.
      */
-    private function add_description_list_component($name, $title, $fields,
-        $is_expanded=false, $type=null)
+    private function add_page_property_list()
     {
-        if($type == null)
-        {
-            if($this->model->get_mode() == "update")
-                $type = "warning";
-            else
-                $type = "light";
-        }
+        $type = ($this->model->get_mode() == "update") ? "warning" : "light";
+        $this->add_local_component("page-properties",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => true,
+                "is_collapsible" => true,
+                "title" => "Page Properties",
+                "children" => array(new BaseStyleComponent("descriptionList",
+                     array(
+                        "mode" => $this->model->get_mode(),
+                        "fields" => $this->model->get_page_properties()
+                    ))),
+                "type" => $type
+            )
+        ));
+    }
+
+    /**
+     * Add the section field list to the local component list. The section field
+     * list is wrapped by a card component.
+     */
+    private function add_section_field_list()
+    {
+        $section_info = $this->model->get_section_info();
+        $properties = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_section_properties.php",
+            "fields" => array(
+                "section_name_title" => "Section Name:",
+                "section_name" => $section_info['name'],
+                "section_style_title" => "Section Style:",
+                "section_style" => $section_info['style']
+            ),
+        ));
+        $type = ($this->model->get_mode() == "update") ? "warning" : "light";
+        $fields = $this->model->get_section_fields();
         if(count($fields) == 0)
         {
             $content = new BaseStyleComponent("plaintext", array(
-                "text" => "No " . strtolower($title). " defined."
+                "text" => "No section fields defined."
             ));
         }
         else
@@ -181,12 +212,11 @@ class CmsView extends BaseView
                 "fields" => $fields
             ));
         }
-        $this->add_local_component($name, new BaseStyleComponent("card",
-            array(
-                "is_expanded" => $is_expanded,
-                "is_collapsible" => true,
-                "title" => $title,
-                "children" => array($content),
+        $this->add_local_component("section-fields",
+            new BaseStyleComponent("card", array(
+                "is_collapsible" => false,
+                "title" => "Section Fields",
+                "children" => array($properties, $content),
                 "type" => $type
             )
         ));
