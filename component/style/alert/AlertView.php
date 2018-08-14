@@ -27,6 +27,15 @@ class AlertView extends BaseView
         parent::__construct($model);
     }
 
+    /* Private  Methods *******************************************************/
+
+    private function output_close_button()
+    {
+        $is_dismissable = $this->model->get_db_field("dismiss");
+        if($is_dismissable == false || $is_dismissable == "") return;
+        require __DIR__ . "/tpl_close_alert.php";
+    }
+
     /* Public Methods *********************************************************/
 
     /**
