@@ -165,17 +165,28 @@ class CmsView extends BaseView
      */
     private function add_page_property_list()
     {
+        $properties = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_page_properties.php",
+            "fields" => array(
+                "keyword_title" => "Page Key:",
+                "keyword" => $this->page_info['keyword'],
+                "url_title" => "Page url:",
+                "url" => $this->page_info['url']
+            ),
+        ));
         $type = ($this->model->get_mode() == "update") ? "warning" : "light";
-        $this->add_local_component("page-properties",
+        $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Page Properties",
-                "children" => array(new BaseStyleComponent("descriptionList",
-                     array(
+                "children" => array(
+                    $properties,
+                    new BaseStyleComponent("descriptionList", array(
                         "mode" => $this->model->get_mode(),
                         "fields" => $this->model->get_page_properties()
-                    ))),
+                    ))
+                ),
                 "type" => $type
             )
         ));
@@ -215,7 +226,7 @@ class CmsView extends BaseView
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
                 "is_collapsible" => false,
-                "title" => "Section Fields",
+                "title" => "Section Properties",
                 "children" => array($properties, $content),
                 "type" => $type
             )
@@ -305,32 +316,10 @@ class CmsView extends BaseView
     private function output_fields()
     {
         if($this->model->get_active_section_id())
-            require __DIR__ . "/tpl_fields.php";
-    }
-
-    /**
-     * Renders the description list components.
-     */
-    private function output_section_fields()
-    {
-        $this->output_local_component("section-fields");
-    }
-
-    /**
-     * Renders the page properties. Page properties only rendered of a page is
-     * active and the active page is not a navigation item.
-     */
-    private function output_page_properties()
-    {
-        require __DIR__ . "/tpl_page_properties.php";
-    }
-
-    /**
-     * Renders the page property items.
-     */
-    private function output_page_property_items()
-    {
-        $this->output_local_component("page-properties");
+            $component_name = "section-fields";
+        else
+            $component_name = "page-fields";
+        require __DIR__ . "/tpl_fields.php";
     }
 
     /**

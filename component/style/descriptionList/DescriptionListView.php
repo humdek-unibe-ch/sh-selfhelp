@@ -78,6 +78,14 @@ class DescriptionListView extends BaseView
                     require __DIR__ . "/tpl_field_hidden_order.php";
                     $this->output_style_list($content, true);
                 }
+                else if($type == "style-list-page")
+                {
+                    $relation = "page_children_order";
+                    $type = "text";
+                    require __DIR__ . "/tpl_field_hidden.php";
+                    require __DIR__ . "/tpl_field_hidden_order.php";
+                    $this->output_style_list($content, true);
+                }
             }
             else
             {
@@ -88,7 +96,7 @@ class DescriptionListView extends BaseView
                     $content = "<i>field is not set</i>";
                     require __DIR__. "/tpl_field.php";
                 }
-                else if($type == "style-list")
+                else if($type == "style-list" || $type == "style-list-page")
                     $this->output_style_list($content);
                 else
                     require __DIR__. "/tpl_field.php";

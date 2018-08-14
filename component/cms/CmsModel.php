@@ -559,7 +559,7 @@ class CmsModel extends BaseModel
         foreach($page_title as $content)
         {
             $fields[] = array(
-                "id" => 2,
+                "id" => 2, // label
                 "id_language" => intval($content['id']),
                 "name" => "title",
                 "locale" => $content['locale'],
@@ -567,24 +567,14 @@ class CmsModel extends BaseModel
                 "content" => $content['content']
             );
         }
-        $sql = "SELECT url, keyword, a.name as action FROM pages
-            LEFT JOIN actions AS a ON a.id = pages.id_actions
-            WHERE pages.id = :id";
-        $page_info = $this->db->query_db_first($sql,
-            array(":id" => $this->id_page));
-        $index = 0;
-        foreach($page_info as $name => $content)
-        {
-            $fields[] = array(
-                "name" => $name,
-                "content" => $content,
-                "id" => "property-" . $index,
-                "type" => "text",
-                "id_language" => 1,
-                "edit" => false
-            );
-            $index++;
-        }
+        $fields[] = array(
+            "id" => 12, // children
+            "id_language" => 1,
+            "name" => "sections",
+            "locale" => "",
+            "type" => "style-list-page",
+            "content" => $this->get_page_sections()
+        );
         return $fields;
     }
 
@@ -659,6 +649,22 @@ class CmsModel extends BaseModel
         return $res;
     }
 
+    private function update_page_children_order_db($id, $order)
+    {
+        if($order == "") return null;
+        $orders = explode(',', $order);
+        $children = $this->db->fetch_page_sections_by_id($id);
+        $res = true;
+        foreach($children as $index => $child)
+        {
+            $res &= $this->db->update_by_ids("pages_sections",
+                array("position" => $orders[$index]),
+                array("id_pages" => $id, "id_sections" => $child['id'])
+            );
+        }
+        return $res;
+    }
+
     /**
      * Update the database, given the field data from one field.
      *
@@ -678,6 +684,9 @@ class CmsModel extends BaseModel
         else if($relation == "section_children_order")
             return $this->update_section_children_order_db(
                 $this->get_active_section_id(), $content);
+        else if($relation == "page_children_order")
+            return $this->update_page_children_order_db(
+                $this->id_page, $content);
     }
 }
 ?>
