@@ -5,7 +5,7 @@ require_once __DIR__ . "/../../BaseView.php";
  * The view class of the template style component.
  * A template style supports the following fields:
  *  'path':     The path to the template to display.
- *  'fields':   The fields used in the template.
+ *  'items':    The fields used in the template.
  */
 class TemplateView extends BaseView
 {
@@ -29,7 +29,7 @@ class TemplateView extends BaseView
      */
     public function output_content()
     {
-        $fields = $this->model->get_db_field("fields");
+        $fields = $this->model->get_db_field("items");
         require $this->model->get_db_field("path");
     }
 }
