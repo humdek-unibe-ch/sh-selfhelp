@@ -1,18 +1,10 @@
-pre.db-fields
-{
-    white-space: pre-wrap;
-    padding-top: 3px;
-}
-
 .children-list
 {
-    padding-left: 1rem;
 }
 
 .children-list > li
 {
-    list-style: none;
-    padding: 0.2rem 0.4rem;
+    padding: 0.25rem 0.5rem;
 }
 
 .children-list.sortable > li
@@ -34,4 +26,10 @@ pre.db-fields
 {
     background-color: #d4edda;
     color: #155724;
+}
+
+.btn-new
+{
+    border-radius: 0;
+    padding: 0.25rem 0.5rem;
 }
