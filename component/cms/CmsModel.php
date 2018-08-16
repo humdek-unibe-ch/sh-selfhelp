@@ -14,6 +14,8 @@ class CmsModel extends BaseModel
     private $id_root_section;
     private $page_info;
     private $style_components;
+    private $page_sections;
+    private $all_accessible_sections;
 
     /* Constructors ***********************************************************/
 
@@ -42,6 +44,9 @@ class CmsModel extends BaseModel
         $this->id_section = $id_section;
         $this->id_root_section = $id_root_section;
         $this->page_info = $this->db->fetch_page_info_by_id($id_page);
+        $this->page_sections = $this->get_page_sections();
+        $this->all_accessible_sections = array();
+        $this->set_all_accessible_sections();
     }
 
     /* Private Methods ********************************************************/
@@ -235,10 +240,12 @@ class CmsModel extends BaseModel
      */
     private function fetch_section_field_independent($id_section, $id_field)
     {
-        $sql = "SELECT l.locale, l.id, sft.content
-            FROM sections_fields_translation AS sft
-            LEFT JOIN languages AS l ON l.id = sft.id_languages
-            WHERE sft.id_fields = :fid AND sft.id_sections = :sid";
+        $sql = "SELECT l.locale AS locale, l.id, sft.content
+            FROM languages AS l
+            LEFT JOIN sections_fields_translation AS sft
+            ON l.id = sft.id_languages AND sft.id_sections = :sid
+            AND sft.id_fields = :fid
+            WHERE l.locale = 'all'";
 
         return $this->db->query_db($sql,
             array(":sid" => $id_section, ":fid" => $id_field));
@@ -261,7 +268,8 @@ class CmsModel extends BaseModel
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
             LEFT JOIN fields AS f ON f.id = sf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE s.id = :id";
+            WHERE s.id = :id
+            ORDER BY ft.position";
         return $this->db->query_db($sql, array(":id" => $id));
     }
 
@@ -405,16 +413,20 @@ class CmsModel extends BaseModel
         $fields = $this->fetch_style_fields_by_section_id($id_section);
         foreach($fields as $field)
         {
+            $relation = "section_field";
             $id = intval($field['id']);
             if($field['display'] == '1')
                 $contents = $this->fetch_section_field_languages($id_section,
                     $id);
             else if($field['type'] == "style-list")
+            {
+                $relation = "section_children_order";
                 $contents = array(array(
                     "id" => $id,
                     "locale" => "",
                     "content" => $this->fetch_section_hierarchy($id_section),
                 ));
+            }
             else
                 $contents = $this->fetch_section_field_independent($id_section,
                     $id);
@@ -426,6 +438,7 @@ class CmsModel extends BaseModel
                     "name" => $field['name'],
                     "locale" => $content['locale'],
                     "type" => $field['type'],
+                    "relation" => $relation,
                     "content" => $content['content']
                 );
             }
@@ -470,16 +483,17 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch section data from the database and return a heirarchical array such
-     * that it can be passed to a list style.
+     * Fetch all sections associated to a page from the database and return a
+     * heirarchical array such that it can be passed to a list style.
      *
      * @retval array
-     *  A prepared hierarchical array of global section items such that it can
+     *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
      */
-    public function get_page_sections()
+    public function get_page_sections($id_page = null)
     {
-        $page_sections = $this->db->fetch_page_sections_by_id($this->id_page);
+        if($id_page == null) $id_page = $this->id_page;
+        $page_sections = $this->db->fetch_page_sections_by_id($id_page);
         $pages = $this->prepare_section_list($page_sections);
         if($this->is_navigation_item())
         {
@@ -488,7 +502,7 @@ class CmsModel extends BaseModel
                 array(":id" => $this->id_root_section));
             $pages[] = $this->add_item($this->id_root_section, $section['name'],
                 $this->fetch_section_hierarchy($this->id_root_section),
-                $this->get_item_url($this->id_page, $this->id_root_section,
+                $this->get_item_url($id_page, $this->id_root_section,
                     $this->id_root_section));
         }
         return $pages;
@@ -552,6 +566,22 @@ class CmsModel extends BaseModel
             return null;
     }
 
+    public function get_current_url_params()
+    {
+        $sid = $this->get_active_root_section_id();
+        $ssid = $this->get_active_section_id();
+        if($sid == null)
+        {
+            $sid = $ssid;
+            $ssid = null;
+        }
+        return array(
+            "pid" => $this->get_active_page_id(),
+            "sid" => $sid,
+            "ssid" => $ssid
+        );
+    }
+
     public function get_page_properties()
     {
         $fields = array();
@@ -563,7 +593,8 @@ class CmsModel extends BaseModel
                 "id_language" => intval($content['id']),
                 "name" => "title",
                 "locale" => $content['locale'],
-                "type" => "page-text",
+                "type" => "text",
+                "relation" => "page_field",
                 "content" => $content['content']
             );
         }
@@ -572,12 +603,70 @@ class CmsModel extends BaseModel
             "id_language" => 1,
             "name" => "sections",
             "locale" => "",
-            "type" => "style-list-page",
+            "type" => "style-list",
+            "relation" => "page_children_order",
             "content" => $this->get_page_sections()
         );
         return $fields;
     }
 
+    private function set_all_accessible_sections()
+    {
+        $sections = array();
+        $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
+            LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
+            LEFT JOIN pages_sections_navigation AS psn ON psn.id_sections = s.id
+            LEFT JOIN acl ON ps.id_pages = acl.id_pages OR psn.id_pages = acl.id_pages
+            WHERE acl.acl_select = 1 AND id_users = :uid";
+        $root_sections = $this->db->query_db($sql,
+            array(":uid" => $_SESSION['id_user']));
+        foreach($root_sections as $section)
+        {
+            $id = intval($section['id']);
+            $this->all_accessible_sections[$id] = $this->add_item(
+                array($id, intval($section['id_styles'])), $section['name'],
+                array(), "");
+            $this->set_section_children($id);
+        }
+        $name = array();
+        foreach($this->all_accessible_sections as $key => $row)
+            $name[$key] = $row['title'];
+        array_multisort($name, SORT_ASC, $this->all_accessible_sections);
+    }
+    private function set_section_children($id)
+    {
+        $children = $this->db->fetch_section_children($id);
+        foreach($children as $child)
+        {
+            $id_child = intval($child['id']);
+            $this->all_accessible_sections[$id_child] = $this->add_item(
+                array($id_child, intval($child['id_styles'])),
+                $child['name'], array(), "");
+            $this->set_section_children($id_child);
+        }
+    }
+
+    private function fetch_root_section($id_section)
+    {
+        $res = array();
+        $sql = "SELECT parent AS id FROM sections_hierarchy AS sh
+            WHERE sh.child = :id";
+        $parents = $this->db->query_db($sql, array(":id" => $id_section));
+        if(!$parents) return $id_section;
+        foreach($parents as $parent)
+            $this->fetch_root_section($parent['id']);
+    }
+
+    public function get_accessible_sections()
+    {
+        return $this->all_accessible_sections;
+    }
+
+    public function get_style_list()
+    {
+        $sql = "SELECT id, name FROM styles ORDER BY name";
+        return $this->db->query_db($sql);
+    }
 
     /**
      * Checks whether the current page is a main page of a navigation set.
@@ -590,6 +679,26 @@ class CmsModel extends BaseModel
     {
         return ($this->page_info['id_navigation_section'] != null
             && $this->id_root_section == null);
+    }
+
+    public function is_section_in_page($id_page, $id_section)
+    {
+        return $this->is_section_in_page_iteration(
+            $this->get_page_sections($id_page),
+            $id_section
+        );
+    }
+
+    public function is_section_in_page_iteration($sections, $id_section)
+    {
+        foreach($sections as $section)
+        {
+            if($this->is_section_in_page_iteration($section['children'],
+                    $id_section))
+                return true;
+            if($section['id'] == $id_section) return true;
+        }
+        return false;
     }
 
     /**
@@ -665,6 +774,64 @@ class CmsModel extends BaseModel
         return $res;
     }
 
+    public function insert_section($name, $id_style)
+    {
+        $res = true;
+        if(!$this->acl->has_access_update($_SESSION['id_user'],
+            $this->get_active_page_id())) return false;
+        $new_id = $this->db->insert("sections", array(
+            "name" => $name,
+            "id_styles" => $id_style
+        ));
+        if(!$new_id) return false;
+        $res &= $this->insert_section_link($new_id);
+        if($res) return $new_id;
+        else return false;
+    }
+
+    public function insert_section_link($id)
+    {
+        if(!$this->acl->has_access_update($_SESSION['id_user'],
+            $this->get_active_page_id())) return false;
+        if($this->get_active_section_id() == null)
+        {
+            $sections = $this->db->fetch_page_sections_by_id($this->id_page);
+            $last_position = $sections[count($sections)-1]['position'];
+            return $this->db->insert("pages_sections", array(
+                "id_pages" => $this->get_active_page_id(),
+                "id_sections" => $id,
+                "position" => intval($last_position) + 10
+            ));
+        }
+        else
+        {
+            $sections = $this->db->fetch_section_children(
+                $this->get_active_section_id());
+            $last_position = $sections[count($sections)-1]['position'];
+            return $this->db->insert("sections_hierarchy", array(
+                "parent" => $this->get_active_section_id(),
+                "child" => $id,
+                "position" => intval($last_position) + 10
+            ));
+        }
+    }
+
+    public function remove_section_association($id_section)
+    {
+        if(!$this->acl->has_access_insert($_SESSION['id_user'],
+            $this->get_active_page_id())) return false;
+        if($this->get_active_section_id() == null)
+            return $this->db->remove_by_ids("pages_sections", array(
+                "id_pages" => $this->id_page,
+                "id_sections" => $id_section
+            ));
+        else
+            return $this->db->remove_by_ids("sections_hierarchy", array(
+                "parent" => $this->get_active_section_id(),
+                "child" => $id_section
+            ));
+    }
+
     /**
      * Update the database, given the field data from one field.
      *
@@ -677,6 +844,8 @@ class CmsModel extends BaseModel
      */
     public function update_db($id, $id_language, $content, $relation)
     {
+        if(!$this->acl->has_access_update($_SESSION['id_user'],
+            $this->get_active_page_id())) return false;
         if($relation == "page_field")
             return $this->update_page_fields_db($id, $id_language, $content);
         else if($relation == "section_field")

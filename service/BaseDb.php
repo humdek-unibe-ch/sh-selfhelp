@@ -115,6 +115,39 @@ class BaseDb {
     }
 
     /**
+     * Remove all rows where the foreign key matches.
+     *
+     * @param string $table
+     *  The name of the db table.
+     * @param array $ids
+     *  An associative array of where conditions e.g WHERE $key = $value. The
+     *  conditions are concatenated with AND.
+     * @retval bool
+     *  True on success, false otherwise.
+     */
+    public function remove_by_ids($table, $ids) {
+        try {
+            $data = array();
+            $where_cond = "";
+            $first = true;
+            foreach($ids as $key => $value) {
+                $data[':' . $key] = $value;
+                if($first) $where_cond = "WHERE $key = :$key";
+                else $where_cond .= " AND $key = :$key";
+                $first = false;
+            }
+            $sql = "DELETE FROM $table $where_cond";
+            $stmt = $this->dbh->prepare($sql);
+            return $stmt->execute($data);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1)
+                echo "BaseDb::remove_by_ids: ".$e->getMessage();
+            return false;
+        }
+    }
+
+    /**
      * Set locale time name variable.
      *
      * @param string $locale
@@ -263,11 +296,14 @@ class BaseDb {
             }
             $columnStr = rtrim($columnStr, ", ");
             $valueStr = rtrim($valueStr, ", ");
-            $onDuplicate = "ON DUPLICATE KEY UPDATE ";
-            if(count($update_entries) == 0) $update_entries = $entries;
-            foreach($update_entries as $key => $value)
-                $onDuplicate .= $key . "=:" . $key .",";
-            $onDuplicate = rtrim($onDuplicate, ", ");
+            $onDuplicate = "";
+            if(count($update_entries) > 0)
+            {
+                $onDuplicate = "ON DUPLICATE KEY UPDATE ";
+                foreach($update_entries as $key => $value)
+                    $onDuplicate .= $key . "=:" . $key .",";
+                $onDuplicate = rtrim($onDuplicate, ", ");
+            }
             $sql = "INSERT INTO ".$table
                 ." (".$columnStr.") VALUES(".$valueStr.") ". $onDuplicate;
             $stmt = $this->dbh->prepare($sql);
@@ -349,7 +385,8 @@ class BaseDb {
             $insertStr = rtrim($insertStr, ", ");
             $sql = "UPDATE ".$table." SET ".$insertStr.$where_cond;
             $stmt = $this->dbh->prepare($sql);
-            return $stmt->execute($data);
+            if($stmt->execute($data))
+                return true;
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();

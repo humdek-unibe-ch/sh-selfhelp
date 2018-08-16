@@ -2,16 +2,19 @@
 {
     box-shadow: 0 0 5px #007bff;
 }
+
 .highlight-hover
 {
     box-shadow: 0 0 5px #28a745;
 }
+
 pre.db-fields
 {
     white-space: pre-wrap;
     padding-top: 3px;
 }
-.fields
+button.clear-search
 {
-
+    margin-top:-1.3em;
+    margin-right:0.3em;
 }

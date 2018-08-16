@@ -47,6 +47,17 @@ abstract class BaseView
     }
 
     /**
+     * Checks whether the children array is empty or not.
+     *
+     * @retval bool
+     *  True if there is at least one child, false otherwise.
+     */
+    protected function has_children()
+    {
+        return (count($this->children) > 0);
+    }
+
+    /**
      * Render the content of all children of this view instance.
      */
     protected function output_children()

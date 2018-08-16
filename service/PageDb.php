@@ -183,7 +183,8 @@ class PageDb extends BaseDb
      */
     public function fetch_page_sections($keyword)
     {
-        $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner
+        $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner,
+            ps.position
             FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
             LEFT JOIN sections AS s ON ps.id_sections = s.id
@@ -274,7 +275,7 @@ class PageDb extends BaseDb
      */
     public function fetch_section_children($id)
     {
-        $sql = "SELECT s.id, s.name, s.id_styles
+        $sql = "SELECT s.id, s.name, s.id_styles, sh.position
             FROM sections_hierarchy AS sh
             LEFT JOIN sections AS s ON s.id = sh.child
             WHERE sh.parent = :id

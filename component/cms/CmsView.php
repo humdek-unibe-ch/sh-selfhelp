@@ -31,9 +31,9 @@ class CmsView extends BaseView
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id());
 
-        $global_sections = $this->model->get_global_sections();
-        $this->add_list_component("global-section-list", "Global Sections",
-            $global_sections, "global_sections");
+        $global_sections = $this->model->get_accessible_sections();
+        $this->add_list_component("global-section-list", "Choose a Section",
+            $global_sections, "global-sections");
 
         $this->page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
@@ -50,17 +50,27 @@ class CmsView extends BaseView
         if($this->model->get_active_section_id())
             $this->add_section_field_list();
 
+        if($controller->has_insert_succeeded())
+        {
+            $msg = "Successfully added a new section.";
+            $this->add_alert_component("alert_insert_success", "success", $msg);
+        }
+        if($controller->has_insert_failed())
+        {
+            $msg = "Failed to add a new section";
+            $this->add_alert_component("alert_insert_failed", "danger", $msg);
+        }
         $success_count = $controller->get_update_success_count();
         if($success_count > 0)
         {
             $msg = "Successfully updated " . $success_count . " fields";
-            $this->add_alert_component("alert_success", "success", $msg);
+            $this->add_alert_component("alert_update_success", "success", $msg);
         }
         $fail_count = $controller->get_update_fail_count();
         if($fail_count > 0)
         {
             $msg = "Failed to update " . $fail_count . " fields";
-            $this->add_alert_component("alert_failed", "danger", $msg);
+            $this->add_alert_component("alert_update_failed", "danger", $msg);
         }
 
         $page_components = array();
@@ -84,8 +94,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
-                "is_expanded" => true,
-                "is_collapsible" => true,
+                "is_collapsible" => false,
                 "title" => "Page View",
                 "children" => $page_components
             ))
@@ -142,12 +151,10 @@ class CmsView extends BaseView
     {
         if(count($items) == 0) return;
         $content = new BaseStyleComponent("nestedList", array(
-            "search_text" => "Search",
             "items" => $items,
             "id_prefix" => $prefix,
             "is_expanded" => false,
-            "id_active" => $id_active,
-            "root_name" => "root element"
+            "id_active" => $id_active
         ));
         $this->add_local_component($name, new BaseStyleComponent("card",
             array(
@@ -159,34 +166,130 @@ class CmsView extends BaseView
         ));
     }
 
+    private function create_field_item($field)
+    {
+        $children = array();
+        if($field['content'] != null)
+        {
+            if($field['type'] == "style-list")
+                $children[] = new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => false,
+                    "items" => $field['content'],
+                ));
+            else
+                $children[] = new BaseStyleComponent("rawText", array(
+                    "text" => $field['content']
+                ));
+        }
+        return new BaseStyleComponent("descriptionItem", array(
+            "title" => $field['name'],
+            "locale" => $field['locale'],
+            "alt" => "field is not set",
+            "children" => $children
+        ));
+    }
+
+    private function create_field_form_item($field)
+    {
+        $children = array();
+        $field_name_prefix = $field['name'] . "[" . $field['id_language'] . "]";
+        $children[] = new BaseStyleComponent("input", array(
+            "text" => $field['id'],
+            "name" => $field_name_prefix . "[id]",
+            "type" => "hidden"
+        ));
+        $children[] = new BaseStyleComponent("input", array(
+            "text" => $field['type'],
+            "name" => $field_name_prefix . "[type]",
+            "type" => "hidden"
+        ));
+        $children[] = new BaseStyleComponent("input", array(
+            "text" => $field['relation'],
+            "name" => $field_name_prefix . "[relation]",
+            "type" => "hidden"
+        ));
+        $field_name_content = $field_name_prefix . "[content]";
+        if(in_array($field['type'],
+                array("text", "number", "checkbox", "markdown-inline")))
+            $children[] = new BaseStyleComponent("input", array(
+                "text" => $field['content'],
+                "name" => $field_name_content,
+                "type" => $field['type']
+            ));
+        else if(in_array($field['type'], array("textarea","markdown")))
+            $children[] = new BaseStyleComponent("textarea", array(
+                "text" => $field['content'],
+                "name" => $field_name_content,
+            ));
+        else if($field['type'] == "style-list")
+        {
+            $children[] = new BaseStyleComponent("input", array(
+                "text" => "",
+                "name" => $field_name_prefix . "[content]",
+                "type" => "hidden"
+            ));
+            $children[] = new BaseStyleComponent("sortableList", array(
+                "is_sortable" => true,
+                "items" => $field['content'],
+                "label" => "Add Section",
+                "id_target_insert" => "create-new-section",
+                "id_target_rm" => "remove-section-association"
+            ));
+        }
+        return new BaseStyleComponent("descriptionItem", array(
+            "title" => $field['name'],
+            "locale" => $field['locale'],
+            "children" => $children
+        ));
+    }
+    private function create_field_form($fields)
+    {
+        $form_items = array();
+        foreach($fields as $field)
+            $form_items[] = $this->create_field_form_item($field);
+
+        return new BaseStyleComponent("form", array(
+            "url" => $_SERVER['REQUEST_URI'],
+            "label" => "Submit Changes",
+            "type" => "dark",
+            "children" => $form_items
+        ));
+
+    }
+
     /**
      * Add the page property list to the local component list. The page property
      * list is wrapped by a collapsible card component.
      */
     private function add_page_property_list()
     {
-        $properties = new BaseStyleComponent("template", array(
+        $children = array();
+        $children[] = new BaseStyleComponent("template", array(
             "path" => __DIR__ . "/tpl_page_properties.php",
-            "fields" => array(
+            "items" => array(
                 "keyword_title" => "Page Key:",
                 "keyword" => $this->page_info['keyword'],
                 "url_title" => "Page url:",
                 "url" => $this->page_info['url']
             ),
         ));
-        $type = ($this->model->get_mode() == "update") ? "warning" : "light";
+        $fields = $this->model->get_page_properties();
+        if($this->model->get_mode() == "update")
+        {
+            $children[] = $this->create_field_form($fields);
+            $type = "warning";
+        }
+        else
+        {
+            foreach($fields as $field)
+                $children[] = $this->create_field_item($field);
+            $type = "light";
+        }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
-                "is_expanded" => true,
-                "is_collapsible" => true,
+                "is_collapsible" => false,
                 "title" => "Page Properties",
-                "children" => array(
-                    $properties,
-                    new BaseStyleComponent("descriptionList", array(
-                        "mode" => $this->model->get_mode(),
-                        "fields" => $this->model->get_page_properties()
-                    ))
-                ),
+                "children" => $children,
                 "type" => $type
             )
         ));
@@ -198,10 +301,11 @@ class CmsView extends BaseView
      */
     private function add_section_field_list()
     {
+        $children = array();
         $section_info = $this->model->get_section_info();
-        $properties = new BaseStyleComponent("template", array(
+        $children[] = new BaseStyleComponent("template", array(
             "path" => __DIR__ . "/tpl_section_properties.php",
-            "fields" => array(
+            "items" => array(
                 "section_name_title" => "Section Name:",
                 "section_name" => $section_info['name'],
                 "section_style_title" => "Section Style:",
@@ -210,24 +314,36 @@ class CmsView extends BaseView
         ));
         $type = ($this->model->get_mode() == "update") ? "warning" : "light";
         $fields = $this->model->get_section_fields();
-        if(count($fields) == 0)
+        $has_access = $this->model->is_section_in_page(
+            $this->model->get_active_page_id(),
+            $this->model->get_active_section_id()
+        );
+        if(count($fields) == 0 || !$has_access)
         {
-            $content = new BaseStyleComponent("plaintext", array(
-                "text" => "No section fields defined."
+            if(!$has_access)
+                $text = "Access to this section denied";
+            else
+                $text = "No section fields defined";
+            $children[] = new BaseStyleComponent("plaintext", array(
+                "text" => $text
             ));
+        }
+        else if($this->model->get_mode() == "update")
+        {
+            $children[] = $this->create_field_form($fields);
+            $type = "warning";
         }
         else
         {
-            $content = new BaseStyleComponent("descriptionList", array(
-                "mode" => $this->model->get_mode(),
-                "fields" => $fields
-            ));
+            foreach($fields as $field)
+                $children[] = $this->create_field_item($field);
+            $type = "light";
         }
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
                 "is_collapsible" => false,
                 "title" => "Section Properties",
-                "children" => array($properties, $content),
+                "children" => $children,
                 "type" => $type
             )
         ));
@@ -238,8 +354,10 @@ class CmsView extends BaseView
      */
     private function output_alerts()
     {
-        $this->output_local_component("alert_failed");
-        $this->output_local_component("alert_success");
+        $this->output_local_component("alert_insert_failed");
+        $this->output_local_component("alert_update_failed");
+        $this->output_local_component("alert_insert_success");
+        $this->output_local_component("alert_update_success");
     }
 
     /**
@@ -248,18 +366,7 @@ class CmsView extends BaseView
     private function output_controls()
     {
         if($this->model->get_active_page_id() == null) return;
-        $sid = $this->model->get_active_root_section_id();
-        $ssid = $this->model->get_active_section_id();
-        if($sid == null)
-        {
-            $sid = $ssid;
-            $ssid = null;
-        }
-        $params = array(
-            "pid" => $this->model->get_active_page_id(),
-            "sid" => $sid,
-            "ssid" => $ssid
-        );
+        $params = $this->model->get_current_url_params();
         require __DIR__ . "/tpl_controls.php";
     }
 
@@ -293,7 +400,6 @@ class CmsView extends BaseView
     {
         $this->output_local_component("page-list");
         $this->output_local_component("navigation-hierarchy-list");
-        $this->output_local_component("global-section-list");
         $this->output_local_component("page-section-list");
     }
 
@@ -320,6 +426,22 @@ class CmsView extends BaseView
         else
             $component_name = "page-fields";
         require __DIR__ . "/tpl_fields.php";
+    }
+
+    private function output_style_list()
+    {
+        $styles = $this->model->get_style_list();
+        foreach($styles as $style)
+        {
+            $value = intval($style['id']);
+            $name = $style['name'];
+            require __DIR__ . "/tpl_select_option.php";
+        }
+    }
+
+    private function output_section_search_list()
+    {
+        $this->output_local_component("global-section-list");
     }
 
     /**

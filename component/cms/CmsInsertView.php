@@ -28,12 +28,25 @@ class CmsInsertView extends BaseView
     private function output_title()
     {
         $page_info = $this->model->get_page_info();
+        $section_info = $this->model->get_section_info();
         $page = $page_info['keyword'];
         if($this->model->get_active_section_id() == null)
-            echo "Add a new section to the page '" . $page_info['keyword'] . "'";
+            echo "Add a new section to the page '" . $page_info['keyword'] . "'.";
         else
-            echo "Add new section to section of page";
+            echo "Add a new section to section '" . $section_info['name'] . "'"
+                . " on page '" . $page_info['keyword'] . "'.";
 
+    }
+
+    private function output_style_list()
+    {
+        $styles = $this->model->get_style_list();
+        foreach($styles as $style)
+        {
+            $value = $style['id'];
+            $name = $style['name'];
+            require __DIR__ . "/tpl_select_option.php";
+        }
     }
 
     /* Public Methods *********************************************************/
@@ -69,6 +82,8 @@ class CmsInsertView extends BaseView
      */
     public function output_content()
     {
+        $url = $this->model->get_link_url("cms_update",
+            $this->model->get_current_url_params());
         require __DIR__ . "/tpl_cms_insert.php";
     }
 }
