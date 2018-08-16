@@ -6,22 +6,35 @@
 {
     border:none;
 }
-button.clear-search {
+button.clear-search
+{
     margin-top:-1.3em;
     margin-right:0.3em;
 }
-.nested-list * a, .nested-list * span {
+.nested-list * a, .nested-list * span
+{
     margin-left: 1.6em;
     display: block;
     padding: 0.2em 0.4em;
 }
-.nested-list * .chevron {
+.nested-list * .chevron
+{
     width: 0.8em;
     display: inline-block;
     float: left;
     margin-top:0.5em;
     margin-left:0.4em;
 }
-.nested-list-item-name:hover {
+.nested-list-item-name:hover
+{
     text-decoration: none;
+}
+.nested-list-item-name.active
+{
+    background-color: #007bff;
+    color: white;
+}
+.nested-list-item-name.active:hover
+{
+    background-color: #0062cc;
 }

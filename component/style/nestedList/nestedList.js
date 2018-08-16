@@ -13,7 +13,7 @@ $(document).ready(function() {
     });
     $('.clear-search').on('click', function() {
         $(this).prev().val("");
-        var $list = $(this).parent().next().find('a');
+        var $list = $(this).parent().next().find('a,span');
         $list.each(function(index) {
             $(this).parent().show();
         });

@@ -80,7 +80,7 @@ class NestedListView extends BaseView
     {
         foreach($children as $index => $item)
         {
-            if($id_active == $item['id'])
+            if($id_active == $this->get_id($item['id']))
                 return true;
             if($this->is_child_active($item['children'], $id_active))
                 return true;
@@ -97,19 +97,19 @@ class NestedListView extends BaseView
     private function output_list_item($item)
     {
         if($item == null) return;
-        $children = $item['children'];
-        $id = $item['id'];
+        $children = isset($item['children']) ? $item['children'] : array();
+        $id = $this->get_id($item['id']);
         $id_html = $this->model->get_db_field("id_prefix") . "-" . $id;
 
         $is_expanded = $this->model->get_db_field("is_expanded");
         $id_active = $this->model->get_db_field("id_active");
 
-        $has_children = (count($item['children']) > 0);
+        $has_children = (count($children) > 0);
         $collapsible = $has_children ? "collapsible" : "";
         $active = "";
         if($id_active === $id)
         {
-            $active = "bg-primary text-white";
+            $active = "active";
             $is_expanded = true;
         }
         if($this->is_child_active($children, $id_active))
@@ -140,6 +140,13 @@ class NestedListView extends BaseView
         else
             require __DIR__ . "/tpl_name.php";
 
+    }
+
+    private function get_id($id)
+    {
+        if(is_array($id))
+            return implode("-", $id);
+        return $id;
     }
 
     /**
