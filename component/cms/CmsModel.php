@@ -269,7 +269,7 @@ class CmsModel extends BaseModel
             LEFT JOIN fields AS f ON f.id = sf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             WHERE s.id = :id
-            ORDER BY ft.position";
+            ORDER BY ft.position, f.display, f.name";
         return $this->db->query_db($sql, array(":id" => $id));
     }
 
