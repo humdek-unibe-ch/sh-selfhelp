@@ -49,6 +49,7 @@ class VideoView extends BaseView
         foreach($sources as $source)
         {
             $items = explode('#', $source);
+            if(count($items) <= 1) continue;
             $url = ASSET_PATH . $items[0];
             $type = $items[1];
             require __DIR__ . "/tpl_video_source.php";
