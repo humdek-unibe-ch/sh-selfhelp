@@ -8,6 +8,22 @@ class AlertView extends BaseView
 {
     /* Private Properties******************************************************/
 
+    /**
+     * DB field 'is_dismissable' (false).
+     * If set to true, the alert can be dismissed by clicking on a close button.
+     */
+    private $is_dismissable;
+
+    /**
+     * DB field 'type' ('primary').
+     * The style of the alert. E.g. 'warning', 'danger', etc.
+     */
+    private $type;
+
+    /**
+     * If set to true the jumbotron gets the bootstrap class "container-fluid",
+     * othetwise the class "container" is used.
+     */
     private $fluid;
 
     /* Constructors ***********************************************************/
@@ -25,14 +41,16 @@ class AlertView extends BaseView
     {
         $this->fluid = $fluid;
         parent::__construct($model);
+        $this->is_dismissable = $this->model->get_db_field("is_dismissable",
+            false);
+        $this->type = $this->model->get_db_field("type", "primary");
     }
 
     /* Private  Methods *******************************************************/
 
     private function output_close_button()
     {
-        $is_dismissable = $this->model->get_db_field("dismiss");
-        if($is_dismissable == false || $is_dismissable == "") return;
+        if(!$this->is_dismissable) return;
         require __DIR__ . "/tpl_close_alert.php";
     }
 
@@ -57,7 +75,7 @@ class AlertView extends BaseView
     public function output_content()
     {
         $fluid = ($this->fluid) ? "-fluid" : "";
-        $type = "alert-" . $this->model->get_db_field("type");
+        $type = "alert-" . $this->type;
         require __DIR__ . "/tpl_alert.php";
     }
 }

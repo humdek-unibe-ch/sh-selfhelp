@@ -122,7 +122,7 @@ class CmsView extends BaseView
                 "children" => array(
                     new BaseStyleComponent("plaintext", array("text" => $msg))
                 ),
-                "dismiss" => true
+                "is_dismissable" => true
             ),
             true
         ));
