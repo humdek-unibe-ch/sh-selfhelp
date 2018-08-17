@@ -6,6 +6,29 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class ButtonView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'label' (empty string).
+     * The label on the button. If this field is not set, the button is not
+     * rendered.
+     */
+    private $label;
+
+    /**
+     * DB field 'url' (empty string).
+     * The target url of the button. If this field is not set, the button is not
+     * rendered.
+     */
+    private $url;
+
+    /**
+     * DB field 'type' ('primary').
+     * The style of the button. E.g. 'warning', 'danger', etc.
+     */
+    private $type;
+
+
     /* Constructors ***********************************************************/
 
     /**
@@ -17,6 +40,9 @@ class ButtonView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->label = $this->model->get_db_field("label");
+        $this->url = $this->model->get_db_field("url");
+        $this->type = $this->model->get_db_field("type", "primary");
     }
 
     /* Public Methods *********************************************************/
@@ -26,9 +52,7 @@ class ButtonView extends BaseView
      */
     public function output_content()
     {
-        $label = $this->model->get_db_field("label");
-        $url = $this->model->get_db_field("url");
-        if($url == "") return;
+        if($this->url == "" || $this->label == "") return;
         require __DIR__ . "/tpl_button.php";
     }
 }

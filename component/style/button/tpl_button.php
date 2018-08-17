@@ -1,3 +1,3 @@
-<a href="<?php echo $url; ?>" class="btn btn-primary">
-    <?php echo $label; ?>
+<a href="<?php echo $this->url; ?>" class="btn btn-<?php echo $this->type; ?>">
+    <?php echo $this->label; ?>
 </a>
