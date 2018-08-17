@@ -26,22 +26,7 @@ class BaseStyleComponent extends BaseComponent
      * @param bool $fluid
      *  If set to true the jumbotron gets the bootstrap class "container-fluid",
      *  othetwise the class "container" is used. The default is false.
-     */
-    public function __construct($style, $fields, $fluid=false)
-    {
-        $this->model = new BaseStyleModel($fields);
-        $className = ucfirst($style) . "View";
-        if(class_exists($className))
-            $view = new $className($this->model, $fluid);
-        else
-            throw new Exception("unknown style '$style'");
-        parent::__construct($view);
-    }
-
-    /**
-     * Set the fields that are required by the component model.
-     *
-     * @param array $fields
+     * @param array $fields_full
      *  An array containing fields for the view to render to content. The
      *  required fields are dependent of the style. The array must contain key,
      *  value pairs where the key is the name of the field and the value an
@@ -50,9 +35,17 @@ class BaseStyleComponent extends BaseComponent
      *   'type':    the type of the field indication how to render the field.
      *   'id':      a unique numerical value, describing this field.
      */
-    public function set_fields_full($fields)
+    public function __construct($style, $fields, $fluid=false,
+        $fields_full=array())
     {
-        $this->model->set_fields_full($fields);
+        $this->model = new BaseStyleModel($fields);
+        $this->model->set_fields_full($fields_full);
+        $className = ucfirst($style) . "View";
+        if(class_exists($className))
+            $view = new $className($this->model, $fluid);
+        else
+            throw new Exception("unknown style '$style'");
+        parent::__construct($view);
     }
 }
 ?>
