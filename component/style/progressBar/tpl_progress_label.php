@@ -1,1 +1,1 @@
-<?php echo $count; ?>/<?php echo $count_max; ?>
+<?php echo $this->count; ?>/<?php echo $this->count_max; ?>
