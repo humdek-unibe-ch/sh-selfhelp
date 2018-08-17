@@ -98,7 +98,10 @@ class CmsController extends BaseController
             {
                 $type = $field['type'];
                 $id = intval($field['id']);
-                $content = $field['content'];
+                if($type == "checkbox")
+                    $content = isset($field['content']);
+                else
+                    $content = $field['content'];
                 $relation = $field['relation'];
                 if($type == "internal")
                 {
@@ -121,7 +124,7 @@ class CmsController extends BaseController
     {
         if(in_array($type, array("text", "textarea", "style-list")))
             return htmlspecialchars($content);
-        if(in_array($type, array("markdown", "markdown-inline")))
+        if(in_array($type, array("markdown", "markdown-inline", "checkbox")))
             return $content;
         if($type === "number")
             return intval($content);

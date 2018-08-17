@@ -818,7 +818,7 @@ class CmsModel extends BaseModel
     {
         $count = count($sections);
         if($count > 0)
-            return intval($sections[$count]['position']) + 10;
+            return intval($sections[$count-1]['position']) + 10;
         else
             return 0;
     }
