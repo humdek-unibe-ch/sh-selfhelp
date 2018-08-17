@@ -9,6 +9,30 @@ class SessionsView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * DB field 'title' (empty string).
+     * The title of the style.
+     */
+    private $title;
+
+    /**
+     * DB field 'text' (empty string).
+     * The text that is rendered in th ejumbotron below the title.
+     */
+    private $text;
+
+    /**
+     * DB field 'progress_label' (empty string).
+     * The label to the left of the progress bar.
+     */
+    private $progress_label;
+
+    /**
+     * DB field 'continue_label' (empty string).
+     * The label of the continue button.
+     */
+    private $continue_label;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,6 +44,11 @@ class SessionsView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->title = $this->model->get_db_field('title');
+        $this->text = $this->model->get_db_field('text_markdown');;
+        $this->progress_label = $this->model->get_db_field('progress_label');
+        $this->continue_label = $this->model->get_db_field('continue_label');
+
         $this->add_local_component("progress",
             new BaseStyleComponent("progressBar", array(
                 "count" => 0,
@@ -68,11 +97,7 @@ class SessionsView extends BaseView
      */
     public function output_content()
     {
-        $title = $this->model->get_db_field('title');
-        $text = $this->model->get_db_field('text_markdown');;
         $next_url = "#";
-        $progress_label = $this->model->get_db_field('progress_label');
-        $continue_label = $this->model->get_db_field('continue_label');
         require __DIR__ . "/tpl_sessions.php";
     }
 }
