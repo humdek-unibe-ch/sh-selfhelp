@@ -8,7 +8,7 @@ require_once __DIR__ . "/../../BaseView.php";
  *      The title of the card, displayed in a card-header. If this is not set
  *      or set to the empty string the card header is omitted.
  *  'is_expanded':
- *      If set to true and the card is collapsible, it is not collpsed by
+ *      If set to true and the card is collapsible, it is expanded by
  *      default. If set to false the card is collapsed by default.
  *  'is_collapsible':
  *      If set to true, the card is collapsible.
@@ -23,6 +23,8 @@ class CardView extends BaseView
     /* Private Properties *****************************************************/
 
     private $fluid;
+    private $is_collapsible;
+    private $is_expanded;
 
     /* Constructors ***********************************************************/
 
@@ -39,6 +41,10 @@ class CardView extends BaseView
     {
         $this->fluid = $fluid;
         parent::__construct($model);
+        $this->is_expanded = $this->model->get_db_field("is_expanded");
+        if($this->is_expanded == "") $this->is_expanded = true;
+        $this->is_collapsible = $this->model->get_db_field("is_collapsible");
+        if($this->is_collapsible == "") $this->is_collapsible = false;
     }
 
     /* Private Methods ********************************************************/
@@ -49,10 +55,10 @@ class CardView extends BaseView
      */
     private function output_card_header()
     {
-        $show = $this->model->get_db_field("is_expanded") ? "" : "collapsed";
+        $show = $this->is_expanded ? "" : "collapsed";
         $title = $this->model->get_db_field("title");
         if($title == "") return;
-        $collapsible = $this->model->get_db_field("is_collapsible") ? "collapsible" : "";
+        $collapsible = $this->is_collapsible ? "collapsible" : "";
         require __DIR__ . "/tpl_card_header.php";
     }
 
@@ -92,8 +98,8 @@ class CardView extends BaseView
         $type = $this->model->get_db_field("type");
         if($type == "") $type = "light";
         $fluid = ($this->fluid) ? "-fluid" : "";
-        $show = $this->model->get_db_field("is_expanded") ? "show" : "";
-        $collapse = $this->model->get_db_field("is_collapsible") ? "collapse" : "";
+        $show = $this->is_expanded ? "show" : "";
+        $collapse = $this->is_collapsible ? "collapse" : "";
         require __DIR__ . "/tpl_card.php";
     }
 }
