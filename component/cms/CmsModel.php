@@ -796,24 +796,31 @@ class CmsModel extends BaseModel
         if($this->get_active_section_id() == null)
         {
             $sections = $this->db->fetch_page_sections_by_id($this->id_page);
-            $last_position = $sections[count($sections)-1]['position'];
             return $this->db->insert("pages_sections", array(
                 "id_pages" => $this->get_active_page_id(),
                 "id_sections" => $id,
-                "position" => intval($last_position) + 10
+                "position" => $this->get_last_position($sections)
             ));
         }
         else
         {
             $sections = $this->db->fetch_section_children(
                 $this->get_active_section_id());
-            $last_position = $sections[count($sections)-1]['position'];
             return $this->db->insert("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id,
-                "position" => intval($last_position) + 10
+                "position" => $this->get_last_position($sections)
             ));
         }
+    }
+
+    private function get_last_position($sections)
+    {
+        $count = count($sections);
+        if($count > 0)
+            return intval($sections[$count]['position']) + 10;
+        else
+            return 0;
     }
 
     public function remove_section_association($id_section)
