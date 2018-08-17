@@ -7,6 +7,39 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/service/Parsedown.php";
  */
 class FigureView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'title' (empty string).
+     * The title of the figure. This is displayed when hovering over the figure.
+     */
+    private $title;
+
+    /**
+     * DB field 'source' (empty string).
+     * The file name of the figure. If left empty, the figure is not rendered.
+     */
+    private $source;
+
+    /**
+     * DB field 'alt' (empty string).
+     * The string to be displayed if the file is not found.
+     */
+    private $alt;
+
+    /**
+     * DB field 'caption' (empty string).
+     * The caption to be placed below the figure. If not set, the caption will
+     * not be rendered.
+     */
+    private $caption;
+
+    /**
+     * DB style field 'caption_title' (empty string).
+     * The title of the caption.
+     */
+    private $caption_title;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -18,6 +51,11 @@ class FigureView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->title = $this->model->get_db_field("title");
+        $this->source = $this->model->get_db_field("source");
+        $this->alt = $this->model->get_db_field("alt");
+        $this->caption = $this->model->get_db_field("caption");
+        $this->caption_title = $this->model->get_db_field("caption_title");
     }
 
     /* Private Methods ********************************************************/
@@ -27,9 +65,7 @@ class FigureView extends BaseView
      */
     private function output_caption()
     {
-        $caption = $this->model->get_db_field("caption");
-        if($caption == "") return;
-        $caption_title = $this->model->get_db_field("caption_title");
+        if($this->caption == "") return;
         require __DIR__ . "/tpl_caption.php";
     }
 
@@ -40,9 +76,8 @@ class FigureView extends BaseView
      */
     public function output_content()
     {
-        $title = $this->model->get_db_field("title");
-        $url = ASSET_PATH . $this->model->get_db_field("source");
-        $alt = $this->model->get_db_field("alt");
+        if($this->source == "") return;
+        $url = ASSET_PATH . $this->source;
         require __DIR__ . "/tpl_figure.php";
     }
 }

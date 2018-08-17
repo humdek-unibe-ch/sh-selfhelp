@@ -1,3 +1,3 @@
 <figcaption class="figure-caption">
-    <strong><?php echo $caption_title; ?>:</strong> <?php echo $caption; ?>
+    <strong><?php echo $this->caption_title; ?>:</strong> <?php echo $this->caption; ?>
 </figcaption>
