@@ -4,17 +4,17 @@ require_once __DIR__ . "/../../BaseView.php";
 /**
  * The view class of the card style component.
  * A card style supports the following fields:
- *  'title':
+ *  'title' (no header):
  *      The title of the card, displayed in a card-header. If this is not set
  *      or set to the empty string the card header is omitted.
- *  'is_expanded':
+ *  'children' (empty array):
+ *      A list of style components to be displayed in the card body.
+ *  'is_expanded' (true):
  *      If set to true and the card is collapsible, it is expanded by
  *      default. If set to false the card is collapsed by default.
- *  'is_collapsible':
+ *  'is_collapsible' (false):
  *      If set to true, the card is collapsible.
- *  'content':
- *      A list of style components to be displayed in the card body.
- *  'type':
+ *  'type' ('light'):
  *      The style of the card. E.g. 'warning', 'danger', etc., The default is
  *      'light'.
  */
@@ -41,10 +41,9 @@ class CardView extends BaseView
     {
         $this->fluid = $fluid;
         parent::__construct($model);
-        $this->is_expanded = $this->model->get_db_field("is_expanded");
-        if($this->is_expanded == "") $this->is_expanded = true;
-        $this->is_collapsible = $this->model->get_db_field("is_collapsible");
-        if($this->is_collapsible == "") $this->is_collapsible = false;
+        $this->is_expanded = $this->model->get_db_field("is_expanded", true);
+        $this->is_collapsible = $this->model->get_db_field("is_collapsible",
+            false);
     }
 
     /* Private Methods ********************************************************/
@@ -95,8 +94,7 @@ class CardView extends BaseView
      */
     public function output_content()
     {
-        $type = $this->model->get_db_field("type");
-        if($type == "") $type = "light";
+        $type = $this->model->get_db_field("type", "light");
         $fluid = ($this->fluid) ? "-fluid" : "";
         $show = $this->is_expanded ? "show" : "";
         $collapse = $this->is_collapsible ? "collapse" : "";
