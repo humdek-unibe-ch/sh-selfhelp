@@ -4,14 +4,26 @@ require_once __DIR__ . "/../../BaseView.php";
 /**
  * The view class of the select form style component. This component renders a
  * select form field.
- * The following fields are required:
- *  'items': A list of options. where each element has the following keys
- *      'value': The id of the option item.
- *      'text': The content of the option item.
- *  'name': The name of the select field.
  */
 class SelectView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'name' (empty string).
+     * The name of the form selection. If this is not set, the component will
+     * not be rendered.
+     */
+    private $name;
+
+    /**
+     * DB field 'items' (empty array).
+     * A list of options. where each element has the following keys
+     *  'value':    The id of the option item.
+     *  'text':     The content of the option item.
+     */
+    private $items;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -23,13 +35,18 @@ class SelectView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->items = $this->model->get_db_field("items", array());
+        $this->name = $this->model->get_db_field("name");
     }
 
     /* Private Methods ********************************************************/
 
-    private function output_fields($fields)
+    /**
+     * Render a select option.
+     */
+    private function output_fields()
     {
-        foreach($fields as $field)
+        foreach($this->items as $field)
         {
             $value = $field['value'];
             $text = $field['text'];
@@ -44,8 +61,7 @@ class SelectView extends BaseView
      */
     public function output_content()
     {
-        $fields = $this->model->get_db_field("items");
-        $name = $this->model->get_db_field("name");
+        if($this->name == "") return;
         require __DIR__ . "/tpl_select.php";
     }
 }
