@@ -9,9 +9,23 @@ class SessionView extends BaseView
 {
     /* Private Properties *****************************************************/
 
-    private $nav;
-    private $button;
-    private $css_includes;
+    /**
+     * DB field 'title' (empty string).
+     * The title of the session.
+     */
+    private $title;
+
+    /**
+     * DB style field 'next'.
+     * The label of the navigation button to go to the next item.
+     */
+    private $label_next;
+
+    /**
+     * DB style field 'back'.
+     * The label of the navigation button to go to the pervious item.
+     */
+    private $label_back;
 
     /* Constructors ***********************************************************/
 
@@ -24,14 +38,14 @@ class SessionView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->add_button_component("button_next",
-            $this->model->get_db_field("next"),
-            $this->get_button_url($model->get_next_nav_id())
-        );
-        $this->add_button_component("button_back",
-            $this->model->get_db_field("back"),
-            $this->get_button_url($model->get_previous_nav_id())
-        );
+        $this->title = $this->model->get_db_field("title");
+        $this->label_next = $this->model->get_db_field("next");
+        $this->label_back = $this->model->get_db_field("back");
+
+        $this->add_button_component("button_next", $this->label_next,
+            $this->get_button_url($model->get_next_nav_id()));
+        $this->add_button_component("button_back", $this->label_back,
+            $this->get_button_url($model->get_previous_nav_id()));
         $this->add_local_component("nav-section",
             new BaseStyleComponent("accordionList", array(
                 "items" => $this->model->get_navigation_items(),
@@ -97,6 +111,14 @@ class SessionView extends BaseView
         $this->output_local_component($name);
     }
 
+    /**
+     * Render the session component.
+     */
+    private function output_session()
+    {
+        require __DIR__ . "/tpl_session.php";
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -106,11 +128,10 @@ class SessionView extends BaseView
     {
         $button_next = "button_next";
         $button_back = "button_back";
-        $title = $this->model->get_db_field("title");
         if($this->model->has_navigation())
-            require __DIR__ . "/tpl_session.php";
+            require __DIR__ . "/tpl_session_nav.php";
         else
-            require __DIR__ . "/tpl_session_no_nav.php";
+            $this->output_session();
     }
 }
 ?>
