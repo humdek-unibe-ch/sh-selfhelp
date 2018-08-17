@@ -53,6 +53,9 @@ class InputView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render an input form field
+     */
     private function output_input()
     {
         $css_input = "form-control";
