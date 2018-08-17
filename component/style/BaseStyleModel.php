@@ -63,15 +63,17 @@ class BaseStyleModel implements IStyleModel
      *
      * @param string $key
      *  A database field name.
+     * @param mixed $default
+     *  The default field value to be returned if the field is not set.
      *
      * @retval string
      *  The content of the field specified by the key. An empty string if the
      *  key does not exist.
      */
-    public function get_db_field($key)
+    public function get_db_field($key, $default="")
     {
         $field = $this->get_db_field_full($key);
-        if($field == "") return "";
+        if($field == "") return $default;
         return $field['content'];
     }
 
