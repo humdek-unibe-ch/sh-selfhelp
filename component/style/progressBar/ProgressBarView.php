@@ -2,7 +2,16 @@
 require_once __DIR__ . "/../../BaseView.php";
 
 /**
- * The view class of the alert style component.
+ * The view class of the progress bar style component.
+ * A progress bar style supports the following fields:
+ *  'count' (0):
+ *      The current state of the progress bar. $count : $count_max defines the
+ *      percentage at which the progress bar stands.
+ *  'count_max' (1):
+ *      Corresponds to 100% of the progress bar value.
+ *  'type' ('primary'):
+ *      The style of the progress bar. E.g. 'warning', 'danger', etc.,
+ *      The default is 'primary'.
  */
 class ProgressBarView extends BaseView
 {
@@ -42,11 +51,10 @@ class ProgressBarView extends BaseView
      */
     public function output_content()
     {
-        $count = 0;
-        $count = $this->model->get_db_field('count');
-        $count_max = $this->model->get_db_field('count_max');
+        $count = $this->model->get_db_field('count', 0);
+        $count_max = $this->model->get_db_field('count_max', 1);
         $progress = round($count / $count_max * 100);
-        $type = "bg-" . $this->model->get_db_field("type");
+        $type = "bg-" . $this->model->get_db_field("type", "primary");
         require __DIR__ . "/tpl_progress.php";
     }
 }
