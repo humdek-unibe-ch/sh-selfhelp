@@ -10,7 +10,7 @@ class QuizView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'quiz_title' (0).
+     * DB field 'quiz_title' (empty string).
      * The question that can be answered with right or wrong.
      */
     private $title;
@@ -34,13 +34,13 @@ class QuizView extends BaseView
     private $wrong_label;
 
     /**
-     * DB field 'right_content'.
+     * DB field 'right_content' (empty string).
      * The text that is dispayed when clicking on the button 'right'.
      */
     private $right_content;
 
     /**
-     * DB field 'wrong_contnet'.
+     * DB field 'wrong_contnet' (empty string).
      * The text that is dispayed when clicking on the button 'wrong'.
      */
     private $wrong_content;

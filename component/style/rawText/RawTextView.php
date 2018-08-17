@@ -4,11 +4,17 @@ require_once __DIR__ . "/../../BaseView.php";
 /**
  * The view class of the raw text style component. This component renders text
  * into a pre and code tag.
- * The following keys are required:
- * 'text': The contnet of to be rendered.
  */
 class RawTextView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'text' (empty string).
+     * The text to be rendered.
+     */
+    private $text;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,6 +26,7 @@ class RawTextView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->text = $this->model->get_db_field("text");
     }
 
     /* Private Methods ********************************************************/
@@ -44,7 +51,6 @@ class RawTextView extends BaseView
      */
     public function output_content()
     {
-        $content = $this->model->get_db_field("text");
         require __DIR__ . "/tpl_raw_text.php";
     }
 }
