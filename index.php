@@ -9,6 +9,19 @@ require_once "./page/ComponentPage.php";
 require_once "./page/CmsPage.php";
 require_once "./ajax/AjaxRequest.php";
 
+/**
+ * Helper function to show stacktrace also of wranings.
+ */
+function exception_error_handler($severity, $message, $file, $line) {
+    if (!(error_reporting() & $severity)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+    throw new ErrorException($message, 0, $severity, $file, $line);
+}
+// only activate in debug mode
+if(DEBUG == 1) set_error_handler("exception_error_handler");
+
 $router = new Router();
 $router->setBasePath(BASE_PATH);
 
