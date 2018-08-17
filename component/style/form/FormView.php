@@ -1,17 +1,34 @@
 <?php
 require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the form style component. This component renders a html
  * form.
- * The following fields are required:
- *  'url': The action url.
- *  'label': The label of the submit button.
- *  'type': The type of the submit button, e.g. 'primary', 'success', etc.
- *  'children': The form children to be rendered inside the body.
  */
 class FormView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'url' (empty string).
+     * The achtion url of the form. If this is not set, the form will not be
+     * rendered.
+     */
+    private $url;
+
+    /**
+     * DB field 'type' ('primary').
+     * The type of the submit button, e.g. 'primary', 'success', etc.
+     */
+    private $type;
+
+    /**
+     * DB field 'label' ('Submit').
+     * The label of the submit button.
+     */
+    private $label;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -23,6 +40,9 @@ class FormView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->url = $this->model->get_db_field("url");
+        $this->type = $this->model->get_db_field("type", "primary");
+        $this->label = $this->model->get_db_field("label", "Submit");
     }
 
     /* Public Methods *********************************************************/
@@ -32,9 +52,7 @@ class FormView extends BaseView
      */
     public function output_content()
     {
-        $url = $this->model->get_db_field("url");
-        $type = $this->model->get_db_field("type");
-        $label = $this->model->get_db_field("label");
+        if($this->url == "") return;
         require __DIR__ . "/tpl_form.php";
     }
 }
