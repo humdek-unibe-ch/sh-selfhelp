@@ -9,7 +9,54 @@ class LoginView extends BaseView
 {
     /* Private Properties******************************************************/
 
-    private $alert;
+    /**
+     * DB field 'alert_fail' (empty string).
+     * The alert string when the login fails.
+     */
+    private $alert_fail;
+
+    /**
+     * DB field 'user_label' (empty string).
+     * The placeholder of the user-name field.
+     */
+    private $user_label;
+
+    /**
+     * DB field 'pw_label' (empty string).
+     * The placeholder of the password field.
+     */
+    private $pw_label;
+
+    /**
+     * DB field 'login_label' (empty string).
+     * The label of the login button.
+     */
+    private $login_label;
+
+    /**
+     * DB field 'reset_label' (empty string).
+     * The label of the password reset link.
+     */
+    private $reset_label;
+
+    /**
+     * DB field 'login_title' (empty string).
+     * The title of the card with the login form fields.
+     */
+    private $login_title;
+
+    /**
+     * DB field 'intro_title' (empty string).
+     * The title of the introduction.
+     */
+    private $intro_title;
+
+    /**
+     * DB field 'intro_content' (empty string).
+     * The content of the introduction.
+     */
+    private $intro_content;
+
 
     /* Constructors ***********************************************************/
 
@@ -24,15 +71,22 @@ class LoginView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $alert_content = new BaseStyleComponent("plaintext",
-            array("text" => $this->model->get_db_field('alert_fail')));
-        $this->add_local_component("alert",
-            $this->alert = new BaseStyleComponent("alert",
+        $this->alert_fail = $this->model->get_db_field('alert_fail');
+        $this->user_label = $this->model->get_db_field('user_label');
+        $this->pw_label = $this->model->get_db_field('pw_label');
+        $this->login_label = $this->model->get_db_field('login_action_label');
+        $this->reset_label = $this->model->get_db_field('reset_pw_action_label');
+        $this->login_title = $this->model->get_db_field('login_title');
+        $this->intro_title = $this->model->get_db_field('intro_title');
+        $this->intro_content = $this->model->get_db_field('intro_text');
+
+        $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(
-                "children" => array($alert_content),
+                "children" => array(new BaseStyleComponent("plaintext", array(
+                        "text" => $this->alert_fail))),
                 "type" => "danger"
-            ))
-        );
+            )
+        ));
     }
 
     /* Private Methods ********************************************************/
@@ -67,13 +121,6 @@ class LoginView extends BaseView
     public function output_content()
     {
         $url = $this->model->get_link_url('login');
-        $user_label = $this->model->get_db_field('user_label');
-        $pw_label = $this->model->get_db_field('pw_label');
-        $login_label = $this->model->get_db_field('login_action_label');
-        $reset_label = $this->model->get_db_field('reset_pw_action_label');
-        $login_title = $this->model->get_db_field('login_title');
-        $intro_title = $this->model->get_db_field('intro_title');
-        $intro_content = $this->model->get_db_field('intro_text');
         require __DIR__ . "/tpl_login.php";
     }
 }
