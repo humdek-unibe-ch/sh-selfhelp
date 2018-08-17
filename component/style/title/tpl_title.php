@@ -1,3 +1,3 @@
-<h<?php echo $level; ?>>
-    <?php echo $text; ?>
-</h<?php echo $level; ?>>
+<h<?php echo $this->level; ?>>
+    <?php echo $this->title; ?>
+</h<?php echo $this->level; ?>>
