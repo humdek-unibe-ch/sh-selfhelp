@@ -78,6 +78,7 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function get_url($url)
     {
+        if($url == "") return $url;
         if($url == "#back")
         {
             if(isset($_SERVER['HTTP_REFERER'])

@@ -6,6 +6,22 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class LinkView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'url' (empty string).
+     * The target of the link. If the url is not set, the link will not be
+     * rendered.
+     */
+    private $url;
+
+    /**
+     * DB field 'label' (empty string).
+     * The name that will be displayed. If the name is not set, the url is used
+     * as name.
+     */
+    private $label;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -17,6 +33,8 @@ class LinkView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->label = $this->model->get_db_field("label");
+        $this->url = $this->model->get_db_field("url");
     }
 
     /* Public Methods *********************************************************/
@@ -26,8 +44,8 @@ class LinkView extends BaseView
      */
     public function output_content()
     {
-        $label = $this->model->get_db_field("label");
-        $url = $this->model->get_db_field("url");
+        if($this->url == "") return;
+        if($this->label == "") $this->label = htmlspecialchars($this->url);
         require __DIR__ . "/tpl_link.php";
     }
 }

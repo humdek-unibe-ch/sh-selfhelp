@@ -6,7 +6,10 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class JumbotronView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
     private $fluid;
+
     /* Constructors ***********************************************************/
 
     /**

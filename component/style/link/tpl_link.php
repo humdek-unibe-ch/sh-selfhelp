@@ -1,3 +1,3 @@
-<a href="<?php echo $url; ?>">
-    <?php echo $label; ?>
+<a href="<?php echo $this->url; ?>">
+    <?php echo $this->label; ?>
 </a>
