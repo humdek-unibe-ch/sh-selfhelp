@@ -1,3 +1,3 @@
 <div class="card-header <?php echo $collapsible; ?> <?php echo $show; ?>">
-    <?php echo $title; ?>
+    <?php echo $this->title; ?>
 </div>

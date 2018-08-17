@@ -3,28 +3,42 @@ require_once __DIR__ . "/../../BaseView.php";
 
 /**
  * The view class of the card style component.
- * A card style supports the following fields:
- *  'title' (no header):
- *      The title of the card, displayed in a card-header. If this is not set
- *      or set to the empty string the card header is omitted.
- *  'children' (empty array):
- *      A list of style components to be displayed in the card body.
- *  'is_expanded' (true):
- *      If set to true and the card is collapsible, it is expanded by
- *      default. If set to false the card is collapsed by default.
- *  'is_collapsible' (false):
- *      If set to true, the card is collapsible.
- *  'type' ('light'):
- *      The style of the card. E.g. 'warning', 'danger', etc., The default is
- *      'light'.
  */
 class CardView extends BaseView
 {
     /* Private Properties *****************************************************/
 
-    private $fluid;
+    /**
+     * DB field 'title' (emty string).
+     * The title of the card, displayed in a card-header. If this is not set or
+     * set to the empty string the card header is omitted.
+     */
+    private $title;
+
+    /**
+     * DB field 'is_collapsible' (false).
+     * If set to true, the card is collapsible.
+     */
     private $is_collapsible;
+
+    /**
+     * DB field 'is_expanded' (true).
+     * If set to true and the card is collapsible, it is expanded by default.
+     * If set to false the card is collapsed by default.
+     */
     private $is_expanded;
+
+    /**
+     * DB field 'type' ('light').
+     * The style of the card. E.g. 'warning', 'danger', etc.
+     */
+    private $type;
+
+    /**
+     * If set to true the card gets the bootstrap class "container-fluid",
+     * otherwise the class "container" is used.
+     */
+    private $fluid;
 
     /* Constructors ***********************************************************/
 
@@ -39,11 +53,13 @@ class CardView extends BaseView
      */
     public function __construct($model, $fluid)
     {
-        $this->fluid = $fluid;
         parent::__construct($model);
+        $this->fluid = $fluid;
         $this->is_expanded = $this->model->get_db_field("is_expanded", true);
         $this->is_collapsible = $this->model->get_db_field("is_collapsible",
             false);
+        $this->title = $this->model->get_db_field("title");
+        $this->type = $this->model->get_db_field("type", "light");
     }
 
     /* Private Methods ********************************************************/
@@ -55,8 +71,7 @@ class CardView extends BaseView
     private function output_card_header()
     {
         $show = $this->is_expanded ? "" : "collapsed";
-        $title = $this->model->get_db_field("title");
-        if($title == "") return;
+        if($this->title == "") return;
         $collapsible = $this->is_collapsible ? "collapsible" : "";
         require __DIR__ . "/tpl_card_header.php";
     }
@@ -94,7 +109,6 @@ class CardView extends BaseView
      */
     public function output_content()
     {
-        $type = $this->model->get_db_field("type", "light");
         $fluid = ($this->fluid) ? "-fluid" : "";
         $show = $this->is_expanded ? "show" : "";
         $collapse = $this->is_collapsible ? "collapse" : "";
