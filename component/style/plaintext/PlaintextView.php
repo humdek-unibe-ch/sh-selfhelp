@@ -9,6 +9,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Parsedown.php";
  */
 class PlaintextView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'text' (empty string).
+     * The text to be rendered.
+     */
+    private $text;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,6 +28,7 @@ class PlaintextView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->text = $this->model->get_db_field('text');
     }
 
     /* Public Methods *********************************************************/
@@ -29,7 +38,7 @@ class PlaintextView extends BaseView
      */
     public function output_content()
     {
-        echo htmlspecialchars($this->model->get_db_field('text'));
+        echo htmlspecialchars($this->text);
     }
 }
 ?>
