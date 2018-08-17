@@ -6,7 +6,7 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class ProgressBarView extends BaseView
 {
-    /* Private Properties******************************************************/
+    /* Private Properties *****************************************************/
 
     /**
      * DB field 'count' (0).
