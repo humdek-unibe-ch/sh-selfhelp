@@ -3,34 +3,47 @@ require_once __DIR__ . "/../../BaseView.php";
 
 /**
  * The view class of the nested list style component.
- * This style requires the following fields:
- *  'id_active':
- *   the active id of the list (to be marked as active).
- *  'id_prefix':
- *   an id prefix that is used if multiple lists are used on the same page.
- *  'is_expanded':
- *   defines whether the items are expanded by default.
- *  'items':
- *   a hierarchical array holding the list items
- *  'search_text':
- *   the default text displayed in the search field.
- *
- * An item in the items list must have the following keys:
- *  'id':
- *   the item id
- *  'title':
- *   the title of the item
- *  'children':
- *   the children of this item
- *  'url':
- *   the target url
  */
 class NestedListView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * DB field 'is_expanded' (false).
+     * If set to true the list is expanded by default.
+     * If set to false the list is collapsed by default.
+     */
     private $is_expanded;
+
+    /**
+     * DB field 'id_active' (0).
+     * The active id of the list (to be marked as active).
+     */
     private $id_active;
+
+    /**
+     * DB field 'id_prefix' (empty string).
+     * An id prefix that is used if multiple lists are used on the same page.
+     */
+    private $id_prefix;
+
+    /**
+     * DB field 'search_text' (empty string).
+     * The default text displayed in the search field. If not set, the search
+     * form element will not be rendered.
+     */
+    private $search_text;
+
+    /**
+     * DB field 'items' (empty array).
+     * A hierarchical array holding the list items
+     * An item in the items list must have the following keys:
+     *  'id':       The item id.
+     *  'title':    The title of the item.
+     *  'children': The children of this item.
+     *  'url':      The target url.
+     */
+    private $items;
 
     /* Constructors ***********************************************************/
 
@@ -43,8 +56,11 @@ class NestedListView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->id_active = 0;
-        $this->is_expanded = false;
+        $this->id_active = $this->model->get_db_field("id_active", 0);
+        $this->is_expanded = $this->model->get_db_field("is_expanded", false);
+        $this->id_prefix = $this->model->get_db_field("id_prefix");
+        $this->search_text = $this->model->get_db_field("search_text");
+        $this->items = $this->model->get_db_field("items", array());
     }
 
     /* Private Methods ********************************************************/
@@ -99,20 +115,18 @@ class NestedListView extends BaseView
         if($item == null) return;
         $children = isset($item['children']) ? $item['children'] : array();
         $id = $this->get_id($item['id']);
-        $id_html = $this->model->get_db_field("id_prefix") . "-" . $id;
-
-        $is_expanded = $this->model->get_db_field("is_expanded");
-        $id_active = $this->model->get_db_field("id_active");
+        $id_html = $this->id_prefix . "-" . $id;
 
         $has_children = (count($children) > 0);
         $collapsible = $has_children ? "collapsible" : "";
         $active = "";
-        if($id_active === $id)
+        $is_expanded = $this->is_expanded;
+        if($this->id_active === $id)
         {
             $active = "active";
             $is_expanded = true;
         }
-        if($this->is_child_active($children, $id_active))
+        if($this->is_child_active($children, $this->id_active))
             $is_expanded = true;
         require __DIR__ . "/tpl_list_item.php";
     }
@@ -142,6 +156,14 @@ class NestedListView extends BaseView
 
     }
 
+    /**
+     * Get the stringified id of a list item.
+     *
+     * @param mixed $id
+     *  The id of an item.
+     * @retval string
+     *  The stringified id of the item.
+     */
     private function get_id($id)
     {
         if(is_array($id))
@@ -174,6 +196,15 @@ class NestedListView extends BaseView
         if(count($items) == 0) return;
         $show = ($is_expanded) ? "show" : "";
         require __DIR__ . "/tpl_children_container.php";
+    }
+
+    /**
+     * Render the search form at the top of the list.
+     */
+    private function output_search_from()
+    {
+        if($this->search_text == "") return;
+        require __DIR__ . "/tpl_search_form.php";
     }
 
     /* Public Methods *********************************************************/
@@ -209,8 +240,6 @@ class NestedListView extends BaseView
      */
     public function output_content()
     {
-        $items = $this->model->get_db_field("items");
-        $search_text = $this->model->get_db_field("search_text");
         require __DIR__ . "/tpl_list.php";
     }
 }

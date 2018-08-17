@@ -33,7 +33,7 @@ class CmsView extends BaseView
 
         $global_sections = $this->model->get_accessible_sections();
         $this->add_list_component("global-section-list", "Choose a Section",
-            $global_sections, "global-sections");
+            $global_sections, "global-sections", false, 0, "Search");
 
         $this->page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
@@ -145,16 +145,19 @@ class CmsView extends BaseView
      *  Indicates wheter the card style is expanded or not.
      * @param int $id_active
      *  The id of the currently active item.
+     * @param string $search_text
+     *  The placeholder  text to be displayed in the search form.
      */
     private function add_list_component($name, $title, $items, $prefix,
-        $is_expanded_root = false, $id_active = 0)
+        $is_expanded_root = false, $id_active = 0, $search_text = "")
     {
         if(count($items) == 0) return;
         $content = new BaseStyleComponent("nestedList", array(
             "items" => $items,
             "id_prefix" => $prefix,
             "is_expanded" => false,
-            "id_active" => $id_active
+            "id_active" => $id_active,
+            "search_text" => $search_text
         ));
         $this->add_local_component($name, new BaseStyleComponent("card",
             array(
