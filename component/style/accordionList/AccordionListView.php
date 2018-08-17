@@ -3,30 +3,42 @@ require_once __DIR__ . "/../../BaseView.php";
 
 /**
  * The view class of the accordion list style component.
- * This style requires the following fields:
- *  'id_active':
- *   the active id of the list (to be marked as active).
- *  'title_prefix':
- *   a prefix that will be appended to the title of each root item.
- *  'items':
- *   a hierarchical array holding the list items
- *  'root_name':
- *   as the root item is expandable, it cannot be clicked itself. Hence, in
- *   order to show the content of the root a new item is intruduced. This item
- *   has the name that is provided by this field.
- *
- * An item in the items list must have the following keys:
- *  'id':
- *   the item id
- *  'title':
- *   the title of the item
- *  'children':
- *   the children of this item
- *  'url':
- *   the target url
  */
 class AccordionListView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'id_active' (0).
+     * The active id of the list (to be marked as active).
+     */
+    private $id_active;
+
+    /**
+     * DB field 'title_prefix' (empty string).
+     * A prefix that will be appended to the title of each root item.
+     */
+    private $title_prefix;
+
+    /**
+     * DB field 'items' (empty array).
+     * A hierarchical array holding the list items
+     * An item in the items list must have the following keys:
+     *  'id':       The item id.
+     *  'title':    The title of the item.
+     *  'children': The children of this item.
+     *  'url':      The target url.
+     */
+    private $items;
+
+    /**
+     * DB field 'root_name' (empty string).
+     * As the root item is expandable, it cannot be clicked itself. Hence, in
+     * order to show the content of the root a new item is intruduced. This item
+     * has the name that is provided by this field.
+     */
+    private $root_name;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -38,6 +50,10 @@ class AccordionListView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->id_active = $this->model->get_db_field("id_active", 0);
+        $this->title_prefix = $this->model->get_db_field("title_prefix");
+        $this->items = $this->model->get_db_field("items", array());
+        $this->root_name = $this->model->get_db_field("root_name");
     }
 
     /* Private Methods ********************************************************/
@@ -55,7 +71,7 @@ class AccordionListView extends BaseView
      */
     private function is_child_active($child_root)
     {
-        $id = $this->model->get_db_field("id_active");
+        $id = $this->id_active;
         if($child_root['id'] == $id)
             return true;
         foreach($child_root['children'] as $child)
@@ -69,9 +85,8 @@ class AccordionListView extends BaseView
      */
     private function output_root_children()
     {
-        $item_label = $this->model->get_db_field("title_prefix");
-        $children = $this->model->get_db_field("items");
-        foreach($children as $index => $child)
+        $item_label = $this->title_prefix;
+        foreach($this->items as $index => $child)
         {
             $active = "";
             if($this->is_child_active($child))
@@ -104,11 +119,11 @@ class AccordionListView extends BaseView
     private function output_child($child, $first=false)
     {
         $active = "";
-        if($child['id'] == $this->model->get_db_field("id_active"))
+        if($child['id'] == $this->id_active)
             $active = "active";
         if($first)
         {
-            $child['title'] = $this->model->get_db_field("root_name");
+            $child['title'] = $this->root_name;
             $child['children'] = array();
         }
         $title = (array_key_exists("title", $child)) ? $child["title"] : "";
