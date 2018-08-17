@@ -6,6 +6,14 @@ require_once __DIR__ . "/../../BaseView.php";
  */
 class MarkdownView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'text_markdown' (empty string).
+     * The text to be rendered as markdown content.
+     */
+    private $text_markdown;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -17,6 +25,7 @@ class MarkdownView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->text_markdown = $this->model->get_db_field('text_markdown');
     }
 
     /* Public Methods *********************************************************/
@@ -26,7 +35,7 @@ class MarkdownView extends BaseView
      */
     public function output_content()
     {
-        echo $this->model->get_db_field('text_markdown');
+        echo $this->text_markdown;
     }
 }
 ?>
