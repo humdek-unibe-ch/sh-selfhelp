@@ -42,7 +42,6 @@ $(document).ready(function() {
         });
     });
     $('input[name="section-name"]').keyup(function(){
-        $('select[name="section-style"]').val("");
         $('input[name="new-section"]')
             .prop("checked", true)
             .attr("disabled", true);
