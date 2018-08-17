@@ -194,17 +194,17 @@ class CmsView extends BaseView
         $children = array();
         $field_name_prefix = $field['name'] . "[" . $field['id_language'] . "]";
         $children[] = new BaseStyleComponent("input", array(
-            "text" => $field['id'],
+            "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
             "type" => "hidden"
         ));
         $children[] = new BaseStyleComponent("input", array(
-            "text" => $field['type'],
+            "value" => $field['type'],
             "name" => $field_name_prefix . "[type]",
             "type" => "hidden"
         ));
         $children[] = new BaseStyleComponent("input", array(
-            "text" => $field['relation'],
+            "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
             "type" => "hidden"
         ));
@@ -212,7 +212,7 @@ class CmsView extends BaseView
         if(in_array($field['type'],
                 array("text", "number", "checkbox", "markdown-inline")))
             $children[] = new BaseStyleComponent("input", array(
-                "text" => $field['content'],
+                "value" => $field['content'],
                 "name" => $field_name_content,
                 "type" => $field['type']
             ));
@@ -224,7 +224,7 @@ class CmsView extends BaseView
         else if($field['type'] == "style-list")
         {
             $children[] = new BaseStyleComponent("input", array(
-                "text" => "",
+                "value" => "",
                 "name" => $field_name_prefix . "[content]",
                 "type" => "hidden"
             ));
