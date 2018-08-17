@@ -7,6 +7,7 @@ require_once "./page/HomePage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/ComponentPage.php";
 require_once "./page/CmsPage.php";
+require_once "./ajax/AjaxRequest.php";
 
 $router = new Router();
 $router->setBasePath(BASE_PATH);
@@ -52,6 +53,11 @@ function create_cms_delete_page($router, $db, $id_page, $id_root_section=null,
     $page = new CmsPage($router, $db, "cms_delete", intval($id_page),
         "delete", intval($id_root_section), intval($id_section));
     $page->output();
+}
+function create_request_page($router, $db, $request)
+{
+    $ajax = new AjaxRequest($db, $request);
+    $ajax->print_json();
 }
 
 // define routing paths
