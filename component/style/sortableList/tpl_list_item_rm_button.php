@@ -1,3 +1,3 @@
-<button type="button" class="close" aria-label="Close" data-toggle="modal" data-target="#<?php echo $id; ?>">
+<a role="button" class="close" href="<?php echo $url; ?>">
     <span aria-hidden="true">&times;</span>
-</button>
+</a>

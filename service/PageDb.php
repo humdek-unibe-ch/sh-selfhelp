@@ -69,15 +69,31 @@ class PageDb extends BaseDb
             WHERE p.intern = 0";
         return $this->query_db($sql);
     }
+
+    /**
+     * Fetch the page id from the database, given a page keyword.
+     *
+     * @param int $keyword
+     *  The page keyword.
+     * @retval int
+     *  The id of the page.
+     */
+    public function fetch_page_id_by_keyword($keyword)
+    {
+        $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
+        $id = $this->query_db_first($sql, array(":keyword" => $keyword));
+        return intval($id['id']);
+    }
+
     /**
      * Fetch the page keyword from the database, given a page id.
      *
      * @param int $id
      *  The page id.
-     * @retval array
-     *  The db result array.
+     * @retval string
+     *  The keyword of the page.
      */
-    public function fetch_page_keyword($id)
+    public function fetch_page_keyword_by_id($id)
     {
         $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
         $keyword = $this->query_db_first($sql, array(":id" => $id));
@@ -94,7 +110,7 @@ class PageDb extends BaseDb
      */
     public function fetch_page_info_by_id($id)
     {
-        $keyword = $this->fetch_page_keyword($id);
+        $keyword = $this->fetch_page_keyword_by_id($id);
         return $this->fetch_page_info($keyword);
     }
 
@@ -160,6 +176,24 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Fetch all children of a section in the navigation hierarchy.
+     *
+     * @param int $id
+     *  The section id.
+     * @retval array
+     *  The db result array.
+     */
+    public function fetch_nav_children($id)
+    {
+        $sql = "SELECT sn.child AS id, s.name, sn.position
+            FROM sections_navigation AS sn
+            LEFT JOIN sections AS s ON sn.child = s.id
+            WHERE sn.parent = :id
+            ORDER BY sn.position";
+        return $this->query_db($sql, array(":id" => $id));
+    }
+
+    /**
      * Fetch all section ids that are associated to a page, given a page id.
      *
      * @param int $id
@@ -169,7 +203,7 @@ class PageDb extends BaseDb
      */
     public function fetch_page_sections_by_id($id)
     {
-        $keyword = $this->fetch_page_keyword($id);
+        $keyword = $this->fetch_page_keyword_by_id($id);
         return $this->fetch_page_sections($keyword);
     }
 
@@ -194,40 +228,6 @@ class PageDb extends BaseDb
     }
 
     /**
-     * Fetch all section ids that are associated to a page.
-     *
-     * @param string $keyword
-     *  The router keyword of the page.
-     * @retval array
-     *  The db result array where each entry has an 'id' field.
-     */
-    public function fetch_page_navigation_sections($keyword)
-    {
-        $sql = "SELECT psn.id_sections AS id
-            FROM pages_sections_navigation AS psn
-            LEFT JOIN pages AS p ON ps.id_pages = p.id
-            WHERE p.keyword = :keyword";
-        return $this->query_db($sql, array(":keyword" => $keyword));
-    }
-
-    /**
-     * Fetch all section ids that are associated to a page.
-     *
-     * @param string $keyword
-     *  The router keyword of the page.
-     * @retval array
-     *  The db result array where each entry has an 'id' field.
-     */
-    public function fetch_page_navigation_sections_by_id($id)
-    {
-        $sql = "SELECT psn.id_sections AS id, s.name
-            FROM pages_sections_navigation AS psn
-            LEFT JOIN sections AS s ON psn.id_sections = s.id
-            WHERE psn.id_pages = :id";
-        return $this->query_db($sql, array(":id" => $id));
-    }
-
-    /**
      * Fetch the content of the page fields from the database given a page id.
      *
      * @param int $id
@@ -237,7 +237,7 @@ class PageDb extends BaseDb
      */
     public function fetch_page_fields_by_id($id)
     {
-        $keyword = $this->fetch_page_keyword($id);
+        $keyword = $this->fetch_page_keyword_by_id($id);
         return $this->fetch_page_fields($keyword);
     }
 

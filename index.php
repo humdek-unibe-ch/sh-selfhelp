@@ -24,10 +24,21 @@ if(DEBUG == 1) set_error_handler("exception_error_handler");
 
 $router = new Router();
 $router->setBasePath(BASE_PATH);
+$router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
 
 $db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
 // custom page creation functions
+function get_cms_params($pid, $sid, $ssid, $type = null, $did = null)
+{
+    return array(
+        "pid" => intval($pid),
+        "sid" => ($sid == null) ? null : intval($sid),
+        "ssid" => ($ssid == null) ? null : intval($ssid),
+        "did" => intval($did),
+        "type" => $type
+    );
+}
 function create_login_page($router, $db)
 {
     $page = new SectionPage($router, $db, "login");
@@ -39,32 +50,30 @@ function create_home_page($router, $db)
     $page = new HomePage($router, $db);
     $page->output();
 }
-function create_cms_select_page($router, $db, $id_page, $id_root_section=null,
-    $id_section=null)
+function create_cms_select_page($router, $db, $pid, $sid = null, $ssid = null)
 {
-    $page = new CmsPage($router, $db, "cms_select", intval($id_page),
-        "select", intval($id_root_section), intval($id_section));
+    $params = get_cms_params($pid, $sid, $ssid);
+    $page = new CmsPage($router, $db, "cms_select", $params, "select");
     $page->output();
 }
-function create_cms_insert_page($router, $db, $id_page, $id_root_section=null,
-    $id_section=null)
+function create_cms_insert_page($router, $db, $type, $pid, $sid = null,
+    $ssid = null)
 {
-    $page = new CmsPage($router, $db, "cms_insert", intval($id_page),
-        "insert", intval($id_root_section), intval($id_section));
+    $params = get_cms_params($pid, $sid, $ssid, $type);
+    $page = new CmsPage($router, $db, "cms_insert", $params, "insert");
     $page->output();
 }
-function create_cms_update_page($router, $db, $id_page, $id_root_section=null,
-    $id_section=null)
+function create_cms_update_page($router, $db, $pid, $sid = null, $ssid = null)
 {
-    $page = new CmsPage($router, $db, "cms_update", intval($id_page),
-        "update", intval($id_root_section), intval($id_section));
+    $params = get_cms_params($pid, $sid, $ssid);
+    $page = new CmsPage($router, $db, "cms_update", $params, "update");
     $page->output();
 }
-function create_cms_delete_page($router, $db, $id_page, $id_root_section=null,
-    $id_section=null)
+function create_cms_delete_page($router, $db, $type, $did, $pid, $sid = null,
+    $ssid = null)
 {
-    $page = new CmsPage($router, $db, "cms_delete", intval($id_page),
-        "delete", intval($id_root_section), intval($id_section));
+    $params = get_cms_params($pid, $sid, $ssid, $type, $did);
+    $page = new CmsPage($router, $db, "cms_delete", $params, "delete");
     $page->output();
 }
 function create_request_page($router, $db, $request)

@@ -2,6 +2,8 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/CmsView.php";
 require_once __DIR__ . "/CmsInsertView.php";
+require_once __DIR__ . "/CmsDeleteView.php";
+require_once __DIR__ . "/CmsUnknownView.php";
 require_once __DIR__ . "/CmsModel.php";
 require_once __DIR__ . "/CmsController.php";
 
@@ -30,17 +32,47 @@ class CmsComponent extends BaseComponent
      *  The id of the section that is currently selected (only relevant for
      *  navigation pages).
      */
-    public function __construct($services, $id_page=null, $mode='select',
-        $id_root_section=null, $id_section=null)
+    public function __construct($services, $params, $mode='select')
     {
-        $model = new CmsModel($services, $id_page, $id_root_section,
-            $id_section, $mode);
+        if($params == null) $params = array("pid" => null,
+            "sid" => null, "ssid" => null, "did" => null, "type" => null );
+        $model = new CmsModel($services, $params, $mode);
         $controller = new CmsController($model);
-        if($mode == "select" || $mode == "update")
+        $model->update_select_properties();
+        $sections = $model->get_page_sections();
+        if(($params['ssid'] != null
+                && !$this->is_section_in_list($params['ssid'], $sections))
+            || ($params['sid'] != null
+                && !$this->is_section_in_list($params['sid'], $sections)))
+            $view = new CmsUnknownView($model);
+        else if($mode == "select" || $mode == "update")
             $view = new CmsView($model, $controller);
-        if($mode == "insert")
+        else if($mode == "insert")
             $view = new CmsInsertView($model, $controller);
+        else if($mode == "delete")
+            $view = new CmsDeleteView($model, $controller);
         parent::__construct($view);
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * Checks whether a section is in a hierarchical list of sections.
+     *
+     * @param int $id_section
+     *  The id of the section to check.
+     * @param array $sections
+     *  A list of sections.
+     */
+    private function is_section_in_list($id_section, $sections)
+    {
+        foreach($sections as $section)
+        {
+            if($this->is_section_in_list($id_section, $section['children']))
+                return true;
+            if($section['id'] == $id_section) return true;
+        }
+        return false;
     }
 }
 ?>

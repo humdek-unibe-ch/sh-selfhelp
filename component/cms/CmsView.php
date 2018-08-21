@@ -45,8 +45,7 @@ class CmsView extends BaseView
             "navigation_sections", true,
             $this->model->get_active_root_section_id());
 
-        if($this->model->get_active_page_id())
-            $this->add_page_property_list();
+        $this->add_page_property_list();
         if($this->model->get_active_section_id())
             $this->add_section_field_list();
 
@@ -59,6 +58,16 @@ class CmsView extends BaseView
         {
             $msg = "Failed to add a new section";
             $this->add_alert_component("alert_insert_failed", "danger", $msg);
+        }
+        if($controller->has_remove_succeeded())
+        {
+            $msg = "Successfully removed a link to a section.";
+            $this->add_alert_component("alert_remove_success", "success", $msg);
+        }
+        if($controller->has_remove_failed())
+        {
+            $msg = "Failed to remove a link to a section";
+            $this->add_alert_component("alert_remove_failed", "danger", $msg);
         }
         $success_count = $controller->get_update_success_count();
         if($success_count > 0)
@@ -169,33 +178,134 @@ class CmsView extends BaseView
         ));
     }
 
-    private function create_field_item($field)
+    /**
+     * Add the page property list to the local component list. The page property
+     * list is wrapped by a collapsible card component.
+     */
+    private function add_page_property_list()
     {
         $children = array();
-        if($field['content'] != null)
+        $children[] = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_page_properties.php",
+            "items" => array(
+                "keyword_title" => "Page Key:",
+                "keyword" => $this->page_info['keyword'],
+                "url_title" => "Page url:",
+                "url" => $this->page_info['url']
+            ),
+        ));
+        $fields = $this->model->get_page_properties();
+        if($this->model->get_mode() == "update")
         {
-            if($field['type'] == "style-list")
-                $children[] = new BaseStyleComponent("sortableList", array(
-                    "is_sortable" => false,
-                    "items" => $field['content'],
-                ));
-            else
-                $children[] = new BaseStyleComponent("rawText", array(
-                    "text" => $field['content']
-                ));
+            $children[] = $this->create_field_form($fields);
+            $type = "warning";
         }
-        return new BaseStyleComponent("descriptionItem", array(
-            "title" => $field['name'],
-            "locale" => $field['locale'],
-            "alt" => "field is not set",
-            "children" => $children
+        else
+        {
+            foreach($fields as $field)
+                $children[] = $this->create_field_item($field);
+            $type = "light";
+        }
+        $this->add_local_component("page-fields",
+            new BaseStyleComponent("card", array(
+                "is_collapsible" => true,
+                "is_expanded" => ($this->model->get_active_section_id() == null),
+                "title" => "Page Properties",
+                "children" => $children,
+                "type" => $type
+            )
         ));
     }
 
+    /**
+     * Add the section field list to the local component list. The section field
+     * list is wrapped by a card component.
+     */
+    private function add_section_field_list()
+    {
+        $children = array();
+        $section_info = $this->model->get_section_info();
+        $children[] = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_section_properties.php",
+            "items" => array(
+                "section_name_title" => "Section Name:",
+                "section_name" => $section_info['name'],
+                "section_style_title" => "Section Style:",
+                "section_style" => $section_info['style']
+            ),
+        ));
+        $type = ($this->model->get_mode() == "update") ? "warning" : "light";
+        $fields = $this->model->get_section_properties();
+        if(count($fields) == 0)
+        {
+            $text = "No section fields defined";
+            $children[] = new BaseStyleComponent("plaintext", array(
+                "text" => $text
+            ));
+        }
+        else if($this->model->get_mode() == "update")
+        {
+            $children[] = $this->create_field_form($fields);
+            $type = "warning";
+        }
+        else
+        {
+            foreach($fields as $field)
+                $children[] = $this->create_field_item($field);
+            $type = "light";
+        }
+        $this->add_local_component("section-fields",
+            new BaseStyleComponent("card", array(
+                "is_collapsible" => false,
+                "title" => "Section Properties",
+                "children" => $children,
+                "type" => $type
+            )
+        ));
+    }
+
+    /**
+     * Creates a the field form that allows to update section and page fields.
+     *
+     * @param array $fields
+     *  The fields array where each field is defined in
+     *  CmsModel::add_property_item.
+     * @retval object
+     *  A form component.
+     */
+    private function create_field_form($fields)
+    {
+        $form_items = array();
+        $form_items[] = new BaseStyleComponent("input", array(
+            "value" => "update",
+            "name" => "mode",
+            "type" => "hidden"
+        ));
+        foreach($fields as $field)
+            $form_items[] = $this->create_field_form_item($field);
+
+        return new BaseStyleComponent("form", array(
+            "url" => $_SERVER['REQUEST_URI'],
+            "label" => "Submit Changes",
+            "type" => "warning",
+            "children" => $form_items
+        ));
+
+    }
+
+    /**
+     * Creates a form field item from components.
+     *
+     * @param array $field
+     *  the field array with keys as definde in CmsModel::add_property_item.
+     * @retval object
+     *  A descriptionItem component.
+     */
     private function create_field_form_item($field)
     {
         $children = array();
-        $field_name_prefix = $field['name'] . "[" . $field['id_language'] . "]";
+        $field_name_prefix = "fields[" . $field['name'] . "]["
+            . $field['id_language'] . "]";
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
@@ -231,12 +341,17 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "type" => "hidden"
             ));
+            $params = $this->model->get_current_url_params();
+            $params['type'] = $field['relation'];
+            $params['did'] = ":did";
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
                 "items" => $field['content'],
-                "label" => "Add Section",
-                "id_target_insert" => "create-new-section",
-                "id_target_rm" => "remove-section-association"
+                "label" => "Add",
+                "insert_target" => $this->model->get_link_url("cms_insert",
+                    $params),
+                "delete_target" =>  $this->model->get_link_url("cms_delete",
+                    $params)
             ));
         }
         return new BaseStyleComponent("descriptionItem", array(
@@ -245,110 +360,35 @@ class CmsView extends BaseView
             "children" => $children
         ));
     }
-    private function create_field_form($fields)
-    {
-        $form_items = array();
-        foreach($fields as $field)
-            $form_items[] = $this->create_field_form_item($field);
-
-        return new BaseStyleComponent("form", array(
-            "url" => $_SERVER['REQUEST_URI'],
-            "label" => "Submit Changes",
-            "type" => "dark",
-            "children" => $form_items
-        ));
-
-    }
 
     /**
-     * Add the page property list to the local component list. The page property
-     * list is wrapped by a collapsible card component.
+     * Creates a field item from components.
+     *
+     * @param array $field
+     *  the field array with keys as definde in CmsModel::add_property_item.
+     * @retval object
+     *  A descriptionItem component.
      */
-    private function add_page_property_list()
+    private function create_field_item($field)
     {
         $children = array();
-        $children[] = new BaseStyleComponent("template", array(
-            "path" => __DIR__ . "/tpl_page_properties.php",
-            "items" => array(
-                "keyword_title" => "Page Key:",
-                "keyword" => $this->page_info['keyword'],
-                "url_title" => "Page url:",
-                "url" => $this->page_info['url']
-            ),
-        ));
-        $fields = $this->model->get_page_properties();
-        if($this->model->get_mode() == "update")
+        if($field['content'] != null)
         {
-            $children[] = $this->create_field_form($fields);
-            $type = "warning";
-        }
-        else
-        {
-            foreach($fields as $field)
-                $children[] = $this->create_field_item($field);
-            $type = "light";
-        }
-        $this->add_local_component("page-fields",
-            new BaseStyleComponent("card", array(
-                "is_collapsible" => false,
-                "title" => "Page Properties",
-                "children" => $children,
-                "type" => $type
-            )
-        ));
-    }
-
-    /**
-     * Add the section field list to the local component list. The section field
-     * list is wrapped by a card component.
-     */
-    private function add_section_field_list()
-    {
-        $children = array();
-        $section_info = $this->model->get_section_info();
-        $children[] = new BaseStyleComponent("template", array(
-            "path" => __DIR__ . "/tpl_section_properties.php",
-            "items" => array(
-                "section_name_title" => "Section Name:",
-                "section_name" => $section_info['name'],
-                "section_style_title" => "Section Style:",
-                "section_style" => $section_info['style']
-            ),
-        ));
-        $type = ($this->model->get_mode() == "update") ? "warning" : "light";
-        $fields = $this->model->get_section_fields();
-        $has_access = $this->model->is_section_in_page(
-            $this->model->get_active_page_id(),
-            $this->model->get_active_section_id()
-        );
-        if(count($fields) == 0 || !$has_access)
-        {
-            if(!$has_access)
-                $text = "Access to this section denied";
+            if($field['type'] == "style-list")
+                $children[] = new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => false,
+                    "items" => $field['content'],
+                ));
             else
-                $text = "No section fields defined";
-            $children[] = new BaseStyleComponent("plaintext", array(
-                "text" => $text
-            ));
+                $children[] = new BaseStyleComponent("rawText", array(
+                    "text" => $field['content']
+                ));
         }
-        else if($this->model->get_mode() == "update")
-        {
-            $children[] = $this->create_field_form($fields);
-            $type = "warning";
-        }
-        else
-        {
-            foreach($fields as $field)
-                $children[] = $this->create_field_item($field);
-            $type = "light";
-        }
-        $this->add_local_component("section-fields",
-            new BaseStyleComponent("card", array(
-                "is_collapsible" => false,
-                "title" => "Section Properties",
-                "children" => $children,
-                "type" => $type
-            )
+        return new BaseStyleComponent("descriptionItem", array(
+            "title" => $field['name'],
+            "locale" => $field['locale'],
+            "alt" => "field is not set",
+            "children" => $children
         ));
     }
 
@@ -357,10 +397,12 @@ class CmsView extends BaseView
      */
     private function output_alerts()
     {
-        $this->output_local_component("alert_insert_failed");
-        $this->output_local_component("alert_update_failed");
         $this->output_local_component("alert_insert_success");
+        $this->output_local_component("alert_insert_failed");
         $this->output_local_component("alert_update_success");
+        $this->output_local_component("alert_update_failed");
+        $this->output_local_component("alert_remove_success");
+        $this->output_local_component("alert_remove_failed");
     }
 
     /**
@@ -397,6 +439,14 @@ class CmsView extends BaseView
     }
 
     /**
+     * Renders the description list components.
+     */
+    private function output_fields()
+    {
+        require __DIR__ . "/tpl_fields.php";
+    }
+
+    /**
      * Renders all the nested lists.
      */
     private function output_lists()
@@ -417,65 +467,6 @@ class CmsView extends BaseView
             echo "Here comes the description of how the cms works";
         else
             $this->output_local_component("page-view");
-    }
-
-    /**
-     * Renders the description list components.
-     */
-    private function output_fields()
-    {
-        if($this->model->get_active_section_id())
-            $component_name = "section-fields";
-        else
-            $component_name = "page-fields";
-        require __DIR__ . "/tpl_fields.php";
-    }
-
-    private function output_style_list()
-    {
-        $styles = $this->model->get_style_list();
-        foreach($styles as $style)
-        {
-            $value = intval($style['id']);
-            $name = $style['name'];
-            require __DIR__ . "/tpl_select_option.php";
-        }
-    }
-
-    private function output_section_search_list()
-    {
-        $this->output_local_component("global-section-list");
-    }
-
-    /**
-     * Helper function to prepare the page properties such that they can be
-     * rendered as a description list.
-     *
-     * @retval array
-     *  An array of field arrays where each field has the following keys:
-     *   'name':    the name of the field.
-     *   'content': the content of the field.
-     */
-    private function prepare_page_properties()
-    {
-        $fields = array();
-        $index = 0;
-        foreach($this->page_info as $name => $content)
-        {
-            if($content == null) continue;
-            if($content == "unknown") continue;
-            if($name == "id") continue;
-            if($name == "id_navigation_section") continue;
-            $fields[] = array(
-                "name" => $name,
-                "content" => $content,
-                "id" => "property-" . $index,
-                "type" => "text",
-                "id_language" => 1,
-                "edit" => ($name == "title")
-            );
-        }
-        return $fields;
     }
 
     /* Public Methods *********************************************************/

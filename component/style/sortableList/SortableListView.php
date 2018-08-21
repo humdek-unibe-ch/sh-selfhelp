@@ -23,25 +23,26 @@ class SortableListView extends BaseView
     private $items;
 
     /**
-     * DB field 'id_target_insert' (empty string).
-     * A unique aid that will allow to handle click events on the insert button.
-     * If this is not set, the insert button is not rendered.
+     * DB field 'insert_target' (empty string).
+     * The target url of the insert button. If this is not set, the insert
+     * button is not rendered.
      */
-    private $id_insert;
+    private $insert_target;
 
     /**
-     * DB field 'id_target_insert' (empty string).
+     * DB field 'label' (empty string).
      * The label of the insert button. If this is not set, the insert button is
      * not rendered.
      */
-    private $label_insert;
+    private $insert_label;
 
     /**
-     * DB field 'id_target_rm' (empty string).
-     * A unique id that will allow to handle click events on delete buttons.
-     * If this is not set, the delete buttons are not rendered.
+     * DB field 'delete_target' (empty string).
+     * The target url of the delete button. Note that the string ':did' is
+     * replaced by the id of the element that is supposed to be removed.
+     * If this field is not set, the delete buttons are not rendered.
      */
-    private $id_delete;
+    private $delete_target;
 
     /* Constructors ***********************************************************/
 
@@ -56,9 +57,9 @@ class SortableListView extends BaseView
         parent::__construct($model);
         $this->is_sortable = $this->model->get_db_field("is_sortable", false);
         $this->items = $this->model->get_db_field("items", array());
-        $this->id_insert = $this->model->get_db_field('id_target_insert');
-        $this->label_insert = $this->model->get_db_field('label');
-        $this->id_delete = $this->model->get_db_field('id_target_rm');
+        $this->insert_target = $this->model->get_db_field('insert_target');
+        $this->insert_label = $this->model->get_db_field('label');
+        $this->delete_target = $this->model->get_db_field('delete_target');
     }
 
     /* Private Methods ********************************************************/
@@ -88,10 +89,10 @@ class SortableListView extends BaseView
     /**
      * Render the delete button on each item.
      */
-    private function output_list_item_rm_button()
+    private function output_list_item_rm_button($id)
     {
-        $id = $this->id_delete;
-        if(!$this->is_sortable || $id == "") return;
+        $url = str_replace(":did", $id, $this->delete_target);
+        if(!$this->is_sortable || $url == "") return;
         require __DIR__ . "/tpl_list_item_rm_button.php";
     }
 
@@ -100,9 +101,9 @@ class SortableListView extends BaseView
      */
     private function output_list_new_button()
     {
-        $id = $this->id_insert;
-        $label = $this->label_insert;
-        if(!$this->is_sortable || $id == "" || $label == "") return;
+        $url = $this->insert_target;
+        $label = $this->insert_label;
+        if(!$this->is_sortable || $url == "" || $label == "") return;
         require __DIR__ . "/tpl_list_new_button.php";
     }
 

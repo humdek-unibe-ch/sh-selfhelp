@@ -6,7 +6,7 @@ require_once __DIR__ . "/../style/StyleComponent.php";
 /**
  * The insert view class of the cms component.
  */
-class CmsInsertView extends BaseView
+class CmsDeleteView extends BaseView
 {
     /* Constructors ***********************************************************/
 
@@ -21,47 +21,9 @@ class CmsInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $model->update_insert_properties();
-
-        $this->add_local_component("sections", new BaseStyleComponent("card",
-            array(
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Choose a Section",
-                "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_accessible_sections(),
-                    "id_prefix" => "global-sections",
-                    "is_expanded" => false,
-                    "id_active" => 0,
-                    "search_text" => "Search"
-                )))
-            )
-        ));
     }
 
     /* Private Methods ********************************************************/
-
-    /**
-     * Render the list of styles.
-     */
-    private function output_style_list()
-    {
-        $styles = $this->model->get_style_list();
-        foreach($styles as $style)
-        {
-            $value = intval($style['id']);
-            $name = $style['name'];
-            require __DIR__ . "/tpl_select_option.php";
-        }
-    }
-
-    /**
-     * Render the list of all available sections.
-     */
-    private function output_section_search_list()
-    {
-        $this->output_local_component("sections");
-    }
 
     /* Public Methods *********************************************************/
 
@@ -105,13 +67,18 @@ class CmsInsertView extends BaseView
             $child = "children";
 
         $page_info = $this->model->get_page_info();
-        $section_info = $this->model->get_section_info();
+        $target_section_info = $this->model->get_section_info();
         if($this->model->get_active_section_id() == null)
             $target = "the page '" . $page_info['keyword'] . "'.";
         else
-            $target = "the section '" . $section_info['name'] . "'"
+            $target = "the section '" . $target_section_info['name'] . "'"
                 . " on page '" . $page_info['keyword'] . "'.";
-        require __DIR__ . "/tpl_cms_insert.php";
+
+        $did = $this->model->get_delete_id();
+        $del_section_info = $this->model->get_section_info($did);
+        $del_section = $del_section_info['name'];
+
+        require __DIR__ . "/tpl_cms_delete.php";
     }
 }
 ?>
