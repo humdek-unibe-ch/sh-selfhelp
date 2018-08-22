@@ -9,19 +9,16 @@ class CmsModel extends BaseModel
     /* Private Properties *****************************************************/
 
     /**
+     * All sections the user has select access to. The access rights of sections
+     * are inherited from pages. This means that all sections associated to a
+     * page are accessible if the page is accessible.
+     */
+    private $all_accessible_sections;
+
+    /**
      * The current page id (the first url param).
      */
     private $id_page;
-
-    /**
-     * Indicates the relation to the databse table to be updated.
-     */
-    private $relation;
-
-    /**
-     * The current acl mode, i.e. 'select', 'insert', 'update', 'delete'.
-     */
-    private $mode;
 
     /**
      * The current section id or root section id (the second url param).
@@ -32,6 +29,15 @@ class CmsModel extends BaseModel
      * The current section id (the third url param).
      */
     private $id_section;
+
+    /**
+     * The current acl mode, i.e. 'select', 'insert', 'update', 'delete'.
+     */
+    private $mode;
+
+    private $navigation_hierarchy;
+
+    private $page_hierarchy;
 
     /**
      * The parameters of the curren page.
@@ -57,11 +63,11 @@ class CmsModel extends BaseModel
     private $page_sections_static;
 
     /**
-     * All sections the user has select access to. The access rights of sections
-     * are inherited from pages. This means that all sections associated to a
-     * page are accessible if the page is accessible.
+     * Indicates the relation to the databse table to be updated.
      */
-    private $all_accessible_sections;
+    private $relation;
+
+    private $section_path;
 
     /* Constructors ***********************************************************/
 
@@ -92,6 +98,9 @@ class CmsModel extends BaseModel
         $this->id_delete = $params["did"];
 
         $this->page_info = $this->db->fetch_page_info_by_id($this->id_page);
+        $this->section_path = array();
+        $this->page_hierarchy = array();
+        $this->navigation_hierarchy = array();
         $this->all_accessible_sections = array();
     }
 
@@ -117,6 +126,72 @@ class CmsModel extends BaseModel
             "children" => $children,
             "url" => $url
         );
+    }
+
+    /**
+     * Add a navigation section to the section path.
+     *
+     * @param int $id
+     *  The id of the section to be added.
+     * @param string $name
+     *  The name of the section to be added.
+     */
+    private function add_nav_to_section_path($id, $name)
+    {
+        $this->section_path[] = array(
+            "url" => $this->get_link_url("cms_" . $this->mode, array(
+                "pid" => $this->id_page,
+                "sid" => $id
+            )),
+            "name" => $name
+        );
+    }
+
+    /**
+     * Add a page to the section path.
+     *
+     * @param int $id
+     *  The id of the page to be added.
+     * @param string $name
+     *  The name of the page to be added.
+     */
+    private function add_page_to_section_path($id, $name)
+    {
+        $this->section_path[] = array(
+            "url" => $this->get_link_url("cms_" . $this->mode, array(
+                "pid" => $id
+            )),
+            "name" => $name
+        );
+    }
+
+    /**
+     * Add children to the root page list
+     *
+     * @param array $root_items
+     *  An array of prepared (i.e. put into a form such that they can be passed
+     *  to a list style) root page items.
+     * @param array $items
+     *  The page items as they are teyrned from the db query.
+     * @retval array
+     *  A prepared hierarchical array such that it can be passed to a list
+     *  style.
+     */
+    private function add_page_list_children($root_items, $items)
+    {
+        foreach($items as $item)
+        {
+            if($item['parent'] == "") continue;
+            $id = intval($item["id"]);
+            if(!$this->has_access($this->mode, $id))
+                continue;
+            $root_idx = $this->get_item_index(intval($item['parent']),
+                $root_items);
+            array_push($root_items[$root_idx]['children'],
+                $this->add_list_item($id, $item['keyword'], array(),
+                    $this->get_item_url($id)));
+        }
+        return $root_items;
     }
 
     /**
@@ -153,32 +228,40 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Add children to the root page list
+     * Add a section to the section path.
      *
-     * @param array $root_items
-     *  An array of prepared (i.e. put into a form such that they can be passed
-     *  to a list style) root page items.
-     * @param array $items
-     *  The page items as they are teyrned from the db query.
-     * @retval array
-     *  A prepared hierarchical array such that it can be passed to a list
-     *  style.
+     * @param int $id
+     *  The id of the section to be added.
+     * @param string $name
+     *  The name of the section to be added.
      */
-    private function add_page_list_children($root_items, $items)
+    private function add_section_to_section_path($id, $name)
     {
-        foreach($items as $item)
-        {
-            if($item['parent'] == "") continue;
-            $id = intval($item["id"]);
-            if(!$this->has_access($this->mode, $id))
-                continue;
-            $root_idx = $this->get_item_index(intval($item['parent']),
-                $root_items);
-            array_push($root_items[$root_idx]['children'],
-                $this->add_list_item($id, $item['keyword'], array(),
-                    $this->get_item_url($id)));
-        }
-        return $root_items;
+        $this->section_path[] = array(
+            "url" => $this->get_link_url("cms_" . $this->mode, array(
+                "pid" => $this->id_page,
+                "sid" => $this->id_root_section,
+                "ssid" => $id
+            )),
+            "name" => $name
+        );
+    }
+
+    /**
+     * Fetch navigation sections from the database and return a heirarchical
+     * array such that it can be passed to a list style. If the current page
+     * is NOT a navigation page, return an empty array.
+     *
+     * @retval array
+     *  A prepared hierarchical array of section items such that it can
+     *  be passed to a list style (see CmsModel::add_list_item).
+     */
+    private function fetch_navigation_hierarchy()
+    {
+        if($this->is_navigation())
+            return $this->fetch_navigation_items(
+                $this->page_info['id_navigation_section']);
+        return array();
     }
 
     /**
@@ -245,6 +328,21 @@ class CmsModel extends BaseModel
 
         return $this->db->query_db($sql,
             array(":pid" => $id_page, ":fid" => $id_field));
+    }
+
+    /**
+     * Fetch page data from the database and return a heirarchical array such
+     * that it can be passed to a list style.
+     *
+     * @retval array
+     *  A prepared hierarchical array of page items such that it can be passed
+     *  to a list style (see CmsModel::add_list_item).
+     */
+    private function fetch_page_hierarchy()
+    {
+        $pages_db = $this->db->fetch_accessible_pages();
+        $pages = $this->prepare_page_list_root($pages_db);
+        return $this->add_page_list_children($pages, $pages_db);
     }
 
     /**
@@ -522,6 +620,69 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Recursive function to add the current page and all parent pages to the
+     * section path.
+     *
+     * @param array $pages
+     *  A hierarchical array of pages.
+     */
+    private function set_section_path_pages($pages)
+    {
+        foreach($pages as $page)
+        {
+            if($page["id"] == $this->id_page
+                || $this->set_section_path_pages($page['children']))
+            {
+                $this->add_page_to_section_path($page["id"], $page["title"]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Recursive function to add the current and all parent navigation sections
+     * to the section path.
+     *
+     * @param array $sections
+     *  A hierarchical array of sections.
+     */
+    private function set_section_path_nav($sections)
+    {
+        foreach($sections as $section)
+        {
+            if($section["id"] == $this->id_root_section
+                || $this->set_section_path_nav($section['children']))
+            {
+                $this->add_nav_to_section_path($section["id"], $section["title"]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Recursive function to add the current and all parent sections to the
+     * section path.
+     *
+     * @param array $sections
+     *  A hierarchical array of sections.
+     */
+    private function set_section_path_sections($sections)
+    {
+        foreach($sections as $section)
+        {
+            if($section["id"] == $this->id_section
+                || $this->set_section_path_sections($section['children']))
+            {
+                $this->add_section_to_section_path($section["id"], $section["title"]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Update the navigation order of a navigation section or page.
      *
      * @param int $id
@@ -780,25 +941,19 @@ class CmsModel extends BaseModel
      */
     public function get_navigation_hierarchy()
     {
-        if($this->is_navigation())
-            return $this->fetch_navigation_items(
-                $this->page_info['id_navigation_section']);
-        return array();
+        return $this->navigation_hierarchy;
     }
 
     /**
-     * Fetch page data from the database and return a heirarchical array such
-     * that it can be passed to a list style.
+     * Get a hierarchical array of page items.
      *
      * @retval array
      *  A prepared hierarchical array of page items such that it can be passed
-     *  to a list style.
+     *  to a list style (see CmsModel::add_list_item).
      */
     public function get_pages()
     {
-        $pages_db = $this->db->fetch_accessible_pages();
-        $pages = $this->prepare_page_list_root($pages_db);
-        return $this->add_page_list_children($pages, $pages_db);
+        return $this->page_hierarchy;
     }
 
     /**
@@ -867,7 +1022,7 @@ class CmsModel extends BaseModel
      *
      * @retval array
      *  A prepared hierarchical array of section items such that it can
-     *  be passed to a list style.
+     *  be passed to a list style (see CmsModel::add_list_item()).
      */
     public function get_page_sections()
     {
@@ -967,6 +1122,11 @@ class CmsModel extends BaseModel
     {
         $sql = "SELECT id, name FROM styles WHERE id_type <> 3 ORDER BY name";
         return $this->db->query_db($sql);
+    }
+
+    public function get_section_path()
+    {
+        return $this->section_path;
     }
 
     /**
@@ -1206,10 +1366,20 @@ class CmsModel extends BaseModel
      */
     public function update_select_properties()
     {
+        $this->page_hierarchy = $this->fetch_page_hierarchy();
+        $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
         $this->page_sections_static = $this->fetch_page_sections();
         $this->page_sections_nav = $this->fetch_page_sections_nav();
         $this->page_sections = $this->page_sections_static
             + $this->page_sections_nav;
+
+        // prepare section path array
+        $this->set_section_path_sections($this->page_sections_nav);
+        array_pop($this->section_path);
+        $this->set_section_path_nav($this->navigation_hierarchy);
+        $this->set_section_path_pages($this->page_hierarchy);
+        $this->section_path = array_reverse($this->section_path);
+        $this->section_path[count($this->section_path)-1]["url"] = null;
     }
 }
 ?>

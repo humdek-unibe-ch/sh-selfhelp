@@ -45,9 +45,10 @@ class CmsView extends BaseView
             "navigation_sections", true,
             $this->model->get_active_root_section_id());
 
-        $this->add_page_property_list();
         if($this->model->get_active_section_id())
             $this->add_section_field_list();
+        else if($this->model->get_active_page_id())
+            $this->add_page_property_list();
 
         if($controller->has_insert_succeeded())
         {
@@ -406,6 +407,30 @@ class CmsView extends BaseView
     }
 
     /**
+     * Renders the section path as breadcrumbs.
+     */
+    private function output_breadcrumb()
+    {
+        require __DIR__ . "/tpl_breadcrumb.php";
+    }
+
+    /**
+     * Renders all section path items as breadcrumb children.
+     */
+    private function output_breadcrumb_children()
+    {
+        foreach($this->model->get_section_path() as $item)
+        {
+            $label = $item["name"];
+            $url = $item["url"];
+            if($url == null)
+                require __DIR__ . "/tpl_breadcrumb_item_active.php";
+            else
+                require __DIR__ . "/tpl_breadcrumb_item.php";
+        }
+    }
+
+    /**
      * Renders the control buttons.
      */
     private function output_controls()
@@ -443,7 +468,9 @@ class CmsView extends BaseView
      */
     private function output_fields()
     {
-        require __DIR__ . "/tpl_fields.php";
+        if($this->model->get_active_section_id()
+            || $this->model->get_active_page_id())
+            require __DIR__ . "/tpl_fields.php";
     }
 
     /**
