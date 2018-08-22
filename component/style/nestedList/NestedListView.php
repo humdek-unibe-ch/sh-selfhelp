@@ -45,8 +45,8 @@ class NestedListView extends BaseView
      * DB field 'items' (empty array).
      * A hierarchical array holding the list items
      * An item in the items list must have the following keys:
-     *  'id':       The item id.
-     *  'title':    The title of the item.
+     *  'id':       The item id (required).
+     *  'title':    The title of the item (required).
      *  'children': The children of this item.
      *  'url':      The target url.
      */
@@ -155,7 +155,7 @@ class NestedListView extends BaseView
     {
         $margin = ($this->has_chevron) ? "ml-4" : "";
         $name = $item['title'];
-        if($item['url'] != "")
+        if(isset($item['url']) && $item['url'] != "")
         {
             $url = $item['url'];
             require __DIR__ . "/tpl_link.php";
