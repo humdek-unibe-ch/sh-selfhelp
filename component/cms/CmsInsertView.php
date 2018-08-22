@@ -32,6 +32,7 @@ class CmsInsertView extends BaseView
                     "items" => $this->model->get_accessible_sections(),
                     "id_prefix" => "sections-search-accessible",
                     "is_expanded" => false,
+                    "has_chevron" => false,
                     "id_active" => 0,
                     "search_text" => "Search"
                 )))
@@ -40,13 +41,14 @@ class CmsInsertView extends BaseView
 
         $this->add_local_component("unassigned-sections",
             new BaseStyleComponent("card", array(
-                "is_expanded" => false,
+                "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Unassigned Sections",
                 "children" => array(new BaseStyleComponent("nestedList", array(
                     "items" => $this->model->get_unassigned_sections(),
                     "id_prefix" => "sections-search-unassigned",
                     "is_expanded" => false,
+                    "has_chevron" => false,
                     "id_active" => 0,
                     "search_text" => "Search"
                 )))

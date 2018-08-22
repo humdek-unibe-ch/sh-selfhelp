@@ -9,6 +9,13 @@ class NestedListView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'has_chevron' (true).
+     * If set to true the nested list is collapsible via a chevron.
+     * If set to false, the chevron is not rendered.
+     */
+    private $has_chevron;
+
+    /**
      * DB field 'is_expanded' (false).
      * If set to true the list is expanded by default.
      * If set to false the list is collapsed by default.
@@ -58,6 +65,8 @@ class NestedListView extends BaseView
         parent::__construct($model);
         $this->id_active = $this->model->get_db_field("id_active", 0);
         $this->is_expanded = $this->model->get_db_field("is_expanded", false);
+        $this->has_chevron = $this->model->get_db_field("has_chevron", true);
+        if(!$this->has_chevron) $this->is_expanded = true;
         $this->id_prefix = $this->model->get_db_field("id_prefix");
         $this->search_text = $this->model->get_db_field("search_text");
         $this->items = $this->model->get_db_field("items", array());
@@ -75,13 +84,12 @@ class NestedListView extends BaseView
      */
     private function output_chevron($has_children, $is_expanded)
     {
+        if(!$this->has_chevron) return;
         if($has_children)
         {
             $direction = ($is_expanded) ? "down" : "right";
             require __DIR__ . "/tpl_chevron.php";
         }
-        else
-            require __DIR__ . "/tpl_chevron_placeholder.php";
     }
 
     /**
@@ -145,6 +153,7 @@ class NestedListView extends BaseView
      */
     private function output_list_item_name($item, $active, $id_html)
     {
+        $margin = ($this->has_chevron) ? "ml-4" : "";
         $name = $item['title'];
         if($item['url'] != "")
         {
