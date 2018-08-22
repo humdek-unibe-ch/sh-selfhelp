@@ -16,6 +16,11 @@ class CmsModel extends BaseModel
     private $all_accessible_sections;
 
     /**
+     * All sections that are not assigned to any page.
+     */
+    private $all_unassigned_sections;
+
+    /**
      * The current page id (the first url param).
      */
     private $id_page;
@@ -199,6 +204,40 @@ class CmsModel extends BaseModel
             "content" => $content
         );
     }
+
+    /**
+     * Fetch all section data from the database for sections that are not
+     * assigned to any page and return a heirarchical array such that it can be
+     * passed to a list style.
+     *
+     * @retval array
+     *  A prepared hierarchical array of unassigned section items such that it
+     *  can be passed to a list style.
+     */
+    private function fetch_unassigned_sections()
+    {
+        $sections = array();
+        $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
+            LEFT JOIN styles AS st ON st.id = s.id_styles
+            LEFT JOIN sections_hierarchy AS sh ON s.id = sh.child
+            LEFT JOIN pages_sections AS ps ON s.id = ps.id_sections
+            LEFT JOIN sections_navigation AS sn ON s.id = sn.child
+            WHERE sh.child IS NULL AND ps.id_sections IS NULL
+            AND sn.child IS NULL AND (s.owner IS NULL OR s.owner = :uid)
+            AND st.id_type <> 3
+            ORDER BY s.name";
+        $sections_db = $this->db->query_db($sql,
+            array(":uid" => $_SESSION["id_user"]));
+        foreach($sections_db as $section)
+        {
+            $id = intval($section['id']);
+            $sections[$id] = $this->add_list_item(
+                array($id, intval($section['id_styles'])), $section['name'],
+                array(), "");
+        }
+        return $sections;
+    }
+
 
     /**
      * Fetch navigation sections from the database and return a heirarchical
@@ -1102,9 +1141,27 @@ class CmsModel extends BaseModel
         return $this->db->query_db($sql);
     }
 
+    /**
+     * Get all section items that build up the section path.
+     *
+     * @retval array
+     *  A non-hiearrchical list of section itmes (see CmsModel::add_list_item).
+     */
     public function get_section_path()
     {
         return $this->section_path;
+    }
+
+    /**
+     * Returns an array of all section that are unassigned to any page and not
+     * owned by anybody or ownde by the current user
+     *
+     * @retval array
+     *  A list of section items (see CmsModel::add_list_item).
+     */
+    public function get_unassigned_sections()
+    {
+        return $this->all_unassigned_sections;
     }
 
     /**
@@ -1335,6 +1392,7 @@ class CmsModel extends BaseModel
     public function update_insert_properties()
     {
         $this->set_all_accessible_sections();
+        $this->all_unassigned_sections = $this->fetch_unassigned_sections();
     }
 
     /**

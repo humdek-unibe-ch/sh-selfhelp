@@ -23,20 +23,35 @@ class CmsInsertView extends BaseView
         parent::__construct($model, $controller);
         $model->update_insert_properties();
 
-        $this->add_local_component("sections", new BaseStyleComponent("card",
-            array(
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Choose a Section",
+        $this->add_local_component("allowed-sections",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Sections in Use",
                 "children" => array(new BaseStyleComponent("nestedList", array(
                     "items" => $this->model->get_accessible_sections(),
-                    "id_prefix" => "global-sections",
+                    "id_prefix" => "sections-search-accessible",
                     "is_expanded" => false,
                     "id_active" => 0,
                     "search_text" => "Search"
                 )))
-            )
-        ));
+            ))
+        );
+
+        $this->add_local_component("unassigned-sections",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Unassigned Sections",
+                "children" => array(new BaseStyleComponent("nestedList", array(
+                    "items" => $this->model->get_unassigned_sections(),
+                    "id_prefix" => "sections-search-unassigned",
+                    "is_expanded" => false,
+                    "id_active" => 0,
+                    "search_text" => "Search"
+                )))
+            ))
+        );
     }
 
     /* Private Methods ********************************************************/
@@ -60,7 +75,8 @@ class CmsInsertView extends BaseView
      */
     private function output_section_search_list()
     {
-        $this->output_local_component("sections");
+        $this->output_local_component("unassigned-sections");
+        $this->output_local_component("allowed-sections");
     }
 
     /* Public Methods *********************************************************/

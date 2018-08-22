@@ -411,7 +411,8 @@ class CmsView extends BaseView
      */
     private function output_breadcrumb()
     {
-        require __DIR__ . "/tpl_breadcrumb.php";
+        if($this->model->get_active_page_id() != null)
+            require __DIR__ . "/tpl_breadcrumb.php";
     }
 
     /**
@@ -457,8 +458,8 @@ class CmsView extends BaseView
             $this->model->get_active_page_id())) return;
 
         $type = "light";
-        if($mode == "update") $type = "warning text-white";
-        if($mode == "delete") $type = "danger text-white";
+        if($mode == "update") $type = "warning";
+        if($mode == "delete") $type = "danger";
         $url = $this->model->get_link_url("cms_" . $mode, $params);
         require __DIR__ . "/tpl_control_item.php";
     }
