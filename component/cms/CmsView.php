@@ -421,7 +421,7 @@ class CmsView extends BaseView
     {
         foreach($this->model->get_section_path() as $item)
         {
-            $label = $item["name"];
+            $label = $item["title"];
             $url = $item["url"];
             if($url == null)
                 require __DIR__ . "/tpl_breadcrumb_item_active.php";

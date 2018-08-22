@@ -35,8 +35,14 @@ class CmsModel extends BaseModel
      */
     private $mode;
 
+    /**
+     * A hierarchical array storing the navigation section items.
+     */
     private $navigation_hierarchy;
 
+    /**
+     * A hierarchical array storing the page items.
+     */
     private $page_hierarchy;
 
     /**
@@ -67,6 +73,10 @@ class CmsModel extends BaseModel
      */
     private $relation;
 
+    /**
+     * An array of items that correspond to the section path, i.e. the current
+     * active section and all its parents.
+     */
     private $section_path;
 
     /* Constructors ***********************************************************/
@@ -129,43 +139,6 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Add a navigation section to the section path.
-     *
-     * @param int $id
-     *  The id of the section to be added.
-     * @param string $name
-     *  The name of the section to be added.
-     */
-    private function add_nav_to_section_path($id, $name)
-    {
-        $this->section_path[] = array(
-            "url" => $this->get_link_url("cms_" . $this->mode, array(
-                "pid" => $this->id_page,
-                "sid" => $id
-            )),
-            "name" => $name
-        );
-    }
-
-    /**
-     * Add a page to the section path.
-     *
-     * @param int $id
-     *  The id of the page to be added.
-     * @param string $name
-     *  The name of the page to be added.
-     */
-    private function add_page_to_section_path($id, $name)
-    {
-        $this->section_path[] = array(
-            "url" => $this->get_link_url("cms_" . $this->mode, array(
-                "pid" => $id
-            )),
-            "name" => $name
-        );
-    }
-
-    /**
      * Add children to the root page list
      *
      * @param array $root_items
@@ -224,26 +197,6 @@ class CmsModel extends BaseModel
             "type" => $type,
             "relation" => $relation,
             "content" => $content
-        );
-    }
-
-    /**
-     * Add a section to the section path.
-     *
-     * @param int $id
-     *  The id of the section to be added.
-     * @param string $name
-     *  The name of the section to be added.
-     */
-    private function add_section_to_section_path($id, $name)
-    {
-        $this->section_path[] = array(
-            "url" => $this->get_link_url("cms_" . $this->mode, array(
-                "pid" => $this->id_page,
-                "sid" => $this->id_root_section,
-                "ssid" => $id
-            )),
-            "name" => $name
         );
     }
 
@@ -620,6 +573,30 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Recursive function to add the current page or section item and all its
+     * parents to the section path.
+     *
+     * @param array $items
+     *  A hierarchical array of page or section items (see
+     *  CmsModel:add_list_item).
+     * @param int $id
+     *  The id of the page or section to search for.
+     */
+    private function set_section_path($items, $id)
+    {
+        foreach($items as $item)
+        {
+            if($item["id"] == $id
+                || $this->set_section_path($item['children'], $id))
+            {
+                $this->section_path[] = $item;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Recursive function to add the current page and all parent pages to the
      * section path.
      *
@@ -633,7 +610,7 @@ class CmsModel extends BaseModel
             if($page["id"] == $this->id_page
                 || $this->set_section_path_pages($page['children']))
             {
-                $this->add_page_to_section_path($page["id"], $page["title"]);
+                $this->section_path[] = $page;
                 return true;
             }
         }
@@ -654,7 +631,7 @@ class CmsModel extends BaseModel
             if($section["id"] == $this->id_root_section
                 || $this->set_section_path_nav($section['children']))
             {
-                $this->add_nav_to_section_path($section["id"], $section["title"]);
+                $this->section_path[] = $section;
                 return true;
             }
         }
@@ -672,10 +649,11 @@ class CmsModel extends BaseModel
     {
         foreach($sections as $section)
         {
+            print_r($section);
             if($section["id"] == $this->id_section
                 || $this->set_section_path_sections($section['children']))
             {
-                $this->add_section_to_section_path($section["id"], $section["title"]);
+                $this->section_path[] = $section;
                 return true;
             }
         }
@@ -1374,10 +1352,14 @@ class CmsModel extends BaseModel
             + $this->page_sections_nav;
 
         // prepare section path array
-        $this->set_section_path_sections($this->page_sections_nav);
-        array_pop($this->section_path);
-        $this->set_section_path_nav($this->navigation_hierarchy);
-        $this->set_section_path_pages($this->page_hierarchy);
+        $this->set_section_path($this->page_sections,
+            $this->get_active_section_id());
+        if($this->is_navigation())
+            array_pop($this->section_path);
+        $this->set_section_path($this->navigation_hierarchy,
+            $this->get_active_root_section_id());
+        $this->set_section_path($this->page_hierarchy,
+            $this->get_active_page_id());
         $this->section_path = array_reverse($this->section_path);
         $this->section_path[count($this->section_path)-1]["url"] = null;
     }
