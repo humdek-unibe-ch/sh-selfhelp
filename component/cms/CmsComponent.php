@@ -22,15 +22,19 @@ class CmsComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
-     * @param int $id_page
-     *  The id of the page that is currently edited.
+     * @param array $params
+     *  The get parameters passed by the url with the following keys:
+     *   'pid':     The id of the page that is currently edited.
+     *   'sid':     The root id of a page or the section that is currently
+     *              selected.
+     *   'ssid':    The id of the section that is currently selected
+     *              (only relevant for navigation pages).
+     *   'did':     The id of a section to be deleted (only relevant in delete
+     *              mode).
+     *   'type':    This describes the database relation in order to know wheter
+     *              to access pages, sections, navigations.
      * @param string $mode
      *  The mode of the page: 'select', 'update', 'insert', or 'delete'
-     * @param int $id_root_section
-     *  The root id of a page or the section that is currently selected.
-     * @param int $id_section
-     *  The id of the section that is currently selected (only relevant for
-     *  navigation pages).
      */
     public function __construct($services, $params, $mode='select')
     {
