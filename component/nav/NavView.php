@@ -63,7 +63,6 @@ class NavView extends BaseView
     {
         $align = ($right) ? "dropdown-menu-right" : "";
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
         require __DIR__ . "/tpl_nav_menu.php";
     }
 
