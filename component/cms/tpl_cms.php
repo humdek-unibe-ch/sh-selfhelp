@@ -5,8 +5,10 @@
         </div>
         <div class="col">
             <div class="row">
-                <?php $this->output_alerts(); ?>
-                <?php $this->output_breadcrumb(); ?>
+                <div class="col">
+                    <?php $this->output_alerts(); ?>
+                    <?php $this->output_breadcrumb(); ?>
+                </div>
             </div>
             <div class="row">
                 <?php $this->output_fields(); ?>

@@ -347,6 +347,7 @@ class CmsView extends BaseView
             $params['did'] = ":did";
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
+                "edit" => true,
                 "items" => $field['content'],
                 "label" => "Add",
                 "insert_target" => $this->model->get_link_url("cms_insert",
@@ -377,7 +378,6 @@ class CmsView extends BaseView
         {
             if($field['type'] == "style-list")
                 $children[] = new BaseStyleComponent("sortableList", array(
-                    "is_sortable" => false,
                     "items" => $field['content'],
                 ));
             else
@@ -490,9 +490,9 @@ class CmsView extends BaseView
     private function output_page_content()
     {
         if($this->model->is_navigation_main())
-            echo "Here comes the description of how to handle a naviagtion page";
+            require __DIR__ . "/tpl_intro_nav.php";
         else if($this->model->get_active_page_id() == null)
-            echo "Here comes the description of how the cms works";
+            require __DIR__ . "/tpl_intro_cms.php";
         else
             $this->output_local_component("page-view");
     }
