@@ -574,15 +574,18 @@ class CmsModel extends BaseModel
      */
     private function set_all_accessible_sections()
     {
-        $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
+        $sql = "SELECT s.id, s.name, s.id_styles,
+            COALESCE(ps.id_pages, psn.id_pages) AS pid
+            FROM sections AS s
             LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
             LEFT JOIN sections_navigation AS psn ON psn.child = s.id
-            LEFT JOIN acl ON ps.id_pages = acl.id_pages OR psn.id_pages = acl.id_pages
-            WHERE acl.acl_select = 1 AND id_users = :uid";
-        $root_sections = $this->db->query_db($sql,
-            array(":uid" => $_SESSION['id_user']));
+            WHERE ps.id_pages IS NOT NULL OR psn.id_pages IS NOT NULL";
+        $root_sections = $this->db->query_db($sql);
         foreach($root_sections as $section)
         {
+            if(!$this->acl->has_access_select($_SESSION['id_user'],
+                    $section['pid']))
+                continue;
             $id = intval($section['id']);
             $this->all_accessible_sections[$id] = $this->add_list_item(
                 array($id, intval($section['id_styles'])), $section['name'],
