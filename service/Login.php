@@ -42,7 +42,8 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT id, password FROM users WHERE email = :email";
+        $sql = "SELECT id, password FROM users WHERE email = :email
+            AND password IS NOT NULL";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
         {
