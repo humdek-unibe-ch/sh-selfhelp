@@ -1,12 +1,16 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
-require_once __DIR__ . "/../BaseStyleComponent.php";
+require_once __DIR__ . "/../BaseView.php";
+require_once __DIR__ . "/../style/BaseStyleComponent.php";
 
 /**
  * The view class of the user component.
  */
 class UserView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    private $selected_user;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,6 +24,13 @@ class UserView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
+        $this->add_local_component("new_user", new BaseStyleComponent("button",
+            array(
+                "label" => "Create New User",
+                "url" => $this->model->get_link_url("user_insert"),
+                "type" => "secondary"
+            )
+        ));
         $this->add_local_component("users",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
@@ -33,22 +44,20 @@ class UserView extends BaseView
                 )))
             ))
         );
-        $selected_user = $this->model->get_selected_user();
+        $this->selected_user = $this->model->get_selected_user();
         $this->add_local_component("user_groups",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Groups of User <code>"
-                    . $selected_user['email'] . "</code>",
-                "children" => array(
-                    new BaseStyleComponent("sortableList", array(
-                        "edit" => true,
-                        "items" => $this->model->get_selected_user_groups(),
-                        "insert_target" => "bla",
-                        "delete_target" => "bla",
-                        "label" => "Add Group",
-                    ))
-                )
+                    . $this->selected_user['email'] . "</code>",
+                "children" => array(new BaseStyleComponent("sortableList", array(
+                    "edit" => true,
+                    "items" => $this->model->get_selected_user_groups(),
+                    "insert_target" => "bla",
+                    "delete_target" => "bla",
+                    "label" => "Add Group",
+                )))
             ))
         );
         $this->add_local_component("user_acl",
@@ -56,18 +65,21 @@ class UserView extends BaseView
                 "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Access Rights of User <code>"
-                    . $selected_user['email'] . "</code>",
-                "children" => array(
-                    new BaseStyleComponent("acl", array(
-                        "title" => "User",
-                        "items" => $this->model->get_acl_selected_user()
-                    ))
-                )
+                    . $this->selected_user['email'] . "</code>",
+                "children" => array(new BaseStyleComponent("acl", array(
+                    "title" => "User",
+                    "items" => $this->model->get_acl_selected_user()
+                )))
             ))
         );
     }
 
     /* Private Methods ********************************************************/
+
+    private function output_button()
+    {
+        $this->output_local_component("new_user");
+    }
 
     private function output_users()
     {
@@ -87,37 +99,16 @@ class UserView extends BaseView
     /* Public Methods *********************************************************/
 
     /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/user.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/user.js");
-        return parent::get_js_includes($local);
-    }
-
-    /**
      * Render the cms view.
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_user.php";
+        if($this->selected_user != null)
+            require __DIR__ . "/tpl_user.php";
+        else
+        {
+            require __DIR__ . "/tpl_users.php";
+        }
     }
 }
 ?>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../BaseModel.php";
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the user component such
  * that the data can easily be displayed in the view of the component.
@@ -8,7 +8,6 @@ class UserModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
-    private $users;
     private $selected_user;
     private $selected_user_groups;
     private $uid;
@@ -28,8 +27,6 @@ class UserModel extends BaseModel
         $this->uid = $uid;
         $this->selected_user = null;
         if($uid != null) $this->selected_user = $this->fetch_user($uid);
-        $this->users = array();
-        $this->set_users($this->fetch_users());
         $this->selected_user_groups = $this->fetch_user_groups($uid);
     }
 
@@ -39,7 +36,9 @@ class UserModel extends BaseModel
     {
         $sql = "SELECT u.id, u.email FROM users AS u
             WHERE u.id = :uid";
-        return $this->db->query_db_first($sql, array("uid" => $uid));
+        $res = $this->db->query_db_first($sql, array(":uid" => $uid));
+        $res['id'] = $uid;
+        return $res;
     }
 
     private function fetch_users()
@@ -75,19 +74,6 @@ class UserModel extends BaseModel
         return $acl;
     }
 
-    private function set_users($users)
-    {
-        foreach($users as $user)
-        {
-            $id = intval($user["id"]);
-            $this->users[] = array(
-                "id" => $id,
-                "title" => $user["email"],
-                "url" => $this->get_link_url("user", array("id" => $id))
-            );
-        }
-    }
-
     /* Public Methods *********************************************************/
 
     public function get_selected_user()
@@ -102,12 +88,49 @@ class UserModel extends BaseModel
 
     public function get_users()
     {
-        return $this->users;
+        $res = array();
+        foreach($this->fetch_users() as $user)
+        {
+            $id = intval($user["id"]);
+            $res[] = array(
+                "id" => $id,
+                "title" => $user["email"],
+                "url" => $this->get_link_url("user", array("id" => $id))
+            );
+        }
+        return $res;
     }
 
     public function get_acl_selected_user()
     {
         return $this->fetch_acl_by_user($this->uid);
+    }
+
+    public function get_group_options()
+    {
+        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+            ORDER BY g.name";
+        return $this->db->query_db($sql);
+    }
+
+    public function is_duplicate_email($email)
+    {
+        $sql = "SELECT u.id, u.email FROM users AS u
+            WHERE u.email = :email";
+        $res = $this->db->query_db_first($sql, array(":email" => $email));
+        if($res) return true;
+        return false;
+    }
+
+    public function insert_new_user($email, $groups)
+    {
+        $uid = $this->db->insert("users", array("email" => $email));
+        if(!$uid) return false;
+        $groups_db = array();
+        foreach($groups as $group)
+            $groups_db[] = array($uid, intval($group));
+        return $this->db->insert_mult("users_groups",
+            array("id_users", "id_groups"), $groups_db);
     }
 }
 ?>

@@ -7,6 +7,7 @@ require_once "./page/HomePage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/ComponentPage.php";
 require_once "./page/CmsPage.php";
+require_once "./page/UserPage.php";
 require_once "./ajax/AjaxRequest.php";
 
 /**
@@ -74,6 +75,11 @@ function create_cms_delete_page($router, $db, $type, $did, $pid, $sid = null,
 {
     $params = get_cms_params($pid, $sid, $ssid, $type, $did);
     $page = new CmsPage($router, $db, "cms_delete", $params, "delete");
+    $page->output();
+}
+function create_user_insert_page($router, $db)
+{
+    $page = new UserPage($router, $db, "user_insert", "insert");
     $page->output();
 }
 function create_request_page($router, $db, $request)
