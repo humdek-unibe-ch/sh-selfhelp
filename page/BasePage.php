@@ -10,6 +10,7 @@ require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
 require_once __DIR__ . "/../component/cms/CmsComponent.php";
 require_once __DIR__ . "/../component/user/UserComponent.php";
+require_once __DIR__ . "/../component/group/GroupComponent.php";
 
 /**
  * This abstract class serves as staring point for pages.

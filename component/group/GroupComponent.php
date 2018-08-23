@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/GroupView.php";
 require_once __DIR__ . "/GroupModel.php";
 require_once __DIR__ . "/GroupController.php";

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../BaseController.php";
+require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the group component.
  */
