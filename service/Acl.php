@@ -24,7 +24,7 @@ class Acl
      */
     private function get_access_levels_db($id_user, $id_page)
     {
-        $sql = "SELECT * FROM acl
+        $sql = "SELECT * FROM acl_users
             WHERE id_users = :uid AND id_pages = :pid";
         $arguments = array(
             ":uid" => $id_user,
