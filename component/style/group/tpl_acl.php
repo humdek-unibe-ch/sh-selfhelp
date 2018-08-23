@@ -1,5 +1,5 @@
-<table class="table table-sm mb-0">
-    <thead>
+<table class="table table-hover table-sm mb-0">
+    <thead class="thead-dark">
         <tr>
             <th scope="col">user</th>
             <th scope="col">Select</th>

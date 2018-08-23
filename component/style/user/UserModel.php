@@ -10,6 +10,7 @@ class UserModel extends BaseModel
 
     private $users;
     private $selected_user;
+    private $selected_user_groups;
     private $uid;
 
     /* Constructors ***********************************************************/
@@ -29,6 +30,7 @@ class UserModel extends BaseModel
         if($uid != null) $this->selected_user = $this->fetch_user($uid);
         $this->users = array();
         $this->set_users($this->fetch_users());
+        $this->selected_user_groups = $this->fetch_user_groups($uid);
     }
 
     /* Private Methods ********************************************************/
@@ -45,6 +47,14 @@ class UserModel extends BaseModel
         $sql = "SELECT u.id, u.email FROM users AS u
             ORDER BY u.email";
         return $this->db->query_db($sql);
+    }
+
+    private function fetch_user_groups($uid)
+    {
+        $sql = "SELECT g.id, g.name AS title FROM groups AS g
+            LEFT JOIN users_groups AS ug ON ug.id_groups = g.id
+            WHERE ug.id_users = :uid";
+        return $this->db->query_db($sql, array("uid" => $uid));
     }
 
     private function fetch_acl_by_user($uid)
@@ -83,6 +93,11 @@ class UserModel extends BaseModel
     public function get_selected_user()
     {
         return $this->selected_user;
+    }
+
+    public function get_selected_user_groups()
+    {
+        return $this->selected_user_groups;
     }
 
     public function get_users()

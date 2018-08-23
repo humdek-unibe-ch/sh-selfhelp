@@ -4,7 +4,10 @@
             <?php $this->output_users(); ?>
         </div>
         <div class="col">
-            <?php $this->output_user(); ?>
+            <?php $this->output_user_groups(); ?>
+        </div>
+        <div class="col">
+            <?php $this->output_user_acl(); ?>
         </div>
     </div>
 </div>

@@ -3,9 +3,9 @@ require_once __DIR__ . "/../../BaseView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
- * The view class of the user component.
+ * The view class of the group component.
  */
-class UserView extends BaseView
+class GroupView extends BaseView
 {
     /* Constructors ***********************************************************/
 
@@ -20,47 +20,47 @@ class UserView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->add_local_component("users",
+        $this->add_local_component("groups",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => false,
-                "title" => "Registered Users",
+                "title" => "User Groups",
                 "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_users(),
-                    "id_prefix" => "users",
+                    "items" => $this->model->get_groups(),
+                    "id_prefix" => "groups",
                     "has_chevron" => false,
                     "id_active" => 0,
                 )))
             ))
         );
-        $selected_user = $this->model->get_selected_user();
-        $this->add_local_component("user_groups",
+        $selected_group = $this->model->get_selected_group();
+        $this->add_local_component("group_users",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => true,
-                "title" => "Groups of User <code>"
-                    . $selected_user['email'] . "</code>",
+                "title" => "Users in Group <code>"
+                    . $selected_group['name'] . "</code>",
                 "children" => array(
                     new BaseStyleComponent("sortableList", array(
                         "edit" => true,
-                        "items" => $this->model->get_selected_user_groups(),
+                        "items" => $this->model->get_selected_group_users(),
                         "insert_target" => "bla",
                         "delete_target" => "bla",
-                        "label" => "Add Group",
+                        "label" => "Add User",
                     ))
                 )
             ))
         );
-        $this->add_local_component("user_acl",
+        $this->add_local_component("group_acl",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => true,
-                "title" => "Access Rights of User <code>"
-                    . $selected_user['email'] . "</code>",
+                "title" => "Access Rights of Group <code>"
+                    . $selected_group['name'] . "</code>",
                 "children" => array(
                     new BaseStyleComponent("acl", array(
-                        "title" => "User",
-                        "items" => $this->model->get_acl_selected_user()
+                        "title" => "Group",
+                        "items" => $this->model->get_acl_selected_group()
                     ))
                 )
             ))
@@ -69,19 +69,19 @@ class UserView extends BaseView
 
     /* Private Methods ********************************************************/
 
-    private function output_users()
+    private function output_groups()
     {
-        $this->output_local_component("users");
+        $this->output_local_component("groups");
     }
 
-    private function output_user_groups()
+    private function output_group_acl()
     {
-        $this->output_local_component("user_groups");
+        $this->output_local_component("group_acl");
     }
 
-    private function output_user_acl()
+    private function output_group_users()
     {
-        $this->output_local_component("user_acl");
+        $this->output_local_component("group_users");
     }
 
     /* Public Methods *********************************************************/
@@ -95,7 +95,7 @@ class UserView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        $local = array(__DIR__ . "/user.css");
+        $local = array(__DIR__ . "/group.css");
         return parent::get_css_includes($local);
     }
 
@@ -108,7 +108,7 @@ class UserView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/user.js");
+        $local = array(__DIR__ . "/group.js");
         return parent::get_js_includes($local);
     }
 
@@ -117,7 +117,7 @@ class UserView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_user.php";
+        require __DIR__ . "/tpl_group.php";
     }
 }
 ?>
