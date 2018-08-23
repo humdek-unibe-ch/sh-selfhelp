@@ -15,6 +15,12 @@ class SortableListView extends BaseView
     private $is_sortable;
 
     /**
+     * DB field 'edit' (false).
+     * A boolean indicating whether the list can be edited.
+     */
+    private $edit;
+
+    /**
      * DB field 'items' (empty array).
      * An array of items where each item array has the following keys:
      *  'id':       The id of the item.
@@ -30,9 +36,8 @@ class SortableListView extends BaseView
     private $insert_target;
 
     /**
-     * DB field 'label' (empty string).
-     * The label of the insert button. If this is not set, the insert button is
-     * not rendered.
+     * DB field 'label' ("Add").
+     * The label of the insert button.
      */
     private $insert_label;
 
@@ -56,9 +61,10 @@ class SortableListView extends BaseView
     {
         parent::__construct($model);
         $this->is_sortable = $this->model->get_db_field("is_sortable", false);
+        $this->edit = $this->model->get_db_field("edit", false);
         $this->items = $this->model->get_db_field("items", array());
         $this->insert_target = $this->model->get_db_field('insert_target');
-        $this->insert_label = $this->model->get_db_field('label');
+        $this->insert_label = $this->model->get_db_field('label', "Add");
         $this->delete_target = $this->model->get_db_field('delete_target');
     }
 
@@ -82,7 +88,7 @@ class SortableListView extends BaseView
      */
     private function output_list_item_index($index)
     {
-        if(!$this->is_sortable) return;
+        if(!$this->edit || !$this->is_sortable) return;
         require __DIR__ . "/tpl_list_item_index.php";
     }
 
@@ -92,7 +98,7 @@ class SortableListView extends BaseView
     private function output_list_item_rm_button($id)
     {
         $url = str_replace(":did", $id, $this->delete_target);
-        if(!$this->is_sortable || $url == "") return;
+        if(!$this->edit || $url == "") return;
         require __DIR__ . "/tpl_list_item_rm_button.php";
     }
 
@@ -103,7 +109,7 @@ class SortableListView extends BaseView
     {
         $url = $this->insert_target;
         $label = $this->insert_label;
-        if(!$this->is_sortable || $url == "" || $label == "") return;
+        if(!$this->edit || $url == "") return;
         require __DIR__ . "/tpl_list_new_button.php";
     }
 
@@ -143,7 +149,7 @@ class SortableListView extends BaseView
      */
     public function output_content()
     {
-        $sortable = ($this->is_sortable) ? "sortable" : "";
+        $sortable = ($this->edit && $this->is_sortable) ? "sortable" : "";
         require __DIR__ . "/tpl_list.php";
     }
 }
