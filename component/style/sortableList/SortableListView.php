@@ -70,6 +70,14 @@ class SortableListView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    private function output_label($name, $url)
+    {
+        if($url == "" || $this->edit)
+            echo $name;
+        else
+            require __DIR__ . "/tpl_link.php";
+    }
+
     /**
      * Render the items of the sortable list.
      */
@@ -77,8 +85,10 @@ class SortableListView extends BaseView
     {
         foreach($this->items as $index => $item)
         {
+            if(!isset($item['id']) || !isset($item['title'])) continue;
             $id = $item['id'];
             $name = $item['title'];
+            $url = (isset($item['url'])) ? $item['url'] : "";
             require __DIR__ . "/tpl_list_item.php";
         }
     }
