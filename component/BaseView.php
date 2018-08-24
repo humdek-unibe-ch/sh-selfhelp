@@ -8,6 +8,7 @@ abstract class BaseView
 
     protected $model;
     protected $controller;
+    protected $css;
     private $local_components;
     private $children;
 
@@ -25,7 +26,12 @@ abstract class BaseView
     {
         $this->model = $model;
         $this->children = array();
-        if($model != null) $this->children = $model->get_children();
+        if($model != null)
+        {
+            $this->children = $model->get_children();
+            if(method_exists($model, "get_db_field"))
+                $this->css = $model->get_db_field("css");
+        }
         $this->controller = $controller;
         $this->local_components = array();
     }
