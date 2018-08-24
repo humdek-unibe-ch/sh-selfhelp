@@ -28,7 +28,6 @@ class ButtonView extends BaseView
      */
     private $type;
 
-
     /* Constructors ***********************************************************/
 
     /**

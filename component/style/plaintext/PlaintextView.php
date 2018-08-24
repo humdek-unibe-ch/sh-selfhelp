@@ -17,6 +17,13 @@ class PlaintextView extends BaseView
      */
     private $text;
 
+    /**
+     * DB field 'is_paragraph' (false).
+     * If set to true the text is wrapped in paragraph tags. If set to false the
+     * text is rendered as is.
+     */
+    private $is_paragraph;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -29,6 +36,7 @@ class PlaintextView extends BaseView
     {
         parent::__construct($model);
         $this->text = $this->model->get_db_field('text');
+        $this->is_paragraph = $this->model->get_db_field('is_paragraph', false);
     }
 
     /* Public Methods *********************************************************/
@@ -38,7 +46,10 @@ class PlaintextView extends BaseView
      */
     public function output_content()
     {
-        echo htmlspecialchars($this->text);
+        if($this->is_paragraph)
+            echo "<p>" . htmlspecialchars($this->text) . "</p>";
+        else
+            echo htmlspecialchars($this->text);
     }
 }
 ?>

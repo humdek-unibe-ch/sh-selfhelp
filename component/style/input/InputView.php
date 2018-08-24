@@ -34,6 +34,19 @@ class InputView extends BaseView
      */
     private $label;
 
+    /**
+     * DB field 'placeholder' (empty string).
+     * The text to be displayed inside the input field.
+     */
+    private $placeholder;
+
+    /**
+     * DB field 'required' (false).
+     * If set to true the field is required to be filled in. If set to false the
+     * empty striung is also accepted as value.
+     */
+    private $is_required;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -49,6 +62,8 @@ class InputView extends BaseView
         $this->type = $this->model->get_db_field("type", "text");
         $this->name = $this->model->get_db_field("name");
         $this->label = $this->model->get_db_field("label");
+        $this->placeholder = $this->model->get_db_field("placeholder");
+        $this->is_required = $this->model->get_db_field("is_required", false);
     }
 
     /* Private Methods ********************************************************/
@@ -65,6 +80,7 @@ class InputView extends BaseView
             $css_input = "form-check-input position-static float-left";
             if($this->value != "") $checked = "checked";
         }
+        $required = ($this->is_required) ? "required" : "";
         require __DIR__ . "/tpl_input.php";
     }
 

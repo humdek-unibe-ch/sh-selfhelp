@@ -14,6 +14,13 @@ class MarkdownView extends BaseView
      */
     private $text_markdown;
 
+    /**
+     * DB field 'is_paragraph' (false).
+     * If set to true the text is wrapped in paragraph tags. If set to false the
+     * text is rendered as is.
+     */
+    private $is_paragraph;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -26,6 +33,7 @@ class MarkdownView extends BaseView
     {
         parent::__construct($model);
         $this->text_markdown = $this->model->get_db_field('text_markdown');
+        $this->is_paragraph = $this->model->get_db_field('is_paragraph', false);
     }
 
     /* Public Methods *********************************************************/
@@ -35,7 +43,10 @@ class MarkdownView extends BaseView
      */
     public function output_content()
     {
-        echo $this->text_markdown;
+        if($this->is_paragraph)
+            echo "<p>" . $this->text_markdown . "</p>";
+        else
+            echo $this->text_markdown;
     }
 }
 ?>
