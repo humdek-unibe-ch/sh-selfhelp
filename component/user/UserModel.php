@@ -9,8 +9,8 @@ class UserModel extends BaseModel
     /* Private Properties *****************************************************/
 
     private $selected_user;
-    private $selected_user_groups;
     private $uid;
+    private $did;
 
     /* Constructors ***********************************************************/
 
@@ -21,24 +21,29 @@ class UserModel extends BaseModel
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $uid)
+    public function __construct($services, $uid, $did=null)
     {
         parent::__construct($services);
         $this->uid = $uid;
+        $this->did = $did;
         $this->selected_user = null;
         if($uid != null) $this->selected_user = $this->fetch_user($uid);
-        $this->selected_user_groups = $this->fetch_user_groups($uid);
     }
 
     /* Private Methods ********************************************************/
 
     private function fetch_user($uid)
     {
-        $sql = "SELECT u.id, u.email FROM users AS u
+        $sql = "SELECT u.email, (u.password IS NOT NULL) AS active, u.blocked
+            FROM users AS u
             WHERE u.id = :uid";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
-        $res['id'] = $uid;
-        return $res;
+        return array(
+            "id" => $uid,
+            "email" => $res['email'],
+            "active" => ($res['active'] == '1') ? true : false,
+            "blocked" => ($res['blocked'] == '1') ? true : false,
+        );
     }
 
     private function fetch_users()
@@ -53,7 +58,14 @@ class UserModel extends BaseModel
         $sql = "SELECT g.id, g.name AS title FROM groups AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id
             WHERE ug.id_users = :uid";
-        return $this->db->query_db($sql, array("uid" => $uid));
+        $res_db = $this->db->query_db($sql, array(":uid" => $uid));
+        $res = array();
+        foreach($res_db as $item)
+        {
+            $item["id"] = intval($item["id"]);
+            $res[] = $item;
+        }
+        return $res;
     }
 
     private function fetch_acl_by_user($uid)
@@ -76,6 +88,24 @@ class UserModel extends BaseModel
 
     /* Public Methods *********************************************************/
 
+    public function can_delete_user()
+    {
+        return $this->acl->has_access_delete($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("userDelete"));
+    }
+
+    public function can_create_new_user()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("userInsert"));
+    }
+
+    public function can_modify_user()
+    {
+        return $this->acl->has_access_update($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("userUpdate"));
+    }
+
     public function get_selected_user()
     {
         return $this->selected_user;
@@ -83,7 +113,7 @@ class UserModel extends BaseModel
 
     public function get_selected_user_groups()
     {
-        return $this->selected_user_groups;
+        return $this->fetch_user_groups($this->uid);
     }
 
     public function get_users()
@@ -95,7 +125,7 @@ class UserModel extends BaseModel
             $res[] = array(
                 "id" => $id,
                 "title" => $user["email"],
-                "url" => $this->get_link_url("user", array("id" => $id))
+                "url" => $this->get_link_url("user", array("uid" => $id))
             );
         }
         return $res;
@@ -106,11 +136,25 @@ class UserModel extends BaseModel
         return $this->fetch_acl_by_user($this->uid);
     }
 
+    public function get_new_group_options($uid)
+    {
+        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+            LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
+            WHERE ug.id_users IS NULL
+            ORDER BY g.name";
+        return $this->db->query_db($sql, array(":uid" => $uid));
+    }
+
     public function get_group_options()
     {
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             ORDER BY g.name";
         return $this->db->query_db($sql);
+    }
+
+    public function get_did()
+    {
+        return $this->did;
     }
 
     public function is_duplicate_email($email)
@@ -122,15 +166,44 @@ class UserModel extends BaseModel
         return false;
     }
 
-    public function insert_new_user($email, $groups)
+    public function block_user($uid)
     {
-        $uid = $this->db->insert("users", array("email" => $email));
-        if(!$uid) return false;
+        return $this->db->update_by_ids("users", array("blocked" => 1),
+            array("id" => $uid));
+    }
+
+    public function unblock_user($uid)
+    {
+        return $this->db->update_by_ids("users", array("blocked" => 0),
+            array("id" => $uid));
+    }
+
+    public function delete_user($id)
+    {
+        return $this->db->remove_by_fk("users", "id", $id);
+    }
+
+    public function add_groups_to_user($uid, $groups)
+    {
         $groups_db = array();
         foreach($groups as $group)
             $groups_db[] = array($uid, intval($group));
         return $this->db->insert_mult("users_groups",
             array("id_users", "id_groups"), $groups_db);
+    }
+    public function rm_group_from_user($uid, $gid)
+    {
+        return $this->db->remove_by_ids("users_groups", array(
+            "id_users" => $uid,
+            "id_groups" => $gid,
+        ));
+    }
+
+    public function insert_new_user($email, $groups)
+    {
+        $uid = $this->db->insert("users", array("email" => $email));
+        if(!$uid) return false;
+        return $this->add_groups_to_user($uid, $groups);
     }
 }
 ?>

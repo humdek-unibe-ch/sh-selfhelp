@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . "/../BaseController.php";
 /**
- * The controller class of the user component.
+ * The controller class of the user insert component.
  */
-class UserController extends BaseController
+class UserInsertController extends BaseController
 {
     /* Private Properties *****************************************************/
 

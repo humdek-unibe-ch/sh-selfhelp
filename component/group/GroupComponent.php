@@ -20,8 +20,10 @@ class GroupComponent extends BaseComponent
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $uid)
+    public function __construct($services, $params)
     {
+        $uid = null;
+        if(isset($params['uid'])) $uid = $params['uid'];
         $model = new GroupModel($services, $uid);
         $controller = new GroupController($model);
         $view = new GroupView($model, $controller);
