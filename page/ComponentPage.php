@@ -30,11 +30,12 @@ class ComponentPage extends BasePage
      * @param string $component
      *  The component name. This name will be used to construct the class name.
      */
-    public function __construct($router, $db, $keyword, $id=null)
+    public function __construct($router, $db, $keyword, $params)
     {
-        parent::__construct($router, $db, $keyword, $id);
+        parent::__construct($router, $db, $keyword);
         $componentClass = ucfirst($keyword) . "Component";
-        $this->add_component("comp", new $componentClass($this->services, $id));
+        $this->add_component("comp", new $componentClass($this->services,
+            $params));
     }
 
     /* Protected Methods ******************************************************/

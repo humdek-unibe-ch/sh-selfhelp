@@ -8,9 +8,6 @@ require_once __DIR__ . "/../service/Parsedown.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
-require_once __DIR__ . "/../component/cms/CmsComponent.php";
-require_once __DIR__ . "/../component/user/UserComponent.php";
-require_once __DIR__ . "/../component/group/GroupComponent.php";
 
 /**
  * This abstract class serves as staring point for pages.
@@ -25,6 +22,7 @@ abstract class BasePage
     protected $id_page;
     protected $id_navigation_section;
     protected $url;
+    protected $required_access_level;
     protected $services;
     private $css_includes;
     private $js_includes;
@@ -110,6 +108,7 @@ abstract class BasePage
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
+        $this->required_access_level = $info['access_level'];
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
@@ -217,9 +216,9 @@ abstract class BasePage
     protected function output_base_content()
     {
         if($this->render_nav) $this->output_component("nav");
-        if($this->services['acl']->has_access_select($_SESSION['id_user'],
-            $this->id_page))
-            $this->output_content();
+        if($this->services['acl']->has_access($_SESSION['id_user'],
+            $this->id_page, $this->required_access_level))
+            $this->output_content($this->required_access_level);
         else if($this->services['login']->is_logged_in())
             $this->output_component("denied");
         else

@@ -7,7 +7,6 @@ require_once "./page/HomePage.php";
 require_once "./page/SectionPage.php";
 require_once "./page/ComponentPage.php";
 require_once "./page/CmsPage.php";
-require_once "./page/UserPage.php";
 require_once "./ajax/AjaxRequest.php";
 
 /**
@@ -77,11 +76,6 @@ function create_cms_delete_page($router, $db, $type, $did, $pid, $sid = null,
     $page = new CmsPage($router, $db, "cms_delete", $params, "delete");
     $page->output();
 }
-function create_user_insert_page($router, $db)
-{
-    $page = new UserPage($router, $db, "user_insert", "insert");
-    $page->output();
-}
 function create_request_page($router, $db, $request)
 {
     $ajax = new AjaxRequest($db, $request);
@@ -105,18 +99,14 @@ if($router->route)
 {
     if($router->route['target'] == "sections")
     {
-        $id = null;
-        if(array_key_exists('id', $router->route['params']))
-            $id = $router->route['params']['id'];
-        $page = new SectionPage($router, $db, $router->route['name'], $id);
+        $page = new SectionPage($router, $db, $router->route['name'],
+            $router->route['params']);
         $page->output();
     }
     else if($router->route['target'] == "component")
     {
-        $id = null;
-        if(array_key_exists('id', $router->route['params']))
-            $id = $router->route['params']['id'];
-        $page = new ComponentPage($router, $db, $router->route['name'], $id);
+        $page = new ComponentPage($router, $db, $router->route['name'], 
+            $router->route['params']);
         $page->output();
     }
     else if($router->route['target'] == "custom")
@@ -132,7 +122,7 @@ if($router->route)
 }
 else {
     // no route was matched
-    $page = new SectionPage($router, $db, 'missing');
+    $page = new SectionPage($router, $db, 'missing', array());
     $page->output();
 }
 ?>

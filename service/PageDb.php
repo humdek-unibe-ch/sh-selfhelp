@@ -145,12 +145,13 @@ class PageDb extends BaseDb
             "title" => "unknown",
             "keyword" => $keyword,
             "action" => "unknown",
+            "access_level" => "select",
             "url" => "",
             "id" => 0,
             "id_navigation_section" => null
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            a.name AS action FROM pages AS p
+            p.protocol, a.name AS action FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE keyword=:keyword";
         $info = $this->query_db_first($sql, array(":keyword" => $keyword));
@@ -160,6 +161,10 @@ class PageDb extends BaseDb
             $page_info["id"] = intval($info["id"]);
             $page_info["action"] = $info["action"];
             $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
+            $protocols = explode("|", $info["protocol"]);
+            if(in_array("DELETE", $protocols)) $page_info["access_level"] = "delete";
+            else if(in_array("PATCH", $protocols)) $page_info["access_level"] = "update";
+            else if(in_array("PUT", $protocols)) $page_info["access_level"] = "insert";
             $locale_cond = $this->get_locale_condition();
             $sql = "SELECT pft.content AS title
                 FROM pages_fields_translation AS pft

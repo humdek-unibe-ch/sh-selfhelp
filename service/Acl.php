@@ -4,11 +4,39 @@
  */
 class Acl
 {
+    /* Private Properties *****************************************************/
+
     private $db;
+
+    /* Constructors ***********************************************************/
 
     public function __construct($db)
     {
         $this->db = $db;
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * Connects to the database and gets the access rights of a user or a group
+     * for a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval array
+     *  An associative array with the acces rights: 'select', 'insert',
+     *  'update', and 'delete'.
+     */
+    public function get_access_levels($id, $id_page, $is_group = false)
+    {
+        if($is_group)
+            return $this->get_access_levels_group($id, $id_page);
+        else
+            return $this->get_access_levels_user($id, $id_page);
     }
 
     /**
@@ -77,28 +105,6 @@ class Acl
             ":pid" => $id_page
         );
         return $this->db->query_db($sql, $arguments);
-    }
-
-    /**
-     * Connects to the database and gets the access rights of a user or a group
-     * for a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval array
-     *  An associative array with the acces rights: 'select', 'insert',
-     *  'update', and 'delete'.
-     */
-    public function get_access_levels($id, $id_page, $is_group = false)
-    {
-        if($is_group)
-            return $this->get_access_levels_group($id, $id_page);
-        else
-            return $this->get_access_levels_user($id, $id_page);
     }
 
     /**
@@ -207,6 +213,44 @@ class Acl
         return false;
     }
 
+    /* Public Methods *********************************************************/
+
+    /**
+     * Grants the user delete access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if successful, false otherwise.
+     */
+    public function grant_access_delete($id, $id_page, $is_group = false)
+    {
+        return $this->set_access_levels($id, $id_page,
+            array("delete" => true), $is_group);
+    }
+
+    /**
+     * Grants the user insert access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if successful, false otherwise.
+     */
+    public function grant_access_insert($id, $id_page, $is_group = false)
+    {
+        return $this->set_access_levels($id, $id_page,
+            array("insert" => true), $is_group);
+    }
+
     /**
      * Grants the user access to a specific page for all access levels up to a
      * specified level.
@@ -242,6 +286,168 @@ class Acl
             default: return true;;
         }
         return $this->set_access_levels($id, $id_page, $acl, $is_group);
+    }
+
+    /**
+     * Grants the user select access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if successful, false otherwise.
+     */
+    public function grant_access_select($id, $id_page, $is_group = false)
+    {
+        return $this->set_access_levels($id, $id_page,
+            array("select" => true), $is_group);
+    }
+
+    /**
+     * Grants the user update access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if successful, false otherwise.
+     */
+    public function grant_access_update($id, $id_page, $is_group = false)
+    {
+        return $this->set_access_levels($id, $id_page,
+            array("update" => true), $is_group);
+    }
+
+    /**
+     * Verifies user delete access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param string $mode
+     *  The acl mode to check, i.e. "select", "insert", "update", or "delete".
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access($id, $id_page, $mode, $is_group = false)
+    {
+        $acl = $this->get_access_levels($id, $id_page, $is_group);
+        if(isset($acl[$mode]))
+            return $acl[$mode];
+        return false;
+    }
+
+    /**
+     * Verifies user delete access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access_delete($id, $id_page, $is_group = false)
+    {
+        return $this->has_access($id, $id_page, "delete", $is_group);
+    }
+
+    /**
+     * Verifies user insert access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access_insert($id, $id_page, $is_group = false)
+    {
+        return $this->has_access($id, $id_page, "insert", $is_group);
+    }
+
+    /**
+     * Verifies user select access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access_select($id, $id_page, $is_group = false)
+    {
+        return $this->has_access($id, $id_page, "select", $is_group);
+    }
+
+    /**
+     * Verifies user update access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access_update($id, $id_page, $is_group = false)
+    {
+        return $this->has_access($id, $id_page, "update", $is_group);
+    }
+
+    /**
+     * Revokes user delete access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if successful, false otherwise.
+     */
+    public function revoke_access_delete($id, $id_page, $is_group = false)
+    {
+        return $this->set_access_levels($id, $id_page,
+            array("delete" => false), $is_group);
+    }
+
+    /**
+     * Revokes user insert access to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if successful, false otherwise.
+     */
+    public function revoke_access_insert($id, $id_page, $is_group = false)
+    {
+        return $this->set_access_levels($id, $id_page,
+            array("insert" => false), $is_group);
     }
 
     /**
@@ -282,42 +488,6 @@ class Acl
     }
 
     /**
-     * Grants the user select access to a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if successful, false otherwise.
-     */
-    public function grant_access_select($id, $id_page, $is_group = false)
-    {
-        return $this->set_access_levels($id, $id_page,
-            array("select" => true), $is_group);
-    }
-
-    /**
-     * Verifies user select access to a specific page.
-     *
-     * @param int $id_user
-     *  The unique identifier of the user.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if access is granted, false otherwise.
-     */
-    public function has_access_select($id_user, $id_page, $is_group = false)
-    {
-        $acl = $this->get_access_levels($id_user, $id_page, $is_group);
-        return $acl["select"];
-    }
-
-    /**
      * Revokes user select access to a specific page.
      *
      * @param int $id
@@ -336,96 +506,6 @@ class Acl
     }
 
     /**
-     * Grants the user insert access to a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if successful, false otherwise.
-     */
-    public function grant_access_insert($id, $id_page, $is_group = false)
-    {
-        return $this->set_access_levels($id, $id_page,
-            array("insert" => true), $is_group);
-    }
-
-    /**
-     * Verifies user insert access to a specific page.
-     *
-     * @param int $id_user
-     *  The unique identifier of the user.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if access is granted, false otherwise.
-     */
-    public function has_access_insert($id_user, $id_page, $is_group = false)
-    {
-        $acl = $this->get_access_levels($id_user, $id_page, $is_group);
-        return $acl["insert"];
-    }
-
-    /**
-     * Revokes user insert access to a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if successful, false otherwise.
-     */
-    public function revoke_access_insert($id, $id_page, $is_group = false)
-    {
-        return $this->set_access_levels($id, $id_page,
-            array("insert" => false), $is_group);
-    }
-
-    /**
-     * Grants the user update access to a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if successful, false otherwise.
-     */
-    public function grant_access_update($id, $id_page, $is_group = false)
-    {
-        return $this->set_access_levels($id, $id_page,
-            array("update" => true), $is_group);
-    }
-
-    /**
-     * Verifies user update access to a specific page.
-     *
-     * @param int $id_user
-     *  The unique identifier of the user.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if access is granted, false otherwise.
-     */
-    public function has_access_update($id_user, $id_page, $is_group = false)
-    {
-        $acl = $this->get_access_levels($id_user, $id_page, $is_group);
-        return $acl["update"];
-    }
-
-    /**
      * Revokes user update access to a specific page.
      *
      * @param int $id
@@ -441,60 +521,6 @@ class Acl
     {
         return $this->set_access_levels($id, $id_page,
             array("update" => false), $is_group);
-    }
-
-    /**
-     * Grants the user delete access to a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if successful, false otherwise.
-     */
-    public function grant_access_delete($id, $id_page, $is_group = false)
-    {
-        return $this->set_access_levels($id, $id_page,
-            array("delete" => true), $is_group);
-    }
-
-    /**
-     * Verifies user delete access to a specific page.
-     *
-     * @param int $id_user
-     *  The unique identifier of the user.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if access is granted, false otherwise.
-     */
-    public function has_access_delete($id_user, $id_page, $is_group = false)
-    {
-        $acl = $this->get_access_levels($id_user, $id_page, $is_group);
-        return $acl["delete"];
-    }
-
-    /**
-     * Revokes user delete access to a specific page.
-     *
-     * @param int $id
-     *  The unique identifier of the user or the group.
-     * @param in $id_page
-     *  The unique identifier of the page.
-     * @param bool $is_group
-     *  If set to true, target the groups acl, otherwise the users acl.
-     * @retval bool
-     *  true if successful, false otherwise.
-     */
-    public function revoke_access_delete($id, $id_page, $is_group = false)
-    {
-        return $this->set_access_levels($id, $id_page,
-            array("delete" => false), $is_group);
     }
 }
 ?>

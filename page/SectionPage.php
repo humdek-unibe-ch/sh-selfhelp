@@ -28,10 +28,12 @@ class SectionPage extends BasePage
      * @param string $keyword
      *  The identification name of the page.
      */
-    public function __construct($router, $db, $keyword, $id=null)
+    public function __construct($router, $db, $keyword, $params=array())
     {
         parent::__construct($router, $db, $keyword);
-        $this->nav_section_id = $id;
+        $this->nav_section_id = null;
+        if(isset($params['id']))
+            $this->nav_section_id = $params['id'];
         $sql = "SELECT ps.id_sections AS id
             FROM pages_sections AS ps
             WHERE ps.id_pages = :id_page
@@ -46,8 +48,9 @@ class SectionPage extends BasePage
             $this->add_component("section-" . $section['id'],
                 new StyleComponent($this->services, intval($section['id'])));
         }
-        if($id != null)
+        if($this->nav_section_id != null)
         {
+            $id = $this->nav_section_id;
             $this->services['nav']->set_current_index($id);
             $this->add_component("section-" . $id,
                 new StyleComponent($this->services, $id));
