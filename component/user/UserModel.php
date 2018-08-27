@@ -209,11 +209,9 @@ class UserModel extends BaseModel
         ));
     }
 
-    public function insert_new_user($email, $groups)
+    public function insert_new_user($email)
     {
-        $uid = $this->db->insert("users", array("email" => $email));
-        if(!$uid) return false;
-        return $this->add_groups_to_user($uid, $groups);
+        return $this->db->insert("users", array("email" => $email));
     }
 }
 ?>

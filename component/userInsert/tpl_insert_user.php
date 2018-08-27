@@ -1,4 +1,5 @@
 <div class="container mt-3">
+    <?php $this->output_alert(); ?>
     <div class="jumbotron">
         <h1>Create New User</h1>
         <p>
@@ -12,7 +13,6 @@
         </div>
         <div class="card-body">
             <form action="<?php echo $action_url; ?>" method="post">
-                <input type="hidden" value="insert" name="mode">
                 <div class="form-group">
                     <label>Email address</label>
                     <input type="email" class="form-control" name="email" placeholder="Enter email" required>

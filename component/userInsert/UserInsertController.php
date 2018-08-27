@@ -7,6 +7,11 @@ class UserInsertController extends BaseController
 {
     /* Private Properties *****************************************************/
 
+    private $success;
+    private $fail;
+    private $uid;
+    private $email;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -18,22 +23,51 @@ class UserInsertController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(!isset($_POST['mode'])) return;
-        if($_POST['mode'] == "insert")
-            $this->insert_new_user();
+        $this->success = false;
+        $this->fail = false;
+        $this->uid = null;
+        $this->email = "";
+        if(isset($_POST['email']))
+        {
+            $this->email = $_POST['email'];
+            $this->insert_new_user($this->email);
+        }
     }
 
     /* Private Methods ********************************************************/
 
-    private function insert_new_user()
+    private function insert_new_user($email)
     {
         $groups = array();
         if(isset($_POST['user_groups'])) $groups = $_POST['user_groups'];
-        if(isset($_POST['email']))
-            $this->model->insert_new_user($_POST['email'], $groups);
+        $this->uid = $this->model->insert_new_user($email);
+        if($this->uid && $this->model->add_groups_to_user($this->uid, $groups))
+            $this->success = true;
+        else
+            $this->fail = true;
     }
 
     /* Public Methods *********************************************************/
+
+    public function has_succeeded()
+    {
+        return $this->success;
+    }
+
+    public function has_failed()
+    {
+        return $this->fail;
+    }
+
+    public function get_new_uid()
+    {
+        return $this->uid;
+    }
+
+    public function get_new_email()
+    {
+        return $this->email;
+    }
 
 }
 ?>
