@@ -19,6 +19,15 @@ class UserUpdateComponent extends BaseUserComponent
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
+     * @param array $params
+     *  The get parameters passed by the url with the following keys:
+     *   'uid':     The id of the user to be deleted.
+     *   'mode':    The update mode of the user. This must be one of the
+     *              following values:
+     *               'block':       Block a user.
+     *               'unblock':     Unblock a user.
+     *               'add_group':   Add a group to the user.
+     *               'rm_group':    Remove a group from a user.
      */
     public function __construct($services, $params)
     {
