@@ -9,7 +9,7 @@ class BaseUserComponent extends BaseComponent
 {
     /* Private Properties *****************************************************/
 
-    private $model;
+    protected $model;
 
     /* Constructors ***********************************************************/
 

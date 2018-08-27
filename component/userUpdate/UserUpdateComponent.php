@@ -9,6 +9,11 @@ require_once __DIR__ . "/UserUpdateController.php";
  */
 class UserUpdateComponent extends BaseUserComponent
 {
+    /* Private Properties *****************************************************/
+
+    private $did;
+    private $mode;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -31,12 +36,42 @@ class UserUpdateComponent extends BaseUserComponent
      */
     public function __construct($services, $params)
     {
-        $did = null;
-        if(isset($params['did'])) $did = $params['did'];
-        $model = new UserModel($services, $params['uid'], $did);
-        $controller = new UserUpdateController($model, $params['mode']);
-        $view = new UserUpdateView($model, $controller, $params['mode']);
+        if(isset($params['uid'])) $uid = $params['uid'];
+        $this->did = null;
+        if(isset($params['did'])) $this->did = $params['did'];
+        $this->mode = null;
+        if(isset($params['mode'])) $this->mode = $params['mode'];
+        $model = new UserModel($services, $uid, $this->did);
+        $controller = new UserUpdateController($model, $this->mode);
+        $view = new UserUpdateView($model, $controller, $this->mode);
         parent::__construct($model, $view, $controller);
+    }
+
+    /**
+     * Redefine the parent function. Check for a correct mode and group id.
+     *
+     * @retval bool
+     *  True if the user exists, false otherwise
+     */
+    public function has_access()
+    {
+        if(!in_array($this->mode, array("block", "unblock", "add_group",
+            "rm_group")))
+            return false;
+        if($this->did != null)
+        {
+            $ugroups = $this->model->get_selected_user_groups();
+            $is_user_group = false;
+            foreach($ugroups as $group)
+                if($group['id'] == $this->did)
+                {
+                    $is_user_group = true;
+                    break;
+                }
+            if(!$is_user_group)
+                return false;
+        }
+        return parent::has_access();
     }
 }
 ?>
