@@ -106,6 +106,14 @@ class UserModel extends BaseModel
             $this->db->fetch_page_id_by_keyword("userUpdate"));
     }
 
+    public function get_rm_group_name()
+    {
+        if($this->did == null) return "";
+        $sql = "SELECT name FROM groups WHERE id = :gid";
+        $res = $this->db->query_db_first($sql, array(":gid" => $this->did));
+        return $res["name"];
+    }
+
     public function get_selected_user()
     {
         return $this->selected_user;

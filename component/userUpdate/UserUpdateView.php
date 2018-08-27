@@ -244,6 +244,7 @@ class UserUpdateView extends BaseView
         }
         else if($this->mode == "rm_group")
         {
+            $group = $this->model->get_rm_group_name();
             if($this->controller->has_succeeded())
                 require __DIR__ . "/tpl_success_rm_group.php";
             else
