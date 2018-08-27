@@ -22,6 +22,12 @@ class UserUpdateView extends BaseView
      *  The model instance of the user update component.
      * @param object $controller
      *  The controller instance of the user update component.
+     * @param string $mode
+     *  The update mode of the user. This must be one of the following values:
+     *   'block':       Block a user.
+     *   'unblock':     Unblock a user.
+     *   'add_group':   Add a group to the user.
+     *   'rm_group':    Remove a group from a user.
      */
     public function __construct($model, $controller, $mode)
     {
@@ -199,6 +205,9 @@ class UserUpdateView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the fail alert message.
+     */
     private function output_alert()
     {
         if($this->controller->has_failed())

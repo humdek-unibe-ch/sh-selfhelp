@@ -153,12 +153,19 @@ class UserView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the button to create a new user.
+     */
     private function output_button()
     {
         if($this->model->can_create_new_user())
             $this->output_local_component("new_user");
     }
 
+    /**
+     * Render the cards to manipulate a user, i.e. block, unblock. add/remove
+     * groups, or delete a user.
+     */
     private function output_user_manipulation()
     {
         $this->output_local_component("user_groups");
@@ -173,11 +180,17 @@ class UserView extends BaseView
             $this->output_local_component("user_delete");
     }
 
+    /**
+     * Render the list of users.
+     */
     private function output_users()
     {
         $this->output_local_component("users");
     }
 
+    /**
+     * Render the user description or the intro text.
+     */
     private function output_main_content()
     {
         if($this->selected_user != null)
@@ -192,10 +205,9 @@ class UserView extends BaseView
         }
     }
 
-    private function output_user_groups()
-    {
-    }
-
+    /**
+     * Render the ACL list.
+     */
     private function output_user_acl()
     {
         $this->output_local_component("user_acl");

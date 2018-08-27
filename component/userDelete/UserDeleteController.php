@@ -1,15 +1,10 @@
 <?php
-require_once __DIR__ . "/../BaseController.php";
+require_once __DIR__ . "/../user/BaseUserController.php";
 /**
  * The controller class of the user delete component.
  */
-class UserDeleteController extends BaseController
+class UserDeleteController extends BaseUserController
 {
-    /* Private Properties *****************************************************/
-
-    private $success;
-    private $fail;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -21,9 +16,6 @@ class UserDeleteController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->success = false;
-        $this->fail = false;
-        $this->selected_user = $this->model->get_selected_user();
         if(isset($_POST['email']))
         {
             if($_POST['email'] == $this->selected_user['email'])
@@ -38,20 +30,5 @@ class UserDeleteController extends BaseController
                 $this->fail = true;
         }
     }
-
-    /* Private Methods ********************************************************/
-
-    /* Public Methods *********************************************************/
-
-    public function has_succeeded()
-    {
-        return $this->success;
-    }
-
-    public function has_failed()
-    {
-        return $this->fail;
-    }
-
 }
 ?>

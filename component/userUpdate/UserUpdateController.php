@@ -1,15 +1,10 @@
 <?php
-require_once __DIR__ . "/../BaseController.php";
+require_once __DIR__ . "/../user/BaseUserController.php";
 /**
  * The controller class of the user update component.
  */
-class UserUpdateController extends BaseController
+class UserUpdateController extends BaseUserController
 {
-    /* Private Properties *****************************************************/
-
-    private $success;
-    private $fail;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -17,13 +12,16 @@ class UserUpdateController extends BaseController
      *
      * @param object $model
      *  The model instance of the cms component.
+     * @param string $mode
+     *  The update mode of the user. This must be one of the following values:
+     *   'block':       Block a user.
+     *   'unblock':     Unblock a user.
+     *   'add_group':   Add a group to the user.
+     *   'rm_group':    Remove a group from a user.
      */
     public function __construct($model, $mode)
     {
         parent::__construct($model);
-        $this->success = false;
-        $this->fail = false;
-        $this->selected_user = $this->model->get_selected_user();
         if($mode == "block" && isset($_POST["block"]))
         {
             if($this->model->block_user($this->selected_user['id']))
@@ -55,20 +53,5 @@ class UserUpdateController extends BaseController
                 $this->fail = true;
         }
     }
-
-    /* Private Methods ********************************************************/
-
-    /* Public Methods *********************************************************/
-
-    public function has_succeeded()
-    {
-        return $this->success;
-    }
-
-    public function has_failed()
-    {
-        return $this->fail;
-    }
-
 }
 ?>

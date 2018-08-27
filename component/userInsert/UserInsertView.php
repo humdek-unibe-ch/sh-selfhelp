@@ -44,12 +44,18 @@ class UserInsertView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the fail alerts.
+     */
     private function output_alert()
     {
         if($this->controller->has_failed())
             $this->output_local_component("alert-fail");
     }
 
+    /**
+     * Render the group selection from.
+     */
     private function output_group_selection()
     {
         $this->output_local_component("select");

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../BaseComponent.php";
+require_once __DIR__ . "/../user/BaseUserComponent.php";
 require_once __DIR__ . "/../user/UserModel.php";
 require_once __DIR__ . "/UserUpdateView.php";
 require_once __DIR__ . "/UserUpdateController.php";
@@ -7,7 +7,7 @@ require_once __DIR__ . "/UserUpdateController.php";
 /**
  * The user update component.
  */
-class UserUpdateComponent extends BaseComponent
+class UserUpdateComponent extends BaseUserComponent
 {
     /* Constructors ***********************************************************/
 
@@ -27,7 +27,7 @@ class UserUpdateComponent extends BaseComponent
         $model = new UserModel($services, $params['uid'], $did);
         $controller = new UserUpdateController($model, $params['mode']);
         $view = new UserUpdateView($model, $controller, $params['mode']);
-        parent::__construct($view);
+        parent::__construct($model, $view, $controller);
     }
 }
 ?>

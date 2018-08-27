@@ -107,6 +107,13 @@ abstract class BaseComponent
         return $this->view;
     }
 
+    /**
+     * Always returns true. A component extending the base component should
+     * overwrite this method if invalid url parameters are passed.
+     *
+     * @retval bool
+     *  True
+     */
     public function has_access()
     {
         return true;

@@ -69,12 +69,18 @@ class UserDeleteView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the fail alerts.
+     */
     private function output_alert()
     {
         if($this->controller->has_failed())
             $this->output_local_component("alert-fail");
     }
 
+    /**
+     * Rednet the delete form.
+     */
     private function output_form()
     {
         $this->output_local_component("form");
