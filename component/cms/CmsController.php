@@ -137,7 +137,7 @@ class CmsController extends BaseController
                 $sid = $id;
                 $id = null;
             }
-            header('Location: ' . $this->model->get_link_url("cms_update", array(
+            header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
                 "pid" => $this->model->get_active_page_id(),
                 "sid" => ($sid == null) ? $id : $sid,
                 "ssid" => $id

@@ -110,11 +110,11 @@ class CmsModel extends BaseModel
     {
         parent::__construct($services);
         $this->mode = $mode;
-        $this->id_page = $params["pid"];
-        $this->id_root_section = $params["sid"];
-        $this->id_section = $params["ssid"];
-        $this->relation = $params["type"];
-        $this->id_delete = $params["did"];
+        $this->id_page = isset($params["pid"]) ? intval($params["pid"]) : null;
+        $this->id_root_section = isset($params["sid"]) ? intval($params["sid"]) : null;
+        $this->id_section = isset($params["ssid"]) ? intval($params["ssid"]) : null;
+        $this->relation = isset($params["type"]) ? $params["type"] : null;
+        $this->id_delete = isset($params["did"]) ? intval($params["did"]) : null;
 
         $this->page_info = $this->db->fetch_page_info_by_id($this->id_page);
         $this->section_path = array();
@@ -489,7 +489,7 @@ class CmsModel extends BaseModel
     private function get_item_url($pid, $sid=null, $ssid=null)
     {
         if($sid == $ssid) $ssid = null;
-        return $this->router->generate("cms_" . $this->mode,
+        return $this->router->generate("cms" . ucfirst($this->mode),
             array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
     }
 
@@ -909,7 +909,8 @@ class CmsModel extends BaseModel
         return array(
             "pid" => $this->id_page,
             "sid" => $this->id_root_section,
-            "ssid" => $this->id_section
+            "ssid" => $this->id_section,
+            "did" => $this->id_delete,
         );
     }
 
@@ -1427,6 +1428,19 @@ class CmsModel extends BaseModel
             $this->get_active_page_id());
         $this->section_path = array_reverse($this->section_path);
         $this->section_path[count($this->section_path)-1]["url"] = null;
+    }
+
+    /**
+     * This function allows to update some model properties only when needed
+     * for delete opertaions. This allows to update the properties after the
+     * controller modified the content.
+     */
+    public function update_delete_properties()
+    {
+        $this->page_sections_static = $this->fetch_page_sections();
+        $this->page_sections_nav = $this->fetch_page_sections_nav();
+        $this->page_sections = $this->page_sections_static
+            + $this->page_sections_nav;
     }
 }
 ?>

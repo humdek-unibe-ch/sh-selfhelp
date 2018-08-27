@@ -136,10 +136,10 @@ class StyleModel extends BaseModel implements IStyleModel
     public function is_cms_page()
     {
         return ($this->is_link_active("cms")
-            || $this->is_link_active("cms_select")
-            || $this->is_link_active("cms_update")
-            || $this->is_link_active("cms_insert")
-            || $this->is_link_active("cms_delete")
+            || $this->is_link_active("cmsSelect")
+            || $this->is_link_active("cmsUpdate")
+            || $this->is_link_active("cmsInsert")
+            || $this->is_link_active("cmsDelete")
         );
 
     }

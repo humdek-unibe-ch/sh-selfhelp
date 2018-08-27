@@ -209,8 +209,8 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
-                "is_collapsible" => true,
-                "is_expanded" => ($this->model->get_active_section_id() == null),
+                "is_collapsible" => false,
+                "is_expanded" => true,
                 "title" => "Page Properties",
                 "children" => $children,
                 "type" => $type
@@ -285,11 +285,14 @@ class CmsView extends BaseView
         foreach($fields as $field)
             $form_items[] = $this->create_field_form_item($field);
 
+        $params = $this->model->get_current_url_params();
         return new BaseStyleComponent("form", array(
             "url" => $_SERVER['REQUEST_URI'],
             "label" => "Submit Changes",
             "type" => "warning",
-            "children" => $form_items
+            "children" => $form_items,
+            "cancel" => true,
+            "cancel_url" => $this->model->get_link_url("cmsSelect", $params),
         ));
 
     }
@@ -350,9 +353,9 @@ class CmsView extends BaseView
                 "edit" => true,
                 "items" => $field['content'],
                 "label" => "Add",
-                "insert_target" => $this->model->get_link_url("cms_insert",
+                "insert_target" => $this->model->get_link_url("cmsInsert",
                     $params),
-                "delete_target" =>  $this->model->get_link_url("cms_delete",
+                "delete_target" =>  $this->model->get_link_url("cmsDelete",
                     $params)
             ));
         }
@@ -460,7 +463,7 @@ class CmsView extends BaseView
         $type = "light";
         if($mode == "update") $type = "warning";
         if($mode == "delete") $type = "danger";
-        $url = $this->model->get_link_url("cms_" . $mode, $params);
+        $url = $this->model->get_link_url("cms" . ucfirst($mode), $params);
         require __DIR__ . "/tpl_control_item.php";
     }
 

@@ -21,7 +21,6 @@ class CmsInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $model->update_insert_properties();
 
         $this->add_local_component("allowed-sections",
             new BaseStyleComponent("card", array(
@@ -114,7 +113,7 @@ class CmsInsertView extends BaseView
      */
     public function output_content()
     {
-        $url = $this->model->get_link_url("cms_update",
+        $url = $this->model->get_link_url("cmsUpdate",
             $this->model->get_current_url_params());
         $relation = $this->model->get_relation();
         if($relation == "page_nav" || $relation == "section_nav")

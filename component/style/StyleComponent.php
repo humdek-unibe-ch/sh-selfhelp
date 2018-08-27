@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
+require_once __DIR__ . "/BaseStyleComponent.php";
 require_once __DIR__ . "/StyleView.php";
 require_once __DIR__ . "/StyleModel.php";
 
