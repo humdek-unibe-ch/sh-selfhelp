@@ -8,6 +8,11 @@ require_once __DIR__ . "/UserModel.php";
  */
 class UserComponent extends BaseComponent
 {
+    /* Private Properties *****************************************************/
+
+    private $model;
+    private $uid;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -21,11 +26,18 @@ class UserComponent extends BaseComponent
      */
     public function __construct($services, $params)
     {
-        $uid = null;
-        if(isset($params['uid'])) $uid = $params['uid'];
-        $model = new UserModel($services, $uid);
-        $view = new UserView($model);
+        $this->uid = null;
+        if(isset($params['uid'])) $this->uid = $params['uid'];
+        $this->model = new UserModel($services, $this->uid);
+        $view = new UserView($this->model);
         parent::__construct($view);
+    }
+
+    public function has_access()
+    {
+        if($this->uid != null && $this->model->get_selected_user() == null)
+            return false;
+        return parent::has_access();
     }
 }
 ?>

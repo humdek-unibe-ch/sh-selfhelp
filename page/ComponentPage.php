@@ -16,6 +16,7 @@ class ComponentPage extends BasePage
     /* Private Properties *****************************************************/
 
     private $sections;
+    private $componentInstance;
 
     /* Constructors ***********************************************************/
 
@@ -34,8 +35,9 @@ class ComponentPage extends BasePage
     {
         parent::__construct($router, $db, $keyword);
         $componentClass = ucfirst($keyword) . "Component";
-        $this->add_component("comp", new $componentClass($this->services,
-            $params));
+        $this->componentInstance = new $componentClass($this->services,
+            $params);
+        $this->add_component("comp", $this->componentInstance);
     }
 
     /* Protected Methods ******************************************************/
@@ -47,7 +49,10 @@ class ComponentPage extends BasePage
      */
     protected function output_content()
     {
-        $this->output_component("comp");
+        if($this->componentInstance->has_access())
+            $this->output_component("comp");
+        else
+            $this->output_component("missing");
     }
 
     /**

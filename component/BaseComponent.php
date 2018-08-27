@@ -106,5 +106,10 @@ abstract class BaseComponent
     {
         return $this->view;
     }
+
+    public function has_access()
+    {
+        return true;
+    }
 }
 ?>

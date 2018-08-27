@@ -36,8 +36,9 @@ class UserModel extends BaseModel
     {
         $sql = "SELECT u.email, (u.password IS NOT NULL) AS active, u.blocked
             FROM users AS u
-            WHERE u.id = :uid";
+            WHERE u.id = :uid and u.intern <> 1";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
+        if(!$res) return null;
         return array(
             "id" => $uid,
             "email" => $res['email'],
@@ -49,6 +50,7 @@ class UserModel extends BaseModel
     private function fetch_users()
     {
         $sql = "SELECT u.id, u.email FROM users AS u
+            WHERE u.intern <> 1
             ORDER BY u.email";
         return $this->db->query_db($sql);
     }
