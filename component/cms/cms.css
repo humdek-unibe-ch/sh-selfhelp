@@ -1,10 +1,14 @@
 .highlight, .highlight.highlight-hover
 {
+    -moz-box-shadow: 0 0 5px #007bff;
+    -webkit-box-shadow: 0 0 5px #007bff;
     box-shadow: 0 0 5px #007bff;
 }
 
 .highlight-hover
 {
+    -moz-box-shadow: 0 0 5px #28a745;
+    -webkit-box-shadow: 0 0 5px #28a745;
     box-shadow: 0 0 5px #28a745;
 }
 
