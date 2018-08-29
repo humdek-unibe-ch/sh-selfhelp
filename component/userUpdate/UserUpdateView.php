@@ -87,7 +87,7 @@ class UserUpdateView extends BaseView
                         ),
                         "type" => "warning",
                         "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("user",
+                        "cancel_url" => $this->model->get_link_url("userSelect",
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
@@ -122,7 +122,7 @@ class UserUpdateView extends BaseView
                         ),
                         "type" => "warning",
                         "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("user",
+                        "cancel_url" => $this->model->get_link_url("userSelect",
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
@@ -150,7 +150,7 @@ class UserUpdateView extends BaseView
                             )
                         ),
                         "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("user",
+                        "cancel_url" => $this->model->get_link_url("userSelect",
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("select", array(
@@ -181,7 +181,7 @@ class UserUpdateView extends BaseView
                             )
                         ),
                         "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("user",
+                        "cancel_url" => $this->model->get_link_url("userSelect",
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
@@ -230,7 +230,7 @@ class UserUpdateView extends BaseView
      */
     public function output_content()
     {
-        $url = $this->model->get_link_url("user",
+        $url = $this->model->get_link_url("userSelect",
             array("uid" => $this->selected_user['id']));
         if($this->mode == "block")
         {

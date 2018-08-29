@@ -119,10 +119,13 @@ class UserModel extends BaseModel
         {
             $pid = intval($page['id']);
             $acl[$page['keyword']] = array(
-                $this->acl->has_access_select($uid, $pid),
-                $this->acl->has_access_insert($uid, $pid),
-                $this->acl->has_access_update($uid, $pid),
-                $this->acl->has_access_delete($uid, $pid)
+                "name" => $page['keyword'],
+                "acl" => array(
+                    "select" => $this->acl->has_access_select($uid, $pid),
+                    "insert" => $this->acl->has_access_insert($uid, $pid),
+                    "update" => $this->acl->has_access_update($uid, $pid),
+                    "delete" => $this->acl->has_access_delete($uid, $pid),
+                )
             );
         }
         return $acl;
@@ -324,7 +327,7 @@ class UserModel extends BaseModel
             $res[] = array(
                 "id" => $id,
                 "title" => $user["email"],
-                "url" => $this->get_link_url("user", array("uid" => $id))
+                "url" => $this->get_link_url("userSelect", array("uid" => $id))
             );
         }
         return $res;
@@ -370,6 +373,11 @@ class UserModel extends BaseModel
             "id_users" => $uid,
             "id_groups" => $gid,
         ));
+    }
+
+    public function reset_did()
+    {
+        $this->did = null;
     }
 
     /**

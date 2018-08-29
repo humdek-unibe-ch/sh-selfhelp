@@ -1,13 +1,16 @@
 <?php
-require_once __DIR__ . "/BaseUserComponent.php";
-require_once __DIR__ . "/UserView.php";
+require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/UserModel.php";
 
 /**
  * The user component.
  */
-class UserComponent extends BaseUserComponent
+class UserComponent extends BaseComponent
 {
+    /* Private Properties *****************************************************/
+
+    protected $model;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -19,13 +22,24 @@ class UserComponent extends BaseUserComponent
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $params)
+    public function __construct($model, $view, $controller=null)
     {
-        $uid = null;
-        if(isset($params['uid'])) $uid = $params['uid'];
-        $model = new UserModel($services, $uid);
-        $view = new UserView($model);
-        parent::__construct($model, $view);
+        $this->model = $model;
+        parent::__construct($view, $controller);
+    }
+
+    /**
+     * Redefine the parent function of only display valid user ids.
+     *
+     * @retval bool
+     *  True if the user exists, false otherwise
+     */
+    public function has_access()
+    {
+        if($this->model->get_uid() != null
+            && $this->model->get_selected_user() == null)
+            return false;
+        return parent::has_access();
     }
 }
-?>
+

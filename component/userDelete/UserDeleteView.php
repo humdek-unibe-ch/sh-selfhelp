@@ -50,7 +50,7 @@ class UserDeleteView extends BaseView
                             array("uid" => $this->selected_user['id'])),
                         "type" => "danger",
                         "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("user",
+                        "cancel_url" => $this->model->get_link_url("userSelect",
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
@@ -95,7 +95,7 @@ class UserDeleteView extends BaseView
     {
         if($this->controller->has_succeeded())
         {
-            $url = $this->model->get_link_url("user");
+            $url = $this->model->get_link_url("userSelect");
             require __DIR__ . "/tpl_success.php";
         }
         else

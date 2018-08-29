@@ -3,7 +3,7 @@ require_once __DIR__ . "/../BaseController.php";
 /**
  * The base controller class of the user component.
  */
-class BaseUserController extends BaseController
+class UserController extends BaseController
 {
     /* Private Properties *****************************************************/
 

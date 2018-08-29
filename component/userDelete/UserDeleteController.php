@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . "/../user/BaseUserController.php";
+require_once __DIR__ . "/../user/UserController.php";
 /**
  * The controller class of the user delete component.
  */
-class UserDeleteController extends BaseUserController
+class UserDeleteController extends UserController
 {
     /* Constructors ***********************************************************/
 

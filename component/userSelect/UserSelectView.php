@@ -5,7 +5,7 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
 /**
  * The view class of the user component.
  */
-class UserView extends BaseView
+class UserSelectView extends BaseView
 {
     /* Private Properties *****************************************************/
 
@@ -40,7 +40,7 @@ class UserView extends BaseView
                     "items" => $this->model->get_users(),
                     "id_prefix" => "users",
                     "has_chevron" => false,
-                    "id_active" => 0,
+                    "id_active" => $this->selected_user['id'],
                 )))
             ))
         );

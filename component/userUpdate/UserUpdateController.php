@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . "/../user/BaseUserController.php";
+require_once __DIR__ . "/../user/UserController.php";
 /**
  * The controller class of the user update component.
  */
-class UserUpdateController extends BaseUserController
+class UserUpdateController extends UserController
 {
     /* Constructors ***********************************************************/
 
@@ -48,7 +48,10 @@ class UserUpdateController extends BaseUserController
         {
             if($this->model->rm_group_from_user($this->selected_user['id'],
                 intval($_POST["rm_group"])))
+            {
                 $this->success = true;
+                $this->model->reset_did();
+            }
             else
                 $this->fail = true;
         }

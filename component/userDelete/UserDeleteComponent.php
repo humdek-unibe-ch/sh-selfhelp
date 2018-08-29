@@ -1,13 +1,13 @@
 <?php
 require_once __DIR__ . "/../user/UserModel.php";
-require_once __DIR__ . "/../user/BaseUserComponent.php";
+require_once __DIR__ . "/../user/UserComponent.php";
 require_once __DIR__ . "/UserDeleteView.php";
 require_once __DIR__ . "/UserDeleteController.php";
 
 /**
  * The user delete component.
  */
-class UserDeleteComponent extends BaseUserComponent
+class UserDeleteComponent extends UserComponent
 {
     /* Constructors ***********************************************************/
 

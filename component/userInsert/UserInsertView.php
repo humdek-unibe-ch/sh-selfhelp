@@ -71,14 +71,14 @@ class UserInsertView extends BaseView
         if($this->controller->has_succeeded())
         {
             $user = $this->controller->get_new_email();
-            $url = $this->model->get_link_url("user",
+            $url = $this->model->get_link_url("userSelect",
                 array("uid" => $this->controller->get_new_uid()));
             require __DIR__ . "/tpl_success.php";
         }
         else
         {
             $action_url = $this->model->get_link_url("userInsert");
-            $cancel_url = $this->model->get_link_url("user");
+            $cancel_url = $this->model->get_link_url("userSelect");
             require __DIR__ . "/tpl_insert_user.php";
         }
     }
