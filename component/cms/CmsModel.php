@@ -528,7 +528,7 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->has_access($this->mode, $id))
                 continue;
-            $url = ($item['action'] == null) ? "" : $this->get_item_url($id);
+            $url = $this->get_item_url($id);
             array_push($res, $this->add_list_item($id, $item['keyword'], array(),
                 $url));
         }
