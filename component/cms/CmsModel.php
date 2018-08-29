@@ -456,7 +456,7 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Return the index of an itme, given its id.
+     * Return the index of an item, given its id.
      *
      * @param int $id
      *  The id of the item to be found.

@@ -244,12 +244,17 @@ class GroupModel extends BaseModel
     private function get_core_access($lvl)
     {
         $res = true;
-        if($lvl != "select")
-            $res = $this->get_cms_mod_access();
-        else
+        if($lvl == "select")
             $res = $this->gacl["request"]["acl"]["select"]
                 && $this->gacl["logout"]["acl"]["select"]
                 && $this->gacl["profile-link"]["acl"]["select"];
+        else
+        {
+            if($lvl == "update")
+                $res = $this->gacl["logout"]["acl"]["update"]
+                    && $this->gacl["profile-link"]["acl"]["update"];
+            $res &= $this->get_cms_mod_access();
+        }
 
         $res &= $this->gacl["agb"]["acl"][$lvl]
             && $this->gacl["disclaimer"]["acl"][$lvl]
@@ -264,13 +269,20 @@ class GroupModel extends BaseModel
 
     public function set_core_access($lvl)
     {
-        if($lvl != "select")
-            $this->set_cms_mod_access();
-        else
+        if($lvl == "select")
         {
             $this->gacl["request"]["acl"]["select"] = true;
             $this->gacl["logout"]["acl"]["select"] = true;
             $this->gacl["profile-link"]["acl"]["select"] = true;
+        }
+        else
+        {
+            if($lvl == "update")
+            {
+                $this->gacl["logout"]["acl"]["update"] = true;
+                $this->gacl["profile-link"]["acl"]["update"] = true;
+            }
+            $this->set_cms_mod_access();
         }
 
         $this->gacl["agb"]["acl"][$lvl] = true;
