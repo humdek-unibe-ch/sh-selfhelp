@@ -1145,7 +1145,7 @@ class CmsModel extends BaseModel
      */
     public function get_style_list()
     {
-        $sql = "SELECT id, name FROM styles WHERE id_type <> 3 ORDER BY name";
+        $sql = "SELECT id, name FROM styles WHERE intern = 0 ORDER BY name";
         return $this->db->query_db($sql);
     }
 
