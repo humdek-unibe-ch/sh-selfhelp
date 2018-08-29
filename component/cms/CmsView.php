@@ -196,6 +196,7 @@ class CmsView extends BaseView
             ),
         ));
         $fields = $this->model->get_page_properties();
+        $url_edit = "";
         if($this->model->get_mode() == "update")
         {
             $children[] = $this->create_field_form($fields);
@@ -206,6 +207,10 @@ class CmsView extends BaseView
             foreach($fields as $field)
                 $children[] = $this->create_field_item($field);
             $type = "light";
+            if($this->model->has_access("update",
+                    $this->model->get_active_page_id()))
+                $url_edit = $this->model->get_link_url("cmsUpdate",
+                    $this->model->get_current_url_params());
         }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
@@ -213,7 +218,8 @@ class CmsView extends BaseView
                 "is_expanded" => true,
                 "title" => "Page Properties",
                 "children" => $children,
-                "type" => $type
+                "type" => $type,
+                "url" => $url_edit,
             )
         ));
     }
