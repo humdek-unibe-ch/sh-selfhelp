@@ -42,6 +42,8 @@ class CmsUpdateComponent extends CmsComponent
         $model = new CmsModel($services, $params, "update");
         $controller = new CmsController($model);
         $model->update_select_properties();
+        $mode = $controller->get_update_success_count() ? "select" : "update";
+        $model->set_mode($mode);
         $view = new CmsView($model, $controller);
         parent::__construct($model, $view, $controller);
     }

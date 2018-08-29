@@ -489,7 +489,7 @@ class CmsModel extends BaseModel
     private function get_item_url($pid, $sid=null, $ssid=null)
     {
         if($sid == $ssid) $ssid = null;
-        return $this->router->generate("cms" . ucfirst($this->mode),
+        return $this->router->generate("cmsSelect",
             array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
     }
 
@@ -1355,6 +1355,17 @@ class CmsModel extends BaseModel
                 "child" => $id_section
             ));
         }
+    }
+
+    /**
+     * Set the current page acl mode.
+     *
+     * @param string $model
+     *  The page acl mode to set.
+     */
+    public function set_mode($mode)
+    {
+        $this->mode = $mode;
     }
 
     /**
