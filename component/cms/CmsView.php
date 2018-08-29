@@ -354,15 +354,23 @@ class CmsView extends BaseView
             $params = $this->model->get_current_url_params();
             $params['type'] = $field['relation'];
             $params['did'] = ":did";
+            $insert_target = "";
+            if($this->model->has_access("insert",
+                    $this->model->get_active_page_id()))
+                $insert_target = $this->model->get_link_url("cmsInsert",
+                    $params);
+            $delete_target = "";
+            if($this->model->has_access("delete",
+                    $this->model->get_active_page_id()))
+                $delete_target = $this->model->get_link_url("cmsDelete",
+                    $params);
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
                 "edit" => true,
                 "items" => $field['content'],
                 "label" => "Add",
-                "insert_target" => $this->model->get_link_url("cmsInsert",
-                    $params),
-                "delete_target" =>  $this->model->get_link_url("cmsDelete",
-                    $params)
+                "insert_target" => $insert_target,
+                "delete_target" => $delete_target,
             ));
         }
         return new BaseStyleComponent("descriptionItem", array(
