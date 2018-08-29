@@ -29,6 +29,14 @@ class CardView extends BaseView
     private $is_expanded;
 
     /**
+     * DB field 'url' (empty string).
+     * The target url when clicking the edit button in the header. When this
+     * field is set an edit button is rendered in the header. If this field
+     * is not set, no edit button will be rendered.
+     */
+    private $url_edit;
+
+    /**
      * DB field 'type' ('light').
      * The style of the card. E.g. 'warning', 'danger', etc.
      */
@@ -58,6 +66,7 @@ class CardView extends BaseView
         $this->is_expanded = $this->model->get_db_field("is_expanded", true);
         $this->is_collapsible = $this->model->get_db_field("is_collapsible",
             false);
+        $this->url_edit = $this->model->get_db_field("url");
         $this->title = $this->model->get_db_field("title");
         $this->type = $this->model->get_db_field("type", "light");
     }
@@ -74,6 +83,12 @@ class CardView extends BaseView
         if($this->title == "") return;
         $collapsible = $this->is_collapsible ? "collapsible" : "";
         require __DIR__ . "/tpl_card_header.php";
+    }
+
+    private function output_edit_button()
+    {
+        if($this->url_edit != "")
+            require __DIR__ . "/tpl_edit_button.php";
     }
 
     /* Public Methods *********************************************************/

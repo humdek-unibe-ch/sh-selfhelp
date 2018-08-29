@@ -80,3 +80,12 @@
 {
     border-color: #343a40;
 }
+
+a.card-edit
+{
+    color: inherit
+}
+a.card-edit:hover
+{
+    color: #ffc107;
+}
