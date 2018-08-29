@@ -9,6 +9,12 @@ class AclView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'is_editable' (false).
+     * If set to true the checkboxes are editable.
+     */
+    private $is_editable;
+
+    /**
      * DB field 'title' ("ACL").
      * The title of the column where each acl element is listed.
      */
@@ -38,19 +44,27 @@ class AclView extends BaseView
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title", "ACL");
         $this->items = $this->model->get_db_field("items", array());
+        $this->is_editable = $this->model->get_db_field("is_editable", false);
     }
 
     /* Private Methods ********************************************************/
 
     private function output_items()
     {
-        foreach($this->items as $user => $acl)
+        $disabled = ($this->is_editable) ? "" : "disabled";
+        foreach($this->items as $key => $acl)
         {
-            $select = ($acl[0]) ? "checked" : "";
-            $insert = ($acl[1]) ? "checked" : "";
-            $update = ($acl[2]) ? "checked" : "";
-            $delete = ($acl[3]) ? "checked" : "";
+            $name = $acl["name"];
             require __DIR__ . "/tpl_acl_item.php";
+        }
+    }
+
+    private function output_items_checkbox($key, $checkboxes, $disabled)
+    {
+        foreach($checkboxes as $level => $item)
+        {
+            $checked = $item ? "checked" : "";
+            require __DIR__ . "/tpl_acl_item_checkbox.php";
         }
     }
 

@@ -1,7 +1,4 @@
 <tr>
-    <th scope="row"><?php echo $user; ?></th>
-    <td><input type="checkbox" <?php echo $select; ?> disabled></td>
-    <td><input type="checkbox" <?php echo $insert; ?> disabled></td>
-    <td><input type="checkbox" <?php echo $update; ?> disabled></td>
-    <td><input type="checkbox" <?php echo $delete; ?> disabled></td>
+    <th scope="row"><?php echo $name; ?></th>
+    <?php $this->output_items_checkbox($key, $acl["acl"], $disabled); ?>
 </tr>

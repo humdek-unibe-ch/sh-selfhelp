@@ -1,4 +1,4 @@
-<table class="table table-hover table-sm mb-0 table-responsive-sm">
+<table class="table table-hover table-sm table-responsive-sm">
     <thead class="thead-dark">
         <tr>
         <th scope="col"><?php echo $this->title; ?></th>
