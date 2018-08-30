@@ -52,8 +52,6 @@ class CmsDeleteController extends BaseController
         }
     }
 
-    /* Private Methods ********************************************************/
-
     /* Public Methods *********************************************************/
 
     /**
@@ -68,10 +66,10 @@ class CmsDeleteController extends BaseController
     }
 
     /**
-     * Gets the insert success falg.
+     * Gets the delete success falg.
      *
      * @retval bool
-     *  True if the insert operation succeeded, false if no successful insert
+     *  True if the delete operation succeeded, false if no successful delete
      *  operation took place.
      */
     public function has_succeeded()
@@ -80,10 +78,10 @@ class CmsDeleteController extends BaseController
     }
 
     /**
-     * Gets the insert fail falg.
+     * Gets the delete fail falg.
      *
      * @retval bool
-     *  True if the insert operation failed, false if no failed insert
+     *  True if the delete operation failed, false if no failed delete
      *  operation took place.
      */
     public function has_failed()

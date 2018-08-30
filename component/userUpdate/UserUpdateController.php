@@ -11,7 +11,7 @@ class UserUpdateController extends UserController
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the cms component.
+     *  The model instance of the component.
      * @param string $mode
      *  The update mode of the user. This must be one of the following values:
      *   'block':       Block a user.

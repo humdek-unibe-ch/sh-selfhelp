@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseController.php";
 /**
- * The controller class of the cms component.
+ * The controller class of the cms insert component.
  */
 class CmsInsertController extends BaseController
 {
@@ -18,7 +18,7 @@ class CmsInsertController extends BaseController
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the cms component.
+     *  The model instance of the cms insert component.
      */
     public function __construct($model)
     {
@@ -40,8 +40,6 @@ class CmsInsertController extends BaseController
                 $this->fail = true;
         }
     }
-
-    /* Private Methods ********************************************************/
 
     /* Public Methods *********************************************************/
 

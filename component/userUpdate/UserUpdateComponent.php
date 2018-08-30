@@ -17,9 +17,9 @@ class UserUpdateComponent extends UserComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the CmsModel class, the CmsView
-     * class, and the CmsController class and passes the view instance to the
-     * constructor of the parent class.
+     * The constructor creates an instance of the UserModel class, the
+     * UserUpdateView class, and the UserControllerController class and passes
+     * the instances to the constructor of the parent class.
      *
      * @param array $services
      *  An associative array holding the differnt available services. See the

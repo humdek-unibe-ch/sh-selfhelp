@@ -5,7 +5,7 @@ require_once __DIR__ . "/../cms/CmsModel.php";
 require_once __DIR__ . "/../cms/CmsComponent.php";
 
 /**
- * The cms component.
+ * The cms Select component.
  */
 class CmsSelectComponent extends CmsComponent
 {

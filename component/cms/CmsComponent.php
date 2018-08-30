@@ -13,10 +13,15 @@ class CmsComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the CmsModel class, the CmsView
-     * class, and the CmsController class and passes the view instance to the
+     * The constructor. It passes the view and controller instance to the
      * constructor of the parent class.
      *
+     * @param object $model
+     *  The model instance of the view component.
+     * @param object $view
+     *  The view instance of the component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
     public function __construct($model, $view, $controller = null)
     {

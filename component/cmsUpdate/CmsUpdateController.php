@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseController.php";
 /**
- * The controller class of the cms component.
+ * The controller class of the cms update component.
  */
 class CmsUpdateController extends BaseController
 {

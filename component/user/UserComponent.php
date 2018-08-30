@@ -3,7 +3,7 @@ require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/UserModel.php";
 
 /**
- * The user component.
+ * The base user component.
  */
 class UserComponent extends BaseComponent
 {
@@ -14,19 +14,23 @@ class UserComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the CmsModel class, the UserView
-     * class and passes the view instance to the constructor of the parent
-     * class.
+     * The constructor. It passes the view and controller instance to the
+     * constructor of the parent class.
      *
-     * @param array $services
-     *  An associative array holding the differnt available services. See the
-     *  class definition BasePage for a list of all services.
+     * @param object $model
+     *  The model instance of the view component.
+     * @param object $view
+     *  The view instance of the component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
     public function __construct($model, $view, $controller=null)
     {
         $this->model = $model;
         parent::__construct($view, $controller);
     }
+
+    /* Public Methods *********************************************************/
 
     /**
      * Redefine the parent function of only display valid user ids.

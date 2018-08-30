@@ -16,7 +16,7 @@ class UserInsertController extends UserController
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the cms component.
+     *  The model instance of the component.
      */
     public function __construct($model)
     {
@@ -60,6 +60,5 @@ class UserInsertController extends UserController
     {
         return $this->email;
     }
-
 }
 ?>

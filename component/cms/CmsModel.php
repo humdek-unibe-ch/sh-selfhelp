@@ -111,10 +111,13 @@ class CmsModel extends BaseModel
         parent::__construct($services);
         $this->mode = $mode;
         $this->id_page = isset($params["pid"]) ? intval($params["pid"]) : null;
-        $this->id_root_section = (isset($params["sid"]) && $params["sid"] != 0) ? intval($params["sid"]) : null;
-        $this->id_section = (isset($params["ssid"]) && $params["ssid"] != 0) ? intval($params["ssid"]) : null;
+        $this->id_root_section = (isset($params["sid"]) && $params["sid"] != 0)
+            ?  intval($params["sid"]) : null;
+        $this->id_section = (isset($params["ssid"]) && $params["ssid"] != 0)
+            ?  intval($params["ssid"]) : null;
         $this->relation = isset($params["type"]) ? $params["type"] : null;
-        $this->id_delete = (isset($params["did"]) && $params["did"] != 0) ? intval($params["did"]) : null;
+        $this->id_delete = (isset($params["did"]) && $params["did"] != 0)
+            ?  intval($params["did"]) : null;
 
         $this->page_info = $this->db->fetch_page_info_by_id($this->id_page);
         $this->section_path = array();
@@ -297,6 +300,10 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  The id of the parent section.
+     * @param int $recursion
+     *  When set to true the method is executed recursively and a heiarchical
+     *  array is produced. When set to false the method is only executing once
+     *  and, hence, returns a only items from one hierarchy level.
      * @retval array
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
@@ -439,6 +446,10 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  the id of the section to fetch the children
+     * @param int $recursion
+     *  When set to true the method is executed recursively and a heiarchical
+     *  array is produced. When set to false the method is only executing once
+     *  and, hence, returns a only items from one hierarchy level.
      * @retval array
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
@@ -557,6 +568,10 @@ class CmsModel extends BaseModel
      *
      * @param array $items
      *  The section items as they are returned from the db query.
+     * @param int $recursion
+     *  When set to true the method is executed recursively and a heiarchical
+     *  array is produced. When set to false the method is only executing once
+     *  and, hence, returns a only items from one hierarchy level.
      * @retval array
      */
     private function prepare_section_list($items, $recursion = true)
@@ -656,6 +671,9 @@ class CmsModel extends BaseModel
      *  CmsModel:add_list_item).
      * @param int $id
      *  The id of the page or section to search for.
+     * @retval bool
+     *  True if the item was found in the list of children of a parent item,
+     *  false otherwise.
      */
     private function set_section_path($items, $id)
     {
@@ -677,6 +695,9 @@ class CmsModel extends BaseModel
      *
      * @param array $pages
      *  A hierarchical array of pages.
+     * @retval bool
+     *  True if the item was found in the list of children of a parent item,
+     *  false otherwise.
      */
     private function set_section_path_pages($pages)
     {
@@ -698,6 +719,9 @@ class CmsModel extends BaseModel
      *
      * @param array $sections
      *  A hierarchical array of sections.
+     * @retval bool
+     *  True if the item was found in the list of children of a parent item,
+     *  false otherwise.
      */
     private function set_section_path_nav($sections)
     {
@@ -719,6 +743,9 @@ class CmsModel extends BaseModel
      *
      * @param array $sections
      *  A hierarchical array of sections.
+     * @retval bool
+     *  True if the item was found in the list of children of a parent item,
+     *  false otherwise.
      */
     private function set_section_path_sections($sections)
     {
@@ -1183,6 +1210,9 @@ class CmsModel extends BaseModel
     /**
      * Return the section info array.
      *
+     * @param int $section_id
+     *  The id of a section. If no id is provided the current section id is
+     *  used.
      * @retval array
      *  The db result array.
      */
@@ -1495,6 +1525,8 @@ class CmsModel extends BaseModel
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @retval bool
+     *  True on success, false otherwise.
      */
     public function update_db($id, $id_language, $content, $relation)
     {

@@ -2,7 +2,7 @@
 require_once __DIR__ . "/../BaseComponent.php";
 
 /**
- * The group component.
+ * The base group component.
  */
 class GroupComponent extends BaseComponent
 {
@@ -13,9 +13,15 @@ class GroupComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the Model, the View, and the
-     * Controller.
+     * The constructor. It passes the view and controller instance to the
+     * constructor of the parent class.
      *
+     * @param object $model
+     *  The model instance of the view component.
+     * @param object $view
+     *  The view instance of the component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
     public function __construct($model, $view, $controller=null)
     {

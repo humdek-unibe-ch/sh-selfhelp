@@ -5,7 +5,7 @@ require_once __DIR__ . "/../group/GroupView.php";
 require_once __DIR__ . "/GroupUpdateController.php";
 
 /**
- * The user update component.
+ * The group update component.
  */
 class GroupUpdateComponent extends GroupComponent
 {

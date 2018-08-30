@@ -17,7 +17,7 @@ class GroupController extends BaseController
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the user delete component.
+     *  The model instance of the component.
      */
     public function __construct($model)
     {

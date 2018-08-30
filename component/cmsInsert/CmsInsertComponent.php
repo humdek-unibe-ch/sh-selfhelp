@@ -5,7 +5,7 @@ require_once __DIR__ . "/CmsInsertController.php";
 require_once __DIR__ . "/CmsInsertView.php";
 
 /**
- * The cms component.
+ * The cms insert component.
  */
 class CmsInsertComponent extends BaseComponent
 {
@@ -16,9 +16,9 @@ class CmsInsertComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the CmsModel class, the CmsView
-     * class, and the CmsController class and passes the view instance to the
-     * constructor of the parent class.
+     * The constructor creates an instance of the CmsModel class, the
+     * CmsInsertView class, and the CmsInsertController class and passes the
+     * view and controller instance to the constructor of the parent class.
      *
      * @param array $services
      *  An associative array holding the differnt available services. See the

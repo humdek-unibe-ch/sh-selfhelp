@@ -20,6 +20,8 @@ class GroupModel extends BaseModel
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
+     * @param int $gid
+     *  The id of the current selected group.
      */
     public function __construct($services, $gid)
     {
@@ -102,6 +104,183 @@ class GroupModel extends BaseModel
         return $acl;
     }
 
+    /**
+     * Fetch all pages of a specific type from the db.
+     *
+     * @param string $type
+     *  The name of the type to fetch.
+     * @return array
+     *  An array of page items where each item has the following keys:
+     *   'keyword':     The name of the page.
+     *   'id_actions':  The id of the action the page ought to perform. This is
+     *                  used to identify links (where the label can be updated
+     *                  but no sections can be added or removed).
+     */
+    private function fetch_pages_by_type($type)
+    {
+        $sql = "SELECT keyword, id_actions FROM pages
+            LEFT JOIN pageType AS pt ON pages.id_type = pt.id
+            WHERE pt.name = :type";
+        return $this->db->query_db($sql, array(":type" => $type));
+    }
+
+    /**
+     * Helper function to check whether access to a type of page collections at
+     * a given level is permitted.
+     *
+     * @param string $type
+     *  The type of the page collections i.e core or experiment
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_access($type, $lvl)
+    {
+        $res = true;
+        if($lvl != "select")
+            $res &= $this->get_cms_mod_access();
+
+        $pages = $this->fetch_pages_by_type($type);
+        foreach($pages as $page)
+        {
+            if($page["id_actions"] == null)
+            {
+                // it's a link, can only be selected and updated
+                if($lvl == "select" || $lvl == "update")
+                    $res &= $this->gacl[$page["keyword"]]["acl"][$lvl];
+            }
+            else
+                $res &= $this->gacl[$page["keyword"]]["acl"][$lvl];
+        }
+        return $res;
+    }
+
+    /**
+     * Check whether the cms permissions allow to modify pages.
+     *
+     * @retval bool
+     *  True if update access is allowed, false otherwise.
+     */
+    private function get_cms_mod_access()
+    {
+        return $this->gacl["cms-link"]["acl"]["select"]
+            && $this->gacl["cmsSelect"]["acl"]["select"]
+            && $this->gacl["cmsUpdate"]["acl"]["select"]
+            && $this->gacl["cmsUpdate"]["acl"]["update"];
+    }
+
+    /**
+     * Check whether the core permissions corresponding to a certain level are
+     * given.
+     *
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_core_access($lvl)
+    {
+        $res = true;
+        if($lvl == "select")
+            $res &= $this->gacl["request"]["acl"]["select"];
+        $res &= $this->get_access("core", $lvl);
+        return $res;
+    }
+
+    /**
+     * Check whether the experiment permissions corresponding to a certain
+     * level are given.
+     *
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_experiment_access($lvl)
+    {
+        return $this->get_access("experiment", $lvl);
+    }
+
+    /**
+     * Check whether the page permissions corresponding to a certain level are
+     * given.
+     *
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_page_access($lvl)
+    {
+        $res = $this->gacl["cms-link"]["acl"]["select"];
+        $res &= $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"];
+        $res &= $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl];
+        return $res;
+    }
+
+    /**
+     * Check whether the user permissions corresponding to a certain level are
+     * given.
+     *
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_user_access($lvl)
+    {
+        $res = $this->gacl["cms-link"]["acl"]["select"];
+        $res &= $this->gacl["user" . ucfirst($lvl)]["acl"]["select"];
+        $res &= $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl];
+        if($lvl == "select" || $lvl == "update")
+        {
+            $res &= $this->gacl["group" . ucfirst($lvl)]["acl"]["select"];
+            $res &= $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl];
+        }
+        return $res;
+    }
+
+    /**
+     * Helper function to allow access to a type of page collections at a given
+     * level.
+     *
+     * @param string $type
+     *  The type of the page collections i.e core or experiment
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    private function set_access($type, $lvl)
+    {
+        if($lvl != "select")
+            $this->set_cms_mod_access();
+
+        $pages = $this->fetch_pages_by_type($type);
+        foreach($pages as $page)
+        {
+            if($page["id_actions"] == null)
+            {
+                // it's a link, can only be selected and updated
+                if($lvl == "select" || $lvl == "update")
+                    $this->gacl[$page["keyword"]]["acl"][$lvl] = true;
+            }
+            else
+                $this->gacl[$page["keyword"]]["acl"][$lvl] = true;
+        }
+    }
+
+    /**
+     * Set the access level to the cms page such that it allows to update the
+     * content of pages.
+     */
+    private function set_cms_mod_access()
+    {
+        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["cmsSelect"]["acl"]["select"] = true;
+        $this->gacl["cmsUpdate"]["acl"]["select"] = true;
+        $this->gacl["cmsUpdate"]["acl"]["update"] = true;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -116,6 +295,13 @@ class GroupModel extends BaseModel
             $this->db->fetch_page_id_by_keyword("groupUpdate"));
     }
 
+    /**
+     * Updates the db table with the acl values stored in the property
+     * GroupModel::gacl.
+     *
+     * @retval bool
+     *  True on success, false otherwise.
+     */
     public function dump_acl_table()
     {
         $res = true;
@@ -178,146 +364,22 @@ class GroupModel extends BaseModel
         $sgacl["page"] = array(
             "name" => "Page Management",
             "acl" => array(
-                "select" => $this->gacl["cmsSelect"]["acl"]["select"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
-                "insert" => $this->gacl["cmsInsert"]["acl"]["insert"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
-                "update" => $this->gacl["cmsUpdate"]["acl"]["update"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
-                "delete" => $this->gacl["cmsDelete"]["acl"]["delete"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
+                "select" => $this->get_page_access("select"),
+                "insert" => $this->get_page_access("insert"),
+                "update" => $this->get_page_access("update"),
+                "delete" => $this->get_page_access("delete"),
             ),
         );
         $sgacl["user"] = array(
             "name" => "User Management",
             "acl" => array(
-                "select" => $this->gacl["userSelect"]["acl"]["select"]
-                    && $this->gacl["groupSelect"]["acl"]["select"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
-                "insert" => $this->gacl["userInsert"]["acl"]["insert"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
-                "update" => $this->gacl["userUpdate"]["acl"]["update"]
-                    && $this->gacl["groupUpdate"]["acl"]["update"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
-                "delete" => $this->gacl["userDelete"]["acl"]["delete"]
-                    && $this->gacl["cms-link"]["acl"]["select"],
+                "select" => $this->get_user_access("select"),
+                "insert" => $this->get_user_access("insert"),
+                "update" => $this->get_user_access("update"),
+                "delete" => $this->get_user_access("delete"),
             ),
         );
         return $sgacl;
-    }
-
-    public function set_user_access($lvl)
-    {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
-        $this->gacl["user" . ucfirst($lvl)]["acl"]["select"] = true;
-        $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl] = true;
-        if(in_array($lvl, array("select", "update")))
-        {
-            $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
-            $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
-        }
-    }
-
-    public function set_page_access($lvl)
-    {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
-        $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"] = true;
-        $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl] = true;
-    }
-
-    private function get_cms_mod_access()
-    {
-        return $this->gacl["cms-link"]["acl"]["select"]
-            && $this->gacl["cmsSelect"]["acl"]["select"]
-            && $this->gacl["cmsUpdate"]["acl"]["select"]
-            && $this->gacl["cmsUpdate"]["acl"]["update"];
-    }
-
-    private function set_cms_mod_access()
-    {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
-        $this->gacl["cmsSelect"]["acl"]["select"] = true;
-        $this->gacl["cmsUpdate"]["acl"]["select"] = true;
-        $this->gacl["cmsUpdate"]["acl"]["update"] = true;
-    }
-
-    private function get_core_access($lvl)
-    {
-        $res = true;
-        if($lvl == "select")
-            $res = $this->gacl["request"]["acl"]["select"]
-                && $this->gacl["logout"]["acl"]["select"]
-                && $this->gacl["profile-link"]["acl"]["select"];
-        else
-        {
-            if($lvl == "update")
-                $res = $this->gacl["logout"]["acl"]["update"]
-                    && $this->gacl["profile-link"]["acl"]["update"];
-            $res &= $this->get_cms_mod_access();
-        }
-
-        $res &= $this->gacl["agb"]["acl"][$lvl]
-            && $this->gacl["disclaimer"]["acl"][$lvl]
-            && $this->gacl["impressum"]["acl"][$lvl]
-            && $this->gacl["missing"]["acl"][$lvl]
-            && $this->gacl["no_access"]["acl"][$lvl]
-            && $this->gacl["profile"]["acl"][$lvl]
-            && $this->gacl["home"]["acl"][$lvl]
-            && $this->gacl["login"]["acl"][$lvl];
-        return $res;
-    }
-
-    public function set_core_access($lvl)
-    {
-        if($lvl == "select")
-        {
-            $this->gacl["request"]["acl"]["select"] = true;
-            $this->gacl["logout"]["acl"]["select"] = true;
-            $this->gacl["profile-link"]["acl"]["select"] = true;
-        }
-        else
-        {
-            if($lvl == "update")
-            {
-                $this->gacl["logout"]["acl"]["update"] = true;
-                $this->gacl["profile-link"]["acl"]["update"] = true;
-            }
-            $this->set_cms_mod_access();
-        }
-
-        $this->gacl["agb"]["acl"][$lvl] = true;
-        $this->gacl["disclaimer"]["acl"][$lvl] = true;
-        $this->gacl["impressum"]["acl"][$lvl] = true;
-        $this->gacl["missing"]["acl"][$lvl] = true;
-        $this->gacl["no_access"]["acl"][$lvl] = true;
-        $this->gacl["no_access_guest"]["acl"][$lvl] = true;
-        $this->gacl["profile"]["acl"][$lvl] = true;
-        $this->gacl["home"]["acl"][$lvl] = true;
-        $this->gacl["login"]["acl"][$lvl] = true;
-    }
-
-    private function get_experiment_access($lvl)
-    {
-        $res = true;
-        if($lvl != "select")
-            $res = $this->get_cms_mod_access();
-
-        $res &= $this->gacl["contact"]["acl"][$lvl]
-            && $this->gacl["protocols"]["acl"][$lvl]
-            && $this->gacl["session"]["acl"][$lvl]
-            && $this->gacl["sessions"]["acl"][$lvl];
-        return $res;
-    }
-
-    public function set_experiment_access($lvl)
-    {
-        if($lvl != "select")
-            $this->set_cms_mod_access();
-
-        $this->gacl["contact"]["acl"][$lvl] = true;
-        $this->gacl["protocols"]["acl"][$lvl] = true;
-        $this->gacl["session"]["acl"][$lvl] = true;
-        $this->gacl["sessions"]["acl"][$lvl] = true;
     }
 
     /**
@@ -367,11 +429,74 @@ class GroupModel extends BaseModel
         return $this->gid;
     }
 
+    /**
+     * Initialized each value of the local ACL table, i.e. the property
+     * GroupModel::gacl, to false.
+     */
     public function init_acl_table()
     {
         foreach($this->gacl as $key => $acl)
             foreach($acl["acl"] as $lvl => $val)
                 $this->gacl[$key]["acl"][$lvl] = false;
+    }
+
+    /**
+     * Set the access level for all pages that are targeted by the core content
+     * collection.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_core_access($lvl)
+    {
+        if($lvl == "select")
+            $this->gacl["request"]["acl"]["select"] = true;
+        $this->set_access("core", $lvl);
+    }
+
+    /**
+     * Set the access level for all pages that are targeted by the experiment
+     * content collection.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_experiment_access($lvl)
+    {
+        $this->set_access("experiment", $lvl);
+    }
+
+    /**
+     * Set the access level for all pages that are targeted by the user
+     * management collection i.e. the user and group pages.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_user_access($lvl)
+    {
+        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["user" . ucfirst($lvl)]["acl"]["select"] = true;
+        $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl] = true;
+        if($lvl == "select" || $lvl == "update")
+        {
+            $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
+            $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
+        }
+    }
+
+    /**
+     * Set the access level for all pages that are targeted by the page
+     * management collection i.e. the cms pages.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_page_access($lvl)
+    {
+        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"] = true;
+        $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl] = true;
     }
 }
 ?>

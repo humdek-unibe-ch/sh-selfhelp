@@ -4,7 +4,7 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
 require_once __DIR__ . "/../style/StyleComponent.php";
 
 /**
- * The insert view class of the cms component.
+ * The delete view class of the cms component.
  */
 class CmsDeleteView extends BaseView
 {
@@ -18,7 +18,7 @@ class CmsDeleteView extends BaseView
      * @param object $model
      *  The model instance of the cms component.
      * @param object $controller
-     *  The controller instance of the cms component.
+     *  The controller instance of the cms delete component.
      */
     public function __construct($model, $controller)
     {
@@ -96,7 +96,7 @@ class CmsDeleteView extends BaseView
     /* Public Methods *********************************************************/
 
     /**
-     * Render the cms view.
+     * Render the cms delete view.
      */
     public function output_content()
     {

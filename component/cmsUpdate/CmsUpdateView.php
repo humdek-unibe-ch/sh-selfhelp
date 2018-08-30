@@ -8,7 +8,10 @@ require_once __DIR__ . "/../style/StyleComponent.php";
  */
 class CmsUpdateView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
     private $mode;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -17,7 +20,12 @@ class CmsUpdateView extends BaseView
      * @param object $model
      *  The model instance of the cms component.
      * @param object $controller
-     *  The controller instance of the cms component.
+     *  The controller instance of the cms update component.
+     * @param string $mode
+     *  This describes the update mode which can have the values
+     *   - update: update the propertiy fields of a section or page.
+     *   - insert: add a new section to a section or a page.
+     *   - delete: remove a section from a section or a page.
      */
     public function __construct($model, $controller, $mode)
     {
@@ -82,19 +90,6 @@ class CmsUpdateView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/cms.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Get js include files required for this component. This overrides the

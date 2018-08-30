@@ -8,6 +8,8 @@ require_once __DIR__ . "/../style/StyleComponent.php";
  */
 class CmsView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
     private $page_info;
     private $page_sections;
 

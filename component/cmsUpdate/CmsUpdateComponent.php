@@ -7,7 +7,7 @@ require_once __DIR__ . "/CmsUpdateController.php";
 require_once __DIR__ . "/CmsUpdateView.php";
 
 /**
- * The cms component.
+ * The cms update component.
  */
 class CmsUpdateComponent extends CmsComponent
 {
@@ -19,8 +19,9 @@ class CmsUpdateComponent extends CmsComponent
 
     /**
      * The constructor creates an instance of the CmsModel class, the CmsView
-     * class, and the CmsController class and passes the view instance to the
-     * constructor of the parent class.
+     * or the CmsUpdateView class (depending on the mode), and the
+     * CmsUpdateController class and passes the view, controller, an d model
+     * instance to the constructor of the parent class.
      *
      * @param array $services
      *  An associative array holding the differnt available services. See the
@@ -36,6 +37,10 @@ class CmsUpdateComponent extends CmsComponent
      *              mode).
      *   'type':    This describes the database relation in order to know wheter
      *              to access pages, sections, navigations.
+     *   'mode':    This describes the update mode which can have the values
+     *               - update: update the propertiy fields of a section or page.
+     *               - insert: add a new section to a section or a page.
+     *               - delete: remove a section from a section or a page.
      */
     public function __construct($services, $params)
     {

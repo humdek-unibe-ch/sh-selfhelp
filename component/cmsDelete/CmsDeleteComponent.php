@@ -5,7 +5,8 @@ require_once __DIR__ . "/CmsDeleteController.php";
 require_once __DIR__ . "/CmsDeleteView.php";
 
 /**
- * The cms component.
+ * The cms delete component. It provides a component wrapper for the service of
+ * deleting pages.
  */
 class CmsDeleteComponent extends CmsComponent
 {
@@ -16,9 +17,10 @@ class CmsDeleteComponent extends CmsComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the CmsModel class, the CmsView
-     * class, and the CmsController class and passes the view instance to the
-     * constructor of the parent class.
+     * The constructor creates an instance of the CmsModel class, the
+     * CmsDeleteView class, and the CmsDeleteController class and passes the
+     * view, controller, and model instances to the constructor of the parent
+     * class.
      *
      * @param array $services
      *  An associative array holding the differnt available services. See the
@@ -30,10 +32,6 @@ class CmsDeleteComponent extends CmsComponent
      *              selected.
      *   'ssid':    The id of the section that is currently selected
      *              (only relevant for navigation pages).
-     *   'did':     The id of a section to be deleted (only relevant in delete
-     *              mode).
-     *   'type':    This describes the database relation in order to know wheter
-     *              to access pages, sections, navigations.
      */
     public function __construct($services, $params)
     {

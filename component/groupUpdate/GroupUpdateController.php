@@ -11,7 +11,7 @@ class GroupUpdateController extends GroupController
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the cms component.
+     *  The model instance of the group component.
      */
     public function __construct($model)
     {
