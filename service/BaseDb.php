@@ -308,7 +308,7 @@ class BaseDb {
                 ." (".$columnStr.") VALUES(".$valueStr.") ". $onDuplicate;
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($data);
-            $new_id = $this->dbh->lastInsertId();
+            $new_id = intval($this->dbh->lastInsertId());
             if($new_id > 0) return $new_id; // might be zero if no id is available
             else return true;
 

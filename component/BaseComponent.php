@@ -15,8 +15,8 @@ abstract class BaseComponent
 {
     /* Private Properties *****************************************************/
 
-    private $view;
-    private $controller;
+    protected $view;
+    protected $controller;
     private $components;
 
     /* Constructors ***********************************************************/

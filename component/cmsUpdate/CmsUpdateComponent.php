@@ -2,8 +2,9 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/../cms/CmsView.php";
 require_once __DIR__ . "/../cms/CmsModel.php";
-require_once __DIR__ . "/../cms/CmsController.php";
 require_once __DIR__ . "/../cms/CmsComponent.php";
+require_once __DIR__ . "/CmsUpdateController.php";
+require_once __DIR__ . "/CmsUpdateView.php";
 
 /**
  * The cms component.
@@ -40,11 +41,18 @@ class CmsUpdateComponent extends CmsComponent
     {
         $this->acl = $services['acl'];
         $model = new CmsModel($services, $params, "update");
-        $controller = new CmsController($model);
-        $model->update_select_properties();
-        $mode = $controller->get_update_success_count() ? "select" : "update";
-        $model->set_mode($mode);
-        $view = new CmsView($model, $controller);
+        $controller = new CmsUpdateController($model);
+        if($params["mode"] == "update")
+        {
+            $model->update_select_properties();
+            $view = new CmsView($model, $controller);
+        }
+        else
+        {
+            $update_prop_method = "update_" . $params["mode"] . "_properties";
+            $model->$update_prop_method();
+            $view = new CmsUpdateView($model, $controller, $params["mode"]);
+        }
         parent::__construct($model, $view, $controller);
     }
 
@@ -57,7 +65,7 @@ class CmsUpdateComponent extends CmsComponent
      * @retval bool
      *  True if the user has update access to page, false otherwise
      */
-    public function has_access()
+    public function has_access($skip_ids = false)
     {
         $pid = $this->model->get_active_page_id();
         if(!$this->acl->has_access_update($_SESSION['id_user'], $pid))

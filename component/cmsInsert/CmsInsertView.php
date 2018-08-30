@@ -21,35 +21,11 @@ class CmsInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-
-        $this->add_local_component("allowed-sections",
-            new BaseStyleComponent("card", array(
-                "is_expanded" => false,
-                "is_collapsible" => true,
-                "title" => "Sections in Use",
-                "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_accessible_sections(),
-                    "id_prefix" => "sections-search-accessible",
-                    "is_expanded" => false,
-                    "has_chevron" => false,
-                    "id_active" => 0,
-                    "search_text" => "Search"
-                )))
-            ))
-        );
-
-        $this->add_local_component("unassigned-sections",
-            new BaseStyleComponent("card", array(
-                "is_expanded" => true,
-                "is_collapsible" => true,
-                "title" => "Unassigned Sections",
-                "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_unassigned_sections(),
-                    "id_prefix" => "sections-search-unassigned",
-                    "is_expanded" => false,
-                    "has_chevron" => false,
-                    "id_active" => 0,
-                    "search_text" => "Search"
+        $this->add_local_component("alert-fail",
+            new BaseStyleComponent("alert", array(
+                "type" => "danger",
+                "children" => array(new BaseStyleComponent("plaintext", array(
+                    "text" => "Failed to create a new page.",
                 )))
             ))
         );
@@ -58,42 +34,15 @@ class CmsInsertView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Render the list of styles.
+     * Render the fail alerts.
      */
-    private function output_style_list()
+    private function output_alert()
     {
-        $styles = $this->model->get_style_list();
-        foreach($styles as $style)
-        {
-            $value = intval($style['id']);
-            $name = $style['name'];
-            require __DIR__ . "/tpl_select_option.php";
-        }
-    }
-
-    /**
-     * Render the list of all available sections.
-     */
-    private function output_section_search_list()
-    {
-        $this->output_local_component("unassigned-sections");
-        $this->output_local_component("allowed-sections");
+        if($this->controller->has_failed())
+            $this->output_local_component("alert-fail");
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/cms.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Get js include files required for this component. This overrides the
@@ -104,7 +53,7 @@ class CmsInsertView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/cms_insert.js");
+        $local = array(__DIR__ . "/new_page.js");
         return parent::get_js_includes($local);
     }
 
@@ -113,22 +62,19 @@ class CmsInsertView extends BaseView
      */
     public function output_content()
     {
-        $url = $this->model->get_link_url("cmsUpdate",
-            $this->model->get_current_url_params());
-        $relation = $this->model->get_relation();
-        if($relation == "page_nav" || $relation == "section_nav")
-            $child = "navigation";
+        if($this->controller->has_succeeded())
+        {
+            $name = $this->controller->get_new_page_name();
+            $url = $this->model->get_link_url("cmsSelect",
+                array("pid" => $this->controller->get_new_pid()));
+            require __DIR__ . "/tpl_success.php";
+        }
         else
-            $child = "children";
-
-        $page_info = $this->model->get_page_info();
-        $section_info = $this->model->get_section_info();
-        if($this->model->get_active_section_id() == null)
-            $target = "the page '" . $page_info['keyword'] . "'.";
-        else
-            $target = "the section '" . $section_info['name'] . "'"
-                . " on page '" . $page_info['keyword'] . "'.";
-        require __DIR__ . "/tpl_cms_insert.php";
+        {
+            $action_url = $this->model->get_link_url("cmsInsert");
+            $cancel_url = $this->model->get_link_url("cmsSelect");
+            require __DIR__ . "/tpl_cms_insert.php";
+        }
     }
 }
 ?>

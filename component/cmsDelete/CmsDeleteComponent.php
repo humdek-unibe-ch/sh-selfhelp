@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/../cms/CmsModel.php";
-require_once __DIR__ . "/../cms/CmsController.php";
 require_once __DIR__ . "/../cms/CmsComponent.php";
+require_once __DIR__ . "/CmsDeleteController.php";
 require_once __DIR__ . "/CmsDeleteView.php";
 
 /**
@@ -40,7 +39,7 @@ class CmsDeleteComponent extends CmsComponent
     {
         $this->acl = $services['acl'];
         $model = new CmsModel($services, $params, "delete");
-        $controller = new CmsController($model);
+        $controller = new CmsDeleteController($model);
         $model->update_delete_properties();
         $view = new CmsDeleteView($model, $controller);
         parent::__construct($model, $view, $controller);
@@ -55,12 +54,14 @@ class CmsDeleteComponent extends CmsComponent
      * @retval bool
      *  True if the user has delete access to page, false otherwise
      */
-    public function has_access()
+    public function has_access($skip_ids = false)
     {
         $pid = $this->model->get_active_page_id();
-        if(!$this->acl->has_access_delete($_SESSION['id_user'], $pid))
+        $skip_ids = $this->controller->has_succeeded();
+        if(!$skip_ids
+            && !$this->acl->has_access_delete($_SESSION['id_user'], $pid))
             return false;
-        return parent::has_access();
+        return parent::has_access($skip_ids);
     }
 }
 ?>

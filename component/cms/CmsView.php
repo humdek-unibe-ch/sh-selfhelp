@@ -21,10 +21,59 @@ class CmsView extends BaseView
      * @param object $controller
      *  The controller instance of the cms component.
      */
-    public function __construct($model, $controller)
+    public function __construct($model, $controller = null)
     {
         parent::__construct($model, $controller);
         $this->page_info = $this->model->get_page_info();
+
+        $this->add_local_component("new_page", new BaseStyleComponent("button",
+            array(
+                "label" => "Create New Page",
+                "url" => $this->model->get_link_url("cmsInsert"),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            )
+        ));
+        $this->add_local_component("delete_page",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "title" => "Delete Page",
+                "type" => "danger",
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array(
+                        "text" => "Deleting a page will remove all data associated to this page. This cannot be undone.",
+                        "is_paragraph" => true,
+                    )),
+                    new BaseStyleComponent("button", array(
+                        "label" => "Delete Page",
+                        "url" => $this->model->get_link_url("cmsDelete",
+                            array("pid" => $this->model->get_active_page_id())),
+                        "type" => "danger",
+                    )),
+                )
+            ))
+        );
+        $this->add_local_component("delete_section",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "title" => "Delete Section",
+                "type" => "danger",
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array(
+                        "text" => "Deleting a section will remove all data associated to this section. This cannot be undone.",
+                        "is_paragraph" => true,
+                    )),
+                    new BaseStyleComponent("button", array(
+                        "label" => "Delete Section",
+                        "url" => $this->model->get_link_url("cmsDelete",
+                            $this->model->get_current_url_params()),
+                        "type" => "danger",
+                    )),
+                )
+            ))
+        );
 
         $pages = $this->model->get_pages();
         $expand_pages = !$this->model->is_navigation_item();
@@ -50,37 +99,46 @@ class CmsView extends BaseView
         else if($this->model->get_active_page_id())
             $this->add_page_property_list();
 
-        if($controller->has_insert_succeeded())
+        if($controller)
         {
-            $msg = "Successfully added a new section.";
-            $this->add_alert_component("alert_insert_success", "success", $msg);
-        }
-        if($controller->has_insert_failed())
-        {
-            $msg = "Failed to add a new section";
-            $this->add_alert_component("alert_insert_failed", "danger", $msg);
-        }
-        if($controller->has_remove_succeeded())
-        {
-            $msg = "Successfully removed a link to a section.";
-            $this->add_alert_component("alert_remove_success", "success", $msg);
-        }
-        if($controller->has_remove_failed())
-        {
-            $msg = "Failed to remove a link to a section";
-            $this->add_alert_component("alert_remove_failed", "danger", $msg);
-        }
-        $success_count = $controller->get_update_success_count();
-        if($success_count > 0)
-        {
-            $msg = "Successfully updated " . $success_count . " fields";
-            $this->add_alert_component("alert_update_success", "success", $msg);
-        }
-        $fail_count = $controller->get_update_fail_count();
-        if($fail_count > 0)
-        {
-            $msg = "Failed to update " . $fail_count . " fields";
-            $this->add_alert_component("alert_update_failed", "danger", $msg);
+            if($controller->has_insert_succeeded())
+            {
+                $msg = "Successfully added a new section.";
+                $this->add_alert_component("alert_insert_success", "success",
+                    $msg);
+            }
+            if($controller->has_insert_failed())
+            {
+                $msg = "Failed to add a new section";
+                $this->add_alert_component("alert_insert_failed", "danger",
+                    $msg);
+            }
+            if($controller->has_remove_succeeded())
+            {
+                $msg = "Successfully removed a link to a section.";
+                $this->add_alert_component("alert_remove_success", "success",
+                    $msg);
+            }
+            if($controller->has_remove_failed())
+            {
+                $msg = "Failed to remove a link to a section";
+                $this->add_alert_component("alert_remove_failed", "danger",
+                    $msg);
+            }
+            $success_count = $controller->get_update_success_count();
+            if($success_count > 0)
+            {
+                $msg = "Successfully updated " . $success_count . " fields";
+                $this->add_alert_component("alert_update_success", "success",
+                    $msg);
+            }
+            $fail_count = $controller->get_update_fail_count();
+            if($fail_count > 0)
+            {
+                $msg = "Failed to update " . $fail_count . " fields";
+                $this->add_alert_component("alert_update_failed", "danger",
+                    $msg);
+            }
         }
 
         $page_components = array();
@@ -359,17 +417,21 @@ class CmsView extends BaseView
             ));
             $params = $this->model->get_current_url_params();
             $params['type'] = $field['relation'];
-            $params['did'] = ":did";
+            $params_insert = $params;
+            $params_insert['mode'] = "insert";
             $insert_target = "";
             if($this->model->has_access("insert",
                     $this->model->get_active_page_id()))
-                $insert_target = $this->model->get_link_url("cmsInsert",
-                    $params);
+                $insert_target = $this->model->get_link_url("cmsUpdate",
+                    $params_insert);
             $delete_target = "";
+            $params_delete = $params;
+            $params_delete['mode'] = "delete";
+            $params_delete['did'] = ":did";
             if($this->model->has_access("delete",
                     $this->model->get_active_page_id()))
-                $delete_target = $this->model->get_link_url("cmsDelete",
-                    $params);
+                $delete_target = $this->model->get_link_url("cmsUpdate",
+                    $params_delete);
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
                 "edit" => true,
@@ -454,37 +516,10 @@ class CmsView extends BaseView
         }
     }
 
-    /**
-     * Renders the control buttons.
-     */
-    private function output_controls()
+    private function output_create_new_button()
     {
-        if($this->model->get_active_page_id() == null) return;
-        $params = $this->model->get_current_url_params();
-        require __DIR__ . "/tpl_controls.php";
-    }
-
-    /**
-     * Render a control button
-     *
-     * @param string $mode
-     *  Indication the current cms mode. E.g 'update', 'select', etc.
-     * @param array $params
-     *  An array where the link parameter are stored as key => value pairs.
-     * @param string $title
-     *  The title of the control button
-     */
-    private function output_control_item($mode, $params, $title)
-    {
-        if($this->model->get_mode() == $mode) return;
-        if(!$this->model->has_access($mode,
-            $this->model->get_active_page_id())) return;
-
-        $type = "light";
-        if($mode == "update") $type = "warning";
-        if($mode == "delete") $type = "danger";
-        $url = $this->model->get_link_url("cms" . ucfirst($mode), $params);
-        require __DIR__ . "/tpl_control_item.php";
+        if($this->model->can_create_new_page())
+            $this->output_local_component("new_page");
     }
 
     /**
@@ -492,9 +527,15 @@ class CmsView extends BaseView
      */
     private function output_fields()
     {
-        if($this->model->get_active_section_id()
-            || $this->model->get_active_page_id())
-            require __DIR__ . "/tpl_fields.php";
+        $this->output_local_component("page-fields");
+        $this->output_local_component("section-fields");
+        if($this->model->can_delete_page())
+        {
+            if($this->model->get_active_section_id() == null)
+                $this->output_local_component("delete_page");
+            else
+                $this->output_local_component("delete_section");
+        }
     }
 
     /**
@@ -512,10 +553,19 @@ class CmsView extends BaseView
      */
     private function output_page_content()
     {
+        if($this->model->get_active_page_id() == null)
+            require __DIR__ . "/tpl_intro_cms.php";
+        else
+            require __DIR__ . "/tpl_cms.php";
+    }
+
+    /**
+     * Renders the page preview card.
+     */
+    private function output_page_preview()
+    {
         if($this->model->is_navigation_main())
             require __DIR__ . "/tpl_intro_nav.php";
-        else if($this->model->get_active_page_id() == null)
-            require __DIR__ . "/tpl_intro_cms.php";
         else
             $this->output_local_component("page-view");
     }
@@ -553,7 +603,7 @@ class CmsView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_cms.php";
+        require __DIR__ . "/tpl_main.php";
     }
 }
 ?>

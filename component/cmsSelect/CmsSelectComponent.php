@@ -2,7 +2,6 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/../cms/CmsView.php";
 require_once __DIR__ . "/../cms/CmsModel.php";
-require_once __DIR__ . "/../cms/CmsController.php";
 require_once __DIR__ . "/../cms/CmsComponent.php";
 
 /**
@@ -40,10 +39,9 @@ class CmsSelectComponent extends CmsComponent
     {
         $this->acl = $services['acl'];
         $model = new CmsModel($services, $params, "select");
-        $controller = new CmsController($model);
         $model->update_select_properties();
-        $view = new CmsView($model, $controller);
-        parent::__construct($model, $view, $controller);
+        $view = new CmsView($model);
+        parent::__construct($model, $view);
     }
 
     /* Public Methods *********************************************************/
@@ -55,7 +53,7 @@ class CmsSelectComponent extends CmsComponent
      * @retval bool
      *  True if the user has select access to page, false otherwise
      */
-    public function has_access()
+    public function has_access($skip_ids = false)
     {
         $pid = $this->model->get_active_page_id();
         if($pid != null &&

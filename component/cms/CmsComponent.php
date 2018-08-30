@@ -18,7 +18,7 @@ class CmsComponent extends BaseComponent
      * constructor of the parent class.
      *
      */
-    public function __construct($model, $view, $controller)
+    public function __construct($model, $view, $controller = null)
     {
         $this->model = $model;
         parent::__construct($view, $controller);
@@ -54,16 +54,17 @@ class CmsComponent extends BaseComponent
      * @retval bool
      *  True if the user the page or section exists, false otherwise
      */
-    public function has_access()
+    public function has_access($skip_ids = false)
     {
         $sections = $this->model->get_page_sections();
         $params = $this->model->get_current_url_params();
-        if(($params['ssid'] != null
+        if(!$skip_ids
+            && ((($params['ssid'] != null)
                 && !$this->is_section_in_list($params['ssid'], $sections))
             || ($params['sid'] != null
                 && !$this->is_section_in_list($params['sid'], $sections))
             || ($params['did'] != null
-                && !$this->is_section_in_list($params['did'], $sections)))
+                && !$this->is_section_in_list($params['did'], $sections))))
             return false;
         return parent::has_access();
     }

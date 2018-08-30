@@ -111,10 +111,10 @@ class CmsModel extends BaseModel
         parent::__construct($services);
         $this->mode = $mode;
         $this->id_page = isset($params["pid"]) ? intval($params["pid"]) : null;
-        $this->id_root_section = isset($params["sid"]) ? intval($params["sid"]) : null;
-        $this->id_section = isset($params["ssid"]) ? intval($params["ssid"]) : null;
+        $this->id_root_section = (isset($params["sid"]) && $params["sid"] != 0) ? intval($params["sid"]) : null;
+        $this->id_section = (isset($params["ssid"]) && $params["ssid"] != 0) ? intval($params["ssid"]) : null;
         $this->relation = isset($params["type"]) ? $params["type"] : null;
-        $this->id_delete = isset($params["did"]) ? intval($params["did"]) : null;
+        $this->id_delete = (isset($params["did"]) && $params["did"] != 0) ? intval($params["did"]) : null;
 
         $this->page_info = $this->db->fetch_page_info_by_id($this->id_page);
         $this->section_path = array();
@@ -207,6 +207,22 @@ class CmsModel extends BaseModel
             "relation" => $relation,
             "content" => $content
         );
+    }
+
+    /**
+     * Creates a new navigation section that can then be linked to the new page.
+     *
+     * @param string $keyword
+     *  The keyword of the page for which the navigation page is created.
+     * @retavl int
+     *  The id of the newly crated navigation section.
+     */
+    private function create_new_navigation_section($keyword)
+    {
+        return $this->db->insert("sections", array(
+            "name" => $keyword . "-navigation",
+            "id_styles" => NAVIGATION_STYLE_ID,
+        ));
     }
 
     /**
@@ -599,6 +615,19 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Sets the default acl rights for the newly created page.
+     *
+     * @param int $pid
+     *  The id of the page.
+     */
+    private function set_new_page_acl($pid)
+    {
+        $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
+        $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 4, true);
+        $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+    }
+
+    /**
      * Fetch all children of accessible sections and add them to the
      * corresponding private property.
      *
@@ -843,6 +872,90 @@ class CmsModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
+     * Checks whether the current user is allowed to delete pages.
+     *
+     * @retavl bool
+     *  True if the current user can delete pages, false otherwise.
+     */
+    public function can_delete_page()
+    {
+        return $this->acl->has_access_delete($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsDelete"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to create new pages.
+     *
+     * @retavl bool
+     *  True if the current user can create new pages, false otherwise.
+     */
+    public function can_create_new_page()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsInsert"));
+    }
+
+    /**
+     * Inserts a new page to the bd and sets the basic access rights.
+     *
+     * @param string $keyword
+     *  The unique keyword of the page
+     * @param string $url
+     *  The url pattern of the page
+     * @param string $protocol
+     *  The pipe-delimited string of protocols
+     * @param int $type
+     *  Indigates the page action or whether the page is a navigation page.
+     * @retval int
+     *  The id of the created page.
+     */
+    public function create_new_page($keyword, $url, $protocol, $type)
+    {
+        $nav_id = null;
+        if($type == 4)
+        {
+            $type = 3;
+            $nav_id = $this->create_new_navigation_section($keyword);
+        }
+        $pid = $this->db->insert("pages", array(
+            "keyword" => $keyword,
+            "url" => $url,
+            "protocol" => $protocol,
+            "id_navigation_section" => $nav_id,
+            "id_actions" => $type,
+            "id_type" => EXPERIMENT_PAGE_ID,
+        ));
+        $this->set_new_page_acl($pid);
+        return $pid;
+    }
+
+    /**
+     * Permanently delete a page from the db.
+     *
+     * @param int $pid
+     *  The id of the page to delete.
+     * @retval bool
+     *  True if the process was successful, false otherwise.
+     */
+    public function delete_page($pid)
+    {
+        return $this->db->remove_by_fk("pages", "id", $pid);
+    }
+
+    /**
+     * Permanently delete a section from the db.
+     *
+     * @param int $sid
+     *  The id of the section to delete.
+     * @retval bool
+     *  True if the process was successful, false otherwise.
+     */
+    public function delete_section($sid)
+    {
+        return $this->db->remove_by_fk("sections", "id", $sid);
+    }
+
+    /**
      * Returns an array of all section that are accessible by the current user.
      *
      * @retval array
@@ -911,6 +1024,8 @@ class CmsModel extends BaseModel
             "sid" => $this->id_root_section,
             "ssid" => $this->id_section,
             "did" => $this->id_delete,
+            "mode" => "update",
+            "type" => "prop",
         );
     }
 
@@ -1332,7 +1447,7 @@ class CmsModel extends BaseModel
      */
     public function remove_section_association($id_section, $relation)
     {
-        if(!$this->acl->has_access_delete($_SESSION['id_user'],
+        if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
         if($relation == "page_children")
             return $this->db->remove_by_ids("pages_sections", array(
@@ -1405,11 +1520,25 @@ class CmsModel extends BaseModel
 
     /**
      * This function allows to update some model properties only when needed
+     * for delete opertaions. This allows to update the properties after the
+     * controller modified the content.
+     */
+    public function update_page_sections()
+    {
+        $this->page_sections_static = $this->fetch_page_sections();
+        $this->page_sections_nav = $this->fetch_page_sections_nav();
+        $this->page_sections = $this->page_sections_static
+            + $this->page_sections_nav;
+    }
+
+    /**
+     * This function allows to update some model properties only when needed
      * for insert opertaions. This is useful because the model is the same for
      * all mode operations.
      */
     public function update_insert_properties()
     {
+        $this->update_page_sections();
         $this->set_all_accessible_sections();
         $this->all_unassigned_sections = $this->fetch_unassigned_sections();
     }
@@ -1423,10 +1552,7 @@ class CmsModel extends BaseModel
     {
         $this->page_hierarchy = $this->fetch_page_hierarchy();
         $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
-        $this->page_sections_static = $this->fetch_page_sections();
-        $this->page_sections_nav = $this->fetch_page_sections_nav();
-        $this->page_sections = $this->page_sections_static
-            + $this->page_sections_nav;
+        $this->update_page_sections();
 
         // prepare section path array
         $this->set_section_path($this->page_sections,
@@ -1448,10 +1574,7 @@ class CmsModel extends BaseModel
      */
     public function update_delete_properties()
     {
-        $this->page_sections_static = $this->fetch_page_sections();
-        $this->page_sections_nav = $this->fetch_page_sections_nav();
-        $this->page_sections = $this->page_sections_static
-            + $this->page_sections_nav;
+        $this->update_page_sections();
     }
 }
 ?>

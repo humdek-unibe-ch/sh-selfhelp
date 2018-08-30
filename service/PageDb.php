@@ -66,7 +66,7 @@ class PageDb extends BaseDb
         $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action
             FROM pages AS p
             LEFT JOIN actions AS a ON p.id_actions = a.id
-            WHERE p.intern = 0";
+            WHERE p.id_type != 1";
         return $this->query_db($sql);
     }
 

@@ -3,7 +3,7 @@ require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the cms component.
  */
-class CmsController extends BaseController
+class CmsUpdateController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -86,7 +86,10 @@ class CmsController extends BaseController
     private function insert_section_link($id, $relation)
     {
         if($this->model->insert_section_link($id, $relation))
-            $this->insert_section_success($id);
+        {
+            $this->insert_success = true;
+            $this->model->set_mode("select");
+        }
         else
             $this->insert_fail = true;
     }
@@ -107,42 +110,24 @@ class CmsController extends BaseController
     {
         $new_id = $this->model->insert_new_section($name, $id_style, $relation);
         if($new_id)
-            $this->insert_section_success($new_id, $relation, true);
-        else
-            $this->insert_fail = true;
-    }
-
-    /**
-     * Performs operations after a successful insert opertation:
-     *  - Set the success flag to true.
-     *  - Redirect the page if desired.
-     *
-     * @param int $id
-     *  The id of the new section.
-     * @param string $relation
-     *  The database relation to know whether the link targets the navigation
-     *  or children list and whether the parent is a page or a section.
-     * @param bool $redirect
-     *  If set to true the user will be reditrected to the newly inserted
-     *  section in update mode.
-     */
-    private function insert_section_success($id, $relation="", $redirect = false)
-    {
-        $this->insert_success = true;
-        $sid = $this->model->get_active_root_section_id();
-        if($redirect)
         {
+            $this->insert_success = true;
+            $sid = $this->model->get_active_root_section_id();
             if($relation == "page_nav" || $relation == "section_nav")
             {
-                $sid = $id;
-                $id = null;
+                $sid = $new_id;
+                $new_id = null;
             }
             header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
+                "type" => "prop",
+                "mode" => "update",
                 "pid" => $this->model->get_active_page_id(),
-                "sid" => ($sid == null) ? $id : $sid,
-                "ssid" => $id
+                "sid" => ($sid == null) ? $new_id : $sid,
+                "ssid" => $new_id
             )));
         }
+        else
+            $this->insert_fail = true;
     }
 
     /**
@@ -157,7 +142,10 @@ class CmsController extends BaseController
     private function remove_section_link($id_section, $relation)
     {
         if($this->model->remove_section_association($id_section, $relation))
+        {
             $this->remove_success = true;
+            $this->model->set_mode("select");
+        }
         else
             $this->remove_fail = true;
     }
@@ -208,6 +196,8 @@ class CmsController extends BaseController
                     $this->update_fail_count++;
             }
         }
+        if($this->update_success_count > 0 && $this->update_fail_count == 0)
+            $this->model->set_mode("select");
     }
 
     /**

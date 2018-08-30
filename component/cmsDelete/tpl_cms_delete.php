@@ -1,21 +1,8 @@
 <div class="container mt-3">
+    <?php $this->output_alert(); ?>
     <div class="jumbotron">
-        <h1>Remove Section</h1>
-        <p>This will remove the section '<?php echo $del_section; ?>' from the <?php echo $child; ?> list of <?php echo $target; ?>
- However, it will not delete the section. All data of the section and its subsections will remain intact.</p>
+        <h1>Delete <?php echo ucfirst($this->target); ?></h1>
+        <p>This will delete the <?php echo $this->target; ?> <code><?php echo $name; ?></code> and all the data associated to this <?php echo $this->target; ?>.</p>
     </div>
-    <form action="<?php echo $url; ?>" method="post">
-        <input type="hidden" value="<?php echo $did; ?>" name="remove-section-link">
-        <input type="hidden" value="delete" name="mode">
-        <input type="hidden" value="<?php echo $relation; ?>" name="relation">
-        <div class="card mb-3">
-            <div class="card-header">
-                Remove Section
-            </div>
-            <div class="card-body">
-                <button type="submit" class="btn btn-danger">Remove Section</button>
-                <a href="<?php echo $url; ?>" class="btn btn-secondary float-right">Cancel</a>
-            </div>
-        </div>
-    </form>
+    <?php $this->output_form(); ?>
 </div>

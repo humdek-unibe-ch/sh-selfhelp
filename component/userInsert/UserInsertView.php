@@ -24,7 +24,6 @@ class UserInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->selected_user = $this->model->get_selected_user();
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",

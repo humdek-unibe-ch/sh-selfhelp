@@ -1,14 +1,13 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/../cms/CmsModel.php";
-require_once __DIR__ . "/../cms/CmsController.php";
-require_once __DIR__ . "/../cms/CmsComponent.php";
+require_once __DIR__ . "/CmsInsertController.php";
 require_once __DIR__ . "/CmsInsertView.php";
 
 /**
  * The cms component.
  */
-class CmsInsertComponent extends CmsComponent
+class CmsInsertComponent extends BaseComponent
 {
     /* Private Properties *****************************************************/
 
@@ -40,27 +39,9 @@ class CmsInsertComponent extends CmsComponent
     {
         $this->acl = $services['acl'];
         $model = new CmsModel($services, $params, "insert");
-        $controller = new CmsController($model);
-        $model->update_insert_properties();
+        $controller = new CmsInsertController($model);
         $view = new CmsInsertView($model, $controller);
-        parent::__construct($model, $view, $controller);
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Redefine the parent function to deny access on invalid pages and
-     * sections.
-     *
-     * @retval bool
-     *  True if the user has insert access to page, false otherwise
-     */
-    public function has_access()
-    {
-        $pid = $this->model->get_active_page_id();
-        if(!$this->acl->has_access_insert($_SESSION['id_user'], $pid))
-            return false;
-        return parent::has_access();
+        parent::__construct($view, $controller);
     }
 }
 ?>

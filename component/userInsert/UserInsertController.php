@@ -25,6 +25,7 @@ class UserInsertController extends UserController
         $this->email = "";
         if(isset($_POST['email']))
         {
+            $this->email = $_POST['email'];
             $groups = array();
             if(isset($_POST['user_groups'])) $groups = $_POST['user_groups'];
             $this->uid = $this->model->insert_new_user($_POST['email']);
