@@ -2,6 +2,7 @@
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./service/router.php";
 require_once "./service/globals_untracked.php";
+require_once "./service/globals.php";
 require_once "./service/Login.php";
 require_once "./page/HomePage.php";
 require_once "./page/SectionPage.php";
