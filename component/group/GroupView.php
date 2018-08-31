@@ -109,7 +109,7 @@ class GroupView extends BaseView
                 )
             ))
         );
-        $this->add_local_component("group_simple_acl_form"
+        $this->add_local_component("group_simple_acl_form",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => false,
