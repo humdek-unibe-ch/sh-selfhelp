@@ -284,6 +284,30 @@ class GroupModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
+     * Checks whether the current user is allowed to create new groups.
+     *
+     * @retavl bool
+     *  True if the current user can create new groups, false otherwise.
+     */
+    public function can_create_new_group()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("groupInsert"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to delete groups.
+     *
+     * @retavl bool
+     *  True if the current user can delete groups, false otherwise.
+     */
+    public function can_delete_group()
+    {
+        return $this->acl->has_access_delete($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("groupDelete"));
+    }
+
+    /**
      * Checks whether the current user is allowed to modify the ACL of groups.
      *
      * @retavl bool
@@ -296,14 +320,31 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Delete a group from the database.
+     *
+     * @param int $gid
+     *  The id of the group to be deleted.
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function delete_group($gid)
+    {
+        return $this->db->remove_by_fk("groups", "id", $gid);
+    }
+
+    /**
      * Updates the db table with the acl values stored in the property
      * GroupModel::gacl.
      *
+     * @param int $gid
+     *  The group id where the acl will be updated. If no id is provided, the
+     *  current group id GroupModel::gid is used.
      * @retval bool
      *  True on success, false otherwise.
      */
-    public function dump_acl_table()
+    public function dump_acl_table($gid = null)
     {
+        if($gid == null) $gid = $this->gid;
         $res = true;
         foreach($this->gacl as $key => $acl)
         {
@@ -313,10 +354,10 @@ class GroupModel extends BaseModel
                 $grant_method = "grant_access_" . $lvl;
                 $revoke_method = "revoke_access_" . $lvl;
                 if($val)
-                    $res &= $this->acl->$grant_method($this->gid, $pid,
+                    $res &= $this->acl->$grant_method($gid, $pid,
                         $_SESSION['id_user']);
                 else
-                    $res &= $this->acl->$revoke_method($this->gid, $pid,
+                    $res &= $this->acl->$revoke_method($gid, $pid,
                         $_SESSION['id_user']);
             }
         }
@@ -441,6 +482,24 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Insert a new group to the DB.
+     *
+     * @param string $name
+     *  The name of the group to be added.
+     * @param string $desc
+     *  The description of the group to be added.
+     * @retval int
+     *  The id of the new group or false if the process failed.
+     */
+    public function insert_new_group($name, $desc)
+    {
+        return $this->db->insert("groups", array(
+            "name" => $name,
+            "description" => $desc,
+        ));
+    }
+
+    /**
      * Set the access level for all pages that are targeted by the core content
      * collection.
      *
@@ -478,11 +537,8 @@ class GroupModel extends BaseModel
         $this->gacl["cms-link"]["acl"]["select"] = true;
         $this->gacl["user" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl] = true;
-        if($lvl == "select" || $lvl == "update")
-        {
-            $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
-            $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
-        }
+        $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
+        $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
     }
 
     /**

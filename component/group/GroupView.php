@@ -41,6 +41,14 @@ class GroupView extends BaseView
                 )))
             ), true)
         );
+        $this->add_local_component("new-group", new BaseStyleComponent("button",
+            array(
+                "label" => "Create New Group",
+                "url" => $this->model->get_link_url("groupInsert"),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            )
+        ));
         $this->add_local_component("groups",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
@@ -77,6 +85,26 @@ class GroupView extends BaseView
                     "title" => "Function",
                     "items" => $this->model->get_simple_acl_selected_group()
                 )))
+            ))
+        );
+        $this->add_local_component("group_delete",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "title" => "Delete Group",
+                "type" => "danger",
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array(
+                        "text" => "Deleting a group will remove all data associated to this group. This cannot be undone.",
+                        "is_paragraph" => true,
+                    )),
+                    new BaseStyleComponent("button", array(
+                        "label" => "Delete Group",
+                        "url" => $this->model->get_link_url("groupDelete",
+                            array("gid" => $this->selected_group['id'])),
+                        "type" => "danger",
+                    )),
+                )
             ))
         );
         $this->add_local_component("group_simple_acl_form",
@@ -130,6 +158,15 @@ class GroupView extends BaseView
     }
 
     /**
+     * Render the button to create a new user.
+     */
+    private function output_button()
+    {
+        if($this->model->can_create_new_group())
+            $this->output_local_component("new-group");
+    }
+
+    /**
      * Render the simplified ACL of groups.
      */
     private function output_group_manipulation()
@@ -138,6 +175,8 @@ class GroupView extends BaseView
             $this->output_local_component("group_simple_acl_form");
         else
             $this->output_local_component("group_simple_acl");
+        if($this->model->can_delete_group())
+            $this->output_local_component("group_delete");
     }
 
     /**
