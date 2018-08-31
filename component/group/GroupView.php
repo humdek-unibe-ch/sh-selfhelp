@@ -73,8 +73,10 @@ class GroupView extends BaseView
                 )))
             ))
         );
-        $url_edit = $this->model->get_link_url("groupUpdate",
-            array('gid' => $this->selected_group['id']));
+        $url_edit = "";
+        if($this->model->can_modify_group_acl())
+            $url_edit = $this->model->get_link_url("groupUpdate",
+                array('gid' => $this->selected_group['id']));
         $this->add_local_component("group_simple_acl",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
@@ -107,7 +109,7 @@ class GroupView extends BaseView
                 )
             ))
         );
-        $this->add_local_component("group_simple_acl_form",
+        $this->add_local_component("group_simple_acl_form"
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => false,
