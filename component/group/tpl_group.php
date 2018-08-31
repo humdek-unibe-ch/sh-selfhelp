@@ -4,7 +4,7 @@
         <div class="jumbotron">
             <h1>Group <code><?php echo $this->selected_group['name']; ?></code></h1>
             <p class="lead">&mdash; <?php echo $this->selected_group['desc']; ?> &mdash;</p>
-            <p>There are four different function where acces right can be specified:
+            <p>There are four different functions where access rights can be specified:
  </p>
             <ul>
                 <li><strong>Core Content</strong> is composed of all the pages which do not relate directly to the experiment (e.g. impressum, disclaimer, profile, etc.).
@@ -26,17 +26,17 @@
                 <li><strong>Page Management</strong>
                     <ul>
                         <li><code>select</code> grants read access the page overview and page properties (CMS).</li>
-                        <li><code>insert</code> allows to create a new page.</li>
+                        <li><code>insert</code> allows to create new pages.</li>
                         <li><code>update</code> allows to modify page properties and content (if the specific page access rights are granted).</li>
-                        <li><code>delete</code> allows to delete a page.</li>
+                        <li><code>delete</code> allows to delete pages.</li>
                     </ul>
                 </li>
                 <li><strong>User Management</strong>
                     <ul>
                         <li><code>select</code> grants read access to the user and group overview.</li>
-                        <li><code>insert</code> allows to create a new user.</li>
+                        <li><code>insert</code> allows to create new users and groups.</li>
                         <li><code>update</code> allows to modify access right of users and groups.</li>
-                        <li><code>delete</code> allows to delete users.</li>
+                        <li><code>delete</code> allows to delete users and groups.</li>
                     </ul>
                 </li>
             </ul>

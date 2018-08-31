@@ -4,10 +4,10 @@
         The Content Management System (CMS) allows to modify the content of existing pages and create new pages or delete existing pages.
     </p>
     <p>
-        Pages are organised as a collection of sections that are rendered one below the other.
+        Pages are organised as a collection of sections that are rendered on the page, one below the other.
         Sections have different styles wich define the apperance of the sections.
-        Depending the the style of a section, the section has different fields which define the content of the section.
-        The value of a field can be a simple plaintext or a collection of child sections which may, in turn, have their own styles.
+        Depending on the style of a section, the section has different fields which define the content of the section.
+        The value of a field can be a simple plaintext or a collection of child sections which have their own styles and children.
     </p>
     <p>
         Navigate to the available pages with the help of the <code>Page Index</code> card.
@@ -16,7 +16,7 @@
         The hierarchical path of the current selected element is shown at the top of the page.
     </p>
     <p>
-        To edit the content of a page or section, use the <code>Edit Page</code> button on the right (if available). In the edit mode new sections can be created or removed and the values of fields can be changed.
+        To edit the content of a page or section, use the button <i class="fas fa-edit"></i> in the header of the card <code>Page Properties</code> or <code>Section Properties</code> (if available). In the edit mode sections can be created, removed, or ordered and the values of fields can be changed.
         Property cards are highligted in yellow whenever the edit mode is active.
     </p>
 </div>
