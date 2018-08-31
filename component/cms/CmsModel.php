@@ -966,7 +966,13 @@ class CmsModel extends BaseModel
      */
     public function delete_page($pid)
     {
-        return $this->db->remove_by_fk("pages", "id", $pid);
+        $res = true;
+        $info = $this->get_page_info($pid);
+        if($info['id_navigation_section'] != null)
+            $res = $this->delete_section($info['id_navigation_section']);
+        if($res)
+            return $this->db->remove_by_fk("pages", "id", $pid);
+        return false;
     }
 
     /**
