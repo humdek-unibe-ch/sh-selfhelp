@@ -2,10 +2,7 @@
     <?php $this->output_alert(); ?>
     <div class="row">
         <div class="col">
-            <div class="d-flex align-items-end flex-column">
-                <h1><?php echo $this->intro_title; ?></h1>
-                <p><?php echo $this->intro_content; ?></p>
-            </div>
+            <?php $this->output_children(); ?>
         </div>
         <div class="col">
             <div class="card">
@@ -15,7 +12,7 @@
                 <div class="card-body">
                     <form action="<?php echo $url; ?>" method="post">
                         <div class="form-group">
-                            <input type="email" class="form-control" name="email" placeholder="<?php echo $this->user_label; ?>" required>
+                            <input type="text" class="form-control" name="email" placeholder="<?php echo $this->user_label; ?>" required>
                         </div>
                         <div class="form-group">
                             <input type="password" class="form-control" name="password" placeholder="<?php echo $this->pw_label; ?>" required>
