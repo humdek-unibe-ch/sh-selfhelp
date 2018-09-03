@@ -32,7 +32,7 @@
                             <label class="text-muted">Create New Section</label>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Section</button>
-                        <a href="<?php echo $url; ?>" class="btn btn-secondary float-right">Cancel</a>
+                        <a href="<?php echo $url_cancel; ?>" class="btn btn-secondary float-right">Cancel</a>
                     </div>
                 </div>
             </div>

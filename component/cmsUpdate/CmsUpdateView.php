@@ -113,7 +113,8 @@ class CmsUpdateView extends BaseView
         $params["type"] = "prop";
         $params["mode"] = "update";
         $params["did"] = null;
-        $url = $this->model->get_link_url("cmsSelect", $params);
+        $url_cancel = $this->model->get_link_url("cmsSelect", $params);
+        $url = $this->model->get_link_url("cmsUpdate", $params);
         $relation = $this->model->get_relation();
         if($relation == "page_nav" || $relation == "section_nav")
             $child = "navigation";
@@ -144,7 +145,8 @@ class CmsUpdateView extends BaseView
         $params = $this->model->get_current_url_params();
         $params["type"] = $relation;
         $params["mode"] = "update";
-        $url = $this->model->get_link_url("cmsSelect", $params);
+        $url_cancel = $this->model->get_link_url("cmsSelect", $params);
+        $url = $this->model->get_link_url("cmsUpdate", $params);
         if($relation == "page_nav" || $relation == "section_nav")
             $child = "navigation";
         else
