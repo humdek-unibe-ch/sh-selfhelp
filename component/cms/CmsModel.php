@@ -911,6 +911,20 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to create new child pages.
+     *
+     * @retavl bool
+     *  True if the current user can create new child pages, false otherwise.
+     */
+    public function can_create_new_child_page()
+    {
+        return ($this->can_create_new_page()
+            && $this->get_active_section_id() == null
+            && $this->page_info['parent'] == null
+            && $this->page_info['id_type'] == EXPERIMENT_PAGE_ID);
+    }
+
+    /**
      * Checks whether the current user is allowed to create new pages.
      *
      * @retavl bool
@@ -933,10 +947,16 @@ class CmsModel extends BaseModel
      *  The pipe-delimited string of protocols
      * @param int $type
      *  Indigates the page action or whether the page is a navigation page.
+     * @param string $position
+     *  The position string if the new page should appear in the navbar, null
+     *  otherwise.
+     * @param int $parent
+     *  The id of the parent page or null if a root page is created.
      * @retval int
      *  The id of the created page.
      */
-    public function create_new_page($keyword, $url, $protocol, $type)
+    public function create_new_page($keyword, $url, $protocol, $type, $position,
+        $parent)
     {
         $nav_id = null;
         if($type == 4)
@@ -951,8 +971,12 @@ class CmsModel extends BaseModel
             "id_navigation_section" => $nav_id,
             "id_actions" => $type,
             "id_type" => EXPERIMENT_PAGE_ID,
+            "nav_position" => $position ? 999 : null,
+            "parent" => $parent,
         ));
         $this->set_new_page_acl($pid);
+        if($position)
+            $this->update_page_order($position, $parent);
         return $pid;
     }
 
@@ -1127,6 +1151,27 @@ class CmsModel extends BaseModel
     public function get_pages()
     {
         return $this->page_hierarchy;
+    }
+
+    /**
+     * Fetch all non-internal root pages from the db which are shown in the
+     * header.
+     *
+     * @param int $parent
+     *  The id of the parent page or null to get root pages.
+     * @return array
+     *  An array of page items with the following keys:
+     *   'id'       The id of the page.
+     *   'title'    The keyword of the page.
+     */
+    public function get_pages_header($parent = null)
+    {
+        $parent_clause = $parent ? "AND parent = :pid" : "AND parent is NULL";
+        $sql = "SELECT id, keyword AS title FROM pages
+            WHERE nav_position IS NOT NULL AND id_type <> 1
+            $parent_clause
+            ORDER BY nav_position";
+        return $this->db->query_db($sql, array(":pid" => $parent));
     }
 
     /**
@@ -1558,19 +1603,6 @@ class CmsModel extends BaseModel
 
     /**
      * This function allows to update some model properties only when needed
-     * for delete opertaions. This allows to update the properties after the
-     * controller modified the content.
-     */
-    public function update_page_sections()
-    {
-        $this->page_sections_static = $this->fetch_page_sections();
-        $this->page_sections_nav = $this->fetch_page_sections_nav();
-        $this->page_sections = $this->page_sections_static
-            + $this->page_sections_nav;
-    }
-
-    /**
-     * This function allows to update some model properties only when needed
      * for insert opertaions. This is useful because the model is the same for
      * all mode operations.
      */
@@ -1582,13 +1614,58 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * This function updates the CmsModel::page_sections property.
+     */
+    public function update_page_sections()
+    {
+        $this->page_sections_static = $this->fetch_page_sections();
+        $this->page_sections_nav = $this->fetch_page_sections_nav();
+        $this->page_sections = $this->page_sections_static
+            + $this->page_sections_nav;
+    }
+
+    /**
+     * This function updates the CmsModel::page_hierarchy property.
+     */
+    public function update_page_hierarchy()
+    {
+        $this->page_hierarchy = $this->fetch_page_hierarchy();
+    }
+
+    /**
+     * Update the order of pages.
+     *
+     * @param array $order
+     *  An indexed list of values where the index is the current position and
+     *  the value the new poition number.
+     * @param int $id
+     *  The id of the parent page. If null order the root pages.
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_page_order($order, $id = null)
+    {
+        $orders = explode(',', $order);
+        $children = $this->get_pages_header($id);
+        $res = true;
+        foreach($children as $index => $child)
+        {
+            $res &= $this->db->update_by_ids("pages",
+                array("nav_position" => $orders[$index]),
+                array("id" => $child['id'])
+            );
+        }
+        return $res;
+    }
+
+    /**
      * This function allows to update some model properties only when needed
      * for select and update opertaions. This allows to update the properties
      * after the controller modified the content.
      */
     public function update_select_properties()
     {
-        $this->page_hierarchy = $this->fetch_page_hierarchy();
+        $this->update_page_hierarchy();
         $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
         $this->update_page_sections();
 

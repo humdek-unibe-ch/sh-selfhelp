@@ -32,8 +32,10 @@ class CmsInsertController extends BaseController
         {
             $this->name = $_POST["keyword"];
             $protocol = implode('|', $_POST['protocol']);
+            $position = isset($_POST['set-position']) ? $_POST['set-position'] : null;
             $this->pid = $model->create_new_page($_POST['keyword'],
-                $_POST['url'], $protocol, intval($_POST['type']));
+                $_POST['url'], $protocol, intval($_POST['type']), $position,
+                $this->model->get_active_page_id());
             if($this->pid)
                 $this->success = true;
             else

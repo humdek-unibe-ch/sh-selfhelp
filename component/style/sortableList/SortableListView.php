@@ -15,16 +15,18 @@ class SortableListView extends BaseView
     private $is_sortable;
 
     /**
-     * DB field 'edit' (false).
+     * DB field 'is_editable' (false).
      * A boolean indicating whether the list can be edited.
      */
-    private $edit;
+    private $is_editable;
 
     /**
      * DB field 'items' (empty array).
      * An array of items where each item array has the following keys:
      *  'id':       The id of the item.
      *  'title':    The name of the item.
+     *  'url':      The target url of the item (not required).
+     *  'css':      The name of a css class (not required).
      */
     private $items;
 
@@ -61,19 +63,20 @@ class SortableListView extends BaseView
     {
         parent::__construct($model);
         $this->is_sortable = $this->model->get_db_field("is_sortable", false);
-        $this->edit = $this->model->get_db_field("edit", false);
+        $this->is_editable = $this->model->get_db_field("is_editable", false);
         $this->items = $this->model->get_db_field("items", array());
         $this->insert_target = $this->model->get_db_field('insert_target');
         $this->insert_label = $this->model->get_db_field('label', "Add");
         $this->delete_target = $this->model->get_db_field('delete_target');
+        $this->id_active = $this->model->get_db_field('id_active', null);
     }
 
     /* Private Methods ********************************************************/
 
     private function output_label($name, $url)
     {
-        if($url == "" || $this->edit)
-            echo $name;
+        if($url == "" || $this->is_editable)
+            echo '<span class="label">' . $name . '</span>';
         else
             require __DIR__ . "/tpl_link.php";
     }
@@ -89,6 +92,7 @@ class SortableListView extends BaseView
             $id = $item['id'];
             $name = $item['title'];
             $url = (isset($item['url'])) ? $item['url'] : "";
+            $css = (isset($item['css'])) ? $item['css'] : "";
             require __DIR__ . "/tpl_list_item.php";
         }
     }
@@ -98,7 +102,7 @@ class SortableListView extends BaseView
      */
     private function output_list_item_index($index)
     {
-        if(!$this->edit || !$this->is_sortable) return;
+        if(!$this->is_editable || !$this->is_sortable) return;
         require __DIR__ . "/tpl_list_item_index.php";
     }
 
@@ -108,7 +112,7 @@ class SortableListView extends BaseView
     private function output_list_item_rm_button($id)
     {
         $url = str_replace(":did", $id, $this->delete_target);
-        if(!$this->edit || $url == "") return;
+        if(!$this->is_editable || $url == "") return;
         require __DIR__ . "/tpl_list_item_rm_button.php";
     }
 
@@ -119,7 +123,7 @@ class SortableListView extends BaseView
     {
         $url = $this->insert_target;
         $label = $this->insert_label;
-        if(!$this->edit || $url == "") return;
+        if(!$this->is_editable || $url == "") return;
         require __DIR__ . "/tpl_list_new_button.php";
     }
 
@@ -159,7 +163,7 @@ class SortableListView extends BaseView
      */
     public function output_content()
     {
-        $sortable = ($this->edit && $this->is_sortable) ? "sortable" : "";
+        $sortable = ($this->is_editable && $this->is_sortable) ? "sortable" : "";
         require __DIR__ . "/tpl_list.php";
     }
 }

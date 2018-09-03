@@ -36,6 +36,21 @@ class CmsView extends BaseView
                 "css" => "d-block mb-3",
             )
         ));
+        $this->add_local_component("new_child_page",
+            new BaseStyleComponent("card", array(
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "title" => "Create New Child Page",
+                "children" => array(
+                    new BaseStyleComponent("button", array(
+                        "label" => "Create New Child Page",
+                        "url" => $this->model->get_link_url("cmsInsert",
+                            array("pid" => $this->model->get_active_page_id())),
+                        "type" => "secondary",
+                    )),
+                )
+            ))
+        );
         $this->add_local_component("delete_page",
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
@@ -44,7 +59,7 @@ class CmsView extends BaseView
                 "type" => "danger",
                 "children" => array(
                     new BaseStyleComponent("plaintext", array(
-                        "text" => "Deleting a page will remove all data associated to this page. This cannot be undone.",
+                        "text" => "Deleting a page will remove all fields associated to this page. This cannot be undone. Sections and child pages are not affected.",
                         "is_paragraph" => true,
                     )),
                     new BaseStyleComponent("button", array(
@@ -436,7 +451,7 @@ class CmsView extends BaseView
                     $params_delete);
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
-                "edit" => true,
+                "is_editable" => true,
                 "items" => $field['content'],
                 "label" => "Add",
                 "insert_target" => $insert_target,
@@ -531,6 +546,8 @@ class CmsView extends BaseView
     {
         $this->output_local_component("page-fields");
         $this->output_local_component("section-fields");
+        if($this->model->can_create_new_child_page())
+            $this->output_local_component("new_child_page");
         if($this->model->can_delete_page())
         {
             if($this->model->get_active_section_id() == null)

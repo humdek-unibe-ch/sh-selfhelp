@@ -1,13 +1,13 @@
 <?php
-require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/../cms/CmsModel.php";
+require_once __DIR__ . "/../cms/CmsComponent.php";
 require_once __DIR__ . "/CmsInsertController.php";
 require_once __DIR__ . "/CmsInsertView.php";
 
 /**
  * The cms insert component.
  */
-class CmsInsertComponent extends BaseComponent
+class CmsInsertComponent extends CmsComponent
 {
     /* Private Properties *****************************************************/
 
@@ -41,7 +41,26 @@ class CmsInsertComponent extends BaseComponent
         $model = new CmsModel($services, $params, "insert");
         $controller = new CmsInsertController($model);
         $view = new CmsInsertView($model, $controller);
-        parent::__construct($view, $controller);
+        parent::__construct($model, $view, $controller);
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Redefine the parent function to deny access on invalid pages.
+     *
+     * @retval bool
+     *  True if the user has insert access, false otherwise
+     */
+    public function has_access($skip_ids = false)
+    {
+        if($this->model->get_active_page_id() == null
+                && !$this->model->can_create_new_page())
+            return false;
+        if($this->model->get_active_page_id() != null
+                &&!$this->model->can_create_new_child_page())
+            return false;
+        return parent::has_access();
     }
 }
 ?>

@@ -196,7 +196,7 @@ class UserUpdateView extends BaseView
         );
         $this->add_local_component("user_groups",
             new BaseStyleComponent("sortableList", array(
-                "edit" => false,
+                "is_editable" => false,
                 "items" => $this->model->get_selected_user_groups(),
                 "css" => "mb-3",
             ))

@@ -70,6 +70,16 @@
                     </div>
                     <small class="form-text text-muted">The page type specified how the page content will be assembled. It is recommended to either use the type <code>Sections</code> or <code>Navigation</code> (no PHP programming required).</small>
                 </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="set-position" value="<?php echo $this->position_value; ?>">
+                        <label class="text-muted">Header Position</label>
+                    </div>
+                    <div id="page-order-wrapper" class="d-none">
+                    <?php $this->output_page_order(); ?>
+                    </div>
+                    <small class="form-text text-muted">When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.</small>
+                </div>
                 <button type="submit" class="btn btn-primary">Create</button>
                 <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
             </form>

@@ -148,16 +148,20 @@ class PageDb extends BaseDb
             "access_level" => "select",
             "url" => "",
             "id" => 0,
-            "id_navigation_section" => null
+            "id_navigation_section" => null,
+            "parent" => null,
+            "id_type" => 1,
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            p.protocol, a.name AS action FROM pages AS p
+            p.protocol, a.name AS action, parent, id_type FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE keyword=:keyword";
         $info = $this->query_db_first($sql, array(":keyword" => $keyword));
         if($info)
         {
             $page_info["url"] = $info["url"];
+            $page_info["id_type"] = intval($info["id_type"]);
+            $page_info["parent"] = $info["parent"];
             $page_info["id"] = intval($info["id"]);
             $page_info["action"] = $info["action"];
             $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);

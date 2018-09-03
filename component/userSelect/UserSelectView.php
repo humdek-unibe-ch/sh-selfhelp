@@ -117,7 +117,7 @@ class UserSelectView extends BaseView
                         "is_paragraph" => true,
                     )),
                     new BaseStyleComponent("sortableList", array(
-                        "edit" => $this->model->can_modify_user(),
+                        "is_editable" => $this->model->can_modify_user(),
                         "items" => $this->model->get_selected_user_groups(),
                         "insert_target" => $this->model->get_link_url(
                             "userUpdate",

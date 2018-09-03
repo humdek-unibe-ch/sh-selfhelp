@@ -8,6 +8,8 @@ require_once __DIR__ . "/../style/StyleComponent.php";
  */
 class CmsInsertView extends BaseView
 {
+    private $position_value;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -29,6 +31,25 @@ class CmsInsertView extends BaseView
                 )))
             ))
         );
+        $position_value = "";
+        $pages = $this->model->get_pages_header(
+            $this->model->get_active_page_id());
+        foreach($pages as $idx => $page)
+        {
+            $this->position_value .= (string)($idx * 10) . ",";
+            $pages[$idx]["css"] = "fixed text-muted";
+        }
+
+        $pages[] = array("id" => "new", "title" => "New Page");
+        $this->add_local_component("page-position",
+            new BaseStyleComponent("sortableList", array(
+                "is_sortable" => true,
+                "is_editable" => true,
+                "items" => $pages,
+            ))
+        );
+
+        $this->position_value .= (string)(count($pages) * 10);
     }
 
     /* Private Methods ********************************************************/
@@ -42,7 +63,28 @@ class CmsInsertView extends BaseView
             $this->output_local_component("alert-fail");
     }
 
+    /**
+     * Render the sortable list to position the page in the header.
+     */
+    private function output_page_order()
+    {
+        $this->output_local_component("page-position");
+    }
+
     /* Public Methods *********************************************************/
+
+    /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(__DIR__ . "/new_page.css");
+        return parent::get_css_includes($local);
+    }
 
     /**
      * Get js include files required for this component. This overrides the
@@ -71,8 +113,10 @@ class CmsInsertView extends BaseView
         }
         else
         {
-            $action_url = $this->model->get_link_url("cmsInsert");
-            $cancel_url = $this->model->get_link_url("cmsSelect");
+            $action_url = $this->model->get_link_url("cmsInsert",
+                array("pid" => $this->model->get_active_page_id()));
+            $cancel_url = $this->model->get_link_url("cmsSelect",
+                array("pid" => $this->model->get_active_page_id()));
             require __DIR__ . "/tpl_cms_insert.php";
         }
     }
