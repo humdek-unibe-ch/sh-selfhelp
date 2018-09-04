@@ -90,7 +90,11 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         else if($url[0] == "#")
         {
-            return $this->router->generate(substr($url, 1));
+            $name = substr($url, 1);
+            if($this->router->has_route($name))
+                return $this->router->generate($name);
+            else
+                return $url;
         }
         else
         {

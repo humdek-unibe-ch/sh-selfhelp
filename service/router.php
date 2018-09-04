@@ -19,6 +19,11 @@ class Router extends AltoRouter {
         return ($match['name'] == $route_name);
     }
 
+    public function has_route($name)
+    {
+        return isset($this->namedRoutes[$name]);
+    }
+
     public function update_route() {
         $this->route = $this->match();
     }
