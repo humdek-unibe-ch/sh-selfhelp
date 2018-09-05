@@ -13,6 +13,7 @@ class CmsUpdateController extends BaseController
     private $insert_fail;
     private $remove_success;
     private $remove_fail;
+    private $bad_fields;
 
     /* Constructors ***********************************************************/
 
@@ -31,6 +32,7 @@ class CmsUpdateController extends BaseController
         $this->insert_fail= false;
         $this->remove_success = false;
         $this->remove_fail= false;
+        $this->bad_fields = array();
         if(!isset($_POST['mode'])) return;
         else if($_POST['mode'] == "update" && isset($_POST["fields"]))
             $this->update($_POST["fields"]);
@@ -43,6 +45,28 @@ class CmsUpdateController extends BaseController
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Checks whether the content of a input field corresponds to the xpected
+     * type.
+     *
+     * @param string $type
+     *  The type of the input field.
+     * @param string $value
+     *  The value of the input field.
+     */
+    private function check_content($type, $value)
+    {
+        if($type === "json")
+        {
+            if($value === "") return true;
+            json_decode($value, true);
+            return (json_last_error() === JSON_ERROR_NONE);
+        }
+        if($type === "number")
+            return is_numeric($value);
+        return true;
+    }
 
     /**
      * Performs delete operations:
@@ -164,6 +188,10 @@ class CmsUpdateController extends BaseController
      */
     private function update($fields)
     {
+        $css = "";
+        if(isset($_POST['margin'])) $css = implode(" ", $_POST['margin']);
+        $this->model->update_db(CSS_FIELD_ID, 1, $css, "section_field");
+
         foreach($fields as $name => $languages)
         {
             if(!is_array($languages))
@@ -187,8 +215,12 @@ class CmsUpdateController extends BaseController
                     $type = $info['type'];
                     $id = intval($info['id']);
                 }
-                $res = $this->model->update_db($id, $id_language,
-                    $this->secure_field($type, $content), $relation);
+                $res = false;
+                if($this->check_content($type, $content))
+                    $res = $this->model->update_db($id, $id_language,
+                        $this->secure_field($type, $content), $relation);
+                else
+                    $this->bad_fields[$name][$id_language] = $field;
                 // res can be null which means that nothing was changed
                 if($res === true)
                     $this->update_success_count++;
@@ -196,7 +228,7 @@ class CmsUpdateController extends BaseController
                     $this->update_fail_count++;
             }
         }
-        if($this->update_success_count > 0 && $this->update_fail_count == 0)
+        if($this->update_success_count >= 0 && $this->update_fail_count == 0)
             $this->model->set_mode("select");
     }
 
@@ -214,13 +246,19 @@ class CmsUpdateController extends BaseController
     {
         if(in_array($type, array("text", "textarea", "style-list")))
             return htmlspecialchars($content);
-        if(in_array($type, array("markdown", "markdown-inline", "checkbox")))
+        if(in_array($type, array("markdown", "markdown-inline", "checkbox",
+                "json", "style-bootstrap")))
             return $content;
         if($type === "number")
             return intval($content);
     }
 
     /* Public Methods *********************************************************/
+
+    public function get_bad_fields()
+    {
+        return $this->bad_fields;
+    }
 
     /**
      * Get the number of successfully update fields.

@@ -16,9 +16,15 @@
                         Add Section
                     </div>
                     <div class="card-body">
-                        <div class="form-group">
-                            <label>Name</label>
-                            <input type="text" name="section-name" class="form-control" placeholder="Enter Section Name" required>
+                        <div class="row">
+                            <div class="col form-group">
+                                <label>Name Prefix</label>
+                                <input type="text" name="section-name-prefix" class="form-control" placeholder="Enter Section Name" required>
+                            </div>
+                            <div class="col form-group">
+                                <label>Name</label>
+                                <input type="text" name="section-name" class="form-control" value="-" readonly>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Style</label>

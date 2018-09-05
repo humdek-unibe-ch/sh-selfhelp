@@ -155,10 +155,10 @@ class CmsUpdateView extends BaseView
         $page_info = $this->model->get_page_info();
         $section_info = $this->model->get_section_info();
         if($this->model->get_active_section_id() == null)
-            $target = "the page '" . $page_info['keyword'] . "'.";
+            $target = "the page <code>" . $page_info['keyword'] . "</code>.";
         else
-            $target = "the section '" . $section_info['name'] . "'"
-                . " on page '" . $page_info['keyword'] . "'.";
+            $target = "the section <code>" . $section_info['name'] . "</code>"
+                . " on page <code>" . $page_info['keyword'] . "</code>.";
         require __DIR__ . "/tpl_cms_insert.php";
     }
 
