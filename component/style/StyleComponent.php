@@ -11,7 +11,10 @@ require_once __DIR__ . "/StyleModel.php";
  */
 class StyleComponent extends BaseComponent
 {
-    private $children;
+    /* Private Properties *****************************************************/
+
+    private $is_style_known;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -30,6 +33,7 @@ class StyleComponent extends BaseComponent
     public function __construct($services, $id, $id_active=null)
     {
         $model = new StyleModel($services, $id, $id_active);
+        $this->is_style_known = true;
         if($model->get_style_type() == "view")
         {
             $style = new BaseStyleComponent($model->get_style_name(),
@@ -43,14 +47,28 @@ class StyleComponent extends BaseComponent
         }
         else if($model->get_style_type() == "navigation")
         {
-            throw new Exception("connot render a navigation style");
+            throw new Exception("cannot render a navigation style");
         }
         else
         {
-            $style = new StyleComponent($services, MISSING_ID);
+            $this->is_style_known = false;
+            return;
         }
         $view = new StyleView($model, $style, true);
         parent::__construct($view);
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Redefine the parent function to deny access on invalid styles.
+     *
+     * @retval bool
+     *  True if the style is known, false otherwise
+     */
+    public function has_access()
+    {
+        return parent::has_access() && $this->is_style_known;
     }
 }
 ?>

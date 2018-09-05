@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . "/BasePage.php";
+require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
+require_once __DIR__ . "/../component/style/BaseStyleComponent.php";
 
 /**
  * This class maps the section structure of the DB. A section page consists
@@ -34,15 +36,7 @@ class SectionPage extends BasePage
         $this->nav_section_id = null;
         if(isset($params['id']))
             $this->nav_section_id = $params['id'];
-        $sql = "SELECT ps.id_sections AS id
-            FROM pages_sections AS ps
-            WHERE ps.id_pages = :id_page
-            ORDER BY ps.position";
-        $this->sections = $db->query_db($sql,
-            array(
-                ":id_page" => $this->id_page
-            )
-        );
+        $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
         {
             $this->add_component("section-" . $section['id'],
@@ -66,11 +60,31 @@ class SectionPage extends BasePage
      */
     protected function output_content()
     {
+        $was_section_rendered = true;
         foreach($this->sections as $section)
         {
-            $this->output_component("section-" . $section['id']);
+            $comp = $this->get_component("section-" . $section['id']);
+            if($comp->has_access())
+                $comp->output_content();
+            else if(DEBUG)
+                $was_section_rendered = false;
         }
-        $this->output_component("section-" . $this->nav_section_id);
+        if($this->nav_section_id)
+        {
+            $sql = "SELECT * FROM sections_navigation WHERE child = :id";
+            if($this->services['db']->query_db_first($sql,
+                    array(":id" => $this->nav_section_id)))
+                $this->output_component("section-" . $this->nav_section_id);
+            else
+                $was_section_rendered = false;
+        }
+
+        if((count($this->sections) > 0 || $this->nav_section_id)
+            && !$was_section_rendered)
+        {
+            $page = new InternalPage($this, "missing");
+            $page->output_content();
+        }
     }
 
     /**

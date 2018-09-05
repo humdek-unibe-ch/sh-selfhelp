@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/BasePage.php";
 spl_autoload_register(function ($class_name) {
     $folder = strtolower(str_replace("Component", "", $class_name));
@@ -52,7 +53,10 @@ class ComponentPage extends BasePage
         if($this->componentInstance->has_access())
             $this->output_component("comp");
         else
-            $this->output_component("missing");
+        {
+            $page = new InternalPage($this, "missing");
+            $page->output_content();
+        }
     }
 
     /**

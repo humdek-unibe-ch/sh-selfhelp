@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/../service/PageDb.php";
 require_once __DIR__ . "/../service/globals_untracked.php";
 require_once __DIR__ . "/../service/Login.php";
@@ -82,12 +83,6 @@ abstract class BasePage
         if($this->id_navigation_section != null)
             $this->services['nav'] = new Navigation($router, $db, $keyword,
                 $this->id_navigation_section);
-        $this->add_component("denied-guest",
-            new StyleComponent($this->services, NO_ACCESS_GUEST_ID));
-        $this->add_component("denied",
-            new StyleComponent($this->services, NO_ACCESS_ID));
-        $this->add_component("missing",
-            new StyleComponent($this->services, MISSING_ID));
         $this->add_component("nav",
             new NavComponent($this->services));
         $this->add_component("footer",
@@ -159,41 +154,6 @@ abstract class BasePage
     /* Protected Methods ******************************************************/
 
     /**
-     * Adds a component to the list of components of this page.
-     * The js and css include list is extended by the component includes.
-     *
-     * @param string $key
-     *  A unique component identifier.
-     * @param object $component
-     *  The component instance to be added.
-     */
-    protected function add_component($key, $component)
-    {
-        if(array_key_exists($key, $this->components))
-            throw new Exception("Component $key already exists.");
-        $this->components[$key] = $component;
-        $this->css_includes = array_merge($this->css_includes,
-            $component->get_css_includes());
-        $this->js_includes = array_merge($this->js_includes,
-            $component->get_js_includes());
-    }
-
-    /**
-     * Gets a component, given a key.
-     *
-     * @param string $key
-     *  The unique identifier of the component.
-     * @retval object
-     *  The component if it exists or null otherwise
-     */
-    protected function get_component($key)
-    {
-        if(array_key_exists($key, $this->components))
-            return $this->components[$key];
-        return null;
-    }
-
-    /**
      * Get custom css include files required to style the page.
      *
      * @retval array
@@ -217,29 +177,42 @@ abstract class BasePage
     {
         if($this->render_nav) $this->output_component("nav");
         if($this->services['acl']->has_access($_SESSION['id_user'],
-            $this->id_page, $this->required_access_level))
-            $this->output_content($this->required_access_level);
+                $this->id_page, $this->required_access_level))
+            $this->output_content();
         else if($this->services['login']->is_logged_in())
-            $this->output_component("denied");
+        {
+            $page = new InternalPage($this, "no_access");
+            $page->output_content();
+        }
         else
-            $this->output_component("denied-guest");
+        {
+            $page = new InternalPage($this, "no_access_guest");
+            $page->output_content();
+        }
         if($this->render_footer) $this->output_component("footer");
     }
 
+    /* Public Methods *********************************************************/
+
     /**
-     * Renders the content of the component.
+     * Adds a component to the list of components of this page.
+     * The js and css include list is extended by the component includes.
      *
      * @param string $key
-     *  The unique identifier of the component.
+     *  A unique component identifier.
+     * @param object $component
+     *  The component instance to be added.
      */
-    protected function output_component($key)
+    public function add_component($key, $component)
     {
-        $component = $this->get_component($key);
-        if($component != null)
-            $component->output_content();
+        if(array_key_exists($key, $this->components))
+            throw new Exception("Component $key already exists.");
+        $this->components[$key] = $component;
+        $this->css_includes = array_merge($this->css_includes,
+            $component->get_css_includes());
+        $this->js_includes = array_merge($this->js_includes,
+            $component->get_js_includes());
     }
-
-    /* Public Methods *********************************************************/
 
     /**
      * Do not render the navigation bar and the footer.
@@ -251,12 +224,51 @@ abstract class BasePage
     }
 
     /**
+     * Gets a component, given a key.
+     *
+     * @param string $key
+     *  The unique identifier of the component.
+     * @retval object
+     *  The component if it exists or null otherwise
+     */
+    public function get_component($key)
+    {
+        if(array_key_exists($key, $this->components))
+            return $this->components[$key];
+        return null;
+    }
+
+    /**
+     * Return the array of initialised services.
+     *
+     * @retval array
+     *  The array of services.
+     */
+    public function get_services()
+    {
+        return $this->services;
+    }
+
+    /**
      * Render the page view.
      */
     public function output()
     {
         $title = $this->title;
         require_once __DIR__ . '/tpl_page.php';
+    }
+
+    /**
+     * Renders the content of the component.
+     *
+     * @param string $key
+     *  The unique identifier of the component.
+     */
+    public function output_component($key)
+    {
+        $component = $this->get_component($key);
+        if($component != null)
+            $component->output_content();
     }
 }
 ?>
