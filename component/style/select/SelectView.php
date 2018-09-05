@@ -10,11 +10,23 @@ class SelectView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'value' (empty string).
+     * The default value of the select form.
+     */
+    private $value;
+
+    /**
      * DB field 'name' (empty string).
      * The name of the form selection. If this is not set, the component will
      * not be rendered.
      */
     private $name;
+
+    /**
+     * DB field 'label' (empty string).
+     * The name to be placed next to the selection.
+     */
+    private $label;
 
     /**
      * DB field 'items' (empty array).
@@ -31,6 +43,13 @@ class SelectView extends BaseView
      */
     private $is_multiple;
 
+    /**
+     * DB field 'is_required' (false).
+     * If set to true the slection must be filled out before submitting,
+     * otherwise not.
+     */
+    private $is_required;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -44,7 +63,10 @@ class SelectView extends BaseView
         parent::__construct($model);
         $this->items = $this->model->get_db_field("items", array());
         $this->name = $this->model->get_db_field("name");
+        $this->value = $this->model->get_db_field("value");
+        $this->label = $this->model->get_db_field("label");
         $this->is_multiple = $this->model->get_db_field("is_multiple", false);
+        $this->is_required = $this->model->get_db_field("is_required", false);
     }
 
     /* Private Methods ********************************************************/
@@ -54,12 +76,31 @@ class SelectView extends BaseView
      */
     private function output_fields()
     {
+        if($this->value == "")
+        {
+            $empty = $this->model->get_db_field("alt");
+            require __DIR__ . "/tpl_select_empty.php";
+        }
+        if(!is_array($this->items)) return;
         foreach($this->items as $field)
         {
-            $value = $field['value'];
-            $text = $field['text'];
+            if(!isset($field['value']) || !isset($field['text'])) continue;
+            $value = htmlspecialchars($field['value']);
+            $text = htmlspecialchars($field['text']);
+            $selected = ($value == $this->value) ? 'selected="selected"' : "";
             require __DIR__ . "/tpl_select_item.php";
         }
+    }
+
+    /**
+     * Render the select form.
+     */
+    private function output_select()
+    {
+        $css = ($this->label == "") ? $this->css : "";
+        $multiple = ($this->is_multiple) ? "multiple" : "";
+        $required = ($this->is_required) ? "required" : "";
+        require __DIR__ . "/tpl_select.php";
     }
 
     /* Public Methods *********************************************************/
@@ -70,8 +111,10 @@ class SelectView extends BaseView
     public function output_content()
     {
         if($this->name == "") return;
-        $multiple = ($this->is_multiple) ? "multiple" : "";
-        require __DIR__ . "/tpl_select.php";
+        if($this->label == "")
+            $this->output_select();
+        else
+            require __DIR__ . "/tpl_select_label.php";
     }
 }
 ?>

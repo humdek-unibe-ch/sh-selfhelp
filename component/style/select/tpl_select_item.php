@@ -1,3 +1,3 @@
-<option value="<?php echo $value; ?>">
+<option value="<?php echo $value; ?>" <?php echo $selected; ?>>
     <?php echo $text; ?>
 </option>

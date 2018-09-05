@@ -1,3 +1,3 @@
-<textarea name="<?php echo $name; ?>" class="form-control mb-2">
-<?php echo $text; ?>
+<textarea name="<?php echo $this->name; ?>" class="form-control <?php echo $css; ?>" <?php echo $required; ?>>
+<?php echo $this->text; ?>
 </textarea>
