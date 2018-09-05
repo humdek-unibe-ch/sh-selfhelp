@@ -75,7 +75,7 @@ class SortableListView extends BaseView
 
     private function output_label($name, $url)
     {
-        if($url == "" || $this->is_editable)
+        if($url == "" || ($this->is_editable && $this->is_sortable))
             echo '<span class="label">' . $name . '</span>';
         else
             require __DIR__ . "/tpl_link.php";
