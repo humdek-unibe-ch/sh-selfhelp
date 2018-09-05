@@ -26,6 +26,12 @@ class DescriptionItemView extends BaseView
      */
     private $alt;
 
+    /**
+     * DB style field 'type-input' (empty string).
+     * The field type.
+     */
+    private $type;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -40,10 +46,14 @@ class DescriptionItemView extends BaseView
         $this->title = $this->model->get_db_field("title");
         $this->locale = $this->model->get_db_field("locale", "all");
         $this->alt = $this->model->get_db_field("alt");
+        $this->type = $this->model->get_db_field("type-input");
     }
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the content of a field.
+     */
     private function output_field_content()
     {
         if($this->has_children())
@@ -53,6 +63,15 @@ class DescriptionItemView extends BaseView
             $na = $this->alt;
             require __DIR__ . "/tpl_item_na.php";
         }
+    }
+
+    /**
+     * Render the field type.
+     */
+    private function output_type()
+    {
+        if($this->type == "") return;
+        echo '<span class="ml-2 small text-muted">[' . $this->type . ']</span>';
     }
 
     /* Public Methods *********************************************************/

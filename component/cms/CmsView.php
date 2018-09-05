@@ -48,13 +48,13 @@ class CmsView extends BaseView
                             array("pid" => $this->model->get_active_page_id())),
                         "type" => "secondary",
                     )),
-                )
+                ),
             ))
         );
         $this->add_local_component("delete_page",
             new BaseStyleComponent("card", array(
-                "is_expanded" => true,
-                "is_collapsible" => false,
+                "is_expanded" => false,
+                "is_collapsible" => true,
                 "title" => "Delete Page",
                 "type" => "danger",
                 "children" => array(
@@ -68,13 +68,13 @@ class CmsView extends BaseView
                             array("pid" => $this->model->get_active_page_id())),
                         "type" => "danger",
                     )),
-                )
+                ),
             ))
         );
         $this->add_local_component("delete_section",
             new BaseStyleComponent("card", array(
-                "is_expanded" => true,
-                "is_collapsible" => false,
+                "is_expanded" => false,
+                "is_collapsible" => true,
                 "title" => "Delete Section",
                 "type" => "danger",
                 "children" => array(
@@ -88,7 +88,7 @@ class CmsView extends BaseView
                             $this->model->get_current_url_params()),
                         "type" => "danger",
                     )),
-                )
+                ),
             ))
         );
 
@@ -152,7 +152,19 @@ class CmsView extends BaseView
             $fail_count = $controller->get_update_fail_count();
             if($fail_count > 0)
             {
-                $msg = "Failed to update " . $fail_count . " fields";
+                $err_string = "Bad field value in ";
+                $bad_field_count = 0;
+                foreach($controller->get_bad_fields() as $name => $languages)
+                    foreach($languages as $id => $field)
+                    {
+                        $lang = $this->model->get_language($id);
+                        $err_string .= "'" . $name . " [" . $lang['locale'] . "]',";
+                        $bad_field_count++;
+                    }
+
+                if($bad_field_count == 0)
+                    $err_string = "An internal error occured. Try again or contact the system adiminstrator";
+                $msg = "Failed to update " . $fail_count . " fields: " . $err_string;
                 $this->add_alert_component("alert_update_failed", "danger",
                     $msg);
             }
@@ -181,7 +193,7 @@ class CmsView extends BaseView
             new BaseStyleComponent("card", array(
                 "is_collapsible" => false,
                 "title" => "Page View",
-                "children" => $page_components
+                "children" => $page_components,
             ))
         );
     }
@@ -249,7 +261,7 @@ class CmsView extends BaseView
                 "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
-                "children" => array($content)
+                "children" => array($content),
             )
         ));
     }
@@ -264,10 +276,12 @@ class CmsView extends BaseView
         $children[] = new BaseStyleComponent("template", array(
             "path" => __DIR__ . "/tpl_page_properties.php",
             "items" => array(
-                "keyword_title" => "Page Key:",
+                "keyword_title" => "Name:",
                 "keyword" => $this->page_info['keyword'],
-                "url_title" => "Page url:",
-                "url" => $this->page_info['url']
+                "url_title" => "Url:",
+                "url" => $this->page_info['url'],
+                "protocol_title" => "Protocol:",
+                "protocol" => $this->page_info['protocol'],
             ),
         ));
         $fields = $this->model->get_page_properties();
@@ -328,7 +342,7 @@ class CmsView extends BaseView
         }
         else if($this->model->get_mode() == "update")
         {
-            $children[] = $this->create_field_form($fields);
+            $children[] = $this->create_field_form($fields, true);
             $type = "warning";
         }
         else
@@ -361,16 +375,38 @@ class CmsView extends BaseView
      * @retval object
      *  A form component.
      */
-    private function create_field_form($fields)
+    private function create_field_form($fields, $render_margin=false)
     {
         $form_items = array();
         $form_items[] = new BaseStyleComponent("input", array(
             "value" => "update",
             "name" => "mode",
-            "type" => "hidden"
+            "type-input" => "hidden"
         ));
+
+        if($render_margin)
+        {
+            $css = $this->model->get_css();
+            $form_items[] = new BaseStyleComponent("descriptionItem", array(
+                "title" => "Margins",
+                "locale" => "all",
+                "children" => array(
+                    new BaseStyleComponent("template", array(
+                        "path" => __DIR__ . "/tpl_margin_input.php",
+                        "items" => array(
+                            "checked_top" => (strpos($css, "mt") === false) ? "" : "checked",
+                            "checked_right" => (strpos($css, "mr") === false) ? "" : "checked",
+                            "checked_bottom" => (strpos($css, "mb") === false) ? "" : "checked",
+                            "checked_left" => (strpos($css, "ml") === false) ? "" : "checked",
+                        )
+                    )),
+                ),
+            ));
+        }
+
         foreach($fields as $field)
             $form_items[] = $this->create_field_form_item($field);
+
 
         $params = $this->model->get_current_url_params();
         return new BaseStyleComponent("form", array(
@@ -400,17 +436,17 @@ class CmsView extends BaseView
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
-            "type" => "hidden"
+            "type-input" => "hidden"
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['type'],
             "name" => $field_name_prefix . "[type]",
-            "type" => "hidden"
+            "type-input" => "hidden"
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
-            "type" => "hidden"
+            "type-input" => "hidden"
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
@@ -418,20 +454,64 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
-                "type" => $field['type']
+                "type-input" => $field['type']
             ));
-        else if(in_array($field['type'], array("textarea","markdown")))
+        else if(in_array($field['type'], array("textarea","markdown","json")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "text" => $field['content'],
                 "name" => $field_name_content,
             ));
+        else if($field['type'] == "style-bootstrap")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "items" => array(
+                    array("value" => "primary", "text" => "primary"),
+                    array("value" => "secondary", "text" => "secondary"),
+                    array("value" => "success", "text" => "success"),
+                    array("value" => "danger", "text" => "danger"),
+                    array("value" => "warning", "text" => "warning"),
+                    array("value" => "info", "text" => "info"),
+                    array("value" => "light", "text" => "light"),
+                    array("value" => "dark", "text" => "dark"),
+                ),
+            ));
+        }
         else if($field['type'] == "style-list")
         {
             $children[] = new BaseStyleComponent("input", array(
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
-                "type" => "hidden"
+                "type-input" => "hidden"
             ));
+            $children[] = new BaseStyleComponent("sortableList", array(
+                "is_sortable" => true,
+                "is_editable" => true,
+                "items" => $field['content'],
+            ));
+        }
+        return new BaseStyleComponent("descriptionItem", array(
+            "title" => $field['name'],
+            "type-input" => $field['type'],
+            "locale" => $field['locale'],
+            "children" => $children
+        ));
+    }
+
+    /**
+     * Creates a field item from components.
+     *
+     * @param array $field
+     *  the field array with keys as definde in CmsModel::add_property_item.
+     * @retval object
+     *  A descriptionItem component.
+     */
+    private function create_field_item($field)
+    {
+        $children = array();
+        if($field['type'] == "style-list")
+        {
             $params = $this->model->get_current_url_params();
             $params['type'] = $field['relation'];
             $params_insert = $params;
@@ -450,7 +530,6 @@ class CmsView extends BaseView
                 $delete_target = $this->model->get_link_url("cmsUpdate",
                     $params_delete);
             $children[] = new BaseStyleComponent("sortableList", array(
-                "is_sortable" => true,
                 "is_editable" => true,
                 "items" => $field['content'],
                 "label" => "Add",
@@ -458,35 +537,10 @@ class CmsView extends BaseView
                 "delete_target" => $delete_target,
             ));
         }
-        return new BaseStyleComponent("descriptionItem", array(
-            "title" => $field['name'],
-            "locale" => $field['locale'],
-            "children" => $children
-        ));
-    }
-
-    /**
-     * Creates a field item from components.
-     *
-     * @param array $field
-     *  the field array with keys as definde in CmsModel::add_property_item.
-     * @retval object
-     *  A descriptionItem component.
-     */
-    private function create_field_item($field)
-    {
-        $children = array();
-        if($field['content'] != null)
-        {
-            if($field['type'] == "style-list")
-                $children[] = new BaseStyleComponent("sortableList", array(
-                    "items" => $field['content'],
-                ));
-            else
-                $children[] = new BaseStyleComponent("rawText", array(
-                    "text" => $field['content']
-                ));
-        }
+        else if($field['content'] != null)
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => $field['content']
+            ));
         return new BaseStyleComponent("descriptionItem", array(
             "title" => $field['name'],
             "locale" => $field['locale'],

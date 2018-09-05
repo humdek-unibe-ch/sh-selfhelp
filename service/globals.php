@@ -14,4 +14,5 @@ define('ADMIN_GROUP_ID', 1);
 define('EXPERIMENTER_GROUP_ID', 2);
 define('SUBJECT_GROUP_ID', 3);
 define('EXPERIMENT_PAGE_ID', 3);
+define('CSS_FIELD_ID', 70);
 ?>

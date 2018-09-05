@@ -30,7 +30,7 @@ abstract class BaseView
         {
             $this->children = $model->get_children();
             if(method_exists($model, "get_db_field"))
-                $this->css = $model->get_db_field("css");
+                $this->css = $model->get_db_field("css", null);
         }
         $this->controller = $controller;
         $this->local_components = array();

@@ -16,7 +16,7 @@ class InputView extends BaseView
     private $value;
 
     /**
-     * DB field 'type' ('value').
+     * DB field 'type-input' ('value').
      * The type of the input field.
      */
     private $type;
@@ -59,7 +59,7 @@ class InputView extends BaseView
     {
         parent::__construct($model);
         $this->value = $this->model->get_db_field("value");
-        $this->type = $this->model->get_db_field("type", "text");
+        $this->type = $this->model->get_db_field("type-input", "text");
         $this->name = $this->model->get_db_field("name");
         $this->label = $this->model->get_db_field("label");
         $this->placeholder = $this->model->get_db_field("placeholder");
@@ -74,6 +74,7 @@ class InputView extends BaseView
     private function output_input()
     {
         $css_input = "form-control";
+        if($this->label == "") $css_input .= " " . $this->css;
         $checked = "";
         if($this->type == "checkbox")
         {

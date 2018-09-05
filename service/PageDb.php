@@ -151,6 +151,7 @@ class PageDb extends BaseDb
             "id_navigation_section" => null,
             "parent" => null,
             "id_type" => 1,
+            "protocol" => "",
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
             p.protocol, a.name AS action, parent, id_type FROM pages AS p
@@ -164,6 +165,7 @@ class PageDb extends BaseDb
             $page_info["parent"] = $info["parent"];
             $page_info["id"] = intval($info["id"]);
             $page_info["action"] = $info["action"];
+            $page_info["protocol"] = $info["protocol"];
             $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
             $protocols = explode("|", $info["protocol"]);
             if(in_array("DELETE", $protocols)) $page_info["access_level"] = "delete";
@@ -181,7 +183,6 @@ class PageDb extends BaseDb
                 $page_info["title"] = $info["title"];
         }
         return $page_info;
-
     }
 
     /**

@@ -1117,6 +1117,38 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch language information from the database.
+     *
+     * @param int $id
+     *  The id of the language to fetch.
+     * @return array
+     *  The db array with the following keys:
+     *   'id':          The id of the fetched language.
+     *   'locale':      The language short notation.
+     *   'language':    The language long notation.
+     */
+    public function get_language($id)
+    {
+        return $this->db->select_by_uid("languages", $id);
+    }
+
+    /**
+     * Fetch the css string of the current section from the db.
+     *
+     * @retval string
+     *  The css string from the current section.
+     */
+    public function get_css()
+    {
+        $css = $this->db->select_by_fks("sections_fields_translation", array(
+            "id_sections" => $this->get_active_section_id(),
+            "id_fields" => CSS_FIELD_ID,
+            "id_languages" => 1,
+        ));
+        return $css['content'];
+    }
+
+    /**
      * Get the current page acl mode.
      *
      * @retval string
