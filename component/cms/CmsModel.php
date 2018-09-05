@@ -884,6 +884,9 @@ class CmsModel extends BaseModel
      */
     private function update_section_fields_db($id, $id_language, $content)
     {
+        $id_section = $this->get_active_section_id();
+        if($id_section == null && $this->is_navigation())
+            $id_section = $this->page_info['id_navigation_section'];
         $update = array(
             "content" => $content
         );
@@ -891,7 +894,7 @@ class CmsModel extends BaseModel
             "content" => $content,
             "id_fields" => $id,
             "id_languages" => $id_language,
-            "id_sections" => $this->get_active_section_id()
+            "id_sections" => $id_section
         );
         return $this->db->insert("sections_fields_translation", $insert, $update);
     }
@@ -1243,6 +1246,14 @@ class CmsModel extends BaseModel
                 $content['content']
             );
         }
+        if($this->is_navigation())
+        {
+            // add navigation section fields
+            $section_fields = $this->get_section_properties(
+                    $this->page_info['id_navigation_section']);
+            foreach($section_fields as $section_field)
+                $fields[] = $section_field;
+        }
         $fields[] = $this->add_property_item(
             null,
             1, // all languages
@@ -1315,9 +1326,10 @@ class CmsModel extends BaseModel
      *  An array of fields where each field is defined in see
      *  CmsModel::add_property_item
      */
-    public function get_section_properties()
+    public function get_section_properties($id_section=null)
     {
-        $id_section = $this->get_active_section_id();
+        if($id_section == null)
+            $id_section = $this->get_active_section_id();
         $res = array();
         $fields = $this->fetch_style_fields_by_section_id($id_section);
         foreach($fields as $field)

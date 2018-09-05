@@ -47,7 +47,8 @@ class StyleComponent extends BaseComponent
         }
         else if($model->get_style_type() == "navigation")
         {
-            throw new Exception("cannot render a navigation style");
+            $className = ucfirst($model->get_style_name()) . "Component";
+            $style = new $className($services, $id, $id_active);
         }
         else
         {

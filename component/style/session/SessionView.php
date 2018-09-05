@@ -15,18 +15,6 @@ class SessionView extends BaseView
      */
     private $title;
 
-    /**
-     * DB style field 'next'.
-     * The label of the navigation button to go to the next item.
-     */
-    private $label_next;
-
-    /**
-     * DB style field 'back'.
-     * The label of the navigation button to go to the pervious item.
-     */
-    private $label_back;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -39,84 +27,6 @@ class SessionView extends BaseView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title");
-        $this->label_next = $this->model->get_db_field("next");
-        $this->label_back = $this->model->get_db_field("back");
-
-        $this->add_button_component("button_next", $this->label_next,
-            $this->get_button_url($model->get_next_nav_id()));
-        $this->add_button_component("button_back", $this->label_back,
-            $this->get_button_url($model->get_previous_nav_id()));
-        $this->add_local_component("nav-section",
-            new BaseStyleComponent("accordionList", array(
-                "items" => $this->model->get_navigation_items(),
-                "title_prefix" => $this->model->get_item_prefix(),
-                "id_active" => $this->model->get_current_id(),
-                "is_expanded" => false,
-                "root_name" => "Intro"
-            ))
-        );
-    }
-
-    /* Private Methods ********************************************************/
-
-    /**
-     * Render the session navigation component.
-     */
-    private function output_nav()
-    {
-        $this->output_local_component("nav-section");
-    }
-
-    /**
-     * Create and return the url for a session, given the session id.
-     *
-     * @param int $id
-     *  The session id.
-     * @retval string
-     *  The generated url.
-     */
-    private function get_button_url($id)
-    {
-        if($id == false) return "";
-        else return $this->model->get_link_url("session", array("id" => $id));
-    }
-
-    /**
-     * Add a button component to the local component list.
-     *
-     * @param string $name
-     *  The button style type.
-     * @param string $label
-     *  The label of the button.
-     * @param string $url
-     *  The url of the button.
-     */
-    private function add_button_component($name, $label, $url)
-    {
-        $this->add_local_component($name,
-            new BaseStyleComponent("button",
-                array("label" => $label, "url" => $url)));
-    }
-
-    /**
-     * Render a button if the url is not empty.
-     *
-     * @param string $label
-     *  The label of the button.
-     * @param string $url
-     *  The url of the button.
-     */
-    private function output_button($name)
-    {
-        $this->output_local_component($name);
-    }
-
-    /**
-     * Render the session component.
-     */
-    private function output_session()
-    {
-        require __DIR__ . "/tpl_session.php";
     }
 
     /* Public Methods *********************************************************/
@@ -126,12 +36,7 @@ class SessionView extends BaseView
      */
     public function output_content()
     {
-        $button_next = "button_next";
-        $button_back = "button_back";
-        if($this->model->has_navigation())
-            require __DIR__ . "/tpl_session_nav.php";
-        else
-            $this->output_session();
+        require __DIR__ . "/tpl_session.php";
     }
 }
 ?>

@@ -33,21 +33,19 @@ class SectionPage extends BasePage
     public function __construct($router, $db, $keyword, $params=array())
     {
         parent::__construct($router, $db, $keyword);
-        $this->nav_section_id = null;
-        if(isset($params['id']))
-            $this->nav_section_id = $params['id'];
+        $this->nav_section_id = isset($params['id']) ? $params['id'] : null;
+
         $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
-        {
             $this->add_component("section-" . $section['id'],
                 new StyleComponent($this->services, intval($section['id'])));
-        }
+
         if($this->nav_section_id != null)
         {
-            $id = $this->nav_section_id;
-            $this->services['nav']->set_current_index($id);
-            $this->add_component("section-" . $id,
-                new StyleComponent($this->services, $id));
+            $this->services['nav']->set_current_index($this->nav_section_id);
+            $this->add_component("navigation", new StyleComponent(
+                $this->services, $this->id_navigation_section,
+                $this->nav_section_id));
         }
     }
 
@@ -74,7 +72,7 @@ class SectionPage extends BasePage
             $sql = "SELECT * FROM sections_navigation WHERE child = :id";
             if($this->services['db']->query_db_first($sql,
                     array(":id" => $this->nav_section_id)))
-                $this->output_component("section-" . $this->nav_section_id);
+                $this->output_component("navigation");
             else
                 $was_section_rendered = false;
         }

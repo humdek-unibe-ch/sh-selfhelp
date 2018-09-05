@@ -285,6 +285,7 @@ class CmsView extends BaseView
             ),
         ));
         $fields = $this->model->get_page_properties();
+
         $url_edit = "";
         if($this->model->get_mode() == "update")
         {
