@@ -42,12 +42,6 @@ class CardView extends BaseView
      */
     private $type;
 
-    /**
-     * If set to true the card gets the bootstrap class "container-fluid",
-     * otherwise the class "container" is used.
-     */
-    private $fluid;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -55,14 +49,11 @@ class CardView extends BaseView
      *
      * @param object $model
      *  The model instance of a base style component.
-     * @param bool $fluid
-     *  If set to true the card gets the bootstrap class "container-fluid",
-     *  otherwise the class "container" is used.
      */
-    public function __construct($model, $fluid)
+    public function __construct($model)
     {
         parent::__construct($model);
-        $this->fluid = $fluid;
+        $this->css = ($this->css === null) ? "mb-3" : $this->css;
         $this->is_expanded = $this->model->get_db_field("is_expanded", true);
         $this->is_collapsible = $this->model->get_db_field("is_collapsible",
             false);
@@ -79,7 +70,7 @@ class CardView extends BaseView
      */
     private function output_card_header()
     {
-        $show = $this->is_expanded ? "" : "collapsed";
+        $show = ($this->is_expanded || !$this->is_collapsible) ? "" : "collapsed";
         if($this->title == "") return;
         $collapsible = $this->is_collapsible ? "collapsible" : "";
         require __DIR__ . "/tpl_card_header.php";
@@ -124,7 +115,6 @@ class CardView extends BaseView
      */
     public function output_content()
     {
-        $fluid = ($this->fluid) ? "-fluid" : "";
         $show = $this->is_expanded ? "show" : "";
         $collapse = $this->is_collapsible ? "collapse" : "";
         require __DIR__ . "/tpl_card.php";
