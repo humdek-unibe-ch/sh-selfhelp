@@ -45,13 +45,12 @@ class VideoView extends BaseView
      */
     private function output_video_sources()
     {
-        $sources = explode(',', $this->sources);
-        foreach($sources as $source)
+        if(!is_array($this->sources)) return;
+        foreach($this->sources as $source)
         {
-            $items = explode('#', $source);
-            if(count($items) <= 1) continue;
-            $url = ASSET_PATH . $items[0];
-            $type = $items[1];
+            if(!isset($source["source"]) || !isset($source["type"])) continue;
+            $url = ASSET_PATH . $source["source"];
+            $type = $source["type"];
             require __DIR__ . "/tpl_video_source.php";
         }
     }
