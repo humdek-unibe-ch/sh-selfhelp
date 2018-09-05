@@ -206,6 +206,37 @@ class BaseDb {
     }
 
     /**
+     * Get a single row of a db table by foreign key constarints.
+     *
+     * @param string $table
+     *  The name of the db table.
+     * @param array $fks
+     *  An associative array of where conditions e.g WHERE $key = $value. The
+     *  conditions are concatenated with AND.
+     * @retval array
+     *  An array with all row entries or false if no entry was selected
+     */
+    public function select_by_fks($table, $fks) {
+        try {
+            $data = array();
+            $where_cond = "";
+            $first = true;
+            foreach($fks as $key => $value) {
+                $data[':' . $key] = $value;
+                if($first) $where_cond = " WHERE $key = :$key";
+                else $where_cond .= " AND $key = :$key";
+                $first = false;
+            }
+            $stmt = $this->dbh->prepare("SELECT * FROM ".$table.$where_cond);
+            $stmt->execute($data);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::select_by_fks: ".$e->getMessage();
+        }
+    }
+
+    /**
      * Get a single row of a db table by unique id.
      *
      * @param string $table
