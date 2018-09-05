@@ -123,6 +123,8 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = $this->parsedown->text($field['content']);
             else if($field['type'] == "markdown-inline")
                 $field['content'] = $this->parsedown->line($field['content']);
+            else if($field['type'] == "json")
+                $field['content'] = json_decode($field['content'], true);
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
                 "type" => $field['type'],
