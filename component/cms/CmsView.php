@@ -465,7 +465,7 @@ class CmsView extends BaseView
         else if($field['type'] == "style-bootstrap")
         {
             $children[] = new BaseStyleComponent("select", array(
-                "value" => $field['content'],
+                "value" => ($field['content'] == "") ? "primary" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "items" => array(
                     array("value" => "primary", "text" => "primary"),
