@@ -10,6 +10,13 @@ class NavigationAccordionView extends NavigationView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'title_prefix' (empty string).
+     * A prefix that will be appended to the title of each root item. This is
+     * omitted if the field is not set.
+     */
+    private $title_prefix;
+
+    /**
      * DB style field 'root_name' ("Intro").
      * The label of the root navigation item.
      */
@@ -27,10 +34,11 @@ class NavigationAccordionView extends NavigationView
     {
         parent::__construct($model);
         $this->root_name = $this->model->get_db_field("root_name", "Intro");
+        $this->title_prefix = $this->model->get_db_field("title_prefix");
         $this->add_local_component("nav",
             new BaseStyleComponent("accordionList", array(
                 "items" => $this->model->get_navigation_items(),
-                "title_prefix" => $this->model->get_item_prefix(),
+                "title_prefix" => $this->title_prefix,
                 "id_active" => $this->model->get_current_id(),
                 "is_expanded" => false,
                 "root_name" => $this->root_name,

@@ -16,7 +16,8 @@ class AccordionListView extends BaseView
 
     /**
      * DB field 'title_prefix' (empty string).
-     * A prefix that will be appended to the title of each root item.
+     * A prefix that will be appended to the title of each root item. This is
+     * omitted if the field is not set.
      */
     private $title_prefix;
 
@@ -85,7 +86,6 @@ class AccordionListView extends BaseView
      */
     private function output_root_children()
     {
-        $item_label = $this->title_prefix;
         foreach($this->items as $index => $child)
         {
             $title = isset($child['title']) ? $child['title'] : "";
@@ -94,6 +94,16 @@ class AccordionListView extends BaseView
                 $active = "show";
             require __DIR__ . "/tpl_root_item.php";
         }
+    }
+
+    /**
+     * Renders the title prefix
+     */
+    private function output_title_prefix($index)
+    {
+        if($this->title_prefix == "") return;
+        $number = $index + 1;
+        require __DIR__ . "/tpl_title_prefix.php";
     }
 
     /**

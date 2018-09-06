@@ -162,23 +162,6 @@ abstract class BaseModel
     }
 
     /**
-     * Gets a navigation itme prefix if available. The prefix corresponds to
-     * the title field of the navigation section.
-     *
-     * @return string
-     *  The navigation item prefix.
-     */
-    public function get_item_prefix()
-    {
-        if($this->nav == null) return "";
-        $db_fields = $this->db->fetch_section_fields($this->nav->get_root_id());
-        foreach($db_fields as $field)
-            if($field['name'] == "title")
-                return $field['content'];
-        return "";
-    }
-
-    /**
      * Gets the hierarchical assembled navigation items.
      *
      * @return array
