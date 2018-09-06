@@ -1,5 +1,6 @@
+<input type="hidden" name="set_margin" value="1">
 <div class="form-check form-check-inline">
-<input class="form-check-input" type="checkbox" name="margin[]" value="mt-3" <?php echo $fields['checked_top']; ?>>
+    <input class="form-check-input" type="checkbox" name="margin[]" value="mt-3" <?php echo $fields['checked_top']; ?>>
     <label class="form-check-label">top</label>
 </div>
 <div class="form-check form-check-inline">

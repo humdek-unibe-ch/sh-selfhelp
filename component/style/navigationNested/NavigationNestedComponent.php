@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
-require_once __DIR__ . "/NavigationAccordionView.php";
+require_once __DIR__ . "/NavigationNestedView.php";
 require_once __DIR__ . "/../navigation/NavigationModel.php";
 
 /**
- * A component for a navigation warpper, using an accordion list.
+ * A component for a navigation wrapper, using a nested list.
  */
-class NavigationAccordionComponent extends BaseComponent
+class NavigationNestedComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -26,7 +26,7 @@ class NavigationAccordionComponent extends BaseComponent
     public function __construct($services, $id, $id_active)
     {
         $model = new NavigationModel($services, $id, $id_active);
-        $view = new NavigationAccordionView($model);
+        $view = new NavigationNestedView($model);
         parent::__construct($view);
     }
 }

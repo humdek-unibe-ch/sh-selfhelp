@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
-require_once __DIR__ . "/NavigationAccordionView.php";
-require_once __DIR__ . "/../navigation/NavigationModel.php";
+require_once __DIR__ . "/AccordionListView.php";
+require_once __DIR__ . "/AccordionListModel.php";
 
 /**
- * A component for a navigation warpper, using an accordion list.
+ * A component for a accordion list component.
  */
-class NavigationAccordionComponent extends BaseComponent
+class AccordionListComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -20,13 +20,11 @@ class NavigationAccordionComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this navigation component.
-     * @param int $id_active
-     *  The id of the curently selected navigation section.
      */
-    public function __construct($services, $id, $id_active)
+    public function __construct($services, $id)
     {
-        $model = new NavigationModel($services, $id, $id_active);
-        $view = new NavigationAccordionView($model);
+        $model = new AccordionListModel($services, $id);
+        $view = new AccordionListView($model);
         parent::__construct($view);
     }
 }

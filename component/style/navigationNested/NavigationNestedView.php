@@ -3,17 +3,18 @@ require_once __DIR__ . "/../navigation/NavigationView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
- * The view class of the navigation accordion component.
+ * The view class of the navigation nested component.
  */
-class NavigationAccordionView extends NavigationView
+class NavigationNestedView extends NavigationView
 {
     /* Private Properties *****************************************************/
 
     /**
-     * DB style field 'root_name' ("Intro").
-     * The label of the root navigation item.
+     * DB field 'has_hierarchy' (false).
+     * If set to true the nested list is collapsible via a chevron.
+     * If set to false, the chevron is not rendered.
      */
-    private $root_name;
+    private $has_hierarchy;
 
     /* Constructors ***********************************************************/
 
@@ -26,14 +27,14 @@ class NavigationAccordionView extends NavigationView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->root_name = $this->model->get_db_field("root_name", "Intro");
+        $this->has_hierarchy = $this->model->get_db_field("has_hierarchy", false);
         $this->add_local_component("nav",
-            new BaseStyleComponent("accordionList", array(
+            new BaseStyleComponent("nestedList", array(
                 "items" => $this->model->get_navigation_items(),
-                "title_prefix" => $this->model->get_item_prefix(),
+                "id_prefix" => "navigation",
                 "id_active" => $this->model->get_current_id(),
-                "is_expanded" => false,
-                "root_name" => $this->root_name,
+                "is_expanded" => true,
+                "has_hierarchy" => $this->has_hierarchy,
             ))
         );
     }

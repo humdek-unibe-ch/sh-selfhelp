@@ -9,7 +9,7 @@ class NestedListView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'has_chevron' (true).
+     * DB field 'has_hierarchy' (true).
      * If set to true the nested list is collapsible via a chevron.
      * If set to false, the chevron is not rendered.
      */
@@ -65,7 +65,7 @@ class NestedListView extends BaseView
         parent::__construct($model);
         $this->id_active = $this->model->get_db_field("id_active", 0);
         $this->is_expanded = $this->model->get_db_field("is_expanded", false);
-        $this->has_chevron = $this->model->get_db_field("has_chevron", true);
+        $this->has_chevron = $this->model->get_db_field("has_hierarchy", true);
         if(!$this->has_chevron) $this->is_expanded = true;
         $this->id_prefix = $this->model->get_db_field("id_prefix");
         $this->search_text = $this->model->get_db_field("search_text");

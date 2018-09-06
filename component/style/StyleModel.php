@@ -103,6 +103,20 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
+     * Set the content of a db_field attribute of the model.
+     *
+     * @param string $key
+     *  The name of the db field.
+     * @param mixed $content
+     *  The content of the db field.
+     */
+    protected function set_db_field($key, $content)
+    {
+        if($this->get_db_field_full($key) == "") return;
+        $this->db_fields[$key]['content'] = $content;
+    }
+
+    /**
      * Set the db_fields attribute of the model. Each field is assigned as an
      * key => value element where the key is the field name and the value the
      * field content.

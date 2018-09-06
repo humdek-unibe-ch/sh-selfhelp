@@ -57,7 +57,7 @@ class GroupView extends BaseView
                 "children" => array(new BaseStyleComponent("nestedList", array(
                     "items" => $this->model->get_groups(),
                     "id_prefix" => "groups",
-                    "has_chevron" => false,
+                    "has_hierarchy" => false,
                     "id_active" => $this->model->get_gid(),
                 )))
             ))

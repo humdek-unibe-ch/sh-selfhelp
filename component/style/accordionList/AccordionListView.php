@@ -88,6 +88,7 @@ class AccordionListView extends BaseView
         $item_label = $this->title_prefix;
         foreach($this->items as $index => $child)
         {
+            $title = isset($child['title']) ? $child['title'] : "";
             $active = "";
             if($this->is_child_active($child))
                 $active = "show";

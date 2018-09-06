@@ -5,8 +5,10 @@ require_once __DIR__ . "/../StyleComponent.php";
  * This class is used to prepare all data related to the navigation component
  * such that the data can easily be displayed in the view of the component.
  */
-class NavigationAccordionModel extends StyleModel
+class NavigationModel extends StyleModel
 {
+    /* Private Properties *****************************************************/
+
     private $id_active;
 
     /* Constructors ***********************************************************/
@@ -27,7 +29,8 @@ class NavigationAccordionModel extends StyleModel
     {
         parent::__construct($services, $id);
         $this->id_active = $id_active;
-        $this->children[] = new StyleComponent($services, $id_active);
+        if($this->id_active != null)
+            $this->children[] = new StyleComponent($services, $id_active);
     }
 
     /**
@@ -38,7 +41,7 @@ class NavigationAccordionModel extends StyleModel
      */
     public function get_current_id()
     {
-        return $this->id_active;
+        return intval($this->id_active);
     }
 }
 ?>

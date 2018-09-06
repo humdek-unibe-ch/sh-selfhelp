@@ -128,6 +128,17 @@ class Navigation
     }
 
     /**
+     * Get the keyword of the navigation page.
+     *
+     * @retval string
+     *  The keyword of the navigation page.
+     */
+    public function get_page_keyword()
+    {
+        return $this->keyword;
+    }
+
+    /**
      * Gets the previous navigation item id.
      *
      * @retval int

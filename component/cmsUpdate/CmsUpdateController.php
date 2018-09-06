@@ -188,9 +188,12 @@ class CmsUpdateController extends BaseController
      */
     private function update($fields)
     {
-        $css = "";
-        if(isset($_POST['margin'])) $css = implode(" ", $_POST['margin']);
-        $this->model->update_db(CSS_FIELD_ID, 1, $css, "section_field");
+        if(isset($_POST['set_margin']))
+        {
+            $css = "";
+            if(isset($_POST['margin'])) $css = implode(" ", $_POST['margin']);
+            $this->model->update_db(CSS_FIELD_ID, 1, $css, "section_field");
+        }
 
         foreach($fields as $name => $languages)
         {

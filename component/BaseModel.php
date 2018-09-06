@@ -37,6 +37,24 @@ abstract class BaseModel
         $this->db_fields = array();
     }
 
+    /** Private Methods *******************************************************/
+
+    /**
+     * Get the url of a navigation item, given an id.
+     *
+     * @param int $id
+     *  The id of the navigation item to generate the url.
+     * @retval string
+     *  The generated url or the empty string if the url could not be generated.
+     */
+    private function get_nav_item_url($id)
+    {
+        if($this->nav == null) return "";
+        if($id == 0) return "";
+        return $this->get_link_url($this->nav->get_page_keyword(),
+            array("id" => $id));
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -96,31 +114,27 @@ abstract class BaseModel
     }
 
     /**
-     * Return the id of the next navigation section if a navigation exists.
+     * Return the url of the next navigation section if a navigation exists.
      *
-     * @retval int
-     *  The id of the next navigation section or 0 if no navigation is
-     *  avaliable.
+     * @retval string
+     *  The url of the next navigation section or the empty string if no
+     *  navigation is avaliable.
      */
-    public function get_next_nav_id()
+    public function get_next_nav_url()
     {
-        if($this->nav != null)
-            return $this->nav->get_next_id();
-        return 0;
+        return $this->get_nav_item_url($this->nav->get_next_id());
     }
 
     /**
-     * Return the id of the previous navigation section if a navigation exists.
+     * Return the url of the previous navigation section if a navigation exists.
      *
-     * @retval int
-     *  The id of the previous navigation section or 0 if no navigation is
-     *  avaliable.
+     * @retval string
+     *  The url of the previous navigation section or the empty string if no
+     *  navigation is avaliable.
      */
-    public function get_previous_nav_id()
+    public function get_previous_nav_url()
     {
-        if($this->nav != null)
-            return $this->nav->get_previous_id();
-        return 0;
+        return $this->get_nav_item_url($this->nav->get_previous_id());
     }
 
     /**

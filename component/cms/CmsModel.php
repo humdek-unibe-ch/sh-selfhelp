@@ -41,6 +41,11 @@ class CmsModel extends BaseModel
     private $mode;
 
     /**
+     * The current update mode, i.e. 'insert', 'update', 'delete'.
+     */
+    private $update_mode;
+
+    /**
      * A hierarchical array storing the navigation section items.
      */
     private $navigation_hierarchy;
@@ -115,7 +120,8 @@ class CmsModel extends BaseModel
             ?  intval($params["sid"]) : null;
         $this->id_section = (isset($params["ssid"]) && $params["ssid"] != 0)
             ?  intval($params["ssid"]) : null;
-        $this->relation = isset($params["type"]) ? $params["type"] : null;
+        $this->relation = isset($params["type"]) ? $params["type"] : "prop";
+        $this->update_mode = isset($params["mode"]) ? $params["mode"] : "update";
         $this->id_delete = (isset($params["did"]) && $params["did"] != 0)
             ?  intval($params["did"]) : null;
 
@@ -295,7 +301,7 @@ class CmsModel extends BaseModel
 
     /**
      * Fetch navigation sections from the database and return a heirarchical
-     * array such tht it can be passed to a list style. This is a recursive
+     * array such taht it can be passed to a list style. This is a recursive
      * method.
      *
      * @param int $id
@@ -1084,8 +1090,8 @@ class CmsModel extends BaseModel
             "sid" => $this->id_root_section,
             "ssid" => $this->id_section,
             "did" => $this->id_delete,
-            "mode" => "update",
-            "type" => "prop",
+            "mode" => $this->update_mode,
+            "type" => $this->relation,
         );
     }
 
@@ -1664,8 +1670,8 @@ class CmsModel extends BaseModel
     {
         $this->page_sections_static = $this->fetch_page_sections();
         $this->page_sections_nav = $this->fetch_page_sections_nav();
-        $this->page_sections = $this->page_sections_static
-            + $this->page_sections_nav;
+        $this->page_sections = array_merge($this->page_sections_static,
+            $this->page_sections_nav);
     }
 
     /**
@@ -1734,6 +1740,7 @@ class CmsModel extends BaseModel
     public function update_delete_properties()
     {
         $this->update_page_sections();
+        $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
     }
 }
 ?>

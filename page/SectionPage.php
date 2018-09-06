@@ -69,9 +69,10 @@ class SectionPage extends BasePage
         }
         if($this->nav_section_id)
         {
-            $sql = "SELECT * FROM sections_navigation WHERE child = :id";
-            if($this->services['db']->query_db_first($sql,
-                    array(":id" => $this->nav_section_id)))
+            $sql = "SELECT * FROM sections_navigation
+                WHERE child = :id AND id_pages = :pid";
+            if($this->services['db']->query_db_first($sql, array(
+                    ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
                 $this->output_component("navigation");
             else
                 $was_section_rendered = false;

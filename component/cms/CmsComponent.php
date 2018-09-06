@@ -29,7 +29,7 @@ class CmsComponent extends BaseComponent
         parent::__construct($view, $controller);
     }
 
-    /* Private Methods ********************************************************/
+    /* Protected Methods ******************************************************/
 
     /**
      * Checks whether a section is in a hierarchical list of sections.
@@ -39,7 +39,7 @@ class CmsComponent extends BaseComponent
      * @param array $sections
      *  A list of sections.
      */
-    private function is_section_in_list($id_section, $sections)
+    protected function is_section_in_list($id_section, $sections)
     {
         foreach($sections as $section)
         {
@@ -61,16 +61,22 @@ class CmsComponent extends BaseComponent
      */
     public function has_access($skip_ids = false)
     {
-        $sections = $this->model->get_page_sections();
         $params = $this->model->get_current_url_params();
+        $sections = $this->model->get_page_sections();
+        $nav_sections = array();
+        if($params["type"] == "section_nav" || $params["type"] == "page_nav")
+            $nav_sections = $this->model->get_navigation_hierarchy();
         if(!$skip_ids
             && ((($params['ssid'] != null)
                 && !$this->is_section_in_list($params['ssid'], $sections))
             || ($params['sid'] != null
                 && !$this->is_section_in_list($params['sid'], $sections))
             || ($params['did'] != null
-                && !$this->is_section_in_list($params['did'], $sections))))
+                && !$this->is_section_in_list($params['did'], $sections)
+                && !$this->is_section_in_list($params['did'], $nav_sections))))
+        {
             return false;
+        }
         return parent::has_access();
     }
 }
