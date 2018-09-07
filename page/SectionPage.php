@@ -13,7 +13,9 @@ class SectionPage extends BasePage
     /* Private Properties *****************************************************/
 
     private $sections;
+    private $errors;
     private $nav_section_id;
+    private $user_input;
 
     /* Constructors ***********************************************************/
 
@@ -35,8 +37,26 @@ class SectionPage extends BasePage
         parent::__construct($router, $db, $keyword);
         $this->nav_section_id = isset($params['id']) ? $params['id'] : null;
 
-        if($this->has_user_input)
-            var_dump($this->check_user_input());
+        $this->errors = array();
+        $this->user_input = null;
+        if($this->has_user_input && count($_POST) > 0)
+        {
+            $this->user_input = $this->check_user_input();
+            $this->errors = $this->services['gump']->get_errors_array(true);
+            foreach($this->errors as $index => $error)
+                $this->add_component("alert-" . $index,
+                    new BaseStyleComponent("alert", array(
+                        "type" => "danger",
+                        "is_dismissable" => true,
+                        "children" => array(
+                            new BaseStyleComponent("plaintext", array(
+                                "text" => $error,
+                            ))
+                        ),
+                        "css" => "mx-3 mt-3",
+                    ))
+                );
+        }
 
         $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
@@ -128,6 +148,44 @@ class SectionPage extends BasePage
         return $this->services['gump']->run($_POST);
     }
 
+    private function output_alerts()
+    {
+        foreach($this->errors as $index => $error)
+            $this->output_component("alert-" . $index);
+    }
+
+    private function output_sections()
+    {
+        $was_section_rendered = false;
+        foreach($this->sections as $section)
+        {
+            $comp = $this->get_component("section-" . $section['id']);
+            if($comp->has_access())
+            {
+                $comp->output_content();
+                $was_section_rendered = true;
+            }
+        }
+        if($this->nav_section_id)
+        {
+            $sql = "SELECT * FROM sections_navigation
+                WHERE child = :id AND id_pages = :pid";
+            if($this->services['db']->query_db_first($sql, array(
+                    ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
+            {
+                $this->output_component("navigation");
+                $was_section_rendered = true;
+            }
+        }
+
+        if((count($this->sections) > 0 || $this->nav_section_id)
+            && !$was_section_rendered)
+        {
+            $page = new InternalPage($this, "missing");
+            $page->output_content();
+        }
+    }
+
     /* Protected Methods ******************************************************/
 
     /**
@@ -137,30 +195,16 @@ class SectionPage extends BasePage
      */
     protected function output_content()
     {
-        $was_section_rendered = true;
-        foreach($this->sections as $section)
+        if($this->user_input === null)
+            $this->output_sections();
+        else if($this->user_input === false)
         {
-            $comp = $this->get_component("section-" . $section['id']);
-            if($comp->has_access())
-                $comp->output_content();
-            else if(DEBUG)
-                $was_section_rendered = false;
+            $this->output_alerts();
+            $this->output_sections();
         }
-        if($this->nav_section_id)
+        else
         {
-            $sql = "SELECT * FROM sections_navigation
-                WHERE child = :id AND id_pages = :pid";
-            if($this->services['db']->query_db_first($sql, array(
-                    ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
-                $this->output_component("navigation");
-            else
-                $was_section_rendered = false;
-        }
-
-        if((count($this->sections) > 0 || $this->nav_section_id)
-            && !$was_section_rendered)
-        {
-            $page = new InternalPage($this, "missing");
+            $page = new InternalPage($this, "user_input_success");
             $page->output_content();
         }
     }

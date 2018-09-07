@@ -27,6 +27,7 @@ class TextareaView extends FormFieldView
     {
         parent::__construct($model);
         $this->text = $this->model->get_db_field("text");
+        if(isset($_POST[$this->name])) $this->text = $_POST[$this->name];
     }
 
     /* Protected Methods ********************************************************/

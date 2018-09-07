@@ -43,6 +43,7 @@ class SelectView extends FormFieldView
         parent::__construct($model);
         $this->items = $this->model->get_db_field("items", array());
         $this->value = $this->model->get_db_field("value");
+        if(isset($_POST[$this->name])) $this->value = $_POST[$this->name];
         $this->is_multiple = $this->model->get_db_field("is_multiple", false);
     }
 

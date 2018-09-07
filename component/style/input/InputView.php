@@ -39,6 +39,7 @@ class InputView extends FormFieldView
     {
         parent::__construct($model);
         $this->value = $this->model->get_db_field("value");
+        if(isset($_POST[$this->name])) $this->value = $_POST[$this->name];
         $this->type = $this->model->get_db_field("type-input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
         if($this->type == "checkbox")
@@ -62,7 +63,7 @@ class InputView extends FormFieldView
         if($this->type == "checkbox")
         {
             $css_input = "form-check-input position-static float-left";
-            if($this->value != "") $checked = "checked";
+            if($this->value != "" || isset($_POST[$this->name])) $checked = "checked";
         }
         require __DIR__ . "/tpl_input.php";
     }
