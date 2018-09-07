@@ -88,6 +88,8 @@ class StyleModel extends BaseModel implements IStyleModel
             }
             return $this->router->generate("home");
         }
+        else if($url == "#self")
+            return $_SERVER['REQUEST_URI'];
         else if($url[0] == "#")
         {
             $name = substr($url, 1);
@@ -97,9 +99,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 return $url;
         }
         else
-        {
             return $url;
-        }
     }
 
     /**
