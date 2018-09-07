@@ -451,7 +451,7 @@ class CmsView extends BaseView
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
-                array("text", "number", "checkbox", "markdown-inline")))
+                array("text", "number", "checkbox", "markdown-inline", "time")))
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
@@ -462,6 +462,29 @@ class CmsView extends BaseView
                 "text" => $field['content'],
                 "name" => $field_name_content,
             ));
+        else if($field['type'] == "type-input")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => ($field['content'] == "") ? "text" : $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "items" => array(
+                    array("value" => "text", "text" => "text"),
+                    array("value" => "checkbox", "text" => "checkbox"),
+                    array("value" => "color", "text" => "color"),
+                    array("value" => "date", "text" => "date"),
+                    array("value" => "datetime-local", "text" => "datetime-local"),
+                    array("value" => "email", "text" => "email"),
+                    array("value" => "month", "text" => "month"),
+                    array("value" => "number", "text" => "number"),
+                    array("value" => "range", "text" => "range"),
+                    array("value" => "search", "text" => "search"),
+                    array("value" => "tel", "text" => "tel"),
+                    array("value" => "time", "text" => "time"),
+                    array("value" => "url", "text" => "url"),
+                    array("value" => "week", "text" => "week"),
+                ),
+            ));
+        }
         else if($field['type'] == "style-bootstrap")
         {
             $children[] = new BaseStyleComponent("select", array(

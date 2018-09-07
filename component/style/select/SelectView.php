@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
  * The view class of the select form style component. This component renders a
  * select form field.
  */
-class SelectView extends BaseView
+class SelectView extends FormFieldView
 {
     /* Private Properties *****************************************************/
 
@@ -14,19 +14,6 @@ class SelectView extends BaseView
      * The default value of the select form.
      */
     private $value;
-
-    /**
-     * DB field 'name' (empty string).
-     * The name of the form selection. If this is not set, the component will
-     * not be rendered.
-     */
-    private $name;
-
-    /**
-     * DB field 'label' (empty string).
-     * The name to be placed next to the selection.
-     */
-    private $label;
 
     /**
      * DB field 'items' (empty array).
@@ -43,13 +30,6 @@ class SelectView extends BaseView
      */
     private $is_multiple;
 
-    /**
-     * DB field 'is_required' (false).
-     * If set to true the slection must be filled out before submitting,
-     * otherwise not.
-     */
-    private $is_required;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -62,11 +42,8 @@ class SelectView extends BaseView
     {
         parent::__construct($model);
         $this->items = $this->model->get_db_field("items", array());
-        $this->name = $this->model->get_db_field("name");
         $this->value = $this->model->get_db_field("value");
-        $this->label = $this->model->get_db_field("label");
         $this->is_multiple = $this->model->get_db_field("is_multiple", false);
-        $this->is_required = $this->model->get_db_field("is_required", false);
     }
 
     /* Private Methods ********************************************************/
@@ -92,29 +69,17 @@ class SelectView extends BaseView
         }
     }
 
+    /* Protected Methods ********************************************************/
+
     /**
      * Render the select form.
      */
-    private function output_select()
+    protected function output_form_field()
     {
         $css = ($this->label == "") ? $this->css : "";
         $multiple = ($this->is_multiple) ? "multiple" : "";
         $required = ($this->is_required) ? "required" : "";
         require __DIR__ . "/tpl_select.php";
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Render the style view.
-     */
-    public function output_content()
-    {
-        if($this->name == "") return;
-        if($this->label == "")
-            $this->output_select();
-        else
-            require __DIR__ . "/tpl_select_label.php";
     }
 }
 ?>

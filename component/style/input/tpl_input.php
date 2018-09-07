@@ -1,1 +1,1 @@
-<input class="<?php echo $css_input; ?>" type="<?php echo $this->type; ?>" name="<?php echo $this->name; ?>" value="<?php echo $this->value; ?>" <?php echo $checked; ?> <?php echo $required; ?> placeholder="<?php echo $this->placeholder; ?>">
+<input id="<?php echo $this->id_field; ?>" class="<?php echo $css_input; ?>" type="<?php echo $this->type; ?>" name="<?php echo $this->name; ?>" value="<?php echo $this->value; ?>" <?php echo $checked; ?> <?php echo $this->required; ?> placeholder="<?php echo $this->placeholder; ?>">

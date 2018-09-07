@@ -35,6 +35,9 @@ class SectionPage extends BasePage
         parent::__construct($router, $db, $keyword);
         $this->nav_section_id = isset($params['id']) ? $params['id'] : null;
 
+        if($this->has_user_input)
+            $this->save_user_input();
+
         $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
             $this->add_component("section-" . $section['id'],
@@ -46,6 +49,27 @@ class SectionPage extends BasePage
             $this->add_component("navigation", new StyleComponent(
                 $this->services, $this->id_navigation_section,
                 $this->nav_section_id));
+        }
+    }
+
+    /**
+     *
+     */
+    private function save_user_input()
+    {
+        foreach($_POST as $name => $value)
+        {
+            $name_pieces = explode('-', $name);
+            if(count($name_pieces) <= 1 || !is_numeric($name_pieces[0]))
+                continue;
+            $id_section = intval($name_pieces[0]);
+            // fetch style
+            // if input -> fetch type
+            // if select | textarea | input.text -> htmlspecialchars
+            // if number | slider -> number
+            // ...
+            //
+            // insert data into the db
         }
     }
 

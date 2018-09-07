@@ -25,6 +25,7 @@ abstract class BasePage
     protected $url;
     protected $required_access_level;
     protected $services;
+    protected $has_user_input;
     private $css_includes;
     private $js_includes;
     private $components;
@@ -100,6 +101,7 @@ abstract class BasePage
     private function fetch_page_info($keyword)
     {
         $info = $this->services['db']->fetch_page_info($keyword);
+        $this->has_user_input = $info['has_user_input'];
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);

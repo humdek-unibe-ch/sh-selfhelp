@@ -65,6 +65,21 @@ class CmsUpdateController extends BaseController
         }
         if($type === "number")
             return is_numeric($value);
+        if($type === "time")
+        {
+            $digits = explode(':', $value);
+            return (isset($digits[0]) && is_numeric($digits[0])
+                && isset($digits[1]) && is_numeric($digits[1]));
+        }
+        if($type === "date")
+        {
+            $digits = explode('-', $value);
+            return (isset($digits[0]) && is_numeric($digits[0])
+                && isset($digits[1]) && is_numeric($digits[1])
+                && isset($digits[1]) && is_numeric($digits[1]));
+        }
+        if($type === "color")
+            return (preg_match('/#[a-fA-F0-9]{6}/', $value) === 1);
         return true;
     }
 
@@ -250,7 +265,7 @@ class CmsUpdateController extends BaseController
         if(in_array($type, array("text", "textarea", "style-list")))
             return htmlspecialchars($content);
         if(in_array($type, array("markdown", "markdown-inline", "checkbox",
-                "json", "style-bootstrap")))
+                "json", "style-bootstrap", "type-input")))
             return $content;
         if($type === "number")
             return intval($content);

@@ -152,6 +152,7 @@ class PageDb extends BaseDb
             "parent" => null,
             "id_type" => 1,
             "protocol" => "",
+            "has_user_input" => false,
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
             p.protocol, a.name AS action, parent, id_type FROM pages AS p
@@ -168,6 +169,8 @@ class PageDb extends BaseDb
             $page_info["protocol"] = $info["protocol"];
             $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
             $protocols = explode("|", $info["protocol"]);
+            if(in_array("POST", $protocols)
+                && $info["id_type"] == EXPERIMENT_PAGE_ID) $page_info["has_user_input"] = true;
             if(in_array("DELETE", $protocols)) $page_info["access_level"] = "delete";
             else if(in_array("PATCH", $protocols)) $page_info["access_level"] = "update";
             else if(in_array("PUT", $protocols)) $page_info["access_level"] = "insert";

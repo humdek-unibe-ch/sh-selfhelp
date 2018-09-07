@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
  * The view class of the textarea style component. This component renders a
  * textarea form field.
  */
-class TextareaView extends BaseView
+class TextareaView extends FormFieldView
 {
     /* Private Properties *****************************************************/
 
@@ -14,26 +14,6 @@ class TextareaView extends BaseView
      * The default content of the textarea.
      */
     private $text;
-
-    /**
-     * DB field 'name' (empty string).
-     * The name of the textarea. If this is not set, the component will not
-     * be rendered.
-     */
-    private $name;
-
-    /**
-     * DB field 'label' (empty string).
-     * The name to be placed next to the textarea.
-     */
-    private $label;
-
-    /**
-     * DB field 'required' (false).
-     * If set to true the field is required to be filled in. If set to false the
-     * empty string is also accepted as value.
-     */
-    private $is_required;
 
     /* Constructors ***********************************************************/
 
@@ -47,17 +27,14 @@ class TextareaView extends BaseView
     {
         parent::__construct($model);
         $this->text = $this->model->get_db_field("text");
-        $this->name = $this->model->get_db_field("name");
-        $this->label = $this->model->get_db_field("label");
-        $this->is_required = $this->model->get_db_field("is_required", false);
     }
 
-    /* Private Methods ********************************************************/
+    /* Protected Methods ********************************************************/
 
     /**
      * Render the textarea.
      */
-    public function output_textarea()
+    protected function output_form_field()
     {
         $css = ($this->label == "") ? $this->css : "";
         $required = ($this->is_required) ? "required" : "";
@@ -80,18 +57,6 @@ class TextareaView extends BaseView
             __DIR__ . "/textarea.js",
         );
         return parent::get_js_includes($local);
-    }
-
-    /**
-     * Render the style view.
-     */
-    public function output_content()
-    {
-        if($this->name == "") return;
-        if($this->label == "")
-            $this->output_textarea();
-        else
-            require __DIR__ . "/tpl_textarea_label.php";
     }
 }
 ?>

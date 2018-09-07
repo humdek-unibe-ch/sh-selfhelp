@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
  * The view class of the slider form style component.
  */
-class SliderView extends BaseView
+class SliderView extends FormFieldView
 {
     /* Private Properties******************************************************/
 
@@ -32,19 +32,6 @@ class SliderView extends BaseView
      */
     private $labels;
 
-    /**
-     * DB field 'label' (empty string).
-     * The label rendered above the slider. If this field is not set, no label
-     * is rendered.
-     */
-    private $label;
-
-    /**
-     * DB field 'name' (empty string)
-     * The name of the input field.
-     */
-    private $name;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -59,8 +46,6 @@ class SliderView extends BaseView
         $this->min = $this->model->get_db_field("min", 0);
         $this->max = $this->model->get_db_field("max", 10);
         $this->count = $this->model->get_db_field("count", 5);
-        $this->name = $this->model->get_db_field("name");
-        $this->label = $this->model->get_db_field("label");
         $this->labels = $this->model->get_db_field("labels", array());
     }
 
@@ -84,7 +69,7 @@ class SliderView extends BaseView
     /**
      * Rendere the slider.
      */
-    private function output_slider()
+    protected function output_form_field()
     {
         $css = ($this->label == "") ? $this->css : "";
         require __DIR__ . "/tpl_slider.php";
@@ -120,17 +105,6 @@ class SliderView extends BaseView
             __DIR__ . "/slider.js",
         );
         return parent::get_js_includes($local);
-    }
-
-    /**
-     * Render the style view.
-     */
-    public function output_content()
-    {
-        if($this->label != "")
-            require __DIR__ . "/tpl_label.php";
-        else
-            $this->output_slider();
     }
 }
 ?>
