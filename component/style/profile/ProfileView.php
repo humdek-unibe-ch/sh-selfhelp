@@ -151,7 +151,7 @@ class ProfileView extends BaseView
             new BaseStyleComponent("alert", array(
                 "children" => array($alert_content),
                 "type" => $type
-            ), true)
+            ))
         );
     }
 

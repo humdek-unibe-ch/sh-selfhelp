@@ -1,10 +1,6 @@
 <?php
 require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/BasePage.php";
-spl_autoload_register(function ($class_name) {
-    $folder = strtolower(str_replace("Component", "", $class_name));
-    require_once __DIR__ . "/../component/" . $folder . "/" . $class_name . ".php";
-});
 
 /**
  * This class creates a page from a single component where the component class

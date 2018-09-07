@@ -46,6 +46,7 @@ class CmsInsertView extends BaseView
                 "is_sortable" => true,
                 "is_editable" => true,
                 "items" => $pages,
+                "is_user_input" => false,
             ))
         );
 

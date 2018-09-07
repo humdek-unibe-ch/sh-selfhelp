@@ -220,8 +220,7 @@ class CmsView extends BaseView
                     new BaseStyleComponent("plaintext", array("text" => $msg))
                 ),
                 "is_dismissable" => true
-            ),
-            true
+            )
         ));
     }
 
@@ -382,7 +381,8 @@ class CmsView extends BaseView
         $form_items[] = new BaseStyleComponent("input", array(
             "value" => "update",
             "name" => "mode",
-            "type-input" => "hidden"
+            "type-input" => "hidden",
+            "is_user_input" => false,
         ));
 
         if($render_margin)
@@ -437,17 +437,20 @@ class CmsView extends BaseView
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
-            "type-input" => "hidden"
+            "type-input" => "hidden",
+            "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['type'],
             "name" => $field_name_prefix . "[type]",
-            "type-input" => "hidden"
+            "type-input" => "hidden",
+            "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
-            "type-input" => "hidden"
+            "type-input" => "hidden",
+            "is_user_input" => false,
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
@@ -455,12 +458,14 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
-                "type-input" => $field['type']
+                "type-input" => $field['type'],
+                "is_user_input" => false,
             ));
         else if(in_array($field['type'], array("textarea","markdown","json")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "text" => $field['content'],
                 "name" => $field_name_content,
+                "is_user_input" => false,
             ));
         else if($field['type'] == "type-input")
         {
@@ -483,6 +488,7 @@ class CmsView extends BaseView
                     array("value" => "url", "text" => "url"),
                     array("value" => "week", "text" => "week"),
                 ),
+                "is_user_input" => false,
             ));
         }
         else if($field['type'] == "style-bootstrap")
@@ -500,6 +506,7 @@ class CmsView extends BaseView
                     array("value" => "light", "text" => "light"),
                     array("value" => "dark", "text" => "dark"),
                 ),
+                "is_user_input" => false,
             ));
         }
         else if($field['type'] == "style-list")
@@ -507,12 +514,14 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("input", array(
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
-                "type-input" => "hidden"
+                "type-input" => "hidden",
+                "is_user_input" => false,
             ));
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
                 "is_editable" => true,
                 "items" => $field['content'],
+                "is_user_input" => false,
             ));
         }
         return new BaseStyleComponent("descriptionItem", array(
@@ -559,6 +568,7 @@ class CmsView extends BaseView
                 "label" => "Add",
                 "insert_target" => $insert_target,
                 "delete_target" => $delete_target,
+                "is_user_input" => false,
             ));
         }
         else if($field['content'] != null)

@@ -15,11 +15,8 @@ class StyleView extends BaseView
      *  The model instance of the footer component.
      * @param object $style
      *  The style component to be rendered.
-     * @param bool $fluid
-     *  If set to true the content will be rendered in a container-fluid
-     *  bootstrap element, if set to false in a container.
      */
-    public function __construct($model, $style, $fluid=false)
+    public function __construct($model, $style)
     {
         parent::__construct($model);
 

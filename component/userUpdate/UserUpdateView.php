@@ -94,6 +94,7 @@ class UserUpdateView extends BaseView
                                 "type" => "hidden",
                                 "name" => "block",
                                 "value" => 1,
+                                "is_user_input" => false,
                             )),
                         )
                     )),
@@ -129,6 +130,7 @@ class UserUpdateView extends BaseView
                                 "type" => "hidden",
                                 "name" => "unblock",
                                 "value" => 1,
+                                "is_user_input" => false,
                             )),
                         )
                     )),
@@ -159,6 +161,7 @@ class UserUpdateView extends BaseView
                                 "items" => $this->model->get_new_group_options(
                                     $this->selected_user['id']),
                                 "css" => "mb-3",
+                                "is_user_input" => false,
                             )),
                         )
                     )),
@@ -188,6 +191,7 @@ class UserUpdateView extends BaseView
                                 "type" => "hidden",
                                 "name" => "rm_group",
                                 "value" => $this->model->get_did(),
+                                "is_user_input" => false,
                             )),
                         )
                     )),
@@ -199,6 +203,7 @@ class UserUpdateView extends BaseView
                 "is_editable" => false,
                 "items" => $this->model->get_selected_user_groups(),
                 "css" => "mb-3",
+                "is_user_input" => false,
             ))
         );
     }

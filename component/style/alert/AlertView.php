@@ -20,12 +20,6 @@ class AlertView extends BaseView
      */
     private $type;
 
-    /**
-     * If set to true the jumbotron gets the bootstrap class "container-fluid",
-     * othetwise the class "container" is used.
-     */
-    private $fluid;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -33,13 +27,9 @@ class AlertView extends BaseView
      *
      * @param object $model
      *  The model instance of the footer component.
-     * @param bool $fluid
-     *  If set to true the jumbotron gets the bootstrap class "container-fluid",
-     *  othetwise the class "container" is used.
      */
-    public function __construct($model, $fluid)
+    public function __construct($model)
     {
-        $this->fluid = $fluid;
         parent::__construct($model);
         $this->is_dismissable = $this->model->get_db_field("is_dismissable",
             false);
@@ -74,7 +64,6 @@ class AlertView extends BaseView
      */
     public function output_content()
     {
-        $fluid = ($this->fluid) ? "-fluid" : "";
         $type = "alert-" . $this->type;
         require __DIR__ . "/tpl_alert.php";
     }

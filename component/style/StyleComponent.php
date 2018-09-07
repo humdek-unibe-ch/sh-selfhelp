@@ -37,18 +37,18 @@ class StyleComponent extends BaseComponent
         if($model->get_style_type() == "view")
         {
             $style = new BaseStyleComponent($model->get_style_name(),
-                array( "children" => $model->get_children()), true,
+                array( "children" => $model->get_children()),
                 $model->get_db_fields());
         }
-        else if($model->get_style_type() == "component")
+        else if($model->get_style_type() == "component"
+            || $model->get_style_type() == "navigation")
         {
             $className = ucfirst($model->get_style_name()) . "Component";
-            $style = new $className($services, $id, $id_active);
-        }
-        else if($model->get_style_type() == "navigation")
-        {
-            $className = ucfirst($model->get_style_name()) . "Component";
-            $style = new $className($services, $id, $id_active);
+            if(class_exists($className))
+                $style = new $className($services, $id, $id_active);
+            else
+                $style = new BaseStyleComponent("unknownStyle",
+                    array("style_name" => $model->get_style_name()));
         }
         else
         {

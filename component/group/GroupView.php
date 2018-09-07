@@ -31,7 +31,7 @@ class GroupView extends BaseView
                 "children" => array(new BaseStyleComponent("plaintext", array(
                     "text" => "Failed to update the group ACL.",
                 )))
-            ), true)
+            ))
         );
         $this->add_local_component("alert-success",
             new BaseStyleComponent("alert", array(
@@ -39,7 +39,7 @@ class GroupView extends BaseView
                 "children" => array(new BaseStyleComponent("plaintext", array(
                     "text" => "Successfully updated the group ACL.",
                 )))
-            ), true)
+            ))
         );
         $this->add_local_component("new-group", new BaseStyleComponent("button",
             array(
@@ -132,6 +132,7 @@ class GroupView extends BaseView
                                 "type" => "hidden",
                                 "name" => "update_acl",
                                 "value" => 1,
+                                "is_user_input" => false,
                             )),
                             new BaseStyleComponent("acl", array(
                                 "title" => "Function",

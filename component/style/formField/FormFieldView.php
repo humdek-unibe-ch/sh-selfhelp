@@ -35,6 +35,13 @@ abstract class FormFieldView extends BaseView
     protected $id_field;
 
     /**
+     * DB field 'is_user_input' (true).
+     * If set to true, the form name is reffixed with the section id. If set to
+     * false, the name remains unchanged.
+     */
+    protected $is_user_input;
+
+    /**
      * The form label css classes.
      */
     protected $css_label;
@@ -63,7 +70,10 @@ abstract class FormFieldView extends BaseView
         $this->css_group = "";
         parent::__construct($model);
         $this->id_field = "form_field-" . $this->id_section;
-        $this->name = $this->id_section . "-" . $this->model->get_db_field("name");
+        $this->name = $this->model->get_db_field("name");
+        $this->is_user_input = $this->model->get_db_field("is_user_input", true);
+        if($this->is_user_input)
+            $this->name = $this->id_section . "-" . $this->name;
         $this->label = $this->model->get_db_field("label");
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
