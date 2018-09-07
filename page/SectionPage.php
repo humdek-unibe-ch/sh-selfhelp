@@ -36,7 +36,7 @@ class SectionPage extends BasePage
         $this->nav_section_id = isset($params['id']) ? $params['id'] : null;
 
         if($this->has_user_input)
-            $this->save_user_input();
+            var_dump($this->check_user_input());
 
         $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
@@ -55,22 +55,77 @@ class SectionPage extends BasePage
     /**
      *
      */
-    private function save_user_input()
+    private function check_user_input()
     {
+        $validation_rules = array();
+        $filter_rules = array();
+        $field_names = array();
         foreach($_POST as $name => $value)
         {
             $name_pieces = explode('-', $name);
             if(count($name_pieces) <= 1 || !is_numeric($name_pieces[0]))
                 continue;
             $id_section = intval($name_pieces[0]);
-            // fetch style
-            // if input -> fetch type
-            // if select | textarea | input.text -> htmlspecialchars
-            // if number | slider -> number
-            // ...
-            //
-            // insert data into the db
+            $sql = "SELECT sft.content
+                FROM sections_fields_translation AS sft
+                LEFT JOIN fields AS f ON f.id = sft.id_fields
+                WHERE f.name = 'label' AND sft.id_sections = :id";
+            $label = $this->services['db']->query_db_first($sql,
+                array(":id" => $id_section));
+            $field_names[$name] = ($label) ? $label["content"]
+                : implode('-', array_slice($name_pieces, 1));
+            // determine the type of the field
+            $sql = "SELECT st.name FROM styles AS st
+                LEFT JOIN sections AS s ON s.id_styles = st.id
+                WHERE s.id = :id";
+            $style = $this->services['db']->query_db_first($sql,
+                array(":id" => $id_section));
+            if($style)
+            {
+                if($style['name'] == "slider")
+                {
+                    $validation_rules[$name] = "integer";
+                    $filter_rules[$name] = "sanitize_numbers";
+                }
+                else if($style['name'] == "textarea")
+                    $filter_rules[$name] = "sanitize_string";
+                else if($style['name'] == "select")
+                {
+                    $validation_rules[$name] = "alpha_dash";
+                    $filter_rules[$name] = "trim|sanitize_string";
+                }
+                else if($style['name'] == "input")
+                {
+                    $sql = "SELECT sft.content
+                        FROM sections_fields_translation AS sft
+                        LEFT JOIN fields AS f ON f.id = sft.id_fields
+                        WHERE f.name = 'type-input' AND sft.id_sections = :id";
+                    $type_db = $this->services['db']->query_db_first($sql,
+                        array(":id" => $id_section));
+                    $type = "";
+                    if($type_db) $type = $type_db["content"];
+                    if($type == "text" || $type == "checkbox" || $type == "month"
+                        || $type == "week" || $type == "search" || $type == "tel")
+                        $filter_rules[$name] = "trim|sanitize_string";
+                    else if($type == "color")
+                        $validation_rules[$name] = "regex,/#[a-fA-F0-9]{6}/";
+                    else if($type == "date")
+                        $validation_rules[$name] = "date";
+                    else if($type == "email")
+                        $validation_rules[$name] = "valid_email";
+                    else if($type == "number" || $type == "range")
+                        $validation_rules[$name] = "numeric";
+                    else if($type == "time")
+                        $validation_rules[$name] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
+                    else if($type == "url")
+                        $validation_rules[$name] = "valid_url";
+                }
+            }
         }
+        $this->services['gump']->validation_rules($validation_rules);
+        $this->services['gump']->filter_rules($filter_rules);
+        $this->services['gump']->set_field_names($field_names);
+        return $this->services['gump']->run($_POST);
     }
 
     /* Protected Methods ******************************************************/

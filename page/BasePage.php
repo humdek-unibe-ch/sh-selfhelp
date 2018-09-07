@@ -6,6 +6,7 @@ require_once __DIR__ . "/../service/Login.php";
 require_once __DIR__ . "/../service/Acl.php";
 require_once __DIR__ . "/../service/Navigation.php";
 require_once __DIR__ . "/../service/Parsedown.php";
+require_once __DIR__ . "/../service/Gump.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
@@ -78,6 +79,8 @@ abstract class BasePage
             // other elements in this array, "nav" may be null if a page has
             // only one view.
             "nav" => null,
+            // Gump is a single-class input validation and sanitizing library.
+            "gump" => new GUMP('de'),
         );
         $this->services['parsedown']->setSafeMode(true);
         $this->fetch_page_info($keyword);
