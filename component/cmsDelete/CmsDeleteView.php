@@ -61,7 +61,7 @@ class CmsDeleteView extends BaseView
                             $this->model->get_current_url_params()),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type" => "name",
+                                "type-input" => "text",
                                 "name" => "name",
                                 "is_required" => true,
                                 "css" => "mb-3",

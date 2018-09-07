@@ -69,7 +69,6 @@ abstract class FormFieldView extends BaseView
         $this->css_label = "";
         $this->css_group = "";
         parent::__construct($model);
-        $this->id_field = "form_field-" . $this->id_section;
         $this->name = $this->model->get_db_field("name");
         $this->is_user_input = $this->model->get_db_field("is_user_input", true);
         if($this->is_user_input)

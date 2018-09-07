@@ -91,7 +91,7 @@ class UserUpdateView extends BaseView
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type" => "hidden",
+                                "type-input" => "hidden",
                                 "name" => "block",
                                 "value" => 1,
                                 "is_user_input" => false,
@@ -127,7 +127,7 @@ class UserUpdateView extends BaseView
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type" => "hidden",
+                                "type-input" => "hidden",
                                 "name" => "unblock",
                                 "value" => 1,
                                 "is_user_input" => false,
@@ -188,7 +188,7 @@ class UserUpdateView extends BaseView
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type" => "hidden",
+                                "type-input" => "hidden",
                                 "name" => "rm_group",
                                 "value" => $this->model->get_did(),
                                 "is_user_input" => false,
