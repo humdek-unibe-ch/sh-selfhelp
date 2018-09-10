@@ -1,3 +1,3 @@
 <textarea name="<?php echo $this->name; ?>" class="form-control <?php echo $css; ?>" <?php echo $required; ?>>
-<?php echo $this->text; ?>
+<?php echo $this->value; ?>
 </textarea>

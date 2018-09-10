@@ -21,12 +21,6 @@ class SliderView extends FormFieldView
     private $max;
 
     /**
-     * DB field 'count' (5).
-     * The default value of the slider.
-     */
-    private $count;
-
-    /**
      * DB field 'labels' (empty array).
      * The legend rendered below the slider.
      */
@@ -45,7 +39,6 @@ class SliderView extends FormFieldView
         parent::__construct($model);
         $this->min = $this->model->get_db_field("min", 0);
         $this->max = $this->model->get_db_field("max", 10);
-        $this->count = $this->model->get_db_field("count", 5);
         $this->labels = $this->model->get_db_field("labels", array());
     }
 

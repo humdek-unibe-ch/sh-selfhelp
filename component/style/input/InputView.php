@@ -10,12 +10,6 @@ class InputView extends FormFieldView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'text' (empty string).
-     * The default value of the input field.
-     */
-    private $value;
-
-    /**
      * DB field 'type-input' ('value').
      * The type of the input field.
      */
@@ -38,8 +32,6 @@ class InputView extends FormFieldView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->value = $this->model->get_db_field("value");
-        if(isset($_POST[$this->name])) $this->value = $_POST[$this->name];
         $this->type = $this->model->get_db_field("type-input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
         if($this->type == "checkbox")

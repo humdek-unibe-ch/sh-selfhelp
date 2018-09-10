@@ -7,14 +7,6 @@ require_once __DIR__ . "/../formField/FormFieldView.php";
  */
 class TextareaView extends FormFieldView
 {
-    /* Private Properties *****************************************************/
-
-    /**
-     * DB field 'text' (empty string).
-     * The default content of the textarea.
-     */
-    private $text;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -26,8 +18,6 @@ class TextareaView extends FormFieldView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->text = $this->model->get_db_field("text");
-        if(isset($_POST[$this->name])) $this->text = $_POST[$this->name];
     }
 
     /* Protected Methods ********************************************************/

@@ -9,6 +9,12 @@ abstract class FormFieldView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'text' (empty string).
+     * The default value of the form field.
+     */
+    protected $value;
+
+    /**
      * DB field 'is_required' (false).
      * If set to true the slection must be filled out before submitting,
      * otherwise not.
@@ -69,10 +75,13 @@ abstract class FormFieldView extends BaseView
         $this->css_label = "";
         $this->css_group = "";
         parent::__construct($model);
+
         $this->name = $this->model->get_db_field("name");
+        $this->value = $this->model->get_db_field("value");
         $this->is_user_input = $this->model->get_db_field("is_user_input", true);
         if($this->is_user_input)
             $this->name = $this->id_section . "-" . $this->name;
+        if(isset($_POST[$this->name])) $this->value = $_POST[$this->name];
         $this->label = $this->model->get_db_field("label");
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
