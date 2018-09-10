@@ -454,14 +454,14 @@ class CmsView extends BaseView
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
-                array("text", "number", "checkbox", "markdown-inline", "time")))
+                array("text", "number", "checkbox", "markdown-inline")))
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
                 "type-input" => $field['type'],
                 "is_user_input" => false,
             ));
-        else if(in_array($field['type'], array("textarea","markdown","json")))
+        else if(in_array($field['type'], array("textarea", "markdown", "json")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,

@@ -65,22 +65,34 @@ class CmsUpdateController extends BaseController
         }
         if($type === "number")
             return is_numeric($value);
-        if($type === "time")
-        {
-            $digits = explode(':', $value);
-            return (isset($digits[0]) && is_numeric($digits[0])
-                && isset($digits[1]) && is_numeric($digits[1]));
-        }
-        if($type === "date")
-        {
-            $digits = explode('-', $value);
-            return (isset($digits[0]) && is_numeric($digits[0])
-                && isset($digits[1]) && is_numeric($digits[1])
-                && isset($digits[1]) && is_numeric($digits[1]));
-        }
-        if($type === "color")
-            return (preg_match('/#[a-fA-F0-9]{6}/', $value) === 1);
-        return true;
+        if($type === "style-bootstrap")
+            return in_array($value, array(
+                "primary",
+                "secondary",
+                "success",
+                "danger",
+                "warning",
+                "info",
+                "light",
+                "dark",
+            ));
+        if($type === "type-input")
+            return in_array($value, array(
+                "text",
+                "checkbox",
+                "color",
+                "date",
+                "datetime-local",
+                "email",
+                "month",
+                "number",
+                "range",
+                "search",
+                "tel",
+                "time",
+                "url",
+                "week",
+            ));
     }
 
     /**
@@ -262,10 +274,10 @@ class CmsUpdateController extends BaseController
      */
     private function secure_field($type, $content)
     {
-        if(in_array($type, array("text", "textarea", "style-list")))
+        if(in_array($type, array("text", "textarea", "style-list",
+            "style-bootstrap", "type-input", "checkbox")))
             return htmlspecialchars($content);
-        if(in_array($type, array("markdown", "markdown-inline", "checkbox",
-                "json", "style-bootstrap", "type-input")))
+        if(in_array($type, array("markdown", "markdown-inline", "json")))
             return $content;
         if($type === "number")
             return intval($content);

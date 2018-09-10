@@ -30,12 +30,26 @@ class CmsInsertController extends BaseController
         if(isset($_POST['keyword']) && isset($_POST['url'])
             && isset($_POST['protocol']) && isset($_POST['type']))
         {
-            $this->name = $_POST["keyword"];
+            $this->name = filter_var($_POST["keyword"], FILTER_SANITIZE_STRING);
+            foreach($_POST['protocol'] as $protocol)
+                if($protocol != "GET" && $protocol != "POST"
+                    && $protocol != "PATCH" && $protocol != "PUT"
+                    && $protocol != "DELTE")
+                {
+                    $this->fail = true;
+                    return;
+                }
             $protocol = implode('|', $_POST['protocol']);
+            $url = filter_var($_POST['url'], FILTER_SANITIZE_URL);
+            $type = filter_var($_POST['type'], FILTER_SANITIZE_NUMBER_INT);
+            if(!$this->name || !$url || !$type)
+            {
+                $this->fail = true;
+                return;
+            }
             $position = isset($_POST['set-position']) ? $_POST['set-position'] : null;
-            $this->pid = $model->create_new_page($_POST['keyword'],
-                $_POST['url'], $protocol, intval($_POST['type']), $position,
-                $this->model->get_active_page_id());
+            $this->pid = $model->create_new_page($this->name, $url, $protocol,
+                intval($type), $position, $this->model->get_active_page_id());
             if($this->pid)
                 $this->success = true;
             else

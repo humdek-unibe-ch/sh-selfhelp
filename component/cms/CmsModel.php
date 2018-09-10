@@ -197,7 +197,7 @@ class CmsModel extends BaseModel
      * @param string $locale
      *  The locale string of the language.
      * @param string type
-     *  The type of the field.
+     *  The type of the field as defined in the db table fieldType.
      * @param string relation
      *  A string indication to what the field content relates. By this string
      *  the differnet db access actions are decided.
