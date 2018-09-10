@@ -16,12 +16,6 @@ class QuizView extends BaseView
     private $title;
 
     /**
-     * Internal field 'id' (the section id).
-     * This is a field that is set internally and does not come from the DB.
-     */
-    private $id;
-
-    /**
      * DB style field 'right_label'.
      * The label of the right button.
      */
@@ -57,42 +51,34 @@ class QuizView extends BaseView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field("quiz_title");
-        $this->id = $this->model->get_db_field("id");
         $this->right_label = $this->model->get_db_field("right_label");
         $this->wrong_label = $this->model->get_db_field("wrong_label");
         $this->right_content = $this->model->get_db_field("right_content");
         $this->wrong_content = $this->model->get_db_field("wrong_content");
+        $this->add_local_component("quiz-container",
+            new BaseStyleComponent("tabs", array("children" => array(
+                new BaseStyleComponent("tab", array(
+                    "label" => $this->right_label,
+                    "text_markdown" => $this->right_content,
+                    "type" => "info",
+                )),
+                new BaseStyleComponent("tab", array(
+                    "label" => $this->wrong_label,
+                    "text_markdown" => $this->wrong_content,
+                    "type" => "info",
+                )),
+            )))
+        );
     }
 
     /* Private Methods ********************************************************/
 
+    private function output_tabs()
+    {
+        $this->output_local_component("quiz-container");
+    }
+
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/quiz.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/quiz.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the style view.

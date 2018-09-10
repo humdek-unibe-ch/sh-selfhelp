@@ -28,6 +28,7 @@ class BaseStyleModel implements IStyleModel
     {
         $this->children = array();
         $index = 0;
+        $this->fields = array();
         foreach($fields as $key => $content)
         {
             if($key == "children")
