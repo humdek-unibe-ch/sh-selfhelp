@@ -309,18 +309,21 @@ class PageDb extends BaseDb
      */
     public function fetch_section_fields($id, $gender=null)
     {
+        $user_name = $this->fetch_user_name();
         if($gender === null) $gender = $_SESSION['gender'];
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.id AS id, f.name, sft.content, ft.name AS type
+        $sql = "SELECT f.id AS id, f.name, ft.name AS type,
+            REPLACE(sft.content, '@user', :uname) AS content
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             LEFT JOIN genders AS g ON g.id = sft.id_genders
             WHERE sft.id_sections = :id AND $locale_cond
-            AND g.name = :gender";
+            AND g.name = :gender AND sft.content != ''";
 
-        $res = $this->query_db($sql, array(":id" => $id, ":gender" => $gender));
+        $res = $this->query_db($sql, array(":id" => $id,
+            ":gender" => $gender, ":uname" => $user_name));
         if(!$res && $gender != "male")
             $res = $this->fetch_section_fields($id, "male");
         return $res;
@@ -348,6 +351,22 @@ class PageDb extends BaseDb
             WHERE sft.id_styles = :id AND $locale_cond";
 
         return $this->query_db($sql, array(":id" => $id));
+    }
+
+    /**
+     * Get the name of the current user.
+     *
+     * @retval string
+     *  The user name if set, otherwise the user email.
+     */
+    public function fetch_user_name()
+    {
+        $sql = "SELECT name, email FROM users WHERE id = :id";
+        $res = $this->query_db_first($sql,
+            array(":id" => $_SESSION['id_user']));
+        if(!$res) return "unknown";
+        if($res['name'] != "") return $res['name'];
+        else return $res['email'];
     }
 }
 ?>

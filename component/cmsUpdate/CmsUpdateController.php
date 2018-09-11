@@ -256,9 +256,11 @@ class CmsUpdateController extends BaseController
                     }
                     $res = false;
                     if($this->check_content($type, $content))
+                    {
+                        $content = $this->secure_field($type, $content);
                         $res = $this->model->update_db($id, $id_language,
-                            $id_gender, $this->secure_field($type, $content),
-                            $relation);
+                            $id_gender, $content, $relation);
+                    }
                     else
                         $this->bad_fields[$name][$id_language] = $field;
                     // res can be null which means that nothing was changed
@@ -288,10 +290,9 @@ class CmsUpdateController extends BaseController
         if(in_array($type, array("text", "textarea", "style-list",
             "style-bootstrap", "type-input", "checkbox")))
             return htmlspecialchars($content);
-        if(in_array($type, array("markdown", "markdown-inline", "json")))
-            return $content;
         if($type === "number")
             return intval($content);
+        return $content;
     }
 
     /* Public Methods *********************************************************/
