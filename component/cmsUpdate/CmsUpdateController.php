@@ -244,7 +244,7 @@ class CmsUpdateController extends BaseController
                     $type = $field['type'];
                     $id = intval($field['id']);
                     if($type == "checkbox")
-                        $content = isset($field['content']);
+                        $content = isset($field['content']) ? 1 : 0;
                     else
                         $content = $field['content'];
                     $relation = $field['relation'];

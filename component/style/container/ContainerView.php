@@ -9,7 +9,7 @@ class ContainerView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'is_fluid' (true).
+     * DB field 'is_fluid' (false).
      * If set to true the container spand to whole page. If set to false the
      * container only uses a part of the page.
      */
@@ -26,7 +26,7 @@ class ContainerView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->is_fluid = $this->model->get_db_field('is_fluid', true);
+        $this->is_fluid = $this->model->get_db_field('is_fluid', false);
     }
 
     /* Public Methods *********************************************************/

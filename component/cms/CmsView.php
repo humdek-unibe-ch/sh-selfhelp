@@ -454,9 +454,16 @@ class CmsView extends BaseView
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
-                array("text", "number", "checkbox", "markdown-inline")))
+                array("text", "number", "markdown-inline")))
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
+                "name" => $field_name_content,
+                "type-input" => $field['type'],
+                "is_user_input" => false,
+            ));
+        if($field['type'] === "checkbox")
+            $children[] = new BaseStyleComponent("input", array(
+                "value" => ($field['content'] != '0') ? $field['content'] : "",
                 "name" => $field_name_content,
                 "type-input" => $field['type'],
                 "is_user_input" => false,
@@ -572,6 +579,11 @@ class CmsView extends BaseView
                 "is_user_input" => false,
             ));
         }
+        else if($field['type'] === "checkbox" && $field['content'] != "")
+            $children[] = new BaseStyleComponent("template", array(
+                "path" => __DIR__ . "/tpl_checkbox_field.php",
+                "items" => array("is_checked" => ($field['content'] != "0")),
+            ));
         else if($field['content'] != null)
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content']
