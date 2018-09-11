@@ -89,4 +89,10 @@ else {
     $page = new SectionPage($router, $db, 'missing', array());
     $page->output();
 }
+
+// log user activity
+$db->insert("user_activity", array(
+    "id_users" => $_SESSION['id_user'],
+    "url" => $_SERVER['REQUEST_URI'],
+));
 ?>
