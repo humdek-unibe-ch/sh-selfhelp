@@ -32,7 +32,7 @@ class ProfileComponent extends BaseComponent
         if(!$model->is_cms_page())
             $controller = new ProfileController($model);
         $view = new ProfileView($model, $controller);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

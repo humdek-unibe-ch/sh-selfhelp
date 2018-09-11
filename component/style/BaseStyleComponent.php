@@ -8,7 +8,6 @@ require_once __DIR__ . "/BaseStyleModel.php";
  */
 class BaseStyleComponent extends BaseComponent
 {
-    private $model;
     /* Constructors ***********************************************************/
 
     /**
@@ -37,16 +36,16 @@ class BaseStyleComponent extends BaseComponent
         $className = ucfirst($style) . "View";
         if(class_exists($className))
         {
-            $this->model = new BaseStyleModel($fields);
-            $this->model->set_fields_full($fields_full);
-            $view = new $className($this->model);
+            $model = new BaseStyleModel($fields);
+            $model->set_fields_full($fields_full);
+            $view = new $className($model);
         }
         else
         {
-            $this->model = new BaseStyleModel(array("style_name" => $style));
-            $view = new UnknownStyleView($this->model);
+            $model = new BaseStyleModel(array("style_name" => $style));
+            $view = new UnknownStyleView($model);
         }
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

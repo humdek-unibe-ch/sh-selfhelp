@@ -7,10 +7,6 @@ require_once __DIR__ . "/UserModel.php";
  */
 class UserComponent extends BaseComponent
 {
-    /* Private Properties *****************************************************/
-
-    protected $model;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -26,8 +22,7 @@ class UserComponent extends BaseComponent
      */
     public function __construct($model, $view, $controller=null)
     {
-        $this->model = $model;
-        parent::__construct($view, $controller);
+        parent::__construct($model, $view, $controller);
     }
 
     /* Public Methods *********************************************************/

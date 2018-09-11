@@ -24,7 +24,7 @@ class FooterComponent extends BaseComponent
     {
         $model = new FooterModel($services);
         $view = new FooterView($model);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

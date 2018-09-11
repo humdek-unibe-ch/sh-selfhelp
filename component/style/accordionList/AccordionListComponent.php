@@ -25,7 +25,7 @@ class AccordionListComponent extends BaseComponent
     {
         $model = new AccordionListModel($services, $id);
         $view = new AccordionListView($model);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

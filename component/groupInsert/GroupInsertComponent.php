@@ -25,7 +25,7 @@ class GroupInsertComponent extends BaseComponent
         $model = new GroupModel($services, null);
         $controller = new GroupInsertController($model);
         $view = new GroupInsertView($model, $controller);
-        parent::__construct($view, $controller);
+        parent::__construct($model, $view, $controller);
     }
 }
 ?>

@@ -6,10 +6,6 @@ require_once __DIR__ . "/../BaseComponent.php";
  */
 class CmsComponent extends BaseComponent
 {
-    /* Private Properties *****************************************************/
-
-    protected $model;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -25,8 +21,7 @@ class CmsComponent extends BaseComponent
      */
     public function __construct($model, $view, $controller = null)
     {
-        $this->model = $model;
-        parent::__construct($view, $controller);
+        parent::__construct($model, $view, $controller);
     }
 
     /* Protected Methods ******************************************************/

@@ -22,6 +22,7 @@ class Login
     {
         session_start();
         $_SESSION['language'] = "de-CH";
+        $_SESSION['active_section_id'] = null;
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
         if(!$this->is_logged_in())
         {

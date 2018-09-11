@@ -17,6 +17,7 @@ abstract class BaseComponent
 
     protected $view;
     protected $controller;
+    protected $model;
     private $components;
 
     /* Constructors ***********************************************************/
@@ -27,16 +28,19 @@ abstract class BaseComponent
      * view and the controller instance to include the necessary css and js
      * files.
      *
+     * @param object $model
+     *  The model instance of the component.
      * @param object $view
      *  The view instance of the component.
      * @param object $controller
      *  The controller instance of the component.
      */
-    public function __construct($view, $controller=null)
+    public function __construct($model, $view, $controller=null)
     {
         $this->components = array();
         $this->view = $view;
         $this->controller = $controller;
+        $this->model = $model;
     }
 
     /* Public Methods *********************************************************/

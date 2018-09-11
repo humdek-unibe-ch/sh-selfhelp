@@ -35,7 +35,7 @@ class SectionPage extends BasePage
     public function __construct($router, $db, $keyword, $params=array())
     {
         parent::__construct($router, $db, $keyword);
-        $this->nav_section_id = isset($params['id']) ? $params['id'] : null;
+        $this->nav_section_id = isset($params['nav']) ? $params['nav'] : null;
 
         $this->errors = null;
         $this->user_input = null;
@@ -54,14 +54,14 @@ class SectionPage extends BasePage
         $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
             $this->add_component("section-" . $section['id'],
-                new StyleComponent($this->services, intval($section['id'])));
+                new StyleComponent($this->services, intval($section['id']),
+                    $params));
 
         if($this->nav_section_id != null)
         {
             $this->services['nav']->set_current_index($this->nav_section_id);
             $this->add_component("navigation", new StyleComponent(
-                $this->services, $this->id_navigation_section,
-                $this->nav_section_id));
+                $this->services, $this->id_navigation_section, $params));
         }
     }
 

@@ -71,7 +71,7 @@ class Navigation
             array_push($this->items_list, $fields);
             $fields['children'] = $this->fetch_children(intval($id['id']));
             $fields['url'] = $this->router->generate($this->keyword,
-                array("id" => intval($id['id'])));
+                array("nav" => intval($id['id'])));
             array_push($children, $fields);
         }
         return $children;

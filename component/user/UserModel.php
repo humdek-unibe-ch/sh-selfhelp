@@ -354,7 +354,21 @@ class UserModel extends BaseModel
      */
     public function insert_new_user($email)
     {
-        return $this->db->insert("users", array("email" => $email));
+        $token = bin2hex(openssl_random_pseudo_bytes(16));
+        $uid = $this->db->insert("users", array(
+            "email" => $email,
+            "token" => $token,
+        ));
+        if($uid)
+        {
+            $url = $this->get_link_url("validate", array(
+                "uid" => $uid,
+                "token" => $token,
+            ));
+            echo $_SERVER['HTTP_HOST'] . $url;
+            // localhost/sleep_coach/validate/10/9f2fafb018727ad054a39d21a1f610e6
+        }
+        return $uid;
     }
 
     /**

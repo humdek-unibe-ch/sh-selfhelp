@@ -52,7 +52,7 @@ abstract class BaseModel
         if($this->nav == null) return "";
         if($id == 0) return "";
         return $this->get_link_url($this->nav->get_page_keyword(),
-            array("id" => $id));
+            array("nav" => $id));
     }
 
     /* Public Methods *********************************************************/

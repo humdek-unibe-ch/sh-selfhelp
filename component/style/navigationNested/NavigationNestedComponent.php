@@ -27,7 +27,7 @@ class NavigationNestedComponent extends BaseComponent
     {
         $model = new NavigationModel($services, $id, $id_active);
         $view = new NavigationNestedView($model);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

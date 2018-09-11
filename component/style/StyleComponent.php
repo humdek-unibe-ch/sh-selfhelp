@@ -27,12 +27,12 @@ class StyleComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
-     * @param int $id_active
-     *  The id of the currently active section (this is used for the cms)
+     * @param array $params
+     *  An array of parameter that will be passed to the style component.
      */
-    public function __construct($services, $id, $id_active=null)
+    public function __construct($services, $id, $params=array())
     {
-        $model = new StyleModel($services, $id, $id_active);
+        $model = new StyleModel($services, $id);
         $this->is_style_known = true;
         if($model->get_style_type() == "view")
         {
@@ -45,7 +45,7 @@ class StyleComponent extends BaseComponent
         {
             $className = ucfirst($model->get_style_name()) . "Component";
             if(class_exists($className))
-                $style = new $className($services, $id, $id_active);
+                $style = new $className($services, $id, $params);
             else
                 $style = new BaseStyleComponent("unknownStyle",
                     array("style_name" => $model->get_style_name()));
@@ -56,7 +56,7 @@ class StyleComponent extends BaseComponent
             return;
         }
         $view = new StyleView($model, $style, true);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 
     /* Public Methods *********************************************************/

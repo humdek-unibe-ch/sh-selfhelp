@@ -26,6 +26,7 @@ class CmsView extends BaseView
     public function __construct($model, $controller = null)
     {
         parent::__construct($model, $controller);
+        $_SESSION['active_section_id'] = $this->model->get_active_section_id();
         $this->page_info = $this->model->get_page_info();
 
         $this->add_local_component("new_page", new BaseStyleComponent("button",
@@ -175,13 +176,11 @@ class CmsView extends BaseView
             foreach($this->page_sections as $section)
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
-                    intval($section['id']),
-                    $this->model->get_active_section_id());
+                    intval($section['id']));
         else
             $page_components[] = new StyleComponent(
                 $this->model->get_services(),
-                $this->model->get_active_root_section_id(),
-                $this->model->get_active_section_id());
+                $this->model->get_active_root_section_id());
         if(count($page_components) == 0)
         {
             $text = new BaseStyleComponent("plaintext", array(

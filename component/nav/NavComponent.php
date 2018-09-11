@@ -25,7 +25,7 @@ class NavComponent extends BaseComponent
     {
         $model = new NavModel($services);
         $view = new NavView($model);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

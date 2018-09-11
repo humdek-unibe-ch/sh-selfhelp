@@ -25,7 +25,7 @@ class UserInsertComponent extends BaseComponent
         $model = new UserModel($services, null);
         $controller = new UserInsertController($model);
         $view = new UserInsertView($model, $controller);
-        parent::__construct($view, $controller);
+        parent::__construct($model, $view, $controller);
     }
 }
 ?>

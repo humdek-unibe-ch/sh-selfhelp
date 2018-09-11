@@ -22,7 +22,7 @@ $(document).ready(function() {
     });
     $('input[name="type"]').change(function() {
         if($(this).val() == 4)
-            $url_input.val($url + "/[i:id]");
+            $url_input.val($url + "/[i:nav]");
         else
             $url_input.val($url);
     });

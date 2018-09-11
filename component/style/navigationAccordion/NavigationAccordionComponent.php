@@ -20,14 +20,17 @@ class NavigationAccordionComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this navigation component.
-     * @param int $id_active
-     *  The id of the curently selected navigation section.
+     * @param array $params
+     *  An array of parameters. This component requires the following keys:
+     *   'nav': The id of the curently selected navigation section.
      */
-    public function __construct($services, $id, $id_active)
+    public function __construct($services, $id, $params)
     {
+        $id_active = null;
+        if(isset($params['nav'])) $id_active = intval($params['nav']);
         $model = new NavigationModel($services, $id, $id_active);
         $view = new NavigationAccordionView($model);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>

@@ -46,7 +46,7 @@ class SessionsComponent extends BaseComponent
     {
         $model = new SessionsModel($services, $id);
         $view = new SessionsView($model);
-        parent::__construct($view);
+        parent::__construct($model, $view);
     }
 }
 ?>
