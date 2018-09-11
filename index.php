@@ -83,16 +83,20 @@ if($router->route)
         else
             throw new Exception("Cannot call custom function '$function_name'");
     }
+    // log user activity on experiment pages
+    $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+    if($db->query_db_first($sql,
+        array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
+    {
+        $db->insert("user_activity", array(
+            "id_users" => $_SESSION['id_user'],
+            "url" => $_SERVER['REQUEST_URI'],
+        ));
+    }
 }
 else {
     // no route was matched
     $page = new SectionPage($router, $db, 'missing', array());
     $page->output();
 }
-
-// log user activity
-$db->insert("user_activity", array(
-    "id_users" => $_SESSION['id_user'],
-    "url" => $_SERVER['REQUEST_URI'],
-));
 ?>
