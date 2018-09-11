@@ -16,6 +16,10 @@
                         Add Section
                     </div>
                     <div class="card-body">
+                        <div class="form-group form-check">
+                            <input type="checkbox" name="new-section" class="form-check-input" checked disabled>
+                            <label class="form-check-label">Create New Section</label>
+                        </div>
                         <div class="row">
                             <div class="col form-group">
                                 <label>Name Prefix</label>
@@ -32,10 +36,6 @@
                                 <option disabled selected value>-- select an option --</option>
                                 <?php $this->output_style_list(); ?>
                             </select>
-                        </div>
-                        <div class="form-group form-check">
-                            <input type="checkbox" name="new-section" class="form-check-input" checked disabled>
-                            <label class="text-muted">Create New Section</label>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Section</button>
                         <a href="<?php echo $url_cancel; ?>" class="btn btn-secondary float-right">Cancel</a>

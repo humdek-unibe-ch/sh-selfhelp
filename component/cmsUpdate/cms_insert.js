@@ -12,34 +12,33 @@ $(document).ready(function() {
         var ids = $(this).attr('id').split('-');
         $search_elements.removeClass("active");
         $(this).addClass("active");
+
         $input_name.val($(this).text());
         $input_add_section_link.val(ids[ids.length - 2]);
         $input_new_section.prop("checked", false);
         $input_style.val(ids[ids.length - 1]);
         name_postfix = $('select[name="section-style"] option:selected').text().trim();
-        $(this).parents("div.card-body.collapse:first").hide('fast', function() {
-            $(this).removeClass("show");
-            $(this).prev().addClass("collapsed");
-        });
-        $input_name_prefix.prop("required", false);
         $input_name_prefix.val("");
+
+        $input_name.prop("disabled", true);
+        $input_name_prefix.prop("disabled", true);
+        $input_style.prop("disabled", true);
+        $input_new_section.prop("disabled", false);
     });
     $input_name_prefix.keyup(function() {
-        new_section();
         name_prefix = $(this).val();
         $input_name.val(name_prefix + "-" + name_postfix);
     });
     $input_style.change(function() {
-        new_section();
         name_postfix = $('select[name="section-style"] option:selected').text().trim();
         $input_name.val(name_prefix + "-" + name_postfix);
     });
-    function new_section()
-    {
+    $input_new_section.click(function() {
         $search_elements.removeClass("active");
-        $input_new_section.prop("checked", true);
-        $input_name_prefix.prop("required", true);
+        $input_name.prop("disabled", false);
+        $input_name_prefix.prop("disabled", false);
+        $input_style.prop("disabled", false);
+        $input_new_section.prop("disabled", true);
         $input_add_section_link.val("");
-    }
+    });
 });
-
