@@ -93,6 +93,7 @@ class CmsUpdateController extends BaseController
                 "url",
                 "week",
             ));
+        return true;
     }
 
     /**
@@ -219,7 +220,7 @@ class CmsUpdateController extends BaseController
         {
             $css = "";
             if(isset($_POST['margin'])) $css = implode(" ", $_POST['margin']);
-            $this->model->update_db(CSS_FIELD_ID, 1, $css, "section_field");
+            $this->model->update_db(CSS_FIELD_ID, 1, 1, $css, "section_field");
         }
 
         foreach($fields as $name => $languages)
@@ -230,32 +231,42 @@ class CmsUpdateController extends BaseController
                     echo "Error: A field must be an array in CmsController::update_fields()";
                 continue;
             }
-            foreach($languages as $id_language => $field)
+            foreach($languages as $id_language => $genders)
             {
-                $type = $field['type'];
-                $id = intval($field['id']);
-                if($type == "checkbox")
-                    $content = isset($field['content']);
-                else
-                    $content = $field['content'];
-                $relation = $field['relation'];
-                if($type == "internal")
+                if(!is_array($genders))
                 {
-                    $info = $this->model->get_field_info($name);
-                    $type = $info['type'];
-                    $id = intval($info['id']);
+                    if(DEBUG == 1)
+                        echo "Error: A field must be an array in CmsController::update_fields()";
+                    continue;
                 }
-                $res = false;
-                if($this->check_content($type, $content))
-                    $res = $this->model->update_db($id, $id_language,
-                        $this->secure_field($type, $content), $relation);
-                else
-                    $this->bad_fields[$name][$id_language] = $field;
-                // res can be null which means that nothing was changed
-                if($res === true)
-                    $this->update_success_count++;
-                else if($res === false)
-                    $this->update_fail_count++;
+                foreach($genders as $id_gender => $field)
+                {
+                    $type = $field['type'];
+                    $id = intval($field['id']);
+                    if($type == "checkbox")
+                        $content = isset($field['content']);
+                    else
+                        $content = $field['content'];
+                    $relation = $field['relation'];
+                    if($type == "internal")
+                    {
+                        $info = $this->model->get_field_info($name);
+                        $type = $info['type'];
+                        $id = intval($info['id']);
+                    }
+                    $res = false;
+                    if($this->check_content($type, $content))
+                        $res = $this->model->update_db($id, $id_language,
+                            $id_gender, $this->secure_field($type, $content),
+                            $relation);
+                    else
+                        $this->bad_fields[$name][$id_language] = $field;
+                    // res can be null which means that nothing was changed
+                    if($res === true)
+                        $this->update_success_count++;
+                    else if($res === false)
+                        $this->update_fail_count++;
+                }
             }
         }
         if($this->update_success_count >= 0 && $this->update_fail_count == 0)

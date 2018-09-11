@@ -433,7 +433,7 @@ class CmsView extends BaseView
     {
         $children = array();
         $field_name_prefix = "fields[" . $field['name'] . "]["
-            . $field['id_language'] . "]";
+            . $field['id_language'] . "]" . "[" . $field['id_gender'] . "]";
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
@@ -525,6 +525,7 @@ class CmsView extends BaseView
             ));
         }
         return new BaseStyleComponent("descriptionItem", array(
+            "gender" => $field['gender'],
             "title" => $field['name'],
             "type-input" => $field['type'],
             "locale" => $field['locale'],
@@ -576,6 +577,7 @@ class CmsView extends BaseView
                 "text" => $field['content']
             ));
         return new BaseStyleComponent("descriptionItem", array(
+            "gender" => $field['gender'],
             "title" => $field['name'],
             "locale" => $field['locale'],
             "alt" => "field is not set",

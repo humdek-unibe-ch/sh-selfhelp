@@ -22,6 +22,7 @@ class Login
     {
         session_start();
         $_SESSION['language'] = "de-CH";
+        if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
@@ -42,13 +43,15 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT id, password FROM users WHERE email = :email
-            AND password IS NOT NULL";
+        $sql = "SELECT u.id, u.password, g.name AS gender FROM users AS u
+            LEFT JOIN genders AS g ON g.id = u.id_genders
+            WHERE email = :email AND password IS NOT NULL";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
         {
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
+            $_SESSION['gender'] = $user['gender'];
             return true;
         }
         else

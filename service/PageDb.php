@@ -307,17 +307,23 @@ class PageDb extends BaseDb
      *   'name': the name of the section field
      *   'content': the content of the section field
      */
-    public function fetch_section_fields($id)
+    public function fetch_section_fields($id, $gender=null)
     {
+        if($gender === null) $gender = $_SESSION['gender'];
         $locale_cond = $this->get_locale_condition();
         $sql = "SELECT f.id AS id, f.name, sft.content, ft.name AS type
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE sft.id_sections = :id AND $locale_cond";
+            LEFT JOIN genders AS g ON g.id = sft.id_genders
+            WHERE sft.id_sections = :id AND $locale_cond
+            AND g.name = :gender";
 
-        return $this->query_db($sql, array(":id" => $id));
+        $res = $this->query_db($sql, array(":id" => $id, ":gender" => $gender));
+        if(!$res && $gender != "male")
+            $res = $this->fetch_section_fields($id, "male");
+        return $res;
     }
 
     /**

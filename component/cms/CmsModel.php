@@ -192,6 +192,8 @@ class CmsModel extends BaseModel
      *  The id of the field.
      * @param int $id_language
      *  The id of the language of the field.
+     * @param int $id_gender
+     *  The id of the target gender of the field.
      * @param string $name
      *  The name of the field.
      * @param string $locale
@@ -203,18 +205,22 @@ class CmsModel extends BaseModel
      *  the differnet db access actions are decided.
      * @param mixed $content
      *  The content of the field.
+     * @param string $gender
+     *  The gender the content is associated with.
      */
-    private function add_property_item($id, $id_language, $name, $locale, $type,
-        $relation, $content)
+    private function add_property_item($id, $id_language, $id_gender, $name,
+        $locale, $type, $relation, $content, $gender="")
     {
         return array(
             "id" => $id,
             "id_language" => $id_language,
+            "id_gender" => $id_gender,
             "name" => $name,
             "locale" => $locale,
             "type" => $type,
             "relation" => $relation,
-            "content" => $content
+            "content" => $content,
+            "gender" => $gender,
         );
     }
 
@@ -411,7 +417,8 @@ class CmsModel extends BaseModel
      */
     private function fetch_section_field_independent($id_section, $id_field)
     {
-        $sql = "SELECT l.locale AS locale, l.id, sft.content
+        $sql = "SELECT l.locale AS locale, l.id AS id_language, sft.content,
+            '' AS gender, '1' AS id_gender
             FROM languages AS l
             LEFT JOIN sections_fields_translation AS sft
             ON l.id = sft.id_languages AND sft.id_sections = :sid
@@ -435,11 +442,13 @@ class CmsModel extends BaseModel
      */
     private function fetch_section_field_languages($id_section, $id_field)
     {
-        $sql = "SELECT l.locale AS locale, l.id, sft.content
+        $sql = "SELECT l.locale AS locale, l.id AS id_language, sft.content,
+            g.name AS gender, g.id AS id_gender
             FROM languages AS l
+            JOIN genders AS g
             LEFT JOIN sections_fields_translation AS sft
             ON l.id = sft.id_languages AND sft.id_sections = :sid
-            AND sft.id_fields = :fid
+            AND sft.id_fields = :fid AND sft.id_genders = g.id
             WHERE l.locale <> 'all'";
 
         return $this->db->query_db($sql,
@@ -883,12 +892,15 @@ class CmsModel extends BaseModel
      *  The id of the field to update.
      * @param int $id_language
      *  The id of the language of the field.
+     * @param int $id_gender
+     *  The id of the target gender of the field.
      * @param string $content
      *  The new content.
      * @retval bool
      *  True if the update operation is successful, false otherwise.
      */
-    private function update_section_fields_db($id, $id_language, $content)
+    private function update_section_fields_db($id, $id_language, $id_gender,
+        $content)
     {
         $id_section = $this->get_active_section_id();
         if($id_section == null && $this->is_navigation())
@@ -900,7 +912,8 @@ class CmsModel extends BaseModel
             "content" => $content,
             "id_fields" => $id,
             "id_languages" => $id_language,
-            "id_sections" => $id_section
+            "id_sections" => $id_section,
+            "id_genders" => $id_gender,
         );
         return $this->db->insert("sections_fields_translation", $insert, $update);
     }
@@ -1245,11 +1258,13 @@ class CmsModel extends BaseModel
             $fields[] = $this->add_property_item(
                 2, // label
                 intval($content['id']),
+                1, // male, default gender
                 "title",
                 $content['locale'],
                 "text",
                 "page_field",
-                $content['content']
+                $content['content'],
+                ""
             );
         }
         if($this->is_navigation())
@@ -1263,22 +1278,26 @@ class CmsModel extends BaseModel
         $fields[] = $this->add_property_item(
             null,
             1, // all languages
+            1, // male, default gender
             "sections",
             "",
             "style-list",
             "page_children",
-            $this->page_sections_static
+            $this->page_sections_static,
+            ""
         );
         if($this->is_navigation())
             $fields[] = $this->add_property_item(
                 null,
                 1, // all languages
+                1, // male, default gender
                 "navigation",
                 "",
                 "style-list",
                 "page_nav",
                 $this->fetch_navigation_items(
-                    $this->page_info['id_navigation_section'], false)
+                    $this->page_info['id_navigation_section'], false),
+                ""
             );
         return $fields;
     }
@@ -1349,9 +1368,11 @@ class CmsModel extends BaseModel
             {
                 $relation = "section_children";
                 $contents = array(array(
-                    "id" => $id,
+                    "id_language" => $id,
+                    "id_gender" => 1,
                     "locale" => "",
                     "content" => $this->fetch_section_hierarchy($id_section, false),
+                    "gender" => "",
                 ));
             }
             else
@@ -1361,12 +1382,14 @@ class CmsModel extends BaseModel
             {
                 $res[] = $this->add_property_item(
                     $id,
-                    intval($content['id']),
+                    intval($content['id_language']),
+                    intval($content['id_gender']),
                     $field['name'],
                     $content['locale'],
                     $field['type'],
                     $relation,
-                    $content['content']
+                    $content['content'],
+                    $content['gender']
                 );
             }
         }
@@ -1374,11 +1397,13 @@ class CmsModel extends BaseModel
             $res[] = $this->add_property_item(
                 null,
                 1, // all languages
+                1, // male, default gender
                 "navigation",
                 "",
                 "style-list",
                 "section_nav",
-                $this->fetch_navigation_items($id_section, false)
+                $this->fetch_navigation_items($id_section, false),
+                ""
             );
         return $res;
     }
@@ -1621,6 +1646,8 @@ class CmsModel extends BaseModel
      *  The id of the field to update.
      * @param int $id_language
      *  The id of the language of the field to update.
+     * @param int $id_gender
+     *  The target gender id of the content.
      * @param string $content
      *  The content of the field to be updated.
      * @param string $relation
@@ -1629,14 +1656,15 @@ class CmsModel extends BaseModel
      * @retval bool
      *  True on success, false otherwise.
      */
-    public function update_db($id, $id_language, $content, $relation)
+    public function update_db($id, $id_language, $id_gender, $content, $relation)
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
         if($relation == "page_field")
             return $this->update_page_fields_db($id, $id_language, $content);
         else if($relation == "section_field")
-            return $this->update_section_fields_db($id, $id_language, $content);
+            return $this->update_section_fields_db($id, $id_language, $id_gender,
+                $content);
         else if($relation == "section_children")
             return $this->update_section_children_order_db(
                 $this->get_active_section_id(), $content);
