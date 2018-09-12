@@ -313,7 +313,8 @@ class PageDb extends BaseDb
         if($gender === null) $gender = $_SESSION['gender'];
         $locale_cond = $this->get_locale_condition();
         $sql = "SELECT f.id AS id, f.name, ft.name AS type,
-            REPLACE(REPLACE(sft.content, '@user', :uname), '@project', :project) AS content
+            REPLACE(REPLACE(sft.content, '@user', :uname),
+                '@project', :project) AS content
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages

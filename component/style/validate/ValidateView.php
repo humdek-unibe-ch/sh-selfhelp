@@ -22,6 +22,10 @@ class ValidateView extends BaseView
     private $gender_female;
     private $gender_description;
     private $activate_label;
+    private $alert_fail;
+    private $alert_success;
+    private $success;
+    private $login_action_label;
 
     /* Constructors ***********************************************************/
 
@@ -48,12 +52,15 @@ class ValidateView extends BaseView
         $this->gender_male = $this->model->get_db_field("gender_male");
         $this->gender_female = $this->model->get_db_field("gender_female");
         $this->activate_label = $this->model->get_db_field("activate_label");
-        $this->alert = $this->model->get_db_field("alert_fail");
+        $this->alert_fail = $this->model->get_db_field("alert_fail");
+        $this->alert_success = $this->model->get_db_field("alert_success");
+        $this->success = $this->model->get_db_field("success");
+        $this->login_action_label = $this->model->get_db_field("login_action_label");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
                 "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => $this->alert,
+                    "text" => $this->alert_fail,
                 )))
             ))
         );
@@ -66,7 +73,7 @@ class ValidateView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller != null && $this->controller->has_failed())
+        if($this->controller == null || $this->controller->has_failed())
             $this->output_local_component("alert-fail");
     }
 
@@ -77,7 +84,13 @@ class ValidateView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_validate.php";
+        if ($this->controller == null || !$this->controller->has_succeeded())
+            require __DIR__ . "/tpl_validate.php";
+        if($this->controller == null || $this->controller->has_succeeded())
+        {
+            $url = $this->model->get_link_url("login");
+            require __DIR__ . "/tpl_success.php";
+        }
     }
 }
 ?>

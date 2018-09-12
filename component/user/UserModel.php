@@ -216,6 +216,48 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Read the email content from a php file and assign it to a string.
+     *
+     * @param string $url
+     *  The activation link that will be included into the mail content.
+     * @retval string
+     *  The email contnet with evaluated php statements.
+     */
+    private function email_get_content($url)
+    {
+        ob_start();
+        include($_SERVER['DOCUMENT_ROOT'] . "/email/activate_"
+            . $_SESSION['language'] . ".php");
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
+    }
+
+    /**
+     * Send activation email to new user.
+     *
+     * @param string $from
+     *  The source of the email address, e.g noreply@domain
+     * @param string $to
+     *  The email address of the new user.
+     * @param string $subject
+     *  The subject of the email.
+     * @param string $msg
+     *  The email message.
+     */
+    private function email_send($from, $to, $subject, $msg)
+    {
+        $headers = array();
+        $headers[] = "MIME-Version: 1.0";
+        $headers[] = "Content-type: text/plain; charset=utf-8";
+        $headers[] = "From: {$from}";
+        $headers[] = "Subject: {$subject}";
+        $headers[] = "X-Mailer: PHP/".phpversion();
+
+        mail($to, $subject, $msg , implode("\r\n", $headers));
+    }
+
+    /**
      * Get the ACL info of the selected user.
      *
      * @retval array
@@ -365,8 +407,10 @@ class UserModel extends BaseModel
                 "uid" => $uid,
                 "token" => $token,
             ));
-            echo $_SERVER['HTTP_HOST'] . $url;
-            // localhost/sleep_coach/validate/10/9f2fafb018727ad054a39d21a1f610e6
+            $subject = $_SESSION['project'] . " Email Verification";
+            $from = "noreply@" . $_SERVER['HTTP_HOST'];
+            $this->email_send($from, $email, $subject,
+                $this->email_get_content($_SERVER['HTTP_HOST'] . $url));
         }
         return $uid;
     }
