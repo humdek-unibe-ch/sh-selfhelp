@@ -11,8 +11,8 @@ class Login
      */
     public function __construct($db)
     {
-        $this->init_session();
         $this->db = $db;
+        $this->init_session();
     }
 
     /**
@@ -23,6 +23,7 @@ class Login
         session_start();
         $_SESSION['language'] = "de-CH";
         $_SESSION['active_section_id'] = null;
+        $_SESSION['project'] = $this->db->get_link_title("home");
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
         if(!$this->is_logged_in())
         {
