@@ -196,7 +196,7 @@ class UserSelectView extends BaseView
     {
         if($this->selected_user != null)
         {
-            $state = $this->selected_user['active'] ? "avctive" : "inactive";
+            $state = $this->selected_user['active'] ? "active" : "inactive";
             if($this->selected_user['blocked']) $state = "blocked";
             require __DIR__ . "/tpl_user.php";
         }

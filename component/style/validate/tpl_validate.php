@@ -14,6 +14,10 @@
                     <input type="text" class="form-control" name="name" placeholder="<?php echo $this->name_placeholder; ?>" required>
                     <small class="form-text text-muted"><?php echo $this->name_description; ?></small>
                 </div>
+                <div class="form-group d-none">
+                    <label>Leave this field empty</label>
+                    <input type="text" class="form-control" name="phone7h92jP" autocomplete="off">
+                </div>
                 <div class="form-group">
                     <label><?php echo $this->pw_label; ?></label>
                     <input type="password" class="form-control mb-1" name="pw" placeholder="<?php echo $this->pw_placeholder; ?>" required>

@@ -23,6 +23,12 @@ class ValidateController extends BaseController
         parent::__construct($model);
         $this->success = false;
         $this->fail = false;
+        if(isset($_POST['phone7h92jP']) && trim($_POST['phone7h92jP']) != "")
+        {
+            // Probably a bot
+            $this->success = true;
+            return;
+        }
         if(isset($_POST['name']) && isset($_POST['pw'])
             && isset($_POST['pw_verify']) && isset($_POST['gender']))
         {
