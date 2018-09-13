@@ -39,6 +39,12 @@ class QuizView extends BaseView
      */
     private $wrong_content;
 
+    /**
+     * DB field 'type' ('light').
+     * The style of the card. E.g. 'warning', 'danger', etc.
+     */
+    private $type;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -55,6 +61,7 @@ class QuizView extends BaseView
         $this->wrong_label = $this->model->get_db_field("wrong_label");
         $this->right_content = $this->model->get_db_field("right_content");
         $this->wrong_content = $this->model->get_db_field("wrong_content");
+        $this->type = $this->model->get_db_field("type", "info");
         $this->add_local_component("quiz-container",
             new BaseStyleComponent("tabs", array("children" => array(
                 new BaseStyleComponent("tab", array(
@@ -64,7 +71,7 @@ class QuizView extends BaseView
                             "text_markdown" => $this->right_content,
                         )),
                     ),
-                    "type" => "info",
+                    "type" => $this->type,
                 )),
                 new BaseStyleComponent("tab", array(
                     "label" => $this->wrong_label,
@@ -73,7 +80,7 @@ class QuizView extends BaseView
                             "text_markdown" => $this->wrong_content,
                         )),
                     ),
-                    "type" => "info",
+                    "type" => $this->type,
                 )),
             )))
         );
