@@ -21,7 +21,7 @@ class Login
     private function init_session()
     {
         session_start();
-        $_SESSION['language'] = "de-CH";
+        $_SESSION['language'] = LANGUAGE;
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
