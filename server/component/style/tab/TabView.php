@@ -17,12 +17,6 @@ class TabView extends BaseView
     private $label;
 
     /**
-     * DB field 'text_markdown' (empty string).
-     * The text that is dispayed when clicking on the tab button.
-     */
-    private $content;
-
-    /**
      * DB field 'type' ('info').
      * The style of the button.
      */
@@ -40,7 +34,6 @@ class TabView extends BaseView
     {
         parent::__construct($model);
         $this->label = $this->model->get_db_field("label");
-        $this->content = $this->model->get_db_field("text_markdown");
         $this->type = $this->model->get_db_field("type", "info");
     }
 

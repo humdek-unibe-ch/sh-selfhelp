@@ -2,5 +2,5 @@
     <?php echo $this->label; ?>
 </button>
 <div class="d-none tab-content">
-    <?php echo $this->content; ?>
+    <?php echo $this->output_children(); ?>
 </div>
