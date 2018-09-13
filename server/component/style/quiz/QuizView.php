@@ -59,12 +59,20 @@ class QuizView extends BaseView
             new BaseStyleComponent("tabs", array("children" => array(
                 new BaseStyleComponent("tab", array(
                     "label" => $this->right_label,
-                    "text_markdown" => $this->right_content,
+                    "children" => array(
+                        new BaseStyleComponent("markdown", array(
+                            "text_markdown" => $this->right_content,
+                        )),
+                    ),
                     "type" => "info",
                 )),
                 new BaseStyleComponent("tab", array(
                     "label" => $this->wrong_label,
-                    "text_markdown" => $this->wrong_content,
+                    "children" => array(
+                        new BaseStyleComponent("markdown", array(
+                            "text_markdown" => $this->wrong_content,
+                        )),
+                    ),
                     "type" => "info",
                 )),
             )))
