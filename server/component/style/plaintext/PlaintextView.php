@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/../../BaseView.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Parsedown.php";
 
 /**
  * The view class of the plaintext style component.

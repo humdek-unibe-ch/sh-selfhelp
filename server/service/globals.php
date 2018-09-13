@@ -1,9 +1,6 @@
 <?php
 define('ASSET_PATH', BASE_PATH . '/img/');
-define('COMPONENT_PATH', BASE_PATH . '/component/');
-define('STYLE_PATH', BASE_PATH . COMPONENT_PATH . 'style/');
-define('SERVICE_PATH', '/service');
-define('PAGE_PATH', '/page');
+define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
 
 /* Static DB Content */
 define('GUEST_USER_ID', 1);

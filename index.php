@@ -1,13 +1,13 @@
 <?php
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
-require_once "./service/router.php";
-require_once "./service/globals_untracked.php";
-require_once "./service/globals.php";
-require_once "./service/Login.php";
-require_once "./page/HomePage.php";
-require_once "./page/SectionPage.php";
-require_once "./page/ComponentPage.php";
-require_once "./ajax/AjaxRequest.php";
+require_once "./server/service/router.php";
+require_once "./server/service/PageDb.php";
+require_once "./server/service/globals_untracked.php";
+require_once "./server/service/globals.php";
+require_once "./server/page/HomePage.php";
+require_once "./server/page/SectionPage.php";
+require_once "./server/page/ComponentPage.php";
+require_once "./server/ajax/AjaxRequest.php";
 
 /**
  * Helper function to show stacktrace also of wranings.

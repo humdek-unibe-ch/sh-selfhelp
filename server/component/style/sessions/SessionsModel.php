@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/../StyleModel.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . "/service/Navigation.php";
+require_once SERVICE_PATH . "/Navigation.php";
 /**
  * This class is used to prepare all data related to the sessions component such
  * that the data can easily be displayed in the view of the component.
