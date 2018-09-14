@@ -68,7 +68,7 @@ class QuizView extends BaseView
                     "label" => $this->right_label,
                     "children" => array(
                         new BaseStyleComponent("markdown", array(
-                            "text_markdown" => $this->right_content,
+                            "text_md" => $this->right_content,
                         )),
                     ),
                     "type" => $this->type,
@@ -77,7 +77,7 @@ class QuizView extends BaseView
                     "label" => $this->wrong_label,
                     "children" => array(
                         new BaseStyleComponent("markdown", array(
-                            "text_markdown" => $this->wrong_content,
+                            "text_md" => $this->wrong_content,
                         )),
                     ),
                     "type" => $this->type,

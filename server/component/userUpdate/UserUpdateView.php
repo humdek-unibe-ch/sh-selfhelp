@@ -110,7 +110,7 @@ class UserUpdateView extends BaseView
                 "type" => "warning",
                 "children" => array(
                     new BaseStyleComponent("markdown", array(
-                        "text_markdown" => "Unblocking a user will restore the user status to <code>" . $this->user_status . "</code>.",
+                        "text_md" => "Unblocking a user will restore the user status to <code>" . $this->user_status . "</code>.",
                         "is_paragraph" => true,
                     )),
                     new BaseStyleComponent("form", array(

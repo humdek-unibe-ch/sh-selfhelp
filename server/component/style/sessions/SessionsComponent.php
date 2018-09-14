@@ -17,7 +17,7 @@ require_once __DIR__ . "/SessionsModel.php";
  * The component requires the following fields:
  *  'title':
  *      The title rendered into a jumbotron.
- *  'text_markdown':
+ *  'text_md':
  *      A description of sessions page that is rendered below the title.
  *  'continue_label':
  *      The button label that leads to the session the user is currently working

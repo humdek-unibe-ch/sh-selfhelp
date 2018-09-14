@@ -45,7 +45,7 @@ class SessionsView extends BaseView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field('title');
-        $this->text = $this->model->get_db_field('text_markdown');;
+        $this->text = $this->model->get_db_field('text_md');;
         $this->progress_label = $this->model->get_db_field('progress_label');
         $this->continue_label = $this->model->get_db_field('continue_label');
 
