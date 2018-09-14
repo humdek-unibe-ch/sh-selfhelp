@@ -2,9 +2,9 @@
 require_once __DIR__ . "/../../BaseView.php";
 
 /**
- * The view class of the title style component.
+ * The view class of the heading style component.
  */
-class TitleView extends BaseView
+class HeadingView extends BaseView
 {
     /* Private Properties *****************************************************/
 
