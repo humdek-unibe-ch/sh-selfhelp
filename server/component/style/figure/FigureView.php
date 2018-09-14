@@ -76,7 +76,10 @@ class FigureView extends BaseView
     public function output_content()
     {
         if($this->source == "") return;
-        $url = ASSET_PATH . $this->source;
+        if(filter_var($this->source, FILTER_VALIDATE_URL))
+            $url = $this->source;
+        else
+            $url = ASSET_PATH . $this->source;
         require __DIR__ . "/tpl_figure.php";
     }
 }
