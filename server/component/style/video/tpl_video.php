@@ -1,4 +1,4 @@
-<video class="mb-3" controls style="max-width:100%">
+<video class="img-fluid" controls>
     <?php $this->output_video_sources(); ?>
     <?php echo $this->alt; ?>
 </video>
