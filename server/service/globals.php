@@ -1,6 +1,7 @@
 <?php
 define('ASSET_PATH', BASE_PATH . '/img/');
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
+define('EMAIL_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/email');
 
 /* Static DB Content */
 define('GUEST_USER_ID', 1);

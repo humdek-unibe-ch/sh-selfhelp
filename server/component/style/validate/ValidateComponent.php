@@ -5,7 +5,8 @@ require_once __DIR__ . "/ValidateModel.php";
 require_once __DIR__ . "/ValidateController.php";
 
 /**
- * The user validation component.
+ * The user validation component. This component is intended for the user
+ * validation once the user received an email with a validation link.
  */
 class ValidateComponent extends BaseComponent
 {

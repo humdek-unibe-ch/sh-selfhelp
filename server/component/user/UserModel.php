@@ -226,8 +226,7 @@ class UserModel extends BaseModel
     private function email_get_content($url)
     {
         ob_start();
-        include($_SERVER['DOCUMENT_ROOT'] . "/email/activate_"
-            . $_SESSION['language'] . ".php");
+        include(EMAIL_PATH . "/activate_" . $_SESSION['language'] . ".php");
         $content = ob_get_contents();
         ob_end_clean();
         return $content;
