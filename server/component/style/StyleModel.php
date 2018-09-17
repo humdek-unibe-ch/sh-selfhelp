@@ -26,7 +26,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @param int $id
      *  The id of the database section item to be rendered.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params=array())
     {
         parent::__construct($services);
         $this->db_fields['id'] = array(
@@ -61,7 +61,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
             $this->children[] = new StyleComponent(
-                $services, intval($child['id']));
+                $services, intval($child['id']), $params);
     }
 
     /* Protected Methods ******************************************************/

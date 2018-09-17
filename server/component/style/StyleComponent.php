@@ -32,7 +32,7 @@ class StyleComponent extends BaseComponent
      */
     public function __construct($services, $id, $params=array())
     {
-        $model = new StyleModel($services, $id);
+        $model = new StyleModel($services, $id, $params);
         $this->is_style_known = true;
         if($model->get_style_type() == "view")
         {
