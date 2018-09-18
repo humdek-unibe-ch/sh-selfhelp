@@ -27,7 +27,7 @@ class ChatView extends BaseView
         parent::__construct($model, $controller);
         $this->label = $this->model->get_db_field("label", "Send");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
-        $this->no_partner = $this->model->get_db_field("no_partner");
+        $this->alt = $this->model->get_db_field("alt");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",

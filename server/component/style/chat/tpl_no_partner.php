@@ -1,3 +1,3 @@
 <div class="jumbotron">
-    <?php echo $this->no_partner; ?>
+    <?php echo $this->alt; ?>
 </div>
