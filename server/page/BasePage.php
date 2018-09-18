@@ -5,7 +5,7 @@ require_once __DIR__ . "/../service/globals_untracked.php";
 require_once __DIR__ . "/../service/Login.php";
 require_once __DIR__ . "/../service/Acl.php";
 require_once __DIR__ . "/../service/Navigation.php";
-require_once __DIR__ . "/../service/Parsedown.php";
+require_once __DIR__ . "/../service/ParsedownExtension.php";
 require_once __DIR__ . "/../service/Gump.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
@@ -73,7 +73,7 @@ abstract class BasePage
             // decide which links to display.
             "acl" => new Acl($db),
             // A markdown parser.
-            "parsedown" => new Parsedown(),
+            "parsedown" => new ParsedownExtension(),
             // The instance to the navigation service which allows to switch
             // between sections, associated to a specific page. Unlike the
             // other elements in this array, "nav" may be null if a page has
