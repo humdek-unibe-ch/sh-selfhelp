@@ -2,3 +2,8 @@
 {
     cursor: pointer;
 }
+
+.front
+{
+    z-index:10;
+}
