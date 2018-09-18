@@ -23,9 +23,13 @@ class UserInsertController extends UserController
         parent::__construct($model);
         $this->uid = null;
         $this->email = "";
-        if(isset($_POST['email'])
-            && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
+        if(isset($_POST['email']))
         {
+            if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
+            {
+                $this->fail = true;
+                return;
+            }
             $this->email = $_POST['email'];
             $groups = array();
             if(isset($_POST['user_groups'])) $groups = $_POST['user_groups'];

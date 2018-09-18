@@ -16,13 +16,13 @@ class QuizView extends BaseView
     private $title;
 
     /**
-     * DB field 'right_label' (empty string).
+     * DB field 'label_right' (empty string).
      * The label of the right button.
      */
     private $right_label;
 
     /**
-     * DB field 'wrong_label' (empty string).
+     * DB field 'label_wrong' (empty string).
      * The label of the wrong button.
      */
     private $wrong_label;
@@ -57,8 +57,8 @@ class QuizView extends BaseView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field("quiz_title");
-        $this->right_label = $this->model->get_db_field("right_label");
-        $this->wrong_label = $this->model->get_db_field("wrong_label");
+        $this->right_label = $this->model->get_db_field("label_right");
+        $this->wrong_label = $this->model->get_db_field("label_wrong");
         $this->right_content = $this->model->get_db_field("right_content");
         $this->wrong_content = $this->model->get_db_field("wrong_content");
         $this->type = $this->model->get_db_field("type", "info");

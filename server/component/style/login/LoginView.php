@@ -16,13 +16,13 @@ class LoginView extends BaseView
     private $alert_fail;
 
     /**
-     * DB field 'user_label' (empty string).
+     * DB field 'label_user' (empty string).
      * The placeholder of the user-name field.
      */
     private $user_label;
 
     /**
-     * DB field 'pw_label' (empty string).
+     * DB field 'label_pw' (empty string).
      * The placeholder of the password field.
      */
     private $pw_label;
@@ -34,7 +34,7 @@ class LoginView extends BaseView
     private $login_label;
 
     /**
-     * DB field 'reset_label' (empty string).
+     * DB field 'label_reset_pw' (empty string).
      * The label of the password reset link.
      */
     private $reset_label;
@@ -72,10 +72,10 @@ class LoginView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->alert_fail = $this->model->get_db_field('alert_fail');
-        $this->user_label = $this->model->get_db_field('user_label');
-        $this->pw_label = $this->model->get_db_field('pw_label');
-        $this->login_label = $this->model->get_db_field('login_action_label');
-        $this->reset_label = $this->model->get_db_field('reset_pw_action_label');
+        $this->user_label = $this->model->get_db_field('label_user');
+        $this->pw_label = $this->model->get_db_field('label_pw');
+        $this->login_label = $this->model->get_db_field('label_login');
+        $this->reset_label = $this->model->get_db_field('label_reset_pw');
         $this->login_title = $this->model->get_db_field('login_title');
         $this->intro_title = $this->model->get_db_field('intro_title');
         $this->intro_content = $this->model->get_db_field('intro_text');

@@ -64,9 +64,10 @@ class StyleModel extends BaseModel implements IStyleModel
     /* Protected Methods ******************************************************/
 
     /**
-     * Returns an url given a router keyword. The keyword :back will generate
+     * Returns an url given a router keyword. The keyword #back will generate
      * the url of the last visited page or the home page if the last visited
-     * page is the current page or unknown.
+     * page is the current page or unknown. The keyword #self points to the
+     * current page.
      *
      * @retval string
      *  The generated url.

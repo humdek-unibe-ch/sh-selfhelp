@@ -42,12 +42,12 @@ class ValidateView extends BaseView
         parent::__construct($model, $controller);
         $this->title = $this->model->get_db_field("title");
         $this->subtitle = $this->model->get_db_field("subtitle");
-        $this->name_label = $this->model->get_db_field("name_label");
+        $this->name_label = $this->model->get_db_field("label_name");
         $this->name_placeholder = $this->model->get_db_field("name_placeholder");
         $this->name_description = $this->model->get_db_field("name_description");
-        $this->pw_label = $this->model->get_db_field('pw_label');
+        $this->pw_label = $this->model->get_db_field('label_pw');
         $this->pw_placeholder = $this->model->get_db_field('pw_placeholder');
-        $this->pw_confirm_label = $this->model->get_db_field('pw_confirm_label');
+        $this->pw_confirm_label = $this->model->get_db_field('label_pw_confirm');
         $this->gender_label = $this->model->get_db_field("label_gender");
         $this->gender_male = $this->model->get_db_field("gender_male");
         $this->gender_female = $this->model->get_db_field("gender_female");
@@ -55,7 +55,7 @@ class ValidateView extends BaseView
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alert_success = $this->model->get_db_field("alert_success");
         $this->success = $this->model->get_db_field("success");
-        $this->login_action_label = $this->model->get_db_field("login_action_label");
+        $this->login_action_label = $this->model->get_db_field("label_login");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",

@@ -40,25 +40,25 @@ class ProfileView extends BaseView
     private $pw_change_title;
 
     /**
-     * DB field 'pw_label' (empty string).
+     * DB field 'label_pw' (empty string).
      * The placeholder of the password input field.
      */
     private $pw_label;
 
     /**
-     * DB field 'pw_confirm_label' (empty string).
+     * DB field 'label_pw_confirm' (empty string).
      * The placeholder of the password confirmation input field.
      */
     private $pw_confirm_label;
 
     /**
-     * DB field 'pw_change_action_label' (empty string).
+     * DB field 'label_change' (empty string).
      * The label of the password change submit button.
      */
     private $pw_change_action_label;
 
     /**
-     * DB field 'user_label' (empty string).
+     * DB field 'label_user' (empty string).
      * The label of the email confirmation input field.
      */
     private $user_label;
@@ -70,7 +70,7 @@ class ProfileView extends BaseView
     private $delete_title;
 
     /**
-     * DB field 'delete_label' (empty string).
+     * DB field 'label_delete' (empty string).
      * The lable of the delete user button.
      */
     private $delete_label;
@@ -82,7 +82,7 @@ class ProfileView extends BaseView
     private $delete_content;
 
     /**
-     * DB field 'delete_confirm_label' (empty string).
+     * DB field 'label_delete_confirm' (empty string).
      * The label of the delete user submit button.
      */
     private $delete_confirm_label;
@@ -111,14 +111,14 @@ class ProfileView extends BaseView
         $this->alert_del_fail = $this->model->get_db_field('alert_del_fail');
         $this->alert_del_success = $this->model->get_db_field('alert_del_success');
         $this->pw_change_title = $this->model->get_db_field('pw_change_title');
-        $this->pw_label = $this->model->get_db_field('pw_label');
-        $this->pw_confirm_label = $this->model->get_db_field('pw_confirm_label');
-        $this->pw_change_action_label = $this->model->get_db_field('pw_change_action_label');
-        $this->user_label = $this->model->get_db_field('user_label');
+        $this->pw_label = $this->model->get_db_field('label_pw');
+        $this->pw_confirm_label = $this->model->get_db_field('label_pw_confirm');
+        $this->pw_change_action_label = $this->model->get_db_field('label_change');
+        $this->user_label = $this->model->get_db_field('label_user');
         $this->delete_title = $this->model->get_db_field('delete_title');
-        $this->delete_label = $this->model->get_db_field('delete_label');
+        $this->delete_label = $this->model->get_db_field('label_delete');
         $this->delete_content = $this->model->get_db_field('delete_content');
-        $this->delete_confirm_label = $this->model->get_db_field('delete_confirm_label');
+        $this->delete_confirm_label = $this->model->get_db_field('label_delete_confirm');
         $this->delete_confirm_content = $this->model->get_db_field('delete_confirm_content');
 
         $this->add_alert_component("danger", "alert_pw_fail",

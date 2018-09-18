@@ -10,13 +10,13 @@ abstract class NavigationView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'next' (empty string).
+     * DB field 'label_next' (empty string).
      * The label of the navigation button to go to the next item.
      */
     private $label_next;
 
     /**
-     * DB field 'back' (empty string).
+     * DB field 'label_back' (empty string).
      * The label of the navigation button to go to the pervious item.
      */
     private $label_back;
@@ -39,8 +39,8 @@ abstract class NavigationView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->label_next = $this->model->get_db_field("next");
-        $this->label_back = $this->model->get_db_field("back");
+        $this->label_next = $this->model->get_db_field("label_next");
+        $this->label_back = $this->model->get_db_field("label_back");
         if($this->css == null)
             $this->css = "my-3";
         $this->has_navigation_buttons =
