@@ -10,6 +10,7 @@ class ChatModel extends StyleModel
 
     private $uid;
     private $is_experimenter;
+    private $subjects;
 
     /* Constructors ***********************************************************/
 
@@ -29,6 +30,7 @@ class ChatModel extends StyleModel
         parent::__construct($services, $id);
         $this->uid = $uid;
         $this->is_experimenter = false;
+        $this->subjects = $this->fetch_subjects();
         if($this->check_experimenter_relation($_SESSION['id_user']))
             $this->is_experimenter = true;
     }
@@ -51,6 +53,22 @@ class ChatModel extends StyleModel
         ));
         if($res) return true;
         else return false;
+    }
+
+    /**
+     * Get all subjects of thet experiment.
+     *
+     * @retval array
+     *  The database result with the following keys:
+     *   'id':      The user id of the subject.
+     *   'name':    The name of the subject.
+     */
+    private function fetch_subjects()
+    {
+        $sql = "SELECT u.id, u.name FROM users AS u
+            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            WHERE ug.id_groups = :gid AND name IS NOT NULL";
+        return $this->db->query_db($sql, array(":gid" => SUBJECT_GROUP_ID));
     }
 
     /* Public Methods *********************************************************/
@@ -85,19 +103,28 @@ class ChatModel extends StyleModel
     }
 
     /**
-     * Get all subjects of thet experiment.
+     * Get the user name of the selected user.
+     *
+     * @retval string
+     *  The name of the selected user.
+     */
+    public function get_selected_user_name()
+    {
+        foreach($this->subjects as $subject)
+            if($this->is_selected_user(intval($subject['id'])))
+                return $subject['name'];
+        return "";
+    }
+
+    /**
+     * Get the list of subjects.
      *
      * @retval array
-     *  The database result with the following keys:
-     *   'id':      The user id of the subject.
-     *   'name':    The name of the subject.
+     *  The result from the db query see ChatModel::fetch_subjects().
      */
     public function get_subjects()
     {
-        $sql = "SELECT u.id, u.name FROM users AS u
-            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-            WHERE ug.id_groups = :gid AND name IS NOT NULL";
-        return $this->db->query_db($sql, array(":gid" => SUBJECT_GROUP_ID));
+        return $this->subjects;
     }
 
     /**

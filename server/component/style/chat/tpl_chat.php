@@ -1,6 +1,11 @@
-<div class="card card-body">
-    <div class="chat">
-    <?php $this->output_msgs(); ?>
+<div class="card">
+    <div class="card-header">
+        <?php echo $title; ?>
+    </div>
+    <div class="card-body">
+        <div class="chat">
+        <?php $this->output_msgs(); ?>
+        </div>
     </div>
 </div>
     <form action="<?php echo $url; ?>" method="post">

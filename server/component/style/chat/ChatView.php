@@ -11,6 +11,9 @@ class ChatView extends BaseView
 
     private $label;
     private $alert_fail;
+    private $alt;
+    private $title_prefix;
+    private $experimenter;
 
     /* Constructors ***********************************************************/
 
@@ -28,6 +31,9 @@ class ChatView extends BaseView
         $this->label = $this->model->get_db_field("label", "Send");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alt = $this->model->get_db_field("alt");
+        $this->title_prefix = $this->model->get_db_field("title_prefix");
+        $this->experimenter = $this->model->get_db_field("experimenter");
+        $this->subjects = $this->model->get_db_field("subjects");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -52,7 +58,7 @@ class ChatView extends BaseView
     /**
      * Render the chat window.
      */
-    private function output_chat()
+    private function output_chat($title)
     {
         if($this->model->is_chat_ready())
         {
@@ -104,11 +110,11 @@ class ChatView extends BaseView
         foreach($this->model->get_subjects() as $subject)
         {
             $id = intval($subject['id']);
+            $name = $subject['name'];
             $url = $this->model->get_link_url("contact", array("uid" => $id));
             $active = "";
             if($this->model->is_selected_user($id))
                 $active = "bg-info text-white";
-            $name = $subject['name'];
             require __DIR__ . "/tpl_subject.php";
         }
     }
@@ -147,9 +153,17 @@ class ChatView extends BaseView
     public function output_content()
     {
         if($this->model->is_current_user_experimenter())
+        {
+            $title = $this->title_prefix . " "
+                . $this->model->get_selected_user_name();
             require __DIR__ . "/tpl_chat_experimenter.php";
+        }
         else
+        {
+            $title = $this->title_prefix . " "
+                . $this->experimenter;
             require __DIR__ . "/tpl_chat_subject.php";
+        }
     }
 }
 ?>
