@@ -414,8 +414,7 @@ class CmsView extends BaseView
             "label" => "Submit Changes",
             "type" => "warning",
             "children" => $form_items,
-            "cancel" => true,
-            "cancel_url" => $this->model->get_link_url("cmsSelect", $params),
+            "url_cancel" => $this->model->get_link_url("cmsSelect", $params),
         ));
 
     }

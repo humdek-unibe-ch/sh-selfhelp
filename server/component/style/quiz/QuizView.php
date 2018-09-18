@@ -16,13 +16,13 @@ class QuizView extends BaseView
     private $title;
 
     /**
-     * DB style field 'right_label'.
+     * DB field 'right_label' (empty string).
      * The label of the right button.
      */
     private $right_label;
 
     /**
-     * DB style field 'wrong_label'.
+     * DB field 'wrong_label' (empty string).
      * The label of the wrong button.
      */
     private $wrong_label;

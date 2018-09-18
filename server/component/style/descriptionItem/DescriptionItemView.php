@@ -27,13 +27,13 @@ class DescriptionItemView extends BaseView
     private $gender;
 
     /**
-     * DB style field 'alt' (empty string).
+     * DB field 'alt' (empty string).
      * The text that is displayed if no children are defined.
      */
     private $alt;
 
     /**
-     * DB style field 'type-input' (empty string).
+     * DB field 'type-input' (empty string).
      * The field type.
      */
     private $type;

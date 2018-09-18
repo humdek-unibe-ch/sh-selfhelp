@@ -55,9 +55,6 @@ class StyleModel extends BaseModel implements IStyleModel
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
 
-        $fields = $this->db->fetch_style_fields($style['id']);
-        $this->set_db_fields($fields);
-
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
             $this->children[] = new StyleComponent(

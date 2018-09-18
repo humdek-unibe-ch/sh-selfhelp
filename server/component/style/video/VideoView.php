@@ -9,7 +9,7 @@ class VideoView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB style field 'alt'
+     * DB field 'alt' (empty string)
      * The text to be rendered if video playback is not supported by the
      * browser.
      */

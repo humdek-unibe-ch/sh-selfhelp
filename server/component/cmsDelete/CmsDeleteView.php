@@ -56,8 +56,7 @@ class CmsDeleteView extends BaseView
                             )
                         ),
                         "type" => "danger",
-                        "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("cmsSelect",
+                        "url_cancel" => $this->model->get_link_url("cmsSelect",
                             $this->model->get_current_url_params()),
                         "children" => array(
                             new BaseStyleComponent("input", array(

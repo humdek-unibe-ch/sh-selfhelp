@@ -49,8 +49,7 @@ class UserDeleteView extends BaseView
                         "url" => $this->model->get_link_url("userDelete",
                             array("uid" => $this->selected_user['id'])),
                         "type" => "danger",
-                        "cancel" => true,
-                        "cancel_url" => $this->model->get_link_url("userSelect",
+                        "url_cancel" => $this->model->get_link_url("userSelect",
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(

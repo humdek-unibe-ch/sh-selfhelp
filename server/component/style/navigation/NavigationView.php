@@ -10,13 +10,13 @@ abstract class NavigationView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB style field 'next'.
+     * DB field 'next' (empty string).
      * The label of the navigation button to go to the next item.
      */
     private $label_next;
 
     /**
-     * DB style field 'back'.
+     * DB field 'back' (empty string).
      * The label of the navigation button to go to the pervious item.
      */
     private $label_back;
