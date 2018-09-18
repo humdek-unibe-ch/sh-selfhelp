@@ -57,6 +57,19 @@ class ProgressBarView extends BaseView
     /* Public Methods *********************************************************/
 
     /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $local = array(__DIR__ . "/progress.js");
+        return parent::get_js_includes($local);
+    }
+
+    /**
      * Render the style view.
      */
     public function output_content()

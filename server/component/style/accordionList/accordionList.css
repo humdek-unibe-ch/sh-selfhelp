@@ -6,3 +6,7 @@ div.session-nav-link.active > a
 {
     color:white;
 }
+div.accordion-header
+{
+    cursor: pointer;
+}

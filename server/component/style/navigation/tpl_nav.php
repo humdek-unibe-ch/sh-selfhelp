@@ -1,6 +1,6 @@
 <div class="container-fluid <?php echo $this->css; ?>">
     <div class="row">
-        <div class="col-auto d-none d-lg-flex" style="max-width:500px;">
+        <div class="col-auto d-none d-lg-flex">
             <?php $this->output_nav(); ?>
         </div>
         <div class="col">
