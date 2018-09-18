@@ -53,7 +53,7 @@ class UserDeleteView extends BaseView
                             array("uid" => $this->selected_user['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type-input" => "email",
+                                "type_input" => "email",
                                 "name" => "email",
                                 "is_required" => true,
                                 "css" => "mb-3",

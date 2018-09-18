@@ -212,7 +212,7 @@ class SectionPage extends BasePage
         $sql = "SELECT sft.content
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
-            WHERE f.name = 'type-input' AND sft.id_sections = :id";
+            WHERE f.name = 'type_input' AND sft.id_sections = :id";
         $type = $this->services['db']->query_db_first($sql,
             array(":id" => $id_section));
         if($type) return $type["content"];

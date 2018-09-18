@@ -128,7 +128,7 @@ class GroupView extends BaseView
                             array("gid" => $this->selected_group['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type-input" => "hidden",
+                                "type_input" => "hidden",
                                 "name" => "update_acl",
                                 "value" => 1,
                                 "is_user_input" => false,

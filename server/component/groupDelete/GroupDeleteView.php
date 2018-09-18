@@ -53,7 +53,7 @@ class GroupDeleteView extends BaseView
                             array("gid" => $this->selected_group['id'])),
                         "children" => array(
                             new BaseStyleComponent("input", array(
-                                "type-input" => "text",
+                                "type_input" => "text",
                                 "name" => "name",
                                 "is_required" => true,
                                 "css" => "mb-3",

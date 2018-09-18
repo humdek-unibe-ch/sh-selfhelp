@@ -33,7 +33,7 @@ class DescriptionItemView extends BaseView
     private $alt;
 
     /**
-     * DB field 'type-input' (empty string).
+     * DB field 'type_input' (empty string).
      * The field type.
      */
     private $type;
@@ -53,7 +53,7 @@ class DescriptionItemView extends BaseView
         $this->locale = $this->model->get_db_field("locale", "all");
         $this->gender = $this->model->get_db_field("gender");
         $this->alt = $this->model->get_db_field("alt");
-        $this->type = $this->model->get_db_field("type-input");
+        $this->type = $this->model->get_db_field("type_input");
     }
 
     /* Private Methods ********************************************************/

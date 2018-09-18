@@ -380,7 +380,7 @@ class CmsView extends BaseView
         $form_items[] = new BaseStyleComponent("input", array(
             "value" => "update",
             "name" => "mode",
-            "type-input" => "hidden",
+            "type_input" => "hidden",
             "is_user_input" => false,
         ));
 
@@ -435,19 +435,19 @@ class CmsView extends BaseView
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
-            "type-input" => "hidden",
+            "type_input" => "hidden",
             "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['type'],
             "name" => $field_name_prefix . "[type]",
-            "type-input" => "hidden",
+            "type_input" => "hidden",
             "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
-            "type-input" => "hidden",
+            "type_input" => "hidden",
             "is_user_input" => false,
         ));
         $field_name_content = $field_name_prefix . "[content]";
@@ -456,14 +456,14 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
-                "type-input" => $field['type'],
+                "type_input" => $field['type'],
                 "is_user_input" => false,
             ));
         if($field['type'] === "checkbox")
             $children[] = new BaseStyleComponent("input", array(
                 "value" => ($field['content'] != '0') ? $field['content'] : "",
                 "name" => $field_name_content,
-                "type-input" => $field['type'],
+                "type_input" => $field['type'],
                 "is_user_input" => false,
             ));
         else if(in_array($field['type'], array("textarea", "markdown", "json")))
@@ -472,7 +472,7 @@ class CmsView extends BaseView
                 "name" => $field_name_content,
                 "is_user_input" => false,
             ));
-        else if($field['type'] == "type-input")
+        else if($field['type'] == "type_input")
         {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => ($field['content'] == "") ? "text" : $field['content'],
@@ -519,7 +519,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("input", array(
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
-                "type-input" => "hidden",
+                "type_input" => "hidden",
                 "is_user_input" => false,
             ));
             $children[] = new BaseStyleComponent("sortableList", array(
@@ -532,7 +532,7 @@ class CmsView extends BaseView
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
-            "type-input" => $field['type'],
+            "type_input" => $field['type'],
             "locale" => $field['locale'],
             "children" => $children
         ));
