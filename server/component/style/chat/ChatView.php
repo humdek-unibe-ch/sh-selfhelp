@@ -3,7 +3,7 @@ require_once __DIR__ . "/../../BaseView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
- * The view class of the user profile component.
+ * The view class of the chat component.
  */
 class ChatView extends BaseView
 {
@@ -41,7 +41,7 @@ class ChatView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Render the fail alerts.
+     * Render the fail alert.
      */
     private function output_alert()
     {
@@ -49,6 +49,9 @@ class ChatView extends BaseView
             $this->output_local_component("alert-fail");
     }
 
+    /**
+     * Render the chat window.
+     */
     private function output_chat()
     {
         if($this->model->is_chat_ready())
@@ -61,6 +64,9 @@ class ChatView extends BaseView
 
     }
 
+    /**
+     * Render the chat messages.
+     */
     private function output_msgs()
     {
         foreach($this->model->get_chat_items() as $item)
@@ -74,12 +80,15 @@ class ChatView extends BaseView
                 $css = "me ml-auto";
             else if($this->model->is_selected_user($uid))
                 $css .= " subject";
-            else if($this->model->is_experimenter)
+            else if($this->model->is_current_user_experimenter())
                 $css .= " experimenter ml-auto";
             require __DIR__ . "/tpl_chat_item.php";
         }
     }
 
+    /**
+     * Render the new badge.
+     */
     private function output_new_badge()
     {
         $count = 0;
@@ -87,6 +96,9 @@ class ChatView extends BaseView
             require __DIR__ . "/tpl_new_badge.php";
     }
 
+    /**
+     * Render the subject list.
+     */
     private function output_subjects()
     {
         foreach($this->model->get_subjects() as $subject)
@@ -134,7 +146,7 @@ class ChatView extends BaseView
      */
     public function output_content()
     {
-        if($this->model->is_experimenter)
+        if($this->model->is_current_user_experimenter())
             require __DIR__ . "/tpl_chat_experimenter.php";
         else
             require __DIR__ . "/tpl_chat_subject.php";

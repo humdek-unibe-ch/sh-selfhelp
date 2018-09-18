@@ -19,6 +19,9 @@ class ChatComponent extends BaseComponent
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat component.
+     * @param array $params
+     *  The GET parameters of the contact page
+     *   'uid': The id of the selected user to communicate with
      */
     public function __construct($services, $id, $params)
     {

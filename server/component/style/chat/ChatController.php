@@ -23,8 +23,9 @@ class ChatController extends BaseController
         $this->fail = false;
         if(isset($_POST['msg']))
         {
-            $this->model->send_chat_msg(
-                filter_var($_POST['msg'], FILTER_SANITIZE_STRING));
+            if(!$this->model->send_chat_msg(
+                filter_var($_POST['msg'], FILTER_SANITIZE_STRING)))
+                $this->fail = true;
         }
     }
 
