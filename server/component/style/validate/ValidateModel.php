@@ -40,6 +40,7 @@ class ValidateModel extends StyleModel
 
     public function activate_user($name, $pw, $gender)
     {
+        if(!$this->is_token_valid()) return false;
         return $this->db->update_by_ids("users", array(
             "name" => $name,
             "password" => $pw,

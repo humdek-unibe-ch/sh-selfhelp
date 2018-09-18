@@ -48,10 +48,10 @@ class ValidateView extends BaseView
         $this->pw_label = $this->model->get_db_field('pw_label');
         $this->pw_placeholder = $this->model->get_db_field('pw_placeholder');
         $this->pw_confirm_label = $this->model->get_db_field('pw_confirm_label');
-        $this->gender_label = $this->model->get_db_field("gender_label");
+        $this->gender_label = $this->model->get_db_field("label_gender");
         $this->gender_male = $this->model->get_db_field("gender_male");
         $this->gender_female = $this->model->get_db_field("gender_female");
-        $this->activate_label = $this->model->get_db_field("activate_label");
+        $this->activate_label = $this->model->get_db_field("label_activate");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alert_success = $this->model->get_db_field("alert_success");
         $this->success = $this->model->get_db_field("success");
@@ -97,7 +97,7 @@ class ValidateView extends BaseView
      */
     public function output_content()
     {
-        if ($this->controller == null || !$this->controller->has_succeeded())
+        if($this->controller == null || !$this->controller->has_succeeded())
             require __DIR__ . "/tpl_validate.php";
         if($this->controller == null || $this->controller->has_succeeded())
         {

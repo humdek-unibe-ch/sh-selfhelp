@@ -13,6 +13,7 @@ class StyleComponent extends BaseComponent
 {
     /* Private Properties *****************************************************/
 
+    private $style;
     private $is_style_known;
 
     /* Constructors ***********************************************************/
@@ -36,7 +37,7 @@ class StyleComponent extends BaseComponent
         $this->is_style_known = true;
         if($model->get_style_type() == "view")
         {
-            $style = new BaseStyleComponent($model->get_style_name(),
+            $this->style = new BaseStyleComponent($model->get_style_name(),
                 array( "children" => $model->get_children()),
                 $model->get_db_fields());
         }
@@ -45,9 +46,9 @@ class StyleComponent extends BaseComponent
         {
             $className = ucfirst($model->get_style_name()) . "Component";
             if(class_exists($className))
-                $style = new $className($services, $id, $params);
+                $this->style = new $className($services, $id, $params);
             else
-                $style = new BaseStyleComponent("unknownStyle",
+                $this->style = new BaseStyleComponent("unknownStyle",
                     array("style_name" => $model->get_style_name()));
         }
         else
@@ -55,7 +56,7 @@ class StyleComponent extends BaseComponent
             $this->is_style_known = false;
             return;
         }
-        $view = new StyleView($model, $style, true);
+        $view = new StyleView($model, $this->style, true);
         parent::__construct($model, $view);
     }
 
@@ -69,7 +70,8 @@ class StyleComponent extends BaseComponent
      */
     public function has_access()
     {
-        return parent::has_access() && $this->is_style_known;
+        return parent::has_access() && $this->is_style_known
+            && $this->style->has_access();
     }
 }
 ?>

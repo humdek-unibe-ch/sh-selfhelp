@@ -27,7 +27,7 @@ class ValidateComponent extends BaseComponent
     public function __construct($services, $id, $params)
     {
         $uid = isset($params['uid']) ? intval($params['uid']) : null;
-        $token = isset($params['token']) ? intval($params['token']) : null;
+        $token = isset($params['token']) ? $params['token'] : null;
         $this->has_params = ($uid != null && $token != null);
         $model = new ValidateModel($services, $id, $uid, $token);
         $controller = null;
@@ -38,13 +38,14 @@ class ValidateComponent extends BaseComponent
     }
 
     /**
-     * Redefine parent method. Access is only granted if a user id and a token
-     * are provided.
+     * Redefine parent method. Access is only granted if a user id and a valid
+     * token is provided.
      */
     public function has_access()
     {
-        return (parent::has_access() && $this->has_params
-            && $this->model->is_token_valid());
+        if(!$this->has_params || !$this->model->is_token_valid())
+            return false;
+        return parent::has_access();
     }
 }
 ?>
