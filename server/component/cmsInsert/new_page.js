@@ -2,17 +2,35 @@ $(document).ready(function() {
     var $url_input = $("input[name='url']");
     var $pos_list = $("div#page-order-wrapper > ul.children-list");
     var $check_pos_list = $('input[name="set-position"]');
+    var $protocol_post = $('input[value="POST"]');
+    var $protocol_put = $('input[value="PUT"]');
+    var $protocol_patch = $('input[value="PATCH"]');
+    var $protocol_delete = $('input[value="DELETE"]');
+    var $type_component = $('input[name="type"][value="2"]');
+    var $type_custom = $('input[name="type"][value="1"]');
     var $url;
-    $('input[name="url-manual"]').change(function() {
+    $('input[name="set-user_input"]').change(function() {
+        if($(this).is(":checked"))
+            $protocol_post.prop("checked", true);
+    });
+    $('input[name="set-advanced"]').change(function() {
         if($(this).is(":checked"))
         {
-            $(this).next().removeClass("text-muted");
             $url_input.prop("readonly", false);
+            $protocol_put.prop("disabled", false);
+            $protocol_patch.prop("disabled", false);
+            $protocol_delete.prop("disabled", false);
+            $type_component.prop("disabled", false);
+            $type_custom.prop("disabled", false);
         }
         else
         {
-            $(this).next().addClass("text-muted");
             $url_input.prop("readonly", true);
+            $protocol_put.prop("disabled", true);
+            $protocol_patch.prop("disabled", true);
+            $protocol_delete.prop("disabled", true);
+            $type_component.prop("disabled", true);
+            $type_custom.prop("disabled", true);
         }
     });
     $('input[name="keyword"]').keyup(function() {

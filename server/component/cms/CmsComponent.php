@@ -27,20 +27,20 @@ class CmsComponent extends BaseComponent
     /* Protected Methods ******************************************************/
 
     /**
-     * Checks whether a section is in a hierarchical list of sections.
+     * Checks whether an item is in a hierarchical list of items.
      *
-     * @param int $id_section
-     *  The id of the section to check.
-     * @param array $sections
-     *  A list of sections.
+     * @param int $id
+     *  The id of the item to check.
+     * @param array $items
+     *  A list of items.
      */
-    protected function is_section_in_list($id_section, $sections)
+    protected function is_in_list($id, $items)
     {
-        foreach($sections as $section)
+        foreach($items as $item)
         {
-            if($this->is_section_in_list($id_section, $section['children']))
+            if($this->is_in_list($id, $item['children']))
                 return true;
-            if($section['id'] == $id_section) return true;
+            if($item['id'] == $id) return true;
         }
         return false;
     }
@@ -57,18 +57,21 @@ class CmsComponent extends BaseComponent
     public function has_access($skip_ids = false)
     {
         $params = $this->model->get_current_url_params();
+        $pages = $this->model->get_pages();
         $sections = $this->model->get_page_sections();
         $nav_sections = array();
         if($params["type"] == "section_nav" || $params["type"] == "page_nav")
             $nav_sections = $this->model->get_navigation_hierarchy();
         if(!$skip_ids
-            && ((($params['ssid'] != null)
-                && !$this->is_section_in_list($params['ssid'], $sections))
+            && ((($params['pid'] != null)
+                && !$this->is_in_list($params['pid'], $pages))
+            || (($params['ssid'] != null)
+                && !$this->is_in_list($params['ssid'], $sections))
             || ($params['sid'] != null
-                && !$this->is_section_in_list($params['sid'], $sections))
+                && !$this->is_in_list($params['sid'], $sections))
             || ($params['did'] != null
-                && !$this->is_section_in_list($params['did'], $sections)
-                && !$this->is_section_in_list($params['did'], $nav_sections))))
+                && !$this->is_in_list($params['did'], $sections)
+                && !$this->is_in_list($params['did'], $nav_sections))))
         {
             return false;
         }

@@ -47,9 +47,19 @@ class CmsInsertController extends BaseController
                 $this->fail = true;
                 return;
             }
-            $position = isset($_POST['set-position']) ? $_POST['set-position'] : null;
+            $position = null;
+            if(isset($_POST['set-position']))
+            {
+                $position = array();
+                foreach(explode(',', $_POST['set-position']) as $item)
+                    $position[] = filter_var($item, FILTER_SANITIZE_NUMBER_INT);
+            }
+
+            $is_user_input = isset($_POST['set-user_input']) ? true : false;
+
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
-                intval($type), $position, $this->model->get_active_page_id());
+                intval($type), $position, $this->model->get_active_page_id(),
+                $is_user_input);
             if($this->pid)
                 $this->success = true;
             else

@@ -163,7 +163,7 @@ class CmsModel extends BaseModel
      *  An array of prepared (i.e. put into a form such that they can be passed
      *  to a list style) root page items.
      * @param array $items
-     *  The page items as they are teyrned from the db query.
+     *  The page items as they are returned from the db query.
      * @retval array
      *  A prepared hierarchical array such that it can be passed to a list
      *  style.
@@ -967,7 +967,7 @@ class CmsModel extends BaseModel
      *  The url pattern of the page
      * @param string $protocol
      *  The pipe-delimited string of protocols
-     * @param int $type
+     * @param int $action
      *  Indigates the page action or whether the page is a navigation page.
      * @param string $position
      *  The position string if the new page should appear in the navbar, null
@@ -977,24 +977,31 @@ class CmsModel extends BaseModel
      * @retval int
      *  The id of the created page.
      */
-    public function create_new_page($keyword, $url, $protocol, $type, $position,
-        $parent)
+    public function create_new_page($keyword, $url, $protocol, $action,
+        $position, $parent, $is_user_input)
     {
         $nav_id = null;
-        if($type == 4)
+        $page_type = EXPERIMENT_PAGE_ID;
+        if($action == 4)
         {
-            $type = 3;
+            $action = 3;
             $nav_id = $this->create_new_navigation_section($keyword);
+        }
+        else if($action == 1 || $action == 2)
+        {
+            // component or custom page
+            $page_type = INTERNAL_PAGE_ID;
         }
         $pid = $this->db->insert("pages", array(
             "keyword" => $keyword,
             "url" => $url,
             "protocol" => $protocol,
             "id_navigation_section" => $nav_id,
-            "id_actions" => $type,
-            "id_type" => EXPERIMENT_PAGE_ID,
+            "id_actions" => $action,
+            "id_type" => $page_type,
             "nav_position" => $position ? 999 : null,
             "parent" => $parent,
+            "user_input" => $is_user_input ? 1 : 0,
         ));
         $this->set_new_page_acl($pid);
         if($position)
@@ -1723,13 +1730,12 @@ class CmsModel extends BaseModel
      */
     public function update_page_order($order, $id = null)
     {
-        $orders = explode(',', $order);
         $children = $this->get_pages_header($id);
         $res = true;
         foreach($children as $index => $child)
         {
             $res &= $this->db->update_by_ids("pages",
-                array("nav_position" => $orders[$index]),
+                array("nav_position" => $order[$index]),
                 array("id" => $child['id'])
             );
         }
