@@ -31,7 +31,7 @@ class Acl
      *  An associative array with the acces rights: 'select', 'insert',
      *  'update', and 'delete'.
      */
-    public function get_access_levels($id, $id_page, $is_group = false)
+    private function get_access_levels($id, $id_page, $is_group = false)
     {
         if($is_group)
             return $this->get_access_levels_group($id, $id_page);
