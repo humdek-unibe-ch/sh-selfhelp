@@ -11,6 +11,7 @@ abstract class BaseModel
     protected $nav;
     protected $login;
     protected $acl;
+    protected $user_input;
     protected $db_fields;
     protected $services;
     protected $children;
@@ -34,6 +35,7 @@ abstract class BaseModel
         $this->login = $services['login'];
         $this->nav = $services['nav'];
         $this->parsedown = $services['parsedown'];
+        $this->user_input = $services['user_input'];
         $this->db_fields = array();
     }
 
