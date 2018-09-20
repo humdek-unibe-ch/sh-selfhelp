@@ -76,7 +76,7 @@ class CmsUpdateController extends BaseController
                 "light",
                 "dark",
             ));
-        if($type === "type_input")
+        if($type === "type-input")
             return in_array($value, array(
                 "text",
                 "checkbox",
@@ -288,7 +288,7 @@ class CmsUpdateController extends BaseController
     private function secure_field($type, $content)
     {
         if(in_array($type, array("text", "textarea", "style-list",
-            "style-bootstrap", "type_input", "checkbox")))
+            "style-bootstrap", "type-input", "checkbox")))
             return htmlspecialchars($content);
         if($type === "number")
             return intval($content);

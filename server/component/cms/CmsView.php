@@ -472,7 +472,7 @@ class CmsView extends BaseView
                 "name" => $field_name_content,
                 "is_user_input" => false,
             ));
-        else if($field['type'] == "type_input")
+        else if($field['type'] == "type-input")
         {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => ($field['content'] == "") ? "text" : $field['content'],
