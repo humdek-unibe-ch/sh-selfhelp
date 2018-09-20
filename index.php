@@ -5,6 +5,7 @@ require_once "./server/service/PageDb.php";
 require_once "./server/service/globals_untracked.php";
 require_once "./server/service/globals.php";
 require_once "./server/page/HomePage.php";
+require_once "./server/page/ExportPage.php";
 require_once "./server/page/SectionPage.php";
 require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
@@ -44,6 +45,11 @@ function create_request_page($router, $db, $request)
 {
     $ajax = new AjaxRequest($db, $request);
     $ajax->print_json();
+}
+function create_export_page($router, $db)
+{
+    $page = new ExportPage($db);
+    $page->export_data();
 }
 
 // define routing paths
