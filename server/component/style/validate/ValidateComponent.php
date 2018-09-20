@@ -22,7 +22,12 @@ class ValidateComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
+     * @param int $id
+     *  The id of the database section item to be rendered.
      * @param array $params
+     *  An array of get parameters. This component requires the following keys:
+     *   'uid':     The user id of the user to be validated
+     *   'token':   The validation token which has to match with the user id
      */
     public function __construct($services, $id, $params)
     {

@@ -24,20 +24,46 @@ class ValidateModel extends StyleModel
         parent::__construct($services, $id);
         $this->uid = $uid;
         $this->token = $token;
-        $this->email = $this->fetch_user_email();
+        $this->email = $this->fetch_user_email($uid, $token);
     }
 
-    private function fetch_user_email()
+    /**
+     * Get the user email address from the db given a user id and a token.
+     *
+     * @param int $uid
+     *  The id of the user
+     * @param string $token
+     *  A valid token that is associated with the user id.
+     * @retval string
+     *  The email address of the user or null if the email could not be fetched.
+     */
+    private function fetch_user_email($uid, $token)
     {
         $sql = "SELECT email FROM users WHERE token = :token AND id = :uid";
         $email = $this->db->query_db_first($sql, array(
-            ":token" => $this->token,
-            ":uid" => $this->uid,
+            ":token" => $token,
+            ":uid" => $uid,
         ));
         if($email) return $email['email'];
         else return null;
     }
 
+    /**
+     * Performs the activation process of a user:
+     *  - Set user name
+     *  - Set user password
+     *  - Set user gender
+     *  - Remove validation token
+     *
+     * @param string $name
+     *  The name of the user.
+     * @param string $pw
+     *  The password hash of the user password.
+     * @param int $gender
+     *  The gender type id
+     * @retval bool
+     *  True if the process was successful, false otherwise.
+     */
     public function activate_user($name, $pw, $gender)
     {
         if(!$this->is_token_valid()) return false;
@@ -51,11 +77,23 @@ class ValidateModel extends StyleModel
         ));
     }
 
+    /**
+     * Checks whether the token is valid.
+     *
+     * @retval bool
+     *  True if the token is valid, false otherwise.
+     */
     public function is_token_valid()
     {
         return ($this->email !== null);
     }
 
+    /**
+     * Gets the user email.
+     *
+     * @retval string
+     *  The email address of the activating user.
+     */
     public function get_user_email()
     {
         return $this->email;
