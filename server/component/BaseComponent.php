@@ -50,7 +50,8 @@ abstract class BaseComponent
      */
     public function output_content()
     {
-        $this->view->output_content();
+        if($this->view)
+            $this->view->output_content();
     }
 
     /**
