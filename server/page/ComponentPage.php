@@ -32,9 +32,12 @@ class ComponentPage extends BasePage
     {
         parent::__construct($router, $db, $keyword);
         $componentClass = ucfirst($keyword) . "Component";
-        $this->componentInstance = new $componentClass($this->services,
-            $params);
-        $this->add_component("comp", $this->componentInstance);
+        if(class_exists($componentClass))
+        {
+            $this->componentInstance = new $componentClass($this->services,
+                $params);
+            $this->add_component("comp", $this->componentInstance);
+        }
     }
 
     /* Protected Methods ******************************************************/
@@ -46,7 +49,7 @@ class ComponentPage extends BasePage
      */
     protected function output_content()
     {
-        if($this->componentInstance->has_access())
+        if($this->componentInstance && $this->componentInstance->has_access())
             $this->output_component("comp");
         else
         {
