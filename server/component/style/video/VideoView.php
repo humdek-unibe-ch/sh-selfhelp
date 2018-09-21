@@ -49,7 +49,7 @@ class VideoView extends BaseView
         foreach($this->sources as $source)
         {
             if(!isset($source["source"]) || !isset($source["type"])) continue;
-            $url = ASSET_PATH . $source["source"];
+            $url = ASSET_PATH . '/' . $source["source"];
             $type = $source["type"];
             require __DIR__ . "/tpl_video_source.php";
         }

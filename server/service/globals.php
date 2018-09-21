@@ -1,5 +1,7 @@
 <?php
-define('ASSET_PATH', BASE_PATH . '/assets/');
+define('ASSET_FOLDER', 'assets');
+define('ASSET_PATH', BASE_PATH . '/' . ASSET_FOLDER);
+define('ASSET_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . ASSET_FOLDER);
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
 define('EMAIL_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/email');
 

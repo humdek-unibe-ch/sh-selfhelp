@@ -53,7 +53,7 @@ class ImageView extends BaseView
         if(filter_var($this->source, FILTER_VALIDATE_URL))
             $url = $this->source;
         else
-            $url = ASSET_PATH . $this->source;
+            $url = ASSET_PATH . '/' . $this->source;
         require __DIR__ . "/tpl_image.php";
     }
 }

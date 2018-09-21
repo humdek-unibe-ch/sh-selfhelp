@@ -54,6 +54,8 @@ class GroupController extends BaseController
                 $this->model->set_user_access($lvl);
             if(isset($_POST["page"][$lvl]))
                 $this->model->set_page_access($lvl);
+            if(isset($_POST["data"][$lvl]))
+                $this->model->set_data_access($lvl);
         }
         return $this->model->dump_acl_table($gid);
     }

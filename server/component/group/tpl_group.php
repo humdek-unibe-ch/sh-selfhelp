@@ -39,6 +39,14 @@
                         <li><code>delete</code> allows to delete users and groups.</li>
                     </ul>
                 </li>
+                <li><strong>Data Management</strong>
+                    <ul>
+                        <li><code>select</code> allows to download user data and see the list of assets.</li>
+                        <li><code>insert</code> allows to upload new assets.</li>
+                        <li><code>update</code> allows to modify asset names (not implemented).</li>
+                        <li><code>delete</code> allows to delete assets (not implemented).</li>
+                    </ul>
+                </li>
             </ul>
             <p>The button <code>ACL</code> in the top right corner expands to a table, listing the access rights of the group in detail.</p>
         </div>

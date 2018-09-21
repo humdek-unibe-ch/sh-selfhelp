@@ -45,7 +45,7 @@ class ParsedownExtension extends Parsedown
         }
 
 
-        $image['element']['attributes']['src'] = ASSET_PATH
+        $image['element']['attributes']['src'] = ASSET_PATH . '/'
             . $image['element']['attributes']['src'];
 
         return $image;

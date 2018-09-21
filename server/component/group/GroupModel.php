@@ -189,6 +189,28 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Check whether the data access permissions corresponding to a certain
+     * level are given.
+     *
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_data_access($lvl)
+    {
+        $res = $this->gacl["cms-link"]["acl"]["select"];
+        $res &= $this->gacl["asset" . ucfirst($lvl)]["acl"]["select"];
+        $res &= $this->gacl["asset" . ucfirst($lvl)]["acl"][$lvl];
+        if($lvl == "select")
+        {
+            $res &= $this->gacl["export"]["acl"]["select"];
+            $res &= $this->gacl["exportData"]["acl"]["select"];
+        }
+        return $res;
+    }
+
+    /**
      * Check whether the experiment permissions corresponding to a certain
      * level are given.
      *
@@ -232,8 +254,6 @@ class GroupModel extends BaseModel
     {
         $res = $this->gacl["cms-link"]["acl"]["select"];
         $res &= $this->gacl["user" . ucfirst($lvl)]["acl"]["select"];
-        $res &= $this->gacl["export"]["acl"]["select"];
-        $res &= $this->gacl["exportData"]["acl"]["select"];
         $res &= $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl];
         if($lvl == "select" || $lvl == "update")
         {
@@ -422,6 +442,15 @@ class GroupModel extends BaseModel
                 "delete" => $this->get_user_access("delete"),
             ),
         );
+        $sgacl["data"] = array(
+            "name" => "Data Management",
+            "acl" => array(
+                "select" => $this->get_data_access("select"),
+                "insert" => $this->get_data_access("insert"),
+                "update" => $this->get_data_access("update"),
+                "delete" => $this->get_data_access("delete"),
+            ),
+        );
         return $sgacl;
     }
 
@@ -516,6 +545,25 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Set the access level for all pages that are targeted by the data
+     * management collection i.e. the user and group pages.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_data_access($lvl)
+    {
+        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["asset" . ucfirst($lvl)]["acl"]["select"] = true;
+        $this->gacl["asset" . ucfirst($lvl)]["acl"][$lvl] = true;
+        if($lvl == "select")
+        {
+            $this->gacl["export"]["acl"]["select"] = true;
+            $this->gacl["exportData"]["acl"]["select"] = true;
+        }
+    }
+
+    /**
      * Set the access level for all pages that are targeted by the experiment
      * content collection.
      *
@@ -541,8 +589,6 @@ class GroupModel extends BaseModel
         $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
-        $this->gacl["export"]["acl"]["select"] = true;
-        $this->gacl["exportData"]["acl"]["select"] = true;
     }
 
     /**
