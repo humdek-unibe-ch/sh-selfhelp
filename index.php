@@ -49,7 +49,7 @@ function create_request_page($router, $db, $request)
 function create_exportData_page($router, $db, $select)
 {
     $page = new ExportPage($router, $db);
-    $page->export_data($select);
+    $page->output($select);
 }
 
 // define routing paths
@@ -75,7 +75,7 @@ if($router->route)
     }
     else if($router->route['target'] == "component")
     {
-        $page = new ComponentPage($router, $db, $router->route['name'], 
+        $page = new ComponentPage($router, $db, $router->route['name'],
             $router->route['params']);
         $page->output();
     }
