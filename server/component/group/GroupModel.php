@@ -233,6 +233,7 @@ class GroupModel extends BaseModel
         $res = $this->gacl["cms-link"]["acl"]["select"];
         $res &= $this->gacl["user" . ucfirst($lvl)]["acl"]["select"];
         $res &= $this->gacl["export"]["acl"]["select"];
+        $res &= $this->gacl["exportData"]["acl"]["select"];
         $res &= $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl];
         if($lvl == "select" || $lvl == "update")
         {
@@ -541,6 +542,7 @@ class GroupModel extends BaseModel
         $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
         $this->gacl["export"]["acl"]["select"] = true;
+        $this->gacl["exportData"]["acl"]["select"] = true;
     }
 
     /**

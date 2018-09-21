@@ -1,0 +1,87 @@
+<?php
+require_once __DIR__ . "/../BaseModel.php";
+/**
+ * This class is used to prepare all data related to the export component such
+ * that the data can easily be displayed in the view of the component.
+ */
+class ExportModel extends BaseModel
+{
+    /* Constructors ***********************************************************/
+
+    /**
+     * The constructor.
+     *
+     * @param array $services
+     *  An associative array holding the differnt available services. See the
+     *  class definition BasePage for a list of all services.
+     */
+    public function __construct($services)
+    {
+        parent::__construct($services);
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Returns the view data of an export item.
+     *
+     * @retval array
+     *  An array holding the informaition to render the view of an export item.
+     *  The following keys are used:
+     *   'title':   The title of the item.
+     *   'text':    The description of the item.
+     *   'url':     The target url of the item.
+     *   'label':   The label of the button to download the item.
+     */
+    public function get_export_view_fields($selector)
+    {
+        $fields = array(
+            "title" => "unknown",
+            "text" => "unknown",
+            "url" => "#",
+            "label" => "unknown",
+        );
+        if($selector === "user_input")
+        {
+            $fields["title"] = "User Input";
+            $fields["text"] = "The collection of all data that was entered by users through a form field. Only form fields from pages marked as user input pages are considered. Each item was timestamped at the time of creation.";
+            $fields["url"] = $this->get_link_url("exportData",
+                array("selector" => "user_input"));
+            $fields["label"] = "Get User Data";
+        }
+        if($selector === "user_activity")
+        {
+            $fields["title"] = "User Activity";
+            $fields["text"] = "The collection of all user activity on experiment pages.";
+            $fields["url"] = $this->get_link_url("exportData",
+                array("selector" => "user_activity"));
+            $fields["label"] = "Get User Activity";
+        }
+        return $fields;
+    }
+
+    /**
+     * Get the header of the export page.
+     *
+     * @retval string
+     *  The export page header.
+     */
+    public function get_title()
+    {
+        return "Data Export";
+    }
+
+    /**
+     * Get the description of the export page.
+     *
+     * @retval string
+     *  The description of the export page.
+     */
+    public function get_text()
+    {
+        $txt = "Export experiment related data from the data base as CSV file. ";
+        $txt .= "Note that the user id is obfuscated with a hash function to assure annonimity";
+        return $txt;
+    }
+}
+?>

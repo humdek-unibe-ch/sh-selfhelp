@@ -57,7 +57,8 @@ class UserInput
         {
             $id = intval($field["id_sections"]);
             $fields[] = array(
-                "user_hash" => substr(hash("md5", $field["id_users"]), 0, 8),
+                "user_hash" => substr(base_convert(hash("sha256",
+                    $field["id_users"]), 16, 36), 0, 8),
                 "user_gender" => $field['gender'],
                 "page" => $this->field_attrs[$id]["page"],
                 "nav" => $this->field_attrs[$id]["nav"],
