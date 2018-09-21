@@ -46,10 +46,10 @@ function create_request_page($router, $db, $request)
     $ajax = new AjaxRequest($db, $request);
     $ajax->print_json();
 }
-function create_export_page($router, $db)
+function create_exportData_page($router, $db, $select)
 {
-    $page = new ExportPage($db);
-    $page->export_data();
+    $page = new ExportPage($router, $db);
+    $page->export_data($select);
 }
 
 // define routing paths
