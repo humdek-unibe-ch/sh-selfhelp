@@ -9,7 +9,7 @@ abstract class FormFieldView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'text' (empty string).
+     * DB field 'value' (empty string).
      * The default value of the form field.
      */
     protected $value;
@@ -42,7 +42,7 @@ abstract class FormFieldView extends BaseView
 
     /**
      * DB field 'is_user_input' (true).
-     * If set to true, the form name is reffixed with the section id. If set to
+     * If set to true, the form name is preffixed with the section id. If set to
      * false, the name remains unchanged.
      */
     protected $is_user_input;

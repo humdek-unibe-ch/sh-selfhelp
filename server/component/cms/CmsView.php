@@ -526,7 +526,6 @@ class CmsView extends BaseView
                 "is_sortable" => true,
                 "is_editable" => true,
                 "items" => $field['content'],
-                "is_user_input" => false,
             ));
         }
         return new BaseStyleComponent("descriptionItem", array(
@@ -571,9 +570,9 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_editable" => true,
                 "items" => $field['content'],
-                "label" => "Add",
-                "insert_target" => $insert_target,
-                "delete_target" => $delete_target,
+                "label_add" => "Add",
+                "url_add" => $insert_target,
+                "url_delete" => $delete_target,
                 "is_user_input" => false,
             ));
         }

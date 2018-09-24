@@ -10,7 +10,7 @@ class QuizView extends BaseView
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'quiz_title' (empty string).
+     * DB field 'caption' (empty string).
      * The question that can be answered with right or wrong.
      */
     private $title;
@@ -56,7 +56,7 @@ class QuizView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->title = $this->model->get_db_field("quiz_title");
+        $this->title = $this->model->get_db_field("caption");
         $this->right_label = $this->model->get_db_field("label_right");
         $this->wrong_label = $this->model->get_db_field("label_wrong");
         $this->right_content = $this->model->get_db_field("right_content");

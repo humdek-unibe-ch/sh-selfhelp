@@ -119,14 +119,14 @@ class UserSelectView extends BaseView
                     new BaseStyleComponent("sortableList", array(
                         "is_editable" => $this->model->can_modify_user(),
                         "items" => $this->model->get_selected_user_groups(),
-                        "insert_target" => $this->model->get_link_url(
+                        "url_add" => $this->model->get_link_url(
                             "userUpdate",
                             array(
                                 "uid" => $this->selected_user['id'],
                                 "mode" => "add_group",
                             )
                         ),
-                        "delete_target" => $this->model->get_link_url(
+                        "url_delete" => $this->model->get_link_url(
                             "userUpdate",
                             array(
                                 "uid" => $this->selected_user['id'],
@@ -134,7 +134,7 @@ class UserSelectView extends BaseView
                                 "did" => ":did",
                             )
                         ),
-                        "label" => "Add Group",
+                        "label_add" => "Add Group",
                         "is_user_input" => false,
                 )))
             ))

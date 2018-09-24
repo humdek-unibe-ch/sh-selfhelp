@@ -1259,13 +1259,14 @@ class CmsModel extends BaseModel
     public function get_page_properties()
     {
         $fields = array();
-        $page_title = $this->fetch_page_field_languages($this->id_page, 2);
+        $page_title = $this->fetch_page_field_languages($this->id_page,
+            LABEL_FIELD_ID);
         foreach($page_title as $content)
         {
             $fields[] = $this->add_property_item(
-                2, // label
+                LABEL_FIELD_ID,
                 intval($content['id']),
-                1, // male, default gender
+                MALE_GENDER_ID,
                 "title",
                 $content['locale'],
                 "text",
@@ -1284,8 +1285,8 @@ class CmsModel extends BaseModel
         }
         $fields[] = $this->add_property_item(
             null,
-            1, // all languages
-            1, // male, default gender
+            ALL_LANGUAGE_ID,
+            MALE_GENDER_ID,
             "sections",
             "",
             "style-list",
@@ -1296,8 +1297,8 @@ class CmsModel extends BaseModel
         if($this->is_navigation())
             $fields[] = $this->add_property_item(
                 null,
-                1, // all languages
-                1, // male, default gender
+                ALL_LANGUAGE_ID,
+                MALE_GENDER_ID,
                 "navigation",
                 "",
                 "style-list",
@@ -1376,7 +1377,7 @@ class CmsModel extends BaseModel
                 $relation = "section_children";
                 $contents = array(array(
                     "id_language" => $id,
-                    "id_gender" => 1,
+                    "id_gender" => MALE_GENDER_ID,
                     "locale" => "",
                     "content" => $this->fetch_section_hierarchy($id_section, false),
                     "gender" => "",
@@ -1403,8 +1404,8 @@ class CmsModel extends BaseModel
         if($this->is_navigation_root_item())
             $res[] = $this->add_property_item(
                 null,
-                1, // all languages
-                1, // male, default gender
+                ALL_LANGUAGE_ID,
+                MALE_GENDER_ID,
                 "navigation",
                 "",
                 "style-list",

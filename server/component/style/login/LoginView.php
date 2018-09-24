@@ -34,7 +34,7 @@ class LoginView extends BaseView
     private $login_label;
 
     /**
-     * DB field 'label_reset_pw' (empty string).
+     * DB field 'label_pw_reset' (empty string).
      * The label of the password reset link.
      */
     private $reset_label;
@@ -75,7 +75,7 @@ class LoginView extends BaseView
         $this->user_label = $this->model->get_db_field('label_user');
         $this->pw_label = $this->model->get_db_field('label_pw');
         $this->login_label = $this->model->get_db_field('label_login');
-        $this->reset_label = $this->model->get_db_field('label_reset_pw');
+        $this->reset_label = $this->model->get_db_field('label_pw_reset');
         $this->login_title = $this->model->get_db_field('login_title');
         $this->intro_title = $this->model->get_db_field('intro_title');
         $this->intro_content = $this->model->get_db_field('intro_text');

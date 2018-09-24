@@ -33,7 +33,7 @@ class AccordionListView extends BaseView
     private $items;
 
     /**
-     * DB field 'root_name' (empty string).
+     * DB field 'label_root' (empty string).
      * As the root item is expandable, it cannot be clicked itself. Hence, in
      * order to show the content of the root a new item is intruduced. This item
      * has the name that is provided by this field.
@@ -54,7 +54,7 @@ class AccordionListView extends BaseView
         $this->id_active = $this->model->get_db_field("id_active", 0);
         $this->title_prefix = $this->model->get_db_field("title_prefix");
         $this->items = $this->model->get_db_field("items", array());
-        $this->root_name = $this->model->get_db_field("root_name");
+        $this->root_name = $this->model->get_db_field("label_root");
     }
 
     /* Private Methods ********************************************************/

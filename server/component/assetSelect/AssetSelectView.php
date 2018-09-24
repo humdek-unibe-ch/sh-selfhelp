@@ -30,8 +30,8 @@ class AssetSelectView extends BaseView
             new BaseStyleComponent("sortableList", array(
                 "items" => $this->model->get_asset_files(),
                 "is_editable" => true,
-                /* "delete_target" => $del_target, */
-                "insert_target" => $add_target,
+                /* "url_delete" => $del_target, */
+                "url_add" => $add_target,
             ))
         );
     }

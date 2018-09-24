@@ -17,7 +17,7 @@ class NavigationAccordionView extends NavigationView
     private $title_prefix;
 
     /**
-     * DB style field 'root_name' ("Intro").
+     * DB style field 'label_root' ("Intro").
      * The label of the root navigation item.
      */
     private $root_name;
@@ -33,7 +33,7 @@ class NavigationAccordionView extends NavigationView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->root_name = $this->model->get_db_field("root_name", "Intro");
+        $this->root_name = $this->model->get_db_field("label_root", "Intro");
         $this->title_prefix = $this->model->get_db_field("title_prefix");
         $this->add_local_component("nav",
             new BaseStyleComponent("accordionList", array(
@@ -41,7 +41,7 @@ class NavigationAccordionView extends NavigationView
                 "title_prefix" => $this->title_prefix,
                 "id_active" => $this->model->get_current_id(),
                 "is_expanded" => false,
-                "root_name" => $this->root_name,
+                "label_root" => $this->root_name,
             ))
         );
     }

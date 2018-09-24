@@ -31,20 +31,20 @@ class SortableListView extends BaseView
     private $items;
 
     /**
-     * DB field 'insert_target' (empty string).
+     * DB field 'url_add' (empty string).
      * The target url of the insert button. If this is not set, the insert
      * button is not rendered.
      */
     private $insert_target;
 
     /**
-     * DB field 'label' ("Add").
+     * DB field 'label_add' ("Add").
      * The label of the insert button.
      */
     private $insert_label;
 
     /**
-     * DB field 'delete_target' (empty string).
+     * DB field 'url_delete' (empty string).
      * The target url of the delete button. Note that the string ':did' is
      * replaced by the id of the element that is supposed to be removed.
      * If this field is not set, the delete buttons are not rendered.
@@ -65,9 +65,10 @@ class SortableListView extends BaseView
         $this->is_sortable = $this->model->get_db_field("is_sortable", false);
         $this->is_editable = $this->model->get_db_field("is_editable", false);
         $this->items = $this->model->get_db_field("items", array());
-        $this->insert_target = $this->model->get_db_field('insert_target');
-        $this->insert_label = $this->model->get_db_field('label', "Add");
-        $this->delete_target = $this->model->get_db_field('delete_target');
+        if(!is_array($this->items)) $this->items = array();
+        $this->insert_target = $this->model->get_db_field('url_add');
+        $this->insert_label = $this->model->get_db_field('label_add', "Add");
+        $this->delete_target = $this->model->get_db_field('url_delete');
         $this->id_active = $this->model->get_db_field('id_active', null);
     }
 

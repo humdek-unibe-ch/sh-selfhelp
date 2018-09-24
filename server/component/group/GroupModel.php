@@ -164,7 +164,7 @@ class GroupModel extends BaseModel
      */
     private function get_cms_mod_access()
     {
-        return $this->gacl["cms-link"]["acl"]["select"]
+        return $this->gacl["admin-link"]["acl"]["select"]
             && $this->gacl["cmsSelect"]["acl"]["select"]
             && $this->gacl["cmsUpdate"]["acl"]["select"]
             && $this->gacl["cmsUpdate"]["acl"]["update"];
@@ -199,7 +199,7 @@ class GroupModel extends BaseModel
      */
     private function get_data_access($lvl)
     {
-        $res = $this->gacl["cms-link"]["acl"]["select"];
+        $res = $this->gacl["admin-link"]["acl"]["select"];
         $res &= $this->gacl["asset" . ucfirst($lvl)]["acl"]["select"];
         $res &= $this->gacl["asset" . ucfirst($lvl)]["acl"][$lvl];
         if($lvl == "select")
@@ -235,7 +235,7 @@ class GroupModel extends BaseModel
      */
     private function get_page_access($lvl)
     {
-        $res = $this->gacl["cms-link"]["acl"]["select"];
+        $res = $this->gacl["admin-link"]["acl"]["select"];
         $res &= $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"];
         $res &= $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl];
         return $res;
@@ -252,7 +252,7 @@ class GroupModel extends BaseModel
      */
     private function get_user_access($lvl)
     {
-        $res = $this->gacl["cms-link"]["acl"]["select"];
+        $res = $this->gacl["admin-link"]["acl"]["select"];
         $res &= $this->gacl["user" . ucfirst($lvl)]["acl"]["select"];
         $res &= $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl];
         if($lvl == "select" || $lvl == "update")
@@ -297,7 +297,7 @@ class GroupModel extends BaseModel
      */
     private function set_cms_mod_access()
     {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["cmsSelect"]["acl"]["select"] = true;
         $this->gacl["cmsUpdate"]["acl"]["select"] = true;
         $this->gacl["cmsUpdate"]["acl"]["update"] = true;
@@ -553,7 +553,7 @@ class GroupModel extends BaseModel
      */
     public function set_data_access($lvl)
     {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["asset" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["asset" . ucfirst($lvl)]["acl"][$lvl] = true;
         if($lvl == "select")
@@ -584,7 +584,7 @@ class GroupModel extends BaseModel
      */
     public function set_user_access($lvl)
     {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["user" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
@@ -600,7 +600,7 @@ class GroupModel extends BaseModel
      */
     public function set_page_access($lvl)
     {
-        $this->gacl["cms-link"]["acl"]["select"] = true;
+        $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl] = true;
     }

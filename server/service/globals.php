@@ -11,7 +11,11 @@ define('ADMIN_GROUP_ID', 1);
 
 define('NAVIGATION_STYLE_ID', 16);
 
-define('CSS_FIELD_ID', 70);
+define('CSS_FIELD_ID', 23);
+define('LABEL_FIELD_ID', 8);
+
+define('MALE_GENDER_ID', 1);
+define('ALL_LANGUAGE_ID', 1);
 
 define('EXPERIMENTER_GROUP_ID', 2);
 define('SUBJECT_GROUP_ID', 3);
