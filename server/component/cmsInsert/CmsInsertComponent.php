@@ -60,7 +60,7 @@ class CmsInsertComponent extends CmsComponent
         if($this->model->get_active_page_id() != null
                 &&!$this->model->can_create_new_child_page())
             return false;
-        return parent::has_access();
+        return parent::has_access(true);
     }
 }
 ?>
