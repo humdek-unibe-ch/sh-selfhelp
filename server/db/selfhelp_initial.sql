@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 24, 2018 at 04:34 PM
+-- Generation Time: Sep 24, 2018 at 05:58 PM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -386,7 +386,8 @@ CREATE TABLE `languages` (
 
 INSERT INTO `languages` (`id`, `locale`, `language`) VALUES
 (0000000001, 'all', 'Independent'),
-(0000000002, 'de-CH', 'Deutsch (Schweiz)');
+(0000000002, 'de-CH', 'Deutsch (Schweiz)'),
+(0000000003, 'en-GB', 'English (GB)');
 
 -- --------------------------------------------------------
 
@@ -425,7 +426,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET', 0000000002, NULL, 0000000009, 10, NULL, 0000000001, 0),
 (0000000011, 'cmsInsert', '/admin/cms_insert/[i:pid]?', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
 (0000000012, 'cmsUpdate', '/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000013, 'cmsDelete', 'admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
+(0000000013, 'cmsDelete', '/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
 (0000000014, 'userSelect', '/admin/user/[i:uid]?', 'GET', 0000000002, NULL, 0000000009, 20, NULL, 0000000001, 0),
 (0000000015, 'userInsert', '/admin/user_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
 (0000000016, 'userUpdate', '/admin/user_update/[i:uid]/[v:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
@@ -467,13 +468,21 @@ CREATE TABLE `pages_fields_translation` (
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES
 (0000000001, 0000000008, 0000000002, 'Login'),
+(0000000001, 0000000008, 0000000003, 'Login'),
 (0000000002, 0000000008, 0000000002, 'Projekt Name'),
+(0000000002, 0000000008, 0000000003, 'Project Name'),
 (0000000003, 0000000008, 0000000002, 'Profil'),
+(0000000003, 0000000008, 0000000003, 'Profile'),
 (0000000004, 0000000008, 0000000002, 'Einstellungen'),
+(0000000004, 0000000008, 0000000003, 'Settings'),
 (0000000005, 0000000008, 0000000002, 'Logout'),
+(0000000005, 0000000008, 0000000003, 'Logout'),
 (0000000006, 0000000008, 0000000002, 'Seite nicht gefunden'),
+(0000000006, 0000000008, 0000000003, 'Missing'),
 (0000000007, 0000000008, 0000000002, 'Kein Zugriff'),
+(0000000007, 0000000008, 0000000003, 'No Access'),
 (0000000008, 0000000008, 0000000002, 'Kein Zugriff'),
+(0000000008, 0000000008, 0000000003, 'No Access'),
 (0000000009, 0000000008, 0000000001, 'Admin'),
 (0000000010, 0000000008, 0000000001, 'CMS'),
 (0000000011, 0000000008, 0000000001, 'Create Page'),
@@ -494,11 +503,17 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000026, 0000000008, 0000000001, 'Rename Asset'),
 (0000000027, 0000000008, 0000000001, 'Delete Asset'),
 (0000000029, 0000000008, 0000000002, 'Kontakt'),
+(0000000029, 0000000008, 0000000003, 'Contact'),
 (0000000030, 0000000008, 0000000002, 'AGB'),
+(0000000030, 0000000008, 0000000003, 'GTC'),
 (0000000031, 0000000008, 0000000002, 'Impressum'),
+(0000000031, 0000000008, 0000000003, 'Legal Notice'),
 (0000000032, 0000000008, 0000000002, 'Disclaimer'),
+(0000000032, 0000000008, 0000000003, 'Disclaimer'),
 (0000000033, 0000000008, 0000000002, 'Benutzer Validierung'),
-(0000000034, 0000000008, 0000000002, 'Benutzer Daten');
+(0000000033, 0000000008, 0000000003, 'User Validation'),
+(0000000034, 0000000008, 0000000002, 'Benutzer Daten'),
+(0000000034, 0000000008, 0000000003, 'User Data');
 
 -- --------------------------------------------------------
 
@@ -615,41 +630,68 @@ CREATE TABLE `sections_fields_translation` (
 
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
 (0000000001, 0000000001, 0000000002, 0000000001, 'Benutzername'),
+(0000000001, 0000000001, 0000000003, 0000000001, 'Username'),
 (0000000001, 0000000002, 0000000002, 0000000001, 'Passwort'),
+(0000000001, 0000000002, 0000000003, 0000000001, 'Password'),
 (0000000001, 0000000003, 0000000002, 0000000001, 'Anmelden'),
+(0000000001, 0000000003, 0000000003, 0000000001, 'Login'),
 (0000000001, 0000000004, 0000000002, 0000000001, 'Passwort vergessen?'),
+(0000000001, 0000000004, 0000000003, 0000000001, 'Forgotten the Password?'),
 (0000000001, 0000000005, 0000000002, 0000000001, 'Der Benutzername oder das Passwort ist nicht korrekt.'),
+(0000000001, 0000000005, 0000000003, 0000000001, 'The username or the password is not correct.'),
 (0000000001, 0000000007, 0000000002, 0000000001, 'Bitte einloggen'),
+(0000000001, 0000000007, 0000000003, 0000000001, 'Please Login'),
 (0000000002, 0000000001, 0000000002, 0000000001, 'Email Adresse'),
+(0000000002, 0000000001, 0000000003, 0000000001, 'Email Address'),
 (0000000002, 0000000002, 0000000002, 0000000001, 'Neues Passwort'),
+(0000000002, 0000000002, 0000000003, 0000000001, 'New Password'),
 (0000000002, 0000000009, 0000000002, 0000000001, 'Neues Passwort wiederholen'),
+(0000000002, 0000000009, 0000000003, 0000000001, 'Repeat New Password'),
 (0000000002, 0000000010, 0000000002, 0000000001, 'Ändern'),
+(0000000002, 0000000010, 0000000003, 0000000001, 'Submit Change'),
 (0000000002, 0000000011, 0000000002, 0000000001, 'Passwort ändern'),
+(0000000002, 0000000011, 0000000003, 0000000001, 'Change the Password'),
 (0000000002, 0000000012, 0000000002, 0000000001, 'Account löschen'),
+(0000000002, 0000000012, 0000000003, 0000000001, 'Delete Account'),
 (0000000002, 0000000013, 0000000002, 0000000001, 'Löschen'),
+(0000000002, 0000000013, 0000000003, 0000000001, 'Delete'),
 (0000000002, 0000000014, 0000000002, 0000000001, 'Alle Benutzerdaten werden gelöscht. Das Löschen des Accounts ist permanent und kann nicht rückganging gemacht werden!'),
+(0000000002, 0000000014, 0000000003, 0000000001, 'All user data will be deleted. The deletion of the account is permanent and cannot be undone!'),
 (0000000002, 0000000015, 0000000002, 0000000001, 'Löschen bestätigen'),
+(0000000002, 0000000015, 0000000003, 0000000001, 'Confirm Deletion'),
 (0000000002, 0000000016, 0000000002, 0000000001, 'Wollen sie ihren Account wirklich löschen? Bestätigen Sie dies indem Sie ihre email Adresse eingeben.'),
+(0000000002, 0000000016, 0000000003, 0000000001, 'Are you sure you want to delete the account? Please confirm by entering your email address.'),
 (0000000002, 0000000017, 0000000002, 0000000001, 'Das Passwort konnte nicht geändert werden.'),
+(0000000002, 0000000017, 0000000003, 0000000001, 'Unable to change the password.'),
 (0000000002, 0000000018, 0000000002, 0000000001, 'Das Passwort wurde erfolgreich geändert.'),
+(0000000002, 0000000018, 0000000003, 0000000001, 'The password was successfully changed.'),
 (0000000002, 0000000019, 0000000002, 0000000001, 'Die Benutzerdaten konnten nicht gelöscht werden.'),
+(0000000002, 0000000019, 0000000003, 0000000001, 'Unable to delete the account.'),
 (0000000002, 0000000020, 0000000002, 0000000001, 'Die Benutzerdaten wurden erfolgreich gelöscht.'),
+(0000000002, 0000000020, 0000000003, 0000000001, 'Successfully deleted the account.'),
 (0000000003, 0000000029, 0000000001, 0000000001, '1'),
 (0000000005, 0000000021, 0000000001, 0000000001, '1'),
 (0000000005, 0000000022, 0000000002, 0000000001, 'Seite nicht gefunden'),
+(0000000005, 0000000022, 0000000003, 0000000001, 'Page not Found'),
 (0000000006, 0000000025, 0000000002, 0000000001, 'Diese Seite konnte leider nicht gefunden werden.'),
+(0000000006, 0000000025, 0000000003, 0000000001, 'This page could not be found.'),
 (0000000007, 0000000008, 0000000002, 0000000001, 'Zurück'),
+(0000000007, 0000000008, 0000000003, 0000000001, 'Back'),
 (0000000007, 0000000027, 0000000001, 0000000001, '#back'),
 (0000000007, 0000000028, 0000000001, 0000000001, 'primary'),
 (0000000008, 0000000008, 0000000002, 0000000001, 'Zur Startseite'),
+(0000000008, 0000000008, 0000000003, 0000000001, 'Home'),
 (0000000008, 0000000027, 0000000001, 0000000001, '#home'),
 (0000000008, 0000000028, 0000000001, 0000000001, 'primary'),
 (0000000009, 0000000029, 0000000001, 0000000001, '1'),
 (0000000011, 0000000021, 0000000001, 0000000001, '1'),
 (0000000011, 0000000022, 0000000002, 0000000001, 'Kein Zugriff'),
+(0000000011, 0000000022, 0000000003, 0000000001, 'No Access'),
 (0000000012, 0000000029, 0000000001, 0000000001, '1'),
 (0000000014, 0000000025, 0000000002, 0000000001, 'Um diese Seite zu erreichen müssen Sie eingeloggt sein.'),
+(0000000014, 0000000025, 0000000003, 0000000001, 'To reach this page you must be logged in.'),
 (0000000015, 0000000025, 0000000002, 0000000001, 'Sie haben keine Zugriffsrechte für diese Seite.'),
+(0000000015, 0000000025, 0000000003, 0000000001, 'You do not have access to this page.'),
 (0000000016, 0000000029, 0000000001, 0000000001, '1'),
 (0000000017, 0000000029, 0000000001, 0000000001, '0'),
 (0000000018, 0000000029, 0000000001, 0000000001, '1'),
@@ -658,29 +700,53 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000021, 0000000029, 0000000001, 0000000001, '1'),
 (0000000023, 0000000021, 0000000001, 0000000001, '1'),
 (0000000023, 0000000022, 0000000002, 0000000001, 'Die Daten wurden erfolgreich erfasst'),
+(0000000023, 0000000022, 0000000003, 0000000001, 'The Data was Successfully Saved'),
 (0000000024, 0000000025, 0000000002, 0000000001, 'Die Daten wurden erfolgreich in der Datenbank gespeichert.\r\nBesten Dank!'),
+(0000000024, 0000000025, 0000000003, 0000000001, 'The data was successfully saved to the databases. Thanks a lot!'),
 (0000000025, 0000000005, 0000000002, 0000000001, 'Es ist ein Fehler aufgetreten. Die Nachricht konnte nicht gesendet werden.'),
+(0000000025, 0000000005, 0000000003, 0000000001, 'An error occurred. The message could not be sent.'),
 (0000000025, 0000000008, 0000000002, 0000000001, 'Senden'),
+(0000000025, 0000000008, 0000000003, 0000000001, 'Send'),
 (0000000025, 0000000030, 0000000002, 0000000001, 'Bitte wählen Sie einen Probanden aus.'),
+(0000000025, 0000000030, 0000000003, 0000000001, 'Please select a subject'),
 (0000000025, 0000000031, 0000000002, 0000000001, 'Kommunikation mit'),
+(0000000025, 0000000031, 0000000003, 0000000001, 'Communication with'),
 (0000000025, 0000000032, 0000000002, 0000000001, 'ihrer Psychologin/ihrem Psychologe'),
+(0000000025, 0000000032, 0000000003, 0000000001, 'your psychologist'),
 (0000000025, 0000000033, 0000000002, 0000000001, 'Probanden'),
+(0000000025, 0000000033, 0000000003, 0000000001, 'Subjects'),
 (0000000026, 0000000002, 0000000002, 0000000001, 'Passwort'),
+(0000000026, 0000000002, 0000000003, 0000000001, 'Password'),
 (0000000026, 0000000003, 0000000002, 0000000001, 'Zum Login'),
+(0000000026, 0000000003, 0000000003, 0000000001, 'To Login'),
 (0000000026, 0000000005, 0000000002, 0000000001, 'Das Aktivieren des Benutzers ist fehlgeschlagen.'),
+(0000000026, 0000000005, 0000000003, 0000000001, 'The activation of the user has failed.'),
 (0000000026, 0000000009, 0000000002, 0000000001, 'Bitte das Passwort bestätigen'),
+(0000000026, 0000000009, 0000000003, 0000000001, 'Please confirm the password'),
 (0000000026, 0000000022, 0000000002, 0000000001, 'Benutzer aktivieren'),
+(0000000026, 0000000022, 0000000003, 0000000001, 'Activate User'),
 (0000000026, 0000000034, 0000000002, 0000000001, 'Erforderliche Daten für die Aktivierung'),
+(0000000026, 0000000034, 0000000003, 0000000001, 'Required Data to Activate the User'),
 (0000000026, 0000000035, 0000000002, 0000000001, 'Sie können sich nun mit dem von Ihnen gewählten Passwort und Email einloggen und die Seite benutzen.'),
+(0000000026, 0000000035, 0000000003, 0000000001, 'You are now able to login in to the web page with the chosen password and email.'),
 (0000000026, 0000000036, 0000000002, 0000000001, 'Benuzername'),
+(0000000026, 0000000036, 0000000003, 0000000001, 'Username'),
 (0000000026, 0000000037, 0000000002, 0000000001, 'Bitte den Benutzernamen eingeben'),
+(0000000026, 0000000037, 0000000003, 0000000001, 'Please enter a username'),
 (0000000026, 0000000038, 0000000002, 0000000001, 'Ein Name mit dem Sie angesprochen werden wollen. Aus Gründen der Annonymisierung verwenden Sie bitte **nicht** ihren richtigen Namen.'),
+(0000000026, 0000000038, 0000000003, 0000000001, 'The name with which you would like to be addressed. For reasons of anonymity pleas do **not** use your real name.'),
 (0000000026, 0000000039, 0000000002, 0000000001, 'Geschlecht'),
+(0000000026, 0000000039, 0000000003, 0000000001, 'Gender'),
 (0000000026, 0000000040, 0000000002, 0000000001, 'männlich'),
+(0000000026, 0000000040, 0000000003, 0000000001, 'male'),
 (0000000026, 0000000041, 0000000002, 0000000001, 'weiblich'),
+(0000000026, 0000000041, 0000000003, 0000000001, 'female'),
 (0000000026, 0000000042, 0000000002, 0000000001, 'Benutzer aktivieren'),
+(0000000026, 0000000042, 0000000003, 0000000001, 'Activate User'),
 (0000000026, 0000000043, 0000000002, 0000000001, 'Bitte das Passwort eingeben'),
-(0000000026, 0000000044, 0000000002, 0000000001, 'Benutzer erforlgreich aktiviert');
+(0000000026, 0000000043, 0000000003, 0000000001, 'Please enter a password'),
+(0000000026, 0000000044, 0000000002, 0000000001, 'Benutzer erforlgreich aktiviert'),
+(0000000026, 0000000044, 0000000003, 0000000001, 'User was successfully Activated');
 
 -- --------------------------------------------------------
 
@@ -1247,7 +1313,7 @@ ALTER TABLE `groups`
 -- AUTO_INCREMENT for table `languages`
 --
 ALTER TABLE `languages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `pages`
 --

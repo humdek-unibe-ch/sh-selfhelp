@@ -63,7 +63,7 @@ class CmsComponent extends BaseComponent
         if($params["type"] == "section_nav" || $params["type"] == "page_nav")
             $nav_sections = $this->model->get_navigation_hierarchy();
         if(!$skip_ids
-            && ((($params['pid'] != null)
+            && ((($params['pid'] != null && count($pages) > 0)
                 && !$this->is_in_list($params['pid'], $pages))
             || (($params['ssid'] != null)
                 && !$this->is_in_list($params['ssid'], $sections))
