@@ -1693,6 +1693,7 @@ class CmsModel extends BaseModel
      */
     public function update_insert_properties()
     {
+        $this->update_page_hierarchy();
         $this->update_page_sections();
         $this->set_all_accessible_sections();
         $this->all_unassigned_sections = $this->fetch_unassigned_sections();
