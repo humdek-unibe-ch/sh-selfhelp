@@ -148,7 +148,8 @@ class AccordionListView extends BaseView
             $active = "active";
         if($first)
         {
-            if($this->root_name === "") return;
+            if($this->root_name === "" || !isset($child['url'])
+                || $child['url'] === "") return;
             $child['title'] = $this->root_name;
             $child['children'] = array();
         }
