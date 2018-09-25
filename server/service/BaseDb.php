@@ -418,6 +418,8 @@ class BaseDb {
             $stmt = $this->dbh->prepare($sql);
             if($stmt->execute($data))
                 return true;
+            else
+                return false;
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();
