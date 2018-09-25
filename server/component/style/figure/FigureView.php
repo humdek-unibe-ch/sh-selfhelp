@@ -16,7 +16,7 @@ class FigureView extends BaseView
     private $caption;
 
     /**
-     * DB style field 'caption_title' (empty string).
+     * DB style field 'caption_title' ("Figure").
      * The title of the caption.
      */
     private $caption_title;
@@ -33,7 +33,7 @@ class FigureView extends BaseView
     {
         parent::__construct($model);
         $this->caption = $this->model->get_db_field("caption");
-        $this->caption_title = $this->model->get_db_field("caption_title");
+        $this->caption_title = $this->model->get_db_field("caption_title", "Figure");
     }
 
     /* Private Methods ********************************************************/
