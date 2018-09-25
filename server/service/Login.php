@@ -47,7 +47,7 @@ class Login
     {
         $sql = "SELECT u.id, u.password, g.name AS gender FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
-            WHERE email = :email AND password IS NOT NULL";
+            WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
         {
