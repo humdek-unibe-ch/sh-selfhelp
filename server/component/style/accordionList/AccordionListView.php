@@ -88,7 +88,9 @@ class AccordionListView extends BaseView
     {
         foreach($this->items as $index => $child)
         {
-            $title = isset($child['title']) ? $child['title'] : "";
+            if(!isset($child['id']) || !isset($child['url']) || !isset($child['title']))
+                continue;
+            if(!isset($child['children'])) $child['children'] = array();
             $active = "";
             if($this->is_child_active($child))
                 $active = "show";
@@ -115,7 +117,11 @@ class AccordionListView extends BaseView
     private function output_nav_children($children)
     {
         foreach($children as $index => $child)
+        {
+            if(!isset($child['id']) || !isset($child['url']) || !isset($child['title']))
+                continue;
             $this->output_child($child);
+        }
     }
 
     /**
@@ -129,19 +135,39 @@ class AccordionListView extends BaseView
      */
     private function output_child($child, $first=false)
     {
+        if(!isset($child['children'])) $child['children'] = array();
         $active = "";
-        if($child['id'] == $this->id_active)
+        if($child['id'] === $this->id_active)
             $active = "active";
         if($first)
         {
+            if($this->root_name === "") return;
             $child['title'] = $this->root_name;
             $child['children'] = array();
         }
-        $title = (array_key_exists("title", $child)) ? $child["title"] : "";
         require __DIR__ . "/tpl_item.php";
     }
 
+    private function output_link($url)
+    {
+        if($this->root_name === "")
+            require __DIR__ . "/tpl_link.php";
+    }
+
     /* Public Methods *********************************************************/
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $local = array(__DIR__ . "/accordionList.js");
+        return parent::get_js_includes($local);
+    }
 
     /**
      * Get css include files required for this component. This overrides the

@@ -1,7 +1,7 @@
 <div>
     <div class="px-1 session-nav-link <?php echo $active; ?>">
         <a href="<?php echo $child['url']; ?>">
-            <?php echo $title; ?>
+            <?php echo $child['title']; ?>
         </a>
     </div>
     <div class="ml-3">
