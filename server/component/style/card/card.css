@@ -85,7 +85,35 @@ a.card-edit
 {
     color: inherit
 }
-a.card-edit:hover
+.card.card-primary * a.card-edit:hover
+{
+    color: #007bff;
+}
+.card.card-secondary * a.card-edit:hover
+{
+    color: #6c757d;
+}
+.card.card-success * a.card-edit:hover
+{
+    color: #28a745;
+}
+.card.card-danger * a.card-edit:hover
+{
+    color: #dc3545;
+}
+.card.card-warning * a.card-edit:hover
 {
     color: #ffc107;
+}
+.card.card-info * a.card-edit:hover
+{
+    color: #17a2b8;
+}
+.card.card-dark * a.card-edit:hover
+{
+    color: #343a40;
+}
+.card.card-light * a.card-edit:hover
+{
+    color: #6c757d;
 }
