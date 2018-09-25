@@ -29,7 +29,7 @@ class CardView extends BaseView
     private $is_expanded;
 
     /**
-     * DB field 'url' (empty string).
+     * DB field 'url_edit' (empty string).
      * The target url when clicking the edit button in the header. When this
      * field is set an edit button is rendered in the header. If this field
      * is not set, no edit button will be rendered.
@@ -57,7 +57,7 @@ class CardView extends BaseView
         $this->is_expanded = $this->model->get_db_field("is_expanded", true);
         $this->is_collapsible = $this->model->get_db_field("is_collapsible",
             false);
-        $this->url_edit = $this->model->get_db_field("url");
+        $this->url_edit = $this->model->get_db_field("url_edit");
         $this->title = $this->model->get_db_field("title");
         $this->type = $this->model->get_db_field("type", "light");
     }

@@ -81,7 +81,7 @@ class GroupView extends BaseView
             new BaseStyleComponent("card", array(
                 "is_expanded" => true,
                 "is_collapsible" => false,
-                "url" => $url_edit,
+                "url_edit" => $url_edit,
                 "title" => "Group Access Rights",
                 "children" => array(new BaseStyleComponent("acl", array(
                     "title" => "Function",

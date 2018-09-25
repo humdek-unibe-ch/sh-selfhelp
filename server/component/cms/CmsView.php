@@ -307,7 +307,7 @@ class CmsView extends BaseView
                 "title" => "Page Properties",
                 "children" => $children,
                 "type" => $type,
-                "url" => $url_edit,
+                "url_edit" => $url_edit,
             )
         ));
     }
@@ -360,7 +360,7 @@ class CmsView extends BaseView
                 "title" => "Section Properties",
                 "children" => $children,
                 "type" => $type,
-                "url" => $url_edit,
+                "url_edit" => $url_edit,
             )
         ));
     }
