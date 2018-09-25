@@ -40,6 +40,8 @@ class AccordionListView extends BaseView
      */
     private $root_name;
 
+    private $id_prefix;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -55,6 +57,7 @@ class AccordionListView extends BaseView
         $this->title_prefix = $this->model->get_db_field("title_prefix");
         $this->items = $this->model->get_db_field("items", array());
         $this->root_name = $this->model->get_db_field("label_root");
+        $this->id_prefix = $this->model->get_db_field("id_prefix", "accordion");
     }
 
     /* Private Methods ********************************************************/
@@ -70,14 +73,15 @@ class AccordionListView extends BaseView
      *  true if the current item id belongs to the root item, false
      *  otherwise.
      */
-    private function is_child_active($child_root)
+    private function is_child_active($root)
     {
-        $id = $this->id_active;
-        if($child_root['id'] == $id)
+        if(!isset($root['id'])) return false;
+        if($root['id'] == $this->id_active)
             return true;
-        foreach($child_root['children'] as $child)
-            if($id == $child['id'] || $this->is_child_active($child, $id))
-                return true;
+        if(isset($root['children']))
+            foreach($root['children'] as $child)
+                if($this->is_child_active($child))
+                    return true;
         return false;
     }
 
@@ -88,9 +92,12 @@ class AccordionListView extends BaseView
     {
         foreach($this->items as $index => $child)
         {
-            if(!isset($child['id']) || !isset($child['url']) || !isset($child['title']))
+            if(!isset($child['id']) || !isset($child['title']))
                 continue;
-            if(!isset($child['children'])) $child['children'] = array();
+            $children = array();
+            $url = "";
+            if(isset($child['children'])) $children = $child['children'];
+            if(isset($child['url'])) $url = $child['url'];
             $active = "";
             if($this->is_child_active($child))
                 $active = "show";
@@ -118,7 +125,7 @@ class AccordionListView extends BaseView
     {
         foreach($children as $index => $child)
         {
-            if(!isset($child['id']) || !isset($child['url']) || !isset($child['title']))
+            if(!isset($child['id']) || !isset($child['title']))
                 continue;
             $this->output_child($child);
         }
@@ -148,10 +155,30 @@ class AccordionListView extends BaseView
         require __DIR__ . "/tpl_item.php";
     }
 
-    private function output_link($url)
+    /**
+     * Render the item label
+     *
+     * @param array $child
+     *  An associative array holding the fields of a navigation item.
+     */
+    private function output_label($child)
     {
-        if($this->root_name === "")
+        if(isset($child['url']) && $child['url'] !== "")
             require __DIR__ . "/tpl_link.php";
+        else
+            echo $child['title'];
+    }
+
+    /**
+     * Render the root link symbol
+     *
+     * @param string $url
+     *  The url of the root item link.
+     */
+    private function output_link_symbol($url)
+    {
+        if($this->root_name === "" && $url !== "")
+            require __DIR__ . "/tpl_link_symbol.php";
     }
 
     /* Public Methods *********************************************************/
