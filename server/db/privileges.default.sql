@@ -1,5 +1,5 @@
-SET @db_name = "selfhelpDemo"; /* Don't use underscore '_' in the db name as this causes problems with permissions. */
-SET @user_name = "selfhelp_demo";
+SET @db_name = "__experiment_name__"; /* Don't use underscore '_' in the db name as this causes problems with permissions. */
+SET @user_name = "__experiment_name__";
 
 DROP PROCEDURE IF EXISTS grant_proc;
 
