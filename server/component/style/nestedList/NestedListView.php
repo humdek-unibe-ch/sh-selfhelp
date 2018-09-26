@@ -126,7 +126,7 @@ class NestedListView extends BaseView
         $collapsible = $is_collapsible ? "collapsible" : "";
         $active = "";
         $is_expanded = $this->is_expanded;
-        if($this->id_active === $id)
+        if($this->id_active == $id)
         {
             $active = "active";
             $is_expanded = true;

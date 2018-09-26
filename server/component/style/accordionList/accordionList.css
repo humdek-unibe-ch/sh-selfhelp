@@ -2,7 +2,7 @@ div.session-nav-link.active
 {
     background-color: #007bff;
 }
-div.session-nav-link.active > a
+div.session-nav-link.active, div.session-nav-link.active > a
 {
     color: white;
 }
