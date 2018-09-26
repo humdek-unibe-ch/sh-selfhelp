@@ -40,7 +40,7 @@ class CmsUpdateView extends BaseView
                     "items" => $this->model->get_accessible_sections(),
                     "id_prefix" => "sections-search-accessible",
                     "is_expanded" => false,
-                    "has_hierarchy" => false,
+                    "is_collapsible" => false,
                     "id_active" => 0,
                     "search_text" => "Search"
                 )))
@@ -56,7 +56,7 @@ class CmsUpdateView extends BaseView
                     "items" => $this->model->get_unassigned_sections(),
                     "id_prefix" => "sections-search-unassigned",
                     "is_expanded" => false,
-                    "has_hierarchy" => false,
+                    "is_collapsible" => false,
                     "id_active" => 0,
                     "search_text" => "Search"
                 )))

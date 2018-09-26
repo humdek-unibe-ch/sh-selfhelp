@@ -39,7 +39,7 @@ class UserSelectView extends BaseView
                 "children" => array(new BaseStyleComponent("nestedList", array(
                     "items" => $this->model->get_users(),
                     "id_prefix" => "users",
-                    "has_hierarchy" => false,
+                    "is_collapsible" => false,
                     "id_active" => $this->selected_user['id'],
                 )))
             ))

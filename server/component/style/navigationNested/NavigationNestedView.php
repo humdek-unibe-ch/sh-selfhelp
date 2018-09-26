@@ -24,7 +24,7 @@ class NavigationNestedView extends NavigationView
                 "id_prefix" => "navigation",
                 "id_active" => $this->model->get_current_id(),
                 "is_expanded" => $this->model->get_db_field("is_expanded", true),
-                "has_hierarchy" => $this->model->get_db_field("has_hierarchy", false),
+                "is_collapsible" => $this->model->get_db_field("is_collapsible", false),
                 "search_text" => $this->model->get_db_field("search_text"),
             ))
         );
