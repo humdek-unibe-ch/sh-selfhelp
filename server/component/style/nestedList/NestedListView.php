@@ -77,19 +77,16 @@ class NestedListView extends BaseView
     /**
      * Render the initial chevron symbol or a placeholder.
      *
-     * @param bool $has_children
-     *  Indicates whether the element has children or not.
+     * @param bool $is_collapsible
+     *  Indicates whether the element can be collapsed or not.
      * @param bool $is_expanded
      *  Indicates whether the element is expanded or not.
      */
-    private function output_chevron($has_children, $is_expanded)
+    private function output_chevron($is_collapsible, $is_expanded)
     {
-        if(!$this->has_chevron) return;
-        if($has_children)
-        {
-            $direction = ($is_expanded) ? "down" : "right";
-            require __DIR__ . "/tpl_chevron.php";
-        }
+        if(!$is_collapsible) return;
+        $direction = ($is_expanded) ? "down" : "right";
+        require __DIR__ . "/tpl_chevron.php";
     }
 
     /**
@@ -125,8 +122,8 @@ class NestedListView extends BaseView
         $id = $this->get_id($item['id']);
         $id_html = $this->id_prefix . "-" . $id;
 
-        $has_children = (count($children) > 0);
-        $collapsible = $has_children ? "collapsible" : "";
+        $is_collapsible = (count($children) > 0 && $this->has_chevron);
+        $collapsible = $is_collapsible ? "collapsible" : "";
         $active = "";
         $is_expanded = $this->is_expanded;
         if($this->id_active === $id)
