@@ -144,7 +144,7 @@ class AccordionListView extends BaseView
     {
         if(!isset($child['children'])) $child['children'] = array();
         $active = "";
-        if($child['id'] === $this->id_active)
+        if($child['id'] == $this->id_active)
             $active = "active";
         if($first)
         {

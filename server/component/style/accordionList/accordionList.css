@@ -1,10 +1,10 @@
 div.session-nav-link.active
 {
-    background-color:#007bff;
+    background-color: #007bff;
 }
 div.session-nav-link.active > a
 {
-    color:white;
+    color: white;
 }
 div.accordion-header
 {
