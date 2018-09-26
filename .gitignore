@@ -1,3 +1,4 @@
-apache.conf
-globals_untracked.php
+server/apache.conf
+server/service/globals_untracked.php
+server/db/privileges.sql
 assets
