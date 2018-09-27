@@ -12,9 +12,25 @@ class SectionPage extends BasePage
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The list of sections to be rendered on the page.
+     */
     private $sections;
+
+    /**
+     * The list of errors if a problem with user inputs occurred.
+     */
     private $errors;
+
+    /**
+     * The result of the input data validation.
+     * See SectionPage::check_user_input.
+     */
     private $user_input;
+
+    /**
+     * The id of the selceted navigation section.
+     */
     private $nav_section_id;
 
     /* Constructors ***********************************************************/
@@ -31,6 +47,10 @@ class SectionPage extends BasePage
      *  The db instance which grants access to the DB.
      * @param string $keyword
      *  The identification name of the page.
+     * @param array $params
+     *  An array of get parameter taht will be passed to each style component.
+     *  If the page is a navigation page it must hold the key 'nav' where the
+     *  value defines the id of the current navigation section.
      */
     public function __construct($router, $db, $keyword, $params=array())
     {

@@ -7,13 +7,44 @@ class Navigation
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The db instance which grants access to the DB.
+     */
     private $db;
+
+    /**
+     * The router instance is used to generate valid links.
+     */
     private $router;
+
+    /**
+     * The identification name of the page.
+     */
     private $keyword;
+
+    /**
+     * A hierarchical list of the navigation items.
+     */
     private $items_tree;
+
+    /**
+     * A flat list of the navigation items.
+     */
     private $items_list;
+
+    /**
+     * The id of the root section.
+     */
     private $root_id;
+
+    /**
+     * The id of the currently selected navigation item.
+     */
     private $current_id;
+
+    /**
+     * The index of the currently selected navigation item.
+     */
     private $current_idx;
 
     /* Constructors ***********************************************************/
@@ -21,9 +52,12 @@ class Navigation
     /**
      * The constructor.
      *
-     * @param array $services
-     *  An associative array holding the different available services. See the
-     *  class definition basepage for a list of all services.
+     * @param object $router
+     *  The router instance is used to generate valid links.
+     * @param object $db
+     *  The db instance which grants access to the DB.
+     * @param string $keyword
+     *  The identification name of the page.
      * @param int $root_id
      *  The id of the root section.
      */

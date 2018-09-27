@@ -15,9 +15,9 @@ class PageDb extends BaseDb
      *
      * @param string $server
      *  Address of the server.
-     * @param string $database
+     * @param string $dbname
      *  Name of the database.
-     * @param string $login
+     * @param string $username
      *  The username of the database user.
      * @param string $password
      *  The password of the database user.
@@ -33,7 +33,6 @@ class PageDb extends BaseDb
      *
      * @param string $keyword
      *  A link keyword, used to identify router paths.
-     *
      * @retval string
      *  Either the title of the page or the string "Unknown" if the title could
      *  not be found.
@@ -302,6 +301,8 @@ class PageDb extends BaseDb
      *
      * @param int $id
      *  The id of the section.
+     * @param in $gender
+     *  The name of the gender of which the fields are fetched.
      * @retval array
      *  The db result array where each entry has the following fields
      *   'name': the name of the section field

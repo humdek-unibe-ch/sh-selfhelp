@@ -8,8 +8,19 @@ class GroupModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * An array of group properties (see UserModel::fetch_group).
+     */
     private $selected_group;
+
+    /**
+     * The id of the current selected group.
+     */
     private $gid;
+
+    /**
+     * An array of the group ACL rights. See UserModel::fetch_acl_by_group.
+     */
     private $gacl;
 
     /* Constructors ***********************************************************/
@@ -79,9 +90,9 @@ class GroupModel extends BaseModel
      * @param int $gid
      *  The id of the group.
      * @retval array
-     *  A list of key value pairs where the key is the page id and the value
-     *  an array of booleans, indicating the access rights select, insert,
-     *  update, and delete (in this order).
+     *  A list of key value pairs where the key is the page keyword and the
+     *  value an array of booleans, indicating the access rights select,
+     *  insert, update, and delete (in this order).
      */
     private function fetch_acl_by_group($gid)
     {
@@ -308,7 +319,7 @@ class GroupModel extends BaseModel
     /**
      * Checks whether the current user is allowed to create new groups.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can create new groups, false otherwise.
      */
     public function can_create_new_group()
@@ -320,7 +331,7 @@ class GroupModel extends BaseModel
     /**
      * Checks whether the current user is allowed to delete groups.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can delete groups, false otherwise.
      */
     public function can_delete_group()
@@ -332,7 +343,7 @@ class GroupModel extends BaseModel
     /**
      * Checks whether the current user is allowed to modify the ACL of groups.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can modify the ACL of groups, false otherwise.
      */
     public function can_modify_group_acl()

@@ -13,6 +13,9 @@ class CmsUpdateComponent extends CmsComponent
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The instance of the access control layer (ACL).
+     */
     private $acl;
 
     /* Constructors ***********************************************************/
@@ -28,19 +31,19 @@ class CmsUpdateComponent extends CmsComponent
      *  class definition BasePage for a list of all services.
      * @param array $params
      *  The get parameters passed by the url with the following keys:
-     *   'pid':     The id of the page that is currently edited.
-     *   'sid':     The root id of a page or the section that is currently
-     *              selected.
-     *   'ssid':    The id of the section that is currently selected
-     *              (only relevant for navigation pages).
-     *   'did':     The id of a section to be deleted (only relevant in delete
-     *              mode).
-     *   'type':    This describes the database relation in order to know wheter
-     *              to access pages, sections, navigations.
-     *   'mode':    This describes the update mode which can have the values
-     *               - update: update the propertiy fields of a section or page.
-     *               - insert: add a new section to a section or a page.
-     *               - delete: remove a section from a section or a page.
+     *   - 'pid':     The id of the page that is currently edited.
+     *   - 'sid':     The root id of a page or the section that is currently
+     *                selected.
+     *   - 'ssid':    The id of the section that is currently selected
+     *                (only relevant for navigation pages).
+     *   - 'did':     The id of a section to be deleted (only relevant in delete
+     *                mode).
+     *   - 'type':    This describes the database relation in order to know wheter
+     *                to access pages, sections, navigations.
+     *   - 'mode':    This describes the update mode which can have the values
+     *                 - update: update the propertiy fields of a section or page.
+     *                 - insert: add a new section to a section or a page.
+     *                 - delete: remove a section from a section or a page.
      */
     public function __construct($services, $params)
     {

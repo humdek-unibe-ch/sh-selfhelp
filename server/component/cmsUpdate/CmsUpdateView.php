@@ -10,6 +10,12 @@ class CmsUpdateView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     *  This describes the update mode which can have the values
+     *   - update: update the propertiy fields of a section or page.
+     *   - insert: add a new section to a section or a page.
+     *   - delete: remove a section from a section or a page.
+     */
     private $mode;
 
     /* Constructors ***********************************************************/
@@ -22,10 +28,7 @@ class CmsUpdateView extends BaseView
      * @param object $controller
      *  The controller instance of the cms update component.
      * @param string $mode
-     *  This describes the update mode which can have the values
-     *   - update: update the propertiy fields of a section or page.
-     *   - insert: add a new section to a section or a page.
-     *   - delete: remove a section from a section or a page.
+     *  See CmsUpdateView::mode
      */
     public function __construct($model, $controller, $mode)
     {

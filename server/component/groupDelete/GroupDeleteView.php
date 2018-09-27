@@ -9,6 +9,9 @@ class GroupDeleteView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * An array of group properties (see UserModel::fetch_group).
+     */
     private $selected_group;
 
     /* Constructors ***********************************************************/

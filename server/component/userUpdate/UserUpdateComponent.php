@@ -11,7 +11,18 @@ class UserUpdateComponent extends UserComponent
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The user id to delete.
+     */
     private $did;
+
+    /**
+     * The update mode of the user. This must be one of the following values:
+     *  'block':       Block a user.
+     *  'unblock':     Unblock a user.
+     *  'add_group':   Add a group to the user.
+     *  'rm_group':    Remove a group from a user.
+     */
     private $mode;
 
     /* Constructors ***********************************************************/
@@ -26,13 +37,9 @@ class UserUpdateComponent extends UserComponent
      *  class definition BasePage for a list of all services.
      * @param array $params
      *  The get parameters passed by the url with the following keys:
-     *   'uid':     The id of the user to be deleted.
-     *   'mode':    The update mode of the user. This must be one of the
-     *              following values:
-     *               'block':       Block a user.
-     *               'unblock':     Unblock a user.
-     *               'add_group':   Add a group to the user.
-     *               'rm_group':    Remove a group from a user.
+     *   'uid':     The id of the current user.
+     *   'did':     See UserUpdateComponent::did
+     *   'model':   See UserUpdateComponent::mode
      */
     public function __construct($services, $params)
     {

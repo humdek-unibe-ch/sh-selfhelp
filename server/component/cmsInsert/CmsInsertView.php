@@ -8,6 +8,11 @@ require_once __DIR__ . "/../style/StyleComponent.php";
  */
 class CmsInsertView extends BaseView
 {
+
+    /**
+     * The array of initial position values of the existing pages. This value
+     * will be used when changing the order of pages with javascript.
+     */
     private $position_value;
 
     /* Constructors ***********************************************************/

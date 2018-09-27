@@ -7,9 +7,24 @@ class ProfileController extends BaseController
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The success flag for password changes.
+     */
     private $success_change;
+
+    /**
+     * The fail flag for password changes.
+     */
     private $fail_change;
+
+    /**
+     * The success flag for deliting an account.
+     */
     private $success_delete;
+
+    /**
+     * The fail flag for deliting an account.
+     */
     private $fail_delete;
 
     /* Constructors ***********************************************************/

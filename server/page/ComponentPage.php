@@ -12,7 +12,9 @@ class ComponentPage extends BasePage
 {
     /* Private Properties *****************************************************/
 
-    private $sections;
+    /**
+     * The instance of the component to be rendered to the page.
+     */
     private $componentInstance;
 
     /* Constructors ***********************************************************/
@@ -25,8 +27,10 @@ class ComponentPage extends BasePage
      *  The router instance is used to generate valid links.
      * @param object $db
      *  The db instance which grants access to the DB.
-     * @param string $component
-     *  The component name. This name will be used to construct the class name.
+     * @param string $keyword
+     *  The identification name of the page.
+     * @param array $params
+     *  The get parameters to be propagated to the component.
      */
     public function __construct($router, $db, $keyword, $params)
     {

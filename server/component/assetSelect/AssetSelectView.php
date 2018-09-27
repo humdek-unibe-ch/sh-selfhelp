@@ -38,6 +38,9 @@ class AssetSelectView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the asset list.
+     */
     private function output_assets()
     {
         $this->output_local_component("asset-list");

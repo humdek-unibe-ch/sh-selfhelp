@@ -11,6 +11,9 @@ class NestedListModel extends StyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the active item.
+     */
     private $id_active;
 
     /* Constructors ***********************************************************/

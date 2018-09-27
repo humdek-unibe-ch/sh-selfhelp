@@ -74,6 +74,9 @@ class SortableListView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the label of an item.
+     */
     private function output_label($name, $url)
     {
         if($url == "" || ($this->is_editable && $this->is_sortable))

@@ -9,15 +9,19 @@ class BaseStyleModel implements IStyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The collection of style fields.
+     */
     private $fields;
+
+    /**
+     * The child components of this style.
+     */
     private $children;
 
     /**
      * The constructor.
      *
-     * @param array $services
-     *  An associative array holding the differnt available services. See the
-     *  class definition BasePage for a list of all services.
      * @param array $fields
      *  An array containing fields for the view to render to content. The
      *  required are dependent of the style. The array must contain key, value

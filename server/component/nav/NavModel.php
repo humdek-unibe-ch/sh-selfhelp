@@ -72,10 +72,10 @@ class NavModel extends BaseModel
      * @param array $pages_db
      *  An associative array returned by a db querry.
      * @retval array
-     *  A <page array> of the from
-     *   <keyword> =>
-     *      "title" => <page_title>
-     *      "children" => <page array>
+     *  A \<page array\> of the from
+     *   \<keyword\> =>
+     *      "title" => \<page_title\>
+     *      "children" => \<page array\>
      *  where the keyword corresponds to the route identifier.
      */
     private function prepare_pages($pages_db)

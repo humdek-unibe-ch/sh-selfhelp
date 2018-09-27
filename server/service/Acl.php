@@ -6,10 +6,19 @@ class Acl
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The db instance which grants access to the DB.
+     */
     private $db;
 
     /* Constructors ***********************************************************/
 
+    /**
+     * The constructor.
+     *
+     * @param object $db
+     *  The db instance which grants access to the DB.
+     */
     public function __construct($db)
     {
         $this->db = $db;
@@ -187,7 +196,7 @@ class Acl
      *  The unique identifier of the user or the group.
      * @param in $id_page
      *  The unique identifier of the page.
-     * @param array
+     * @param array $acl
      *  An associative array with the acces rights to set where the keys are:
      *  'select', 'insert', 'update', and 'delete'.
      * @param bool $is_group

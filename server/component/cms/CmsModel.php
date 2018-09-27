@@ -99,15 +99,15 @@ class CmsModel extends BaseModel
      *  class definition BasePage for a list of all services.
      * @param array $params
      *  The get parameters passed by the url with the following keys:
-     *   'pid':     The id of the page that is currently edited.
-     *   'sid':     The root id of a page or the section that is currently
-     *              selected.
-     *   'ssid':    The id of the section that is currently selected
-     *              (only relevant for navigation pages).
-     *   'did':     The id of a section to be deleted (only relevant in delete
-     *              mode).
-     *   'type':    This describes the database relation in order to know wheter
-     *              to access pages, sections, navigations.
+     *   - 'pid':     The id of the page that is currently edited.
+     *   - 'sid':     The root id of a page or the section that is currently
+     *                selected.
+     *   - 'ssid':    The id of the section that is currently selected
+     *                (only relevant for navigation pages).
+     *   - 'did':     The id of a section to be deleted (only relevant in delete
+     *                mode).
+     *   - 'type':    This describes the database relation in order to know
+     *                wheter to access pages, sections, navigations.
      * @param string $mode
      *  The mode of the page: 'select', 'update', 'insert', or 'delete'
      */
@@ -198,9 +198,9 @@ class CmsModel extends BaseModel
      *  The name of the field.
      * @param string $locale
      *  The locale string of the language.
-     * @param string type
+     * @param string $type
      *  The type of the field as defined in the db table fieldType.
-     * @param string relation
+     * @param string $relation
      *  A string indication to what the field content relates. By this string
      *  the differnet db access actions are decided.
      * @param mixed $content
@@ -229,7 +229,7 @@ class CmsModel extends BaseModel
      *
      * @param string $keyword
      *  The keyword of the page for which the navigation page is created.
-     * @retavl int
+     * @retval int
      *  The id of the newly crated navigation section.
      */
     private function create_new_navigation_section($keyword)
@@ -479,7 +479,7 @@ class CmsModel extends BaseModel
      * Fetch all fields that are associated to the style of the specified
      * section.
      *
-     * @param int $id_section
+     * @param int $id
      *  The id of the section the field is part of.
      * @retval array
      *  An array of database items.
@@ -923,7 +923,7 @@ class CmsModel extends BaseModel
     /**
      * Checks whether the current user is allowed to delete pages.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can delete pages, false otherwise.
      */
     public function can_delete_page()
@@ -935,7 +935,7 @@ class CmsModel extends BaseModel
     /**
      * Checks whether the current user is allowed to create new child pages.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can create new child pages, false otherwise.
      */
     public function can_create_new_child_page()
@@ -949,7 +949,7 @@ class CmsModel extends BaseModel
     /**
      * Checks whether the current user is allowed to create new pages.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can create new pages, false otherwise.
      */
     public function can_create_new_page()
@@ -974,6 +974,8 @@ class CmsModel extends BaseModel
      *  otherwise.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
+     * @param bool $is_user_input
+     *  A flag indicating whether the page allows user input or not.
      * @retval int
      *  The id of the created page.
      */
@@ -1639,7 +1641,7 @@ class CmsModel extends BaseModel
     /**
      * Set the current page acl mode.
      *
-     * @param string $model
+     * @param string $mode
      *  The page acl mode to set.
      */
     public function set_mode($mode)

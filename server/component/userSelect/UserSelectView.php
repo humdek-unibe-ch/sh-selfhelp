@@ -9,6 +9,9 @@ class UserSelectView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * An array of user properties (see UserModel::fetch_user).
+     */
     private $selected_user;
 
     /* Constructors ***********************************************************/

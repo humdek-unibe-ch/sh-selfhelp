@@ -9,11 +9,41 @@ class ChatView extends BaseView
 {
     /* Private Properties******************************************************/
 
+    /**
+     * DB field 'label' ("Send")
+     * The label of the send button.
+     */
     private $label;
+
+    /**
+     * DB field 'alert_fail' (empty string)
+     * The alert message on failure.
+     */
     private $alert_fail;
+
+    /**
+     * DB field 'alt' (empty string)
+     * The text to be displayed if no subject is selected.
+     */
     private $alt;
+
+    /**
+     * DB field 'title_prefix' (empty string)
+     * The first part of the title in the chat header.
+     */
     private $title_prefix;
+
+    /**
+     * DB field 'experimenter' (empty string)
+     * The text to be displayed when addressing experimenter.
+     */
     private $experimenter;
+
+    /**
+     * DB field 'subjects' (empty string)
+     * The text to be displayed when addressing subjects.
+     */
+    private $subjects;
 
     /* Constructors ***********************************************************/
 

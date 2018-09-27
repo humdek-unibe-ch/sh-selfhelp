@@ -88,6 +88,9 @@ class QuizView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the tabs.
+     */
     private function output_tabs()
     {
         $this->output_local_component("quiz-container");

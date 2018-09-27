@@ -8,6 +8,9 @@ require_once __DIR__ . "/../style/StyleComponent.php";
  */
 class CmsDeleteView extends BaseView
 {
+    /**
+     * A string describing the target: either a section or a page.
+     */
     private $target;
 
     /* Constructors ***********************************************************/

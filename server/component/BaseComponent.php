@@ -15,9 +15,24 @@ abstract class BaseComponent
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The view instance of the component.
+     */
     protected $view;
+
+    /**
+     * The controller instance of the component.
+     */
     protected $controller;
+
+    /**
+     * The model instance of the component.
+     */
     protected $model;
+
+    /**
+     * The collectio of child components.
+     */
     private $components;
 
     /* Constructors ***********************************************************/

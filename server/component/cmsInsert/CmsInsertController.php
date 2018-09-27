@@ -7,9 +7,14 @@ class CmsInsertController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    private $success;
-    private $fail;
+    /**
+     * The id of the new page.
+     */
     private $pid;
+
+    /**
+     * The name of the new page.
+     */
     private $name;
 
     /* Constructors ***********************************************************/
@@ -89,30 +94,6 @@ class CmsInsertController extends BaseController
     public function get_new_page_name()
     {
         return $this->name;
-    }
-
-    /**
-     * Gets the insert success falg.
-     *
-     * @retval bool
-     *  True if the insert operation succeeded, false if no successful insert
-     *  operation took place.
-     */
-    public function has_succeeded()
-    {
-        return $this->success;
-    }
-
-    /**
-     * Gets the insert fail falg.
-     *
-     * @retval bool
-     *  True if the insert operation failed, false if no failed insert
-     *  operation took place.
-     */
-    public function has_failed()
-    {
-        return $this->fail;
     }
 }
 ?>

@@ -80,12 +80,10 @@ abstract class NavigationView extends BaseView
     }
 
     /**
-     * Render a button if the url is not empty.
+     * Render a button component.
      *
-     * @param string $label
-     *  The label of the button.
-     * @param string $url
-     *  The url of the button.
+     * @param string $name
+     *  The name of the local button component.
      */
     private function output_button($name)
     {

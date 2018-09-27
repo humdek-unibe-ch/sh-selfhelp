@@ -5,6 +5,10 @@
  * @author moiri
  */
 class BaseDb {
+
+    /**
+     * The DB handler.
+     */
     private $dbh = null;
 
     /**
@@ -310,7 +314,11 @@ class BaseDb {
      * @param string $table
      *  The name of the db table.
      * @param array $entries
-     *  An associative array of db entries e.g. $["colname1"] = "foo"
+     *  An associative array of db entries e.g. colname => foo
+     * @param array $update_entries
+     *  An associative array of db entries e.g. colname => foo.
+     *  This array indicates which fields to update should the entry already
+     *  exist.
      * @retval int
      *  The inserted id if succeded, false otherwise.
      */

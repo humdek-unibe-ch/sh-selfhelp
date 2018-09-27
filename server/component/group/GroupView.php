@@ -9,7 +9,14 @@ class GroupView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * An array of group properties (see UserModel::fetch_group).
+     */
     private $selected_group;
+
+    /**
+     * The mode of the current operation. This is eithert 'update' or 'select'.
+     */
     private $mode;
 
     /* Constructors ***********************************************************/
@@ -19,6 +26,10 @@ class GroupView extends BaseView
      *
      * @param object $model
      *  The model instance of the user component.
+     * @param object $controller
+     *  The controller instance of the group component.
+     * @param string $mode
+     *  See GroupView::mode
      */
     public function __construct($model, $controller = null, $mode = "select")
     {

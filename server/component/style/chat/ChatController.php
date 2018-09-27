@@ -5,10 +5,6 @@ require_once __DIR__ . "/../../BaseController.php";
  */
 class ChatController extends BaseController
 {
-    /* Private Properties *****************************************************/
-
-    private $fail;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -27,19 +23,6 @@ class ChatController extends BaseController
                 filter_var($_POST['msg'], FILTER_SANITIZE_STRING)))
                 $this->fail = true;
         }
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Returns the failure status
-     *
-     * @retval bool
-     *  true if the operation has failed, false otherwise.
-     */
-    public function has_failed()
-    {
-        return $this->fail;
     }
 }
 ?>

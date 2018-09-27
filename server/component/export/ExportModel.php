@@ -25,6 +25,8 @@ class ExportModel extends BaseModel
     /**
      * Returns the view data of an export item.
      *
+     * @param string $selector
+     *  The key to select the chosen data.
      * @retval array
      *  An array holding the informaition to render the view of an export item.
      *  The following keys are used:

@@ -8,8 +8,19 @@ class ChatModel extends StyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the user to communicate with.
+     */
     private $uid;
+
+    /**
+     * A flag indicating whether the current user is an experimenter.
+     */
     private $is_experimenter;
+
+    /**
+     * The list of subjects.
+     */
     private $subjects;
 
     /* Constructors ***********************************************************/
@@ -23,7 +34,7 @@ class ChatModel extends StyleModel
      * @param int $id
      *  The id of the section id of the chat wrapper.
      * @param int $uid
-     *  The id of the user to communicate with
+     *  The id of the user to communicate with.
      */
     public function __construct($services, $id, $uid)
     {

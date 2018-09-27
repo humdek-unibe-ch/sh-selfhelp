@@ -22,12 +22,24 @@ class AssetModel extends BaseModel
 
     /* Public Methods *********************************************************/
 
+    /**
+     * Checks whether the current user has the rights to delete assets.
+     *
+     * @retval bool
+     *  True if the delete rights are granted, false otherwise.
+     */
     public function can_delete_asset()
     {
         return $this->acl->has_access_delete($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("assetDelete"));
     }
 
+    /**
+     * Checks whether the current user has the rights to add new assets.
+     *
+     * @retval bool
+     *  True if the insert rights are granted, false otherwise.
+     */
     public function can_insert_asset()
     {
         return $this->acl->has_access_insert($_SESSION['id_user'],

@@ -7,7 +7,14 @@ class UserInsertController extends UserController
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the new user.
+     */
     private $uid;
+
+    /**
+     * The email of the new user.
+     */
     private $email;
 
     /* Constructors ***********************************************************/

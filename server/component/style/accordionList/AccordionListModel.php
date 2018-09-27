@@ -11,6 +11,9 @@ class AccordionListModel extends StyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the currently active item.
+     */
     private $id_active;
 
     /* Constructors ***********************************************************/

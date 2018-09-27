@@ -17,8 +17,8 @@ class VideoView extends BaseView
 
     /**
      * DB field 'sources' (empty string)
-     * A list of video sources. To format must be of the form
-     * <source_1>#<type_source_1>,<source_2>#<type_source_2>,...
+     * A list of video sources. This is an array of json objects where each
+     * object has the fileds 'source' and 'type'.
      * If this is not set, the video component is not rendered.
      */
     private $sources;

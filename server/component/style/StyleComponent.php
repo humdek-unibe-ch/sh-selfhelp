@@ -13,7 +13,15 @@ class StyleComponent extends BaseComponent
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The component instance of the style.
+     */
     private $style;
+
+    /**
+     * A flag indicating whther the style is known or whether the style name is
+     * invalid.
+     */
     private $is_style_known;
 
     /* Constructors ***********************************************************/

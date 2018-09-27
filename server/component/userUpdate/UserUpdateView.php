@@ -9,8 +9,23 @@ class UserUpdateView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * An array of user properties (see UserModel::fetch_user).
+     */
     private $selected_user;
+
+    /**
+     * The update mode of the user. This must be one of the following values:
+     *  'block':       Block a user.
+     *  'unblock':     Unblock a user.
+     *  'add_group':   Add a group to the user.
+     *  'rm_group':    Remove a group from a user.
+     */
     private $mode;
+
+    /**
+     * The state of the user, which is either active, inactive, or blocked.
+     */
     private $user_status;
 
     /* Constructors ***********************************************************/

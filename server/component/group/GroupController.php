@@ -7,8 +7,9 @@ class GroupController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    protected $success;
-    protected $fail;
+    /**
+     * An array of group properties (see UserModel::fetch_group).
+     */
     protected $selected_group;
 
     /* Constructors ***********************************************************/
@@ -59,32 +60,5 @@ class GroupController extends BaseController
         }
         return $this->model->dump_acl_table($gid);
     }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Returns true if the the operation was successful.
-     *
-     * @retval bool
-     *  True if the operation was successful, false if no successful operation
-     *  was performed.
-     */
-    public function has_succeeded()
-    {
-        return $this->success;
-    }
-
-    /**
-     * Returns true if the the operation failed.
-     *
-     * @retval bool
-     *  True if the operation failed, false if no failed operation was
-     *  performed.
-     */
-    public function has_failed()
-    {
-        return $this->fail;
-    }
-
 }
 ?>

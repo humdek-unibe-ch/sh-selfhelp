@@ -38,6 +38,9 @@ class AlertView extends BaseView
 
     /* Private  Methods *******************************************************/
 
+    /**
+     * Render the close button.
+     */
     private function output_close_button()
     {
         if(!$this->is_dismissable) return;

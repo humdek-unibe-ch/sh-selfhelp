@@ -6,14 +6,47 @@ abstract class BaseModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     *  The router instance is used to generate valid links.
+     */
     protected $router;
+
+    /**
+     *  The db instance which grants access to the DB.
+     */
     protected $db;
+
+    /**
+     * The instance to the navigation service which allows to switch between
+     * sections, associated to a specific page.
+     */
     protected $nav;
+
+    /**
+     * The login instance that allows to check user credentials.
+     */
     protected $login;
+
+    /**
+     * The instnce of the access control layer (ACL) which allows to decide
+     * which links to display.
+     */
     protected $acl;
+
+    /**
+     * User input handler.
+     */
     protected $user_input;
-    protected $db_fields;
+
+    /**
+     * An associative array holding the different available services. See the
+     * class definition basepage for a list of all services.
+     */
     protected $services;
+
+    /**
+     * The collection of child components that are assigend to this component.
+     */
     protected $children;
 
     /* Constructors ***********************************************************/
@@ -36,7 +69,6 @@ abstract class BaseModel
         $this->nav = $services['nav'];
         $this->parsedown = $services['parsedown'];
         $this->user_input = $services['user_input'];
-        $this->db_fields = array();
     }
 
     /** Private Methods *******************************************************/
@@ -64,6 +96,8 @@ abstract class BaseModel
      *
      * @param string $key
      *  A router key.
+     * @param array $params
+     *  The url parameters used to generate the url.
      *
      * @retval string
      *  The generated link url.

@@ -6,10 +6,6 @@ require_once __DIR__ . "/../../BaseController.php";
  */
 class LoginController extends BaseController
 {
-    /* Private Properties *****************************************************/
-
-    private $failed;
-
     /* Constructors ***********************************************************/
 
     /**

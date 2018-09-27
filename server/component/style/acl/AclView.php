@@ -22,12 +22,12 @@ class AclView extends BaseView
 
     /**
      * DB field 'items' (empty array).
-     * An array holding the list items
-     * An item in the items list must have the following keys:
-     *  'id':       The item id (required).
-     *  'title':    The title of the item (required).
-     *  'children': The children of this item.
-     *  'url':      The target url.
+     * An array holding the list items as key value pairs where the key is the
+     * page keyword and an item in the items list must have the following keys:
+     *  - 'id':       The item id (required).
+     *  - 'title':    The title of the item (required).
+     *  - 'children': The children of this item.
+     *  - 'url':      The target url.
      */
     private $items;
 
@@ -49,6 +49,9 @@ class AclView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the ACL items.
+     */
     private function output_items()
     {
         $disabled = ($this->is_editable) ? "" : "disabled";
@@ -59,6 +62,18 @@ class AclView extends BaseView
         }
     }
 
+    /**
+     * Render all checkboxes of an ACL item.
+     *
+     * @param string $key
+     *  The keyword of the page this item is associated to.
+     * @param array $checkboxes
+     *  The array of access rights with the four keys 'select', 'insert',
+     *  'update', and 'delete'.
+     * @param string $disabled
+     *  Holds either an empty string if the checkbox is enabled or the html
+     *  disabled attribute if the checkbox is disabled.
+     */
     private function output_items_checkbox($key, $checkboxes, $disabled)
     {
         foreach($checkboxes as $level => $item)

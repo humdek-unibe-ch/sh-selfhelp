@@ -4,6 +4,9 @@
  */
 class Login
 {
+    /**
+     * The db instance which grants access to the DB.
+     */
     private $db;
 
     /**

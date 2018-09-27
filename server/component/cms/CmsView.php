@@ -10,8 +10,10 @@ class CmsView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The set of information for the selected page. See PageDB::fetch_page_info
+     */
     private $page_info;
-    private $page_sections;
 
     /* Constructors ***********************************************************/
 
@@ -102,9 +104,9 @@ class CmsView extends BaseView
         $this->add_list_component("global-section-list", "Choose a Section",
             $global_sections, "global-sections", false, 0, "Search");
 
-        $this->page_sections = $this->model->get_page_sections();
+        $page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
-            $this->page_sections, "sections-page", true,
+            $page_sections, "sections-page", true,
             $this->model->get_active_section_id());
 
         $this->add_list_component("navigation-hierarchy-list",
@@ -173,7 +175,7 @@ class CmsView extends BaseView
 
         $page_components = array();
         if($this->model->get_active_root_section_id() == null)
-            foreach($this->page_sections as $section)
+            foreach($page_sections as $section)
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
                     intval($section['id']));
@@ -371,6 +373,8 @@ class CmsView extends BaseView
      * @param array $fields
      *  The fields array where each field is defined in
      *  CmsModel::add_property_item.
+     * @param bool $render_margin
+     *  A flag indicating whether the margin checkboxes should be rendered.
      * @retval object
      *  A form component.
      */
@@ -632,6 +636,9 @@ class CmsView extends BaseView
         }
     }
 
+    /**
+     * Render the new page button.
+     */
     private function output_create_new_button()
     {
         if($this->model->can_create_new_page())

@@ -7,8 +7,9 @@ class UserController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    protected $success;
-    protected $fail;
+    /**
+     * An array of user properties (see UserModel::fetch_user).
+     */
     protected $selected_user;
 
     /* Constructors ***********************************************************/
@@ -26,32 +27,5 @@ class UserController extends BaseController
         $this->fail = false;
         $this->selected_user = $this->model->get_selected_user();
     }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Returns true if the the operation was successful.
-     *
-     * @retval bool
-     *  True if the operation was successful, false if no successful operation
-     *  was performed.
-     */
-    public function has_succeeded()
-    {
-        return $this->success;
-    }
-
-    /**
-     * Returns true if the the operation failed.
-     *
-     * @retval bool
-     *  True if the operation failed, false if no failed operation was
-     *  performed.
-     */
-    public function has_failed()
-    {
-        return $this->fail;
-    }
-
 }
 ?>

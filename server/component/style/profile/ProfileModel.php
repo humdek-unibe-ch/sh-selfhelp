@@ -14,6 +14,8 @@ class ProfileModel extends StyleModel
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
+     * @param int $id
+     *  The id of the section to which this style is assigned.
      */
     public function __construct($services, $id)
     {

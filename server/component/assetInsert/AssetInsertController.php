@@ -1,12 +1,15 @@
 <?php
-require_once __DIR__ . "/../asset/AssetController.php";
+require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the asset insert component.
  */
-class AssetInsertController extends AssetController
+class AssetInsertController extends BaseController
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The name of the new asset.
+     */
     private $name;
 
     /* Constructors ***********************************************************/

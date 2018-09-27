@@ -10,9 +10,25 @@ class StyleModel extends BaseModel implements IStyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The name of the section.
+     */
     private $section_name;
+
+    /**
+     * The name of the style associated to the section.
+     */
     private $style_name;
+
+    /**
+     * The type of the style associated to the section.
+     */
     private $style_type;
+
+    /**
+     * The collection of fields that are attributed to this style component.
+     */
+    private $db_fields;
 
     /* Constructors ***********************************************************/
 
@@ -25,6 +41,8 @@ class StyleModel extends BaseModel implements IStyleModel
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
+     * @param array $params
+     *  The list of get parameters to propagate.
      */
     public function __construct($services, $id, $params=array())
     {
@@ -64,9 +82,9 @@ class StyleModel extends BaseModel implements IStyleModel
     /* Protected Methods ******************************************************/
 
     /**
-     * Returns an url given a router keyword. The keyword #back will generate
+     * Returns an url given a router keyword. The keyword \#back will generate
      * the url of the last visited page or the home page if the last visited
-     * page is the current page or unknown. The keyword #self points to the
+     * page is the current page or unknown. The keyword \#self points to the
      * current page.
      *
      * @retval string

@@ -40,6 +40,11 @@ class AccordionListView extends BaseView
      */
     private $root_name;
 
+    /**
+     * DB field 'id_prefix' ("accordion").
+     * A string to be prepended to the ids of the accordion items to prevent
+     * interference between multiple lists.
+     */
     private $id_prefix;
 
     /* Constructors ***********************************************************/
@@ -66,10 +71,9 @@ class AccordionListView extends BaseView
      * Checks whether the current item id belongs to the root section in
      * order to decide whether a root item element needs to be expanded.
      *
-     * @param array $child_root
+     * @param array $root
      *  A root navigation array.
-     *
-     * @return bool
+     * @retval bool
      *  true if the current item id belongs to the root item, false
      *  otherwise.
      */

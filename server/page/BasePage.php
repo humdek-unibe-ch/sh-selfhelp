@@ -6,7 +6,7 @@ require_once __DIR__ . "/../service/Login.php";
 require_once __DIR__ . "/../service/Acl.php";
 require_once __DIR__ . "/../service/Navigation.php";
 require_once __DIR__ . "/../service/ParsedownExtension.php";
-require_once __DIR__ . "/../service/Gump.php";
+require_once __DIR__ . "/../service/ext/Gump.php";
 require_once __DIR__ . "/../service/UserInput.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
@@ -20,19 +20,73 @@ abstract class BasePage
 {
     /* Private Properties *****************************************************/
 
-    protected $title;
-    protected $keyword;
-    protected $id_page;
-    protected $id_navigation_section;
-    protected $url;
-    protected $required_access_level;
-    protected $services;
-    protected $has_user_input;
+    /**
+     * An array of css include paths.
+     */
     private $css_includes;
+
+    /**
+     * An array of js include paths.
+     */
     private $js_includes;
+
+    /**
+     * An array of components assigned to this page.
+     */
     private $components;
+
+    /**
+     * A flag indicating whether the navigation bar will be rendered.
+     */
     private $render_nav;
+
+    /**
+     * A flag indicating whether the footer will be rendered.
+     */
     private $render_footer;
+
+    /* Protected Properties ***************************************************/
+
+    /**
+     * The title of the page.
+     */
+    protected $title;
+
+    /**
+     * The keyword of the page with which the page is identified by the router.
+     */
+    protected $keyword;
+
+    /**
+     * The unique id of the page.
+     */
+    protected $id_page;
+
+    /**
+     * The id of the navigation section assigned to this page.
+     */
+    protected $id_navigation_section;
+
+    /**
+     * The url of the page.
+     */
+    protected $url;
+
+    /**
+     * The required access level to acces the page.
+     */
+    protected $required_access_level;
+
+    /**
+     * An associative array holding the different available services. See the
+     * class definition basepage for a list of all services.
+     */
+    protected $services;
+
+    /**
+     * A flag indicating whether the page allows user input or not.
+     */
+    protected $has_user_input;
 
     /* Constructors ***********************************************************/
 
@@ -70,7 +124,7 @@ abstract class BasePage
             "db" => $db,
             // The login instance that allows to check user credentials.
             "login" => new Login($db),
-            // The instnce of the access control layer (ACL) which allows to
+            // The instance of the access control layer (ACL) which allows to
             // decide which links to display.
             "acl" => new Acl($db),
             // A markdown parser.
@@ -82,7 +136,7 @@ abstract class BasePage
             "nav" => null,
             // Gump is a single-class input validation and sanitizing library.
             "gump" => new GUMP('de'),
-            // User inpu handler
+            // User input handler
             "user_input" => new UserInput($db),
         );
         $this->services['parsedown']->setSafeMode(true);

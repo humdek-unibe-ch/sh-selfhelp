@@ -7,8 +7,9 @@ class CmsDeleteController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    private $success;
-    private $fail;
+    /**
+     * The name of the deleted page.
+     */
     private $name;
 
     /* Constructors ***********************************************************/
@@ -63,30 +64,6 @@ class CmsDeleteController extends BaseController
     public function get_deleted_name()
     {
         return $this->name;
-    }
-
-    /**
-     * Gets the delete success falg.
-     *
-     * @retval bool
-     *  True if the delete operation succeeded, false if no successful delete
-     *  operation took place.
-     */
-    public function has_succeeded()
-    {
-        return $this->success;
-    }
-
-    /**
-     * Gets the delete fail falg.
-     *
-     * @retval bool
-     *  True if the delete operation failed, false if no failed delete
-     *  operation took place.
-     */
-    public function has_failed()
-    {
-        return $this->fail;
     }
 }
 ?>

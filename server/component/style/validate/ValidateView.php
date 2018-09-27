@@ -9,22 +9,100 @@ class ValidateView extends BaseView
 {
     /* Private Properties******************************************************/
 
+    /**
+     * DB field 'title' (empty string)
+     * The title of the page.
+     */
     private $title;
+
+    /**
+     * DB field 'subtitle' (empty string)
+     * The subtitle of the page.
+     */
     private $subtitle;
+
+    /**
+     * DB field 'label_name' (empty string)
+     * The label of the name input field.
+     */
     private $name_label;
+
+    /**
+     * DB field 'name_placeholder' (empty string)
+     * The placeholder text in the name input field.
+     */
     private $name_placeholder;
+
+    /**
+     * DB field 'name_description' (empty string)
+     * The text displayued below the name input field in small letters.
+     */
     private $name_descrtiption;
+
+    /**
+     * DB field 'label_pw' (empty string)
+     * The label of the password field.
+     */
     private $pw_label;
+
+    /**
+     * DB field 'pw_placeholder' (empty string)
+     * The placeholder text in the password input field.
+     */
     private $pw_placeholder;
+
+    /**
+     * DB field 'lablel_pw_confirm' (empty string)
+     * The label of the password confirmation input field.
+     */
     private $pw_confirm_label;
+
+    /**
+     * DB field 'label_gender' (empty string)
+     * The label of the gender selection fields.
+     */
     private $gender_label;
+
+    /**
+     * DB field 'gender_male' (empty string)
+     * The male gender text.
+     */
     private $gender_male;
+
+    /**
+     * DB field 'gender_female' (empty string)
+     * The female gender string.
+     */
     private $gender_female;
-    private $gender_description;
+
+    /**
+     * DB field 'label_activate' (empty string)
+     * The label of the submit button.
+     */
     private $activate_label;
+
+    /**
+     * DB field 'alert_fail' (empty string)
+     * The alert message on failure.
+     */
     private $alert_fail;
+
+    /**
+     * DB field 'alert_success' (empty string)
+     * The success message placed in the success jumbotron.
+     */
     private $alert_success;
+
+    /**
+     * DB field 'success' (empty string)
+     * The title of the success jumbotron.
+     */
     private $success;
+
+    /**
+     * DB field 'label_login' (empty string)
+     * The label of the button linking to the login.
+     */
     private $login_action_label;
 
     /* Constructors ***********************************************************/

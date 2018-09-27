@@ -7,11 +7,22 @@ class UserInput
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The db instance which grants access to the DB.
+     */
     private $db;
+
+    /**
+     * The collection of input field attributes. See UserInput::set_field_attrs.
+     */
     private $field_attrs;
 
     /* Constructors ***********************************************************/
 
+    /**
+     * @param object $db
+     *  The db instance which grants access to the DB.
+     */
     public function __construct($db)
     {
         $this->db = $db;
@@ -23,27 +34,28 @@ class UserInput
     /**
      * Fetches all user input fields from the database given certain conditions.
      *
-     * @param array conds
+     * @param array $conds
      *  A key => value array of db conditions where the key corresponds to the
      *  db column and the value to the db value.
      * @retval array
      *  An array of field items wher eeach item has the following keys:
-     *  'user_hash'     A unique string that connects values to a user without
-     *                  revealing the identity of the user.
-     *  'user_gender'   The gender of the user.
-     *  'page'          The keyword of the page where the data was entered.
-     *  'nav'           The name of the navigation section where the data was
-     *                  entered.
-     *  'field_name'    The name of the input field.
-     *  'field_type'    The type of the input field. This is either the name of
-     *                  the form field style or if the style is 'input' the
-     *                  input type.
-     *  'value'         The value that was entered by the user.
-     *  'timestamp'     The date and time when the value was entered.
+     *  - 'user_hash'     A unique string that connects values to a user without
+     *                    revealing the identity of the user.
+     *  - 'user_gender'   The gender of the user.
+     *  - 'page'          The keyword of the page where the data was entered.
+     *  - 'nav'           The name of the navigation section where the data was
+     *                    entered.
+     *  - 'field_name'    The name of the input field.
+     *  - 'field_type'    The type of the input field. This is either the name
+     *                    of the form field style or if the style is 'input' the
+     *                    input type.
+     *  - 'value'         The value that was entered by the user.
+     *  - 'timestamp'     The date and time when the value was entered.
      */
     private function fetch_input_fields($conds = array())
     {
-        $sql = "SELECT ui.id_users, ui.value, ui.edit_time, ui.id_sections, g.name AS gender
+        $sql = "SELECT ui.id_users, ui.value, ui.edit_time, ui.id_sections,
+            g.name AS gender
             FROM user_input AS ui
             LEFT JOIN users AS u ON u.id = ui.id_users
             LEFT JOIN genders AS g ON g.id = u.id_genders
@@ -173,12 +185,12 @@ class UserInput
     }
 
     /**
-     * Collect attributes for each existing uiser input field.
+     * Collect attributes for each existing user input field.
      * The following attributes are set:
-     *  'page'  The name of the parent page of the field.
-     *  'nav'   The name of the parent navigation section
-     *  'name'  The name of the field
-     *  'type'  The type of the field
+     *  - 'page'  The name of the parent page of the field.
+     *  - 'nav'   The name of the parent navigation section
+     *  - 'name'  The name of the field
+     *  - 'type'  The type of the field
      */
     private function set_field_attrs()
     {
@@ -210,10 +222,10 @@ class UserInput
      *
      * @param array $filter
      *  The filter array can be empty or have any of the following keys:
-     *   'gender'       This can either be set to 'male' or 'female'.
-     *   'field_name'   Selects all fields with the given name.
-     *   'page'         Selects all fields on a given page.
-     *   'nav'          Selects all fields in a given navigation sections.
+     *   - 'gender'       This can either be set to 'male' or 'female'.
+     *   - 'field_name'   Selects all fields with the given name.
+     *   - 'page'         Selects all fields on a given page.
+     *   - 'nav'          Selects all fields in a given navigation sections.
      * @retval array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.

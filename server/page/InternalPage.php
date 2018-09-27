@@ -9,7 +9,14 @@ class InternalPage
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The set of section to be rendered to the page.
+     */
     private $sections;
+
+    /**
+     * The instance of a base page class.
+     */
     private $base;
 
     /* Constructors ***********************************************************/

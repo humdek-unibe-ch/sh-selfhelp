@@ -7,7 +7,14 @@ class GroupInsertController extends GroupController
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the new group.
+     */
     private $gid;
+
+    /**
+     * The name of the new group.
+     */
     private $name;
 
     /* Constructors ***********************************************************/

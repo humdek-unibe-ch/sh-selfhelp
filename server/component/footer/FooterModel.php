@@ -27,7 +27,7 @@ class FooterModel extends BaseModel
      * Note that only page links are returned with matching access rights.
      *
      * @retval array
-     *  An associative array of the from (<keyword> => <page_title>) where the
+     *  An associative array of the from (keyword => page_title) where the
      *  keyword corresponds to the route identifier.
      */
     public function get_pages()

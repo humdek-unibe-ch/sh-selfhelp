@@ -6,11 +6,38 @@ abstract class BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The model instance of the component.
+     */
     protected $model;
+
+    /**
+     * The controller instance of the component.
+     */
     protected $controller;
+
+    /**
+     * DB field 'css' (null)
+     * This field can hold a list of comma seperated css classes. These css
+     * classes will be assigned to style elements.
+     */
     protected $css;
+
+    /**
+     * DB field 'id' (null)
+     * The id of the section.
+     */
     protected $id_section;
+
+    /**
+     * The list of local components. These components where produced
+     * programmatically (not loaded from the db)
+     */
     private $local_components;
+
+    /**
+     * The list of child components. These components where loaded from the db.
+     */
     private $children;
 
     /* Constructors ***********************************************************/
@@ -46,7 +73,7 @@ abstract class BaseView
      * Add a component to the local component list. Thes components were
      * instantiated inside this view.
      *
-     * @param string name
+     * @param string $name
      *  The name of the component.
      * @param object $component
      *  A component object.
@@ -79,7 +106,7 @@ abstract class BaseView
     /**
      * Get a local component given a component name.
      *
-     * @param string name
+     * @param string $name
      *  The name of the component.
      * @retval object
      *  A component object.
@@ -94,7 +121,7 @@ abstract class BaseView
     /**
      * Get a local component given a component name.
      *
-     * @param string name
+     * @param string $name
      *  The name of the component.
      * @retval object
      *  A component object.

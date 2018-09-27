@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/Parsedown.php";
+require_once __DIR__ . "/ext/Parsedown.php";
 
 /**
  * Extension Class to the Parsedown service.
@@ -12,10 +12,12 @@ class ParsedownExtension extends Parsedown
      * as css classes that will be attached to the image. By default the classes
      *  - img-fluid
      *  - img-thumbnail
+     *
      * are assigned to each image.
+     *
      * The size and class attributes are postfixe to the filename, delimited by
      * a colon:
-     * <image.src>:<width>x<height>:<class1>,<class2>
+     * \<image_src\>:\<width\>x\<height\>:\<class_n\>,...,\<class_n\>
      */
     protected function inlineImage($excerpt)
     {

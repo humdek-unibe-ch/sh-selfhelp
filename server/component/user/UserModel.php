@@ -8,8 +8,19 @@ class UserModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * An array of user properties (see UserModel::fetch_user).
+     */
     private $selected_user;
+
+    /**
+     * The active user id.
+     */
     private $uid;
+
+    /**
+     * The user id to delete.
+     */
     private $did;
 
     /* Constructors ***********************************************************/
@@ -20,6 +31,10 @@ class UserModel extends BaseModel
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
+     * @param int $uid
+     *  The active user id.
+     * @param int $did
+     *  The user id to delete or null if nothing ought to be deleted.
      */
     public function __construct($services, $uid, $did=null)
     {
@@ -169,7 +184,7 @@ class UserModel extends BaseModel
     /**
      * Checks whether the current user is allowed to delete users.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can delete users, false otherwise.
      */
     public function can_delete_user()
@@ -181,7 +196,7 @@ class UserModel extends BaseModel
     /**
      * Checks whether the current user is allowed to create new users.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can create new users, false otherwise.
      */
     public function can_create_new_user()
@@ -193,7 +208,7 @@ class UserModel extends BaseModel
     /**
      * Checks whether the current user is allowed to modify users.
      *
-     * @retavl bool
+     * @retval bool
      *  True if the current user can modify users, false otherwise.
      */
     public function can_modify_user()
@@ -236,7 +251,7 @@ class UserModel extends BaseModel
      * Send activation email to new user.
      *
      * @param string $from
-     *  The source of the email address, e.g noreply@domain
+     *  The source of the email address.
      * @param string $to
      *  The email address of the new user.
      * @param string $subject
@@ -432,6 +447,9 @@ class UserModel extends BaseModel
         ));
     }
 
+    /**
+     * Set the id of the user to be deleted to null.
+     */
     public function reset_did()
     {
         $this->did = null;

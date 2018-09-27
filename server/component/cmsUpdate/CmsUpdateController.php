@@ -7,12 +7,40 @@ class CmsUpdateController extends BaseController
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * Number of successful field changes.
+     */
     private $update_success_count;
+
+    /**
+     * Number of failed fields changes.
+     */
     private $update_fail_count;
+
+    /**
+     * Success flag for adding new items.
+     */
     private $insert_success;
+
+    /**
+     * Fail flag for adding new items.
+     */
     private $insert_fail;
+
+    /**
+     * Success flag for removing items.
+     */
     private $remove_success;
+
+    /**
+     * Fail flag for removing items.
+     */
     private $remove_fail;
+
+    /**
+     * A list of fields where the update failed.
+     * See CmsUpdateController::get_bad_fields.
+     */
     private $bad_fields;
 
     /* Constructors ***********************************************************/
@@ -297,6 +325,12 @@ class CmsUpdateController extends BaseController
 
     /* Public Methods *********************************************************/
 
+    /**
+     * Returns a list of fields where the update process failed.
+     *
+     * @retval array
+     *  Each field is stored in the form res[name][id_language] => field
+     */
     public function get_bad_fields()
     {
         return $this->bad_fields;

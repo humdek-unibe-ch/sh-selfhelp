@@ -5,10 +5,6 @@ require_once __DIR__ . "/../../BaseController.php";
  */
 class ValidateController extends BaseController
 {
-    /* Private Properties *****************************************************/
-
-    private $success;
-    private $fail;
 
     /* Constructors ***********************************************************/
 
@@ -41,30 +37,6 @@ class ValidateController extends BaseController
             else
                 $this->fail = true;
         }
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Returns the failure status of
-     *
-     * @retval bool
-     *  true if the operation has failed, false otherwise.
-     */
-    public function has_failed()
-    {
-        return $this->fail;
-    }
-
-    /**
-     * Returns the success status of
-     *
-     * @retval bool
-     *  true if the operation has succeeded, false otherwise.
-     */
-    public function has_succeeded()
-    {
-        return $this->success;
     }
 }
 ?>

@@ -76,6 +76,9 @@ class CardView extends BaseView
         require __DIR__ . "/tpl_card_header.php";
     }
 
+    /**
+     * Render the edit button.
+     */
     private function output_edit_button()
     {
         if($this->url_edit != "")

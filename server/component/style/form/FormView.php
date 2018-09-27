@@ -70,6 +70,9 @@ class FormView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the canel button.
+     */
     private function output_cancel()
     {
         $this->output_local_component("cancel");

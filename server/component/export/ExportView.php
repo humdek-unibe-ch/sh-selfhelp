@@ -21,6 +21,12 @@ class ExportView extends BaseView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render an export item.
+     *
+     * @param string $selector
+     *  The key to select the chosen data.
+     */
     private function output_export_item($selector)
     {
         $fields = $this->model->get_export_view_fields($selector);

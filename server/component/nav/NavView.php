@@ -58,6 +58,11 @@ class NavView extends BaseView
      *  The identification string of a route.
      * @param string $page_name
      *  The title of the page the link is pointing to.
+     * @param array $children
+     *  An array of page items (see NavModel::prepare_pages).
+     * @param bool $right
+     *  If set to true the nemu is aligned to the right of the navbar. If set
+     *  to false, the menu is left aligned (default).
      */
     private function output_nav_menu($key, $page_name, $children, $right=false)
     {
@@ -84,10 +89,8 @@ class NavView extends BaseView
     /**
      * Render a menu item, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
+     * @param array $children
+     *  An array of page items (see NavModel::prepare_pages).
      */
     private function output_nav_menu_items($children)
     {

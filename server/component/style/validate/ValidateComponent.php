@@ -10,6 +10,9 @@ require_once __DIR__ . "/ValidateController.php";
  */
 class ValidateComponent extends BaseComponent
 {
+    /**
+     * A boolean value indicating whether the required parameters are available.
+     */
     private $has_params;
 
     /* Constructors ***********************************************************/

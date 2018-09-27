@@ -6,8 +6,19 @@ require_once __DIR__ . "/../StyleModel.php";
  */
 class ValidateModel extends StyleModel
 {
+    /**
+     * The id of the user to validate.
+     */
     private $uid;
+
+    /**
+     * The validation token of the user to validate.
+     */
     private $token;
+
+    /**
+     * The email address of the user to validate.
+     */
     private $email;
 
     /* Constructors ***********************************************************/
@@ -18,6 +29,12 @@ class ValidateModel extends StyleModel
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition basepage for a list of all services.
+     * @param int $id
+     *  The id of the section with the validate style.
+     * @param int $uid
+     *  The id of the user to validate.
+     * @param string $token
+     *  The validation token of the user to validate.
      */
     public function __construct($services, $id, $uid, $token)
     {

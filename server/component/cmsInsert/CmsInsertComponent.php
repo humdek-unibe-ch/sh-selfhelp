@@ -11,6 +11,9 @@ class CmsInsertComponent extends CmsComponent
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The instance of the access control layer (ACL).
+     */
     private $acl;
 
     /* Constructors ***********************************************************/
