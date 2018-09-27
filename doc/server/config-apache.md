@@ -1,6 +1,6 @@
 ### Configuration of the Apache Server
 
-This file gives a very short introduction in how the apage server is set upf for the different experiments.
+This file gives a very short introduction in how the apache server is set up for the different experiments.
 
 ##### SSL Settings
 

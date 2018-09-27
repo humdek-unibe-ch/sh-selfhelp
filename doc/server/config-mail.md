@@ -1,35 +1,44 @@
 ### Setting up the Email communication
 
-These are the steps I took to send emails:
+These are the steps that were taken to enable the sending of emails.
 
 ##### Installing sendmail
 
+```
 sudo apt update
 sudo apt install sendmail
+```
 
 ##### Setting the host name
 
-In the file `/etc/hosts` changed the first line to
+In the file `/etc/hosts` the first line was changed to
 
 ```
 127.0.0.1   selfhelp.psy.unibe.ch   localhost.localdomain  localhost   selfhelp
 ```
 
-In the file `/etc/mail/local-host-names` removed `localhost` and added
+In the file `/etc/mail/local-host-names` the line `localhost` was removed and the following was  added
 
 ```
 selfhelp
 selfhelp.psy.unibe.ch
 ```
 
-Created the file `/etc/mail/relay-domains` and added
+The file `/etc/mail/relay-domains` was created and the following lines were added
 
 ```
 selfhelp.psy.unibe.ch
 psy.unibe.ch
 ```
 
-As root cd to `/etc/mail` and run
+In the file `/etc/mail/access` the following lines were added
+
+```
+smtp.sendgrid.net       OK
+GreetPause:localhost    0
+```
+
+In the folder `/etc/mail` as user root the following commands were run
 
 ```
 makemap hash access < access
@@ -37,7 +46,7 @@ makemap hash access < access
 
 ##### Configuring sendmail
 
-In the file `/etc/mail/sendmail.mc` add the lines
+In the file `/etc/mail/sendmail.mc` the following lines were added
 
 ```
 dnl define(`SMART_HOST`, `smtp.unibe.ch`)
@@ -52,7 +61,7 @@ dnl SMART HOST CONFIG
 define(`SMART_HOST', `smtp.unibe.ch')dnl
 ```
 
-As root cd to `/etc/mail` and run
+In the folder `/etc/mail` as user root the following commands were run
 
 ```
 service sendmail start
