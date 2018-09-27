@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 26, 2018 at 10:39 AM
+-- Generation Time: Sep 27, 2018 at 10:27 AM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -609,7 +609,8 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000023, 0000000005, 'user_input_success-heading', NULL),
 (0000000024, 0000000006, 'user_input_success-markdown', NULL),
 (0000000025, 0000000010, 'contact-chat', NULL),
-(0000000026, 0000000009, 'validate-validate', NULL);
+(0000000026, 0000000009, 'validate-validate', NULL),
+(0000000027, 0000000008, 'toLogin-button', NULL);
 
 -- --------------------------------------------------------
 
@@ -747,7 +748,11 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000026, 0000000043, 0000000002, 0000000001, 'Bitte das Passwort eingeben'),
 (0000000026, 0000000043, 0000000003, 0000000001, 'Please enter a password'),
 (0000000026, 0000000044, 0000000002, 0000000001, 'Benutzer erforlgreich aktiviert'),
-(0000000026, 0000000044, 0000000003, 0000000001, 'User was successfully Activated');
+(0000000026, 0000000044, 0000000003, 0000000001, 'User was successfully Activated'),
+(0000000027, 0000000008, 0000000002, 0000000001, 'Zum Login'),
+(0000000027, 0000000008, 0000000003, 0000000001, 'To Login'),
+(0000000027, 0000000027, 0000000001, 0000000001, '#login'),
+(0000000027, 0000000028, 0000000001, 0000000001, 'primary');
 
 -- --------------------------------------------------------
 
@@ -778,9 +783,9 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (0000000010, 0000000015, 10),
 (0000000012, 0000000013, 0),
 (0000000013, 0000000007, 20),
-(0000000013, 0000000008, 30),
 (0000000013, 0000000011, 0),
 (0000000013, 0000000014, 10),
+(0000000013, 0000000027, 30),
 (0000000017, 0000000025, 10),
 (0000000021, 0000000022, 0),
 (0000000022, 0000000007, 20),
@@ -1332,7 +1337,7 @@ ALTER TABLE `pageType`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 --
 -- AUTO_INCREMENT for table `styles`
 --
