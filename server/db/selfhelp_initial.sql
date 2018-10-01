@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 27, 2018 at 10:27 AM
+-- Generation Time: Oct 01, 2018 at 11:21 AM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelp`
+-- Database: `selfhelp_initial`
 --
 
 -- --------------------------------------------------------
@@ -74,6 +74,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000032, 1, 1, 1, 1),
 (0000000001, 0000000033, 1, 1, 1, 1),
 (0000000001, 0000000034, 1, 1, 1, 1),
+(0000000001, 0000000035, 1, 1, 1, 1),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -108,6 +109,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000032, 1, 0, 0, 0),
 (0000000002, 0000000033, 1, 0, 0, 0),
 (0000000002, 0000000034, 1, 0, 0, 0),
+(0000000002, 0000000035, 1, 0, 0, 0),
 (0000000003, 0000000001, 1, 0, 0, 0),
 (0000000003, 0000000002, 1, 0, 0, 0),
 (0000000003, 0000000003, 1, 0, 0, 0),
@@ -141,7 +143,8 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000003, 0000000031, 1, 0, 0, 0),
 (0000000003, 0000000032, 1, 0, 0, 0),
 (0000000003, 0000000033, 1, 0, 0, 0),
-(0000000003, 0000000034, 1, 0, 0, 0);
+(0000000003, 0000000034, 1, 0, 0, 0),
+(0000000003, 0000000035, 1, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -163,7 +166,9 @@ CREATE TABLE `acl_users` (
 --
 
 INSERT INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES
-(0000000001, 0000000001, 1, 0, 0, 0);
+(0000000001, 0000000001, 1, 0, 0, 0),
+(0000000001, 0000000033, 1, 0, 0, 0),
+(0000000001, 0000000035, 1, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -448,7 +453,8 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, NULL, 100, 0000000002, 0),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, NULL, 200, 0000000002, 0),
 (0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000034, 'user_input_success 	', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0);
+(0000000034, 'user_input_success 	', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
+(0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0);
 
 -- --------------------------------------------------------
 
@@ -514,7 +520,9 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000033, 0000000008, 0000000002, 'Benutzer Validierung'),
 (0000000033, 0000000008, 0000000003, 'User Validation'),
 (0000000034, 0000000008, 0000000002, 'Benutzer Daten'),
-(0000000034, 0000000008, 0000000003, 'User Data');
+(0000000034, 0000000008, 0000000003, 'User Data'),
+(0000000035, 0000000008, 0000000002, 'Passwort zurücksetzen'),
+(0000000035, 0000000008, 0000000003, 'Reset Password');
 
 -- --------------------------------------------------------
 
@@ -544,7 +552,8 @@ INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 (0000000031, 0000000020, 0),
 (0000000032, 0000000018, 0),
 (0000000033, 0000000026, NULL),
-(0000000034, 0000000021, 0);
+(0000000034, 0000000021, 0),
+(0000000035, 0000000028, NULL);
 
 -- --------------------------------------------------------
 
@@ -610,7 +619,8 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000024, 0000000006, 'user_input_success-markdown', NULL),
 (0000000025, 0000000010, 'contact-chat', NULL),
 (0000000026, 0000000009, 'validate-validate', NULL),
-(0000000027, 0000000008, 'toLogin-button', NULL);
+(0000000027, 0000000008, 'toLogin-button', NULL),
+(0000000028, 0000000035, 'resetPassword-resetPassword', NULL);
 
 -- --------------------------------------------------------
 
@@ -752,7 +762,21 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000027, 0000000008, 0000000002, 0000000001, 'Zum Login'),
 (0000000027, 0000000008, 0000000003, 0000000001, 'To Login'),
 (0000000027, 0000000027, 0000000001, 0000000001, '#login'),
-(0000000027, 0000000028, 0000000001, 0000000001, 'primary');
+(0000000027, 0000000028, 0000000001, 0000000001, 'primary'),
+(0000000028, 0000000003, 0000000002, 0000000001, 'Zum Login'),
+(0000000028, 0000000003, 0000000003, 0000000001, 'To Login'),
+(0000000028, 0000000004, 0000000002, 0000000001, 'Passwort zurücksetzen'),
+(0000000028, 0000000004, 0000000003, 0000000001, 'Reset Password'),
+(0000000028, 0000000005, 0000000002, 0000000001, 'Aktivierungs Email konnte nicht versendet werden.'),
+(0000000028, 0000000005, 0000000003, 0000000001, 'Activation email could not be sent.'),
+(0000000028, 0000000025, 0000000002, 0000000001, '# Passwort Zurücksetzen\r\n\r\nHier können sie Ihr Passwort zurücksetzen.\r\nBitte geben sie Ihre Email Adresse ein mit welcher sie bei @project registriert sind.\r\nSie werden eine Email erhalten mit einem neuen Aktivierungslink um Ihr Passwort zurück zu setzen.'),
+(0000000028, 0000000025, 0000000003, 0000000001, '# Reset Password\r\n\r\nThis page allows you to reset your password.\r\nPlease enter the email address with which you are registered on @project.\r\nYou will receive an email with a new activation link which will allow you to reset the password.'),
+(0000000028, 0000000035, 0000000002, 0000000001, 'Die Aktivierungs Email wurde versendet. Klicken sie auf den Aktivierungslink um Ihr Passwort zurück zu setzen.'),
+(0000000028, 0000000035, 0000000003, 0000000001, 'The activation mail was sent. Click the activation link to rest your password.'),
+(0000000028, 0000000044, 0000000002, 0000000001, 'Email versendet'),
+(0000000028, 0000000044, 0000000003, 0000000001, 'Email Sent'),
+(0000000028, 0000000055, 0000000002, 0000000001, 'Bitte Email eingeben'),
+(0000000028, 0000000055, 0000000003, 0000000001, 'Please Enter Email');
 
 -- --------------------------------------------------------
 
@@ -856,7 +880,8 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `intern`) VALUES
 (0000000031, 'navigationAccordion', 0000000003, 0),
 (0000000032, 'nestedList', 0000000002, 0),
 (0000000033, 'navigationNested', 0000000003, 0),
-(0000000034, 'sortableList', 0000000001, 0);
+(0000000034, 'sortableList', 0000000001, 0),
+(0000000035, 'resetPassword', 0000000002, 1);
 
 -- --------------------------------------------------------
 
@@ -1005,7 +1030,14 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
 (0000000034, 0000000079),
 (0000000034, 0000000080),
 (0000000034, 0000000081),
-(0000000034, 0000000082);
+(0000000034, 0000000082),
+(0000000035, 0000000003),
+(0000000035, 0000000004),
+(0000000035, 0000000005),
+(0000000035, 0000000025),
+(0000000035, 0000000035),
+(0000000035, 0000000044),
+(0000000035, 0000000055);
 
 -- --------------------------------------------------------
 
@@ -1327,7 +1359,7 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 --
 -- AUTO_INCREMENT for table `pageType`
 --
@@ -1337,12 +1369,12 @@ ALTER TABLE `pageType`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 --
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 --
 -- AUTO_INCREMENT for table `styleType`
 --

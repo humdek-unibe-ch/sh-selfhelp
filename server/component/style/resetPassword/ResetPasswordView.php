@@ -3,35 +3,35 @@ require_once __DIR__ . "/../../BaseView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
- * The view class of the login component.
+ * The view class of the ResetPasswordComponent.
  */
-class LoginView extends BaseView
+class ResetPasswordView extends BaseView
 {
     /* Private Properties******************************************************/
 
     /**
      * DB field 'alert_fail' (empty string).
-     * The alert string when the login fails.
+     * The alert string when the reset fails.
      */
     private $alert_fail;
 
     /**
-     * DB field 'label_user' (empty string).
-     * The placeholder of the user-name field.
+     * DB field 'alert_success' (empty string).
+     * The text to be displayed in the success jumbotron.
      */
-    private $user_label;
+    private $alert_success;
 
     /**
-     * DB field 'label_pw' (empty string).
-     * The placeholder of the password field.
-     */
-    private $pw_label;
-
-    /**
-     * DB field 'login_label' (empty string).
-     * The label of the login button.
+     * DB field 'label_login' (empty string).
+     * The label of the login link.
      */
     private $login_label;
+
+    /**
+     * DB field 'placeholder' (empty string).
+     * The placeholder text inside the email input form.
+     */
+    private $placeholder;
 
     /**
      * DB field 'label_pw_reset' (empty string).
@@ -40,22 +40,16 @@ class LoginView extends BaseView
     private $reset_label;
 
     /**
-     * DB field 'login_title' (empty string).
-     * The title of the card with the login form fields.
+     * DB field 'success' (empty string).
+     * The success title.
      */
-    private $login_title;
+    private $success;
 
     /**
-     * DB field 'intro_title' (empty string).
-     * The title of the introduction.
+     * DB field 'text_md' (empty string).
+     * The text to be placed in the jumbotron.
      */
-    private $intro_title;
-
-    /**
-     * DB field 'intro_content' (empty string).
-     * The content of the introduction.
-     */
-    private $intro_content;
+    private $text;
 
 
     /* Constructors ***********************************************************/
@@ -72,13 +66,12 @@ class LoginView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->alert_fail = $this->model->get_db_field('alert_fail');
-        $this->user_label = $this->model->get_db_field('label_user');
-        $this->pw_label = $this->model->get_db_field('label_pw');
+        $this->alert_success = $this->model->get_db_field('alert_success');
         $this->login_label = $this->model->get_db_field('label_login');
         $this->reset_label = $this->model->get_db_field('label_pw_reset');
-        $this->login_title = $this->model->get_db_field('login_title');
-        $this->intro_title = $this->model->get_db_field('intro_title');
-        $this->intro_content = $this->model->get_db_field('intro_text');
+        $this->success = $this->model->get_db_field('success');
+        $this->text = $this->model->get_db_field('text_md');
+        $this->placeholder = $this->model->get_db_field('placeholder');
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(
@@ -96,33 +89,24 @@ class LoginView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller == null || $this->controller->has_login_failed())
+        if($this->controller == null || $this->controller->has_failed())
             $this->output_local_component("alert");
     }
 
     /* Public Methods *********************************************************/
 
     /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/login.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
      * Render the login view.
      */
     public function output_content()
     {
-        $url = $this->model->get_link_url('login');
-        $reset_url = $this->model->get_link_url('reset_password');
-        require __DIR__ . "/tpl_login.php";
+        if($this->controller == null || !$this->controller->has_succeeded())
+            require __DIR__ . "/tpl_reset.php";
+        if($this->controller == null || $this->controller->has_succeeded())
+        {
+            $url = $this->model->get_link_url('login');
+            require __DIR__ . "/tpl_success.php";
+        }
     }
 }
 ?>

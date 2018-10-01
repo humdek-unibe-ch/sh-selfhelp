@@ -248,30 +248,6 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Send activation email to new user.
-     *
-     * @param string $from
-     *  The source of the email address.
-     * @param string $to
-     *  The email address of the new user.
-     * @param string $subject
-     *  The subject of the email.
-     * @param string $msg
-     *  The email message.
-     */
-    private function email_send($from, $to, $subject, $msg)
-    {
-        $headers = array();
-        $headers[] = "MIME-Version: 1.0";
-        $headers[] = "Content-type: text/plain; charset=utf-8";
-        $headers[] = "From: {$from}";
-        $headers[] = "Subject: {$subject}";
-        $headers[] = "X-Mailer: PHP/".phpversion();
-
-        mail($to, $subject, $msg , implode("\r\n", $headers));
-    }
-
-    /**
      * Get the ACL info of the selected user.
      *
      * @retval array
@@ -410,7 +386,7 @@ class UserModel extends BaseModel
      */
     public function insert_new_user($email)
     {
-        $token = bin2hex(openssl_random_pseudo_bytes(16));
+        $token = $this->login->create_token();
         $uid = $this->db->insert("users", array(
             "email" => $email,
             "token" => $token,
@@ -420,11 +396,13 @@ class UserModel extends BaseModel
             $url = $this->get_link_url("validate", array(
                 "uid" => $uid,
                 "token" => $token,
+                "mode" => "activate",
             ));
+            $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
             $subject = $_SESSION['project'] . " Email Verification";
             $from = "noreply@" . $_SERVER['HTTP_HOST'];
-            $this->email_send($from, $email, $subject,
-                $this->email_get_content($_SERVER['HTTP_HOST'] . $url));
+            $this->login->email_send($from, $email, $subject,
+                $this->email_get_content($url));
         }
         return $uid;
     }

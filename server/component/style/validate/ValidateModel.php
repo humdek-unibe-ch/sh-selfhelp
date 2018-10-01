@@ -41,27 +41,42 @@ class ValidateModel extends StyleModel
         parent::__construct($services, $id);
         $this->uid = $uid;
         $this->token = $token;
-        $this->email = $this->fetch_user_email($uid, $token);
+        $this->email = null;
+        $this->name = null;
+        $this->gender = null;
+        $data = $this->fetch_user_data($uid, $token);
+        if($data)
+        {
+            $this->email = $data['email'];
+            $this->name = $data['name'];
+            $this->gender = $data['gender'];
+        }
     }
 
     /**
-     * Get the user email address from the db given a user id and a token.
+     * Get the user data from the db given a user id and a token.
      *
      * @param int $uid
      *  The id of the user
      * @param string $token
      *  A valid token that is associated with the user id.
-     * @retval string
-     *  The email address of the user or null if the email could not be fetched.
+     * @retval array
+     *  The data of the user or null if the email could not be fetched.An array
+     *  following data keys is reurned:
+     *   - email    The email address of the user.
+     *   - name     The user name.
+     *   - gender   The gender of the user.
      */
-    private function fetch_user_email($uid, $token)
+    private function fetch_user_data($uid, $token)
     {
-        $sql = "SELECT email FROM users WHERE token = :token AND id = :uid";
-        $email = $this->db->query_db_first($sql, array(
+        $sql = "SELECT u.email, u.name, g.name AS gender FROM users AS u
+            LEFT JOIN genders AS g ON g.id = u.id_genders
+            WHERE u.token = :token AND u.id = :uid";
+        $data = $this->db->query_db_first($sql, array(
             ":token" => $token,
             ":uid" => $uid,
         ));
-        if($email) return $email['email'];
+        if($data) return $data;
         else return null;
     }
 
@@ -114,6 +129,28 @@ class ValidateModel extends StyleModel
     public function get_user_email()
     {
         return $this->email;
+    }
+
+    /**
+     * Gets the user name.
+     *
+     * @retval string
+     *  The name of the activating user.
+     */
+    public function get_user_name()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Gets the user gender.
+     *
+     * @retval string
+     *  The gender of the activating user.
+     */
+    public function get_user_gender()
+    {
+        return $this->gender;
     }
 }
 ?>

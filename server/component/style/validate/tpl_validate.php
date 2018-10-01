@@ -11,7 +11,7 @@
             <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
                 <div class="form-group">
                     <label><?php echo $this->name_label; ?></label>
-                    <input type="text" class="form-control" name="name" placeholder="<?php echo $this->name_placeholder; ?>" required>
+                    <input type="text" class="form-control" name="name" placeholder="<?php echo $this->name_placeholder; ?>" value="<?php echo $name; ?>" required>
                     <small class="form-text text-muted"><?php echo $this->name_description; ?></small>
                 </div>
                 <div class="form-group d-none">
@@ -28,11 +28,11 @@
                     <label><?php echo $this->gender_label; ?></label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" value="1" required>
+                    <input class="form-check-input" type="radio" name="gender" value="1" <?php echo $male_checked; ?> required>
                         <label class="form-check-label"><?php echo $this->gender_male; ?></label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" value="2" required>
+                        <input class="form-check-input" type="radio" name="gender" value="2" <?php echo $female_checked; ?> required>
                         <label class="form-check-label"><?php echo $this->gender_female; ?></label>
                     </div>
                 </div>

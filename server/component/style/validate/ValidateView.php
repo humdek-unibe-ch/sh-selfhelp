@@ -176,7 +176,13 @@ class ValidateView extends BaseView
     public function output_content()
     {
         if($this->controller == null || !$this->controller->has_succeeded())
+        {
+            $gender = $this->model->get_user_gender();
+            $male_checked = ($gender === "male") ? "checked" : "";
+            $female_checked = ($gender === "female") ? "checked" : "";
+            $name = $this->model->get_user_name();
             require __DIR__ . "/tpl_validate.php";
+        }
         if($this->controller == null || $this->controller->has_succeeded())
         {
             $url = $this->model->get_link_url("login");

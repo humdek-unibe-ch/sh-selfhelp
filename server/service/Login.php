@@ -86,6 +86,17 @@ class Login
     }
 
     /**
+     * Create a random token string that can be used for verification.
+     *
+     * @retval string
+     *  A random string.
+     */
+    public function create_token()
+    {
+        return bin2hex(openssl_random_pseudo_bytes(16));
+    }
+
+    /**
      * Delete the user if the given email address matches with the email
      * address stored in the database.
      *
@@ -103,6 +114,32 @@ class Login
             array(':id' => $uid));
         if($email != $user['email']) return false;
         return $this->db->remove_by_fk("users", "id", $uid);
+    }
+
+    /**
+     * Send activation email to new user.
+     *
+     * @param string $from
+     *  The source of the email address.
+     * @param string $to
+     *  The email address of the new user.
+     * @param string $subject
+     *  The subject of the email.
+     * @param string $msg
+     *  The email message.
+     * @retval bool
+     *  True on success, false otherwise.
+     */
+    public function email_send($from, $to, $subject, $msg)
+    {
+        $headers = array();
+        $headers[] = "MIME-Version: 1.0";
+        $headers[] = "Content-type: text/plain; charset=utf-8";
+        $headers[] = "From: {$from}";
+        $headers[] = "Subject: {$subject}";
+        $headers[] = "X-Mailer: PHP/".phpversion();
+
+        return mail($to, $subject, $msg , implode("\r\n", $headers));
     }
 
     /**
