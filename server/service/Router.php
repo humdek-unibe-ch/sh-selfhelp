@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/ext/altorouter.php";
+require_once __DIR__ . "/ext/AltoRouter.php";
 
 /**
  * An extension class to the altorouter library.

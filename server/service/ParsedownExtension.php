@@ -52,5 +52,15 @@ class ParsedownExtension extends Parsedown
 
         return $image;
     }
+
+    protected function blockTable($Line, array $Block = null)
+    {
+        $table = parent::blockTable($Line, $Block);
+
+        if(isset($table['element']))
+            $table['element']['attributes'] = array('class' => "table");
+
+        return $table;
+    }
 }
 ?>

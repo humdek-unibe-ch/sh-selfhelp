@@ -1,6 +1,6 @@
 <?php
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
-require_once "./server/service/router.php";
+require_once "./server/service/Router.php";
 require_once "./server/service/PageDb.php";
 require_once "./server/service/globals_untracked.php";
 require_once "./server/service/globals.php";
