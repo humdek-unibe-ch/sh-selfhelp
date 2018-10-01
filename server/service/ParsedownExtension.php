@@ -58,7 +58,9 @@ class ParsedownExtension extends Parsedown
         $table = parent::blockTable($Line, $Block);
 
         if(isset($table['element']))
-            $table['element']['attributes'] = array('class' => "table");
+            $table['element']['attributes'] = array(
+                'class' => "table table-responsive",
+            );
 
         return $table;
     }
