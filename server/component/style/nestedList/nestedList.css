@@ -8,6 +8,7 @@
 .nested-list * .list-group-item
 {
     border:none;
+    margin-bottom: 1px;
 }
 
 .nested-list > .list-group-item:first-child,
