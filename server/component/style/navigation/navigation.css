@@ -1,0 +1,8 @@
+.nav-col {
+    max-width: 100%;
+}
+@media (min-width:768px) {
+    .nav-md-col {
+        max-width: 400px !important;
+    }
+}

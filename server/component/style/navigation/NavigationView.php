@@ -93,6 +93,19 @@ abstract class NavigationView extends BaseView
     /* Public Methods *********************************************************/
 
     /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(__DIR__ . "/navigation.css");
+        return parent::get_css_includes($local);
+    }
+
+    /**
      * Render the login view.
      */
     public function output_content()
