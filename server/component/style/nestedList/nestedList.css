@@ -55,3 +55,10 @@ button.clear-search
 {
     background-color: #0062cc;
 }
+
+@media (min-width:768px) {
+    .nested-list-menu-collapsible {
+        border: 0px !important;
+        padding: 0 !important;
+    }
+}

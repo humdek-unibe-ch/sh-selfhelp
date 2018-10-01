@@ -26,6 +26,8 @@ class NavigationNestedView extends NavigationView
                 "is_expanded" => $this->model->get_db_field("is_expanded", true),
                 "is_collapsible" => $this->model->get_db_field("is_collapsible", false),
                 "search_text" => $this->model->get_db_field("search_text"),
+                "title_prefix" => $this->model->get_db_field("title_prefix"),
+
             ))
         );
     }

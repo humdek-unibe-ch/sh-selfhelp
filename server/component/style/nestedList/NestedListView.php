@@ -42,6 +42,14 @@ class NestedListView extends BaseView
     private $search_text;
 
     /**
+     * DB field 'title_prefix' (empty string).
+     * The text to be rendered as title when the menu is collapsed for smaller
+     * screens. If this field is not set or set to the empty string, the menu
+     * is not collapsed on smaller screens.
+     */
+    private $title_collapsed;
+
+    /**
      * DB field 'items' (empty array).
      * A hierarchical array holding the list items
      * An item in the items list must have the following keys:
@@ -63,6 +71,7 @@ class NestedListView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->title_collapsed = $this->model->get_db_field("title_prefix");
         $this->id_active = $this->model->get_db_field("id_active", 0);
         $this->is_expanded = $this->model->get_db_field("is_expanded", false);
         $this->has_chevron = $this->model->get_db_field("is_collapsible", true);
@@ -93,9 +102,11 @@ class NestedListView extends BaseView
      * Checks whether a child is active.
      *
      * @param array $children
-     *  An array of items (see class NestedListView description).
+     *  An array of items (see NestedListView::items).
      * @param int $id_active
      *  The id of the curently active item.
+     * @retval bool
+     *  True if an active item was found, false otherwise.
      */
     private function is_child_active($children, $id_active)
     {
@@ -106,6 +117,28 @@ class NestedListView extends BaseView
             if($this->is_child_active($item['children'], $id_active))
                 return true;
         }
+    }
+
+    /**
+     * Return the title of the currently active child.
+     *
+     * @param array $children
+     *  An array of items (see NestedListView::items).
+     * @param int $id_active
+     *  The id of the curently active item.
+     * @retval string
+     *  The title of the active item or null if no title was found.
+     */
+    private function get_child_active($children, $id_active)
+    {
+        foreach($children as $index => $item)
+        {
+            if($id_active == $this->get_id($item['id']))
+                return $item['title'];
+            $res = $this->get_child_active($item['children'], $id_active);
+            if($res) return $res;
+        }
+        return null;
     }
 
     /**
@@ -178,6 +211,14 @@ class NestedListView extends BaseView
     }
 
     /**
+     * Render the list without collapsible wrapper.
+     */
+    private function output_list()
+    {
+        require __DIR__ . "/tpl_list.php";
+    }
+
+    /**
      * Render a list of items.
      *
      * @param array $items
@@ -246,7 +287,15 @@ class NestedListView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_list.php";
+        if($this->title_collapsed != "")
+        {
+            $title = $this->get_child_active($this->items, $this->id_active);
+            if($title) $title = $this->title_collapsed . " - " . $title;
+            else $title = $this->title_collapsed;
+            require __DIR__ . "/tpl_list_collapsed.php";
+        }
+        else
+            $this->output_list();
     }
 }
 ?>

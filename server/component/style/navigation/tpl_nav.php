@@ -1,6 +1,6 @@
 <div class="container-fluid <?php echo $this->css; ?>">
     <div class="row">
-        <div class="col-md-auto nav-col nav-md-col">
+        <div class="col-md-auto nav-col nav-md-col mb-2">
             <?php $this->output_nav(); ?>
         </div>
         <div class="col">
