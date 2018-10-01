@@ -2,4 +2,5 @@ doc/doxygen
 server/apache.conf
 server/service/globals_untracked.php
 server/db/privileges.sql
-assets
+assets/*
+!assets/logo

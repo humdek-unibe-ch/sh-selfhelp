@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 01, 2018 at 03:13 PM
+-- Generation Time: Oct 01, 2018 at 06:10 PM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -620,7 +620,13 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000025, 0000000010, 'contact-chat', NULL),
 (0000000026, 0000000009, 'validate-validate', NULL),
 (0000000027, 0000000008, 'toLogin-button', NULL),
-(0000000028, 0000000035, 'resetPassword-resetPassword', NULL);
+(0000000028, 0000000035, 'resetPassword-resetPassword', NULL),
+(0000000029, 0000000004, 'impressum-jumbotron', NULL),
+(0000000030, 0000000005, 'impressum-heading', NULL),
+(0000000031, 0000000012, 'impressum-card', NULL),
+(0000000032, 0000000006, 'impressum-markdown', NULL),
+(0000000033, 0000000012, 'impressum-ext-card', NULL),
+(0000000034, 0000000006, 'impressum-ext-markdown', NULL);
 
 -- --------------------------------------------------------
 
@@ -708,7 +714,8 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000017, 0000000029, 0000000001, 0000000001, '0'),
 (0000000018, 0000000029, 0000000001, 0000000001, '1'),
 (0000000019, 0000000029, 0000000001, 0000000001, '1'),
-(0000000020, 0000000029, 0000000001, 0000000001, '1'),
+(0000000020, 0000000023, 0000000001, 0000000001, ''),
+(0000000020, 0000000029, 0000000001, 0000000001, '0'),
 (0000000021, 0000000029, 0000000001, 0000000001, '1'),
 (0000000023, 0000000021, 0000000001, 0000000001, '1'),
 (0000000023, 0000000022, 0000000002, 0000000001, 'Die Daten wurden erfolgreich erfasst'),
@@ -776,7 +783,20 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000028, 0000000044, 0000000002, 0000000001, 'Email versendet'),
 (0000000028, 0000000044, 0000000003, 0000000001, 'Email Sent'),
 (0000000028, 0000000055, 0000000002, 0000000001, 'Bitte Email eingeben'),
-(0000000028, 0000000055, 0000000003, 0000000001, 'Please Enter Email');
+(0000000028, 0000000055, 0000000003, 0000000001, 'Please Enter Email'),
+(0000000030, 0000000021, 0000000001, 0000000001, '1'),
+(0000000030, 0000000022, 0000000002, 0000000001, 'Impressum'),
+(0000000030, 0000000022, 0000000003, 0000000001, 'Impressum'),
+(0000000031, 0000000028, 0000000001, 0000000001, 'light'),
+(0000000031, 0000000046, 0000000001, 0000000001, '0'),
+(0000000031, 0000000047, 0000000001, 0000000001, '0'),
+(0000000032, 0000000025, 0000000002, 0000000001, '![Logo University of Bern](logo/Unibe_Logo_16pt_RGB_201807.png:250x:float-left,border-0,mr-5 \"Logo University of Bern\")\r\n\r\n**Universität Bern**  \r\n**Philosophisch-humanwissenschaftliche Fakultät**\r\n\r\nFabrikstrasse 8  \r\n3012 Bern\r\n\r\nTelefon: +41 31 631 55 11\r\n\r\n**Entwicklung:** [Technologieplatform (TPF)](http://www.philhum.unibe.ch/forschung/tpf/index_ger.html)'),
+(0000000032, 0000000025, 0000000003, 0000000001, '![Logo University of Bern](logo/Unibe_Logo_16pt_RGB_201807.png:250x:float-left,border-0,mr-5 \"Logo University of Bern\")\r\n\r\n**University of Bern**  \r\n**Faculty of Human Sciences**\r\n\r\nFabrikstrasse 8  \r\n3012 Bern\r\n\r\nPhone: +41 31 631 55 11\r\n\r\n**Development:** [Technologieplatform (TPF)](http://www.philhum.unibe.ch/forschung/tpf/index_ger.html)'),
+(0000000033, 0000000028, 0000000001, 0000000001, 'light'),
+(0000000033, 0000000046, 0000000001, 0000000001, '0'),
+(0000000033, 0000000047, 0000000001, 0000000001, '0'),
+(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autogrow](https://github.com/ro31337/jquery.ns-autogrow)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autogrow](https://github.com/ro31337/jquery.ns-autogrow)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |');
 
 -- --------------------------------------------------------
 
@@ -811,11 +831,17 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (0000000013, 0000000014, 10),
 (0000000013, 0000000027, 30),
 (0000000017, 0000000025, 10),
+(0000000020, 0000000029, 0),
+(0000000020, 0000000031, 10),
+(0000000020, 0000000033, 20),
 (0000000021, 0000000022, 0),
 (0000000022, 0000000007, 20),
 (0000000022, 0000000008, 30),
 (0000000022, 0000000023, 0),
-(0000000022, 0000000024, 10);
+(0000000022, 0000000024, 10),
+(0000000029, 0000000030, 0),
+(0000000031, 0000000032, 0),
+(0000000033, 0000000034, 0);
 
 -- --------------------------------------------------------
 
@@ -1372,7 +1398,7 @@ ALTER TABLE `pageType`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 --
 -- AUTO_INCREMENT for table `styles`
 --
