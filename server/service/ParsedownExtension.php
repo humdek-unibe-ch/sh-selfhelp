@@ -59,7 +59,7 @@ class ParsedownExtension extends Parsedown
 
         if(isset($table['element']))
             $table['element']['attributes'] = array(
-                'class' => "table table-responsive",
+                'class' => "table table-responsive-sm",
             );
 
         return $table;
