@@ -131,7 +131,7 @@ class UserInput
             LEFT JOIN pages AS p ON p.id = ps.id_pages
             WHERE ps.id_sections = :id";
         $page = $this->db->query_db_first($sql, array(":id" => $id_section));
-        if($page) return intval($page["keyword"]);
+        if($page) return $page["keyword"];
         else return null;
     }
 
