@@ -36,6 +36,7 @@ class CmsUpdateView extends BaseView
         $this->mode = $mode;
         $this->add_local_component("allowed-sections",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "Sections in Use",
@@ -52,6 +53,7 @@ class CmsUpdateView extends BaseView
 
         $this->add_local_component("unassigned-sections",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => true,
                 "title" => "Unassigned Sections",
