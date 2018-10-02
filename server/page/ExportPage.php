@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/BasePage.php";
 require_once __DIR__ . "/../service/UserInput.php";
 
 /**

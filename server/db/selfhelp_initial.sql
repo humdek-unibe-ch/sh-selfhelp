@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 02, 2018 at 02:06 PM
+-- Generation Time: Oct 02, 2018 at 02:24 PM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -421,7 +421,7 @@ CREATE TABLE `pages` (
 
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `nav_position`, `footer_position`, `id_type`, `user_input`) VALUES
 (0000000001, 'login', '/login', 'GET|POST', 0000000001, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000002, 'home', '/', 'GET', 0000000001, NULL, NULL, NULL, NULL, 0000000002, 0),
+(0000000002, 'home', '/', 'GET', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
 (0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0000000002, 0),
 (0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 10, NULL, 0000000002, 0),
 (0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 20, NULL, 0000000002, 0),
