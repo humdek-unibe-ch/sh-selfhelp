@@ -35,6 +35,7 @@ class NavigationContainerView extends BaseView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field('title');
+        $this->text_md = $this->model->get_db_field('text_md');
     }
 
     /* Public Methods *********************************************************/
