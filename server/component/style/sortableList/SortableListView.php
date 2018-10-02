@@ -158,6 +158,7 @@ class SortableListView extends BaseView
         $local = array(
             __DIR__ . "/sortable.min.js",
             __DIR__ . "/sortable.jquery.binding.js",
+            __DIR__ . "/sortableList.js",
         );
         return parent::get_js_includes($local);
     }
