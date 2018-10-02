@@ -619,8 +619,8 @@ class CmsView extends BaseView
 
         $this->add_local_component("settings-card", new BaseStyleComponent("card",
             array(
-                "is_expanded" => true,
-                "is_collapsible" => false,
+                "is_expanded" => false,
+                "is_collapsible" => true,
                 "title" => "Settings",
                 "children" => array(new BaseStyleComponent("form", array(
                     "url" => $_SERVER['REQUEST_URI'],

@@ -1008,11 +1008,6 @@ class CmsModel extends BaseModel
             $action = 3;
             $nav_id = $this->create_new_navigation_section($keyword);
         }
-        else if($action == 1 || $action == 2)
-        {
-            // component or custom page
-            $page_type = INTERNAL_PAGE_ID;
-        }
         $pid = $this->db->insert("pages", array(
             "keyword" => $keyword,
             "url" => $url,
@@ -1318,17 +1313,18 @@ class CmsModel extends BaseModel
             foreach($section_fields as $section_field)
                 $fields[] = $section_field;
         }
-        $fields[] = $this->add_property_item(
-            null,
-            ALL_LANGUAGE_ID,
-            MALE_GENDER_ID,
-            "sections",
-            "",
-            "style-list",
-            "page_children",
-            $this->page_sections_static,
-            ""
-        );
+        if($this->page_info['action'] === "sections")
+            $fields[] = $this->add_property_item(
+                null,
+                ALL_LANGUAGE_ID,
+                MALE_GENDER_ID,
+                "sections",
+                "",
+                "style-list",
+                "page_children",
+                $this->page_sections_static,
+                ""
+            );
         if($this->is_navigation())
             $fields[] = $this->add_property_item(
                 null,
