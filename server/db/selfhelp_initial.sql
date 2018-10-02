@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 01, 2018 at 06:10 PM
+-- Generation Time: Oct 02, 2018 at 10:37 AM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -429,7 +429,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000007, 'no_access', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
 (0000000008, 'no_access_guest', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
 (0000000009, 'admin-link', NULL, NULL, NULL, NULL, NULL, 1000, NULL, 0000000001, 0),
-(0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET', 0000000002, NULL, 0000000009, 10, NULL, 0000000001, 0),
+(0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET|POST', 0000000002, NULL, 0000000009, 10, NULL, 0000000001, 0),
 (0000000011, 'cmsInsert', '/admin/cms_insert/[i:pid]?', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
 (0000000012, 'cmsUpdate', '/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
 (0000000013, 'cmsDelete', '/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
@@ -514,7 +514,7 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000030, 0000000008, 0000000002, 'AGB'),
 (0000000030, 0000000008, 0000000003, 'GTC'),
 (0000000031, 0000000008, 0000000002, 'Impressum'),
-(0000000031, 0000000008, 0000000003, 'Legal Notice'),
+(0000000031, 0000000008, 0000000003, 'Impressum'),
 (0000000032, 0000000008, 0000000002, 'Disclaimer'),
 (0000000032, 0000000008, 0000000003, 'Disclaimer'),
 (0000000033, 0000000008, 0000000002, 'Benutzer Validierung'),
