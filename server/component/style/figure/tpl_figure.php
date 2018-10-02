@@ -1,4 +1,4 @@
-<div class="d-flex justify-content-center">
+<div class="<?php echo $this->css; ?>">
     <figure class="figure">
         <?php $this->output_children(); ?>
         <?php $this->output_caption(); ?>

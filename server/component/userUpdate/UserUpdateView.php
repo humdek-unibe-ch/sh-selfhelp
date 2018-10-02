@@ -83,6 +83,7 @@ class UserUpdateView extends BaseView
         );
         $this->add_local_component("form_block",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Block User",
@@ -118,6 +119,7 @@ class UserUpdateView extends BaseView
         $this->user_status = $this->selected_user['active'] ? "active" : "inactive";
         $this->add_local_component("form_unblock",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Unblock User",
@@ -152,6 +154,7 @@ class UserUpdateView extends BaseView
         );
         $this->add_local_component("form_add_groups",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Adding Groups",
@@ -182,6 +185,7 @@ class UserUpdateView extends BaseView
         );
         $this->add_local_component("form_rm_group",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Remove Group",

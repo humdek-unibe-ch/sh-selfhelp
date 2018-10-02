@@ -28,6 +28,13 @@ abstract class NavigationView extends BaseView
      */
     private $has_navigation_buttons;
 
+    /**
+     * DB field 'is_fluid' (true).
+     * If set to true the container spand to whole page. If set to false the
+     * container only uses a part of the page.
+     */
+    private $is_fluid;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -41,8 +48,7 @@ abstract class NavigationView extends BaseView
         parent::__construct($model);
         $this->label_next = $this->model->get_db_field("label_next");
         $this->label_back = $this->model->get_db_field("label_back");
-        if($this->css == null)
-            $this->css = "my-3";
+        $this->is_fluid = $this->model->get_db_field('is_fluid', true);
         $this->has_navigation_buttons =
             $this->model->get_db_field("has_navigation_buttons", false);
 
@@ -110,6 +116,7 @@ abstract class NavigationView extends BaseView
      */
     public function output_content()
     {
+        $fluid = ($this->is_fluid) ? "-fluid" : "";
         $button_next = "button_next";
         $button_back = "button_back";
         require __DIR__ . "/tpl_nav.php";

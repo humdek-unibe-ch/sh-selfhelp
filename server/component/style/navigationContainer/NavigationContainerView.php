@@ -10,10 +10,18 @@ class NavigationContainerView extends BaseView
 
     /**
      * DB field 'title' (empty string).
-     * If set to true the container spand to whole page. If set to false the
-     * container only uses a part of the page.
+     * The title of the navigation section. This field is special because it
+     * also serves as title for the navigation list item representing this
+     * navigation section.
      */
     private $title;
+
+    /**
+     * DB field 'text_md' (empty string).
+     * A markdown text that is placed at the beginning of the container. Use
+     * the string '\@title' to print the field 'title'.
+     */
+    private $text_md;
 
     /* Constructors ***********************************************************/
 
@@ -36,6 +44,7 @@ class NavigationContainerView extends BaseView
      */
     public function output_content()
     {
+        $text = str_replace("@title", $this->title, $this->text_md);
         require __DIR__ . "/tpl_container.php";
     }
 }

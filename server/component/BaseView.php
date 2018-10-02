@@ -19,7 +19,7 @@ abstract class BaseView
     /**
      * DB field 'css' (null)
      * This field can hold a list of comma seperated css classes. These css
-     * classes will be assigned to style elements.
+     * classes will be assigned to style wrapper element.
      */
     protected $css;
 

@@ -1,2 +1,4 @@
-<h1><?php echo $this->title; ?></h1>
-<?php $this->output_children(); ?>
+<div class="<?php echo $this->css; ?>">
+    <?php echo $text; ?>
+    <?php $this->output_children(); ?>
+</div>

@@ -212,8 +212,11 @@ class NestedListView extends BaseView
 
     /**
      * Render the list without collapsible wrapper.
+     *
+     * @param string $css
+     *  A list of whitespace seperated css classes.
      */
-    private function output_list()
+    private function output_list($css = "")
     {
         require __DIR__ . "/tpl_list.php";
     }
@@ -295,7 +298,7 @@ class NestedListView extends BaseView
             require __DIR__ . "/tpl_list_collapsed.php";
         }
         else
-            $this->output_list();
+            $this->output_list($this->css);
     }
 }
 ?>

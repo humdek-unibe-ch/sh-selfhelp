@@ -36,6 +36,7 @@ class UserSelectView extends BaseView
         ));
         $this->add_local_component("users",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Registered Users",
@@ -49,6 +50,7 @@ class UserSelectView extends BaseView
         );
         $this->add_local_component("user_blocking",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Block User",
@@ -70,6 +72,7 @@ class UserSelectView extends BaseView
         );
         $this->add_local_component("user_unblocking",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Unblock User",
@@ -91,6 +94,7 @@ class UserSelectView extends BaseView
         );
         $this->add_local_component("user_delete",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Delete User",
@@ -111,6 +115,7 @@ class UserSelectView extends BaseView
         );
         $this->add_local_component("user_groups",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "User Groups",
@@ -144,6 +149,7 @@ class UserSelectView extends BaseView
         );
         $this->add_local_component("user_acl",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "ACL",

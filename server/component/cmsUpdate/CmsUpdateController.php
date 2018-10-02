@@ -108,6 +108,7 @@ class CmsUpdateController extends BaseController
             return in_array($value, array(
                 "text",
                 "checkbox",
+                "radio",
                 "color",
                 "date",
                 "datetime-local",
@@ -244,10 +245,9 @@ class CmsUpdateController extends BaseController
      */
     private function update($fields)
     {
-        if(isset($_POST['set_margin']))
+        if(isset($_POST['css']))
         {
-            $css = "";
-            if(isset($_POST['margin'])) $css = implode(" ", $_POST['margin']);
+            $css = filter_var($_POST['css'], FILTER_SANITIZE_STRING);
             $this->model->update_db(CSS_FIELD_ID, 1, 1, $css, "section_field");
         }
 

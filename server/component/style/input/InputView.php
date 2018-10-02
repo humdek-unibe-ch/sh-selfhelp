@@ -34,7 +34,7 @@ class InputView extends FormFieldView
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
-        if($this->type == "checkbox")
+        if($this->type == "checkbox" || $this->type == "radio")
         {
             $this->css_group = "form-check";
             $this->css_label = "form-check-label";
@@ -52,7 +52,7 @@ class InputView extends FormFieldView
         $css_input = "form-control";
         if($this->label == "") $css_input .= " " . $this->css;
         $checked = "";
-        if($this->type == "checkbox")
+        if($this->type == "checkbox" || $this->type == "radio")
         {
             $css_input = "form-check-input position-static float-left";
             if($this->value != "" || isset($_POST[$this->name])) $checked = "checked";

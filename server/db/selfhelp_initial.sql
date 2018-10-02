@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 02, 2018 at 02:24 PM
+-- Generation Time: Oct 02, 2018 at 04:43 PM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -453,7 +453,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, NULL, 100, 0000000002, 0),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, NULL, 200, 0000000002, 0),
 (0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000034, 'user_input_success 	', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
+(0000000034, 'user_input_success', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
 (0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0);
 
 -- --------------------------------------------------------
@@ -687,7 +687,8 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000002, 0000000019, 0000000003, 0000000001, 'Unable to delete the account.'),
 (0000000002, 0000000020, 0000000002, 0000000001, 'Die Benutzerdaten wurden erfolgreich gelöscht.'),
 (0000000002, 0000000020, 0000000003, 0000000001, 'Successfully deleted the account.'),
-(0000000003, 0000000029, 0000000001, 0000000001, '1'),
+(0000000003, 0000000029, 0000000001, 0000000001, '0'),
+(0000000004, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000005, 0000000021, 0000000001, 0000000001, '1'),
 (0000000005, 0000000022, 0000000002, 0000000001, 'Seite nicht gefunden'),
 (0000000005, 0000000022, 0000000003, 0000000001, 'Page not Found'),
@@ -701,22 +702,28 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000008, 0000000008, 0000000003, 0000000001, 'Home'),
 (0000000008, 0000000027, 0000000001, 0000000001, '#home'),
 (0000000008, 0000000028, 0000000001, 0000000001, 'primary'),
-(0000000009, 0000000029, 0000000001, 0000000001, '1'),
+(0000000009, 0000000029, 0000000001, 0000000001, '0'),
+(0000000010, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000011, 0000000021, 0000000001, 0000000001, '1'),
 (0000000011, 0000000022, 0000000002, 0000000001, 'Kein Zugriff'),
 (0000000011, 0000000022, 0000000003, 0000000001, 'No Access'),
-(0000000012, 0000000029, 0000000001, 0000000001, '1'),
+(0000000012, 0000000029, 0000000001, 0000000001, '0'),
+(0000000013, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000014, 0000000025, 0000000002, 0000000001, 'Um diese Seite zu erreichen müssen Sie eingeloggt sein.'),
 (0000000014, 0000000025, 0000000003, 0000000001, 'To reach this page you must be logged in.'),
 (0000000015, 0000000025, 0000000002, 0000000001, 'Sie haben keine Zugriffsrechte für diese Seite.'),
 (0000000015, 0000000025, 0000000003, 0000000001, 'You do not have access to this page.'),
-(0000000016, 0000000029, 0000000001, 0000000001, '1'),
+(0000000016, 0000000023, 0000000001, 0000000001, 'my-3'),
+(0000000016, 0000000029, 0000000001, 0000000001, '0'),
 (0000000017, 0000000029, 0000000001, 0000000001, '0'),
-(0000000018, 0000000029, 0000000001, 0000000001, '1'),
+(0000000018, 0000000023, 0000000001, 0000000001, 'my-3'),
+(0000000018, 0000000029, 0000000001, 0000000001, '0'),
+(0000000019, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000019, 0000000029, 0000000001, 0000000001, '1'),
-(0000000020, 0000000023, 0000000001, 0000000001, ''),
+(0000000020, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000020, 0000000029, 0000000001, 0000000001, '0'),
-(0000000021, 0000000029, 0000000001, 0000000001, '1'),
+(0000000021, 0000000029, 0000000001, 0000000001, '0'),
+(0000000022, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000023, 0000000021, 0000000001, 0000000001, '1'),
 (0000000023, 0000000022, 0000000002, 0000000001, 'Die Daten wurden erfolgreich erfasst'),
 (0000000023, 0000000022, 0000000003, 0000000001, 'The Data was Successfully Saved'),
@@ -787,6 +794,7 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000030, 0000000021, 0000000001, 0000000001, '1'),
 (0000000030, 0000000022, 0000000002, 0000000001, 'Impressum'),
 (0000000030, 0000000022, 0000000003, 0000000001, 'Impressum'),
+(0000000031, 0000000023, 0000000001, 0000000001, 'mb-3'),
 (0000000031, 0000000028, 0000000001, 0000000001, 'light'),
 (0000000031, 0000000046, 0000000001, 0000000001, '0'),
 (0000000031, 0000000047, 0000000001, 0000000001, '0'),
@@ -795,7 +803,6 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000033, 0000000028, 0000000001, 0000000001, 'light'),
 (0000000033, 0000000046, 0000000001, 0000000001, '0'),
 (0000000033, 0000000047, 0000000001, 0000000001, '0'),
-(0000000034, 0000000023, 0000000001, 0000000001, ''),
 (0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autogrow](https://github.com/ro31337/jquery.ns-autogrow)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
 (0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autogrow](https://github.com/ro31337/jquery.ns-autogrow)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |');
 
@@ -984,6 +991,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
 (0000000014, 0000000051),
 (0000000014, 0000000052),
 (0000000015, 0000000022),
+(0000000015, 0000000029),
 (0000000015, 0000000030),
 (0000000015, 0000000053),
 (0000000016, 0000000008),
@@ -1027,6 +1035,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
 (0000000026, 0000000056),
 (0000000026, 0000000057),
 (0000000026, 0000000058),
+(0000000027, 0000000029),
 (0000000027, 0000000030),
 (0000000027, 0000000071),
 (0000000028, 0000000031),
@@ -1036,6 +1045,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
 (0000000028, 0000000084),
 (0000000030, 0000000006),
 (0000000030, 0000000022),
+(0000000031, 0000000029),
 (0000000031, 0000000031),
 (0000000031, 0000000072),
 (0000000031, 0000000073),
@@ -1048,6 +1058,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
 (0000000032, 0000000077),
 (0000000032, 0000000083),
 (0000000032, 0000000084),
+(0000000033, 0000000029),
 (0000000033, 0000000031),
 (0000000033, 0000000046),
 (0000000033, 0000000047),

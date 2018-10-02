@@ -62,6 +62,7 @@ class GroupView extends BaseView
         ));
         $this->add_local_component("groups",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Groups",
@@ -75,6 +76,7 @@ class GroupView extends BaseView
         );
         $this->add_local_component("group_acl",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "ACL",
@@ -90,6 +92,7 @@ class GroupView extends BaseView
                 array('gid' => $this->selected_group['id']));
         $this->add_local_component("group_simple_acl",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "url_edit" => $url_edit,
@@ -102,6 +105,7 @@ class GroupView extends BaseView
         );
         $this->add_local_component("group_delete",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Delete Group",
@@ -122,6 +126,7 @@ class GroupView extends BaseView
         );
         $this->add_local_component("group_simple_acl_form",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "type" => "warning",

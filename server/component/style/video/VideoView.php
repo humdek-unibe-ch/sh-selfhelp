@@ -23,6 +23,12 @@ class VideoView extends BaseView
      */
     private $sources;
 
+    /**
+     * DB field 'is_fluid' (true).
+     * If set to true the class img-fluid is assigned to the image.
+     */
+    private $is_fluid;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -36,6 +42,7 @@ class VideoView extends BaseView
         parent::__construct($model);
         $this->alt = $this->model->get_db_field("alt");
         $this->sources = $this->model->get_db_field("sources");
+        $this->is_fluid = $this->model->get_db_field("is_fluid", true);
     }
 
     /* Private Methods ********************************************************/
@@ -63,6 +70,7 @@ class VideoView extends BaseView
     public function output_content()
     {
         if($this->sources == "") return;
+        $fluid = $this->is_fluid ? "img-fluid" : "";
         require __DIR__ . "/tpl_video.php";
     }
 }

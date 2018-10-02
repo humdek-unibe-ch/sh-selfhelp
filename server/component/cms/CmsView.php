@@ -41,6 +41,7 @@ class CmsView extends BaseView
         ));
         $this->add_local_component("new_child_page",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Create New Child Page",
@@ -56,6 +57,7 @@ class CmsView extends BaseView
         );
         $this->add_local_component("delete_page",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "Delete Page",
@@ -76,6 +78,7 @@ class CmsView extends BaseView
         );
         $this->add_local_component("delete_section",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "Delete Section",
@@ -192,6 +195,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_collapsible" => true,
                 "title" => "Page View",
                 "children" => $page_components,
@@ -200,6 +204,7 @@ class CmsView extends BaseView
         if($this->model->get_active_section_id() != null)
             $this->add_local_component("section-view",
                 new BaseStyleComponent("card", array(
+                    "css" => "mb-3",
                     "is_collapsible" => true,
                     "title" => "Section View",
                     "children" => array(new StyleComponent(
@@ -269,6 +274,7 @@ class CmsView extends BaseView
         ));
         $this->add_local_component($name, new BaseStyleComponent("card",
             array(
+                "css" => "mb-3",
                 "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
@@ -315,6 +321,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_collapsible" => false,
                 "is_expanded" => true,
                 "title" => "Page Properties",
@@ -369,6 +376,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_collapsible" => false,
                 "title" => "Section Properties",
                 "children" => $children,
@@ -403,19 +411,14 @@ class CmsView extends BaseView
         {
             $css = $this->model->get_css();
             $form_items[] = new BaseStyleComponent("descriptionItem", array(
-                "title" => "Margins",
+                "title" => "CSS",
                 "locale" => "all",
-                "children" => array(
-                    new BaseStyleComponent("template", array(
-                        "path" => __DIR__ . "/tpl_margin_input.php",
-                        "items" => array(
-                            "checked_top" => (strpos($css, "mt") === false) ? "" : "checked",
-                            "checked_right" => (strpos($css, "mr") === false) ? "" : "checked",
-                            "checked_bottom" => (strpos($css, "mb") === false) ? "" : "checked",
-                            "checked_left" => (strpos($css, "ml") === false) ? "" : "checked",
-                        )
-                    )),
-                ),
+                "children" => array(new BaseStyleComponent("input", array(
+                    "value" => $css,
+                    "name" => "css",
+                    "type_input" => "text",
+                    "is_user_input" => false,
+                ))),
             ));
         }
 
@@ -493,7 +496,6 @@ class CmsView extends BaseView
                 "value" => ($field['content'] == "") ? "text" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "items" => array(
-                    array("value" => "text", "text" => "text"),
                     array("value" => "checkbox", "text" => "checkbox"),
                     array("value" => "color", "text" => "color"),
                     array("value" => "date", "text" => "date"),
@@ -501,9 +503,11 @@ class CmsView extends BaseView
                     array("value" => "email", "text" => "email"),
                     array("value" => "month", "text" => "month"),
                     array("value" => "number", "text" => "number"),
+                    array("value" => "radio", "text" => "radio"),
                     array("value" => "range", "text" => "range"),
                     array("value" => "search", "text" => "search"),
                     array("value" => "tel", "text" => "tel"),
+                    array("value" => "text", "text" => "text"),
                     array("value" => "time", "text" => "time"),
                     array("value" => "url", "text" => "url"),
                     array("value" => "week", "text" => "week"),
@@ -630,6 +634,7 @@ class CmsView extends BaseView
 
         $this->add_local_component("settings-card", new BaseStyleComponent("card",
             array(
+                "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "Settings",

@@ -53,7 +53,6 @@ class CardView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->css = ($this->css === null) ? "mb-3" : $this->css;
         $this->is_expanded = $this->model->get_db_field("is_expanded", true);
         $this->is_collapsible = $this->model->get_db_field("is_collapsible",
             false);

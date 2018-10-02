@@ -130,8 +130,9 @@ class SectionPage extends BasePage
             else if($style == "input")
             {
                 $type = $this->get_field_type($id_section);
-                if($type == "text" || $type == "checkbox" || $type == "month"
-                    || $type == "week" || $type == "search" || $type == "tel")
+                if($type == "text" || $type == "checkbox" || $type == "radio"
+                    || $type == "month" || $type == "week" || $type == "search"
+                    || $type == "tel")
                     $filter_rules[$name] = "trim|sanitize_string";
                 else if($type == "color")
                     $validation_rules[$name] = "regex,/#[a-fA-F0-9]{6}/";

@@ -26,6 +26,12 @@ class ImageView extends BaseView
      */
     private $alt;
 
+    /**
+     * DB field 'is_fluid' (true).
+     * If set to true the class img-fluid is assigned to the image.
+     */
+    private $is_fluid;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -40,6 +46,7 @@ class ImageView extends BaseView
         $this->title = $this->model->get_db_field("title");
         $this->source = $this->model->get_db_field("source");
         $this->alt = $this->model->get_db_field("alt");
+        $this->is_fluid = $this->model->get_db_field("is_fluid", true);
     }
 
     /* Public Methods *********************************************************/
@@ -54,6 +61,7 @@ class ImageView extends BaseView
             $url = $this->source;
         else
             $url = ASSET_PATH . '/' . $this->source;
+        $fluid = $this->is_fluid ? "img-fluid" : "";
         require __DIR__ . "/tpl_image.php";
     }
 }

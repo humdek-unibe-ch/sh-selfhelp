@@ -38,6 +38,7 @@ class GroupDeleteView extends BaseView
         );
         $this->add_local_component("form",
             new BaseStyleComponent("card", array(
+                "css" => "mb-3",
                 "is_expanded" => true,
                 "is_collapsible" => false,
                 "title" => "Delete Group",
