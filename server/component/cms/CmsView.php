@@ -30,7 +30,7 @@ class CmsView extends BaseView
         parent::__construct($model, $controller);
         $_SESSION['active_section_id'] = $this->model->get_active_section_id();
         $this->page_info = $this->model->get_page_info();
-
+        $this->create_settings_card();
         $this->add_local_component("new_page", new BaseStyleComponent("button",
             array(
                 "label" => "Create New Page",
@@ -599,6 +599,50 @@ class CmsView extends BaseView
     }
 
     /**
+     * Create the card where CMS settings can be entered. These settings
+     * include language and gender settings.
+     */
+    private function create_settings_card()
+    {
+        $languages = $this->model->get_languages();
+        $options = array(array("value" => "all", "text" => "All Languages"));
+        foreach($languages as $language)
+            $options[] = array(
+                "value" => $language['locale'],
+                "text" => $language['language']
+            );
+        $tpl_items = array(
+            "checked_male" => ($_SESSION['cms_gender'] === "male") ? "checked" : "",
+            "checked_female" => ($_SESSION['cms_gender'] === "female") ? "checked" : "",
+            "checked_both" => ($_SESSION['cms_gender'] === "both") ? "checked" : "",
+        );
+
+        $this->add_local_component("settings-card", new BaseStyleComponent("card",
+            array(
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "title" => "Settings",
+                "children" => array(new BaseStyleComponent("form", array(
+                    "url" => $_SERVER['REQUEST_URI'],
+                    "children" => array(
+                        new BaseStyleComponent("select", array(
+                            "is_user_input" => false,
+                            "label" => "Select CMS Content Language",
+                            "value" => $_SESSION['cms_language'],
+                            "name" => "cms_language",
+                            "items" => $options,
+                        )),
+                        new BaseStyleComponent("template", array(
+                            "path" => __DIR__ . "/tpl_gender_radio.php",
+                            "items" => $tpl_items,
+                        ))
+                    )
+                ))),
+            )
+        ));
+    }
+
+    /**
      * Renders alerts.
      */
     private function output_alerts()
@@ -671,6 +715,7 @@ class CmsView extends BaseView
         $this->output_local_component("page-list");
         $this->output_local_component("navigation-hierarchy-list");
         $this->output_local_component("page-section-list");
+        $this->output_local_component("settings-card");
     }
 
     /**

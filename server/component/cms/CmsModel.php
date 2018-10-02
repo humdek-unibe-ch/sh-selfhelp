@@ -350,15 +350,21 @@ class CmsModel extends BaseModel
      */
     private function fetch_page_field_languages($id_page, $id_field)
     {
+        if($_SESSION['cms_language'] === "all")
+            $where = "WHERE l.locale <> :lang";
+        else
+            $where = "WHERE l.locale = :lang";
         $sql = "SELECT l.locale AS locale, l.id, pft.content
             FROM languages AS l
             LEFT JOIN pages_fields_translation AS pft
             ON l.id = pft.id_languages AND pft.id_pages = :pid
-            AND pft.id_fields = :fid
-            WHERE l.locale <> 'all'";
+            AND pft.id_fields = :fid $where";
 
-        return $this->db->query_db($sql,
-            array(":pid" => $id_page, ":fid" => $id_field));
+        return $this->db->query_db($sql, array(
+            ":pid" => $id_page,
+            ":fid" => $id_field,
+            ":lang" => $_SESSION['cms_language'],
+        ));
     }
 
     /**
@@ -442,17 +448,30 @@ class CmsModel extends BaseModel
      */
     private function fetch_section_field_languages($id_section, $id_field)
     {
+        $data = array(
+            ":sid" => $id_section,
+            ":fid" => $id_field,
+            ":lang" => $_SESSION['cms_language'],
+        );
+
+        if($_SESSION['cms_language'] === "all")
+            $where = "WHERE l.locale <> :lang";
+        else
+            $where = "WHERE l.locale = :lang";
+        if($_SESSION['cms_gender'] !== "both")
+        {
+            $where .= " AND g.name = :gender";
+            $data[":gender"] = $_SESSION['cms_gender'];
+        }
         $sql = "SELECT l.locale AS locale, l.id AS id_language, sft.content,
             g.name AS gender, g.id AS id_gender
             FROM languages AS l
             JOIN genders AS g
             LEFT JOIN sections_fields_translation AS sft
             ON l.id = sft.id_languages AND sft.id_sections = :sid
-            AND sft.id_fields = :fid AND sft.id_genders = g.id
-            WHERE l.locale <> 'all'";
+            AND sft.id_fields = :fid AND sft.id_genders = g.id $where";
 
-        return $this->db->query_db($sql,
-            array(":sid" => $id_section, ":fid" => $id_field));
+        return $this->db->query_db($sql, $data);
     }
 
     /**
@@ -1152,15 +1171,29 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  The id of the language to fetch.
-     * @return array
+     * @retval array
      *  The db array with the following keys:
-     *   'id':          The id of the fetched language.
-     *   'locale':      The language short notation.
-     *   'language':    The language long notation.
+     *   - 'id':          The id of the fetched language.
+     *   - 'locale':      The language short notation.
+     *   - 'language':    The language long notation.
      */
     public function get_language($id)
     {
         return $this->db->select_by_uid("languages", $id);
+    }
+
+    /**
+     * Fetch all languages from the database.
+     *
+     * @retval array
+     *  As array of items where each item has the following keys:
+     *   - 'locale':    The short notation of the language.
+     *   - 'language':  The langaige name.
+     */
+    public function get_languages()
+    {
+        $sql = "SELECT locale, language FROM languages WHERE id > 1";
+        return $this->db->query_db($sql);
     }
 
     /**
@@ -1372,8 +1405,10 @@ class CmsModel extends BaseModel
             $relation = "section_field";
             $id = intval($field['id']);
             if($field['display'] == '1')
-                $contents = $this->fetch_section_field_languages($id_section,
-                    $id);
+            {
+                $contents = $this->fetch_section_field_languages(
+                    $id_section, $id);
+            }
             else if($field['type'] == "style-list")
             {
                 $relation = "section_children";

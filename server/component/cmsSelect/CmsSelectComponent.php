@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/../cms/CmsView.php";
+require_once __DIR__ . "/CmsSelectController.php";
 require_once __DIR__ . "/../cms/CmsModel.php";
 require_once __DIR__ . "/../cms/CmsComponent.php";
 
@@ -42,9 +43,10 @@ class CmsSelectComponent extends CmsComponent
     {
         $this->acl = $services['acl'];
         $model = new CmsModel($services, $params, "select");
+        $controller = new CmsSelectController($model);
         $model->update_select_properties();
         $view = new CmsView($model);
-        parent::__construct($model, $view);
+        parent::__construct($model, $view, $controller);
     }
 
     /* Public Methods *********************************************************/
