@@ -8,7 +8,8 @@ $(document).ready(function() {
     var $protocol_delete = $('input[value="DELETE"]');
     var $type_component = $('input[name="type"][value="2"]');
     var $type_custom = $('input[name="type"][value="1"]');
-    var $url;
+    var keyword = "";
+    var nav = "";
     $('input[name="set-user_input"]').change(function() {
         if($(this).is(":checked"))
             $protocol_post.prop("checked", true);
@@ -34,15 +35,16 @@ $(document).ready(function() {
         }
     });
     $('input[name="keyword"]').keyup(function() {
-        $url = "/" + $(this).val();
-        $url_input.val($url);
+        keyword = $(this).val();
+        $url_input.val("/" + keyword + nav);
         $('#sections-field-new > .label').text($(this).val());
     });
     $('input[name="type"]').change(function() {
         if($(this).val() == 4)
-            $url_input.val($url + "/[i:nav]");
+            nav = "/[i:nav]";
         else
-            $url_input.val($url);
+            nav = "";
+        $url_input.val("/" + keyword + nav);
     });
     $check_pos_list.change(function() {
         if($(this).is(":checked"))
