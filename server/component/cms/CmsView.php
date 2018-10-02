@@ -96,7 +96,7 @@ class CmsView extends BaseView
         );
 
         $pages = $this->model->get_pages();
-        $expand_pages = !$this->model->is_navigation_item();
+        $expand_pages = ($this->model->get_active_section_id() == null);
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id());
 
@@ -250,7 +250,7 @@ class CmsView extends BaseView
      * @param string $prefix
      *  A unique id prefix that is used to identify a list.
      * @param bool $is_expanded_root
-     *  Indicates wheter the card style is expanded or not.
+     *  Indicates whether the card style is expanded or not.
      * @param int $id_active
      *  The id of the currently active item.
      * @param string $search_text
