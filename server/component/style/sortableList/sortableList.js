@@ -1,6 +1,5 @@
-$('.children-list.sortable').each(function(idx) {
-    var $list = $(this);
-    $list.sortable({
-        animation: 150,
+$(document).ready(function() {
+    $('.children-list.sortable').each(function(idx) {
+        $(this).sortable();
     });
 });
