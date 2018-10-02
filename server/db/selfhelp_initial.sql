@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 02, 2018 at 12:36 PM
+-- Generation Time: Oct 02, 2018 at 02:06 PM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -1130,8 +1130,7 @@ CREATE TABLE `users_groups` (
 --
 
 INSERT INTO `users_groups` (`id_users`, `id_groups`) VALUES
-(0000000002, 0000000001),
-(0000000002, 0000000002);
+(0000000002, 0000000001);
 
 -- --------------------------------------------------------
 
