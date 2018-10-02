@@ -17,7 +17,7 @@ class NavigationContainerView extends BaseView
     private $title;
 
     /**
-     * DB field 'text_md' ("# @title").
+     * DB field 'text_md' ("<h1>@title</h1>").
      * A markdown text that is placed at the beginning of the container. Use
      * the string '\@title' to print the field 'title'.
      */
@@ -35,7 +35,7 @@ class NavigationContainerView extends BaseView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field('title');
-        $this->text_md = $this->model->get_db_field('text_md', "# @title");
+        $this->text_md = $this->model->get_db_field('text_md', "<h1>@title</h1>");
     }
 
     /* Public Methods *********************************************************/
