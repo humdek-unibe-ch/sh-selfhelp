@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 02, 2018 at 05:13 PM
+-- Generation Time: Oct 03, 2018 at 09:05 AM
 -- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -911,9 +911,9 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `intern`) VALUES
 (0000000027, 'video', 0000000001, 0),
 (0000000028, 'accordionList', 0000000002, 0),
 (0000000030, 'navigationContainer', 0000000001, 0),
-(0000000031, 'navigationAccordion', 0000000003, 0),
+(0000000031, 'navigationAccordion', 0000000003, 1),
 (0000000032, 'nestedList', 0000000002, 0),
-(0000000033, 'navigationNested', 0000000003, 0),
+(0000000033, 'navigationNested', 0000000003, 1),
 (0000000034, 'sortableList', 0000000001, 0),
 (0000000035, 'resetPassword', 0000000002, 1);
 
