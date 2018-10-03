@@ -147,13 +147,15 @@ class NestedListView extends BaseView
      * @param array $item
      *  An associative array holding item information (see class NestedListView
      *  description).
+     * @param int $index
+     *  The index of the item.
      */
-    private function output_list_item($item)
+    private function output_list_item($item, $index)
     {
         if($item == null) return;
         $children = isset($item['children']) ? $item['children'] : array();
         $id = $this->get_id($item['id']);
-        $id_html = $this->id_prefix . "-" . $id;
+        $id_html = $this->id_prefix . "-" . $id . "-" . $index;
 
         $is_collapsible = (count($children) > 0 && $this->has_chevron);
         $collapsible = $is_collapsible ? "collapsible" : "";
@@ -230,7 +232,7 @@ class NestedListView extends BaseView
     private function output_list_items($items)
     {
         foreach($items as $index => $item)
-            $this->output_list_item($item);
+            $this->output_list_item($item, $index);
     }
 
     /**

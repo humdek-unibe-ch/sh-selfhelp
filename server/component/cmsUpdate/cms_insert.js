@@ -14,9 +14,9 @@ $(document).ready(function() {
         $(this).addClass("active");
 
         $input_name.val($(this).text());
-        $input_add_section_link.val(ids[ids.length - 2]);
+        $input_add_section_link.val(ids[ids.length - 3]);
         $input_new_section.prop("checked", false);
-        $input_style.val(ids[ids.length - 1]);
+        $input_style.val(ids[ids.length - 2]);
         name_postfix = $('select[name="section-style"] option:selected').text().trim();
         $input_name_prefix.val("");
 

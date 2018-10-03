@@ -2,7 +2,9 @@
 require_once __DIR__ . "/../BaseView.php";
 
 /**
- * The view class of the style component.
+ * The view class of the style component. Each style is wrapped in a div
+ * container which serves to identify styles by id. This feature is used in the
+ * CMS to highlight the selected style.
  */
 class StyleView extends BaseView
 {

@@ -8,6 +8,15 @@ require_once __DIR__ . "/StyleModel.php";
  * The class to define the style component. A style component serves to render
  * section content that is stored in the database with variable views.
  * The views are specified by the style.
+ *
+ * Styles are registered in the database. A style is loaded by name matching.
+ * The name of the style must be matchable to the path and the name of the
+ * class that will be instantiated.  A style can either be a simple view or
+ * a fully fledget component. Depending on this tha class to be instantiated is
+ * postfixe by 'View' or 'Component', respectively.  E.g. when using the view
+ * style 'myVStyle' the following class will be loaded and instantiated:
+ * 'server/style/myVStyle/MyVStyleView.php' (Note the capital first letter of
+ * the class name).
  */
 class StyleComponent extends BaseComponent
 {

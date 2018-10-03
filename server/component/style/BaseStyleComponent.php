@@ -5,6 +5,11 @@ require_once __DIR__ . "/BaseStyleModel.php";
 /**
  * The class to define the base style component. A base style component serves
  * to render content in different views. The views are specified by the style.
+ *
+ * In contrast to a StyleComponent, the BaseStyleComponent does not pass on the
+ * service array. Due to this it is easily usable in a view where services are
+ * not accessible. The idea is that fields where services are necessary would be
+ * prepared in the model and then passed dierectly to the BaseStyleComponent.
  */
 class BaseStyleComponent extends BaseComponent
 {
