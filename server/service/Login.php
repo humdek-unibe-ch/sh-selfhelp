@@ -23,6 +23,7 @@ class Login
      */
     private function init_session()
     {
+        session_name(PROJECT_NAME);
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = "male";
