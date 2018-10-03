@@ -25,7 +25,7 @@ $(document).ready(function() {
         $input_style.prop("disabled", true);
         $input_new_section.prop("disabled", false);
     });
-    $input_name_prefix.keyup(function() {
+    $input_name_prefix.change(function() {
         name_prefix = $(this).val();
         $input_name.val(name_prefix + "-" + name_postfix);
     });
