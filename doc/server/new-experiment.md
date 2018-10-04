@@ -73,8 +73,8 @@ Once the mysql console is open run the commands
 CREATE USER '__experiment_name__'@'localhost' IDENTIFIED BY '__db_password__'
 CREATE DATABASE __experiment_name__ CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE __experiment_name__;
-source server/db/selfhelp_initial.sql;
-source server/db/privileges.sql;
+source /home/www/__experiment_name__/server/db/selfhelp_initial.sql;
+source /home/www/__experiment_name__/server/db/privileges.sql;
 ```
 
 Quit mysql with `ctrl-d`.
