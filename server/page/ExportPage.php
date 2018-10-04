@@ -84,7 +84,8 @@ class ExportPage extends BasePage
         $fields = $this->services['user_input']->get_input_fields();
 
         // output the column headings
-        fputcsv($output, array_keys($fields[0]));
+        if(count($fields) > 0)
+            fputcsv($output, array_keys($fields[0]));
 
         // loop over the rows, outputting them
         foreach($fields as $field)
