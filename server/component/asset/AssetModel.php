@@ -66,6 +66,7 @@ class AssetModel extends BaseModel
             closedir($handle);
         }
         natcasesort($files);
+        $assets = array();
         foreach($files as $file)
             $assets[] = array("id" => $file, "title" => $file);
         return $assets;
