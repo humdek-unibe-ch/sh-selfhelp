@@ -108,15 +108,17 @@ abstract class BasePage
         $this->keyword = $keyword;
         $this->components = array();
         $this->css_includes = array(
-            "/css/bootstrap.min.css",
-            "/css/fontawesome.css",
-            "/css/main.css",
+            "/css/ext/bootstrap.min.css",
+            "/css/ext/fontawesome.css",
         );
         $this->js_includes = array(
-            "/js/jquery.min.js",
-            "/js/bootstrap.min.js",
-            "/js/main.js",
+            "/js/ext/jquery.min.js",
+            "/js/ext/bootstrap.min.js",
         );
+        $this->add_main_include_files(CSS_SERVER_PATH, "/css/",
+            $this->css_includes);
+        $this->add_main_include_files(JS_SERVER_PATH, "/js/",
+            $this->js_includes);
         $this->services = array(
             // The router instance which is used to generate valid links.
             "router" => $router,
@@ -151,6 +153,32 @@ abstract class BasePage
     }
 
     /* Private Metods *********************************************************/
+
+    /**
+     * Add include files to the list of includes.
+     *
+     * @param string $path
+     *  The server path to the folder holding include files.
+     * @param string $path_prefix
+     *  The relative host path to reach the include files.
+     * @param reference &$includes
+     *  A reference to the array where the include paths will be attached.
+     */
+    private function add_main_include_files($path, $path_prefix, &$includes)
+    {
+        $files = array();
+        if($handle = opendir($path)) {
+            while(false !== ($file = readdir($handle)))
+            {
+                if(filetype($path . '/' . $file) === "dir") continue;
+                $files[] = $file;
+            }
+            closedir($handle);
+        }
+        natcasesort($files);
+        foreach($files as $file)
+            $includes[] = $path_prefix . $file;
+    }
 
     /**
      * Fetch the main page information from the database.

@@ -1,5 +1,9 @@
 <?php
 define('ASSET_FOLDER', 'assets');
+define('CSS_FOLDER', 'css');
+define('CSS_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . CSS_FOLDER);
+define('JS_FOLDER', 'js');
+define('JS_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . JS_FOLDER);
 define('ASSET_PATH', BASE_PATH . '/' . ASSET_FOLDER);
 define('ASSET_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . ASSET_FOLDER);
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
