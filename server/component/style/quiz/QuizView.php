@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the quiz style component.
  */
-class QuizView extends BaseView
+class QuizView extends StyleView
 {
     /* Private Properties *****************************************************/
 

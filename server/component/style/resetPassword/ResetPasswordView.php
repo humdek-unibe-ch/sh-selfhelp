@@ -1,11 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the ResetPasswordComponent.
+ * This style is not available for selection in the CMS.
  */
-class ResetPasswordView extends BaseView
+class ResetPasswordView extends StyleView
 {
     /* Private Properties******************************************************/
 

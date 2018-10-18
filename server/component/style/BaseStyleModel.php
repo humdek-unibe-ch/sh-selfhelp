@@ -20,6 +20,11 @@ class BaseStyleModel implements IStyleModel
     private $children;
 
     /**
+     * The name of the style associated to the section.
+     */
+    private $style_name;
+
+    /**
      * The constructor.
      *
      * @param array $fields
@@ -27,9 +32,12 @@ class BaseStyleModel implements IStyleModel
      *  required are dependent of the style. The array must contain key, value
      *  pairs where the key is the name of the field and the value the content
      *  of the field.
+     * @param string $style_name
+     *  The name of the style.
      */
-    public function __construct($fields)
+    public function __construct($fields, $style_name)
     {
+        $this->style_name = $style_name;
         $this->children = array();
         $index = 0;
         $this->fields = array();
@@ -99,6 +107,18 @@ class BaseStyleModel implements IStyleModel
             return $this->fields[$key];
         else
             return "";
+    }
+
+    /**
+     * Returns the style name. This will be used to load the corresponding
+     * include files.
+     *
+     * @retval string
+     *  The style name.
+     */
+    public function get_style_name()
+    {
+        return $this->style_name;
     }
 
     /**

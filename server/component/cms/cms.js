@@ -15,6 +15,7 @@ $(document).ready(function() {
     $('.children-list.sortable').each(function(idx) {
         var $input = $(this).prev();
         var $list = $(this);
+        $list.sortable("destroy");
         $list.sortable({
             animation: 150,
             onSort : function(evt) {

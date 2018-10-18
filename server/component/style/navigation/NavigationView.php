@@ -1,11 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The base view class of a navigation component.
+ * This class provides common fiunctionallity that is used by navigation styles.
  */
-abstract class NavigationView extends BaseView
+abstract class NavigationView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -97,19 +98,6 @@ abstract class NavigationView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/navigation.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the login view.

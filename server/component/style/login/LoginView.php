@@ -1,11 +1,13 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the login component.
+ * The login style component renders the login form. This is not made available
+ * in the CMS and is only used internally.
  */
-class LoginView extends BaseView
+class LoginView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -101,19 +103,6 @@ class LoginView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/login.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the login view.

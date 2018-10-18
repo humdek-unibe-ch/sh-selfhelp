@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the unknown style component.
  */
-class UnknownStyleView extends BaseView
+class UnknownStyleView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -12,7 +12,7 @@ class UnknownStyleView extends BaseView
      * DB field 'style_name' (empty string).
      * The name of the style that cannot be found.
      */
-    private $style_name;
+    private $style_name_na;
 
     /* Constructors ***********************************************************/
 
@@ -24,7 +24,7 @@ class UnknownStyleView extends BaseView
      */
     public function __construct($model)
     {
-        $this->style_name = $model->get_db_field("style_name");
+        $this->style_name_na = $model->get_db_field("style_name");
         parent::__construct($model);
     }
 

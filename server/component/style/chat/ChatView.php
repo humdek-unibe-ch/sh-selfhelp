@@ -1,11 +1,13 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the chat component.
+ * The chat component is not made available to the CMS in is only used
+ * internally.
  */
-class ChatView extends BaseView
+class ChatView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -150,32 +152,6 @@ class ChatView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/chat.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/chat.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the user view.

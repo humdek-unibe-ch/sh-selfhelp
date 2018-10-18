@@ -41,13 +41,14 @@ class BaseStyleComponent extends BaseComponent
         $className = ucfirst($style) . "View";
         if(class_exists($className))
         {
-            $model = new BaseStyleModel($fields);
+            $model = new BaseStyleModel($fields, $style);
             $model->set_fields_full($fields_full);
             $view = new $className($model);
         }
         else
         {
-            $model = new BaseStyleModel(array("style_name" => $style));
+            $model = new BaseStyleModel(array("style_name" => $style),
+                "unknownStyle");
             $view = new UnknownStyleView($model);
         }
         parent::__construct($model, $view);

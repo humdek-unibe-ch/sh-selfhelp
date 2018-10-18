@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the progress bar style component.
  */
-class ProgressBarView extends BaseView
+class ProgressBarView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -55,19 +55,6 @@ class ProgressBarView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/progress.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the style view.

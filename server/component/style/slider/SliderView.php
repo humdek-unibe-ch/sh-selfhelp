@@ -69,35 +69,5 @@ class SliderView extends FormFieldView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(
-            __DIR__ . "/slider.css",
-        );
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(
-            __DIR__ . "/slider.js",
-        );
-        return parent::get_js_includes($local);
-    }
 }
 ?>

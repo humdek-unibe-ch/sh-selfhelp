@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the description item style component.
+ * This style component is currently only used for internal purposes and is not
+ * made available vie the CMS.
  */
-class DescriptionItemView extends BaseView
+class DescriptionItemView extends StyleView
 {
     /* Private Properties *****************************************************/
 

@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the sortable list style component.
  */
-class SortableListView extends BaseView
+class SortableListView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -132,36 +132,6 @@ class SortableListView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/sortableList.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(
-            __DIR__ . "/sortable.min.js",
-            __DIR__ . "/sortable.jquery.binding.js",
-            __DIR__ . "/sortableList.js",
-        );
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the style view.

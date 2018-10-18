@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the alert style component.
+ * This style component is a visual container that allows to represent alert
+ * boxes.
  */
-class AlertView extends BaseView
+class AlertView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -48,19 +50,6 @@ class AlertView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/alert.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the style view.

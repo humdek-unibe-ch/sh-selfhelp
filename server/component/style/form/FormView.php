@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the form style component. This component renders a html
  * form.
  */
-class FormView extends BaseView
+class FormView extends StyleView
 {
     /* Private Properties *****************************************************/
 

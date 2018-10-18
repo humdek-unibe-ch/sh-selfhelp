@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the template style component.
@@ -7,7 +7,7 @@ require_once __DIR__ . "/../../BaseView.php";
  *  'path':     The path to the template to display.
  *  'items':    The fields used in the template.
  */
-class TemplateView extends BaseView
+class TemplateView extends StyleView
 {
     /* Constructors ***********************************************************/
 

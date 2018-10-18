@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the acl style component.
+ * This style component allows to display ACL tables. It is not made available
+ * to the CMS in is only used internally.
  */
-class AclView extends BaseView
+class AclView extends StyleView
 {
     /* Private Properties *****************************************************/
 

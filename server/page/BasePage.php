@@ -119,6 +119,7 @@ abstract class BasePage
             $this->css_includes);
         $this->add_main_include_files(JS_SERVER_PATH, "/js/",
             $this->js_includes);
+        $this->collect_style_includes();
         $this->services = array(
             // The router instance which is used to generate valid links.
             "router" => $router,
@@ -155,6 +156,31 @@ abstract class BasePage
     /* Private Metods *********************************************************/
 
     /**
+     * Iterate through all styles and collect all js and css files.
+     */
+    private function collect_style_includes()
+    {
+        if($handle = opendir(STYLE_SERVER_PATH)) {
+            while(false !== ($file = readdir($handle)))
+            {
+                if(filetype(STYLE_SERVER_PATH . '/' . $file) !== "dir"
+                    || $file === "." || $file === "..") continue;
+                $this->add_main_include_files(
+                    STYLE_SERVER_PATH . '/' . $file . '/css',
+                    STYLE_PATH . '/' . $file . '/css/',
+                    $this->css_includes
+                );
+                $this->add_main_include_files(
+                    STYLE_SERVER_PATH . '/' . $file . '/js',
+                    STYLE_PATH . '/' . $file . '/js/',
+                    $this->js_includes
+                );
+            }
+            closedir($handle);
+        }
+    }
+
+    /**
      * Add include files to the list of includes.
      *
      * @param string $path
@@ -166,6 +192,7 @@ abstract class BasePage
      */
     private function add_main_include_files($path, $path_prefix, &$includes)
     {
+        if(!file_exists($path)) return;
         $files = array();
         if($handle = opendir($path)) {
             while(false !== ($file = readdir($handle)))

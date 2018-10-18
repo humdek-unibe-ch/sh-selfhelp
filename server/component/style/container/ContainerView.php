@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the container style component.
+ * Containers allow to wrap content into a div tag.
  */
-class ContainerView extends BaseView
+class ContainerView extends StyleView
 {
     /* Private Properties *****************************************************/
 

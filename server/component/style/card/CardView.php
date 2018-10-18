@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the card style component.
+ * Cards are special visual containers which with an optional heading and useful
+ * configuartion settings such as making the card collpsible.
  */
-class CardView extends BaseView
+class CardView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -85,32 +87,6 @@ class CardView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/card.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/card.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the style view.

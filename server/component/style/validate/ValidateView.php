@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the user profile component.
  */
-class ValidateView extends BaseView
+class ValidateView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -156,19 +156,6 @@ class ValidateView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/validate.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the user view.

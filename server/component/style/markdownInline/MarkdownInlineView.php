@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the markdown inline component.
+ * This style component does the same as the markdown style however is limited
+ * one-line statemenst.
  */
-class MarkdownInlineView extends BaseView
+class MarkdownInlineView extends StyleView
 {
     /* Private Properties *****************************************************/
 

@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the accordion list style component.
+ * This style component renders a accordion list as it is proposed by bootstrap.
  */
-class AccordionListView extends BaseView
+class AccordionListView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -187,32 +188,6 @@ class AccordionListView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/accordionList.js");
-        return parent::get_js_includes($local);
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/accordionList.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the login view.

@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
- * The base view class of form field style components,
+ * The base view class of form field style components.
+ * This class provides common functionality that is used for all for field style
+ * components.
  */
-abstract class FormFieldView extends BaseView
+abstract class FormFieldView extends StyleView
 {
     /* Private Properties *****************************************************/
 

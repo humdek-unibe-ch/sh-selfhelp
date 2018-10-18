@@ -1,11 +1,13 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the user profile component.
+ * This style component renders the profile page of a user. This is style is not
+ * made available for selection in the CMS.
  */
-class ProfileView extends BaseView
+class ProfileView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -181,19 +183,6 @@ class ProfileView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/profile.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the user view.

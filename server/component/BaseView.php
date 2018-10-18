@@ -17,28 +17,10 @@ abstract class BaseView
     protected $controller;
 
     /**
-     * DB field 'css' (null)
-     * This field can hold a list of comma seperated css classes. These css
-     * classes will be assigned to style wrapper element.
-     */
-    protected $css;
-
-    /**
-     * DB field 'id' (null)
-     * The id of the section.
-     */
-    protected $id_section;
-
-    /**
      * The list of local components. These components where produced
      * programmatically (not loaded from the db)
      */
     private $local_components;
-
-    /**
-     * The list of child components. These components where loaded from the db.
-     */
-    private $children;
 
     /* Constructors ***********************************************************/
 
@@ -53,16 +35,6 @@ abstract class BaseView
     public function __construct($model = null, $controller = null)
     {
         $this->model = $model;
-        $this->children = array();
-        if($model != null)
-        {
-            $this->children = $model->get_children();
-            if(method_exists($model, "get_db_field"))
-            {
-                $this->css = $model->get_db_field("css", null);
-                $this->id_section = $model->get_db_field("id", null);
-            }
-        }
         $this->controller = $controller;
         $this->local_components = array();
     }
@@ -81,26 +53,6 @@ abstract class BaseView
     protected function add_local_component($name, $component)
     {
         $this->local_components[$name] = $component;
-    }
-
-    /**
-     * Checks whether the children array is empty or not.
-     *
-     * @retval bool
-     *  True if there is at least one child, false otherwise.
-     */
-    protected function has_children()
-    {
-        return (count($this->children) > 0);
-    }
-
-    /**
-     * Render the content of all children of this view instance.
-     */
-    protected function output_children()
-    {
-        foreach($this->children as $child)
-            $child->output_content();
     }
 
     /**
@@ -154,16 +106,7 @@ abstract class BaseView
      */
     public function get_css_includes($local = array())
     {
-        $css_includes = array();
-        foreach($this->children as $child)
-        {
-            $css_includes = array_merge($css_includes,
-                $child->get_css_includes());
-        }
-        foreach($this->local_components as $component)
-            $css_includes = array_merge($css_includes,
-                $component->get_css_includes());
-        return array_unique(array_merge($local, $css_includes));
+        return $local;
     }
 
     /**
@@ -179,14 +122,7 @@ abstract class BaseView
      */
     public function get_js_includes($local = array())
     {
-        $js_includes = array();
-        foreach($this->children as $child)
-            $js_includes = array_merge($js_includes,
-                $child->get_js_includes());
-        foreach($this->local_components as $component)
-            $js_includes = array_merge($js_includes,
-                $component->get_js_includes());
-        return array_unique(array_merge($local, $js_includes));
+        return $local;
     }
 }
 ?>
