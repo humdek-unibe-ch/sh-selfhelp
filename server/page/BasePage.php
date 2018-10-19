@@ -142,7 +142,7 @@ abstract class BasePage
             // User input handler
             "user_input" => new UserInput($db),
         );
-        $this->services['parsedown']->setSafeMode(true);
+        $this->services['parsedown']->setSafeMode(false);
         $this->fetch_page_info($keyword);
         if($this->id_navigation_section != null)
             $this->services['nav'] = new Navigation($router, $db, $keyword,
