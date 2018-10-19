@@ -2,12 +2,12 @@ $(document).ready(function() {
     $('[id|=sections]').hover(
         function() {
             var ids = $(this).attr('id').split('-');
-            var id = ids[ids.length-2];
+            var id = ids[ids.length-1];
             $('div.style-section-' + id).addClass("highlight-hover");
             $('div.style-section-' + id).removeClass("d-inline");
         }, function() {
             var ids = $(this).attr('id').split('-');
-            var id = ids[ids.length-2];
+            var id = ids[ids.length-1];
             $('div.style-section-' + id).removeClass("highlight-hover");
             $('div.style-section-' + id).addClass("d-inline");
         }

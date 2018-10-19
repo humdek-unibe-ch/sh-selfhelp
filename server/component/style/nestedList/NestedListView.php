@@ -60,6 +60,11 @@ class NestedListView extends StyleView
      */
     private $items;
 
+    /**
+     * A global index counter which increases for each rendered item.
+     */
+    private $global_index = 0;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -159,7 +164,8 @@ class NestedListView extends StyleView
         if($item == null) return;
         $children = isset($item['children']) ? $item['children'] : array();
         $id = $this->get_id($item['id']);
-        $id_html = $this->id_prefix . "-" . $id . "-" . $index;
+        $id_html = $this->id_prefix . "-" . $this->global_index . "-" . $id;
+        $this->global_index++;
 
         $is_collapsible = (count($children) > 0 && $this->has_chevron);
         $collapsible = $is_collapsible ? "collapsible" : "";
