@@ -26,7 +26,7 @@ class RawTextView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->text = $this->model->get_db_field("text");
+        $this->text = htmlspecialchars($this->model->get_db_field("text"));
     }
 
     /* Private Methods ********************************************************/
