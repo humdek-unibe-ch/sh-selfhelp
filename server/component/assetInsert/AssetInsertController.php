@@ -24,6 +24,15 @@ class AssetInsertController extends BaseController
     {
         parent::__construct($model);
         $this->name = "";
+        // check that post_max_size has not been reached
+        if(isset($_SERVER['CONTENT_LENGTH'])
+                && (int)$_SERVER['CONTENT_LENGTH']
+                    > $this->convert_to_bytes(ini_get('post_max_size')))
+        {
+            $this->fail = true;
+            $this->error_msg = "The file size exceeds the maximal allowed upload size";
+            return;
+        }
         if(isset($_POST['name']) && isset($_FILES['file']))
         {
             $info = pathinfo($_FILES['file']['name']);
@@ -34,12 +43,16 @@ class AssetInsertController extends BaseController
             if(file_exists($target))
             {
                 $this->fail = true;
+                $this->error_msg = "A file with the same name already exists";
                 return;
             }
             if(move_uploaded_file($_FILES['file']['tmp_name'], $target))
                 $this->success = true;
             else
+            {
                 $this->fail = true;
+                $this->error_msg = "Unable to store the file on the server";
+            }
         }
     }
 

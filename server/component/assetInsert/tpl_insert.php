@@ -9,7 +9,8 @@
             <h5 class="mb-0">Upload</h5>
         </div>
         <div class="card-body">
-            <form action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
+            <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg mr-3"></i>Uploading the file to the server</div>
+            <form id="asset-upload-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
                 <div class="row">
                     <div class="form-group col">
                         <label>Name</label>
@@ -23,7 +24,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Upload</button>
+                <button id="asset-upload-button" type="submit" class="btn btn-primary">Upload</button>
                 <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
             </form>
         </div>

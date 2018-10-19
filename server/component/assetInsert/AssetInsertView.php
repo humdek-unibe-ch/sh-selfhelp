@@ -20,14 +20,6 @@ class AssetInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to upload the asset file.",
-                )))
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -37,8 +29,14 @@ class AssetInsertView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_failed())
-            $this->output_local_component("alert-fail");
+        if(!$this->controller->has_failed()) return;
+        $alert = new BaseStyleComponent("alert", array(
+            "type" => "danger",
+            "children" => array(new BaseStyleComponent("plaintext", array(
+                "text" => $this->controller->get_error_msg(),
+            )))
+        ));
+        $alert->output_content();
     }
 
     /* Public Methods *********************************************************/
