@@ -114,7 +114,8 @@ class NestedListView extends StyleView
         {
             if($id_active == $this->get_id($item['id']))
                 return true;
-            if($this->is_child_active($item['children'], $id_active))
+            if(isset($item['children'])
+                    && $this->is_child_active($item['children'], $id_active))
                 return true;
         }
     }
@@ -135,8 +136,11 @@ class NestedListView extends StyleView
         {
             if($id_active == $this->get_id($item['id']))
                 return $item['title'];
-            $res = $this->get_child_active($item['children'], $id_active);
-            if($res) return $res;
+            if(isset($item['children']))
+            {
+                $res = $this->get_child_active($item['children'], $id_active);
+                if($res) return $res;
+            }
         }
         return null;
     }
