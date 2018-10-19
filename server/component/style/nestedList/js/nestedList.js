@@ -44,4 +44,18 @@ $(document).ready(function() {
                 .removeClass('fa-chevron-down')
                 .addClass('fa-chevron-right');
     });
+    $('.nested-list-menu-responsive.collapsed').click(function() {
+        $collapsible = $(this).next();
+        if($collapsible.hasClass("show")) {
+            $collapsible.hide(function() {
+                $collapsible.removeClass("show");
+            });
+        }
+        else
+        {
+            $collapsible.show(function () {
+                $collapsible.addClass("show");
+            });
+        }
+    });
 });
