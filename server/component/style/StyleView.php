@@ -57,33 +57,6 @@ abstract class StyleView extends BaseView
         }
     }
 
-    /* Private Methods ********************************************************/
-
-    /**
-     * Add include files to the list of includes.
-     *
-     * @param string $path
-     *  The server path to the folder holding include files.
-     * @param string $path_prefix
-     *  The relative host path to reach the include files.
-     * @param reference &$includes
-     *  A reference to the array where the include paths will be attached.
-     */
-    private function get_include_files($path)
-    {
-        $files = array();
-        if($handle = opendir($path)) {
-            while(false !== ($file = readdir($handle)))
-            {
-                if(filetype($path . '/' . $file) === "dir") continue;
-                $files[] = $file;
-            }
-            closedir($handle);
-        }
-        natcasesort($files);
-        return $files;
-    }
-
     /* Protected Methods ******************************************************/
 
     /**
@@ -105,7 +78,5 @@ abstract class StyleView extends BaseView
         foreach($this->children as $child)
             $child->output_content();
     }
-
-    /* Public Methods *********************************************************/
 }
 ?>

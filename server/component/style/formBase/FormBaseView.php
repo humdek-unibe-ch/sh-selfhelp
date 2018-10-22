@@ -35,6 +35,8 @@ abstract class FormBaseView extends StyleView
      *
      * @param object $model
      *  The model instance of a base style component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
     public function __construct($model, $controller)
     {

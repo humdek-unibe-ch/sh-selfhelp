@@ -8,7 +8,15 @@ require_once __DIR__ . "/../BaseView.php";
  */
 class StyleWrapperView extends BaseView
 {
+
+    /**
+     * The instance of a the style component class.
+     */
     private $style;
+
+    /**
+     * The id of the section of the style instance.
+     */
     private $id;
 
     /* Constructors ***********************************************************/
@@ -16,10 +24,10 @@ class StyleWrapperView extends BaseView
     /**
      * The constructor.
      *
-     * @param object $model
-     *  The model instance of the footer component.
      * @param object $style
      *  The style component to be rendered.
+     * @param int $id
+     *  The id of the section of the style instance.
      */
     public function __construct($style, $id)
     {

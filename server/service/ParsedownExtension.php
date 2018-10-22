@@ -53,6 +53,10 @@ class ParsedownExtension extends Parsedown
         return $image;
     }
 
+    /**
+     * Extends the blockTable parser by adding bootstrap classes to render
+     * a table responsive.
+     */
     protected function blockTable($Line, array $Block = null)
     {
         $table = parent::blockTable($Line, $Block);

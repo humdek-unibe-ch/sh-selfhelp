@@ -23,6 +23,9 @@ class FormBaseController extends BaseController
      *
      * @param object $model
      *  The model instance of the login component.
+     * @param bool $log
+     *  If set to true, each data set is saved as a timestamped new entry.
+     *  If set to false, existing data is updated.
      */
     public function __construct($model, $log = false)
     {
