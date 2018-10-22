@@ -22,9 +22,14 @@ abstract class BaseController
     protected $fail;
 
     /**
-     * The error message to be set if a failure occurred.
+     * The error messages to be set if a failure occurred.
      */
-    protected $error_msg = "";
+    protected $error_msgs = array();
+
+    /**
+     * The success messages to be set if the oeration was successful.
+     */
+    protected $success_msgs = array();
 
     /* Constructors ***********************************************************/
 
@@ -70,14 +75,25 @@ abstract class BaseController
     /* Public Methods *********************************************************/
 
     /**
-     * Return the error message string
+     * Return the error message array
      *
-     * @retval string
-     *  The error message.
+     * @retval array
+     *  The error messages.
      */
-    public function get_error_msg()
+    public function get_error_msgs()
     {
-        return $this->error_msg;
+        return $this->error_msgs;
+    }
+
+    /**
+     * Return the success message array
+     *
+     * @retval array
+     *  The success messages.
+     */
+    public function get_success_msgs()
+    {
+        return $this->success_msgs;
     }
 
     /**

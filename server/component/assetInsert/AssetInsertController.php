@@ -30,7 +30,7 @@ class AssetInsertController extends BaseController
                     > $this->convert_to_bytes(ini_get('post_max_size')))
         {
             $this->fail = true;
-            $this->error_msg = "The file size exceeds the maximal allowed upload size";
+            $this->error_msgs[] = "The file size exceeds the maximal allowed upload size";
             return;
         }
         if(isset($_POST['name']) && isset($_FILES['file']))
@@ -43,7 +43,7 @@ class AssetInsertController extends BaseController
             if(file_exists($target))
             {
                 $this->fail = true;
-                $this->error_msg = "A file with the same name already exists";
+                $this->error_msgs[] = "A file with the same name already exists";
                 return;
             }
             if(move_uploaded_file($_FILES['file']['tmp_name'], $target))
@@ -51,7 +51,7 @@ class AssetInsertController extends BaseController
             else
             {
                 $this->fail = true;
-                $this->error_msg = "Unable to store the file on the server";
+                $this->error_msgs[] = "Unable to store the file on the server";
             }
         }
     }

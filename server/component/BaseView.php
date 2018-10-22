@@ -86,6 +86,46 @@ abstract class BaseView
             return null;
     }
 
+    /**
+     * Render the fail alerts of the controller.
+     */
+    protected function output_controller_alerts_fail()
+    {
+        if($this->controller === null) return;
+        if(!$this->controller->has_failed()) return;
+        foreach($this->controller->get_error_msgs() as $msg)
+        {
+            $alert = new BaseStyleComponent("alert", array(
+                "type" => "danger",
+                "is_dismissable" => true,
+                "children" => array(new BaseStyleComponent("plaintext", array(
+                    "text" => $msg,
+                )))
+            ));
+            $alert->output_content();
+        }
+    }
+
+    /**
+     * Render the fail alerts of the controller.
+     */
+    protected function output_controller_alerts_success()
+    {
+        if($this->controller === null) return;
+        if(!$this->controller->has_succeeded()) return;
+        foreach($this->controller->get_success_msgs() as $msg)
+        {
+            $alert = new BaseStyleComponent("alert", array(
+                "type" => "success",
+                "is_dismissable" => true,
+                "children" => array(new BaseStyleComponent("plaintext", array(
+                    "text" => $msg,
+                )))
+            ));
+            $alert->output_content();
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**

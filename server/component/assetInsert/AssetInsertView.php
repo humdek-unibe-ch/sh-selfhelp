@@ -29,14 +29,7 @@ class AssetInsertView extends BaseView
      */
     private function output_alert()
     {
-        if(!$this->controller->has_failed()) return;
-        $alert = new BaseStyleComponent("alert", array(
-            "type" => "danger",
-            "children" => array(new BaseStyleComponent("plaintext", array(
-                "text" => $this->controller->get_error_msg(),
-            )))
-        ));
-        $alert->output_content();
+        $this->output_controller_alerts();
     }
 
     /* Public Methods *********************************************************/

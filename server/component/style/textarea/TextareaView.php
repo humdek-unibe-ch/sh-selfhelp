@@ -2,8 +2,7 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the textarea style component. This component renders a
- * textarea form field.
+ * The view class of the textarea style component.
  */
 class TextareaView extends FormFieldView
 {

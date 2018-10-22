@@ -8,6 +8,9 @@ require_once __DIR__ . "/../BaseView.php";
  */
 class StyleWrapperView extends BaseView
 {
+    private $style;
+    private $id;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -18,11 +21,11 @@ class StyleWrapperView extends BaseView
      * @param object $style
      *  The style component to be rendered.
      */
-    public function __construct($model, $style)
+    public function __construct($style, $id)
     {
-        parent::__construct($model);
-
-        $this->add_local_component("style", $style);
+        parent::__construct();
+        $this->style = $style;
+        $this->id = $id;
     }
 
     /* Public Methods *********************************************************/
@@ -32,8 +35,9 @@ class StyleWrapperView extends BaseView
      */
     public function output_content()
     {
-        $highlight = $this->model->get_db_field("is_active") ? "highlight" : "";
-        $id = $this->model->get_db_field("id");
+        $highlight = "";
+        if($this->id === $_SESSION['active_section_id'])
+           $highlight = "highlight";
         require __DIR__ . "/tpl_style.php";
     }
 }

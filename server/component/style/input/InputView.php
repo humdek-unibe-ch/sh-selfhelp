@@ -2,8 +2,7 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the input item style component. This component renders an
- * input form field.
+ * The view class of the input item style component.
  */
 class InputView extends FormFieldView
 {

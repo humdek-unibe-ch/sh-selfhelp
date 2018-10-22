@@ -1,3 +1,3 @@
-<div class="style-section-<?php echo $id; ?> <?php echo $highlight; ?> d-inline">
-    <?php $this->output_local_component("style"); ?>
+<div class="style-section-<?php echo $this->id; ?> <?php echo $highlight; ?> d-inline">
+    <?php $this->style->output_content(); ?>
 </div>

@@ -226,6 +226,8 @@ class UserInput
      *   - 'field_name'   Selects all fields with the given name.
      *   - 'page'         Selects all fields on a given page.
      *   - 'nav'          Selects all fields in a given navigation sections.
+     *   - 'id_section'   Selects all fields with given section id.
+     *   - 'id_user'      Selects all fields from a given user id.
      * @retval array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
@@ -234,7 +236,11 @@ class UserInput
     {
         $db_cond = array();
         if(isset($filter["gender"]))
-            $db_cond = array("g.name" => $filter["gender"]);
+            $db_cond["g.name"] = $filter["gender"];
+        if(isset($filter["id_section"]))
+            $db_cond["ui.id_sections"] = $filter["id_section"];
+        if(isset($filter["id_user"]))
+            $db_cond["ui.id_users"] = $filter["id_user"];
         $fields_all = $this->fetch_input_fields($db_cond);
         $fields = array();
         foreach($fields_all as $field)
@@ -274,10 +280,24 @@ class UserInput
     }
 
     /**
+     * Get all input fields that match a field section id.
+     *
+     * @param int $field_id
+     *  The field_id to match.
+     * @retval array
+     *  The selected user input fields. See UserInput::fetch_input_fields() for
+     *  more details.
+     */
+    public function get_input_fields_by_field_id($field_id)
+    {
+        return $this->get_input_fields(array("id_sections" => $field_id));
+    }
+
+    /**
      * Get all input fields that match a field name.
      *
      * @param string $field_name
-     *  The fiel_name to match.
+     *  The field_name to match.
      * @retval array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.

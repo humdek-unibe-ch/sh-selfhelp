@@ -424,10 +424,8 @@ class BaseDb {
             $insertStr = rtrim($insertStr, ", ");
             $sql = "UPDATE ".$table." SET ".$insertStr.$where_cond;
             $stmt = $this->dbh->prepare($sql);
-            if($stmt->execute($data))
-                return true;
-            else
-                return false;
+            $stmt->execute($data);
+            return $stmt->rowCount();
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();

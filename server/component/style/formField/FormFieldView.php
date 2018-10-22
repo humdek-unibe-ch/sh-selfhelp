@@ -103,6 +103,8 @@ abstract class FormFieldView extends StyleView
      */
     public function output_content()
     {
+        if(!is_a($this->model, "BaseStyleModel"))
+            $this->value = $this->model->get_form_field_value();
         if($this->name == "") return;
         if($this->label == "")
             $this->output_form_field();

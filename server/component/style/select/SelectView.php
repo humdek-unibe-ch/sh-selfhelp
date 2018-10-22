@@ -2,8 +2,8 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the select form style component. This component renders a
- * select form field.
+ * The view class of the select form style component.
+ * See SelectComponent for more details.
  */
 class SelectView extends FormFieldView
 {

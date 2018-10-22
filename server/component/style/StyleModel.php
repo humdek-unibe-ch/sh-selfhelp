@@ -62,10 +62,6 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->style_name = $style['style'];
         $this->style_type = $style['type'];
         $this->section_name = $style['name'];
-        $this->db_fields['is_active'] = array(
-            "content" => ($id === $_SESSION['active_section_id']),
-            "type" => "internal"
-        );
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
         $this->set_db_fields($fields);
@@ -75,8 +71,10 @@ class StyleModel extends BaseModel implements IStyleModel
 
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
+        {
             $this->children[] = new StyleComponent(
                 $services, intval($child['id']), $params);
+        }
     }
 
     /* Protected Methods ******************************************************/

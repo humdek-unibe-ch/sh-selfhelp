@@ -30,11 +30,6 @@ abstract class BaseComponent
      */
     protected $model;
 
-    /**
-     * The collectio of child components.
-     */
-    private $components;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -52,7 +47,6 @@ abstract class BaseComponent
      */
     public function __construct($model, $view, $controller=null)
     {
-        $this->components = array();
         $this->view = $view;
         $this->controller = $controller;
         $this->model = $model;
@@ -113,7 +107,8 @@ abstract class BaseComponent
      */
     public function get_children()
     {
-        return $this->components;
+        if($this->model == null) return array();
+        return $this->model->get_children();
     }
 
     /**
