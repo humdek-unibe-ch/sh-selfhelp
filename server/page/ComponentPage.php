@@ -61,11 +61,5 @@ class ComponentPage extends BasePage
             $page->output_content();
         }
     }
-
-    /**
-     * See BasePage::output_meta_tags()
-     * The current implementation is not doing anything.
-     */
-    protected function output_meta_tags() {}
 }
 ?>

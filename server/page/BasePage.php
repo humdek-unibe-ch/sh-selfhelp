@@ -137,8 +137,6 @@ abstract class BasePage
             // other elements in this array, "nav" may be null if a page has
             // only one view.
             "nav" => null,
-            // Gump is a single-class input validation and sanitizing library.
-            "gump" => new GUMP('de'),
             // User input handler
             "user_input" => new UserInput($db),
         );
@@ -262,12 +260,6 @@ abstract class BasePage
      */
     abstract protected function output_content();
 
-    /**
-     * Render the meta tags of the page.
-     * This function needs to be implemented by the class extending the BasePage.
-     */
-    abstract protected function output_meta_tags();
-
     /* Protected Methods ******************************************************/
 
     /**
@@ -307,6 +299,14 @@ abstract class BasePage
             $page->output_content();
         }
         if($this->render_footer) $this->output_component("footer");
+    }
+
+    /**
+     * Render the meta tags of the page.
+     */
+    protected function output_meta_tags()
+    {
+        require __DIR__ . "/tpl_meta.php";
     }
 
     /* Public Methods *********************************************************/
