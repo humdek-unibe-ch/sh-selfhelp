@@ -41,6 +41,9 @@ class RadioView extends FormFieldView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the radio items.
+     */
     private function output_radio_items()
     {
         $inline = ($this->is_inline) ? "form-check-inline" : "";
