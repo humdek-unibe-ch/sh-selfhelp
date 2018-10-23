@@ -68,6 +68,7 @@ class UserInput
         foreach($fields_db as $field)
         {
             $id = intval($field["id_sections"]);
+            if(!isset($this->field_attrs[$id])) continue;
             $fields[] = array(
                 "user_hash" => substr(base_convert(hash("sha256",
                     $field["id_users"]), 16, 36), 0, 8),
