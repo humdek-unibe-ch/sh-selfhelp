@@ -27,7 +27,9 @@ class FormLogComponent extends BaseComponent
     public function __construct($services, $id)
     {
         $model = new FormBaseModel($services, $id);
-        $controller = new FormBaseController($model, true);
+        $controller = null;
+        if(!$model->is_cms_page())
+            $controller = new FormBaseController($model, true);
         $view = new FormLogView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
