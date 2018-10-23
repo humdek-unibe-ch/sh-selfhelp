@@ -54,7 +54,7 @@ class InputView extends FormFieldView
         if($this->type == "checkbox" || $this->type == "radio")
         {
             $css_input = "form-check-input position-static float-left";
-            if($this->value != "" || isset($_POST[$this->name])) $checked = "checked";
+            if($this->value != "") $checked = "checked";
         }
         require __DIR__ . "/tpl_input.php";
     }

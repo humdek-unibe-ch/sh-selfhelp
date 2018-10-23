@@ -83,7 +83,6 @@ abstract class FormFieldView extends StyleView
         $this->is_user_input = $this->model->get_db_field("is_user_input", true);
         if($this->is_user_input)
             $this->name = $this->id_section . "-" . $this->name;
-        if(isset($_POST[$this->name])) $this->value = $_POST[$this->name];
         $this->label = $this->model->get_db_field("label");
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
