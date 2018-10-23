@@ -52,7 +52,7 @@ class FormFieldModel extends StyleModel
         if($fields && $field_count > 0)
             return $fields[$field_count - 1]['value'];
         else
-            return "";
+            return $this->get_db_field("value");
     }
 
     /**
