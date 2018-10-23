@@ -4,6 +4,10 @@ UPDATE `fields` SET `id_type` = '0000000007' WHERE `fields`.`id` = 0000000022;
 -- Add new style fields
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'is_inline', '0000000003', '0');
 
+-- New field for style link
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'open_in_new_tab', '0000000003', '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000018', '0000000087');
+
 -- New style 'formDoc'
 INSERT INTO `styles` (`id`, `name`, `id_type`, `intern`) VALUES (NULL, 'formDoc', '0000000002', '0');
 
