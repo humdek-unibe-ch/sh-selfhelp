@@ -63,7 +63,7 @@ abstract class FormFieldView extends StyleView
      * depending on whether the form field is a user input or not. If this is
      * not set, the component will not be rendered.
      */
-    private $name_base;
+    protected $name_base;
 
     /* Constructors ***********************************************************/
 
@@ -88,6 +88,10 @@ abstract class FormFieldView extends StyleView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render a hidden field holding the section id. This is only rendered if a
+     * user input form is used.
+     */
     private function output_id_field()
     {
         if(!$this->is_user_input()) return;
@@ -99,18 +103,27 @@ abstract class FormFieldView extends StyleView
         $hidden->output_content();
     }
 
-    private function is_user_input()
-    {
-        return (!is_a($this->model, "BaseStyleModel")
-            && $this->model->get_user_input());
-    }
-
+    /**
+     * Render the base form field.
+     */
     private function output_base_form_field()
     {
         require __DIR__ . "/tpl_form_field.php";
     }
 
     /* Protected Methods ******************************************************/
+
+    /**
+     * Chceks whether the field is a user input field.
+     *
+     * @retval bool
+     *  True if the field is a user input, false otherwise.
+     */
+    protected function is_user_input()
+    {
+        return (!is_a($this->model, "BaseStyleModel")
+            && $this->model->get_user_input());
+    }
 
     /**
      * Render the form field.

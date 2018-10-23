@@ -54,7 +54,21 @@ class InputView extends FormFieldView
         if($this->type == "checkbox" || $this->type == "radio")
         {
             $css_input = "form-check-input position-static float-left";
-            if($this->value != "") $checked = "checked";
+            if($this->placeholder != "") $checked = "checked";
+            if($this->is_user_input())
+            {
+                if($this->value === "")
+                {
+                    $checked = "";
+                    $this->value = $this->model->get_db_field("value");
+                }
+                $hidden = new BaseStyleComponent("input", array(
+                    "type_input" => "hidden",
+                    "name" => $this->name_base . "[checked]",
+                    "value" => $checked,
+                ));
+                $hidden->output_content();
+            }
         }
         require __DIR__ . "/tpl_input.php";
     }

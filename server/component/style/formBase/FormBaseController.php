@@ -50,7 +50,8 @@ class FormBaseController extends BaseController
             else if($res > 0)
             {
                 $this->success = true;
-                $this->success_msgs[] = $this->alert_success;
+                if($this->alert_success !== "")
+                    $this->success_msgs[] = $this->alert_success;
             }
         }
     }
@@ -74,7 +75,13 @@ class FormBaseController extends BaseController
         foreach($_POST as $name => $values)
         {
             $id_section = intval($values['id']);
-            if(!isset($values['value'])) continue;
+            if(!isset($values['value']))
+            {
+                if(isset($values['checked']))
+                    $values['value'] = "";
+                else
+                    continue;
+            }
             $value = $values['value'];
             $label = $this->model->get_field_label($id_section);
             if($label == "")
