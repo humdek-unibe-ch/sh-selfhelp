@@ -33,7 +33,7 @@ class InputView extends FormFieldView
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
-        if($this->type == "checkbox" || $this->type == "radio")
+        if($this->type == "checkbox")
         {
             $this->css_group = "form-check";
             $this->css_label = "form-check-label";
@@ -51,25 +51,24 @@ class InputView extends FormFieldView
         $css_input = "form-control";
         if($this->label == "") $css_input .= " " . $this->css;
         $checked = "";
-        if($this->type == "checkbox" || $this->type == "radio")
+        if($this->type == "checkbox")
         {
             $css_input = "form-check-input position-static float-left";
-            if($this->placeholder != "") $checked = "checked";
             if($this->is_user_input())
             {
-                if($this->value === "")
-                {
-                    $checked = "";
-                    $this->value = $this->model->get_db_field("value");
-                }
-                $hidden = new BaseStyleComponent("input", array(
-                    "type_input" => "hidden",
-                    "name" => $this->name_base . "[checked]",
-                    "value" => $checked,
-                ));
-                $hidden->output_content();
+                if($this->default_value == "") return;
+                if(($this->value !== null && $this->value !== "")
+                    || ($this->value === null && $this->placeholder != ""))
+                    $checked = "checked";
             }
+            else if($this->default_value != "")
+            {
+                $checked = "checked";
+            }
+            $this->value = $this->default_value;
         }
+        else if($this->value === null)
+            $this->value = $this->default_value;
         require __DIR__ . "/tpl_input.php";
     }
 }

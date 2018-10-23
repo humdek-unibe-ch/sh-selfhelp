@@ -15,7 +15,12 @@ abstract class FormFieldView extends StyleView
      * DB field 'value' (empty string).
      * The default value of the form field.
      */
-    protected $value;
+    protected $default_value;
+
+    /**
+     * The current value of the form field.
+     */
+    protected $value = null;
 
     /**
      * DB field 'is_required' (false).
@@ -80,7 +85,7 @@ abstract class FormFieldView extends StyleView
         parent::__construct($model);
 
         $this->name_base = $this->model->get_db_field("name");
-        $this->value = $this->model->get_db_field("value");
+        $this->default_value = $this->model->get_db_field("value");
         $this->label = $this->model->get_db_field("label");
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
@@ -126,6 +131,18 @@ abstract class FormFieldView extends StyleView
     }
 
     /**
+     * Chceks whether the default value ought to be overwritten by the db value.
+     *
+     * @retval bool
+     *  True if the db value must be fetched, false otherwise.
+     */
+    protected function show_db_value()
+    {
+        return (!is_a($this->model, "BaseStyleModel")
+            && $this->model->get_show_db_value());
+    }
+
+    /**
      * Render the form field.
      */
     abstract protected function output_form_field();
@@ -137,11 +154,16 @@ abstract class FormFieldView extends StyleView
      */
     public function output_content()
     {
-        if(!is_a($this->model, "BaseStyleModel"))
+        if($this->name_base === "") return;
+
+        if($this->show_db_value())
             $this->value = $this->model->get_form_field_value();
-        $this->name = $this->is_user_input() ?
-             $this->name_base . "[value]" : $this->name_base;
-        if($this->name == "") return;
+
+        if($this->is_user_input())
+            $this->name = $this->name_base . "[value]";
+        else
+            $this->name = $this->name_base;
+
         if($this->label == "")
             $this->output_base_form_field();
         else

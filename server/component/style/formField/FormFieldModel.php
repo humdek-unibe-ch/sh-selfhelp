@@ -42,15 +42,13 @@ class FormFieldModel extends StyleModel
     /* Public Methods *********************************************************/
 
     /**
-     * If the parent form is of style formDoc fetch the last unser input value
-     * for this form field from the database, otherwise get the default value.
+     * Fetch the form field value from the database if it exists.
      *
      * @retval string
      *  The form field value.
      */
     public function get_form_field_value()
     {
-        if(!$this->show_db_value) return $this->get_db_field("value");
         $fields = $this->user_input->get_input_fields(array(
             "id_section" => $this->get_db_field('id'),
             "id_user" => $_SESSION['id_user'],
@@ -59,7 +57,7 @@ class FormFieldModel extends StyleModel
         if($fields && $field_count > 0)
             return $fields[$field_count - 1]['value'];
         else
-            return $this->get_db_field("value");
+            return null;
     }
 
     /**
@@ -71,6 +69,17 @@ class FormFieldModel extends StyleModel
     public function get_user_input()
     {
         return $this->is_user_input;
+    }
+
+    /**
+     * Getter for FormFieldModel::show_db_value.
+     *
+     * @retval bool
+     *  See FormFieldModel::show_db_value.
+     */
+    public function get_show_db_value()
+    {
+        return $this->show_db_value;
     }
 
     /**

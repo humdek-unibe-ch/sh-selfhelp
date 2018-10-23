@@ -76,12 +76,7 @@ class FormBaseController extends BaseController
         {
             $id_section = intval($values['id']);
             if(!isset($values['value']))
-            {
-                if(isset($values['checked']))
-                    $values['value'] = "";
-                else
-                    continue;
-            }
+                $values['value'] = "";
             $value = $values['value'];
             $label = $this->model->get_field_label($id_section);
             if($label == "")
@@ -96,7 +91,7 @@ class FormBaseController extends BaseController
             }
             else if($style == "textarea")
                 $filter_rules[$name] = "sanitize_string";
-            else if($style == "select")
+            else if($style == "select" || $style == "radio")
             {
                 $validation_rules[$name] = "alpha_dash";
                 $filter_rules[$name] = "trim|sanitize_string";
@@ -104,9 +99,8 @@ class FormBaseController extends BaseController
             else if($style == "input")
             {
                 $type = $this->model->get_field_type($id_section);
-                if($type == "text" || $type == "checkbox" || $type == "radio"
-                    || $type == "month" || $type == "week" || $type == "search"
-                    || $type == "tel")
+                if($type == "text" || $type == "checkbox" || $type == "month"
+                    || $type == "week" || $type == "search" || $type == "tel")
                     $filter_rules[$name] = "trim|sanitize_string";
                 else if($type == "color")
                     $validation_rules[$name] = "regex,/#[a-fA-F0-9]{6}/";

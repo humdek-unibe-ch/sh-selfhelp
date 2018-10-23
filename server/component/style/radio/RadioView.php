@@ -2,10 +2,9 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the select form style component.
- * See SelectComponent for more details.
+ * The view class of the radio style component.
  */
-class SelectView extends FormFieldView
+class RadioView extends FormFieldView
 {
     /* Private Properties *****************************************************/
 
@@ -17,12 +16,13 @@ class SelectView extends FormFieldView
      */
     private $items;
 
+
     /**
-     * DB field 'is_multiple' (false).
-     * If set to true the selection form is a multiple select. If set to false
-     * the selection form is a dropdown, single select.
+     * DB field 'is_inline' (true).
+     * If set to true the radio buttons are displayed in a row. If set to false
+     * they are displayed in a column.
      */
-    private $is_multiple;
+    private $is_inline;
 
     /* Constructors ***********************************************************/
 
@@ -36,45 +36,36 @@ class SelectView extends FormFieldView
     {
         parent::__construct($model);
         $this->items = $this->model->get_db_field("items", array());
-        $this->is_multiple = $this->model->get_db_field("is_multiple", false);
+        $this->is_inline = $this->model->get_db_field("is_inline", true);
     }
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Render a select option.
-     */
-    private function output_fields()
+    private function output_radio_items()
     {
-        if($this->value == "")
-        {
-            $empty = $this->model->get_db_field("alt");
-            require __DIR__ . "/tpl_select_empty.php";
-        }
-        if(!is_array($this->items)) return;
+        $inline = ($this->is_inline) ? "form-check-inline" : "";
         foreach($this->items as $field)
         {
             if(!isset($field['value']) || !isset($field['text'])) continue;
             $value = htmlspecialchars($field['value']);
             $text = htmlspecialchars($field['text']);
-            $selected = ($value == $this->value) ? 'selected="selected"' : "";
-            require __DIR__ . "/tpl_select_item.php";
+            $checked = ($value == $this->value) ? "checked" : "";
+            require __DIR__ . "/tpl_radio.php";
         }
     }
 
-    /* Protected Methods ********************************************************/
+    /* Protected Methods ******************************************************/
 
     /**
-     * Render the select form.
+     * Render an input form field
      */
     protected function output_form_field()
     {
+        if(!is_array($this->items)) return;
         if($this->value === null)
             $this->value = $this->default_value;
         $css = ($this->label == "") ? $this->css : "";
-        $multiple = ($this->is_multiple) ? "multiple" : "";
-        $required = ($this->is_required) ? "required" : "";
-        require __DIR__ . "/tpl_select.php";
+        require __DIR__ . "/tpl_radio_group.php";
     }
 }
 ?>

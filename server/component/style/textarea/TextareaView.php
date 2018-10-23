@@ -26,6 +26,8 @@ class TextareaView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if($this->value === null)
+            $this->value = $this->default_value;
         $css = ($this->label == "") ? $this->css : "";
         $required = ($this->is_required) ? "required" : "";
         require __DIR__ . "/tpl_textarea.php";

@@ -50,6 +50,8 @@ class SliderView extends FormFieldView
     private function output_legend()
     {
         if(!is_array($this->labels)) return;
+        if($this->value === null)
+            $this->value = $this->default_value;
         for($idx = 0; $idx <= ($this->max - $this->min); $idx++)
         {
             $text = "unknown";

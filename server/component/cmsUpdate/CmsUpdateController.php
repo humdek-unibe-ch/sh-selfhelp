@@ -108,7 +108,6 @@ class CmsUpdateController extends BaseController
             return in_array($value, array(
                 "text",
                 "checkbox",
-                "radio",
                 "color",
                 "date",
                 "datetime-local",

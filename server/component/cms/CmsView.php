@@ -495,7 +495,6 @@ class CmsView extends BaseView
                     array("value" => "email", "text" => "email"),
                     array("value" => "month", "text" => "month"),
                     array("value" => "number", "text" => "number"),
-                    array("value" => "radio", "text" => "radio"),
                     array("value" => "range", "text" => "range"),
                     array("value" => "search", "text" => "search"),
                     array("value" => "tel", "text" => "tel"),
