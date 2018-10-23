@@ -19,7 +19,7 @@ CALL grant_proc("INSERT, DELETE", @db_name, "sections", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "groups", @user_name);
 CALL grant_proc("INSERT, UPDATE (email, blocked, token, id_genders, name, password), DELETE", @db_name, "users", @user_name);
 CALL grant_proc("INSERT", @db_name, "user_activity", @user_name);
-CALL grant_proc("INSERT", @db_name, "user_input", @user_name);
+CALL grant_proc("INSERT, UPDATE (`value`, `edit_time`)", @db_name, "user_input", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "users_groups", @user_name);
 CALL grant_proc("INSERT, UPDATE (acl_select, acl_delete, acl_update, acl_insert)", @db_name, "acl_users", @user_name);
 CALL grant_proc("INSERT, UPDATE (acl_select, acl_delete, acl_update, acl_insert)", @db_name, "acl_groups", @user_name);
