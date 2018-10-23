@@ -143,7 +143,6 @@ class UserSelectView extends BaseView
                             )
                         ),
                         "label_add" => "Add Group",
-                        "is_user_input" => false,
                 )))
             ))
         );

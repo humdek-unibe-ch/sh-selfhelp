@@ -125,13 +125,8 @@ class FormBaseModel extends StyleModel
     public function save_user_input($user_input, $log = false)
     {
         $count = 0;
-        foreach($user_input as $key => $value)
+        foreach($user_input as $id => $value)
         {
-            $name_pieces = explode('-', $key);
-            if(count($name_pieces) <= 1 || !is_numeric($name_pieces[0]))
-                continue;
-            $id = intval($name_pieces[0]);
-
             if($log || !$this->has_data($id))
                 $res = $this->insert_new_entry($id, $value);
             else

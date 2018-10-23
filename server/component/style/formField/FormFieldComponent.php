@@ -39,5 +39,13 @@ abstract class FormFieldComponent extends BaseComponent
     {
         $this->model->set_show_db_value(true);
     }
+
+    /**
+     * Set FormFieldModel::is_user_input to true.
+     */
+    public function enable_user_input()
+    {
+        $this->model->set_user_input(true);
+    }
 }
 ?>

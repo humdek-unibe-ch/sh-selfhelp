@@ -404,7 +404,6 @@ class CmsView extends BaseView
             "value" => "update",
             "name" => "mode",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
 
         if($render_margin)
@@ -417,7 +416,6 @@ class CmsView extends BaseView
                     "value" => $css,
                     "name" => "css",
                     "type_input" => "text",
-                    "is_user_input" => false,
                 ))),
             ));
         }
@@ -454,19 +452,16 @@ class CmsView extends BaseView
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['type'],
             "name" => $field_name_prefix . "[type]",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
@@ -475,20 +470,17 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
-                "is_user_input" => false,
             ));
         if($field['type'] === "checkbox")
             $children[] = new BaseStyleComponent("input", array(
                 "value" => ($field['content'] != '0') ? $field['content'] : "",
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
-                "is_user_input" => false,
             ));
         else if(in_array($field['type'], array("textarea", "markdown", "json")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
-                "is_user_input" => false,
             ));
         else if($field['type'] == "type-input")
         {
@@ -512,7 +504,6 @@ class CmsView extends BaseView
                     array("value" => "url", "text" => "url"),
                     array("value" => "week", "text" => "week"),
                 ),
-                "is_user_input" => false,
             ));
         }
         else if($field['type'] == "style-bootstrap")
@@ -530,7 +521,6 @@ class CmsView extends BaseView
                     array("value" => "light", "text" => "light"),
                     array("value" => "dark", "text" => "dark"),
                 ),
-                "is_user_input" => false,
             ));
         }
         else if($field['type'] == "style-list")
@@ -539,7 +529,6 @@ class CmsView extends BaseView
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => "hidden",
-                "is_user_input" => false,
             ));
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
@@ -592,7 +581,6 @@ class CmsView extends BaseView
                 "label_add" => "Add",
                 "url_add" => $insert_target,
                 "url_delete" => $delete_target,
-                "is_user_input" => false,
             ));
         }
         else if($field['type'] === "checkbox" && $field['content'] != "")
@@ -643,7 +631,6 @@ class CmsView extends BaseView
                         $this->model->get_current_url_params()),
                     "children" => array(
                         new BaseStyleComponent("select", array(
-                            "is_user_input" => false,
                             "label" => "Select CMS Content Language",
                             "value" => $_SESSION['cms_language'],
                             "name" => "cms_language",

@@ -51,7 +51,10 @@ class FormDocComponent extends BaseComponent
         {
             $style = $child->get_style_instance();
             if(is_a($style, "FormFieldComponent"))
+            {
                 $style->enable_show_db_value();
+                $style->enable_user_input();
+            }
             $this->propagate_input_field_settings($child->get_children());
         }
     }

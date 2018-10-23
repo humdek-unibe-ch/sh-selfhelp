@@ -32,6 +32,30 @@ class FormLogComponent extends BaseComponent
             $controller = new FormBaseController($model, true);
         $view = new FormLogView($model, $controller);
         parent::__construct($model, $view, $controller);
+
+        $this->propagate_input_field_settings($this->get_children());
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * For each child of style formField enable the user input setting. This
+     * is a recursive method.
+     *
+     * @param array $children
+     *  The child component array of the current component.
+     */
+    private function propagate_input_field_settings($children)
+    {
+        foreach($children as $child)
+        {
+            $style = $child->get_style_instance();
+            if(is_a($style, "FormFieldComponent"))
+            {
+                $style->enable_user_input();
+            }
+            $this->propagate_input_field_settings($child->get_children());
+        }
     }
 }
 ?>

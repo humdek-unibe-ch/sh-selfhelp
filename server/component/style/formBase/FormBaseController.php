@@ -70,18 +70,15 @@ class FormBaseController extends BaseController
         $validation_rules = array();
         $filter_rules = array();
         $field_names = array();
-        foreach($_POST as $name => $value)
+        $post = array();
+        foreach($_POST as $name => $values)
         {
-            $name_pieces = explode('-', $name);
-            if(count($name_pieces) <= 1 || !is_numeric($name_pieces[0]))
-            {
-                $filter_rules[$name] = "sanitize_string";
-                continue;
-            }
-            $id_section = intval($name_pieces[0]);
+            $id_section = intval($values['id']);
+            if(!isset($values['value'])) continue;
+            $value = $values['value'];
             $label = $this->model->get_field_label($id_section);
             if($label == "")
-                $label = implode('-', array_slice($name_pieces, 1));
+                $label = $name;
             $field_names[$name] = $label;
             // determine the type of the field
             $style = $this->model->get_field_style($id_section);
@@ -121,11 +118,12 @@ class FormBaseController extends BaseController
             }
             else
                 $filter_rules[$name] = "sanitize_string";
+            $post[$id_section] = $value;
         }
         $gump->validation_rules($validation_rules);
         $gump->filter_rules($filter_rules);
         $gump->set_field_names($field_names);
-        return $gump->run($_POST);
+        return $gump->run($post);
     }
 }
 ?>

@@ -60,11 +60,8 @@ class CmsInsertController extends BaseController
                     $position[] = filter_var($item, FILTER_SANITIZE_NUMBER_INT);
             }
 
-            $is_user_input = isset($_POST['set-user_input']) ? true : false;
-
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
-                intval($type), $position, $this->model->get_active_page_id(),
-                $is_user_input);
+                intval($type), $position, $this->model->get_active_page_id());
             if($this->pid)
                 $this->success = true;
             else

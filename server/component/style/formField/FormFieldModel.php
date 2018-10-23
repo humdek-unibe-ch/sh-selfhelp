@@ -16,6 +16,13 @@ class FormFieldModel extends StyleModel
      */
     private $show_db_value = false;
 
+    /**
+     * If set to true a form field is prepared to synchronoize its content with
+     * the database. If set to false, a normal form field is rendered and any
+     * interaction with the database has to be made manually.
+     */
+    private $is_user_input = false;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -56,6 +63,17 @@ class FormFieldModel extends StyleModel
     }
 
     /**
+     * Getter for FormFieldModel::is_user_input.
+     *
+     * @retval bool
+     *  See FormFieldModel::is_user_input.
+     */
+    public function get_user_input()
+    {
+        return $this->is_user_input;
+    }
+
+    /**
      * Setter for FormFieldModel::show_db_value.
      *
      * @param bool $val
@@ -64,6 +82,17 @@ class FormFieldModel extends StyleModel
     public function set_show_db_value($val)
     {
         $this->show_db_value = $val;
+    }
+
+    /**
+     * Setter for FormFieldModel::is_user_input.
+     *
+     * @param bool $val
+     *  See FormFieldModel::is_user_input.
+     */
+    public function set_user_input($val)
+    {
+        $this->is_user_input = $val;
     }
 }
 ?>

@@ -40,7 +40,6 @@ class UserInsertView extends BaseView
                 "name" => "user_groups[]",
                 "is_multiple" => true,
                 "items" => $this->model->get_group_options(),
-                "is_user_input" => false,
             )
         ));
     }

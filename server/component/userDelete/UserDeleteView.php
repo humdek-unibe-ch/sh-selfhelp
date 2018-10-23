@@ -62,7 +62,6 @@ class UserDeleteView extends BaseView
                                 "is_required" => true,
                                 "css" => "mb-3",
                                 "placeholder" => "Enter Email Address",
-                                "is_user_input" => false,
                             )),
                         )
                     )),

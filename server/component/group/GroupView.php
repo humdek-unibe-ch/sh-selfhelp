@@ -147,7 +147,6 @@ class GroupView extends BaseView
                                 "type_input" => "hidden",
                                 "name" => "update_acl",
                                 "value" => 1,
-                                "is_user_input" => false,
                             )),
                             new BaseStyleComponent("acl", array(
                                 "title" => "Function",

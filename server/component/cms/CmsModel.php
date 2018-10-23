@@ -993,13 +993,11 @@ class CmsModel extends BaseModel
      *  otherwise.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
-     * @param bool $is_user_input
-     *  A flag indicating whether the page allows user input or not.
      * @retval int
      *  The id of the created page.
      */
     public function create_new_page($keyword, $url, $protocol, $action,
-        $position, $parent, $is_user_input)
+        $position, $parent)
     {
         $nav_id = null;
         $page_type = EXPERIMENT_PAGE_ID;
@@ -1017,7 +1015,6 @@ class CmsModel extends BaseModel
             "id_type" => $page_type,
             "nav_position" => $position ? 999 : null,
             "parent" => $parent,
-            "user_input" => $is_user_input ? 1 : 0,
         ));
         $this->set_new_page_acl($pid);
         if($position)

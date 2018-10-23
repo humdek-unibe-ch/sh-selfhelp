@@ -62,7 +62,6 @@ class GroupDeleteView extends BaseView
                                 "is_required" => true,
                                 "css" => "mb-3",
                                 "placeholder" => "Enter Group Name",
-                                "is_user_input" => false,
                             )),
                         )
                     )),

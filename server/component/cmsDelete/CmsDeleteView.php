@@ -68,7 +68,6 @@ class CmsDeleteView extends BaseView
                                 "is_required" => true,
                                 "css" => "mb-3",
                                 "placeholder" => "Enter the Name",
-                                "is_user_input" => false,
                             )),
                         )
                     )),
