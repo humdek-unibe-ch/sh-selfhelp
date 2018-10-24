@@ -34,8 +34,10 @@ class GroupComponent extends BaseComponent
      */
     public function has_access()
     {
-        if($this->model->get_gid() != null
-            && $this->model->get_selected_group() == null)
+        $id = $this->model->get_gid();
+        if($id != null
+            && ($this->model->get_selected_group() == null)
+                || !$this->model->is_group_allowed($id))
             return false;
         return parent::has_access();
     }

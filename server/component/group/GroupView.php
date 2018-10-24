@@ -36,22 +36,6 @@ class GroupView extends BaseView
         parent::__construct($model, $controller);
         $this->mode = $mode;
         $this->selected_group = $this->model->get_selected_group();
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to update the group ACL.",
-                )))
-            ))
-        );
-        $this->add_local_component("alert-success",
-            new BaseStyleComponent("alert", array(
-                "type" => "success",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Successfully updated the group ACL.",
-                )))
-            ))
-        );
         $this->add_local_component("new-group", new BaseStyleComponent("button",
             array(
                 "label" => "Create New Group",
@@ -87,7 +71,7 @@ class GroupView extends BaseView
             ))
         );
         $url_edit = "";
-        if($this->model->can_modify_group_acl())
+        if($this->model->can_modify_group_acl($this->model->get_gid()))
             $url_edit = $this->model->get_link_url("groupUpdate",
                 array('gid' => $this->selected_group['id']));
         $this->add_local_component("group_simple_acl",
@@ -151,7 +135,8 @@ class GroupView extends BaseView
                             new BaseStyleComponent("acl", array(
                                 "title" => "Function",
                                 "is_editable" => true,
-                                "items" => $this->model->get_simple_acl_selected_group()
+                                "items" => $this->model->get_simple_acl_selected_group(),
+                                "items_granted" => $this->model->get_simple_acl_current_user(),
                             ))
                         ),
                     ))
@@ -168,10 +153,8 @@ class GroupView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller && $this->controller->has_failed())
-            $this->output_local_component("alert-fail");
-        if($this->controller && $this->controller->has_succeeded())
-            $this->output_local_component("alert-success");
+        $this->output_controller_alerts_fail();
+        $this->output_controller_alerts_success();
     }
 
     /**

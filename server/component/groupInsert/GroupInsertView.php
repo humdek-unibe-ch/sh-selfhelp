@@ -20,21 +20,6 @@ class GroupInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to create a new group.",
-                )))
-            ))
-        );
-        $this->add_local_component("group-acl",
-            new BaseStyleComponent("acl", array(
-                "title" => "Function",
-                "is_editable" => true,
-                "items" => $this->model->get_simple_acl_selected_group()
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -44,8 +29,7 @@ class GroupInsertView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_failed())
-            $this->output_local_component("alert-fail");
+        $this->output_controller_alerts_fail();
     }
 
     /**
@@ -53,7 +37,13 @@ class GroupInsertView extends BaseView
      */
     private function output_group_acl()
     {
-        $this->output_local_component("group-acl");
+        $acl = new BaseStyleComponent("acl", array(
+            "title" => "Function",
+            "is_editable" => true,
+            "items" => $this->model->get_simple_acl_selected_group(),
+            "items_granted" => $this->model->get_simple_acl_current_user(),
+        ));
+        $acl->output_content();
     }
 
     /* Public Methods *********************************************************/

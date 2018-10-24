@@ -24,14 +24,19 @@ class AclView extends StyleView
 
     /**
      * DB field 'items' (empty array).
-     * An array holding the list items as key value pairs where the key is the
-     * page keyword and an item in the items list must have the following keys:
-     *  - 'id':       The item id (required).
-     *  - 'title':    The title of the item (required).
-     *  - 'children': The children of this item.
-     *  - 'url':      The target url.
+     * A list of key value pairs where the key is the page keyword and the
+     * value an array of booleans, indicating the access rights select,
+     * insert, update, and delete (in this order).
      */
     private $items;
+
+    /**
+     * DB field 'items_granted' (empty array).
+     * A list of key value pairs where the key is the page keyword and the
+     * value an array of booleans, indicating the access rights select,
+     * insert, update, and delete (in this order).
+     */
+    private $items_granted;
 
     /* Constructors ***********************************************************/
 
@@ -46,6 +51,8 @@ class AclView extends StyleView
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title", "ACL");
         $this->items = $this->model->get_db_field("items", array());
+        $this->items_granted = $this->model->get_db_field("items_granted",
+            array());
         $this->is_editable = $this->model->get_db_field("is_editable", false);
     }
 
@@ -80,6 +87,9 @@ class AclView extends StyleView
     {
         foreach($checkboxes as $level => $item)
         {
+            if(isset($this->items_granted[$key]["acl"][$level])
+                    && !$this->items_granted[$key]["acl"][$level])
+                $disabled = "disabled";
             $checked = $item ? "checked" : "";
             require __DIR__ . "/tpl_acl_item_checkbox.php";
         }

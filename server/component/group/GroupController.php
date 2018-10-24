@@ -23,12 +23,35 @@ class GroupController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->success = false;
-        $this->fail = false;
         $this->selected_group = $this->model->get_selected_group();
     }
 
     /* Protected Methods ******************************************************/
+
+    protected function check_posted_acl()
+    {
+        $acl_limit = $this->model->get_simple_acl_current_user();
+        $lvls = array("select", "insert", "update", "delete");
+        foreach($lvls as $lvl)
+        {
+            if(isset($_POST["core"][$lvl])
+                && !$acl_limit["core"]["acl"][$lvl])
+                    return false;
+            if(isset($_POST["experiment"][$lvl])
+                && !$acl_limit["experiment"]["acl"][$lvl])
+                    return false;
+            if(isset($_POST["user"][$lvl])
+                && !$acl_limit["user"]["acl"][$lvl])
+                    return false;
+            if(isset($_POST["page"][$lvl])
+                && !$acl_limit["page"]["acl"][$lvl])
+                    return false;
+            if(isset($_POST["data"][$lvl])
+                && !$acl_limit["data"]["acl"][$lvl])
+                    return false;
+        }
+        return true;
+    }
 
     /**
      * This method updates the group acl entries in the db. To do this it first

@@ -14,11 +14,11 @@
             <form action="<?php echo $action_url; ?>" method="post">
                 <div class="form-group">
                     <label>Name</label>
-                    <input type="text" class="form-control" name="name" placeholder="Enter group name" required>
+                    <input type="text" class="form-control" name="name" placeholder="Enter group name" value="<?php echo $_POST['name'] ?? ""; ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea class="form-control" name="desc" placeholder="Enter description" required></textarea>
+                    <textarea class="form-control" name="desc" placeholder="Enter description" required><?php echo $_POST['desc'] ?? ""; ?></textarea>
                 </div>
                 <div class="form-group">
                     <label>Assign Group Access Rights</label>
