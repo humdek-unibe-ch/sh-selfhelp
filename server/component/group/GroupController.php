@@ -28,6 +28,13 @@ class GroupController extends BaseController
 
     /* Protected Methods ******************************************************/
 
+    /**
+     * Checks whether the current user has the permission to set the posted acl
+     * values.
+     *
+     * @retval bool
+     *  True if everything checks out, false otherwise.
+     */
     protected function check_posted_acl()
     {
         $acl_limit = $this->model->get_simple_acl_current_user();
