@@ -26,138 +26,6 @@ class UserSelectView extends BaseView
     {
         parent::__construct($model);
         $this->selected_user = $this->model->get_selected_user();
-        $this->add_local_component("new_user", new BaseStyleComponent("button",
-            array(
-                "label" => "Create New User",
-                "url" => $this->model->get_link_url("userInsert"),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
-            )
-        ));
-        $this->add_local_component("users",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Registered Users",
-                "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_users(),
-                    "id_prefix" => "users",
-                    "is_collapsible" => false,
-                    "id_active" => $this->selected_user['id'],
-                )))
-            ))
-        );
-        $this->add_local_component("user_blocking",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Block User",
-                "type" => "warning",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "Blocking a user will set the user state to blocked. This prevents a user from logging in to the platform.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("form", array(
-                        "label" => "Block User",
-                        "url" => $this->model->get_link_url("userUpdate",
-                            array("uid" => $this->selected_user['id'],
-                                "mode" => "block")),
-                        "type" => "warning",
-                    )),
-                )
-            ))
-        );
-        $this->add_local_component("user_unblocking",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Unblock User",
-                "type" => "warning",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "Unblocking a user will revert the state of the user to what it was befor the blocking took place.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("button", array(
-                        "label" => "Unblock User",
-                        "url" => $this->model->get_link_url("userUpdate",
-                            array("uid" => $this->selected_user['id'],
-                                "mode" => "unblock")),
-                        "type" => "warning",
-                    )),
-                )
-            ))
-        );
-        $this->add_local_component("user_delete",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Delete User",
-                "type" => "danger",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "Deleting a user will remove all data associated to this user. This cannot be undone.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("button", array(
-                        "label" => "Delete User",
-                        "url" => $this->model->get_link_url("userDelete",
-                            array("uid" => $this->selected_user['id'])),
-                        "type" => "danger",
-                    )),
-                )
-            ))
-        );
-        $this->add_local_component("user_groups",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "User Groups",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "When assigned to a user, groups provide the user with a predefined set of access rights.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("sortableList", array(
-                        "is_editable" => $this->model->can_modify_user(),
-                        "items" => $this->model->get_selected_user_groups(),
-                        "url_add" => $this->model->get_link_url(
-                            "userUpdate",
-                            array(
-                                "uid" => $this->selected_user['id'],
-                                "mode" => "add_group",
-                            )
-                        ),
-                        "url_delete" => $this->model->get_link_url(
-                            "userUpdate",
-                            array(
-                                "uid" => $this->selected_user['id'],
-                                "mode" => "rm_group",
-                                "did" => ":did",
-                            )
-                        ),
-                        "label_add" => "Add Group",
-                )))
-            ))
-        );
-        $this->add_local_component("user_acl",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => false,
-                "is_collapsible" => true,
-                "title" => "ACL",
-                "children" => array(new BaseStyleComponent("acl", array(
-                    "title" => "Page",
-                    "items" => $this->model->get_acl_selected_user()
-                )))
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -168,8 +36,111 @@ class UserSelectView extends BaseView
     private function output_button()
     {
         if($this->model->can_create_new_user())
-            $this->output_local_component("new_user");
+        {
+            $button = new BaseStyleComponent("button", array(
+                "label" => "Create New User",
+                "url" => $this->model->get_link_url("userInsert"),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $button->output_content();
+        }
     }
+
+    /**
+     * Render the card to block a user.
+     */
+    private function output_user_blocking()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Block User",
+            "type" => "warning",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Blocking a user will set the user state to blocked. This prevents a user from logging in to the platform.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Block User",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "block")),
+                    "type" => "warning",
+                )),
+            )
+        ));
+        $card->output_content();
+    }
+
+    /**
+     * Render the card to delete a button.
+     */
+    private function output_user_delete()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Delete User",
+            "type" => "danger",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Deleting a user will remove all data associated to this user. This cannot be undone.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("button", array(
+                    "label" => "Delete User",
+                    "url" => $this->model->get_link_url("userDelete",
+                        array("uid" => $this->selected_user['id'])),
+                    "type" => "danger",
+                )),
+            )
+        ));
+        $card->output_content();
+    }
+
+    /**
+     * Render the card to manipulate user groups.
+     */
+    private function output_user_groups()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "User Groups",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "When assigned to a user, groups provide the user with a predefined set of access rights.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("sortableList", array(
+                    "is_editable" => $this->model->can_modify_user(),
+                    "items" => $this->model->get_selected_user_groups(),
+                    "url_add" => $this->model->get_link_url(
+                        "userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "add_group",
+                        )
+                    ),
+                    "url_delete" => $this->model->get_link_url(
+                        "userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "rm_group",
+                            "did" => ":did",
+                        )
+                    ),
+                    "label_add" => "Add Group",
+            )))
+        ));
+        $card->output_content();
+    }
+
 
     /**
      * Render the cards to manipulate a user, i.e. block, unblock. add/remove
@@ -177,16 +148,44 @@ class UserSelectView extends BaseView
      */
     private function output_user_manipulation()
     {
-        $this->output_local_component("user_groups");
+        $this->output_user_groups();
         if($this->model->can_modify_user())
         {
             if(!$this->selected_user["blocked"])
-                $this->output_local_component("user_blocking");
+                $this->output_user_blocking();
             else
-                $this->output_local_component("user_unblocking");
+                $this->output_user_unblocking();
         }
         if($this->model->can_delete_user())
-            $this->output_local_component("user_delete");
+            $this->output_user_delete();
+    }
+
+    /**
+     * Render the card to unblock the user.
+     */
+    private function output_user_unblocking()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Unblock User",
+            "type" => "warning",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Unblocking a user will revert the state of the user to what it was befor the blocking took place.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("button", array(
+                    "label" => "Unblock User",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "unblock")),
+                    "type" => "warning",
+                )),
+            )
+        ));
+        $card->output_content();
     }
 
     /**
@@ -194,7 +193,19 @@ class UserSelectView extends BaseView
      */
     private function output_users()
     {
-        $this->output_local_component("users");
+        $users = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Registered Users",
+            "children" => array(new BaseStyleComponent("nestedList", array(
+                "items" => $this->model->get_users(),
+                "id_prefix" => "users",
+                "is_collapsible" => false,
+                "id_active" => $this->selected_user['id'],
+            )))
+        ));
+        $users->output_content();
     }
 
     /**
@@ -219,7 +230,17 @@ class UserSelectView extends BaseView
      */
     private function output_user_acl()
     {
-        $this->output_local_component("user_acl");
+        $acl = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => false,
+            "is_collapsible" => true,
+            "title" => "ACL",
+            "children" => array(new BaseStyleComponent("acl", array(
+                "title" => "Page",
+                "items" => $this->model->get_acl_selected_user()
+            )))
+        ));
+        $acl->output_content();
     }
 
     /* Public Methods *********************************************************/
