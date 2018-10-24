@@ -49,165 +49,7 @@ class UserUpdateView extends BaseView
         parent::__construct($model, $controller);
         $this->mode = $mode;
         $this->selected_user = $this->model->get_selected_user();
-        $this->add_local_component("alert-fail-block",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to block the user.",
-                )))
-            ))
-        );
-        $this->add_local_component("alert-fail-unblock",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to unblock the user.",
-                )))
-            ))
-        );
-        $this->add_local_component("alert-fail-rm-group",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to remove the group from the user.",
-                )))
-            ))
-        );
-        $this->add_local_component("form_block",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Block User",
-                "type" => "warning",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "Blocking a user will prevent this user from logging in to the platform.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("form", array(
-                        "label" => "Block User",
-                        "url" => $this->model->get_link_url("userUpdate",
-                            array(
-                                "uid" => $this->selected_user['id'],
-                                "mode" => "block",
-                            )
-                        ),
-                        "type" => "warning",
-                        "url_cancel" => $this->model->get_link_url("userSelect",
-                            array("uid" => $this->selected_user['id'])),
-                        "children" => array(
-                            new BaseStyleComponent("input", array(
-                                "type_input" => "hidden",
-                                "name" => "block",
-                                "value" => 1,
-                            )),
-                        )
-                    )),
-                )
-            ))
-        );
         $this->user_status = $this->selected_user['active'] ? "active" : "inactive";
-        $this->add_local_component("form_unblock",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Unblock User",
-                "type" => "warning",
-                "children" => array(
-                    new BaseStyleComponent("markdown", array(
-                        "text_md" => "Unblocking a user will restore the user status to <code>" . $this->user_status . "</code>.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("form", array(
-                        "label" => "Unblock User",
-                        "url" => $this->model->get_link_url("userUpdate",
-                            array(
-                                "uid" => $this->selected_user['id'],
-                                "mode" => "unblock",
-                            )
-                        ),
-                        "type" => "warning",
-                        "url_cancel" => $this->model->get_link_url("userSelect",
-                            array("uid" => $this->selected_user['id'])),
-                        "children" => array(
-                            new BaseStyleComponent("input", array(
-                                "type_input" => "hidden",
-                                "name" => "unblock",
-                                "value" => 1,
-                            )),
-                        )
-                    )),
-                )
-            ))
-        );
-        $this->add_local_component("form_add_groups",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Adding Groups",
-                "children" => array(
-                    new BaseStyleComponent("form", array(
-                        "label" => "Add Groups",
-                        "url" => $this->model->get_link_url("userUpdate",
-                            array(
-                                "uid" => $this->selected_user['id'],
-                                "mode" => "add_group",
-                            )
-                        ),
-                        "url_cancel" => $this->model->get_link_url("userSelect",
-                            array("uid" => $this->selected_user['id'])),
-                        "children" => array(
-                            new BaseStyleComponent("select", array(
-                                "name" => "groups[]",
-                                "is_multiple" => true,
-                                "items" => $this->model->get_new_group_options(
-                                    $this->selected_user['id']),
-                                "css" => "mb-3",
-                            )),
-                        )
-                    )),
-                )
-            ))
-        );
-        $this->add_local_component("form_rm_group",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Remove Group",
-                "children" => array(
-                    new BaseStyleComponent("form", array(
-                        "label" => "Remove Group",
-                        "url" => $this->model->get_link_url("userUpdate",
-                            array(
-                                "uid" => $this->selected_user['id'],
-                                "mode" => "rm_group",
-                                "did" => $this->model->get_did(),
-                            )
-                        ),
-                        "url_cancel" => $this->model->get_link_url("userSelect",
-                            array("uid" => $this->selected_user['id'])),
-                        "children" => array(
-                            new BaseStyleComponent("input", array(
-                                "type_input" => "hidden",
-                                "name" => "rm_group",
-                                "value" => $this->model->get_did(),
-                            )),
-                        )
-                    )),
-                )
-            ))
-        );
-        $this->add_local_component("user_groups",
-            new BaseStyleComponent("sortableList", array(
-                "is_editable" => false,
-                "items" => $this->model->get_selected_user_groups(),
-                "css" => "mb-3",
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -218,15 +60,169 @@ class UserUpdateView extends BaseView
     private function output_alert()
     {
         $this->output_controller_alerts_fail();
-        if($this->controller->has_failed())
-        {
-            if($this->mode == "block")
-                $this->output_local_component("alert-fail-block");
-            else if($this->mode == "unblock")
-                $this->output_local_component("alert-fail-unblock");
-            else if($this->mode == "rm_group")
-                $this->output_local_component("alert-fail-rm-group");
-        }
+    }
+
+    /**
+     * Render the form to add new groups to a auser.
+     */
+    private function output_form_add_groups()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Adding Groups",
+            "children" => array(
+                new BaseStyleComponent("form", array(
+                    "label" => "Add Groups",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "add_group",
+                        )
+                    ),
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("select", array(
+                            "name" => "groups[]",
+                            "is_multiple" => true,
+                            "items" => $this->model->get_new_group_options(
+                                $this->selected_user['id']),
+                            "css" => "mb-3",
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
+     * Render the form to block a user.
+     */
+    private function output_form_block()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Block User",
+            "type" => "warning",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Blocking a user will prevent this user from logging in to the platform.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Block User",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "block",
+                        )
+                    ),
+                    "type" => "warning",
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "hidden",
+                            "name" => "block",
+                            "value" => 1,
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
+     * Render the from to remove a group from a user.
+     */
+    private function output_form_rm_group()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Remove Group",
+            "children" => array(
+                new BaseStyleComponent("form", array(
+                    "label" => "Remove Group",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "rm_group",
+                            "did" => $this->model->get_did(),
+                        )
+                    ),
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "hidden",
+                            "name" => "rm_group",
+                            "value" => $this->model->get_did(),
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
+     * Render the form to unblock a user.
+     */
+    private function output_form_unblock()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Unblock User",
+            "type" => "warning",
+            "children" => array(
+                new BaseStyleComponent("markdown", array(
+                    "text_md" => "<p>Unblocking a user will restore the user status to <code>" . $this->user_status . "</code>.</p>",
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Unblock User",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "unblock",
+                        )
+                    ),
+                    "type" => "warning",
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "hidden",
+                            "name" => "unblock",
+                            "value" => 1,
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
+     * Render a list of user groups.
+     */
+    private function output_user_groups()
+    {
+        $groups = new BaseStyleComponent("sortableList", array(
+            "is_editable" => false,
+            "items" => $this->model->get_selected_user_groups(),
+            "css" => "mb-3",
+        ));
+        $groups->output_content();
     }
 
     /* Public Methods *********************************************************/

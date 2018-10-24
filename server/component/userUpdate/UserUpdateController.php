@@ -27,14 +27,20 @@ class UserUpdateController extends UserController
             if($this->model->block_user($this->selected_user['id']))
                 $this->success = true;
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to block the user.";
+            }
         }
         else if($mode == "unblock" && isset($_POST["unblock"]))
         {
             if($this->model->unblock_user($this->selected_user['id']))
                 $this->success = true;
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to unblock the user.";
+            }
         }
         else if($mode == "add_group" && isset($_POST["groups"]))
         {
@@ -65,7 +71,10 @@ class UserUpdateController extends UserController
                 $this->model->reset_did();
             }
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to remove the group from the user.";
+            }
         }
     }
 }

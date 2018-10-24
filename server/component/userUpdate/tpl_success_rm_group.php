@@ -3,7 +3,7 @@
     <h1>Success</h1>
         <p>The group was successfully removed from the user <code><?php echo $this->selected_user['email']; ?></code>.</p>
         <p>The user has now the following groups:</p>
-        <?php $this->output_local_component("user_groups"); ?>
+        <?php $this->output_user_groups(); ?>
         <a href="<?php echo $url; ?>" class="btn btn-primary">Back to the User</a>
     </div>
 </div>
