@@ -65,6 +65,7 @@ $(document).ready(function() {
     });
     $pos_list.each(function(idx) {
         var $list = $(this);
+        $list.sortable("destroy");
         $list.sortable({
             animation: 150,
             onSort : function(evt) {
