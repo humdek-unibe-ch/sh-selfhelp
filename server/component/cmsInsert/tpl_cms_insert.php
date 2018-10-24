@@ -15,16 +15,6 @@
                     <small class="form-text text-muted">The page keyword must be unique, otherwise the page creation will fail.</small>
                 </div>
                 <div class="form-group">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="set-position" value="<?php echo $this->position_value; ?>">
-                        <label class="form-check-label text-muted">Header Position</label>
-                    </div>
-                    <div id="page-order-wrapper" class="d-none">
-                    <?php $this->output_page_order(); ?>
-                    </div>
-                    <small class="form-text text-muted">When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.</small>
-                </div>
-                <div class="form-group">
                     <div>
                         <label>Page Type</label>
                     </div>
@@ -46,14 +36,24 @@
                     </div>
                     <small class="form-text text-muted">The page type specified how the page content will be assembled. It is recommended to either use the type <code>Sections</code> or <code>Navigation</code>. Pages of type <code>Component</code> and <code>Custom</code> require PHP programming and cannot be handled by the CMS.</small>
                 </div>
+                <div id="header-position" class="form-group">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="set-position" value="<?php echo $this->position_value; ?>">
+                        <label class="form-check-label text-muted">Header Position</label>
+                    </div>
+                    <div id="page-order-wrapper" class="d-none">
+                    <?php $this->output_page_order(); ?>
+                    </div>
+                    <small class="form-text text-muted">When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.</small>
+                </div>
                 <div class="form-group">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" name="set-user_input" value="1">
                         <label class="form-check-label">User Input</label>
                     </div>
-                    <small class="form-text text-muted">A page with user input will validate and sanitize any <code>POST</code> data and store the data to the database. The protocol <code>POST</code> must be enabled to handle user input.</small>
+                    <small class="form-text text-muted">A page with user input will validate and sanitize any <code>POST</code> data and store the data to the database. The protocol <code>POST</code> must be enabled to handle user input (advanced).</small>
                 </div>
-                <div class="form-group">
+                <div id="protocol-list" class="form-group d-none">
                     <div>
                         <label>Protocol</label>
                     </div>
@@ -66,15 +66,15 @@
                         <label class="form-check-label">POST</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="protocol[]" value="PUT" disabled>
+                        <input class="form-check-input" type="checkbox" name="protocol[]" value="PUT">
                         <label class="form-check-label">PUT</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="protocol[]" value="PATCH" disabled>
+                        <input class="form-check-input" type="checkbox" name="protocol[]" value="PATCH">
                         <label class="form-check-label">PATCH</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="protocol[]" value="DELETE" disabled>
+                        <input class="form-check-input" type="checkbox" name="protocol[]" value="DELETE">
                         <label class="form-check-label">DELETE</label>
                     </div>
                     <small class="form-text text-muted">The protocol specifies how a page is accessed. <code>GET</code> is required to display the content of a page and <code>POST</code> is required to send forms to the page. <code>PUT</code>, <code>PATCH</code>, and <code>DELETE</code> may only become necessary for pages of type <code>Component</code> or <code>Custom</code>.</small>
