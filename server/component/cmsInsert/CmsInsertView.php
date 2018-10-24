@@ -112,8 +112,12 @@ class CmsInsertView extends BaseView
         if($this->controller->has_succeeded())
         {
             $name = $this->controller->get_new_page_name();
-            $url = $this->model->get_link_url("cmsSelect",
-                array("pid" => $this->controller->get_new_pid()));
+            $url = $this->model->get_link_url("cmsUpdate",
+                array(
+                    "pid" => $this->controller->get_new_pid(),
+                    "mode" => "update",
+                    "type" => "prop",
+                ));
             require __DIR__ . "/tpl_success.php";
         }
         else
