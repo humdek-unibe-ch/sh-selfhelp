@@ -6,7 +6,7 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'is_inli
 
 -- New field for style link
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'open_in_new_tab', '0000000003', '0');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000018', '0000000087');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000018', '0000000086');
 
 -- New style 'formDoc'
 INSERT INTO `styles` (`id`, `name`, `id_type`, `intern`) VALUES (NULL, 'formDoc', '0000000002', '0');
@@ -37,7 +37,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000038', '00
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000038', '0000000057');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000038', '0000000058');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000038', '0000000066');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000038', '0000000086');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000038', '0000000085');
 
 -- Change formField styles to component styles (old id_type = 1)
 UPDATE `styles` SET `id_type` = '0000000002' WHERE `styles`.`id` = 0000000016;
