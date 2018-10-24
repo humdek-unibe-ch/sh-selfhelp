@@ -28,46 +28,6 @@ class GroupDeleteView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->selected_group = $this->model->get_selected_group();
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to delete the group.",
-                )))
-            ))
-        );
-        $this->add_local_component("form",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Delete Group",
-                "type" => "danger",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the group.",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("form", array(
-                        "label" => "Delete Group",
-                        "url" => $this->model->get_link_url("groupDelete",
-                            array("gid" => $this->selected_group['id'])),
-                        "type" => "danger",
-                        "url_cancel" => $this->model->get_link_url("groupSelect",
-                            array("gid" => $this->selected_group['id'])),
-                        "children" => array(
-                            new BaseStyleComponent("input", array(
-                                "type_input" => "text",
-                                "name" => "name",
-                                "is_required" => true,
-                                "css" => "mb-3",
-                                "placeholder" => "Enter Group Name",
-                            )),
-                        )
-                    )),
-                )
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -77,8 +37,7 @@ class GroupDeleteView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_failed())
-            $this->output_local_component("alert-fail");
+        $this->output_controller_alerts_fail();
     }
 
     /**
@@ -86,7 +45,37 @@ class GroupDeleteView extends BaseView
      */
     private function output_form()
     {
-        $this->output_local_component("form");
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Delete Group",
+            "type" => "danger",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the group.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Delete Group",
+                    "url" => $this->model->get_link_url("groupDelete",
+                        array("gid" => $this->selected_group['id'])),
+                    "type" => "danger",
+                    "url_cancel" => $this->model->get_link_url("groupSelect",
+                        array("gid" => $this->selected_group['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "text",
+                            "name" => "name",
+                            "is_required" => true,
+                            "css" => "mb-3",
+                            "placeholder" => "Enter Group Name",
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
     }
 
     /* Public Methods *********************************************************/
