@@ -29,7 +29,7 @@ class AssetInsertView extends BaseView
      */
     private function output_alert()
     {
-        $this->output_controller_alerts();
+        $this->output_controller_alerts_fail();
     }
 
     /* Public Methods *********************************************************/

@@ -55,14 +55,9 @@ abstract class BaseController
      *  The file size in bytes
      */
     protected function convert_to_bytes($from) {
-        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-        $number = substr($from, 0, -2);
-        $suffix = strtoupper(substr($from,-2));
-
-        //B or no suffix
-        if(is_numeric(substr($suffix, 0, 1))) {
-            return preg_replace('/[^\d]/', '', $from);
-        }
+        $units = ['', 'K', 'M', 'G', 'T'];
+        $number = intval(substr($from, 0, -1));
+        $suffix = substr($from,-1);
 
         $exponent = array_flip($units)[$suffix] ?? null;
         if($exponent === null) {
