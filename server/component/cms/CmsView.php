@@ -103,10 +103,6 @@ class CmsView extends BaseView
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id());
 
-        $global_sections = $this->model->get_accessible_sections();
-        $this->add_list_component("global-section-list", "Choose a Section",
-            $global_sections, "global-sections", false, 0, "Search");
-
         $page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
             $page_sections, "sections-page", true,
