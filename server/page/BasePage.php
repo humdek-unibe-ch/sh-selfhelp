@@ -109,17 +109,19 @@ abstract class BasePage
         $this->components = array();
         $this->css_includes = array(
             "/css/ext/bootstrap.min.css",
-            "/css/ext/fontawesome.css",
+            "/css/ext/fontawesome.min.css",
+            "/css/ext/styles.min.css",
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
             "/js/ext/bootstrap.min.js",
+            "/js/ext/styles.min.js",
         );
         $this->add_main_include_files(CSS_SERVER_PATH, "/css/",
             $this->css_includes);
         $this->add_main_include_files(JS_SERVER_PATH, "/js/",
             $this->js_includes);
-        $this->collect_style_includes();
+        /* $this->collect_style_includes(); */
         $this->services = array(
             // The router instance which is used to generate valid links.
             "router" => $router,
