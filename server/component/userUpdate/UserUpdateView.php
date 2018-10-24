@@ -65,14 +65,6 @@ class UserUpdateView extends BaseView
                 )))
             ))
         );
-        $this->add_local_component("alert-fail-add-group",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to add groups to the user.",
-                )))
-            ))
-        );
         $this->add_local_component("alert-fail-rm-group",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -225,14 +217,13 @@ class UserUpdateView extends BaseView
      */
     private function output_alert()
     {
+        $this->output_controller_alerts_fail();
         if($this->controller->has_failed())
         {
             if($this->mode == "block")
                 $this->output_local_component("alert-fail-block");
             else if($this->mode == "unblock")
                 $this->output_local_component("alert-fail-unblock");
-            else if($this->mode == "add_group")
-                $this->output_local_component("alert-fail-add-group");
             else if($this->mode == "rm_group")
                 $this->output_local_component("alert-fail-rm-group");
         }

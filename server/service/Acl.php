@@ -225,6 +225,40 @@ class Acl
     /* Public Methods *********************************************************/
 
     /**
+     * Checks whether page access rights of a user are higher or equal to the
+     * page access rights of a group.
+     *
+     * @param int $id_user
+     *  The unique identifier of the user.
+     * @param int $id_group
+     *  The unique identifier of the group.
+     * @retval bool
+     *  Returns true if the user has at least the same access level as the
+     *  group for each page. Otherwise false is returned.
+     *
+     */
+    public function is_user_of_higer_level($id_user, $id_group)
+    {
+        $sql = "SELECT id FROM pages";
+        $pages_db = $this->db->query_db($sql);
+        foreach($pages_db as $page)
+        {
+            $id_page = intval($page['id']);
+            $acl_user = $this->get_access_levels_user($id_user, $id_page);
+            $acl_group = $this->get_access_levels_group($id_group, $id_page);
+            if(!$acl_user['delete'] && $acl_group['delete'])
+                return false;
+            if(!$acl_user['update'] && $acl_group['update'])
+                return false;
+            if(!$acl_user['insert'] && $acl_group['insert'])
+                return false;
+            if(!$acl_user['select'] && $acl_group['select'])
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Grants the user delete access to a specific page.
      *
      * @param int $id

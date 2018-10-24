@@ -35,17 +35,30 @@ class UserInsertController extends UserController
             if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
             {
                 $this->fail = true;
+                $this->error_msgs[] = "Invalid email address.";
                 return;
             }
             $this->email = $_POST['email'];
             $groups = array();
             if(isset($_POST['user_groups'])) $groups = $_POST['user_groups'];
+            foreach($groups as $group)
+            {
+                if(!$this->model->is_group_allowed(intval($group)))
+                {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Cannot assign the group to the user: Permission denied.";
+                    return;
+                }
+            }
             $this->uid = $this->model->insert_new_user($_POST['email']);
             if($this->uid && $this->model->add_groups_to_user($this->uid,
                 $groups))
                 $this->success = true;
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to create a new user.";
+            }
         }
     }
 

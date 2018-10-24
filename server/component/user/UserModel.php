@@ -280,9 +280,29 @@ class UserModel extends BaseModel
      */
     public function get_group_options()
     {
+        $groups = array();
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             ORDER BY g.name";
-        return $this->db->query_db($sql);
+        $groups_db = $this->db->query_db($sql);
+        foreach($groups_db as $group)
+        {
+            if($this->is_group_allowed(intval($group['value'])))
+                $groups[] = $group;
+        }
+        return $groups;
+    }
+
+    /**
+     * Checks whether a group can be added by the current user.
+     *
+     * @retval bool
+     *  Returns true if the current user has at least the same access level as
+     *  the group for each page. Otherwise false is returned.
+     */
+    public function is_group_allowed($id_group)
+    {
+        return $this->acl->is_user_of_higer_level($_SESSION['id_user'],
+                $id_group);
     }
 
     /**
@@ -296,11 +316,18 @@ class UserModel extends BaseModel
      */
     public function get_new_group_options($uid)
     {
+        $groups = array();
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
             WHERE ug.id_users IS NULL
             ORDER BY g.name";
-        return $this->db->query_db($sql, array(":uid" => $uid));
+        $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
+        foreach($groups_db as $group)
+        {
+            if($this->is_group_allowed(intval($group['value'])))
+                $groups[] = $group;
+        }
+        return $groups;
     }
 
     /**

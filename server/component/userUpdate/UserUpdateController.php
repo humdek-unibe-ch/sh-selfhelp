@@ -38,11 +38,23 @@ class UserUpdateController extends UserController
         }
         else if($mode == "add_group" && isset($_POST["groups"]))
         {
+            foreach($_POST['groups'] as $group)
+            {
+                if(!$this->model->is_group_allowed(intval($group)))
+                {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Cannot assign the group to the user: Permission denied.";
+                    return;
+                }
+            }
             if($this->model->add_groups_to_user($this->selected_user['id'],
                 $_POST["groups"]))
                 $this->success = true;
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to add groups to the user.";
+            }
         }
         else if($mode == "rm_group" && isset($_POST["rm_group"]))
         {

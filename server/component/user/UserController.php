@@ -23,8 +23,6 @@ class UserController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->success = false;
-        $this->fail = false;
         $this->selected_user = $this->model->get_selected_user();
     }
 }
