@@ -24,32 +24,52 @@ class CmsDeleteController extends BaseController
     {
         parent::__construct($model);
         $this->name = "";
-        $this->success = false;
-        $this->fail= false;
         if(isset($_POST["name"]))
         {
-            $res = false;
             if($this->model->get_active_section_id() == null)
             {
                 $info = $this->model->get_page_info();
                 if($_POST["name"] == $info["keyword"])
-                    $res = $this->model->delete_page(
-                        $this->model->get_active_page_id());
+                {
+                    if($this->model->delete_page($this->model->get_active_page_id()))
+                    {
+                        $this->success = true;
+                        $this->name = $_POST['name'];
+                    }
+                    else
+                    {
+                        $this->fail = true;
+                        $this->error_msgs[] = "Failed to delete the page.";
+                    }
+                }
+                else
+                {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Failed to delete the page: The verification text does not match with the page keyword.";
+                }
             }
             else
             {
                 $info = $this->model->get_section_info();
                 if($_POST["name"] == $info["name"])
-                    $res = $this->model->delete_section(
-                        $this->model->get_active_section_id());
+                {
+                    if($this->model->delete_section($this->model->get_active_section_id()))
+                    {
+                        $this->success = true;
+                        $this->name = $_POST['name'];
+                    }
+                    else
+                    {
+                        $this->fail = true;
+                        $this->error_msgs[] = "Failed to delete the section.";
+                    }
+                }
+                else
+                {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Failed to delete the section: The verification text does not match with the section name.";
+                }
             }
-            if($res)
-            {
-                $this->success = true;
-                $this->name = $_POST['name'];
-            }
-            else
-                $this->fail = true;
         }
     }
 

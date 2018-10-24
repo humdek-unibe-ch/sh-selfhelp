@@ -30,7 +30,10 @@ class UserDeleteController extends UserController
                 }
             }
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to delete the user: The verification text does not match with the user email.";
+            }
         }
     }
 }
