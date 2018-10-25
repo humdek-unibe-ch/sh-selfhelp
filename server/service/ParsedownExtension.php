@@ -46,9 +46,9 @@ class ParsedownExtension extends Parsedown
                 "img-fluid img-thumbnail " . $class;
         }
 
-
-        $image['element']['attributes']['src'] = ASSET_PATH . '/'
-            . $image['element']['attributes']['src'];
+        if($image['element']['attributes']['src'][0] !== '/')
+            $image['element']['attributes']['src'] = ASSET_PATH . '/'
+                . $image['element']['attributes']['src'];
 
         return $image;
     }
