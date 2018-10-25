@@ -37,7 +37,13 @@ class MarkdownView extends StyleView
      */
     public function output_content()
     {
-        echo $this->text_md;
+        if(is_a($this->model, "BaseStyleModel"))
+        {
+            $pd = new ParsedownExtension();
+            echo $pd->text($this->text_md);
+        }
+        else
+            echo $this->text_md;
     }
 }
 ?>

@@ -37,7 +37,13 @@ class MarkdownInlineView extends StyleView
      */
     public function output_content()
     {
-        echo $this->text_md_inline;
+        if(is_a($this->model, "BaseStyleModel"))
+        {
+            $pd = new ParsedownExtension();
+            echo $pd->line($this->text_md);
+        }
+        else
+            echo $this->text_md_inline;
     }
 }
 ?>
