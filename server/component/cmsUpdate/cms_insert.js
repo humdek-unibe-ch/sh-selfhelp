@@ -6,8 +6,14 @@ $(document).ready(function() {
     var $input_style = $('select[name="section-style"]');
     var $input_new_section = $('input[name="new-section"]');
     var $input_add_section_link = $('input[name="add-section-link"]');
+    var $search_elements = $('span[id^="sections-search"]');
+    var $helper = $('select[name|="helper-style"]');
 
-    var $search_elements = $('span[id|="sections-search"');
+    $('select[name|="helper-style"]').change(function() {
+        console.log("changed");
+        $input_style.val(parseInt($(this).val()));
+        $input_style.trigger("change");
+    });
     $search_elements.click(function() {
         var ids = $(this).attr('id').split('-');
         $search_elements.removeClass("active");
@@ -24,6 +30,9 @@ $(document).ready(function() {
         $input_name_prefix.prop("disabled", true);
         $input_style.prop("disabled", true);
         $input_new_section.prop("disabled", false);
+    });
+    $('span[id^="sections-search-accessible"]').click(function() {
+        $('.alert-reuse-section').removeClass("d-none");
     });
     $input_name_prefix.change(function() {
         name_prefix = $(this).val();

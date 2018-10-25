@@ -1450,15 +1450,44 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch and return all styles from the database except navigation styles.
+     * Fetch and return all style groups from the database.
      *
      * @retval array
-     *  The resulting db array.
+     *  An array of style group items where each item has the following keys:
+     *   - id:          The id of the style group.
+     *   - name:        The name of the style group.
+     *   - description: The description of the style group.
      */
-    public function get_style_list()
+    public function get_style_groups()
     {
-        $sql = "SELECT id, name FROM styles WHERE intern = 0 ORDER BY name";
+        $sql = "SELECT id, name, description FROM styleGroup
+            WHERE id <> 1 ORDER BY position";
         return $this->db->query_db($sql);
+    }
+
+    /**
+     * Fetch and return styles of a specific group from the database. If no
+     * group is id provided, all styles except internal styles are returned.
+     *
+     * @param int $id_group
+     *  The id of a style group.
+     * @retval array
+     *  The resulting db array where each item has the following keys:
+     *   - value:   The id of the style.
+     *   - text:    The name of the style.
+     */
+    public function get_style_list($id_group = null)
+    {
+        if($id_group == null)
+        {
+            $id_group = 1;
+            $rel = "<>";
+        }
+        else
+            $rel = "=";
+        $sql = "SELECT id AS value, name AS text FROM styles
+            WHERE id_group $rel :id ORDER BY name";
+        return $this->db->query_db($sql, array(":id" => $id_group));
     }
 
     /**
