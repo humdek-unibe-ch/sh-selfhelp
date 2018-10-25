@@ -118,3 +118,4 @@ UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_style
 UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000046;
 UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000047;
 UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000075;
+UPDATE `styles_fields` SET `default_value` = 'text' WHERE `styles_fields`.`id_styles` = 0000000016 AND `styles_fields`.`id_fields` = 0000000054;
