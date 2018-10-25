@@ -1,7 +1,10 @@
 $(document).ready(function() {
+    $('.tabs-container').find('.tab-content').each(function() {
+        $(this).closest('.tabs-container').append($(this));
+    })
     $('button.tab-button').click(function() {
-        var $tab_container = $(this).parents("div.tab-button-list:first").next();
-        $tab_container.html($(this).next().html());
+        var selector = '.tab-content-index-' + $(this).attr('data-context');
+        var $tab_container = $(this).closest('.tabs-container').children(selector);
         if($(this).hasClass("active"))
         {
             $(this).removeClass("active");
@@ -13,5 +16,6 @@ $(document).ready(function() {
             $tab_container.slideDown("fast");
         }
         $('button.tab-button').not($(this)).removeClass("active");
+        $(this).closest('.tabs-container').children('.tab-content').not(selector).hide();
     });
 });

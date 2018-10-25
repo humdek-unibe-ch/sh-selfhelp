@@ -22,6 +22,18 @@ class TabView extends StyleView
      */
     private $type;
 
+    /**
+     * DB field 'id' (0).
+     * A unique identifier for a tab.
+     */
+    private $id;
+
+    /**
+     * DB field 'is_expanded' (false).
+     * If set to true the tab is expanded by default.
+     */
+    private $is_expanded;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -35,6 +47,8 @@ class TabView extends StyleView
         parent::__construct($model);
         $this->label = $this->model->get_db_field("label");
         $this->type = $this->model->get_db_field("type", "info");
+        $this->id = $this->model->get_db_field("id", 0);
+        $this->is_expanded = $this->model->get_db_field("is_expanded", false);
     }
 
     /* Private Methods ********************************************************/
@@ -47,6 +61,7 @@ class TabView extends StyleView
     public function output_content()
     {
         if($this->label == "") return;
+        $active = $this->is_expanded ? "active" : "";
         require __DIR__ . "/tpl_tab.php";
     }
 }

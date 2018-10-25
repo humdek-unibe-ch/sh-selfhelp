@@ -1,6 +1,6 @@
-.tab-final-content > p:last-child {
-    margin-bottom: 0;
-}
-.tab-final-content {
+.tab-content {
     display: none;
+}
+.tab-content.active {
+    display: block;
 }
