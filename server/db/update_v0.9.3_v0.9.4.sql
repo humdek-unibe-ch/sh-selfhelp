@@ -76,3 +76,45 @@ UPDATE `styles` SET `id_group` = '0000000003' WHERE `styles`.`id` = 0000000038;
 
 -- Add the field is_expanded to the tab style
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES ('0000000024', '0000000046');
+
+-- Add default value to style field association
+ALTER TABLE `styles_fields` ADD `default_value` VARCHAR(100) NULL DEFAULT NULL AFTER `id_fields`;
+UPDATE `styles_fields` SET `default_value` = 'light' WHERE `styles_fields`.`id_styles` = 0000000012 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000012 AND `styles_fields`.`id_fields` = 0000000046;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000012 AND `styles_fields`.`id_fields` = 0000000047;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000028 AND `styles_fields`.`id_fields` = 0000000084;
+UPDATE `styles_fields` SET `default_value` = 'primary' WHERE `styles_fields`.`id_styles` = 0000000011 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000011 AND `styles_fields`.`id_fields` = 0000000045;
+UPDATE `styles_fields` SET `default_value` = 'primary' WHERE `styles_fields`.`id_styles` = 0000000008 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000003 AND `styles_fields`.`id_fields` = 0000000029;
+UPDATE `styles_fields` SET `default_value` = 'primary' WHERE `styles_fields`.`id_styles` = 0000000036 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = 'primary' WHERE `styles_fields`.`id_styles` = 0000000037 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000016 AND `styles_fields`.`id_fields` = 0000000056;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000038 AND `styles_fields`.`id_fields` = 0000000056;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000022 AND `styles_fields`.`id_fields` = 0000000056;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000026 AND `styles_fields`.`id_fields` = 0000000056;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000005 AND `styles_fields`.`id_fields` = 0000000021;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000015 AND `styles_fields`.`id_fields` = 0000000029;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000027 AND `styles_fields`.`id_fields` = 0000000029;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000031 AND `styles_fields`.`id_fields` = 0000000029;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000029;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000018 AND `styles_fields`.`id_fields` = 0000000087;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000032 AND `styles_fields`.`id_fields` = 0000000046;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000032 AND `styles_fields`.`id_fields` = 0000000047;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000032 AND `styles_fields`.`id_fields` = 0000000084;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000017 AND `styles_fields`.`id_fields` = 0000000059;
+UPDATE `styles_fields` SET `default_value` = 'primary' WHERE `styles_fields`.`id_styles` = 0000000019 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000019 AND `styles_fields`.`id_fields` = 0000000060;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000019 AND `styles_fields`.`id_fields` = 0000000061;
+UPDATE `styles_fields` SET `default_value` = 'light' WHERE `styles_fields`.`id_styles` = 0000000020 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000038 AND `styles_fields`.`id_fields` = 0000000086;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000022 AND `styles_fields`.`id_fields` = 0000000067;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000023 AND `styles_fields`.`id_fields` = 0000000069;
+UPDATE `styles_fields` SET `default_value` = '5' WHERE `styles_fields`.`id_styles` = 0000000023 AND `styles_fields`.`id_fields` = 0000000070;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000034 AND `styles_fields`.`id_fields` = 0000000078;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000034 AND `styles_fields`.`id_fields` = 0000000079;
+UPDATE `styles_fields` SET `default_value` = 'light' WHERE `styles_fields`.`id_styles` = 0000000024 AND `styles_fields`.`id_fields` = 0000000028;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000024 AND `styles_fields`.`id_fields` = 0000000046;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000046;
+UPDATE `styles_fields` SET `default_value` = '0' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000047;
+UPDATE `styles_fields` SET `default_value` = '1' WHERE `styles_fields`.`id_styles` = 0000000033 AND `styles_fields`.`id_fields` = 0000000075;

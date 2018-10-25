@@ -15,7 +15,7 @@ class SliderView extends FormFieldView
     private $min;
 
     /**
-     * DB field 'max' (10).
+     * DB field 'max' (5).
      * The maximal value of the slider.
      */
     private $max;
@@ -38,7 +38,7 @@ class SliderView extends FormFieldView
     {
         parent::__construct($model);
         $this->min = $this->model->get_db_field("min", 0);
-        $this->max = $this->model->get_db_field("max", 10);
+        $this->max = $this->model->get_db_field("max", 5);
         $this->labels = $this->model->get_db_field("labels", array());
     }
 

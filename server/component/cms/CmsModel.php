@@ -505,7 +505,7 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type
+        $sql = "SELECT f.id, f.display, f.name, ft.name AS type, sf.default_value
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
@@ -1429,7 +1429,7 @@ class CmsModel extends BaseModel
                     $content['locale'],
                     $field['type'],
                     $relation,
-                    $content['content'],
+                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
                     $content['gender']
                 );
             }

@@ -315,14 +315,17 @@ class PageDb extends BaseDb
         $locale_cond = $this->get_locale_condition();
         $sql = "SELECT f.id AS id, f.name, ft.name AS type,
             REPLACE(REPLACE(sft.content, '@user', :uname),
-                '@project', :project) AS content
+                '@project', :project) AS content, sf.default_value
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             LEFT JOIN genders AS g ON g.id = sft.id_genders
+            LEFT JOIN sections AS s ON s.id = sft.id_sections
+            LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
+            AND sf.id_fields = f.id
             WHERE sft.id_sections = :id AND $locale_cond
-            AND g.name = :gender AND sft.content != ''";
+            AND g.name = :gender";
 
         $res = $this->query_db($sql, array(
             ":id" => $id,

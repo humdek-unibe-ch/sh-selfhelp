@@ -17,7 +17,7 @@ class TabView extends StyleView
     private $label;
 
     /**
-     * DB field 'type' ('info').
+     * DB field 'type' ('light').
      * The style of the button.
      */
     private $type;
@@ -46,7 +46,7 @@ class TabView extends StyleView
     {
         parent::__construct($model);
         $this->label = $this->model->get_db_field("label");
-        $this->type = $this->model->get_db_field("type", "info");
+        $this->type = $this->model->get_db_field("type", "light");
         $this->id = $this->model->get_db_field("id", 0);
         $this->is_expanded = $this->model->get_db_field("is_expanded", false);
     }

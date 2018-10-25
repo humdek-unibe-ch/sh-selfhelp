@@ -28,18 +28,38 @@ class FormBaseModel extends StyleModel
     }
 
     /**
-     * Check whether user has already submitted data to this form.
+     * Check whether user has already submitted data to this form field.
      *
+     * @param int $id
+     *  The section id of the field to check for.
      * @retval bool
      *  True if data exists, false otherwise.
      */
-    public function has_data($id)
+    public function has_field_data($id)
     {
         $sql = "SELECT * FROM user_input
             WHERE id_sections = :id AND id_section_form = :fid
             AND id_users = :uid";
         $res = $this->db->query_db($sql, array(
             ":id" => $id,
+            ":fid" => $this->get_db_field("id"),
+            ":uid" => $_SESSION['id_user'],
+        ));
+        if($res) return true;
+        else return false;
+    }
+
+    /**
+     * Check whether user has already submitted data to this form.
+     *
+     * @retval bool
+     *  True if data exists, false otherwise.
+     */
+    public function has_form_data()
+    {
+        $sql = "SELECT * FROM user_input
+            WHERE id_section_form = :fid AND id_users = :uid";
+        $res = $this->db->query_db($sql, array(
             ":fid" => $this->get_db_field("id"),
             ":uid" => $_SESSION['id_user'],
         ));
@@ -127,7 +147,7 @@ class FormBaseModel extends StyleModel
         $count = 0;
         foreach($user_input as $id => $value)
         {
-            if($log || !$this->has_data($id))
+            if($log || !$this->has_field_data($id))
                 $res = $this->insert_new_entry($id, $value);
             else
                 $res = $this->update_entry($id, $value);

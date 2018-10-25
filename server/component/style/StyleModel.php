@@ -49,7 +49,7 @@ class StyleModel extends BaseModel implements IStyleModel
         parent::__construct($services);
         $this->db_fields['id'] = array(
             "content" => $id,
-            "type" => "internal"
+            "type" => "internal",
         );
 
         $sql = "SELECT s.id, sec.name, s.name AS style, t.name AS type
@@ -143,6 +143,7 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         foreach($fields as $field)
         {
+            $default = $field["default_value"] ?? "";
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);
             else if($field['type'] == "markdown")
@@ -154,7 +155,8 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
                 "type" => $field['type'],
-                "id" => $field['id']
+                "id" => $field['id'],
+                "default" => $default,
             );
         }
     }
@@ -194,7 +196,13 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_db_field($key, $default="")
     {
         $field = $this->get_db_field_full($key);
-        if($field == "") return $default;
+        if($field == "")
+        {
+            if(isset($field['default']) && $field['default'] != "")
+                return $field['default'];
+            else
+                return $default;
+        }
         return $field['content'];
     }
 
