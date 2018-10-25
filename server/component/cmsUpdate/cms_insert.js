@@ -1,6 +1,6 @@
 $(document).ready(function() {
     var name_prefix = "";
-    var name_postfix = "";
+    var name_postfix = "navigationContainer";
     var $input_name = $('input[name="section-name"]');
     var $input_name_prefix = $('input[name="section-name-prefix"]');
     var $input_style = $('select[name="section-style"]');
@@ -9,10 +9,11 @@ $(document).ready(function() {
     var $search_elements = $('span[id^="sections-search"]');
     var $helper = $('select[name|="helper-style"]');
 
-    $('select[name|="helper-style"]').change(function() {
-        console.log("changed");
+    $helper.change(function() {
+        var value = $(this).val();
         $input_style.val(parseInt($(this).val()));
         $input_style.trigger("change");
+        $(this).val(value);
     });
     $search_elements.click(function() {
         var ids = $(this).attr('id').split('-');
@@ -41,6 +42,7 @@ $(document).ready(function() {
     $input_style.change(function() {
         name_postfix = $('select[name="section-style"] option:selected').text().trim();
         $input_name.val(name_prefix + "-" + name_postfix);
+        $helper.val("");
     });
     $input_new_section.click(function() {
         $search_elements.removeClass("active");

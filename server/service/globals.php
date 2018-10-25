@@ -16,6 +16,7 @@ define('GUEST_USER_ID', 1);
 define('ADMIN_GROUP_ID', 1);
 
 define('NAVIGATION_STYLE_ID', 33);
+define('NAVIGATION_CONTAINER_STYLE_ID', 30);
 
 define('CSS_FIELD_ID', 23);
 define('LABEL_FIELD_ID', 8);

@@ -33,7 +33,7 @@
                         <div class="form-group">
                             <label>Style</label>
                             <select class="form-control" name="section-style" required>
-                                <option disabled selected value>-- select an option --</option>
+                                <option disabled selected value>-- select a style --</option>
                                 <?php $this->output_style_list(); ?>
                             </select>
                         </div>

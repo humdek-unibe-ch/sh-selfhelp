@@ -129,6 +129,7 @@ class CmsUpdateView extends BaseView
                     )),
                     new BaseStyleComponent("select", array(
                         "name" => "helper-style-" . $id,
+                        "alt" => "select a style",
                         "items" => $this->model->get_style_list($id),
                     )),
                 ),
@@ -212,7 +213,10 @@ class CmsUpdateView extends BaseView
         else
             $target = "the section <code>" . $section_info['name'] . "</code>"
                 . " on page <code>" . $page_info['keyword'] . "</code>.";
-        require __DIR__ . "/tpl_cms_insert.php";
+        if($child == "navigation")
+            require __DIR__ . "/tpl_cms_insert_nav.php";
+        else
+            require __DIR__ . "/tpl_cms_insert.php";
     }
 
     /**
