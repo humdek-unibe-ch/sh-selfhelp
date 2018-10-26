@@ -29,12 +29,12 @@ class FormUserInputView extends StyleView
     private $type;
 
     /**
-     * DB field 'show_data' (true).
+     * DB field 'is_log' (false).
      * If set to true the form will save journal data, i.e. each data set is
      * stored individually with a timestamp. If set to false the form will save
      * persistent data which can be edited continuously by the user.
      */
-    private $show_data;
+    private $is_log;
 
     /* Constructors ***********************************************************/
 
@@ -49,9 +49,10 @@ class FormUserInputView extends StyleView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
+        $this->name = $this->model->get_db_field("name");
         $this->label = $this->model->get_db_field("label", "Submit");
         $this->type = $this->model->get_db_field("type", "primary");
-        $this->show_data = $this->model->get_db_field("show_data", true);
+        $this->is_log = $this->model->get_db_field("is_log", false);
     }
 
     /**
@@ -86,8 +87,14 @@ class FormUserInputView extends StyleView
      */
     public function output_content()
     {
+        if($this->name === "") return;
         $children = $this->model->get_children();
-        $this->propagate_input_field_settings($children, $this->show_data);
+        $this->propagate_input_field_settings($children, !$this->is_log);
+        $children[] = new BaseStyleComponent("input", array(
+            "type_input" => "hidden",
+            "name" => "__form_name",
+            "value" => $this->name,
+        ));
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
             "type" => $this->type,

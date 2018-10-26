@@ -49,6 +49,9 @@ class ShowUserInputView extends StyleView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the form fields.
+     */
     private function output_fields()
     {
         $fields = $this->model->get_user_data($this->source);
@@ -58,6 +61,12 @@ class ShowUserInputView extends StyleView
             $this->output_fields_doc($fields);
     }
 
+    /**
+     * Render the form fields of a non-log form.
+     *
+     * @param array $fields
+     *  An array of form fields.
+     */
     private function output_fields_doc($fields)
     {
         foreach($fields as $field)
@@ -68,6 +77,12 @@ class ShowUserInputView extends StyleView
         }
     }
 
+    /**
+     * Render the form fields of a log form.
+     *
+     * @param array $fields
+     *  An array of form fields.
+     */
     private function output_fields_log($fields)
     {
         $rows = array();
@@ -76,9 +91,8 @@ class ShowUserInputView extends StyleView
         {
             $header[] = $field['field_name'];
             if(!isset($rows[$field['timestamp']]))
-                $rows[$field['timestamp']] = array($field['value']);
-            else
-                $rows[$field['timestamp']][] = $field['value'];
+                $rows[$field['timestamp']] = array($field['timestamp']);
+            $rows[$field['timestamp']][] = $field['value'];
         }
         $header = array_unique($header);
 
@@ -86,17 +100,29 @@ class ShowUserInputView extends StyleView
         require __DIR__ . "/tpl_table_body.php";
     }
 
+    /**
+     * Render the header items of a log form.
+     *
+     * @param array $header
+     *  The header items.
+     */
     private function output_header_items($header)
     {
         foreach($header as $title)
             require __DIR__ . "/tpl_header_item.php";
     }
 
+    /**
+     * Render the body items of a log form.
+     *
+     * @param array $rows
+     *  The rows of fields to be rendered.
+     */
     private function output_body_items($rows)
     {
-        foreach($rows as $timestamp => $row)
+        foreach($rows as $row)
         {
-            echo "<tr><td>".$timestamp."</td>";
+            echo "<tr>";
             foreach($row as $value)
                 echo "<td>".$value."</td>";
             echo "</tr>";

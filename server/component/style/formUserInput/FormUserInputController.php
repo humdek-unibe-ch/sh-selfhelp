@@ -26,6 +26,10 @@ class FormUserInputController extends BaseController
     {
         parent::__construct($model);
         if(count($_POST) === 0) return;
+        if(!isset($_POST['__form_name'])
+            || $_POST['__form_name'] !== $this->model->get_db_field("name"))
+            return;
+        unset($_POST['__form_name']);
         $this->alert_success = $model->get_db_field("alert_success");
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
