@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 26, 2018 at 08:17 PM
--- Server version: 5.7.24-0ubuntu0.18.04.1
+-- Generation Time: Oct 03, 2018 at 09:05 AM
+-- Server version: 5.7.23-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -18,9 +18,6 @@ SET time_zone = "+00:00";
 
 --
 -- Database: `selfhelp_initial`
---
---
--- Version: v0.9.5
 --
 
 -- --------------------------------------------------------
@@ -246,7 +243,7 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000019, 'alert_del_fail', 0000000001, 1),
 (0000000020, 'alert_del_success', 0000000001, 1),
 (0000000021, 'level', 0000000005, 0),
-(0000000022, 'title', 0000000007, 1),
+(0000000022, 'title', 0000000001, 1),
 (0000000023, 'css', 0000000001, 0),
 (0000000024, 'text', 0000000002, 1),
 (0000000025, 'text_md', 0000000004, 1),
@@ -307,11 +304,7 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000081, 'label_add', 0000000001, 1),
 (0000000082, 'url_add', 0000000001, 0),
 (0000000083, 'id_prefix', 0000000001, 0),
-(0000000084, 'id_active', 0000000005, 0),
-(0000000085, 'is_inline', 0000000003, 0),
-(0000000086, 'open_in_new_tab', 0000000003, 0),
-(0000000087, 'is_log', 0000000003, 0),
-(0000000088, 'label_date_time', 0000000001, 1);
+(0000000084, 'id_active', 0000000005, 0);
 
 -- --------------------------------------------------------
 
@@ -874,33 +867,6 @@ CREATE TABLE `sections_navigation` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `styleGroup`
---
-
-CREATE TABLE `styleGroup` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `description` longtext,
-  `position` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `styleGroup`
---
-
-INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
-(0000000001, 'intern', NULL, NULL),
-(0000000002, 'Form', 'A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:\r\n\r\n- `form` provides only the client-side functionality and does not do anything with the submitted data. This is intended to be connected with a custom component (required PHP programming).\r\n- `formUserInput` stores the data from all child input fields into the database and displays the latest set of data in the database as values in the child input field (if `show_data` is checked).\r\n- `showUserInput` allows to display user input data. Use the name of a form to display the corresponding data.', 60),
-(0000000003, 'Input', 'An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:\r\n\r\n- `input` is a one-line input field style that allows to enter different types of data (e.g. text, color, time, date, checkbox).\r\n- `radio` allows to predefine a set of options for the user to select. It provides a list of options where only one option can be chosen.\r\n- `select` is a input field style that provides a predefined set of choices which can be selected with a dropdown menu. In contrast to the radio style the select style has a different visual appearance and provides a list of options where also multiple options can be chosen.\r\n- `slider` is an extension of the style input of type range. It allows to provide a label for each position of the slider.\r\n- `textarea` is a multi-line input field style that allows to enter multiple lines of text.', 70),
-(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with css classes. The following wrapers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `container` is an **invisible** wrapper.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visisble** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
-(0000000005, 'Text', 'Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:\r\n\r\n\r\n- `heading` is used to display the 6 levels of HTML headings.\r\n- `markdown` is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.\r\n- `markdownInline` is similar to the markdown style but is intended for one-line text where emphasis is required.\r\n- `plaintext` renders simple text. No special syntax is allowed here.\r\n- `rawText` renders text in a mono-space font which makes it useful to display code.', 20),
-(0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:\r\n\r\n- `accordionList` is a hierarchical list where the root level is rendered as an accordion whith only one root item expanded at a time.\r\n- `nestedList`is a hierarchical list where each root item item can be collapsed and expanded by clicking on a chevron.\r\n- `sortableList` is not hierarchical but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).', 50),
-(0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.', 40),
-(0000000008, 'Link', 'Link styles allow to render different types of links:\r\n\r\n- `button` renders a button-style link with several predefined colour schemes.\r\n- `link` renders a standard link but allows to open the target in a new tab.', 30);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `styles`
 --
 
@@ -908,51 +874,48 @@ CREATE TABLE `styles` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `id_group` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001'
+  `intern` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
 --
 
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES
-(0000000001, 'login', 0000000002, 0000000001),
-(0000000002, 'profile', 0000000002, 0000000001),
-(0000000003, 'container', 0000000001, 0000000004),
-(0000000004, 'jumbotron', 0000000001, 0000000004),
-(0000000005, 'heading', 0000000001, 0000000005),
-(0000000006, 'markdown', 0000000001, 0000000005),
-(0000000007, 'markdownInline', 0000000001, 0000000005),
-(0000000008, 'button', 0000000001, 0000000008),
-(0000000009, 'validate', 0000000002, 0000000001),
-(0000000010, 'chat', 0000000002, 0000000001),
-(0000000011, 'alert', 0000000001, 0000000004),
-(0000000012, 'card', 0000000001, 0000000004),
-(0000000013, 'figure', 0000000001, 0000000007),
-(0000000014, 'form', 0000000001, 0000000002),
-(0000000015, 'image', 0000000001, 0000000007),
-(0000000016, 'input', 0000000002, 0000000003),
-(0000000017, 'plaintext', 0000000001, 0000000005),
-(0000000018, 'link', 0000000001, 0000000008),
-(0000000019, 'progressBar', 0000000001, 0000000007),
-(0000000020, 'quiz', 0000000001, 0000000004),
-(0000000021, 'rawText', 0000000001, 0000000005),
-(0000000022, 'select', 0000000002, 0000000003),
-(0000000023, 'slider', 0000000002, 0000000003),
-(0000000024, 'tab', 0000000001, 0000000004),
-(0000000025, 'tabs', 0000000001, 0000000004),
-(0000000026, 'textarea', 0000000002, 0000000003),
-(0000000027, 'video', 0000000001, 0000000007),
-(0000000028, 'accordionList', 0000000002, 0000000006),
-(0000000030, 'navigationContainer', 0000000001, 0000000004),
-(0000000031, 'navigationAccordion', 0000000003, 0000000001),
-(0000000032, 'nestedList', 0000000002, 0000000006),
-(0000000033, 'navigationNested', 0000000003, 0000000001),
-(0000000034, 'sortableList', 0000000001, 0000000006),
-(0000000035, 'resetPassword', 0000000002, 0000000001),
-(0000000036, 'formUserInput', 0000000002, 0000000002),
-(0000000038, 'radio', 0000000002, 0000000003),
-(0000000039, 'showUserInput', 0000000002, 0000000002);
+INSERT INTO `styles` (`id`, `name`, `id_type`, `intern`) VALUES
+(0000000001, 'login', 0000000002, 1),
+(0000000002, 'profile', 0000000002, 1),
+(0000000003, 'container', 0000000001, 0),
+(0000000004, 'jumbotron', 0000000001, 0),
+(0000000005, 'heading', 0000000001, 0),
+(0000000006, 'markdown', 0000000001, 0),
+(0000000007, 'markdownInline', 0000000001, 0),
+(0000000008, 'button', 0000000001, 0),
+(0000000009, 'validate', 0000000002, 1),
+(0000000010, 'chat', 0000000002, 1),
+(0000000011, 'alert', 0000000001, 0),
+(0000000012, 'card', 0000000001, 0),
+(0000000013, 'figure', 0000000001, 0),
+(0000000014, 'form', 0000000001, 0),
+(0000000015, 'image', 0000000001, 0),
+(0000000016, 'input', 0000000001, 0),
+(0000000017, 'plaintext', 0000000001, 0),
+(0000000018, 'link', 0000000001, 0),
+(0000000019, 'progressBar', 0000000001, 0),
+(0000000020, 'quiz', 0000000001, 0),
+(0000000021, 'rawText', 0000000001, 0),
+(0000000022, 'select', 0000000001, 0),
+(0000000023, 'slider', 0000000001, 0),
+(0000000024, 'tab', 0000000001, 0),
+(0000000025, 'tabs', 0000000001, 0),
+(0000000026, 'textarea', 0000000001, 0),
+(0000000027, 'video', 0000000001, 0),
+(0000000028, 'accordionList', 0000000002, 0),
+(0000000030, 'navigationContainer', 0000000001, 0),
+(0000000031, 'navigationAccordion', 0000000003, 1),
+(0000000032, 'nestedList', 0000000002, 0),
+(0000000033, 'navigationNested', 0000000003, 1),
+(0000000034, 'sortableList', 0000000001, 0),
+(0000000035, 'resetPassword', 0000000002, 1);
 
 -- --------------------------------------------------------
 
@@ -962,179 +925,161 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES
 
 CREATE TABLE `styles_fields` (
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `default_value` varchar(100) DEFAULT NULL
+  `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles_fields`
 --
 
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
-(0000000001, 0000000001, NULL),
-(0000000001, 0000000002, NULL),
-(0000000001, 0000000003, NULL),
-(0000000001, 0000000004, NULL),
-(0000000001, 0000000005, NULL),
-(0000000001, 0000000006, NULL),
-(0000000001, 0000000007, NULL),
-(0000000003, 0000000006, NULL),
-(0000000003, 0000000029, '0'),
-(0000000004, 0000000006, NULL),
-(0000000005, 0000000021, '1'),
-(0000000005, 0000000022, NULL),
-(0000000006, 0000000025, NULL),
-(0000000007, 0000000026, NULL),
-(0000000008, 0000000008, NULL),
-(0000000008, 0000000027, NULL),
-(0000000008, 0000000028, 'primary'),
-(0000000009, 0000000002, NULL),
-(0000000009, 0000000003, NULL),
-(0000000009, 0000000005, NULL),
-(0000000009, 0000000009, NULL),
-(0000000009, 0000000022, NULL),
-(0000000009, 0000000034, NULL),
-(0000000009, 0000000035, NULL),
-(0000000009, 0000000036, NULL),
-(0000000009, 0000000037, NULL),
-(0000000009, 0000000038, NULL),
-(0000000009, 0000000039, NULL),
-(0000000009, 0000000040, NULL),
-(0000000009, 0000000041, NULL),
-(0000000009, 0000000042, NULL),
-(0000000009, 0000000043, NULL),
-(0000000009, 0000000044, NULL),
-(0000000010, 0000000005, NULL),
-(0000000010, 0000000008, NULL),
-(0000000010, 0000000030, NULL),
-(0000000010, 0000000031, NULL),
-(0000000010, 0000000032, NULL),
-(0000000010, 0000000033, NULL),
-(0000000011, 0000000006, NULL),
-(0000000011, 0000000028, 'primary'),
-(0000000011, 0000000045, '0'),
-(0000000012, 0000000006, NULL),
-(0000000012, 0000000022, NULL),
-(0000000012, 0000000028, 'light'),
-(0000000012, 0000000046, '1'),
-(0000000012, 0000000047, '0'),
-(0000000012, 0000000048, NULL),
-(0000000013, 0000000006, NULL),
-(0000000013, 0000000049, NULL),
-(0000000013, 0000000050, NULL),
-(0000000014, 0000000006, NULL),
-(0000000014, 0000000008, NULL),
-(0000000014, 0000000027, NULL),
-(0000000014, 0000000028, NULL),
-(0000000014, 0000000051, NULL),
-(0000000014, 0000000052, NULL),
-(0000000015, 0000000022, NULL),
-(0000000015, 0000000029, '1'),
-(0000000015, 0000000030, NULL),
-(0000000015, 0000000053, NULL),
-(0000000016, 0000000008, NULL),
-(0000000016, 0000000054, 'text'),
-(0000000016, 0000000055, NULL),
-(0000000016, 0000000056, '0'),
-(0000000016, 0000000057, NULL),
-(0000000016, 0000000058, NULL),
-(0000000017, 0000000024, NULL),
-(0000000017, 0000000059, '0'),
-(0000000018, 0000000008, NULL),
-(0000000018, 0000000027, NULL),
-(0000000018, 0000000086, NULL),
-(0000000019, 0000000028, 'primary'),
-(0000000019, 0000000060, '0'),
-(0000000019, 0000000061, '1'),
-(0000000020, 0000000028, 'light'),
-(0000000020, 0000000050, NULL),
-(0000000020, 0000000062, NULL),
-(0000000020, 0000000063, NULL),
-(0000000020, 0000000064, NULL),
-(0000000020, 0000000065, NULL),
-(0000000021, 0000000024, NULL),
-(0000000022, 0000000008, NULL),
-(0000000022, 0000000030, NULL),
-(0000000022, 0000000056, '0'),
-(0000000022, 0000000057, NULL),
-(0000000022, 0000000058, NULL),
-(0000000022, 0000000066, NULL),
-(0000000022, 0000000067, '0'),
-(0000000023, 0000000008, NULL),
-(0000000023, 0000000057, NULL),
-(0000000023, 0000000058, NULL),
-(0000000023, 0000000068, NULL),
-(0000000023, 0000000069, '0'),
-(0000000023, 0000000070, '5'),
-(0000000024, 0000000006, NULL),
-(0000000024, 0000000008, NULL),
-(0000000024, 0000000028, 'light'),
-(0000000024, 0000000046, '0'),
-(0000000025, 0000000006, NULL),
-(0000000026, 0000000008, NULL),
-(0000000026, 0000000056, '0'),
-(0000000026, 0000000057, NULL),
-(0000000026, 0000000058, NULL),
-(0000000027, 0000000029, '1'),
-(0000000027, 0000000030, NULL),
-(0000000027, 0000000071, NULL),
-(0000000028, 0000000031, NULL),
-(0000000028, 0000000066, NULL),
-(0000000028, 0000000072, NULL),
-(0000000028, 0000000083, NULL),
-(0000000028, 0000000084, '0'),
-(0000000030, 0000000006, NULL),
-(0000000030, 0000000022, NULL),
-(0000000030, 0000000025, NULL),
-(0000000031, 0000000029, '1'),
-(0000000031, 0000000031, NULL),
-(0000000031, 0000000072, NULL),
-(0000000031, 0000000073, NULL),
-(0000000031, 0000000074, NULL),
-(0000000031, 0000000075, NULL),
-(0000000032, 0000000031, NULL),
-(0000000032, 0000000046, '0'),
-(0000000032, 0000000047, '1'),
-(0000000032, 0000000066, NULL),
-(0000000032, 0000000077, NULL),
-(0000000032, 0000000083, NULL),
-(0000000032, 0000000084, '0'),
-(0000000033, 0000000029, '1'),
-(0000000033, 0000000031, NULL),
-(0000000033, 0000000046, '1'),
-(0000000033, 0000000047, '0'),
-(0000000033, 0000000073, NULL),
-(0000000033, 0000000074, NULL),
-(0000000033, 0000000075, '1'),
-(0000000033, 0000000077, NULL),
-(0000000034, 0000000066, NULL),
-(0000000034, 0000000078, '0'),
-(0000000034, 0000000079, '0'),
-(0000000034, 0000000080, NULL),
-(0000000034, 0000000081, NULL),
-(0000000034, 0000000082, NULL),
-(0000000035, 0000000003, NULL),
-(0000000035, 0000000004, NULL),
-(0000000035, 0000000005, NULL),
-(0000000035, 0000000025, NULL),
-(0000000035, 0000000035, NULL),
-(0000000035, 0000000044, NULL),
-(0000000035, 0000000055, NULL),
-(0000000036, 0000000006, NULL),
-(0000000036, 0000000008, NULL),
-(0000000036, 0000000028, 'primary'),
-(0000000036, 0000000035, NULL),
-(0000000036, 0000000057, NULL),
-(0000000036, 0000000087, '0'),
-(0000000038, 0000000008, NULL),
-(0000000038, 0000000056, '0'),
-(0000000038, 0000000057, NULL),
-(0000000038, 0000000058, NULL),
-(0000000038, 0000000066, NULL),
-(0000000038, 0000000085, NULL),
-(0000000039, 0000000053, NULL),
-(0000000039, 0000000087, '0'),
-(0000000039, 0000000088, NULL);
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`) VALUES
+(0000000001, 0000000001),
+(0000000001, 0000000002),
+(0000000001, 0000000003),
+(0000000001, 0000000004),
+(0000000001, 0000000005),
+(0000000001, 0000000006),
+(0000000001, 0000000007),
+(0000000003, 0000000006),
+(0000000003, 0000000029),
+(0000000004, 0000000006),
+(0000000005, 0000000021),
+(0000000005, 0000000022),
+(0000000006, 0000000025),
+(0000000007, 0000000026),
+(0000000008, 0000000008),
+(0000000008, 0000000027),
+(0000000008, 0000000028),
+(0000000009, 0000000002),
+(0000000009, 0000000003),
+(0000000009, 0000000005),
+(0000000009, 0000000009),
+(0000000009, 0000000022),
+(0000000009, 0000000034),
+(0000000009, 0000000035),
+(0000000009, 0000000036),
+(0000000009, 0000000037),
+(0000000009, 0000000038),
+(0000000009, 0000000039),
+(0000000009, 0000000040),
+(0000000009, 0000000041),
+(0000000009, 0000000042),
+(0000000009, 0000000043),
+(0000000009, 0000000044),
+(0000000010, 0000000005),
+(0000000010, 0000000008),
+(0000000010, 0000000030),
+(0000000010, 0000000031),
+(0000000010, 0000000032),
+(0000000010, 0000000033),
+(0000000011, 0000000006),
+(0000000011, 0000000028),
+(0000000011, 0000000045),
+(0000000012, 0000000006),
+(0000000012, 0000000022),
+(0000000012, 0000000028),
+(0000000012, 0000000046),
+(0000000012, 0000000047),
+(0000000012, 0000000048),
+(0000000013, 0000000006),
+(0000000013, 0000000049),
+(0000000013, 0000000050),
+(0000000014, 0000000006),
+(0000000014, 0000000008),
+(0000000014, 0000000027),
+(0000000014, 0000000028),
+(0000000014, 0000000051),
+(0000000014, 0000000052),
+(0000000015, 0000000022),
+(0000000015, 0000000029),
+(0000000015, 0000000030),
+(0000000015, 0000000053),
+(0000000016, 0000000008),
+(0000000016, 0000000054),
+(0000000016, 0000000055),
+(0000000016, 0000000056),
+(0000000016, 0000000057),
+(0000000016, 0000000058),
+(0000000017, 0000000024),
+(0000000017, 0000000059),
+(0000000018, 0000000008),
+(0000000018, 0000000027),
+(0000000019, 0000000028),
+(0000000019, 0000000060),
+(0000000019, 0000000061),
+(0000000020, 0000000028),
+(0000000020, 0000000050),
+(0000000020, 0000000062),
+(0000000020, 0000000063),
+(0000000020, 0000000064),
+(0000000020, 0000000065),
+(0000000021, 0000000024),
+(0000000022, 0000000008),
+(0000000022, 0000000030),
+(0000000022, 0000000056),
+(0000000022, 0000000057),
+(0000000022, 0000000058),
+(0000000022, 0000000066),
+(0000000022, 0000000067),
+(0000000023, 0000000008),
+(0000000023, 0000000057),
+(0000000023, 0000000058),
+(0000000023, 0000000068),
+(0000000023, 0000000069),
+(0000000023, 0000000070),
+(0000000024, 0000000006),
+(0000000024, 0000000008),
+(0000000024, 0000000028),
+(0000000025, 0000000006),
+(0000000026, 0000000008),
+(0000000026, 0000000056),
+(0000000026, 0000000057),
+(0000000026, 0000000058),
+(0000000027, 0000000029),
+(0000000027, 0000000030),
+(0000000027, 0000000071),
+(0000000028, 0000000031),
+(0000000028, 0000000066),
+(0000000028, 0000000072),
+(0000000028, 0000000083),
+(0000000028, 0000000084),
+(0000000030, 0000000006),
+(0000000030, 0000000022),
+(0000000030, 0000000025),
+(0000000031, 0000000029),
+(0000000031, 0000000031),
+(0000000031, 0000000072),
+(0000000031, 0000000073),
+(0000000031, 0000000074),
+(0000000031, 0000000075),
+(0000000032, 0000000031),
+(0000000032, 0000000046),
+(0000000032, 0000000047),
+(0000000032, 0000000066),
+(0000000032, 0000000077),
+(0000000032, 0000000083),
+(0000000032, 0000000084),
+(0000000033, 0000000029),
+(0000000033, 0000000031),
+(0000000033, 0000000046),
+(0000000033, 0000000047),
+(0000000033, 0000000073),
+(0000000033, 0000000074),
+(0000000033, 0000000075),
+(0000000033, 0000000077),
+(0000000034, 0000000066),
+(0000000034, 0000000078),
+(0000000034, 0000000079),
+(0000000034, 0000000080),
+(0000000034, 0000000081),
+(0000000034, 0000000082),
+(0000000035, 0000000003),
+(0000000035, 0000000004),
+(0000000035, 0000000005),
+(0000000035, 0000000025),
+(0000000035, 0000000035),
+(0000000035, 0000000044),
+(0000000035, 0000000055);
 
 -- --------------------------------------------------------
 
@@ -1222,9 +1167,8 @@ CREATE TABLE `user_input` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_section_form` int(10) UNSIGNED ZEROFILL NOT NULL,
   `value` longtext NOT NULL,
-  `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1362,18 +1306,11 @@ ALTER TABLE `sections_navigation`
   ADD KEY `id_pages` (`id_pages`);
 
 --
--- Indexes for table `styleGroup`
---
-ALTER TABLE `styleGroup`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `styles`
 --
 ALTER TABLE `styles`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_type` (`id_type`),
-  ADD KEY `id_group` (`id_group`);
+  ADD KEY `id_type` (`id_type`);
 
 --
 -- Indexes for table `styles_fields`
@@ -1418,8 +1355,7 @@ ALTER TABLE `user_activity`
 ALTER TABLE `user_input`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_sections` (`id_sections`),
-  ADD KEY `id_section_form` (`id_section_form`);
+  ADD KEY `id_sections` (`id_sections`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1439,7 +1375,7 @@ ALTER TABLE `chat`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
@@ -1476,15 +1412,10 @@ ALTER TABLE `pageType`
 ALTER TABLE `sections`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 --
--- AUTO_INCREMENT for table `styleGroup`
---
-ALTER TABLE `styleGroup`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
---
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 --
 -- AUTO_INCREMENT for table `styleType`
 --
@@ -1595,7 +1526,6 @@ ALTER TABLE `sections_navigation`
 -- Constraints for table `styles`
 --
 ALTER TABLE `styles`
-  ADD CONSTRAINT `styles_fk_id_group` FOREIGN KEY (`id_group`) REFERENCES `styleGroup` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `styles_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `styleType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -1628,7 +1558,6 @@ ALTER TABLE `user_activity`
 -- Constraints for table `user_input`
 --
 ALTER TABLE `user_input`
-  ADD CONSTRAINT `user_input_fk_id_section_form` FOREIGN KEY (`id_section_form`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `user_input_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `user_input_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
