@@ -24,7 +24,6 @@ git checkout v__latest_release__
 ### 2. Prepare the asset folder
 
 ```
-mkdir assets
 chmod 777 assets
 ```
 
@@ -36,7 +35,7 @@ cp server/service/globals_untracked.default.php server/service/globals_untracked
 
 Edit the file as follows:
 
-- set `BASE_PATH` to `/__experiment_name__`
+- set `PROJECT_NAME` to `/__experiment_name__`
 - set `DBNAME` to `__experiment_name__`
 - set `DBUSER` to `__experiment_name__`
 - set `DBPW` to `__db_password__`
@@ -70,7 +69,7 @@ sudo mysql
 Once the mysql console is open run the commands
 
 ```
-CREATE USER '__experiment_name__'@'localhost' IDENTIFIED BY '__db_password__'
+CREATE USER '__experiment_name__'@'localhost' IDENTIFIED BY '__db_password__';
 CREATE DATABASE __experiment_name__ CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE __experiment_name__;
 source /home/www/__experiment_name__/server/db/selfhelp_initial.sql;
@@ -81,16 +80,17 @@ Quit mysql with `ctrl-d`.
 
 ### 6. Set up apache configuration
 
-Login as `www` user
+Login as `www` user and cd to the project
 
 ```
 sudo su www
+cd /home/www/__experiment_name__
 ```
 
 Prepare the apache configuration file
 
 ```
-cp server/apache.conf.default server/apache.conf
+cp server/apache.default.conf server/apache.conf
 ```
 
 Modify the configuration such that it suits your needs.
