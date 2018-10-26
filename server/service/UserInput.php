@@ -77,6 +77,7 @@ class UserInput
                 "nav" => $this->field_attrs[$id]["nav"],
                 "field_name" => $this->field_attrs[$id]["name"],
                 "field_type" => $this->field_attrs[$id]["type"],
+                "form_name" => $this->field_attrs[$id]["form_name"],
                 "value" => $field["value"],
                 "timestamp" => $field["edit_time"],
             );
@@ -185,37 +186,6 @@ class UserInput
         return array("page" => $page, "nav" => $nav);
     }
 
-    /**
-     * Collect attributes for each existing user input field.
-     * The following attributes are set:
-     *  - 'page'  The name of the parent page of the field.
-     *  - 'nav'   The name of the parent navigation section
-     *  - 'name'  The name of the field
-     *  - 'type'  The type of the field
-     */
-    private function set_field_attrs()
-    {
-        $this->field_attrs = array();
-        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS input_name, st.name AS form_type FROM user_input AS ui
-            LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = 69
-            LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 55
-            LEFT JOIN sections AS s ON s.id = ui.id_sections
-            LEFT JOIN styles AS st ON st.id = s.id_styles";
-        $sections = $this->db->query_db($sql);
-        foreach($sections as $section)
-        {
-            $id = intval($section['id_sections']);
-            $type = ($section['input_type'] != null) ? $section['input_type'] : $section['form_type'];
-            $page = $this->find_section_page($id);
-            $this->field_attrs[$id] = array(
-                "page" => $page["page"],
-                "nav" => $page["nav"],
-                "name" => $section['input_name'],
-                "type" => $type,
-            );
-        }
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -225,6 +195,7 @@ class UserInput
      *  The filter array can be empty or have any of the following keys:
      *   - 'gender'       This can either be set to 'male' or 'female'.
      *   - 'field_name'   Selects all fields with the given name.
+     *   - 'form_name'    Selects all fields from the given form name.
      *   - 'page'         Selects all fields on a given page.
      *   - 'nav'          Selects all fields in a given navigation sections.
      *   - 'id_section'   Selects all fields with given section id.
@@ -247,6 +218,8 @@ class UserInput
         foreach($fields_all as $field)
             if((!isset($filter["field_name"]) || (isset($filter["field_name"])
                         && $field['field_name'] === $filter["field_name"]))
+                && (!isset($filter["form_name"]) || (isset($filter["form_name"])
+                        && $field['form_name'] === $filter["form_name"]))
                 && (!isset($filter["page"]) || (isset($filter["page"])
                         && $field['page'] === $filter["page"]))
                 && (!isset($filter["nav"]) || (isset($filter["nav"])
@@ -335,6 +308,41 @@ class UserInput
     public function get_input_fields_by_nav($name)
     {
         return $this->get_input_fields(array("nav" => $name));
+    }
+
+    /**
+     * Collect attributes for each existing user input field.
+     * The following attributes are set:
+     *  - 'page'  The name of the parent page of the field.
+     *  - 'nav'   The name of the parent navigation section
+     *  - 'name'  The name of the field
+     *  - 'type'  The type of the field
+     */
+    public function set_field_attrs()
+    {
+        $this->field_attrs = array();
+        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label FROM user_input AS ui
+            LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
+            LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
+            LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+            LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
+            LEFT JOIN sections AS s ON s.id = ui.id_sections
+            LEFT JOIN styles AS st ON st.id = s.id_styles";
+        $sections = $this->db->query_db($sql);
+        foreach($sections as $section)
+        {
+            $id = intval($section['id_sections']);
+            $type = $section['input_type'] ?? $section['field_type'];
+            $name = $section['field_label'] ?? $section['field_name'];
+            $page = $this->find_section_page($id);
+            $this->field_attrs[$id] = array(
+                "page" => $page["page"],
+                "nav" => $page["nav"],
+                "name" => $name,
+                "form_name" => $section['form_name'],
+                "type" => $type,
+            );
+        }
     }
 }
 ?>

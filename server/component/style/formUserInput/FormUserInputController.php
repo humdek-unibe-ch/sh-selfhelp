@@ -2,11 +2,9 @@
 require_once __DIR__ . "/../../BaseController.php";
 require_once SERVICE_PATH . "/ext/Gump.php";
 /**
- * The base controller class of form style components. Refer to the
- * FormDocComponent or FormLogComponent class for more information about the
- * styles.
+ * The controller class of formUserInput style component.
  */
-class FormBaseController extends BaseController
+class FormUserInputController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -23,11 +21,8 @@ class FormBaseController extends BaseController
      *
      * @param object $model
      *  The model instance of the login component.
-     * @param bool $log
-     *  If set to true, each data set is saved as a timestamped new entry.
-     *  If set to false, existing data is updated.
      */
-    public function __construct($model, $log = false)
+    public function __construct($model)
     {
         parent::__construct($model);
         if(count($_POST) === 0) return;
@@ -41,7 +36,7 @@ class FormBaseController extends BaseController
         }
         else
         {
-            $res = $this->model->save_user_input($user_input, $log);
+            $res = $this->model->save_user_input($user_input);
             if($res === false)
             {
                 $this->fail = true;
