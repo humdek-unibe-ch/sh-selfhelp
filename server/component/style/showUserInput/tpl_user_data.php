@@ -1,3 +1,3 @@
-<table class="table">
-    <?php $this->output_fields(); ?>
+<table class="table <?php echo $this->css; ?>">
+    <?php $this->output_fields($fields); ?>
 </table>

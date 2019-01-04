@@ -51,10 +51,12 @@ class ShowUserInputView extends StyleView
 
     /**
      * Render the form fields.
+     *
+     * @param array $fields
+     *  An array of form fields.
      */
-    private function output_fields()
+    private function output_fields($fields)
     {
-        $fields = $this->model->get_user_data($this->source);
         if($this->is_log)
             $this->output_fields_log($fields);
         else
@@ -75,6 +77,29 @@ class ShowUserInputView extends StyleView
             $value = $field['value'];
             require __DIR__ . "/tpl_doc_field.php";
         }
+    }
+
+    /**
+     * Render all colomns of a row.
+     *
+     * @param array $cols
+     *  An array of values top be rendered in one row.
+     */
+    private function output_cols($cols)
+    {
+        foreach($cols as $value)
+            $this->output_field($value);
+    }
+
+    /**
+     * Render a table field.
+     *
+     * @param array $value
+     *  The value to be displayed in the table field.
+     */
+    private function output_field($value)
+    {
+        require __DIR__ . "/tpl_field.php";
     }
 
     /**
@@ -120,13 +145,8 @@ class ShowUserInputView extends StyleView
      */
     private function output_body_items($rows)
     {
-        foreach($rows as $row)
-        {
-            echo "<tr>";
-            foreach($row as $value)
-                echo "<td>".$value."</td>";
-            echo "</tr>";
-        }
+        foreach($rows as $cols)
+            require __DIR__ . "/tpl_table_row.php";
     }
 
     /* Public Methods *********************************************************/
@@ -137,6 +157,8 @@ class ShowUserInputView extends StyleView
     public function output_content()
     {
         if($this->source === "") return;
+        $fields = $this->model->get_user_data($this->source);
+        if(count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
     }
 }

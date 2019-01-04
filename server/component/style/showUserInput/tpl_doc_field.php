@@ -1,4 +1,4 @@
 <tr>
     <th scope="row"><?php echo $label; ?></th>
-    <td><?php echo $value; ?></td>
+    <?php $this->output_field($value); ?>
 </tr>
