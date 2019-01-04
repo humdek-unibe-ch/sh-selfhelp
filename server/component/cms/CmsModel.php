@@ -1197,10 +1197,12 @@ class CmsModel extends BaseModel
      * @retval string
      *  The css string from the current section.
      */
-    public function get_css()
+    public function get_css($id_section = null)
     {
+        if($id_section === null)
+            $id_section = $this->get_active_section_id();
         $css = $this->db->select_by_fks("sections_fields_translation", array(
-            "id_sections" => $this->get_active_section_id(),
+            "id_sections" => $id_section,
             "id_fields" => CSS_FIELD_ID,
             "id_languages" => 1,
         ));
