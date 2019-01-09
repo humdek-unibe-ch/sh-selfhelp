@@ -62,28 +62,6 @@ class QuizView extends StyleView
         $this->right_content = $this->model->get_db_field("right_content");
         $this->wrong_content = $this->model->get_db_field("wrong_content");
         $this->type = $this->model->get_db_field("type", "info");
-        $this->add_local_component("quiz-container",
-            new BaseStyleComponent("tabs", array("children" => array(
-                new BaseStyleComponent("tab", array(
-                    "label" => $this->right_label,
-                    "children" => array(
-                        new BaseStyleComponent("markdown", array(
-                            "text_md" => $this->right_content,
-                        )),
-                    ),
-                    "type" => $this->type,
-                )),
-                new BaseStyleComponent("tab", array(
-                    "label" => $this->wrong_label,
-                    "children" => array(
-                        new BaseStyleComponent("markdown", array(
-                            "text_md" => $this->wrong_content,
-                        )),
-                    ),
-                    "type" => $this->type,
-                )),
-            )))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -93,7 +71,29 @@ class QuizView extends StyleView
      */
     private function output_tabs()
     {
-        $this->output_local_component("quiz-container");
+        $quiz = new BaseStyleComponent("tabs", array("children" => array(
+            new BaseStyleComponent("tab", array(
+                "label" => $this->right_label,
+                "children" => array(
+                    new BaseStyleComponent("markdown", array(
+                        "text_md" => $this->right_content,
+                    )),
+                ),
+                "type" => $this->type,
+                "id" => $this->id_section . "-right",
+            )),
+            new BaseStyleComponent("tab", array(
+                "label" => $this->wrong_label,
+                "children" => array(
+                    new BaseStyleComponent("markdown", array(
+                        "text_md" => $this->wrong_content,
+                    )),
+                ),
+                "type" => $this->type,
+                "id" => $this->id_section . "-wrong",
+            )),
+        )));
+        $quiz->output_content();
     }
 
     /* Public Methods *********************************************************/
