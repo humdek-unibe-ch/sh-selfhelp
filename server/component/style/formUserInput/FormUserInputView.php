@@ -100,6 +100,7 @@ class FormUserInputView extends StyleView
             "type" => $this->type,
             "url" => $_SERVER['REQUEST_URI'],
             "children" => $children,
+            "css" => $this->css,
         ));
         require __DIR__ . "/tpl_form.php";
     }
