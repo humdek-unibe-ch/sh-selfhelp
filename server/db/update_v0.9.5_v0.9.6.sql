@@ -3,6 +3,10 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES (
 
 UPDATE `fields` SET `display` = '1' WHERE `fields`.`id` = 0000000053;
 UPDATE `fields` SET `display` = '1' WHERE `fields`.`id` = 0000000071;
+-- Set existing source and sources to german
+UPDATE `sections_fields_translation` SET `id_languages` = 0000000002 WHERE `id_fields` = 0000000053;
+UPDATE `sections_fields_translation` SET `id_languages` = 0000000002 WHERE `id_fields` = 0000000071;
+
 
 -- Fix typos
 UPDATE `sections_fields_translation` SET `content` = 'Alle Benutzerdaten werden gelöscht. Das Löschen des Accounts ist permanent und kann nicht rückgängig gemacht werden!' WHERE `sections_fields_translation`.`id_sections` = 0000000002 AND `sections_fields_translation`.`id_fields` = 0000000014 AND `sections_fields_translation`.`id_languages` = 0000000002 AND `sections_fields_translation`.`id_genders` = 0000000001;
