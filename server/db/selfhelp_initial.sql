@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 26, 2018 at 08:17 PM
+-- Generation Time: Jan 09, 2019 at 02:01 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -17,10 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelp_initial`
---
---
--- Version: v0.9.5
+-- Database: `selfhelpnew`
 --
 
 -- --------------------------------------------------------
@@ -277,7 +274,7 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000050, 'caption', 0000000007, 1),
 (0000000051, 'label_cancel', 0000000001, 1),
 (0000000052, 'url_cancel', 0000000001, 0),
-(0000000053, 'source', 0000000001, 0),
+(0000000053, 'source', 0000000001, 1),
 (0000000054, 'type_input', 0000000010, 0),
 (0000000055, 'placeholder', 0000000001, 1),
 (0000000056, 'is_required', 0000000003, 0),
@@ -295,7 +292,7 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000068, 'labels', 0000000008, 1),
 (0000000069, 'min', 0000000005, 0),
 (0000000070, 'max', 0000000005, 0),
-(0000000071, 'sources', 0000000008, 0),
+(0000000071, 'sources', 0000000008, 1),
 (0000000072, 'label_root', 0000000001, 1),
 (0000000073, 'label_back', 0000000001, 1),
 (0000000074, 'label_next', 0000000001, 1),
@@ -311,7 +308,8 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000085, 'is_inline', 0000000003, 0),
 (0000000086, 'open_in_new_tab', 0000000003, 0),
 (0000000087, 'is_log', 0000000003, 0),
-(0000000088, 'label_date_time', 0000000001, 1);
+(0000000088, 'label_date_time', 0000000001, 1),
+(0000000089, 'css_nav', 0000000001, 0);
 
 -- --------------------------------------------------------
 
@@ -680,11 +678,11 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000002, 0000000012, 0000000003, 0000000001, 'Delete Account'),
 (0000000002, 0000000013, 0000000002, 0000000001, 'Löschen'),
 (0000000002, 0000000013, 0000000003, 0000000001, 'Delete'),
-(0000000002, 0000000014, 0000000002, 0000000001, 'Alle Benutzerdaten werden gelöscht. Das Löschen des Accounts ist permanent und kann nicht rückganging gemacht werden!'),
+(0000000002, 0000000014, 0000000002, 0000000001, 'Alle Benutzerdaten werden gelöscht. Das Löschen des Accounts ist permanent und kann nicht rückgängig gemacht werden!'),
 (0000000002, 0000000014, 0000000003, 0000000001, 'All user data will be deleted. The deletion of the account is permanent and cannot be undone!'),
 (0000000002, 0000000015, 0000000002, 0000000001, 'Löschen bestätigen'),
 (0000000002, 0000000015, 0000000003, 0000000001, 'Confirm Deletion'),
-(0000000002, 0000000016, 0000000002, 0000000001, 'Wollen sie ihren Account wirklich löschen? Bestätigen Sie dies indem Sie ihre email Adresse eingeben.'),
+(0000000002, 0000000016, 0000000002, 0000000001, 'Wollen sie ihren Account wirklich löschen? Bestätigen Sie dies indem Sie ihre Email Adresse eingeben.'),
 (0000000002, 0000000016, 0000000003, 0000000001, 'Are you sure you want to delete the account? Please confirm by entering your email address.'),
 (0000000002, 0000000017, 0000000002, 0000000001, 'Das Passwort konnte nicht geändert werden.'),
 (0000000002, 0000000017, 0000000003, 0000000001, 'Unable to change the password.'),
@@ -766,7 +764,7 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000026, 0000000036, 0000000003, 0000000001, 'Username'),
 (0000000026, 0000000037, 0000000002, 0000000001, 'Bitte den Benutzernamen eingeben'),
 (0000000026, 0000000037, 0000000003, 0000000001, 'Please enter a username'),
-(0000000026, 0000000038, 0000000002, 0000000001, 'Ein Name mit dem Sie angesprochen werden wollen. Aus Gründen der Annonymisierung verwenden Sie bitte **nicht** ihren richtigen Namen.'),
+(0000000026, 0000000038, 0000000002, 0000000001, 'Ein Name mit dem Sie angesprochen werden wollen. Aus Gründen der Anonymisierung verwenden Sie bitte **nicht** ihren richtigen Namen.'),
 (0000000026, 0000000038, 0000000003, 0000000001, 'The name with which you would like to be addressed. For reasons of anonymity pleas do **not** use your real name.'),
 (0000000026, 0000000039, 0000000002, 0000000001, 'Geschlecht'),
 (0000000026, 0000000039, 0000000003, 0000000001, 'Gender'),
@@ -778,7 +776,7 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000026, 0000000042, 0000000003, 0000000001, 'Activate User'),
 (0000000026, 0000000043, 0000000002, 0000000001, 'Bitte das Passwort eingeben'),
 (0000000026, 0000000043, 0000000003, 0000000001, 'Please enter a password'),
-(0000000026, 0000000044, 0000000002, 0000000001, 'Benutzer erforlgreich aktiviert'),
+(0000000026, 0000000044, 0000000002, 0000000001, 'Benutzer erfolgreich aktiviert'),
 (0000000026, 0000000044, 0000000003, 0000000001, 'User was successfully Activated'),
 (0000000027, 0000000008, 0000000002, 0000000001, 'Zum Login'),
 (0000000027, 0000000008, 0000000003, 0000000001, 'To Login'),
@@ -892,9 +890,9 @@ INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 (0000000001, 'intern', NULL, NULL),
 (0000000002, 'Form', 'A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:\r\n\r\n- `form` provides only the client-side functionality and does not do anything with the submitted data. This is intended to be connected with a custom component (required PHP programming).\r\n- `formUserInput` stores the data from all child input fields into the database and displays the latest set of data in the database as values in the child input field (if `show_data` is checked).\r\n- `showUserInput` allows to display user input data. Use the name of a form to display the corresponding data.', 60),
 (0000000003, 'Input', 'An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:\r\n\r\n- `input` is a one-line input field style that allows to enter different types of data (e.g. text, color, time, date, checkbox).\r\n- `radio` allows to predefine a set of options for the user to select. It provides a list of options where only one option can be chosen.\r\n- `select` is a input field style that provides a predefined set of choices which can be selected with a dropdown menu. In contrast to the radio style the select style has a different visual appearance and provides a list of options where also multiple options can be chosen.\r\n- `slider` is an extension of the style input of type range. It allows to provide a label for each position of the slider.\r\n- `textarea` is a multi-line input field style that allows to enter multiple lines of text.', 70),
-(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with css classes. The following wrapers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `container` is an **invisible** wrapper.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visisble** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
+(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `container` is an **invisible** wrapper.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visible** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
 (0000000005, 'Text', 'Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:\r\n\r\n\r\n- `heading` is used to display the 6 levels of HTML headings.\r\n- `markdown` is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.\r\n- `markdownInline` is similar to the markdown style but is intended for one-line text where emphasis is required.\r\n- `plaintext` renders simple text. No special syntax is allowed here.\r\n- `rawText` renders text in a mono-space font which makes it useful to display code.', 20),
-(0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:\r\n\r\n- `accordionList` is a hierarchical list where the root level is rendered as an accordion whith only one root item expanded at a time.\r\n- `nestedList`is a hierarchical list where each root item item can be collapsed and expanded by clicking on a chevron.\r\n- `sortableList` is not hierarchical but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).', 50),
+(0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:\r\n\r\n- `accordionList` is a hierarchical list where the root level is rendered as an accordion with only one root item expanded at a time.\r\n- `nestedList`is a hierarchical list where each root item item can be collapsed and expanded by clicking on a chevron.\r\n- `sortableList` is not hierarchical but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).', 50),
 (0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.', 40),
 (0000000008, 'Link', 'Link styles allow to render different types of links:\r\n\r\n- `button` renders a button-style link with several predefined colour schemes.\r\n- `link` renders a standard link but allows to open the target in a new tab.', 30);
 
@@ -1107,6 +1105,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000033, 0000000074, NULL),
 (0000000033, 0000000075, '1'),
 (0000000033, 0000000077, NULL),
+(0000000033, 0000000089, NULL),
 (0000000034, 0000000066, NULL),
 (0000000034, 0000000078, '0'),
 (0000000034, 0000000079, '0'),
@@ -1439,7 +1438,7 @@ ALTER TABLE `chat`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
