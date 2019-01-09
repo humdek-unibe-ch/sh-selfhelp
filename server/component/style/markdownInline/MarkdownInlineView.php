@@ -40,10 +40,11 @@ class MarkdownInlineView extends StyleView
         if(is_a($this->model, "BaseStyleModel"))
         {
             $pd = new ParsedownExtension();
-            echo $pd->line($this->text_md);
+            $md = $pd->line($this->text_md_inline);
         }
         else
-            echo $this->text_md_inline;
+            $md = $this->text_md_inline;
+        require __DIR__ . "/tpl_markdown.php";
     }
 }
 ?>

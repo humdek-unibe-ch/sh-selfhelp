@@ -40,10 +40,11 @@ class MarkdownView extends StyleView
         if(is_a($this->model, "BaseStyleModel"))
         {
             $pd = new ParsedownExtension();
-            echo $pd->text($this->text_md);
+            $md = $pd->text($this->text_md);
         }
         else
-            echo $this->text_md;
+            $md = $this->text_md;
+        require __DIR__ . "/tpl_markdown.php";
     }
 }
 ?>
