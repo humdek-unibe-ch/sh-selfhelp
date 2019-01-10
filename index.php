@@ -29,12 +29,6 @@ $router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
 $db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
 // custom page creation functions
-function create_login_page($router, $db)
-{
-    $page = new SectionPage($router, $db, "login");
-    $page->disable_navigation();
-    $page->output();
-}
 function create_request_page($router, $db, $request)
 {
     $ajax = new AjaxRequest($db, $request);
