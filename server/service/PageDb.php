@@ -152,9 +152,11 @@ class PageDb extends BaseDb
             "parent" => null,
             "id_type" => 1,
             "protocol" => "",
+            "is_headless" => false,
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            p.protocol, a.name AS action, parent, id_type FROM pages AS p
+            p.protocol, a.name AS action, parent, is_headless, id_type
+            FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE keyword=:keyword";
         $info = $this->query_db_first($sql, array(":keyword" => $keyword));
@@ -167,6 +169,7 @@ class PageDb extends BaseDb
             $page_info["action"] = $info["action"];
             $page_info["protocol"] = $info["protocol"];
             $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
+            $page_info["is_headless"] = ($info['is_headless'] == '1') ? true : false;
             $protocols = explode("|", $info["protocol"]);
             if(in_array("DELETE", $protocols)) $page_info["access_level"] = "delete";
             else if(in_array("PATCH", $protocols)) $page_info["access_level"] = "update";

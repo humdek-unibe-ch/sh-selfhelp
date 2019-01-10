@@ -12,3 +12,7 @@ UPDATE `styles` SET `id_group` = '0000000009' WHERE `styles`.`id` = 0000000001;
 
 -- Remove page user_input field
 ALTER TABLE `pages` DROP `user_input`;
+
+-- Headless property of a page
+ALTER TABLE `pages` ADD `is_headless` TINYINT(1) NOT NULL DEFAULT '0' AFTER `parent`;
+UPDATE `pages` SET `is_headless` = '1' WHERE `pages`.`id` = 0000000001;

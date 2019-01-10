@@ -3,6 +3,7 @@ $(document).ready(function() {
     var $pos_list = $("div#page-order-wrapper > ul.children-list");
     var $check_pos_list = $('input[name="set-position"]');
     var $protocol_list = $('#protocol-list');
+    var $headless_check = $('#headless-check');
     var $header_pos = $('#header-position');
     var $type_component = $('input[name="type"][value="2"]');
     var $type_custom = $('input[name="type"][value="1"]');
@@ -15,6 +16,7 @@ $(document).ready(function() {
             $type_component.prop("disabled", false);
             $type_custom.prop("disabled", false);
             $protocol_list.removeClass("d-none");
+            $headless_check.removeClass("d-none");
         }
         else
         {
@@ -22,6 +24,7 @@ $(document).ready(function() {
             $type_component.prop("disabled", true);
             $type_custom.prop("disabled", true);
             $protocol_list.addClass("d-none");
+            $headless_check.addClass("d-none");
         }
     });
     $('input[name="keyword"]').keyup(function() {

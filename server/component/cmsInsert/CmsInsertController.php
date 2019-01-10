@@ -61,9 +61,13 @@ class CmsInsertController extends BaseController
                 foreach(explode(',', $_POST['set-position']) as $item)
                     $position[] = filter_var($item, FILTER_SANITIZE_NUMBER_INT);
             }
+            $is_headless = false;
+            if(isset($_POST['set-headless']))
+                $is_headless = true;
 
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
-                intval($type), $position, $this->model->get_active_page_id());
+                intval($type), $position, $is_headless,
+                $this->model->get_active_page_id());
             if($this->pid)
                 $this->success = true;
             else

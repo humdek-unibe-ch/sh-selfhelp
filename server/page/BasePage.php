@@ -219,6 +219,7 @@ abstract class BasePage
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
         $this->required_access_level = $info['access_level'];
+        if($info['is_headless']) $this->disable_navigation();
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);

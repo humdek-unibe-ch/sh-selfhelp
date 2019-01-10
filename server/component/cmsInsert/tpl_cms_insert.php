@@ -46,6 +46,13 @@
                     </div>
                     <small class="form-text text-muted">When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.</small>
                 </div>
+                <div id="headless-check" class="form-group d-none">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="set-headless" value="1">
+                        <label class="form-check-label">Headless Page</label>
+                    </div>
+                    <small class="form-text text-muted">A headless page will <strong>not</strong> render any header or footer.</small>
+                </div>
                 <div id="protocol-list" class="form-group d-none">
                     <div>
                         <label>Protocol</label>

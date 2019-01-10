@@ -994,13 +994,16 @@ class CmsModel extends BaseModel
      * @param string $position
      *  The position string if the new page should appear in the navbar, null
      *  otherwise.
+     * @param bool $is_headless
+     *  If set to true the page has no header or footer. If set to false the
+     *  page is rendered with header and footer.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
      * @retval int
      *  The id of the created page.
      */
     public function create_new_page($keyword, $url, $protocol, $action,
-        $position, $parent)
+        $position, $is_headless, $parent)
     {
         $nav_id = null;
         $page_type = EXPERIMENT_PAGE_ID;
@@ -1018,6 +1021,7 @@ class CmsModel extends BaseModel
             "id_type" => $page_type,
             "nav_position" => $position ? 999 : null,
             "parent" => $parent,
+            "is_headless" => $is_headless ? 1 : 0,
         ));
         $this->set_new_page_acl($pid);
         if($position)
