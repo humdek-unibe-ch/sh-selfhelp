@@ -83,11 +83,6 @@ abstract class BasePage
      */
     protected $services;
 
-    /**
-     * A flag indicating whether the page allows user input or not.
-     */
-    protected $has_user_input;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -220,7 +215,6 @@ abstract class BasePage
     private function fetch_page_info($keyword)
     {
         $info = $this->services['db']->fetch_page_info($keyword);
-        $this->has_user_input = $info['has_user_input'];
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);

@@ -4,17 +4,10 @@ $(document).ready(function() {
     var $check_pos_list = $('input[name="set-position"]');
     var $protocol_list = $('#protocol-list');
     var $header_pos = $('#header-position');
-    var $protocol_post = $('input[value="POST"]');
     var $type_component = $('input[name="type"][value="2"]');
     var $type_custom = $('input[name="type"][value="1"]');
     var keyword = "";
     var nav = "";
-    $('input[name="set-user_input"]').change(function() {
-        if($(this).is(":checked"))
-            $protocol_post.prop("checked", true);
-        else
-            $protocol_post.prop("checked", false);
-    });
     $('input[name="set-advanced"]').change(function() {
         if($(this).is(":checked"))
         {

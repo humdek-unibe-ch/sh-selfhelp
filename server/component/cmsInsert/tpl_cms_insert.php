@@ -46,13 +46,6 @@
                     </div>
                     <small class="form-text text-muted">When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.</small>
                 </div>
-                <div class="form-group">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="set-user_input" value="1">
-                        <label class="form-check-label">User Input</label>
-                    </div>
-                    <small class="form-text text-muted">A page with user input will validate and sanitize any <code>POST</code> data and store the data to the database. The protocol <code>POST</code> must be enabled to handle user input (advanced).</small>
-                </div>
                 <div id="protocol-list" class="form-group d-none">
                     <div>
                         <label>Protocol</label>
@@ -62,7 +55,7 @@
                         <label class="form-check-label">GET</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="protocol[]" value="POST">
+                        <input class="form-check-input" type="checkbox" name="protocol[]" value="POST" checked>
                         <label class="form-check-label">POST</label>
                     </div>
                     <div class="form-check form-check-inline">

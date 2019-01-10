@@ -9,3 +9,6 @@ DELETE FROM `styles_fields` WHERE `styles_fields`.`id_styles` = 0000000001 AND `
 -- Crate new style group and add styles
 INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES (NULL, 'Admin', 'The admin styles are for user registration and access handling.\r\nThe following styles are available:\r\n\r\n- `login` provides a small form where the user can enter his or her email and password to access the WebApp. It also includes a link to reset a password.\r\n- `register` provides a small form to allow a user to register for the WebApp. In order to register a user must provide a valid email and activation code. Activation codes can be generated in the admin section of the WebApp. The list of available codes can be exported.', '80');
 UPDATE `styles` SET `id_group` = '0000000009' WHERE `styles`.`id` = 0000000001;
+
+-- Remove page user_input field
+ALTER TABLE `pages` DROP `user_input`;
