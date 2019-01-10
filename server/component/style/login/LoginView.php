@@ -47,18 +47,6 @@ class LoginView extends StyleView
      */
     private $login_title;
 
-    /**
-     * DB field 'intro_title' (empty string).
-     * The title of the introduction.
-     */
-    private $intro_title;
-
-    /**
-     * DB field 'intro_content' (empty string).
-     * The content of the introduction.
-     */
-    private $intro_content;
-
 
     /* Constructors ***********************************************************/
 
@@ -79,8 +67,6 @@ class LoginView extends StyleView
         $this->login_label = $this->model->get_db_field('label_login');
         $this->reset_label = $this->model->get_db_field('label_pw_reset');
         $this->login_title = $this->model->get_db_field('login_title');
-        $this->intro_title = $this->model->get_db_field('intro_title');
-        $this->intro_content = $this->model->get_db_field('intro_text');
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(

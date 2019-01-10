@@ -3,6 +3,7 @@
         <h5 class="m-0"><?php echo $this->login_title; ?></h5>
     </div>
     <div class="card-body">
+        <?php $this->output_alert(); ?>
         <form action="<?php echo $url; ?>" method="post">
             <div class="form-group">
                 <input type="text" class="form-control" name="email" placeholder="<?php echo $this->user_label; ?>" required>
