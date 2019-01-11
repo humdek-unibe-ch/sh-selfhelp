@@ -3,13 +3,11 @@ $(document).ready(function() {
         function() {
             var ids = $(this).attr('id').split('-');
             var id = ids[ids.length-1];
-            $('div.style-section-' + id).addClass("highlight-hover");
-            $('div.style-section-' + id).removeClass("d-inline");
+            $('.style-section-' + id).addClass("highlight-hover");
         }, function() {
             var ids = $(this).attr('id').split('-');
             var id = ids[ids.length-1];
-            $('div.style-section-' + id).removeClass("highlight-hover");
-            $('div.style-section-' + id).addClass("d-inline");
+            $('.style-section-' + id).removeClass("highlight-hover");
         }
     );
     $('.children-list.sortable').each(function(idx) {

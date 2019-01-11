@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
-require_once __DIR__ . "/StyleWrapperView.php";
 require_once __DIR__ . "/StyleModel.php";
 
 /**
@@ -36,9 +35,9 @@ class StyleComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the StyleModel class and the
-     * StyleWrapperView class and passes the view instance to the constructor
-     * of the parent class.
+     * The constructor creates an instance of the StyleModel class and passes
+     * the view instance of the style to render to the constructor of the
+     * parent class.
      *
      * @param array $services
      *  An associative array holding the different available services. See the
@@ -85,7 +84,7 @@ class StyleComponent extends BaseComponent
             $this->is_style_known = false;
             return;
         }
-        $view = new StyleWrapperView($this->style, $id);
+        $view = $this->style->get_view();
         parent::__construct($model, $view);
     }
 

@@ -1,9 +1,15 @@
+.highlight, .highlight-hover
+{
+    position: relative;
+    display: block !important;
+    z-index: 100;
+}
+
 .highlight
 {
     -moz-box-shadow: 0 0 5px #007bff;
     -webkit-box-shadow: 0 0 5px #007bff;
     box-shadow: 0 0 5px #007bff;
-    display: block !important;
 }
 
 .highlight-hover
