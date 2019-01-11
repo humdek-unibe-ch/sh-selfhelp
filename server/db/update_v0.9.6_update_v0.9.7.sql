@@ -22,3 +22,45 @@ UPDATE `pages` SET `is_headless` = '1' WHERE `pages`.`id` = 0000000001;
 INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES (NULL, 'div', '0000000001', '0000000004');
 SET @id_style_div = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES (@id_style_div, '0000000006', NULL);
+
+-- Validation Codes
+--
+-- Table structure for table `validation codes`
+--
+
+CREATE TABLE `validation codes` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `code` varchar(8) NOT NULL,
+  `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `timestamp` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `validation codes`
+--
+ALTER TABLE `validation codes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_users` (`id_users`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `validation codes`
+--
+ALTER TABLE `validation codes`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `validation codes`
+--
+ALTER TABLE `validation codes`
+  ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
