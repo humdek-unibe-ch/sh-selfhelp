@@ -89,7 +89,11 @@ class RegisterModel extends StyleModel
         {
             $uid = $this->user_model->insert_new_user($email);
             if($uid && $this->claim_validation_code($code, $uid))
+            {
+                $this->user_model->add_groups_to_user($uid,
+                    array(SUBJECT_GROUP_ID));
                 return $uid;
+            }
         }
         return false;
     }
