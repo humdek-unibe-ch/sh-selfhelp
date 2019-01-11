@@ -24,35 +24,17 @@ SET @id_style_div = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES (@id_style_div, '0000000006', NULL);
 
 -- Validation Codes
---
--- Table structure for table `validation codes`
---
-
-CREATE TABLE `validation codes` (
+CREATE TABLE `validation_codes` (
   `code` varchar(8) NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `timestamp` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `validation codes`
---
-ALTER TABLE `validation codes`
+ALTER TABLE `validation_codes`
   ADD PRIMARY KEY (`code`),
   ADD KEY `id_users` (`id_users`);
 
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `validation codes`
---
-ALTER TABLE `validation codes`
+ALTER TABLE `validation_codes`
   ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Register style
@@ -77,8 +59,8 @@ SET @id_section_regsiter = LAST_INSERT_ID();
 INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES ('0000000001', @id_section_regsiter, NULL);
 
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-(@id_section_regsiter, '0000000005', '0000000002', '0000000001', 'Der Aktivierungs-Code ist ungültig'),
-(@id_section_regsiter, '0000000005', '0000000003', '0000000001', 'The activation code is invalid'),
+(@id_section_regsiter, '0000000005', '0000000002', '0000000001', 'Die Email Adresse oder der Aktivierungs-Code ist ungültig'),
+(@id_section_regsiter, '0000000005', '0000000003', '0000000001', 'The email address or the activation code is invalid'),
 (@id_section_regsiter, '0000000001', '0000000002', '0000000001', 'Email'),
 (@id_section_regsiter, '0000000001', '0000000003', '0000000001', 'Email'),
 (@id_section_regsiter, '0000000002', '0000000002', '0000000001', 'Validierungs-Code'),
