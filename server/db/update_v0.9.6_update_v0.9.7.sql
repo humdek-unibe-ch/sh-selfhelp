@@ -29,7 +29,6 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES (
 --
 
 CREATE TABLE `validation codes` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `code` varchar(8) NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `timestamp` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP
@@ -43,18 +42,9 @@ CREATE TABLE `validation codes` (
 -- Indexes for table `validation codes`
 --
 ALTER TABLE `validation codes`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`code`),
   ADD KEY `id_users` (`id_users`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `validation codes`
---
-ALTER TABLE `validation codes`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 --
 -- Constraints for dumped tables
 --
@@ -63,7 +53,7 @@ ALTER TABLE `validation codes`
 -- Constraints for table `validation codes`
 --
 ALTER TABLE `validation codes`
-  ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Register style
 INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES (NULL, 'register', '0000000002', '0000000009');
