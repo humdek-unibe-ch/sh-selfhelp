@@ -1,11 +1,16 @@
 <?php
 require_once __DIR__ . "/../StyleModel.php";
+require_once __DIR__ . "/../../user/UserModel.php";
 /**
  * This class is used to prepare all data related to the register component such
  * that the data can easily be displayed in the view of the component.
  */
 class RegisterModel extends StyleModel
 {
+    /* Private Properties *****************************************************/
+
+    private $user_model = null;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -23,22 +28,70 @@ class RegisterModel extends StyleModel
 
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
+        $this->user_model = new UserModel($services, GUEST_USER_ID);
     }
 
-    /* Public Methods *********************************************************/
+    /* Private Methods ********************************************************/
 
     /**
-     * A simple wrapper for the credential check in the login service.
+     * Checks whether the specified validation code is valid.
+     *
+     * @param string $code
+     *  The validation code.
+     * @retval bool
+     *  True if the check was successful, false otherwise.
+     */
+    private function check_validation_code($code)
+    {
+        $sql = "SELECT * FROM validation_codes
+            WHERE id_users is NULL AND code = :code";
+        $res = $this->db->query_db_first($sql, array(':code' => $code));
+        if($res) return true;
+        else return false;
+    }
+
+    /**
+     * Claim a validation code for a user and make it unusable for any other
+     * registration.
      *
      * @param string $email
      *  The email address of the user.
      * @param string $code
      *  The code string entered by the user.
      * @retval bool
-     *  true if the check was successful, false otherwise.
+     *  True if the check was successful, false otherwise.
      */
-    public function check_register_credentials($email, $code)
+    private function claim_validation_code($code, $uid)
     {
+        return (bool)$this->db->update_by_ids('validation_codes',
+            array('id_users' => $uid),
+            array('code' => $code)
+        );
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Register a user by inserting a new user entry into the database. This is
+     * only possible if a valid validation_code is provided.
+     *
+     * @param string $email
+     *  The email address of the user.
+     * @param string $code
+     *  The code string entered by the user.
+     * @retval mixed
+     *  The user id the new user if the registration was successful,
+     *  false otherwise.
+     */
+    public function register_user($email, $code)
+    {
+        if($this->check_validation_code($code))
+        {
+            $uid = $this->user_model->insert_new_user($email);
+            if($uid && $this->claim_validation_code($code, $uid))
+                return $uid;
+        }
+        return false;
     }
 }
 ?>

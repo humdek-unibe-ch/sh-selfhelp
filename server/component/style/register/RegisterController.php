@@ -18,6 +18,13 @@ class RegisterController extends BaseController
         parent::__construct($model);
         if(isset($_POST['email']) && isset($_POST['code']))
         {
+            $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+            $code = filter_var($_POST['code'], FILTER_SANITIZE_STRING);
+            if($email !== false && $code !== false
+                && $model->register_user($email, $code))
+                $this->success = true;
+            else
+                $this->fail = true;
         }
     }
 
