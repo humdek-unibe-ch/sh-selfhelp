@@ -42,6 +42,19 @@ ALTER TABLE `validation_codes`
 
 GRANT INSERT, UPDATE (id_users) ON __db_name__.validation_codes TO '__user__'@'localhost';
 
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES (NULL, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+
+SET @id_page_userGenCode = LAST_INSERT_ID();
+
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES
+('0000000001', @id_page_userGenCode, '1', '1', '0', '0'),
+('0000000002', @id_page_userGenCode, '1', '1', '0', '0'),
+('0000000003', @id_page_userGenCode, '0', '0', '0', '0');
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_userGenCode, '0000000008', '0000000001', 'Generate Validation Codes');
+
+UPDATE `pages` SET `url` = '/admin/export/[user_input|user_activity|validation_codes:selector]' WHERE `pages`.`id` = 0000000023;
+
 -- Register style
 INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES (NULL, 'register', '0000000002', '0000000009');
 SET @id_style_register = LAST_INSERT_ID();

@@ -52,6 +52,8 @@ class ExportPage extends BasePage
             $this->export_user_input($output);
         else if($selector === "user_activity")
             $this->export_user_activity($output);
+        else if($selector === "validation_codes")
+            $this->export_validation_codes($output);
     }
 
     /**
@@ -90,6 +92,23 @@ class ExportPage extends BasePage
         // loop over the rows, outputting them
         foreach($fields as $field)
             fputcsv($output, $field);
+    }
+
+    /**
+     * Writes the user inputs in SCV format to the output stream.
+     *
+     * @param pointer $output
+     *  The file pointer to the output stream.
+     */
+    private function export_validation_codes($output)
+    {
+        fputcsv($output, array("codes"));
+        $sql = "SELECT code FROM validation_codes WHERE id_users IS NULL";
+        $fields = $this->services['db']->query_db($sql);
+        foreach($fields as $field)
+        {
+            fputcsv($output, array($field['code']));
+        }
     }
 
     /* Protected Methods ******************************************************/

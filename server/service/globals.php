@@ -11,6 +11,8 @@ define('STYLE_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . STYLE_PATH);
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
 define('EMAIL_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/email');
 
+define('MAX_USER_COUNT', 100000);
+
 /* Static DB Content */
 define('GUEST_USER_ID', 1);
 define('ADMIN_GROUP_ID', 1);

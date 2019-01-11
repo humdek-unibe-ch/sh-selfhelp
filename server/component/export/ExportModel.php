@@ -59,6 +59,14 @@ class ExportModel extends BaseModel
                 array("selector" => "user_activity"));
             $fields["label"] = "Get User Activity";
         }
+        if($selector === "validation_codes")
+        {
+            $fields["title"] = "Validation Codes";
+            $fields["text"] = "The list of valid validation codes users can use to register.";
+            $fields["url"] = $this->get_link_url("exportData",
+                array("selector" => "validation_codes"));
+            $fields["label"] = "Get Validation Codes";
+        }
         return $fields;
     }
 

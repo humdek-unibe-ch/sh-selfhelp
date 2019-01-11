@@ -37,13 +37,20 @@ class UserSelectView extends BaseView
     {
         if($this->model->can_create_new_user())
         {
-            $button = new BaseStyleComponent("button", array(
+            $button_new = new BaseStyleComponent("button", array(
                 "label" => "Create New User",
                 "url" => $this->model->get_link_url("userInsert"),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
-            $button->output_content();
+            $button_new->output_content();
+            $button_codes = new BaseStyleComponent("button", array(
+                "label" => "Generate Validation Codes",
+                "url" => $this->model->get_link_url("userGenCode"),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $button_codes->output_content();
         }
     }
 

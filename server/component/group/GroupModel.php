@@ -294,6 +294,8 @@ class GroupModel extends BaseModel
             $res &= $acl["group" . ucfirst($lvl)]["acl"]["select"];
             $res &= $acl["group" . ucfirst($lvl)]["acl"][$lvl];
         }
+        if($lvl == "select" || $lvl == "insert")
+            $res &= $acl["userGenCode"]["acl"][$lvl];
         return $res;
     }
 
@@ -661,6 +663,9 @@ class GroupModel extends BaseModel
         $this->gacl["user" . ucfirst($lvl)]["acl"][$lvl] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
+        $this->gacl["userGenCode"]["acl"]["select"] = true;
+        if($lvl === "insert")
+            $this->gacl["userGenCode"]["acl"][$lvl] = true;
     }
 
     /**

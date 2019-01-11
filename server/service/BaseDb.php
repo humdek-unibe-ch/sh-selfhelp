@@ -40,6 +40,26 @@ class BaseDb {
     }
 
     /**
+     * Exectute an arbitrary query on the db.
+     *
+     * @param string $sql
+     *  The query to be executed.
+     *
+     * @retval int
+     *  The number of affected rows.
+     */
+    public function execute_db($sql)
+    {
+        try {
+            return $this->dbh->exec($sql);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::execute_db: ".$e->getMessage();
+            return false;
+        }
+    }
+
+    /**
      * Exectute an arbitrary update query on the db.
      *
      * @param string $sql

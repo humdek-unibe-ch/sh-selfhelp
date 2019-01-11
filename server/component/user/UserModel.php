@@ -48,6 +48,23 @@ class UserModel extends BaseModel
     /* Private Methods ********************************************************/
 
     /**
+     * Read the email content from a php file and assign it to a string.
+     *
+     * @param string $url
+     *  The activation link that will be included into the mail content.
+     * @retval string
+     *  The email contnet with evaluated php statements.
+     */
+    private function email_get_content($url)
+    {
+        ob_start();
+        include(EMAIL_PATH . "/activate_" . $_SESSION['language'] . ".php");
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
+    }
+
+    /**
      * Fetch the user data from the db.
      *
      * @param int $uid
@@ -146,6 +163,19 @@ class UserModel extends BaseModel
         return $acl;
     }
 
+    /**
+     * Generate random validation codes and store them to the database.
+     *
+     * @param int $count
+     *  The number of codes to generate.
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    private function generate_code()
+    {
+        return bin2hex(openssl_random_pseudo_bytes(4));
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -231,20 +261,21 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Read the email content from a php file and assign it to a string.
+     * Generate random validation codes and store them to the database.
      *
-     * @param string $url
-     *  The activation link that will be included into the mail content.
-     * @retval string
-     *  The email contnet with evaluated php statements.
+     * @param int $count
+     *  The number of codes to generate.
+     * @retval int
+     *  The number of generated codes.
      */
-    private function email_get_content($url)
+    public function generate_codes($count)
     {
-        ob_start();
-        include(EMAIL_PATH . "/activate_" . $_SESSION['language'] . ".php");
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
+        $codes = [];
+        for($i = 0; $i < $count; $i++)
+            $codes[] = $this->generate_code();
+
+        $sql = "INSERT INTO validation_codes (code) VALUES('" . implode("'),('", array_unique($codes)) . "')";
+        return $this->db->execute_db($sql);
     }
 
     /**
@@ -256,6 +287,22 @@ class UserModel extends BaseModel
     public function get_acl_selected_user()
     {
         return $this->fetch_acl_by_user($this->uid);
+    }
+
+    /**
+     * Get the number of validation codes.
+     *
+     * @retval int
+     *  The number of validation codes.
+     */
+    public function get_code_count()
+    {
+        $sql = "SELECT COUNT(*) AS count FROM validation_codes";
+        $res = $this->db->query_db_first($sql);
+        if($res)
+            return intval($res['count']);
+        else
+            return 0;
     }
 
     /**
@@ -290,19 +337,6 @@ class UserModel extends BaseModel
                 $groups[] = $group;
         }
         return $groups;
-    }
-
-    /**
-     * Checks whether a group can be added by the current user.
-     *
-     * @retval bool
-     *  Returns true if the current user has at least the same access level as
-     *  the group for each page. Otherwise false is returned.
-     */
-    public function is_group_allowed($id_group)
-    {
-        return $this->acl->is_user_of_higer_level($_SESSION['id_user'],
-                $id_group);
     }
 
     /**
@@ -432,6 +466,19 @@ class UserModel extends BaseModel
                 $this->email_get_content($url));
         }
         return $uid;
+    }
+
+    /**
+     * Checks whether a group can be added by the current user.
+     *
+     * @retval bool
+     *  Returns true if the current user has at least the same access level as
+     *  the group for each page. Otherwise false is returned.
+     */
+    public function is_group_allowed($id_group)
+    {
+        return $this->acl->is_user_of_higer_level($_SESSION['id_user'],
+                $id_group);
     }
 
     /**
