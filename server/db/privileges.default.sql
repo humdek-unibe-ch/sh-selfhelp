@@ -30,5 +30,6 @@ CALL grant_proc("INSERT, UPDATE (position), DELETE", @db_name, "sections_hierarc
 CALL grant_proc("INSERT, UPDATE (nav_position), DELETE", @db_name, "pages", @user_name);
 CALL grant_proc("INSERT, UPDATE (position), DELETE", @db_name, "sections_navigation", @user_name);
 CALL grant_proc("INSERT", @db_name, "chat", @user_name);
+CALL grant_proc("INSERT, UPDATE (id_users)", @db_name, "validation_codes", @user_name);
 
 DROP PROCEDURE IF EXISTS grant_proc;
