@@ -53,6 +53,12 @@ class RegisterView extends StyleView
      */
     private $title;
 
+    /**
+     * DB field 'type' ('success').
+     * The style of the card and the submit button. E.g. 'warning', 'danger', etc.
+     */
+    private $type;
+
 
     /* Constructors ***********************************************************/
 
@@ -74,6 +80,7 @@ class RegisterView extends StyleView
         $this->submit_label = $this->model->get_db_field('label_submit');
         $this->title = $this->model->get_db_field('title');
         $this->success = $this->model->get_db_field("success");
+        $this->type = $this->model->get_db_field("type", "success");
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(

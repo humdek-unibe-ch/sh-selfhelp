@@ -47,6 +47,12 @@ class LoginView extends StyleView
      */
     private $login_title;
 
+    /**
+     * DB field 'type' ('success').
+     * The style of the card and the submit button. E.g. 'warning', 'danger', etc.
+     */
+    private $type;
+
 
     /* Constructors ***********************************************************/
 
@@ -67,6 +73,7 @@ class LoginView extends StyleView
         $this->login_label = $this->model->get_db_field('label_login');
         $this->reset_label = $this->model->get_db_field('label_pw_reset');
         $this->login_title = $this->model->get_db_field('login_title');
+        $this->type = $this->model->get_db_field("type", "dark");
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(

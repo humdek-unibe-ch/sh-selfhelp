@@ -1,4 +1,4 @@
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'set the db and user name in line 43';
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'set __db_name__ and __user__ in line 43';
 
 
 -- Udate Autosize tool in impressum
@@ -66,28 +66,42 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (@id_style_register, '0000000001', NULL),
 (@id_style_register, '0000000002', NULL),
 (@id_style_register, '0000000022', NULL),
+(@id_style_register, '0000000028', 'success'),
 (@id_style_register, '0000000035', NULL),
 (@id_style_register, '0000000044', NULL),
 (@id_style_register, @id_field_label_submit, NULL);
 
-INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES (NULL, '0000000040', 'register-register', NULL);
+INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES (NULL, @id_style_register, 'register-register', NULL);
 
-SET @id_section_regsiter = LAST_INSERT_ID();
+SET @id_section_register = LAST_INSERT_ID();
 
-INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES ('0000000001', @id_section_regsiter, NULL);
+INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES ('0000000001', @id_section_register, NULL);
 
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-(@id_section_regsiter, '0000000005', '0000000002', '0000000001', 'Die Email Adresse oder der Aktivierungs-Code ist ungültig'),
-(@id_section_regsiter, '0000000005', '0000000003', '0000000001', 'The email address or the activation code is invalid'),
-(@id_section_regsiter, '0000000001', '0000000002', '0000000001', 'Email'),
-(@id_section_regsiter, '0000000001', '0000000003', '0000000001', 'Email'),
-(@id_section_regsiter, '0000000002', '0000000002', '0000000001', 'Validierungs-Code'),
-(@id_section_regsiter, '0000000002', '0000000003', '0000000001', 'Validation Code'),
-(@id_section_regsiter, '0000000022', '0000000002', '0000000001', 'Registration'),
-(@id_section_regsiter, '0000000022', '0000000003', '0000000001', 'Registration'),
-(@id_section_regsiter, '0000000035', '0000000002', '0000000001', 'Der erste Schritt der Registrierung war erfolgreich. Sie werden in Kürze eine Email mit einem Aktivierunks-Link erhalten.\r\n\r\nBitte folgen Sie diesem Link um die Registrierung abzuschliessen.'),
-(@id_section_regsiter, '0000000035', '0000000003', '0000000001', 'The first step of the registration was successful.\r\nShortly you will receive an email with an activation link.\r\n\r\nPlease follow this activation link to complete the registration.'),
-(@id_section_regsiter, '0000000044', '0000000002', '0000000001', 'Registrierung erfolgreich'),
-(@id_section_regsiter, '0000000044', '0000000003', '0000000001', 'Registration Successful'),
-(@id_section_regsiter, '0000000090', '0000000002', '0000000001', 'Registrieren'),
-(@id_section_regsiter, '0000000090', '0000000003', '0000000001', 'Register');
+(@id_section_register, '0000000005', '0000000002', '0000000001', 'Die Email Adresse oder der Aktivierungs-Code ist ungültig'),
+(@id_section_register, '0000000005', '0000000003', '0000000001', 'The email address or the activation code is invalid'),
+(@id_section_register, '0000000001', '0000000002', '0000000001', 'Email'),
+(@id_section_register, '0000000001', '0000000003', '0000000001', 'Email'),
+(@id_section_register, '0000000002', '0000000002', '0000000001', 'Validierungs-Code'),
+(@id_section_register, '0000000002', '0000000003', '0000000001', 'Validation Code'),
+(@id_section_register, '0000000022', '0000000002', '0000000001', 'Registration'),
+(@id_section_register, '0000000022', '0000000003', '0000000001', 'Registration'),
+(@id_section_register, '0000000035', '0000000002', '0000000001', 'Der erste Schritt der Registrierung war erfolgreich. Sie werden in Kürze eine Email mit einem Aktivierunks-Link erhalten.\r\n\r\nBitte folgen Sie diesem Link um die Registrierung abzuschliessen.'),
+(@id_section_register, '0000000035', '0000000003', '0000000001', 'The first step of the registration was successful.\r\nShortly you will receive an email with an activation link.\r\n\r\nPlease follow this activation link to complete the registration.'),
+(@id_section_register, '0000000044', '0000000002', '0000000001', 'Registrierung erfolgreich'),
+(@id_section_register, '0000000044', '0000000003', '0000000001', 'Registration Successful'),
+(@id_section_register, '0000000090', '0000000002', '0000000001', 'Registrieren'),
+(@id_section_register, '0000000090', '0000000003', '0000000001', 'Register');
+
+-- add typ efield to login style
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000001', '0000000028', 'dark');
+
+-- update login page view
+DELETE FROM `pages_sections` WHERE `pages_sections`.`id_pages` = 0000000001 AND `pages_sections`.`id_sections` = 0000000001;
+DELETE FROM `pages_sections` WHERE `pages_sections`.`id_pages` = 0000000001 AND `pages_sections`.`id_sections` = @id_section_register;
+INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES (NULL, '0000000003', 'login-container', NULL);
+SET @id_section_login_container = LAST_INSERT_ID();
+INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES ('0000000001', @id_section_login_container, NULL);
+INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES (@id_section_login_container, '0000000001', '1'), (@id_section_login_container, @id_section_register, '2');
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_login_container, '0000000023', '0000000001', '0000000001', 'mt-3');
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_register, '0000000023', '0000000001', '0000000001', 'mt-3');
