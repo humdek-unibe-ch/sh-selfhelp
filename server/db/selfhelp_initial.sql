@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2019 at 02:01 PM
+-- Generation Time: Jan 11, 2019 at 04:58 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -75,6 +75,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000033, 1, 1, 1, 1),
 (0000000001, 0000000034, 1, 1, 1, 1),
 (0000000001, 0000000035, 1, 1, 1, 1),
+(0000000001, 0000000036, 1, 1, 0, 0),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -110,6 +111,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000033, 1, 0, 0, 0),
 (0000000002, 0000000034, 1, 0, 0, 0),
 (0000000002, 0000000035, 1, 0, 0, 0),
+(0000000002, 0000000036, 1, 1, 0, 0),
 (0000000003, 0000000001, 1, 0, 0, 0),
 (0000000003, 0000000002, 1, 0, 0, 0),
 (0000000003, 0000000003, 1, 0, 0, 0),
@@ -144,7 +146,8 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000003, 0000000032, 1, 0, 0, 0),
 (0000000003, 0000000033, 1, 0, 0, 0),
 (0000000003, 0000000034, 1, 0, 0, 0),
-(0000000003, 0000000035, 1, 0, 0, 0);
+(0000000003, 0000000035, 1, 0, 0, 0),
+(0000000003, 0000000036, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -309,7 +312,8 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000086, 'open_in_new_tab', 0000000003, 0),
 (0000000087, 'is_log', 0000000003, 0),
 (0000000088, 'label_date_time', 0000000001, 1),
-(0000000089, 'css_nav', 0000000001, 0);
+(0000000089, 'css_nav', 0000000001, 0),
+(0000000090, 'label_submit', 0000000001, 1);
 
 -- --------------------------------------------------------
 
@@ -414,52 +418,53 @@ CREATE TABLE `pages` (
   `id_actions` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `id_navigation_section` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `parent` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `is_headless` tinyint(1) NOT NULL DEFAULT '0',
   `nav_position` int(11) DEFAULT NULL,
   `footer_position` int(11) DEFAULT NULL,
-  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `user_input` tinyint(1) NOT NULL DEFAULT '0'
+  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pages`
 --
 
-INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `nav_position`, `footer_position`, `id_type`, `user_input`) VALUES
-(0000000001, 'login', '/login', 'GET|POST', 0000000001, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000002, 'home', '/', 'GET', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 10, NULL, 0000000002, 0),
-(0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 20, NULL, 0000000002, 0),
-(0000000006, 'missing', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000007, 'no_access', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000008, 'no_access_guest', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000009, 'admin-link', NULL, NULL, NULL, NULL, NULL, 1000, NULL, 0000000001, 0),
-(0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET|POST', 0000000002, NULL, 0000000009, 10, NULL, 0000000001, 0),
-(0000000011, 'cmsInsert', '/admin/cms_insert/[i:pid]?', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000012, 'cmsUpdate', '/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000013, 'cmsDelete', '/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000014, 'userSelect', '/admin/user/[i:uid]?', 'GET', 0000000002, NULL, 0000000009, 20, NULL, 0000000001, 0),
-(0000000015, 'userInsert', '/admin/user_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000016, 'userUpdate', '/admin/user_update/[i:uid]/[v:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000017, 'userDelete', '/admin/user_delete/[i:uid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000018, 'groupSelect', '/admin/group/[i:gid]?', 'GET', 0000000002, NULL, 0000000009, 30, NULL, 0000000001, 0),
-(0000000019, 'groupInsert', '/admin/group_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000020, 'groupUpdate', '/admin/group_update/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000021, 'groupDelete', '/admin/group_delete/[i:gid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000022, 'export', '/admin/export', 'GET', 0000000002, NULL, 0000000009, 40, NULL, 0000000001, 0),
-(0000000023, 'exportData', '/admin/export/[user_input|user_activity:selector]', 'GET', 0000000001, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000024, 'assetSelect', '/admin/asset', 'GET', 0000000002, NULL, 0000000009, 15, NULL, 0000000001, 0),
-(0000000025, 'assetInsert', '/admin/asset_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000027, 'assetDelete', '/admin/asset_delete/[v:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, NULL, NULL, 0000000001, 0),
-(0000000028, 'request', '/request/[a:request]', 'POST', 0000000001, NULL, NULL, NULL, NULL, 0000000001, 0),
-(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 30, NULL, 0000000002, 0),
-(0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, NULL, 300, 0000000002, 0),
-(0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, NULL, 100, 0000000002, 0),
-(0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, NULL, 200, 0000000002, 0),
-(0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000034, 'user_input_success', NULL, NULL, 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0),
-(0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, NULL, NULL, 0000000002, 0);
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES
+(0000000001, 'login', '/login', 'GET|POST', 0000000003, NULL, NULL, 1, NULL, NULL, 0000000002),
+(0000000002, 'home', '/', 'GET', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 0, 10, NULL, 0000000002),
+(0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 0, 20, NULL, 0000000002),
+(0000000006, 'missing', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000007, 'no_access', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000008, 'no_access_guest', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000009, 'admin-link', NULL, NULL, NULL, NULL, NULL, 0, 1000, NULL, 0000000001),
+(0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 10, NULL, 0000000001),
+(0000000011, 'cmsInsert', '/admin/cms_insert/[i:pid]?', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000012, 'cmsUpdate', '/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000013, 'cmsDelete', '/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000014, 'userSelect', '/admin/user/[i:uid]?', 'GET', 0000000002, NULL, 0000000009, 0, 20, NULL, 0000000001),
+(0000000015, 'userInsert', '/admin/user_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000016, 'userUpdate', '/admin/user_update/[i:uid]/[v:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000017, 'userDelete', '/admin/user_delete/[i:uid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000018, 'groupSelect', '/admin/group/[i:gid]?', 'GET', 0000000002, NULL, 0000000009, 0, 30, NULL, 0000000001),
+(0000000019, 'groupInsert', '/admin/group_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000020, 'groupUpdate', '/admin/group_update/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000021, 'groupDelete', '/admin/group_delete/[i:gid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000022, 'export', '/admin/export', 'GET', 0000000002, NULL, 0000000009, 0, 40, NULL, 0000000001),
+(0000000023, 'exportData', '/admin/export/[user_input|user_activity|validation_codes:selector]', 'GET', 0000000001, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000024, 'assetSelect', '/admin/asset', 'GET', 0000000002, NULL, 0000000009, 0, 15, NULL, 0000000001),
+(0000000025, 'assetInsert', '/admin/asset_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000027, 'assetDelete', '/admin/asset_delete/[v:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000028, 'request', '/request/[a:request]', 'POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
+(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, 30, NULL, 0000000002),
+(0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
+(0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
+(0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
+(0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000034, 'user_input_success', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
 
 -- --------------------------------------------------------
 
@@ -527,7 +532,8 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000034, 0000000008, 0000000002, 'Benutzer Daten'),
 (0000000034, 0000000008, 0000000003, 'User Data'),
 (0000000035, 0000000008, 0000000002, 'Passwort zurücksetzen'),
-(0000000035, 0000000008, 0000000003, 'Reset Password');
+(0000000035, 0000000008, 0000000003, 'Reset Password'),
+(0000000036, 0000000008, 0000000001, 'Generate Validation Codes');
 
 -- --------------------------------------------------------
 
@@ -546,7 +552,7 @@ CREATE TABLE `pages_sections` (
 --
 
 INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
-(0000000001, 0000000001, NULL),
+(0000000001, 0000000036, NULL),
 (0000000002, 0000000019, 0),
 (0000000004, 0000000002, NULL),
 (0000000006, 0000000003, NULL),
@@ -631,7 +637,9 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000031, 0000000012, 'impressum-card', NULL),
 (0000000032, 0000000006, 'impressum-markdown', NULL),
 (0000000033, 0000000012, 'impressum-ext-card', NULL),
-(0000000034, 0000000006, 'impressum-ext-markdown', NULL);
+(0000000034, 0000000006, 'impressum-ext-markdown', NULL),
+(0000000035, 0000000041, 'register-register', NULL),
+(0000000036, 0000000003, 'login-container', NULL);
 
 -- --------------------------------------------------------
 
@@ -808,8 +816,24 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000033, 0000000028, 0000000001, 0000000001, 'light'),
 (0000000033, 0000000046, 0000000001, 0000000001, '0'),
 (0000000033, 0000000047, 0000000001, 0000000001, '0'),
-(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)  | 4.0.2 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
-(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |');
+(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000035, 0000000001, 0000000002, 0000000001, 'Email'),
+(0000000035, 0000000001, 0000000003, 0000000001, 'Email'),
+(0000000035, 0000000002, 0000000002, 0000000001, 'Validierungs-Code'),
+(0000000035, 0000000002, 0000000003, 0000000001, 'Validation Code'),
+(0000000035, 0000000005, 0000000002, 0000000001, 'Die Email Adresse oder der Aktivierungs-Code ist ungültig'),
+(0000000035, 0000000005, 0000000003, 0000000001, 'The email address or the activation code is invalid'),
+(0000000035, 0000000022, 0000000002, 0000000001, 'Registration'),
+(0000000035, 0000000022, 0000000003, 0000000001, 'Registration'),
+(0000000035, 0000000023, 0000000001, 0000000001, 'mt-3'),
+(0000000035, 0000000035, 0000000002, 0000000001, 'Der erste Schritt der Registrierung war erfolgreich. Sie werden in Kürze eine Email mit einem Aktivierunks-Link erhalten.\r\n\r\nBitte folgen Sie diesem Link um die Registrierung abzuschliessen.'),
+(0000000035, 0000000035, 0000000003, 0000000001, 'The first step of the registration was successful.\r\nShortly you will receive an email with an activation link.\r\n\r\nPlease follow this activation link to complete the registration.'),
+(0000000035, 0000000044, 0000000002, 0000000001, 'Registrierung erfolgreich'),
+(0000000035, 0000000044, 0000000003, 0000000001, 'Registration Successful'),
+(0000000035, 0000000090, 0000000002, 0000000001, 'Registrieren'),
+(0000000035, 0000000090, 0000000003, 0000000001, 'Register'),
+(0000000036, 0000000023, 0000000001, 0000000001, 'mt-3');
 
 -- --------------------------------------------------------
 
@@ -854,7 +878,9 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (0000000022, 0000000024, 10),
 (0000000029, 0000000030, 0),
 (0000000031, 0000000032, 0),
-(0000000033, 0000000034, 0);
+(0000000033, 0000000034, 0),
+(0000000036, 0000000001, 1),
+(0000000036, 0000000035, 2);
 
 -- --------------------------------------------------------
 
@@ -890,11 +916,12 @@ INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 (0000000001, 'intern', NULL, NULL),
 (0000000002, 'Form', 'A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:\r\n\r\n- `form` provides only the client-side functionality and does not do anything with the submitted data. This is intended to be connected with a custom component (required PHP programming).\r\n- `formUserInput` stores the data from all child input fields into the database and displays the latest set of data in the database as values in the child input field (if `show_data` is checked).\r\n- `showUserInput` allows to display user input data. Use the name of a form to display the corresponding data.', 60),
 (0000000003, 'Input', 'An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:\r\n\r\n- `input` is a one-line input field style that allows to enter different types of data (e.g. text, color, time, date, checkbox).\r\n- `radio` allows to predefine a set of options for the user to select. It provides a list of options where only one option can be chosen.\r\n- `select` is a input field style that provides a predefined set of choices which can be selected with a dropdown menu. In contrast to the radio style the select style has a different visual appearance and provides a list of options where also multiple options can be chosen.\r\n- `slider` is an extension of the style input of type range. It allows to provide a label for each position of the slider.\r\n- `textarea` is a multi-line input field style that allows to enter multiple lines of text.', 70),
-(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `container` is an **invisible** wrapper.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visible** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
+(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `container` is an **invisible** wrapper.\r\n- `div` allows to wrap its children in a simple `<div>` tag. This allows to create more complex layouts with the help of bootstrap classes.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visible** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
 (0000000005, 'Text', 'Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:\r\n\r\n\r\n- `heading` is used to display the 6 levels of HTML headings.\r\n- `markdown` is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.\r\n- `markdownInline` is similar to the markdown style but is intended for one-line text where emphasis is required.\r\n- `plaintext` renders simple text. No special syntax is allowed here.\r\n- `rawText` renders text in a mono-space font which makes it useful to display code.', 20),
 (0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:\r\n\r\n- `accordionList` is a hierarchical list where the root level is rendered as an accordion with only one root item expanded at a time.\r\n- `nestedList`is a hierarchical list where each root item item can be collapsed and expanded by clicking on a chevron.\r\n- `sortableList` is not hierarchical but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).', 50),
 (0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.', 40),
-(0000000008, 'Link', 'Link styles allow to render different types of links:\r\n\r\n- `button` renders a button-style link with several predefined colour schemes.\r\n- `link` renders a standard link but allows to open the target in a new tab.', 30);
+(0000000008, 'Link', 'Link styles allow to render different types of links:\r\n\r\n- `button` renders a button-style link with several predefined colour schemes.\r\n- `link` renders a standard link but allows to open the target in a new tab.', 30),
+(0000000009, 'Admin', 'The admin styles are for user registration and access handling.\r\nThe following styles are available:\r\n\r\n- `login` provides a small form where the user can enter his or her email and password to access the WebApp. It also includes a link to reset a password.\r\n- `register` provides a small form to allow a user to register for the WebApp. In order to register a user must provide a valid email and activation code. Activation codes can be generated in the admin section of the WebApp. The list of available codes can be exported.', 80);
 
 -- --------------------------------------------------------
 
@@ -914,7 +941,7 @@ CREATE TABLE `styles` (
 --
 
 INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES
-(0000000001, 'login', 0000000002, 0000000001),
+(0000000001, 'login', 0000000002, 0000000009),
 (0000000002, 'profile', 0000000002, 0000000001),
 (0000000003, 'container', 0000000001, 0000000004),
 (0000000004, 'jumbotron', 0000000001, 0000000004),
@@ -950,7 +977,9 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES
 (0000000035, 'resetPassword', 0000000002, 0000000001),
 (0000000036, 'formUserInput', 0000000002, 0000000002),
 (0000000038, 'radio', 0000000002, 0000000003),
-(0000000039, 'showUserInput', 0000000002, 0000000002);
+(0000000039, 'showUserInput', 0000000002, 0000000002),
+(0000000040, 'div', 0000000001, 0000000004),
+(0000000041, 'register', 0000000002, 0000000009);
 
 -- --------------------------------------------------------
 
@@ -974,8 +1003,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000001, 0000000003, NULL),
 (0000000001, 0000000004, NULL),
 (0000000001, 0000000005, NULL),
-(0000000001, 0000000006, NULL),
 (0000000001, 0000000007, NULL),
+(0000000001, 0000000028, 'dark'),
 (0000000003, 0000000006, NULL),
 (0000000003, 0000000029, '0'),
 (0000000004, 0000000006, NULL),
@@ -1133,7 +1162,16 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000038, 0000000085, NULL),
 (0000000039, 0000000053, NULL),
 (0000000039, 0000000087, '0'),
-(0000000039, 0000000088, NULL);
+(0000000039, 0000000088, NULL),
+(0000000040, 0000000006, NULL),
+(0000000041, 0000000001, NULL),
+(0000000041, 0000000002, NULL),
+(0000000041, 0000000005, NULL),
+(0000000041, 0000000022, NULL),
+(0000000041, 0000000028, 'success'),
+(0000000041, 0000000035, NULL),
+(0000000041, 0000000044, NULL),
+(0000000041, 0000000090, NULL);
 
 -- --------------------------------------------------------
 
@@ -1224,6 +1262,18 @@ CREATE TABLE `user_input` (
   `id_section_form` int(10) UNSIGNED ZEROFILL NOT NULL,
   `value` longtext NOT NULL,
   `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `validation_codes`
+--
+
+CREATE TABLE `validation_codes` (
+  `code` varchar(8) NOT NULL,
+  `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `timestamp` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1421,6 +1471,13 @@ ALTER TABLE `user_input`
   ADD KEY `id_section_form` (`id_section_form`);
 
 --
+-- Indexes for table `validation_codes`
+--
+ALTER TABLE `validation_codes`
+  ADD PRIMARY KEY (`code`),
+  ADD KEY `id_users` (`id_users`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -1438,7 +1495,7 @@ ALTER TABLE `chat`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
@@ -1463,7 +1520,7 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 --
 -- AUTO_INCREMENT for table `pageType`
 --
@@ -1473,17 +1530,17 @@ ALTER TABLE `pageType`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 --
 -- AUTO_INCREMENT for table `styleGroup`
 --
 ALTER TABLE `styleGroup`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 --
 -- AUTO_INCREMENT for table `styleType`
 --
@@ -1630,6 +1687,12 @@ ALTER TABLE `user_input`
   ADD CONSTRAINT `user_input_fk_id_section_form` FOREIGN KEY (`id_section_form`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `user_input_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `user_input_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `validation_codes`
+--
+ALTER TABLE `validation_codes`
+  ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
