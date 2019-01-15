@@ -38,7 +38,7 @@ class UserInput
      *  A key => value array of db conditions where the key corresponds to the
      *  db column and the value to the db value.
      * @retval array
-     *  An array of field items wher eeach item has the following keys:
+     *  An array of field items where eeach item has the following keys:
      *  - 'user_hash'     A unique string that connects values to a user without
      *                    revealing the identity of the user.
      *  - 'user_gender'   The gender of the user.
@@ -60,7 +60,8 @@ class UserInput
             LEFT JOIN users AS u ON u.id = ui.id_users
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE 1";
-        $gender = "male";
+        $gender = $_SESSION['gender'];
+        $language = $_SESSION['language'];
         foreach($conds as $key => $value)
         {
             if($key === "g.name") $gender = $value;
@@ -80,7 +81,7 @@ class UserInput
                 "user_gender" => $field['gender'],
                 "page" => $this->field_attrs[$id]["page"],
                 "nav" => $this->field_attrs[$id]["nav"],
-                "field_name" => $this->field_attrs[$id]["name"][$gender],
+                "field_name" => $this->field_attrs[$id]["name"][$gender][$language] ?? "",
                 "field_type" => $this->field_attrs[$id]["type"],
                 "form_name" => $this->field_attrs[$id]["form_name"],
                 "value" => $field["value"],
@@ -326,14 +327,15 @@ class UserInput
     public function set_field_attrs()
     {
         $this->field_attrs = array();
-        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender FROM user_input AS ui
+        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
             LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
             LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
             LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
             LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
             LEFT JOIN sections AS s ON s.id = ui.id_sections
             LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN genders AS g ON g.id = sft_il.id_genders";
+            LEFT JOIN genders AS g ON g.id = sft_il.id_genders
+            LEFT JOIN languages AS l ON l.id = sft_il.id_languages";
         $sections = $this->db->query_db($sql);
         foreach($sections as $section)
         {
@@ -341,12 +343,12 @@ class UserInput
             $name_label = $section['field_label'] ?? $section['field_name'];
             if(isset($this->field_attrs[$id]))
             {
-                $this->field_attrs[$id]["name"][$section['gender']] = $name_label;
+                $this->field_attrs[$id]["name"][$section['gender']][$section['language']] = $name_label;
                 continue;
             }
             $type = $section['input_type'] ?? $section['field_type'];
-            $name = array('male' => "", 'female' => "");
-            $name[$section['gender']] = $name_label;
+            $name = array('male' => array(), 'female' => array());
+            $name[$section['gender']][$section['language']] = $name_label;
             $page = $this->find_section_page($id);
             $this->field_attrs[$id] = array(
                 "page" => $page["page"],
