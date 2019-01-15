@@ -104,20 +104,32 @@ class StyleModel extends BaseModel implements IStyleModel
             return $_SERVER['REQUEST_URI'];
         else if($url[0] == "#")
         {
-            $names = explode('/', $url);
-            $name = substr($names[0], 1);
+            $links = explode('#', substr($url, 1));
+            $target = $links[0];
+            $names = explode('/', $target);
+            $name = $names[0];
             if(!$this->router->has_route($name))
                 return $url;
+            $link = "";
+            $sql = "SELECT id FROM sections WHERE name = :name";
             if(count($names) === 2)
             {
-                $section_name = substr($names[0], 1);
-                $sql = "SELECT id FROM sections WHERE name = :name";
                 $section_id = $this->db->query_db_first($sql,
                     array(":name" => $names[1]));
-                return $this->router->generate($name,
-                    array('nav' => intval($section_id['id'])));
+                if($section_id)
+                    $link = $this->router->generate($name,
+                        array('nav' => intval($section_id['id'])));
             }
-            return $this->router->generate($name);
+            else
+                $link = $this->router->generate($name);
+            if(count($links) === 2)
+            {
+                $section_id = $this->db->query_db_first($sql,
+                    array(":name" => $links[1]));
+                if($section_id)
+                    $link .= '#section-' . intval($section_id['id']);
+            }
+            return $link;
         }
         else
             return $url;
