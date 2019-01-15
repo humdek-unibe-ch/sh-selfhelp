@@ -38,12 +38,10 @@ $(document).ready(function() {
             nav = "/[i:nav]";
             $check_pos_list.prop("checked", false);
             $check_pos_list.trigger("change");
-            $header_pos.addClass("d-none");
         }
         else
         {
             nav = "";
-            $header_pos.removeClass("d-none");
         }
         $url_input.val("/" + keyword + nav);
     });

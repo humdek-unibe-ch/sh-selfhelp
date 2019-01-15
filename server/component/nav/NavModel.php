@@ -33,7 +33,8 @@ class NavModel extends BaseModel
     private function fetch_children($id_parent)
     {
         $locale_cond = $this->db->get_locale_condition();
-        $sql = "SELECT p.id, p.keyword, pft.content AS title FROM pages AS p
+        $sql = "SELECT p.id, p.keyword, p.id_navigation_section, pft.content AS title
+            FROM pages AS p
             LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
@@ -54,7 +55,8 @@ class NavModel extends BaseModel
     private function fetch_pages()
     {
         $locale_cond = $this->db->get_locale_condition();
-        $sql = "SELECT p.id, p.keyword, pft.content AS title FROM pages AS p
+        $sql = "SELECT p.id, p.keyword, p.id_navigation_section, pft.content AS title
+            FROM pages AS p
             LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
@@ -87,6 +89,7 @@ class NavModel extends BaseModel
             {
                 $children = $this->fetch_children(intval($item['id']));
                 $pages[$item['keyword']] = array(
+                    "id_navigation_section" => $item['id_navigation_section'],
                     "title" => $item['title'],
                     "children" => $children
                 );
@@ -96,6 +99,27 @@ class NavModel extends BaseModel
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Fetch the first navigation section from a navigation page.
+     *
+     * @param int $id_parent
+     *  The id of the parent navigation section.
+     * @retval mixed
+     *  If a child exists the id of the child is returned, null otherwise.
+     */
+    public function get_first_nav_section($id_parent)
+    {
+        if($id_parent === null)
+            return;
+        $sql = 'SELECT child FROM sections_navigation
+            WHERE parent = :parent ORDER BY position';
+        $id_child = $this->db->query_db_first($sql,
+            array(':parent' => $id_parent));
+        if($id_child && $id_child['child'])
+            return intval($id_child['child']);
+        return null;
+    }
 
     /**
      * Fetches the name of the home page from the database.

@@ -29,8 +29,9 @@ class NavView extends BaseView
         $pages = $this->model->get_pages();
         foreach($pages as $key => $page)
         {
+            $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
             if(empty($page['children']))
-                $this->output_nav_item($key, $page['title']);
+                $this->output_nav_item($key, $page['title'], $nav_child);
             else
                 $this->output_nav_menu($key, $page['title'], $page['children']);
         }
@@ -44,10 +45,13 @@ class NavView extends BaseView
      * @param string $page_name
      *  The title of the page the link is pointing to.
      */
-    private function output_nav_item($key, $page_name)
+    private function output_nav_item($key, $page_name, $nav_child=null)
     {
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
+        $params = array();
+        if($nav_child !== null)
+            $params['nav'] = $nav_child;
+        $url = $this->model->get_link_url($key, $params);
         require __DIR__ . "/tpl_nav_item.php";
     }
 
@@ -79,10 +83,13 @@ class NavView extends BaseView
      * @param string $page_name
      *  The title of the page the link is pointing to.
      */
-    private function output_nav_menu_item($key, $page_name)
+    private function output_nav_menu_item($key, $page_name, $nav_child)
     {
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
+        $params = array();
+        if($nav_child !== null)
+            $params['nav'] = $nav_child;
+        $url = $this->model->get_link_url($key, $params);
         require __DIR__ . "/tpl_nav_menu_item.php";
     }
 
@@ -97,7 +104,10 @@ class NavView extends BaseView
         foreach($children as $key => $page)
         {
             if(empty($page['children']))
-                $this->output_nav_menu_item($key, $page['title']);
+            {
+                $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
+                $this->output_nav_menu_item($key, $page['title'], $nav_child);
+            }
             else
                 $this->output_nav_menu($key, $page['title'], $page['children']);
         }
