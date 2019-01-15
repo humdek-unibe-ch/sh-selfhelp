@@ -131,6 +131,10 @@ class StyleModel extends BaseModel implements IStyleModel
             }
             return $link;
         }
+        else if($url[0] == "%")
+        {
+            return ASSET_PATH . '/' . substr($url, 1);
+        }
         else
             return $url;
     }
