@@ -46,6 +46,7 @@ class UserInput
      *  - 'nav'           The name of the navigation section where the data was
      *                    entered.
      *  - 'field_name'    The name of the input field.
+     *  - 'field_label'   The label of the input field.
      *  - 'field_type'    The type of the input field. This is either the name
      *                    of the form field style or if the style is 'input' the
      *                    input type.
@@ -69,7 +70,6 @@ class UserInput
         }
         $fields_db = $this->db->query_db($sql);
 
-
         $fields = array();
         foreach($fields_db as $field)
         {
@@ -81,7 +81,8 @@ class UserInput
                 "user_gender" => $field['gender'],
                 "page" => $this->field_attrs[$id]["page"],
                 "nav" => $this->field_attrs[$id]["nav"],
-                "field_name" => $this->field_attrs[$id]["name"][$gender][$language] ?? "",
+                "field_name" => $this->field_attrs[$id]["name"],
+                "field_label" => $this->field_attrs[$id]["label"][$gender][$language] ?? "",
                 "field_type" => $this->field_attrs[$id]["type"],
                 "form_name" => $this->field_attrs[$id]["form_name"],
                 "value" => $field["value"],
@@ -340,20 +341,22 @@ class UserInput
         foreach($sections as $section)
         {
             $id = intval($section['id_sections']);
-            $name_label = $section['field_label'] ?? $section['field_name'];
+            $name = $section['field_name'];
+            $label_name = $section['field_label'] ?? $name;
             if(isset($this->field_attrs[$id]))
             {
-                $this->field_attrs[$id]["name"][$section['gender']][$section['language']] = $name_label;
+                $this->field_attrs[$id]["label"][$section['gender']][$section['language']] = $label_name;
                 continue;
             }
             $type = $section['input_type'] ?? $section['field_type'];
-            $name = array('male' => array(), 'female' => array());
-            $name[$section['gender']][$section['language']] = $name_label;
+            $label = array('male' => array(), 'female' => array());
+            $label[$section['gender']][$section['language']] = $label_name;
             $page = $this->find_section_page($id);
             $this->field_attrs[$id] = array(
                 "page" => $page["page"],
                 "nav" => $page["nav"],
                 "name" => $name,
+                "label" => $label,
                 "form_name" => $section['form_name'],
                 "type" => $type,
             );

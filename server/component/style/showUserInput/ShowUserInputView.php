@@ -73,7 +73,7 @@ class ShowUserInputView extends StyleView
     {
         foreach($fields as $field)
         {
-            $label = $field['field_name'];
+            $label = $field['field_label'];
             $value = $field['value'];
             require __DIR__ . "/tpl_doc_field.php";
         }
@@ -114,7 +114,7 @@ class ShowUserInputView extends StyleView
         $header = array($this->label);
         foreach($fields as $field)
         {
-            $header[] = $field['field_name'];
+            $header[] = $field['field_label'];
             if(!isset($rows[$field['timestamp']]))
                 $rows[$field['timestamp']] = array($field['timestamp']);
             $rows[$field['timestamp']][] = $field['value'];
