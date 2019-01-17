@@ -447,29 +447,30 @@ class UserModel extends BaseModel
      * @retval int
      *  The id of the new user or false if the process failed.
      */
-    public function insert_new_user($email, $code)
+    public function insert_new_user($email, $code=null)
     {
         $token = $this->login->create_token();
         $uid = $this->db->insert("users", array(
             "email" => $email,
             "token" => $token,
         ));
-        if($uid && $this->db->insert("validation_codes", array(
-            "code" => $code,
-            "id_users" => $uid,
-        )))
-        {
-            $url = $this->get_link_url("validate", array(
-                "uid" => $uid,
-                "token" => $token,
-                "mode" => "activate",
+        $code_res = true;
+        if($code !== null)
+            $code_res = $this->db->insert("validation_codes", array(
+                "code" => $code,
+                "id_users" => $uid,
             ));
-            $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-            $subject = $_SESSION['project'] . " Email Verification";
-            $from = "noreply@" . $_SERVER['HTTP_HOST'];
-            $this->login->email_send($from, $email, $subject,
-                $this->email_get_content($url));
-        }
+        if(!$uid || !$code_res) return null;
+        $url = $this->get_link_url("validate", array(
+            "uid" => $uid,
+            "token" => $token,
+            "mode" => "activate",
+        ));
+        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
+        $subject = $_SESSION['project'] . " Email Verification";
+        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $this->login->email_send($from, $email, $subject,
+            $this->email_get_content($url));
         return $uid;
     }
 
