@@ -39,7 +39,7 @@ class UserInput
      *  db column and the value to the db value.
      * @retval array
      *  An array of field items where eeach item has the following keys:
-     *  - 'user_hash'     A unique string that connects values to a user without
+     *  - 'user_code'     A unique string that connects values to a user without
      *                    revealing the identity of the user.
      *  - 'user_gender'   The gender of the user.
      *  - 'page'          The keyword of the page where the data was entered.
@@ -56,10 +56,11 @@ class UserInput
     private function fetch_input_fields($conds = array())
     {
         $sql = "SELECT ui.id_users, ui.value, ui.edit_time, ui.id_sections,
-            g.name AS gender
+            g.name AS gender, vc.code
             FROM user_input AS ui
             LEFT JOIN users AS u ON u.id = ui.id_users
             LEFT JOIN genders AS g ON g.id = u.id_genders
+            LEFT JOIN validation_codes AS vc on vc.id_users = ui.id_users
             WHERE 1";
         $gender = $_SESSION['gender'];
         $language = $_SESSION['language'];
@@ -76,8 +77,7 @@ class UserInput
             $id = intval($field["id_sections"]);
             if(!isset($this->field_attrs[$id])) continue;
             $fields[] = array(
-                "user_hash" => substr(base_convert(hash("sha256",
-                    $field["id_users"]), 16, 36), 0, 8),
+                "user_code" => $field['code'],
                 "user_gender" => $field['gender'],
                 "page" => $this->field_attrs[$id]["page"],
                 "nav" => $this->field_attrs[$id]["nav"],
