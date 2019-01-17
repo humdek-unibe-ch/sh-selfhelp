@@ -64,14 +64,14 @@ class ExportPage extends BasePage
      */
     private function export_user_activity($output)
     {
-        fputcsv($output, array("user_hash", "url", "timestamp"));
-        $sql = "SELECT id_users AS id, url, timestamp FROM user_activity";
+        fputcsv($output, array("user_code", "url", "timestamp"));
+        $sql = "SELECT ua.url, vc.code, ua.timestamp
+            FROM user_activity AS ua
+            LEFT JOIN validation_codes AS vc ON vc.id_users = ua.id_users";
         $fields = $this->services['db']->query_db($sql);
         foreach($fields as $field)
-        {
-            $hash = substr(base_convert(hash("sha256", $field["id"]), 16, 36), 0, 8);
-            fputcsv($output, array($hash, $field['url'], $field['timestamp']));
-        }
+            fputcsv($output, array($field['code'], $field['url'],
+                $field['timestamp']));
     }
 
     /**
