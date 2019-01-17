@@ -24,6 +24,7 @@ define('CSS_FIELD_ID', 23);
 define('LABEL_FIELD_ID', 8);
 define('NAME_FIELD_ID', 57);
 define('TYPE_INPUT_FIELD_ID', 54);
+define('EMAIL_TYPE_ID', 11);
 
 define('MALE_GENDER_ID', 1);
 define('ALL_LANGUAGE_ID', 1);
