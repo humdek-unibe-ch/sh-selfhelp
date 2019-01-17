@@ -30,7 +30,7 @@ class UserInsertController extends UserController
         parent::__construct($model);
         $this->uid = null;
         $this->email = "";
-        if(isset($_POST['email']))
+        if(isset($_POST['email']) && isset($_POST['code']))
         {
             if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
             {
@@ -50,7 +50,7 @@ class UserInsertController extends UserController
                     return;
                 }
             }
-            $this->uid = $this->model->insert_new_user($_POST['email']);
+            $this->uid = $this->model->insert_new_user($_POST['email'], $_POST['code']);
             if($this->uid && $this->model->add_groups_to_user($this->uid,
                 $groups))
                 $this->success = true;

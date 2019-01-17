@@ -442,17 +442,22 @@ class UserModel extends BaseModel
      *
      * @param string $email
      *  The email address of the user to be added.
+     * @param string $code
+     *  A unique user code.
      * @retval int
      *  The id of the new user or false if the process failed.
      */
-    public function insert_new_user($email)
+    public function insert_new_user($email, $code)
     {
         $token = $this->login->create_token();
         $uid = $this->db->insert("users", array(
             "email" => $email,
             "token" => $token,
         ));
-        if($uid)
+        if($uid && $this->db->insert("validation_codes", array(
+            "code" => $code,
+            "id_users" => $uid,
+        )))
         {
             $url = $this->get_link_url("validate", array(
                 "uid" => $uid,
