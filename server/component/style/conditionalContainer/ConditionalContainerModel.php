@@ -52,7 +52,7 @@ class ConditionalContainerModel extends StyleModel
             $vals = $this->user_input->get_input_fields(array(
                 "form_name" => $form,
                 "field_name" => $field,
-                "id_users" => $_SESSION['id_user']
+                "id_user" => $_SESSION['id_user']
             ));
             if(count($vals) > 0)
                 $j_condition = str_replace($match, $vals[0]['value'], $j_condition);
