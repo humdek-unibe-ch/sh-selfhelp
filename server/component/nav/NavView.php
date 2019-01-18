@@ -22,6 +22,19 @@ class NavView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
+     * Render the contact link.
+     */
+    private function output_nav_contact()
+    {
+        $key = 'contact';
+        if(!$this->model->has_route($key))
+            return;
+        $active = ($this->model->is_link_active($key)) ? "active" : "";
+        $url = $this->model->get_link_url($key);
+        require __DIR__ .'/tpl_contact.php';
+    }
+
+    /**
      * Render all navigation links.
      */
     private function output_nav_items()
@@ -111,6 +124,16 @@ class NavView extends BaseView
             else
                 $this->output_nav_menu($key, $page['title'], $page['children']);
         }
+    }
+
+    /**
+     * Render the pill indicating new messages.
+     */
+    private function output_new_messages()
+    {
+        $count = $this->model->get_new_message_count();
+        if($count)
+            require __DIR__ .'/tpl_new_messages.php';
     }
 
     /* Public Methods *********************************************************/

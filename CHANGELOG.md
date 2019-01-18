@@ -1,3 +1,15 @@
+# v0.9.12
+
+### Bugfix
+
+### Changes
+
+ - Move the contact menu link to the right and use a envelope symbol
+
+### New Features
+
+ - Indicate whether new chat messages are here (#65)
+
 # v0.9.11
 
 ### Bugfix

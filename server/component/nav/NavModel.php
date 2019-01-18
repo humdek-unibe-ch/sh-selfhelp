@@ -137,6 +137,12 @@ class NavModel extends BaseModel
      */
     public function get_login() { return $this->db->get_link_title("login"); }
 
+    public function get_new_message_count()
+    {
+        $sql = "SELECT id FROM chat WHERE id_rcv = :id AND is_new = 1";
+        return count($this->db->query_db($sql, array(':id' => $_SESSION['id_user'])));
+    }
+
     /**
      * Fetches the name of the profile page from the database.
      *
@@ -160,5 +166,15 @@ class NavModel extends BaseModel
      *  An array prepared by NavModel::prepare_pages.
      */
     public function get_pages() { return $this->fetch_pages(); }
+
+    /**
+     * Checks whether a route exists.
+     *
+     * @param string $route
+     *  The route to check.
+     * @retval bool
+     *  True if the route exists, false otherwise.
+     */
+    public function has_route($route) { return $this->router->has_route($route); }
 }
 ?>

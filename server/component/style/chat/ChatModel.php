@@ -99,8 +99,8 @@ class ChatModel extends StyleModel
     public function get_chat_items()
     {
         if(!$this->is_chat_ready()) return array();
-        $sql = "SELECT usnd.id AS uid, usnd.name AS name, chat.content AS msg,
-            chat.timestamp
+        $sql = "SELECT chat.id AS cid, usnd.id AS uid, usnd.name AS name,
+            chat.content AS msg, chat.timestamp
             FROM chat
             LEFT JOIN users AS usnd ON usnd.id = chat.id_snd
             LEFT JOIN users AS urcv ON urcv.id = chat.id_rcv
@@ -110,7 +110,13 @@ class ChatModel extends StyleModel
             $uid = $this->uid;
         else
             $uid = $_SESSION['id_user'];
-        return $this->db->query_db($sql, array(":uid" => $uid));
+        $items = $this->db->query_db($sql, array(":uid" => $uid));
+        $ids = array();
+        foreach($items as $item)
+            $ids[] = $item['cid'];
+        $sql = 'UPDATE chat SET is_new = 0 WHERE id in (' . implode(',', $ids) . ')';
+        $this->db->execute_db($sql);
+        return $items;
     }
 
     /**

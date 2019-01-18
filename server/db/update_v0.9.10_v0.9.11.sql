@@ -1,3 +1,5 @@
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'remember to update the update permission for the user fields id_languages, is_reminded, last_login';
+
 -- Increase validation code length
 ALTER TABLE `validation_codes` CHANGE `code` `code` VARCHAR(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 
