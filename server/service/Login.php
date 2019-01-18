@@ -39,6 +39,20 @@ class Login
     }
 
     /**
+     * Update the timestamp of the last login.
+     *
+     * @param int $id
+     *  The user id
+     * @retval int
+     *  The number of affected rows or false on failure.
+     */
+    private function update_timestamp($id)
+    {
+        $sql = "UPDATE users SET last_login = now() WHERE id = :id";
+        return $this->db->execute_update_db($sql, array(':id' => $id));
+    }
+
+    /**
      * Check login credentials with the db and set the session variable if
      * successful. If the check fails, the session variable is destroyed.
      *
@@ -60,6 +74,7 @@ class Login
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
+            $this->update_timestamp($user['id']);
             return true;
         }
         else
