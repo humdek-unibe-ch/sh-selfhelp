@@ -32,4 +32,7 @@ CALL grant_proc("INSERT, UPDATE (position), DELETE", @db_name, "sections_navigat
 CALL grant_proc("INSERT", @db_name, "chat", @user_name);
 CALL grant_proc("INSERT, UPDATE (id_users)", @db_name, "validation_codes", @user_name);
 
+SET @user_name_reminder = "selfhelpReminder";
+CALL grant_proc("SELECT (pages_fields_translation)", @db_name, "*", @user_name_reminder);
+
 DROP PROCEDURE IF EXISTS grant_proc;
