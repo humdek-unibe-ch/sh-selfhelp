@@ -1,6 +1,8 @@
-# v0.9.7
+# v0.9.11
 
 ### Bugfix
+
+ - Fix typo
 
 ### Changes
 
@@ -10,6 +12,8 @@
 ### New Features
 
  - When manually adding a new user, provide a unique user code (#77)
+ - Allow to modify email content in the admin section (#141)
+ - Implement automatic email reminder (#79)
 
 # v0.9.10
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 17, 2019 at 10:39 AM
+-- Generation Time: Jan 18, 2019 at 02:09 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -17,8 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpnew`
--- Version: v0.9.10
+-- Database: `selfhelp`
+-- Version: v0.9.11
 --
 
 -- --------------------------------------------------------
@@ -77,6 +77,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000034, 1, 1, 1, 1),
 (0000000001, 0000000035, 1, 1, 1, 1),
 (0000000001, 0000000036, 1, 1, 0, 0),
+(0000000001, 0000000037, 1, 0, 1, 0),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -113,6 +114,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000034, 1, 0, 0, 0),
 (0000000002, 0000000035, 1, 0, 0, 0),
 (0000000002, 0000000036, 1, 1, 0, 0),
+(0000000002, 0000000037, 1, 0, 1, 0),
 (0000000003, 0000000001, 1, 0, 0, 0),
 (0000000003, 0000000002, 1, 0, 0, 0),
 (0000000003, 0000000003, 1, 0, 0, 0),
@@ -315,7 +317,10 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000088, 'label_date_time', 0000000001, 1),
 (0000000089, 'css_nav', 0000000001, 0),
 (0000000090, 'label_submit', 0000000001, 1),
-(0000000091, 'condition', 0000000008, 0);
+(0000000091, 'condition', 0000000008, 0),
+(0000000092, 'email_activate', 0000000011, 1),
+(0000000093, 'email_reset', 0000000011, 1),
+(0000000094, 'email_reminder', 0000000011, 1);
 
 -- --------------------------------------------------------
 
@@ -343,7 +348,8 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 (0000000007, 'markdown-inline', 20),
 (0000000008, 'json', 45),
 (0000000009, 'style-bootstrap', 5),
-(0000000010, 'type-input', 4);
+(0000000010, 'type-input', 4),
+(0000000011, 'email', 90);
 
 -- --------------------------------------------------------
 
@@ -466,7 +472,8 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000034, 'user_input_success', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
+(0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001);
 
 -- --------------------------------------------------------
 
@@ -535,7 +542,14 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000034, 0000000008, 0000000003, 'User Data'),
 (0000000035, 0000000008, 0000000002, 'Passwort zurücksetzen'),
 (0000000035, 0000000008, 0000000003, 'Reset Password'),
-(0000000036, 0000000008, 0000000001, 'Generate Validation Codes');
+(0000000036, 0000000008, 0000000001, 'Generate Validation Codes'),
+(0000000037, 0000000008, 0000000001, 'Email CMS'),
+(0000000037, 0000000092, 0000000002, 'Guten Tag\r\n\r\nUm Ihre Email Adresse zu verifizieren und Ihren @project Account zu aktivieren klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team'),
+(0000000037, 0000000092, 0000000003, 'Hello\r\n\r\nTo verify you email address and to activate your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team'),
+(0000000037, 0000000093, 0000000002, 'Guten Tag\r\n\r\nUm das Passwort von Ihrem @project Account zurück zu setzten klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team\r\n'),
+(0000000037, 0000000093, 0000000003, 'Hello\r\n\r\nTo reset password of your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team.\r\n'),
+(0000000037, 0000000094, 0000000002, 'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
+(0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team');
 
 -- --------------------------------------------------------
 
@@ -770,7 +784,7 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000026, 0000000034, 0000000003, 0000000001, 'Required Data to Activate the User'),
 (0000000026, 0000000035, 0000000002, 0000000001, 'Sie können sich nun mit dem von Ihnen gewählten Passwort und Email einloggen und die Seite benutzen.'),
 (0000000026, 0000000035, 0000000003, 0000000001, 'You are now able to login in to the web page with the chosen password and email.'),
-(0000000026, 0000000036, 0000000002, 0000000001, 'Benuzername'),
+(0000000026, 0000000036, 0000000002, 0000000001, 'Benutzername'),
 (0000000026, 0000000036, 0000000003, 0000000001, 'Username'),
 (0000000026, 0000000037, 0000000002, 0000000001, 'Bitte den Benutzernamen eingeben'),
 (0000000026, 0000000037, 0000000003, 0000000001, 'Please enter a username'),
@@ -1215,16 +1229,19 @@ CREATE TABLE `users` (
   `id_genders` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `blocked` tinyint(1) NOT NULL DEFAULT '0',
   `intern` tinyint(1) NOT NULL DEFAULT '0',
-  `token` varchar(32) DEFAULT NULL
+  `token` varchar(32) DEFAULT NULL,
+  `id_languages` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `is_reminded` tinyint(1) NOT NULL DEFAULT '1',
+  `last_login` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `intern`, `token`) VALUES
-(0000000001, 'guest', '', NULL, NULL, 0, 1, NULL),
-(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0, NULL);
+INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`) VALUES
+(0000000001, 'guest', '', NULL, NULL, 0, 1, NULL, NULL, 0, NULL),
+(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -1279,7 +1296,7 @@ CREATE TABLE `user_input` (
 --
 
 CREATE TABLE `validation_codes` (
-  `code` varchar(8) NOT NULL,
+  `code` varchar(16) NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `timestamp` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1452,7 +1469,8 @@ ALTER TABLE `styleType`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `id_genders` (`id_genders`);
+  ADD KEY `id_genders` (`id_genders`),
+  ADD KEY `id_languages` (`id_languages`);
 
 --
 -- Indexes for table `users_groups`
@@ -1503,12 +1521,12 @@ ALTER TABLE `chat`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
 ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT for table `genders`
 --
@@ -1528,7 +1546,7 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 --
 -- AUTO_INCREMENT for table `pageType`
 --
@@ -1673,7 +1691,8 @@ ALTER TABLE `styles_fields`
 -- Constraints for table `users`
 --
 ALTER TABLE `users`
-  ADD CONSTRAINT `fk_users_id_genders` FOREIGN KEY (`id_genders`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_users_id_genders` FOREIGN KEY (`id_genders`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_users_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users_groups`
