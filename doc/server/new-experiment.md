@@ -120,3 +120,35 @@ Restart the apache server and the page should be accessible at `https://selfhelp
 ```
 sudo service apache2 restart
 ```
+
+### 7. Enable User Reminder
+
+The server periodically checks whether a user was inactive for more than a specified amount of time and can be configured to send a reminder email if this is the case.
+This feature can be enabled and disabled individually for each experiment.
+
+As user `www` do
+
+```
+cd
+cd __experiment_name__
+cp /home/www/selfhelp_reminder/db/reminder_db_script.default.sql server/db/reminder_db_script.sql
+```
+
+and edit the file as follows:
+
+- set the variable `@db_name` to `__experiment_name__`
+
+Log out as `www` user with `ctrl-d` and login to mysql with
+
+```
+sudo mysql
+```
+
+Once the mysql console is open run the commands
+
+```
+USE __experiment_name__;
+source /home/www/__experiment_name__/server/db/reminder_db_script.sql;
+```
+
+Note that the filed `days` can be used to specify the number of days a user must be inactive to receive a reminder email.
