@@ -48,33 +48,6 @@ class UserModel extends BaseModel
     /* Private Methods ********************************************************/
 
     /**
-     * Read the email content from the db.
-     *
-     * @param string $url
-     *  The activation link that will be included into the mail content.
-     * @retval string
-     *  The email content with replaced keywords.
-     */
-    private function email_get_content($url)
-    {
-        $content = "";
-        $sql = "SELECT content FROM pages_fields_translation AS pft
-            LEFT JOIN pages AS p ON p.id = pft.id_pages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            WHERE p.keyword = 'email' AND f.name = 'email_activate'
-            AND l.locale = :lang";
-        $res = $this->db->query_db_first($sql, array(':lang' => $_SESSION['language']));
-        if($res)
-        {
-            $content = $res['content'];
-            $content = str_replace('@project', $_SESSION['project'], $content);
-            $content = str_replace('@link', $url, $content);
-        }
-        return $content;
-    }
-
-    /**
      * Fetch the user data from the db.
      *
      * @param int $uid
@@ -480,7 +453,7 @@ class UserModel extends BaseModel
         $subject = $_SESSION['project'] . " Email Verification";
         $from = "noreply@" . $_SERVER['HTTP_HOST'];
         $this->login->email_send($from, $email, $subject,
-            $this->email_get_content($url));
+            $this->login->email_get_content($url, 'email_activate'));
         return $uid;
     }
 

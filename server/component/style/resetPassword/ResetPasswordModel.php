@@ -22,25 +22,6 @@ class ResetPasswordModel extends StyleModel
         parent::__construct($services, $id);
     }
 
-    /* Private Methods ********************************************************/
-
-    /**
-     * Read the email content from a php file and assign it to a string.
-     *
-     * @param string $url
-     *  The activation link that will be included into the mail content.
-     * @retval string
-     *  The email content with evaluated php statements.
-     */
-    private function email_get_content($url)
-    {
-        ob_start();
-        include(EMAIL_PATH . "/resetPassword_" . $_SESSION['language'] . ".php");
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -60,7 +41,7 @@ class ResetPasswordModel extends StyleModel
             array("email" => $email));
         if(!$res) return false;
         $url = $this->get_link_url("validate", array(
-            "uid" => $uid['id'],
+            "uid" => intval($uid['id']),
             "token" => $token,
             "mode" => "reset",
         ));
@@ -68,7 +49,7 @@ class ResetPasswordModel extends StyleModel
         $subject = $_SESSION['project'] . " Password Reset";
         $from = "noreply@" . $_SERVER['HTTP_HOST'];
         return $this->login->email_send($from, $email, $subject,
-            $this->email_get_content($url));
+            $this->login->email_get_content($url, 'email_reset'));
     }
 }
 ?>
