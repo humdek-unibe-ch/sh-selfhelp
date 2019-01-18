@@ -19,6 +19,7 @@ class EmailController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        if(count($_POST) === 0) return;
         $success = true;
         foreach($_POST as $key => $field)
         {
