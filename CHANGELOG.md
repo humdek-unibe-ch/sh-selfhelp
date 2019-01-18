@@ -1,3 +1,16 @@
+# v0.9.7
+
+### Bugfix
+
+### Changes
+
+ - When exporting user inputs and user activities use the unique user code
+   instead of a hash (#77)
+
+### New Features
+
+ - When manually adding a new user, provide a unique user code (#77)
+
 # v0.9.10
 
 ### Bugfix
