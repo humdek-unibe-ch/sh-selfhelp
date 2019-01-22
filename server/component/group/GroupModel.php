@@ -600,7 +600,7 @@ class GroupModel extends BaseModel
      */
     public function is_group_allowed($id_group)
     {
-        return $this->acl->is_user_of_higer_level($_SESSION['id_user'],
+        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
                 $id_group);
     }
 

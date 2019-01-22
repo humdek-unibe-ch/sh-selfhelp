@@ -190,6 +190,8 @@ class UserModel extends BaseModel
      */
     public function block_user($uid)
     {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+            return false;
         return $this->db->update_by_ids("users", array("blocked" => 1),
             array("id" => $uid));
     }
@@ -226,6 +228,9 @@ class UserModel extends BaseModel
      */
     public function can_modify_user()
     {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'],
+            $this->selected_user['id']))
+            return false;
         return $this->acl->has_access_update($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("userUpdate"));
     }
@@ -466,7 +471,7 @@ class UserModel extends BaseModel
      */
     public function is_group_allowed($id_group)
     {
-        return $this->acl->is_user_of_higer_level($_SESSION['id_user'],
+        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
                 $id_group);
     }
 
@@ -506,6 +511,8 @@ class UserModel extends BaseModel
      */
     public function unblock_user($uid)
     {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+            return false;
         return $this->db->update_by_ids("users", array("blocked" => 0),
             array("id" => $uid));
     }
