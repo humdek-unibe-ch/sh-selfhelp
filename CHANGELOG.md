@@ -5,10 +5,14 @@
 ### Changes
 
  - Move the contact menu link to the right and use a envelope symbol
+ - Activate POST on `home` and all experimenter pages
+ - Rename the group `experimenter` to `therapist`
+ - Change the ACL of group `therapist`
 
 ### New Features
 
  - Indicate whether new chat messages are here (#65)
+ - When submitting with `formUserInput` jump back to the form (#140)
 
 # v0.9.11
 

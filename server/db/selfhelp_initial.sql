@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 18, 2019 at 02:09 PM
+-- Generation Time: Jan 22, 2019 at 10:46 AM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 
 --
 -- Database: `selfhelp`
--- Version: v0.9.11
+-- Version: `v0.9.12_beta`
 --
 
 -- --------------------------------------------------------
@@ -207,7 +207,8 @@ CREATE TABLE `chat` (
   `id_snd` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_rcv` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `content` longtext NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_new` tinyint(4) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -388,7 +389,7 @@ CREATE TABLE `groups` (
 
 INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 (0000000001, 'admin', 'full access'),
-(0000000002, 'experimenter', 'access to home, legal, profile, experiment, manage experiment'),
+(0000000002, 'therapist', 'access to home, legal, profile, experiment, manage experiment'),
 (0000000003, 'subject', 'access to home, legal, profile, experiment');
 
 -- --------------------------------------------------------
@@ -438,7 +439,7 @@ CREATE TABLE `pages` (
 
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES
 (0000000001, 'login', '/login', 'GET|POST', 0000000003, NULL, NULL, 1, NULL, NULL, 0000000002),
-(0000000002, 'home', '/', 'GET', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000002, 'home', '/', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 0, 10, NULL, 0000000002),
 (0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 0, 20, NULL, 0000000002),
@@ -465,7 +466,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000027, 'assetDelete', '/admin/asset_delete/[v:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000028, 'request', '/request/[a:request]', 'POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, 30, NULL, 0000000002),
+(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
