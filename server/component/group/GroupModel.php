@@ -164,6 +164,7 @@ class GroupModel extends BaseModel
             $res &= $this->get_cms_mod_access($acl);
 
         $pages = $this->fetch_pages_by_type($type);
+        if(count($pages) === 0) $res = false;
         foreach($pages as $page)
         {
             if($page["id_actions"] == null)
@@ -176,6 +177,22 @@ class GroupModel extends BaseModel
                 $res &= $acl[$page["keyword"]]["acl"][$lvl];
         }
         return $res;
+    }
+
+    /**
+     * Check whether the chat permissions corresponding to e certain level are
+     * given.
+     *
+     * @param array $acl
+     *  An array of ACL rights. See UserModel::fetch_acl_by_id.
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if update access is allowed, false otherwise.
+     */
+    private function get_chat_access($acl, $lvl)
+    {
+        return $acl["contact"]["acl"][$lvl];
     }
 
     /**
@@ -489,6 +506,15 @@ class GroupModel extends BaseModel
                 "delete" => $this->get_data_access($acl, "delete"),
             ),
         );
+        $sgacl["chat"] = array(
+            "name" => "Chat Management",
+            "acl" => array(
+                "select" => $this->get_chat_access($acl, "select"),
+                "insert" => $this->get_chat_access($acl, "insert"),
+                "update" => $this->get_chat_access($acl, "update"),
+                "delete" => $this->get_chat_access($acl, "delete"),
+            ),
+        );
         return $sgacl;
     }
 
@@ -602,6 +628,17 @@ class GroupModel extends BaseModel
     {
         return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
                 $id_group);
+    }
+
+    /**
+     * Set the access level for the contact page.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_chat_access($lvl)
+    {
+        $this->gacl["contact"]["acl"][$lvl] = true;
     }
 
     /**

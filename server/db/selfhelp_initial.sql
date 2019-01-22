@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 22, 2019 at 10:50 AM
+-- Generation Time: Jan 22, 2019 at 01:14 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -466,7 +466,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000027, 'assetDelete', '/admin/asset_delete/[v:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000028, 'request', '/request/[a:request]', 'POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000004),
 (0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
@@ -601,7 +601,8 @@ CREATE TABLE `pageType` (
 INSERT INTO `pageType` (`id`, `name`) VALUES
 (0000000001, 'intern'),
 (0000000002, 'core'),
-(0000000003, 'experiment');
+(0000000003, 'experiment'),
+(0000000004, 'chat');
 
 -- --------------------------------------------------------
 
@@ -1552,7 +1553,7 @@ ALTER TABLE `pages`
 -- AUTO_INCREMENT for table `pageType`
 --
 ALTER TABLE `pageType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `sections`
 --

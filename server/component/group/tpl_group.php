@@ -47,6 +47,14 @@
                         <li><code>delete</code> allows to delete assets (not implemented).</li>
                     </ul>
                 </li>
+                <li><strong>Chat Management</strong>
+                    <ul>
+                        <li><code>select</code> allows to send and receive chat messages.</li>
+                        <li><code>insert</code> allows to add new sections to the chat page and to create chat rooms.</li>
+                        <li><code>update</code> allows to modify existing content on the chat page, add users to chat rooms, and remove users from chat rooms.</li>
+                        <li><code>delete</code> allows to delete the chat page.</li>
+                    </ul>
+                </li>
             </ul>
             <p>The button <code>ACL</code> in the top right corner expands to a table, listing the access rights of the group in detail.</p>
         </div>

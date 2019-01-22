@@ -56,6 +56,9 @@ class GroupController extends BaseController
             if(isset($_POST["data"][$lvl])
                 && !$acl_limit["data"]["acl"][$lvl])
                     return false;
+            if(isset($_POST["chat"][$lvl])
+                && !$acl_limit["chat"]["acl"][$lvl])
+                    return false;
         }
         return true;
     }
@@ -87,6 +90,8 @@ class GroupController extends BaseController
                 $this->model->set_page_access($lvl);
             if(isset($_POST["data"][$lvl]))
                 $this->model->set_data_access($lvl);
+            if(isset($_POST["chat"][$lvl]))
+                $this->model->set_chat_access($lvl);
         }
         return $this->model->dump_acl_table($gid);
     }
