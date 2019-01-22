@@ -98,7 +98,7 @@ class FormUserInputView extends StyleView
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
             "type" => $this->type,
-            "url" => $_SERVER['REQUEST_URI'],
+            "url" => $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section,
             "children" => $children,
             "css" => $this->css,
             "id" => $this->id_section,
