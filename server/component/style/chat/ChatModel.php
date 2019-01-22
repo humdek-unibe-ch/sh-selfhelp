@@ -114,8 +114,11 @@ class ChatModel extends StyleModel
         $ids = array();
         foreach($items as $item)
             $ids[] = $item['cid'];
-        $sql = 'UPDATE chat SET is_new = 0 WHERE id in (' . implode(',', $ids) . ')';
-        $this->db->execute_db($sql);
+        if(count($ids) > 0)
+        {
+            $sql = 'UPDATE chat SET is_new = 0 WHERE id in (' . implode(',', $ids) . ')';
+            $this->db->execute_db($sql);
+        }
         return $items;
     }
 
