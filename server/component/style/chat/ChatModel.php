@@ -9,6 +9,16 @@ abstract class ChatModel extends StyleModel
     /* Private Properties *****************************************************/
 
     /**
+     * The active group id to communicate with.
+     */
+    protected $gid = null;
+
+    /**
+     * The active user id to communicate with.
+     */
+    protected $uid = null;
+
+    /**
      * The list of rooms.
      */
     protected $rooms;
@@ -23,12 +33,16 @@ abstract class ChatModel extends StyleModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
-     * @param int $aid
-     *  The id of the user to communicate with.
+     * @param int $gid
+     *  The group id to communicate with
+     * @param int $uid
+     *  The user id to communicate with
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $gid, $uid=null)
     {
         parent::__construct($services, $id);
+        $this->gid = $gid ?? GLOBAL_CHAT_ROOM_ID;
+        $this->uid = $uid;
         $this->rooms = $this->fetch_rooms();
     }
 
@@ -89,7 +103,7 @@ abstract class ChatModel extends StyleModel
      */
     public function get_chat_items()
     {
-        if(!$this->is_chat_ready()) return array();
+        /* if(!$this->is_chat_ready()) return array(); */
         $items = $this->get_chat_items_spec();
         $ids = array();
         foreach($items as $item)
@@ -118,23 +132,12 @@ abstract class ChatModel extends StyleModel
         return $this->rooms;
     }
 
-    /**
-     * Checks whether all parameters are set correctly.
-     *
-     * @retval bool
-     *  True if all is in order, false if some parameters are inconsistent.
-     */
-    abstract public function is_chat_ready();
+    public function is_room_selected($id)
+    {
+        return ($id === $this->gid);
+    }
 
-    /**
-     * Checks whether an id is the selected id.
-     *
-     * @param int $aid
-     *  The id to be checked.
-     * @retval bool
-     *  True if the is is the selected, false otherwise.
-     */
-    abstract public function is_selected_id($aid);
+    abstract public function is_chat_ready();
 
     /**
      * Insert the chat item to the database. If the current user is an

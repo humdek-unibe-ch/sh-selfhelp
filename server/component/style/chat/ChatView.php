@@ -24,6 +24,12 @@ abstract class ChatView extends StyleView
     protected $label;
 
     /**
+     * DB field 'label_global' ("Lobby")
+     * The label of the global room.
+     */
+    protected $label_global;
+
+    /**
      * DB field 'alert_fail' (empty string)
      * The alert message on failure.
      */
@@ -50,6 +56,7 @@ abstract class ChatView extends StyleView
         parent::__construct($model, $controller);
         $this->alt = $this->model->get_db_field("alt");
         $this->label = $this->model->get_db_field("label", "Send");
+        $this->label_global = $this->model->get_db_field("label_global", "Lobby");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->title_prefix = $this->model->get_db_field("title_prefix");
         $this->add_local_component("alert-fail",
@@ -88,19 +95,31 @@ abstract class ChatView extends StyleView
 
     }
 
-    /**
-     * Render the new room button.
-     */
-    protected function output_new_room_button()
+    protected function output_room_list()
     {
-        if(!$this->model->can_create_new_room())
+        $rooms = $this->model->get_rooms();
+        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
+            "name" => $this->label_global));
+        if(count($rooms) === 1)
             return;
-        $button = new BaseStyleComponent("button", array(
-                "type" => "secondary",
-                "url" => '#',
-                "label" => "Create new Chat Room",
-        ));
-        $button->output_content();
+        require __DIR__ . "/tpl_room_list.php";
+    }
+
+    /**
+     * Render the room list.
+     */
+    protected function output_rooms($rooms)
+    {
+        foreach($rooms as $room)
+        {
+            $id = intval($room['id']);
+            $name = $room['name'];
+            $url = $this->model->get_link_url("contact", array("gid" => $id));
+            $active = "";
+            if($this->model->is_room_selected($id))
+                $active = "active";
+            require __DIR__ . "/tpl_room.php";
+        }
     }
 
     /**
@@ -114,16 +133,10 @@ abstract class ChatView extends StyleView
             $msg = $item['msg'];
             $uid = intval($item['uid']);
             $datetime = $item['timestamp'];
-            $css = "";
-            if($uid == $_SESSION['id_user'])
-                $css = "me ml-auto";
-            else if($this->model->is_selected_id($uid))
-                $css .= " subject";
-            else if($this->model->is_current_user_experimenter())
-                $css .= " experimenter ml-auto";
-            require __DIR__ . "/tpl_chat_item.php";
+            $this->output_msgs_spec($user, $msg, $uid, $datetime);
         }
     }
+    abstract protected function output_msgs_spec($user, $msg, $uid, $datetime);
 
     /**
      * Render the new badge.
@@ -142,7 +155,6 @@ abstract class ChatView extends StyleView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_admin.php";
         $this->output_content_spec();
     }
 

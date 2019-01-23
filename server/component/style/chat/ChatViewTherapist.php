@@ -44,12 +44,33 @@ class ChatViewTherapist extends ChatView
         {
             $id = intval($subject['id']);
             $name = $subject['name'];
-            $url = $this->model->get_link_url("contact", array("uid" => $id));
+            $url = $this->model->get_subject_url($id);
             $active = "";
-            if($this->model->is_selected_id($id))
+            if($this->model->is_subject_selected($id))
                 $active = "bg-info text-white";
             require __DIR__ . "/tpl_subject.php";
         }
+    }
+
+    protected function output_msgs_spec($user, $msg, $uid, $datetime)
+    {
+        $css = "";
+        if($uid == $_SESSION['id_user'])
+            $css = "me ml-auto";
+        else if($this->model->is_subject_selected($uid))
+            $css .= " subject";
+        require __DIR__ . "/tpl_chat_item.php";
+    }
+
+    /**
+     * Checks whether all parameters are set correctly.
+     *
+     * @retval bool
+     *  True if all is in order, false if some parameters are inconsistent.
+     */
+    protected function is_chat_ready()
+    {
+        return ($this->uid !== null);
     }
 
     /* Public Methods *********************************************************/

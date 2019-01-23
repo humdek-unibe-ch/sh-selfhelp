@@ -1,6 +1,6 @@
 SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'remember to update the update permission for the chat field is_new';
 
--- chat changes (ACL and Symbol position)
+-- chat changes (Symbol position)
 INSERT INTO `pageType` (`id`, `name`) VALUES (NULL, 'chat');
 SET @id_page_type_chat = LAST_INSERT_ID();
 UPDATE `pages` SET `nav_position` = NULL WHERE `pages`.`keyword` = 'contact';
@@ -17,6 +17,9 @@ UPDATE `groups` SET `name` = 'therapist' WHERE `groups`.`id` = 0000000002;
 ALTER TABLE `chat` ADD `is_new` TINYINT(0) NOT NULL DEFAULT '1' AFTER `timestamp`;
 
 -- chat changes for chat groups
+UPDATE `pages` SET `url` = '/kontakt/[i:gid]?/[i:uid]?' WHERE `pages`.`keyword` = 'contact';
+
+
 CREATE TABLE `chatRoom` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(100) NOT NULL

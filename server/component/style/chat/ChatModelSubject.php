@@ -8,11 +8,6 @@ class ChatModelSubject extends ChatModel
 {
     /* Private Properties *****************************************************/
 
-    /**
-     * The id of the group to communicate with.
-     */
-    private $gid = null;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -23,18 +18,12 @@ class ChatModelSubject extends ChatModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
-     * @param int $aid
-     *  The id of the user to communicate with.
+     * @param int $gid
+     *  The group id to communicate with
      */
-    public function __construct($services, $id, $aid)
+    public function __construct($services, $id, $gid)
     {
-        parent::__construct($services, $id);
-        if(count($this->rooms) === 0)
-            $this->gid = GLOBAL_CHAT_ROOM_ID;
-        else if(count($this->rooms) === 1)
-            $this->gid = intval($this->rooms[0]['id']);
-        else
-            $this->gid = $aid;
+        parent::__construct($services, $id, $gid);
     }
 
     /* Public Methods *********************************************************/
@@ -44,44 +33,21 @@ class ChatModelSubject extends ChatModel
      */
     public function get_chat_items_spec()
     {
-        $sql = "SELECT chat.id AS cid, usnd.id AS uid, usnd.name AS name,
-            chat.content AS msg, chat.timestamp
-            FROM chat
-            LEFT JOIN users AS usnd ON usnd.id = chat.id_snd
-            LEFT JOIN users AS urcv ON urcv.id = chat.id_rcv
-            LEFT JOIN chatRoom_users AS crusnd ON crusnd.id_users = usnd.id
-            LEFT JOIN chatRoom_users AS crurcv ON crurcv.id_users = usnd.id
-            WHERE (usnd.id = :uid AND (crusnd.id_chatRoom = :gid OR crusnd.id_chatRoom IS NULL))
-                OR (urcv.id = :uid AND (crurcv.id_chatRoom = :gid OR crurcv.id_chatRoom IS NULL))
-            ORDER BY chat.timestamp";
+        $sql = "SELECT c.id AS cid, u.id AS uid, u.name AS name,
+            c.content AS msg, c.timestamp
+            FROM chat AS c
+            LEFT JOIN users AS u ON u.id = c.id_snd
+            WHERE c.id_rcv_grp = :rid AND (c.id_snd = :uid OR c.id_rcv = :uid)
+            ORDER BY c.timestamp";
         return $this->db->query_db($sql, array(
             ":uid" => $_SESSION['id_user'],
-            ":gid" => $this->gid,
+            ":rid" => $this->gid,
         ));
     }
 
-    /**
-     * Checks whether all parameters are set correctly.
-     *
-     * @retval bool
-     *  True if all is in order, false if some parameters are inconsistent.
-     */
     public function is_chat_ready()
     {
         return ($this->gid !== null);
-    }
-
-    /**
-     * Checks whether an id is the selected id.
-     *
-     * @param int $aid
-     *  The id to be checked.
-     * @retval bool
-     *  True if the is is the selected, false otherwise.
-     */
-    public function is_selected_id($aid)
-    {
-        return ($this->gid === $aid);
     }
 
     /**

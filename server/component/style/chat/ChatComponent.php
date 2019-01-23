@@ -29,12 +29,13 @@ class ChatComponent extends BaseComponent
     public function __construct($services, $id, $params)
     {
         $this->db = $services['db'];
-        $aid = isset($params['uid']) ? intval($params['uid']) : null;
+        $uid = isset($params['uid']) ? intval($params['uid']) : null;
+        $gid = isset($params['gid']) ? intval($params['gid']) : null;
         $is_therapist = $this->check_experimenter_relation($_SESSION['id_user']);
         if($is_therapist)
-            $model = new ChatModelTherapist($services, $id, $aid);
+            $model = new ChatModelTherapist($services, $id, $gid, $uid);
         else
-            $model = new ChatModelSubject($services, $id, $aid);
+            $model = new ChatModelSubject($services, $id, $gid);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ChatController($model);

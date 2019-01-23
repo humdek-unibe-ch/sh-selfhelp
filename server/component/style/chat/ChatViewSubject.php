@@ -12,12 +12,6 @@ class ChatViewSubject extends ChatView
     /* Private Properties******************************************************/
 
     /**
-     * DB field 'label_global' (empty string)
-     * The label of the global room.
-     */
-    private $label_global;
-
-    /**
      * DB field 'label_rooms' (empty string)
      * The label of the chat room header.
      */
@@ -42,27 +36,19 @@ class ChatViewSubject extends ChatView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->label = $this->model->get_db_field("label_global");
         $this->experimenter = $this->model->get_db_field("experimenter");
     }
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Render the room list.
-     */
-    private function output_rooms()
+    protected function output_msgs_spec($user, $msg, $uid, $datetime)
     {
-        foreach($this->model->get_rooms() as $room)
-        {
-            $id = intval($room['id']);
-            $name = $room['name'];
-            $url = $this->model->get_link_url("contact", array("uid" => $id));
-            $active = "";
-            if($this->model->is_selected_id($id))
-                $active = "bg-info text-white";
-            require __DIR__ . "/tpl_subject.php";
-        }
+        $css = "";
+        if($uid == $_SESSION['id_user'])
+            $css = "me ml-auto";
+        else
+            $css .= " experimenter";
+        require __DIR__ . "/tpl_chat_item.php";
     }
 
     /* Public Methods *********************************************************/

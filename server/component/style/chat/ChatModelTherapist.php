@@ -8,16 +8,6 @@ class ChatModelTherapist extends ChatModel
 {
     /* Private Properties *****************************************************/
 
-    /**
-     * The id of the user to communicate with.
-     */
-    private $uid = null;
-
-    /**
-     * The list of subjects.
-     */
-    private $subjects;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -28,58 +18,14 @@ class ChatModelTherapist extends ChatModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
-     * @param int $aid
-     *  The id of the user to communicate with.
+     * @param int $gid
+     *  The group id to communicate with
+     * @param int $uid
+     *  The user id to communicate with
      */
-    public function __construct($services, $id, $aid)
+    public function __construct($services, $id, $gid, $uid)
     {
-        parent::__construct($services, $id);
-        $this->uid = $aid;
-        $this->subjects = $this->fetch_subjects();
-    }
-
-    /**
-     * Get all subjects of room.
-     *
-     * @param int $rid
-     *  The id of the room.
-     * @retval array
-     *  The database result with the following keys:
-     *   'id':      The user id of the subject.
-     *   'name':    The name of the subject.
-     */
-    private function fetch_subjects_in_room($rid)
-    {
-        $sql = "SELECT u.id, u.name FROM users AS u
-            LEFT JOIN chatRoom_users AS cu ON cu.id_users = u.id
-            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-            WHERE ug.id_groups = :gid AND name IS NOT NULL
-            AND cu.id_chatRoom = :rid";
-        return $this->db->query_db($sql, array(
-            ":gid" => SUBJECT_GROUP_ID,
-            ":rid" => $rid,
-        ));
-    }
-
-    /**
-     * Get all subjects of that experiment that are in the same rooms as the
-     * therapist.
-     *
-     * @retval array
-     *  The database result with the following keys:
-     *   'id':      The user id of the subject.
-     *   'name':    The name of the subject.
-     */
-    private function fetch_subjects()
-    {
-        $subjects = array();
-        foreach($this->rooms as $room)
-        {
-            $subjects_db = $this->fetch_subjects_in_room($room['id']);
-            foreach($subjects_db as $subject)
-                $subjects[intval($subject['id'])] = $subject;
-        }
-        return $subjects;
+        parent::__construct($services, $id, $gid, $uid);
     }
 
     /* Public Methods *********************************************************/
@@ -87,40 +33,18 @@ class ChatModelTherapist extends ChatModel
     /**
      *
      */
-    public function get_chat_items_spec_room($rid)
-    {
-        $sql = "SELECT chat.id AS cid, usnd.id AS uid, usnd.name AS name,
-            chat.content AS msg, chat.timestamp
-            FROM chat
-            LEFT JOIN users AS usnd ON usnd.id = chat.id_snd
-            LEFT JOIN users AS urcv ON urcv.id = chat.id_rcv
-            WHERE (usnd.id = :uid_subj AND chat.id_rcv_grp = :gid)
-                OR urcv.id = :uid_subj
-            ORDER BY chat.timestamp";
-        return $this->db->query_db($sql, array(
-            ":uid_subj" => $this->uid,
-            ":uid_me" => $_SESSION['id_user'],
-            ":gid" => $rid,
-        ));
-    }
-
-    /**
-     *
-     */
     public function get_chat_items_spec()
     {
-        $msgs = array();
-        $rooms = $this->rooms;
-        if(count($rooms) === 0)
-            $rooms[] = array('id' => GLOBAL_CHAT_ROOM_ID);
-
-        foreach($rooms as $room)
-        {
-            $msgs_db = $this->get_chat_items_spec_room($room['id']);
-            foreach($msgs_db as $msg)
-                $msgs[intval($msg['cid'])] = $msg;
-        }
-        return $msgs;
+        $sql = "SELECT c.id AS cid, u.id AS uid, u.name AS name,
+            c.content AS msg, c.timestamp
+            FROM chat AS c
+            LEFT JOIN users AS u ON u.id = c.id_snd
+            WHERE c.id_rcv_grp = :rid AND (c.id_snd = :uid OR c.id_rcv = :uid)
+            ORDER BY c.timestamp";
+        return $this->db->query_db($sql, array(
+            ":uid" => $this->uid,
+            ":rid" => $this->gid,
+        ));
     }
 
     /**
@@ -131,45 +55,48 @@ class ChatModelTherapist extends ChatModel
      */
     public function get_selected_user_name()
     {
-        foreach($this->subjects as $subject)
-            if($this->is_selected_id(intval($subject['id'])))
-                return $subject['name'];
-        return "";
+        $sql = "SELECT name FROM users WHERE id = :uid";
+        $name = $this->db->query_db_first($sql, array(":uid" => $this->uid));
+        if($name)
+            return $name["name"];
+        else
+            return "";
     }
 
     /**
-     * Get the list of subjects.
+     * Get all subjects in a the selected room which have written a msg.
      *
      * @retval array
-     *  The result from the db query see ChatModel::fetch_subjects().
+     *  The database result with the following keys:
+     *   'id':      The user id of the subject.
+     *   'name':    The name of the subject.
      */
     public function get_subjects()
     {
-        return $this->subjects;
+        $sql = "SELECT DISTINCT u.id, u.name FROM users AS u
+            LEFT JOIN chat AS c ON c.id_snd = u.id
+            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            WHERE c.id_rcv_grp = :rid AND ug.id_groups = :gid";
+        return $this->db->query_db($sql, array(
+            ":gid" => SUBJECT_GROUP_ID,
+            ":rid" => $this->gid,
+        ));
     }
 
-    /**
-     * Checks whether all parameters are set correctly.
-     *
-     * @retval bool
-     *  True if all is in order, false if some parameters are inconsistent.
-     */
+    public function get_subject_url($uid)
+    {
+        return $this->get_link_url("contact",
+            array("gid" => $this->gid, "uid" => $uid));
+    }
+
+    public function is_subject_selected($id)
+    {
+        return ($id === $this->uid);
+    }
+
     public function is_chat_ready()
     {
-        return ($this->uid !== null);
-    }
-
-    /**
-     * Checks whether an id is the selected id.
-     *
-     * @param int $aid
-     *  The id to be checked.
-     * @retval bool
-     *  True if the is is the selected, false otherwise.
-     */
-    public function is_selected_id($aid)
-    {
-        return ($this->uid === $aid);
+        return ($this->gid !== null && $this->uid !== null);
     }
 
     /**
@@ -187,7 +114,8 @@ class ChatModelTherapist extends ChatModel
     {
         return $this->db->insert("chat", array(
             "id_snd" => $_SESSION['id_user'],
-            "id_rcv" => $this->aid,
+            "id_rcv" => $this->uid,
+            "id_rcv_grp" => $this->gid,
             "content" => $msg
         ));
     }

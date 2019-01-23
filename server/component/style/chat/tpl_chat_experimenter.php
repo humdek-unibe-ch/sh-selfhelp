@@ -1,4 +1,5 @@
 <?php $this->output_alert(); ?>
+<?php $this->output_room_list(); ?>
 <div class="row my-3">
     <div class="col-sm-auto mb-2">
         <button class="collapse-toggle d-sm-none d-auto btn btn-secondary w-100" type="button" data-toggle="collapse" data-parent="custom-collapse" data-target="#side-menu-collapse">
