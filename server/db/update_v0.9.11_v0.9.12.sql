@@ -14,11 +14,10 @@ UPDATE `pages` SET `protocol` = 'GET|POST' WHERE `pages`.`id_type` = 0000000003;
 UPDATE `groups` SET `name` = 'therapist' WHERE `groups`.`id` = 0000000002;
 
 -- chat changes for new messages indicator
-ALTER TABLE `chat` ADD `is_new` TINYINT(0) NOT NULL DEFAULT '1' AFTER `timestamp`;
+-- ALTER TABLE `chat` ADD `is_new` TINYINT(0) NOT NULL DEFAULT '1' AFTER `timestamp`;
 
 -- chat changes for chat groups
 UPDATE `pages` SET `url` = '/kontakt/[i:gid]?/[i:uid]?' WHERE `pages`.`keyword` = 'contact';
-
 
 CREATE TABLE `chatRoom` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -33,8 +32,7 @@ INSERT INTO `chatRoom` (`id`, `name`) VALUES (NULL, 'root');
 
 CREATE TABLE `chatRoom_users` (
   `id_chatRoom` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `is_moderator` tinyint(1) NOT NULL DEFAULT '0'
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `chatRoom_users`
   ADD PRIMARY KEY (`id_chatRoom`,`id_users`),
