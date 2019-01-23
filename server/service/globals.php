@@ -32,6 +32,8 @@ define('ALL_LANGUAGE_ID', 1);
 define('EXPERIMENTER_GROUP_ID', 2);
 define('SUBJECT_GROUP_ID', 3);
 
+define('GLOBAL_CHAT_ROOM_ID', 1);
+
 define('INTERNAL_PAGE_ID', 1);
 define('CORE_PAGE_ID', 2);
 define('EXPERIMENT_PAGE_ID', 3);

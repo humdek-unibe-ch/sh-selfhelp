@@ -1,7 +1,9 @@
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
-require_once __DIR__ . "/ChatView.php";
-require_once __DIR__ . "/ChatModel.php";
+require_once __DIR__ . "/ChatViewSubject.php";
+require_once __DIR__ . "/ChatViewTherapist.php";
+require_once __DIR__ . "/ChatModelSubject.php";
+require_once __DIR__ . "/ChatModelTherapist.php";
 require_once __DIR__ . "/ChatController.php";
 
 /**
@@ -9,6 +11,7 @@ require_once __DIR__ . "/ChatController.php";
  */
 class ChatComponent extends BaseComponent
 {
+    private $db;
     /* Constructors ***********************************************************/
 
     /**
@@ -25,13 +28,41 @@ class ChatComponent extends BaseComponent
      */
     public function __construct($services, $id, $params)
     {
-        $uid = isset($params['uid']) ? intval($params['uid']) : null;
-        $model = new ChatModel($services, $id, $uid);
+        $this->db = $services['db'];
+        $aid = isset($params['uid']) ? intval($params['uid']) : null;
+        $is_therapist = $this->check_experimenter_relation($_SESSION['id_user']);
+        if($is_therapist)
+            $model = new ChatModelTherapist($services, $id, $aid);
+        else
+            $model = new ChatModelSubject($services, $id, $aid);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ChatController($model);
-        $view = new ChatView($model, $controller);
+        if($is_therapist)
+            $view = new ChatViewTherapist($model, $controller);
+        else
+            $view = new ChatViewSubject($model, $controller);
         parent::__construct($model, $view, $controller);
+    }
+
+    /**
+     * Check whether a user is part of the experimenter group.
+     *
+     * @param int $aid
+     *  The id of the user to check.
+     * @retval array
+     *  True if the user is part of the experimneter group, false otherwise.
+     */
+    private function check_experimenter_relation($uid)
+    {
+        $sql = "SELECT * FROM users_groups
+            WHERE id_users = :uid AND id_groups = :gid";
+        $res = $this->db->query_db_first($sql, array(
+            ":uid" => $uid,
+            ":gid" => EXPERIMENTER_GROUP_ID,
+        ));
+        if($res) return true;
+        else return false;
     }
 }
 ?>

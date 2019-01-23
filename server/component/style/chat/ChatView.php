@@ -7,45 +7,33 @@ require_once __DIR__ . "/../BaseStyleComponent.php";
  * The chat component is not made available to the CMS in is only used
  * internally.
  */
-class ChatView extends StyleView
+abstract class ChatView extends StyleView
 {
     /* Private Properties******************************************************/
-
-    /**
-     * DB field 'label' ("Send")
-     * The label of the send button.
-     */
-    private $label;
-
-    /**
-     * DB field 'alert_fail' (empty string)
-     * The alert message on failure.
-     */
-    private $alert_fail;
 
     /**
      * DB field 'alt' (empty string)
      * The text to be displayed if no subject is selected.
      */
-    private $alt;
+    protected $alt;
+
+    /**
+     * DB field 'label' ("Send")
+     * The label of the send button.
+     */
+    protected $label;
+
+    /**
+     * DB field 'alert_fail' (empty string)
+     * The alert message on failure.
+     */
+    protected $alert_fail;
 
     /**
      * DB field 'title_prefix' (empty string)
      * The first part of the title in the chat header.
      */
-    private $title_prefix;
-
-    /**
-     * DB field 'experimenter' (empty string)
-     * The text to be displayed when addressing experimenter.
-     */
-    private $experimenter;
-
-    /**
-     * DB field 'subjects' (empty string)
-     * The text to be displayed when addressing subjects.
-     */
-    private $subjects;
+    protected $title_prefix;
 
     /* Constructors ***********************************************************/
 
@@ -60,12 +48,10 @@ class ChatView extends StyleView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
+        $this->alt = $this->model->get_db_field("alt");
         $this->label = $this->model->get_db_field("label", "Send");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
-        $this->alt = $this->model->get_db_field("alt");
         $this->title_prefix = $this->model->get_db_field("title_prefix");
-        $this->experimenter = $this->model->get_db_field("experimenter");
-        $this->subjects = $this->model->get_db_field("subjects");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -81,7 +67,7 @@ class ChatView extends StyleView
     /**
      * Render the fail alert.
      */
-    private function output_alert()
+    protected function output_alert()
     {
         if($this->controller == null || $this->controller->has_failed())
             $this->output_local_component("alert-fail");
@@ -90,7 +76,7 @@ class ChatView extends StyleView
     /**
      * Render the chat window.
      */
-    private function output_chat($title)
+    protected function output_chat($title)
     {
         if($this->model->is_chat_ready())
         {
@@ -103,9 +89,24 @@ class ChatView extends StyleView
     }
 
     /**
+     * Render the new room button.
+     */
+    protected function output_new_room_button()
+    {
+        if(!$this->model->can_create_new_room())
+            return;
+        $button = new BaseStyleComponent("button", array(
+                "type" => "secondary",
+                "url" => '#',
+                "label" => "Create new Chat Room",
+        ));
+        $button->output_content();
+    }
+
+    /**
      * Render the chat messages.
      */
-    private function output_msgs()
+    protected function output_msgs()
     {
         foreach($this->model->get_chat_items() as $item)
         {
@@ -116,7 +117,7 @@ class ChatView extends StyleView
             $css = "";
             if($uid == $_SESSION['id_user'])
                 $css = "me ml-auto";
-            else if($this->model->is_selected_user($uid))
+            else if($this->model->is_selected_id($uid))
                 $css .= " subject";
             else if($this->model->is_current_user_experimenter())
                 $css .= " experimenter ml-auto";
@@ -127,28 +128,11 @@ class ChatView extends StyleView
     /**
      * Render the new badge.
      */
-    private function output_new_badge()
+    protected function output_new_badge()
     {
         $count = 0;
         if($count > 0)
             require __DIR__ . "/tpl_new_badge.php";
-    }
-
-    /**
-     * Render the subject list.
-     */
-    private function output_subjects()
-    {
-        foreach($this->model->get_subjects() as $subject)
-        {
-            $id = intval($subject['id']);
-            $name = $subject['name'];
-            $url = $this->model->get_link_url("contact", array("uid" => $id));
-            $active = "";
-            if($this->model->is_selected_user($id))
-                $active = "bg-info text-white";
-            require __DIR__ . "/tpl_subject.php";
-        }
     }
 
     /* Public Methods *********************************************************/
@@ -158,18 +142,10 @@ class ChatView extends StyleView
      */
     public function output_content()
     {
-        if($this->model->is_current_user_experimenter())
-        {
-            $title = $this->title_prefix . " "
-                . $this->model->get_selected_user_name();
-            require __DIR__ . "/tpl_chat_experimenter.php";
-        }
-        else
-        {
-            $title = $this->title_prefix . " "
-                . $this->experimenter;
-            require __DIR__ . "/tpl_chat_subject.php";
-        }
+        require __DIR__ . "/tpl_admin.php";
+        $this->output_content_spec();
     }
+
+    abstract public function output_content_spec();
 }
 ?>
