@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . "/ChatModel.php";
 /**
- * This class is used to prepare all data related to the chat component such
- * that the data can easily be displayed in the view of the component.
+ * This class is a specified chat model for the role therapist.
  */
 class ChatModelTherapist extends ChatModel
 {
@@ -19,7 +18,7 @@ class ChatModelTherapist extends ChatModel
      * @param int $id
      *  The id of the section id of the chat wrapper.
      * @param int $gid
-     *  The group id to communicate with
+     *  The chat room id to communicate with
      * @param int $uid
      *  The user id to communicate with
      */
@@ -28,24 +27,21 @@ class ChatModelTherapist extends ChatModel
         parent::__construct($services, $id, $gid, $uid);
     }
 
-    /* Public Methods *********************************************************/
+    /* Protected Methods ******************************************************/
 
     /**
+     * In the therapist role, the active user is the user id passed via GET
+     * parameters.
      *
+     * @retval int
+     *  The id of the selected user.
      */
-    public function get_chat_items_spec()
+    protected function get_active_user()
     {
-        $sql = "SELECT c.id AS cid, u.id AS uid, u.name AS name,
-            c.content AS msg, c.timestamp
-            FROM chat AS c
-            LEFT JOIN users AS u ON u.id = c.id_snd
-            WHERE c.id_rcv_grp = :rid AND (c.id_snd = :uid OR c.id_rcv = :uid)
-            ORDER BY c.timestamp";
-        return $this->db->query_db($sql, array(
-            ":uid" => $this->uid,
-            ":rid" => $this->gid,
-        ));
+        return $this->uid;
     }
+
+    /* Public Methods *********************************************************/
 
     /**
      * Get the user name of the selected user.
@@ -83,27 +79,93 @@ class ChatModelTherapist extends ChatModel
         ));
     }
 
+    /**
+     * Get the url of a given chat subject.
+     *
+     * @param int $uid
+     *  The id of a chat subject.
+     * @retval string
+     *  The url to a chat subject.
+     */
     public function get_subject_url($uid)
     {
         return $this->get_link_url("contact",
             array("gid" => $this->gid, "uid" => $uid));
     }
 
-    public function is_subject_selected($id)
+    /**
+     * Get the number of new subject messages.
+     *
+     * @param int $id
+     *  The id of the chat room the check for new messages.
+     * @retval int
+     *  The number of new messages in a chat room.
+     */
+    public function get_subject_message_count($id)
     {
-        return ($id === $this->uid);
+        $sql = "SELECT COUNT(c.id) AS count FROM chat AS c
+            WHERE c.is_new = '1' AND c.id_rcv_grp = :gid AND (c.id_snd = :uid
+                OR (c.id_rcv = :uid AND c.id_snd != :me))";
+        $res = $this->db->query_db_first($sql, array(
+            ':uid' => $id,
+            ':me' => $_SESSION['id_user'],
+            ':gid' => $this->gid,
+        ));
+        if($res)
+            return intval($res['count']);
+        return 0;
     }
 
+    /**
+     * Get the number of new room messages. With the role therapist this are
+     * all new messages that were sent to the indicated group (excluding the
+     * ones sent by the current user).
+     *
+     * @param int $id
+     *  The id of the chat room the check for new messages.
+     * @retval int
+     *  The number of new messages in a chat room.
+     */
+    public function get_room_message_count($id)
+    {
+        $sql = "SELECT COUNT(c.id) AS count FROM chat AS c
+            WHERE c.is_new = '1' AND c.id_rcv_grp = :gid AND c.id_snd != :me";
+        $res = $this->db->query_db_first($sql, array(
+            ':gid' => $id,
+            ':me' => $_SESSION['id_user'],
+        ));
+        if($res)
+            return intval($res['count']);
+        return 0;
+    }
+
+    /**
+     * Checks whether all required parameters are set.
+     *
+     * @retval bool
+     *  True if chat is ready, false otherwise.
+     */
     public function is_chat_ready()
     {
         return ($this->gid !== null && $this->uid !== null);
     }
 
     /**
-     * Insert the chat item to the database. If the current user is an
-     * experimenter the chat item is sent to the selected user. If the current
-     * user is not an experimenter, the chat item is sent to the experimenter
-     * group (i.e. no recipiant is specified).
+     * Checks whether a given subject is currently selected.
+     *
+     * @param int $id
+     *  The id of the subject to check.
+     * @retval bool
+     *  True if the given subject is selected, false otherwise.
+     */
+    public function is_subject_selected($id)
+    {
+        return ($id === $this->uid);
+    }
+
+    /**
+     * Insert the chat item to the database. In the role of a therapist, a
+     * specific user recipiant is specified as well as a recipiant chat room.
      *
      * @param string $msg
      *  The chat item content.
@@ -116,7 +178,8 @@ class ChatModelTherapist extends ChatModel
             "id_snd" => $_SESSION['id_user'],
             "id_rcv" => $this->uid,
             "id_rcv_grp" => $this->gid,
-            "content" => $msg
+            "content" => $msg,
+            "is_new" => '1',
         ));
     }
 }

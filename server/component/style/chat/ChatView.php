@@ -41,6 +41,17 @@ abstract class ChatView extends StyleView
      */
     protected $title_prefix;
 
+    /**
+     * DB field 'title_prefix' ("New Messages")
+     * A divider with this text indicating the new messages.
+     */
+    private $label_new;
+
+    /**
+     * The list of chat items (see ChatModel::get_chat_items).
+     */
+    protected $items = null;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -59,6 +70,8 @@ abstract class ChatView extends StyleView
         $this->label_global = $this->model->get_db_field("label_global", "Lobby");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->title_prefix = $this->model->get_db_field("title_prefix");
+        $this->label_new = $this->model->get_db_field("label_new", "New Messages");
+        $this->items = $this->model->get_chat_items();
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -69,7 +82,30 @@ abstract class ChatView extends StyleView
         );
     }
 
-    /* Private Methods ********************************************************/
+    /* Abstract Protecetd Methods *********************************************/
+
+    /**
+     * Render the chat messages. This depends on the role of the current user.
+     *
+     * @param string $user
+     *  The user name of the author.
+     * @param string $msg
+     *  The message.
+     * @param int $uid
+     *  The user id of the author.
+     * @param string $datetime
+     *  The date and time of the message.
+     */
+    abstract protected function output_msgs_spec($user, $msg, $uid, $datetime);
+
+    /* Abstract Public Methods ************************************************/
+
+    /**
+     * Render the role-specific content.
+     */
+    abstract public function output_content_spec();
+
+    /* Protecetd Methods ******************************************************/
 
     /**
      * Render the fail alert.
@@ -95,6 +131,9 @@ abstract class ChatView extends StyleView
 
     }
 
+    /**
+     * Render the list of available rooms.
+     */
     protected function output_room_list()
     {
         $rooms = $this->model->get_rooms();
@@ -107,6 +146,11 @@ abstract class ChatView extends StyleView
 
     /**
      * Render the room list.
+     *
+     * @param array $rooms
+     *  A list of rooms with the following keys:
+     *   - 'id':    the id of the chat room
+     *   - 'name':  the name of the chat room
      */
     protected function output_rooms($rooms)
     {
@@ -127,23 +171,28 @@ abstract class ChatView extends StyleView
      */
     protected function output_msgs()
     {
-        foreach($this->model->get_chat_items() as $item)
+        $first_new = true;
+        foreach($this->items as $item)
         {
             $user = $item['name'];
             $msg = $item['msg'];
             $uid = intval($item['uid']);
             $datetime = $item['timestamp'];
+            if($first_new && $item['is_new'] == '1' && $uid != $_SESSION['id_user'])
+            {
+                require __DIR__ . "/tpl_divider.php";
+                $first_new = false;
+            }
             $this->output_msgs_spec($user, $msg, $uid, $datetime);
         }
     }
-    abstract protected function output_msgs_spec($user, $msg, $uid, $datetime);
 
     /**
-     * Render the new badge.
+     * Render the new badge that is displayed next to the room name.
      */
-    protected function output_new_badge()
+    protected function output_new_badge_room($id)
     {
-        $count = 0;
+        $count = $this->model->get_room_message_count($id);
         if($count > 0)
             require __DIR__ . "/tpl_new_badge.php";
     }
@@ -157,7 +206,5 @@ abstract class ChatView extends StyleView
     {
         $this->output_content_spec();
     }
-
-    abstract public function output_content_spec();
 }
 ?>

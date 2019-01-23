@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . "/ChatModel.php";
 /**
- * This class is used to prepare all data related to the chat component such
- * that the data can easily be displayed in the view of the component.
+ * This class is a specified chat model for the role subject.
  */
 class ChatModelSubject extends ChatModel
 {
@@ -19,42 +18,66 @@ class ChatModelSubject extends ChatModel
      * @param int $id
      *  The id of the section id of the chat wrapper.
      * @param int $gid
-     *  The group id to communicate with
+     *  The chat room id to communicate with
      */
     public function __construct($services, $id, $gid)
     {
         parent::__construct($services, $id, $gid);
     }
 
+    /* Protected Methods ******************************************************/
+
+    /**
+     * In the subject role, the active user is the id stored in the session.
+     *
+     * @retval int
+     *  The id of the session user.
+     */
+    protected function get_active_user()
+    {
+        return $_SESSION['id_user'];
+    }
+
     /* Public Methods *********************************************************/
 
     /**
+     * Get the number of new room messages. With the role subject this are all
+     * new messages that were sent to the indicated group and the current user
+     * (excluding the ones sent by the current user).
      *
+     * @param int $id
+     *  The id of the chat room the check for new messages.
+     * @retval int
+     *  The number of new messages in a chat room.
      */
-    public function get_chat_items_spec()
+    public function get_room_message_count($id)
     {
-        $sql = "SELECT c.id AS cid, u.id AS uid, u.name AS name,
-            c.content AS msg, c.timestamp
-            FROM chat AS c
-            LEFT JOIN users AS u ON u.id = c.id_snd
-            WHERE c.id_rcv_grp = :rid AND (c.id_snd = :uid OR c.id_rcv = :uid)
-            ORDER BY c.timestamp";
-        return $this->db->query_db($sql, array(
-            ":uid" => $_SESSION['id_user'],
-            ":rid" => $this->gid,
+        $sql = "SELECT COUNT(c.id) AS count FROM chat AS c
+            WHERE c.is_new = '1' AND c.id_rcv_grp = :gid AND c.id_snd != :me
+                AND c.id_rcv = :me";
+        $res = $this->db->query_db_first($sql, array(
+            ':gid' => $id,
+            ':me' => $_SESSION['id_user'],
         ));
+        if($res)
+            return intval($res['count']);
+        return 0;
     }
 
+    /**
+     * Checks whether all required parameters are set.
+     *
+     * @retval bool
+     *  True if chat is ready, false otherwise.
+     */
     public function is_chat_ready()
     {
         return ($this->gid !== null);
     }
 
     /**
-     * Insert the chat item to the database. If the current user is an
-     * experimenter the chat item is sent to the selected user. If the current
-     * user is not an experimenter, the chat item is sent to the experimenter
-     * group (i.e. no recipiant is specified).
+     * Insert the chat item to the database. In the role of a subject, no user
+     * recipiant is specified only a recipiant chat room.
      *
      * @param string $msg
      *  The chat item content.
@@ -66,7 +89,8 @@ class ChatModelSubject extends ChatModel
         return $this->db->insert("chat", array(
             "id_snd" => $_SESSION['id_user'],
             "id_rcv_grp" => $this->gid,
-            "content" => $msg
+            "content" => $msg,
+            "is_new" => '1',
         ));
     }
 }

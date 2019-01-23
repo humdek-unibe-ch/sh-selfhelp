@@ -137,10 +137,28 @@ class NavModel extends BaseModel
      */
     public function get_login() { return $this->db->get_link_title("login"); }
 
+    /**
+     * Return the number of new messages.
+     *
+     * @retval int
+     *  The number of new messages.
+     */
     public function get_new_message_count()
     {
-        $sql = "SELECT id FROM chat WHERE id_rcv = :id AND is_new = 1";
-        return count($this->db->query_db($sql, array(':id' => $_SESSION['id_user'])));
+        $sql = "SELECT count(c.id) AS count
+            FROM chat AS c
+            LEFT JOIN chatRoom_users AS cru ON cru.id_chatRoom = c.id_rcv_grp
+            LEFT JOIN users AS u ON u.id = :uid
+            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            WHERE (c.is_new = '1' AND c.id_snd != u.id)
+                AND (cru.id_users = u.id OR cru.id_users IS NULL)
+                AND (ug.id_groups != 3 OR c.id_rcv = u.id)";
+        $res = $this->db->query_db_first($sql,
+            array(":uid" => $_SESSION['id_user']));
+        if($res)
+            return intval($res['count']);
+        else
+            return 0;
     }
 
     /**

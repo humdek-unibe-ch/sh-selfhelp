@@ -7,11 +7,14 @@ require_once __DIR__ . "/ChatModelTherapist.php";
 require_once __DIR__ . "/ChatController.php";
 
 /**
- * The chat component.
+ * The chat component. Note that while the chat is a style and can be used on
+ * any page it requires certain GET parameters to work properly (see
+ * constructor).
  */
 class ChatComponent extends BaseComponent
 {
     private $db;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -25,6 +28,7 @@ class ChatComponent extends BaseComponent
      * @param array $params
      *  The GET parameters of the contact page
      *   'uid': The id of the selected user to communicate with
+     *   'gid': The id of the selected char room to communicate with
      */
     public function __construct($services, $id, $params)
     {
@@ -46,6 +50,8 @@ class ChatComponent extends BaseComponent
         parent::__construct($model, $view, $controller);
     }
 
+    /* Private Methods ********************************************************/
+
     /**
      * Check whether a user is part of the experimenter group.
      *
@@ -64,6 +70,20 @@ class ChatComponent extends BaseComponent
         ));
         if($res) return true;
         else return false;
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Checks whether the current user is allowed to access the active group.
+     *
+     * @retval bool
+     *  True if access is granted, false otherwise.
+     */
+    public function has_access()
+    {
+        return parent::has_access()
+            && $this->model->is_current_user_in_active_group();
     }
 }
 ?>

@@ -39,8 +39,21 @@ class ChatViewSubject extends ChatView
         $this->experimenter = $this->model->get_db_field("experimenter");
     }
 
-    /* Private Methods ********************************************************/
+    /* Protected Methods ******************************************************/
 
+    /**
+     * Render the chat messages. Place and color the messages dependeing on who
+     * the author is.
+     *
+     * @param string $user
+     *  The user name of the author.
+     * @param string $msg
+     *  The message.
+     * @param int $uid
+     *  The user id of the author.
+     * @param string $datetime
+     *  The date and time of the message.
+     */
     protected function output_msgs_spec($user, $msg, $uid, $datetime)
     {
         $css = "";
@@ -54,7 +67,7 @@ class ChatViewSubject extends ChatView
     /* Public Methods *********************************************************/
 
     /**
-     * Render the user view.
+     * Render the chat view of the subject role.
      */
     public function output_content_spec()
     {

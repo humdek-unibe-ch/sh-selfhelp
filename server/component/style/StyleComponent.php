@@ -24,7 +24,7 @@ class StyleComponent extends BaseComponent
     /**
      * The component instance of the style.
      */
-    private $style;
+    private $style = null;
 
     /**
      * A flag indicating whther the style is known or whether the style name is
@@ -75,7 +75,7 @@ class StyleComponent extends BaseComponent
             $className = ucfirst($style['name']) . "Component";
             if(class_exists($className))
                 $this->style = new $className($services, $id, $params);
-            else
+            if($this->style === null || !$this->style->has_access())
                 $this->style = new BaseStyleComponent("unknownStyle",
                     array("style_name" => $style['name']));
         }

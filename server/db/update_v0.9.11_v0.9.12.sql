@@ -14,7 +14,7 @@ UPDATE `pages` SET `protocol` = 'GET|POST' WHERE `pages`.`id_type` = 0000000003;
 UPDATE `groups` SET `name` = 'therapist' WHERE `groups`.`id` = 0000000002;
 
 -- chat changes for new messages indicator
--- ALTER TABLE `chat` ADD `is_new` TINYINT(0) NOT NULL DEFAULT '1' AFTER `timestamp`;
+ALTER TABLE `chat` ADD `is_new` TINYINT(0) NOT NULL DEFAULT '1' AFTER `timestamp`;
 
 -- chat changes for chat groups
 UPDATE `pages` SET `url` = '/kontakt/[i:gid]?/[i:uid]?' WHERE `pages`.`keyword` = 'contact';

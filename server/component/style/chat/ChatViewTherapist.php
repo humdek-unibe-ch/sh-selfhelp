@@ -52,6 +52,21 @@ class ChatViewTherapist extends ChatView
         }
     }
 
+    /* Protected Methods ******************************************************/
+
+    /**
+     * Render the chat messages. Place and color the messages dependeing on who
+     * the author is.
+     *
+     * @param string $user
+     *  The user name of the author.
+     * @param string $msg
+     *  The message.
+     * @param int $uid
+     *  The user id of the author.
+     * @param string $datetime
+     *  The date and time of the message.
+     */
     protected function output_msgs_spec($user, $msg, $uid, $datetime)
     {
         $css = "";
@@ -63,20 +78,19 @@ class ChatViewTherapist extends ChatView
     }
 
     /**
-     * Checks whether all parameters are set correctly.
-     *
-     * @retval bool
-     *  True if all is in order, false if some parameters are inconsistent.
+     * Render the new badge.
      */
-    protected function is_chat_ready()
+    protected function output_new_badge_subject($id)
     {
-        return ($this->uid !== null);
+        $count = $this->model->get_subject_message_count($id);
+        if($count > 0)
+            require __DIR__ . "/tpl_new_badge.php";
     }
 
     /* Public Methods *********************************************************/
 
     /**
-     * Render the user view.
+     * Render the chat view of the therapist role.
      */
     public function output_content_spec()
     {
