@@ -18,7 +18,7 @@ abstract class ChatView extends StyleView
     protected $alt;
 
     /**
-     * DB field 'label' ("Send")
+     * DB field 'label_submit' ("Send")
      * The label of the send button.
      */
     protected $label;
@@ -66,7 +66,7 @@ abstract class ChatView extends StyleView
     {
         parent::__construct($model, $controller);
         $this->alt = $this->model->get_db_field("alt");
-        $this->label = $this->model->get_db_field("label", "Send");
+        $this->label = $this->model->get_db_field("label_submit", "Send");
         $this->label_global = $this->model->get_db_field("label_global", "Lobby");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->title_prefix = $this->model->get_db_field("title_prefix");

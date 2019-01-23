@@ -12,12 +12,6 @@ class ChatViewSubject extends ChatView
     /* Private Properties******************************************************/
 
     /**
-     * DB field 'label_rooms' (empty string)
-     * The label of the chat room header.
-     */
-    private $label_rooms;
-
-    /**
      * DB field 'experimenter' (empty string)
      * The text to be displayed when addressing experimenter.
      */

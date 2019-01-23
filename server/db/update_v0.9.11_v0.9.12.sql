@@ -44,3 +44,14 @@ ALTER TABLE `chatRoom_users`
 
 ALTER TABLE `chat` ADD `id_rcv_grp` INT UNSIGNED ZEROFILL NULL DEFAULT NULL AFTER `id_rcv`, ADD INDEX (`id_rcv_grp`);
 ALTER TABLE `chat` ADD CONSTRAINT `fk_chat_id_rcv_grp` FOREIGN KEY (`id_rcv_grp`) REFERENCES `chatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+UPDATE `styles_fields` SET `id_fields` = '0000000090' WHERE `styles_fields`.`id_styles` = 0000000010 AND `styles_fields`.`id_fields` = 0000000008;
+UPDATE `sections_fields_translation` SET `id_fields` = '0000000090' WHERE `sections_fields_translation`.`id_sections` = 0000000025 AND `sections_fields_translation`.`id_fields` = 0000000008 AND `sections_fields_translation`.`id_languages` = 0000000002 AND `sections_fields_translation`.`id_genders` = 0000000001; UPDATE `sections_fields_translation` SET `id_fields` = '0000000090' WHERE `sections_fields_translation`.`id_sections` = 0000000025 AND `sections_fields_translation`.`id_fields` = 0000000008 AND `sections_fields_translation`.`id_languages` = 0000000003 AND `sections_fields_translation`.`id_genders` = 0000000001;
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_lobby', '0000000001', '1');
+SET @id_field_label_lobby = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000010', @id_field_label_lobby, 'Lobby');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_new', '0000000001', '1');
+SET @id_field_label_new = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000010', @id_field_label_new, 'New Messages');
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES ('0000000025', @id_field_label_lobby, '0000000002', '0000000001', 'Lobby'), ('0000000025', @id_field_label_lobby, '0000000003', '0000000001', 'Lobby'), ('0000000025', @id_field_label_new, '0000000002', '0000000001', 'Neue Nachrichten'), ('0000000025', @id_field_label_new, '0000000003', '0000000001', 'New Messages');
