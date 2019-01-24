@@ -206,6 +206,17 @@ abstract class BasePage
             $includes[] = $path_prefix . $file;
     }
 
+    private function get_js_constants()
+    {
+        return 'const BASE_PATH = "' . BASE_PATH . '";';
+    }
+
+    private function get_csp_rules()
+    {
+        return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-"
+            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "';";
+    }
+
     /**
      * Fetch the main page information from the database.
      *

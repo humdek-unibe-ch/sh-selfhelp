@@ -101,31 +101,6 @@ abstract class ChatModel extends StyleModel
     /* Public Methods *********************************************************/
 
     /**
-     * Checks whether the current user is allowed to add and remove users from
-     * chat rooms.
-     *
-     * @retval bool
-     *  True if the current user can administrate the chat, false otherwise.
-     */
-    public function can_administrate_chat()
-    {
-        return $this->acl->has_access_update($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("contact"));
-    }
-
-    /**
-     * Checks whether the current user is allowed to create new chat rooms.
-     *
-     * @retval bool
-     *  True if the current user can create new chat rooms, false otherwise.
-     */
-    public function can_create_new_room()
-    {
-        return $this->acl->has_access_insert($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("contact"));
-    }
-
-    /**
      * Get the chat itmes. If the current user is an therapist all chat items
      * related to a selected user are returned. If the current user is not an
      * experimenter all chat items related to the current user are returned.
