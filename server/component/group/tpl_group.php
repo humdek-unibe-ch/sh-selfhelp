@@ -49,10 +49,10 @@
                 </li>
                 <li><strong>Chat Management</strong>
                     <ul>
-                        <li><code>select</code> allows to send and receive chat messages.</li>
-                        <li><code>insert</code> allows to add new sections to the chat page and to create chat rooms.</li>
-                        <li><code>update</code> allows to modify existing content on the chat page, add users to chat rooms, and remove users from chat rooms.</li>
-                        <li><code>delete</code> allows to delete the chat page.</li>
+                        <li><code>select</code> grants read access to the chat management page.</li>
+                        <li><code>insert</code> allows to create new chat rooms.</li>
+                        <li><code>update</code> allows to add users to chat rooms, and remove users from chat rooms.</li>
+                        <li><code>delete</code> allows to delete chat rooms.</li>
                     </ul>
                 </li>
             </ul>

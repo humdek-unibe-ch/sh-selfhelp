@@ -180,8 +180,8 @@ class GroupModel extends BaseModel
     }
 
     /**
-     * Check whether the chat permissions corresponding to e certain level are
-     * given.
+     * Check whether the chat administration permissions corresponding to
+     * a certain level are given.
      *
      * @param array $acl
      *  An array of ACL rights. See UserModel::fetch_acl_by_id.
@@ -192,7 +192,10 @@ class GroupModel extends BaseModel
      */
     private function get_chat_access($acl, $lvl)
     {
-        return $acl["contact"]["acl"][$lvl];
+        $res = $acl["admin-link"]["acl"]["select"];
+        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"]["select"];
+        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl];
+        return $res;
     }
 
     /**
@@ -287,6 +290,11 @@ class GroupModel extends BaseModel
         $res = $acl["admin-link"]["acl"]["select"];
         $res &= $acl["cms" . ucfirst($lvl)]["acl"]["select"];
         $res &= $acl["cms" . ucfirst($lvl)]["acl"][$lvl];
+        if($lvl == "select" || $lvl == "update")
+        {
+            $res &= $acl["email"]["acl"]["select"];
+            $res &= $acl["email"]["acl"][$lvl];
+        }
         return $res;
     }
 
@@ -631,14 +639,16 @@ class GroupModel extends BaseModel
     }
 
     /**
-     * Set the access level for the contact page.
+     * Set the access level for the chat administration page.
      *
      * @param string $lvl
      *  The level of access to be set e.g. select, insert, update, or delete.
      */
     public function set_chat_access($lvl)
     {
-        $this->gacl["contact"]["acl"][$lvl] = true;
+        $this->gacl["admin-link"]["acl"]["select"] = true;
+        $this->gacl["chatAdmin" . ucfirst($lvl)]["acl"]["select"] = true;
+        $this->gacl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl] = true;
     }
 
     /**
@@ -717,6 +727,11 @@ class GroupModel extends BaseModel
         $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl] = true;
+        if($lvl == "select" || $lvl == "update")
+        {
+            $this->gacl["email"]["acl"]["select"] = true;
+            $this->gacl["email"]["acl"][$lvl] = true;
+        }
     }
 }
 ?>
