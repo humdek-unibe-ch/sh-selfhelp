@@ -16,6 +16,12 @@ class ConditionalContainerView extends StyleView
      */
     private $condition;
 
+    /**
+     * DB field 'debug' (false).
+     * If set, debug information is printed out.
+     */
+    private $debug;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -28,6 +34,7 @@ class ConditionalContainerView extends StyleView
     {
         parent::__construct($model);
         $this->condition = $this->model->get_db_field('condition');
+        $this->debug = $this->model->get_db_field('debug', false);
     }
 
     /* Public Methods *********************************************************/
@@ -38,7 +45,13 @@ class ConditionalContainerView extends StyleView
     public function output_content()
     {
         $res = $this->model->compute_condition($this->condition);
-        if($this->model->is_cms_page() || $res)
+        if($this->debug)
+        {
+            echo '<pre class="alert alert-warning">';
+                var_dump($res);
+            echo "</pre>";
+        }
+        if($this->model->is_cms_page() || $res['result'])
             require __DIR__ . "/tpl_container.php";
     }
 }

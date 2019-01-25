@@ -37,16 +37,19 @@ class ConditionalContainerModel extends StyleModel
      */
     public function compute_condition($condition)
     {
+        $res = array("result" => false, "fields" => array());
         if($condition === null || $condition === "")
             return true;
         $j_condition = json_encode($condition);
         // replace form field keywords with the actual values.
-        preg_match_all('~"@\w+#\w+"~', $j_condition, $matches, PREG_PATTERN_ORDER);
+        preg_match_all('~"@[^"@#]+#[^"@#]+"~', $j_condition, $matches, PREG_PATTERN_ORDER);
         foreach($matches[0] as $match)
         {
+            $res['fields'][$match] = "bad field syntax";
             $names = explode('#', trim($match, '"'));
             if(count($names) !== 2)
                 continue;
+            $res['fields'][$match] = "no value stored for this field";
             $form = substr($names[0], 1);
             $field = $names[1];
             $vals = $this->user_input->get_input_fields(array(
@@ -55,10 +58,14 @@ class ConditionalContainerModel extends StyleModel
                 "id_user" => $_SESSION['id_user']
             ));
             if(count($vals) > 0)
+            {
+                $res['fields'][$match] = $vals[0]['value'];
                 $j_condition = str_replace($match, $vals[0]['value'], $j_condition);
+            }
         }
         // compute the condition
-        return JsonLogic::apply(json_decode($j_condition, true));
+        $res['result'] = JsonLogic::apply(json_decode($j_condition, true));
+        return $res;
     }
 
 }
