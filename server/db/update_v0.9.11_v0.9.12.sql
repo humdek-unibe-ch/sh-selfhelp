@@ -6,7 +6,7 @@
 
 -- allow get on ajax requests
 UPDATE `pages` SET `protocol` = 'GET|POST' WHERE `pages`.`id` = 0000000028;
-UPDATE `pages` SET `url` = '/request/[a:class]/[a:method]?' WHERE `pages`.`id` = 0000000028;
+UPDATE `pages` SET `url` = '/request/[v:class]/[v:method]?' WHERE `pages`.`id` = 0000000028;
 
 -- chat changes (Symbol position)
 UPDATE `pages` SET `nav_position` = NULL WHERE `pages`.`keyword` = 'contact';

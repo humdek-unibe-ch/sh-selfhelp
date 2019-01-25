@@ -173,12 +173,16 @@ class ChatAdminModel extends BaseModel
      */
     public function get_active_room_users()
     {
-        $sql = "SELECT u.id, u.email AS title FROM users AS u
+        $sql = "SELECT u.id, u.email AS title, (ug.id_groups = :gid) AS is_mod
+            FROM users AS u
             LEFT JOIN chatRoom_users AS cru ON cru.id_users = u.id
             LEFT JOIN users_groups AS ug ON ug.id_users = u.id
             WHERE cru.id_chatRoom = :rid
             ORDER BY ug.id_groups, u.email";
-        return $this->db->query_db($sql, array(':rid' => $this->rid));
+        return $this->db->query_db($sql, array(
+            ':rid' => $this->rid,
+            ':gid' => EXPERIMENTER_GROUP_ID,
+        ));
     }
 
     /**

@@ -4,6 +4,8 @@
         <div class="jumbotron">
             <h1>Chat Room <code><?php echo $name; ?></code></h1>
             <p class="lead">&mdash; <?php echo $desc; ?> &mdash;</p>
+            <?php $this->output_warnings(); ?>
+            <?php $this->output_room_summary(); ?>
         </div>
     </div>
     <div class="col">

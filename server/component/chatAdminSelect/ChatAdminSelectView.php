@@ -9,6 +9,21 @@ class ChatAdminSelectView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * All users assigned to the active room.
+     */
+    private $users = null;
+
+    /**
+     * The number of mods in a group.
+     */
+    private $mod_count = 0;
+
+    /**
+     * The number of users in a group.
+     */
+    private $user_count = 0;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,6 +35,18 @@ class ChatAdminSelectView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
+        $users = $this->model->get_active_room_users();
+        $this->users = array();
+        foreach($users as $user)
+        {
+            if($user['is_mod'] === '1')
+            {
+                $this->mod_count++;
+                $user['css'] = "font-italic";
+            }
+            $this->users[] = $user;
+        }
+        $this->user_count = count($this->users);
     }
 
     /* Private Methods ********************************************************/
@@ -51,6 +78,21 @@ class ChatAdminSelectView extends BaseView
     }
 
     /**
+     * Render the user description or the intro text.
+     */
+    private function output_main_content()
+    {
+        if($this->model->get_active_room() !== null)
+        {
+            $name = $this->model->get_active_room_name();
+            $desc = $this->model->get_active_room_desc();
+            require __DIR__ . "/tpl_room.php";
+        }
+        else
+            require __DIR__ . "/tpl_rooms.php";
+    }
+
+    /**
      * Render the chat room delete card.
      */
     private function output_room_delete()
@@ -77,6 +119,9 @@ class ChatAdminSelectView extends BaseView
         $card->output_content();
     }
 
+    /**
+     * Render the cards to manipulate a room.
+     */
     private function output_room_manipulation()
     {
         $this->output_room_users();
@@ -84,6 +129,15 @@ class ChatAdminSelectView extends BaseView
         {
             $this->output_room_delete();
         }
+    }
+
+    /**
+     * Render the room summary;
+     */
+    private function output_room_summary()
+    {
+        $subj_count = $this->user_count - $this->mod_count;
+        require __DIR__ . '/tpl_summary.php';
     }
 
     /**
@@ -102,7 +156,7 @@ class ChatAdminSelectView extends BaseView
                 )),
                 new BaseStyleComponent("sortableList", array(
                     "is_editable" => $this->model->can_administrate_chat(),
-                    "items" => $this->model->get_active_room_users(),
+                    "items" => $this->users,
                     "url_add" => $this->model->get_link_url(
                         "chatAdminUpdate",
                         array(
@@ -145,18 +199,25 @@ class ChatAdminSelectView extends BaseView
     }
 
     /**
-     * Render the user description or the intro text.
+     * Render warnings if sometrhing might be wrong about the chat room.
      */
-    private function output_main_content()
+    private function output_warnings()
     {
-        if($this->model->get_active_room() !== null)
-        {
-            $name = $this->model->get_active_room_name();
-            $desc = $this->model->get_active_room_desc();
-            require __DIR__ . "/tpl_room.php";
-        }
-        else
-            require __DIR__ . "/tpl_rooms.php";
+        $msg = null;
+        if($this->user_count === 0)
+            $msg = "This chat room is empty";
+        else if($this->mod_count === 0)
+            $msg = "This chat room has no `Therapist`. Nobody will be able to read messages sent by the `Subjects` in this room.";
+        else if($this->mod_count === $this->user_count)
+                $msg = "This chat room has no `Subjects`. No message will be sent to this room.";
+        $alert = new BaseStyleComponent('alert', array(
+            'type' => "warning",
+            'children' => array(new BaseStyleComponent('markdownInline', array(
+                'text_md_inline' => $msg,
+            )))
+        ));
+        if($msg !== null)
+            $alert->output_content();
     }
 
     /* Public Methods *********************************************************/
