@@ -2,17 +2,25 @@
 
 ### Bugfix
 
+ - In style `conditionalContainer` also fetch db fields with special caracters
+   in their name
+
 ### Changes
 
  - Move the contact menu link to the right and use a envelope symbol
  - Activate POST on `home` and all experimenter pages
+ - Activate GET on `request` page and change the request url
  - Rename the group `experimenter` to `therapist`
  - Change the ACL of group `therapist`
+ - Make the chat administration ACL seperate from content pages
 
 ### New Features
 
  - Indicate whether new chat messages are here (#65)
  - When submitting with `formUserInput` jump back to the form (#140)
+ - In style `conditionalContainer` add a field `debug` which displays the
+   result of the condition and the values of the involved db fields
+ - Allow to create chat rooms (#78)
 
 # v0.9.11
 

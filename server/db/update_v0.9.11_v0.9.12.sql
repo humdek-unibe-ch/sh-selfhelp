@@ -85,3 +85,8 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 SET @id_page_chat_update = LAST_INSERT_ID();
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_chat_update, '0000000008', '0000000001', 'Administrate Chat Room');
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_chat_update, '1', '0', '1', '0');
+
+-- add debug field to conditional container
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'debug', '0000000003', '0');
+SET @id_field_debug = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000042', @id_field_debug, 0);
