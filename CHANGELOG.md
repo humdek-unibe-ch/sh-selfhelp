@@ -20,7 +20,10 @@
  - When submitting with `formUserInput` jump back to the form (#140)
  - In style `conditionalContainer` add a field `debug` which displays the
    result of the condition and the values of the involved db fields
- - Allow to create chat rooms (#78)
+ - Allow to create chat rooms (#78). This includes
+   - An adimn section to create and delete rooms, add users to a room, remove
+     users from a room
+   - A changed chat interface where rooms can be selected if available.
 
 # v0.9.11
 

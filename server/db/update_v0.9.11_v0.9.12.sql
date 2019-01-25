@@ -70,6 +70,12 @@ ALTER TABLE `chatRoom_users`
   ADD KEY `id_users` (`id_users`);
 
 --
+-- AUTO_INCREMENT for table `chatRoom_users`
+--
+ALTER TABLE `chatRoom_users`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for table `chatRoom_users`
 --
 ALTER TABLE `chatRoom_users`
