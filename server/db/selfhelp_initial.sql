@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 23, 2019 at 08:47 AM
+-- Generation Time: Jan 25, 2019 at 05:12 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -17,7 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpv0.9.11`
+-- Database: `selfhelp_initial`
+-- Version: `v0.9.12`
 --
 
 -- --------------------------------------------------------
@@ -77,6 +78,10 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000035, 1, 1, 1, 1),
 (0000000001, 0000000036, 1, 1, 0, 0),
 (0000000001, 0000000037, 1, 0, 1, 0),
+(0000000001, 0000000038, 1, 0, 0, 0),
+(0000000001, 0000000039, 1, 1, 0, 0),
+(0000000001, 0000000040, 1, 0, 0, 1),
+(0000000001, 0000000041, 1, 0, 1, 0),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -86,10 +91,10 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000007, 1, 0, 0, 0),
 (0000000002, 0000000008, 1, 0, 0, 0),
 (0000000002, 0000000009, 1, 0, 0, 0),
-(0000000002, 0000000010, 1, 0, 0, 0),
-(0000000002, 0000000011, 1, 1, 0, 0),
-(0000000002, 0000000012, 1, 0, 1, 0),
-(0000000002, 0000000013, 1, 0, 0, 1),
+(0000000002, 0000000010, 0, 0, 0, 0),
+(0000000002, 0000000011, 0, 0, 0, 0),
+(0000000002, 0000000012, 0, 0, 0, 0),
+(0000000002, 0000000013, 0, 0, 0, 0),
 (0000000002, 0000000014, 1, 0, 0, 0),
 (0000000002, 0000000015, 1, 1, 0, 0),
 (0000000002, 0000000016, 1, 0, 1, 0),
@@ -98,12 +103,12 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000019, 1, 1, 0, 0),
 (0000000002, 0000000020, 1, 0, 1, 0),
 (0000000002, 0000000021, 0, 0, 0, 0),
-(0000000002, 0000000022, 1, 0, 0, 0),
-(0000000002, 0000000023, 1, 0, 0, 0),
-(0000000002, 0000000024, 1, 0, 0, 0),
-(0000000002, 0000000025, 1, 1, 0, 0),
-(0000000002, 0000000026, 1, 0, 1, 0),
-(0000000002, 0000000027, 1, 0, 0, 1),
+(0000000002, 0000000022, 0, 0, 0, 0),
+(0000000002, 0000000023, 0, 0, 0, 0),
+(0000000002, 0000000024, 0, 0, 0, 0),
+(0000000002, 0000000025, 0, 0, 0, 0),
+(0000000002, 0000000026, 0, 0, 0, 0),
+(0000000002, 0000000027, 0, 0, 0, 0),
 (0000000002, 0000000028, 1, 0, 0, 0),
 (0000000002, 0000000029, 1, 0, 0, 0),
 (0000000002, 0000000030, 1, 0, 0, 0),
@@ -113,7 +118,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000034, 1, 0, 0, 0),
 (0000000002, 0000000035, 1, 0, 0, 0),
 (0000000002, 0000000036, 1, 1, 0, 0),
-(0000000002, 0000000037, 1, 0, 1, 0),
+(0000000002, 0000000037, 0, 0, 0, 0),
 (0000000003, 0000000001, 1, 0, 0, 0),
 (0000000003, 0000000002, 1, 0, 0, 0),
 (0000000003, 0000000003, 1, 0, 0, 0),
@@ -205,8 +210,53 @@ CREATE TABLE `chat` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_snd` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_rcv` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `id_rcv_grp` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `content` longtext NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chatRecipiants`
+--
+
+CREATE TABLE `chatRecipiants` (
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_chat` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_room_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `is_new` tinyint(4) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chatRoom`
+--
+
+CREATE TABLE `chatRoom` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` longtext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `chatRoom`
+--
+
+INSERT INTO `chatRoom` (`id`, `name`, `description`) VALUES
+(0000000001, 'root', 'The main room where every user is part of');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chatRoom_users`
+--
+
+CREATE TABLE `chatRoom_users` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_chatRoom` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -319,7 +369,10 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000091, 'condition', 0000000008, 0),
 (0000000092, 'email_activate', 0000000011, 1),
 (0000000093, 'email_reset', 0000000011, 1),
-(0000000094, 'email_reminder', 0000000011, 1);
+(0000000094, 'email_reminder', 0000000011, 1),
+(0000000095, 'label_lobby', 0000000001, 1),
+(0000000096, 'label_new', 0000000001, 1),
+(0000000097, 'debug', 0000000003, 0);
 
 -- --------------------------------------------------------
 
@@ -387,7 +440,7 @@ CREATE TABLE `groups` (
 
 INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 (0000000001, 'admin', 'full access'),
-(0000000002, 'experimenter', 'access to home, legal, profile, experiment, manage experiment'),
+(0000000002, 'therapist', 'access to home, legal, profile, experiment, manage experiment'),
 (0000000003, 'subject', 'access to home, legal, profile, experiment');
 
 -- --------------------------------------------------------
@@ -437,7 +490,7 @@ CREATE TABLE `pages` (
 
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES
 (0000000001, 'login', '/login', 'GET|POST', 0000000003, NULL, NULL, 1, NULL, NULL, 0000000002),
-(0000000002, 'home', '/', 'GET', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000002, 'home', '/', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 0, 10, NULL, 0000000002),
 (0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 0, 20, NULL, 0000000002),
@@ -463,8 +516,8 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000025, 'assetInsert', '/admin/asset_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000027, 'assetDelete', '/admin/asset_delete/[v:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000028, 'request', '/request/[a:request]', 'POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000029, 'contact', '/kontakt/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, 30, NULL, 0000000002),
+(0000000028, 'request', '/request/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
+(0000000029, 'contact', '/kontakt/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
@@ -472,7 +525,11 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000034, 'user_input_success', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001);
+(0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001),
+(0000000038, 'chatAdminSelect', '/admin/chat/[i:rid]?', 'GET', 0000000002, NULL, 0000000009, 0, 35, NULL, 0000000001),
+(0000000039, 'chatAdminInsert', '/admin/chat_insert/', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000040, 'chatAdminDelete', '/admin/chat_delete/[i:rid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000041, 'chatAdminUpdate', '/admin/chat_update/[i:rid]/[add_user|rm_user:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
 
 -- --------------------------------------------------------
 
@@ -548,7 +605,11 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000037, 0000000093, 0000000002, 'Guten Tag\r\n\r\nUm das Passwort von Ihrem @project Account zurück zu setzten klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team\r\n'),
 (0000000037, 0000000093, 0000000003, 'Hello\r\n\r\nTo reset password of your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team.\r\n'),
 (0000000037, 0000000094, 0000000002, 'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
-(0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team');
+(0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
+(0000000038, 0000000008, 0000000001, 'Chat Rooms'),
+(0000000039, 0000000008, 0000000001, 'Create Chat Room'),
+(0000000040, 0000000008, 0000000001, 'Delete Chat Room'),
+(0000000041, 0000000008, 0000000001, 'Administrate Chat Room');
 
 -- --------------------------------------------------------
 
@@ -759,8 +820,6 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000024, 0000000025, 0000000003, 0000000001, 'The data was successfully saved to the databases. Thanks a lot!'),
 (0000000025, 0000000005, 0000000002, 0000000001, 'Es ist ein Fehler aufgetreten. Die Nachricht konnte nicht gesendet werden.'),
 (0000000025, 0000000005, 0000000003, 0000000001, 'An error occurred. The message could not be sent.'),
-(0000000025, 0000000008, 0000000002, 0000000001, 'Senden'),
-(0000000025, 0000000008, 0000000003, 0000000001, 'Send'),
 (0000000025, 0000000030, 0000000002, 0000000001, 'Bitte wählen Sie einen Probanden aus.'),
 (0000000025, 0000000030, 0000000003, 0000000001, 'Please select a subject'),
 (0000000025, 0000000031, 0000000002, 0000000001, 'Kommunikation mit'),
@@ -769,6 +828,12 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000025, 0000000032, 0000000003, 0000000001, 'your psychologist'),
 (0000000025, 0000000033, 0000000002, 0000000001, 'Probanden'),
 (0000000025, 0000000033, 0000000003, 0000000001, 'Subjects'),
+(0000000025, 0000000090, 0000000002, 0000000001, 'Senden'),
+(0000000025, 0000000090, 0000000003, 0000000001, 'Send'),
+(0000000025, 0000000095, 0000000002, 0000000001, 'Lobby'),
+(0000000025, 0000000095, 0000000003, 0000000001, 'Lobby'),
+(0000000025, 0000000096, 0000000002, 0000000001, 'Neue Nachrichten'),
+(0000000025, 0000000096, 0000000003, 0000000001, 'New Messages'),
 (0000000026, 0000000002, 0000000002, 0000000001, 'Passwort'),
 (0000000026, 0000000002, 0000000003, 0000000001, 'Password'),
 (0000000026, 0000000003, 0000000002, 0000000001, 'Zum Login'),
@@ -1049,11 +1114,13 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000009, 0000000043, NULL),
 (0000000009, 0000000044, NULL),
 (0000000010, 0000000005, NULL),
-(0000000010, 0000000008, NULL),
 (0000000010, 0000000030, NULL),
 (0000000010, 0000000031, NULL),
 (0000000010, 0000000032, NULL),
 (0000000010, 0000000033, NULL),
+(0000000010, 0000000090, NULL),
+(0000000010, 0000000095, 'Lobby'),
+(0000000010, 0000000096, 'New Messages'),
 (0000000011, 0000000006, NULL),
 (0000000011, 0000000028, 'primary'),
 (0000000011, 0000000045, '0'),
@@ -1191,6 +1258,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000041, 0000000090, NULL),
 (0000000042, 0000000006, NULL),
 (0000000042, 0000000091, NULL),
+(0000000042, 0000000097, '0'),
 (0000000043, 0000000030, NULL),
 (0000000043, 0000000071, NULL);
 
@@ -1332,7 +1400,32 @@ ALTER TABLE `actions`
 ALTER TABLE `chat`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_snd` (`id_snd`) USING BTREE,
-  ADD KEY `id_rcv` (`id_rcv`) USING BTREE;
+  ADD KEY `id_rcv` (`id_rcv`) USING BTREE,
+  ADD KEY `id_rcv_grp` (`id_rcv_grp`);
+
+--
+-- Indexes for table `chatRecipiants`
+--
+ALTER TABLE `chatRecipiants`
+  ADD PRIMARY KEY (`id_users`,`id_chat`),
+  ADD KEY `id_users` (`id_users`),
+  ADD KEY `id_chat` (`id_chat`),
+  ADD KEY `id_room_users` (`id_room_users`);
+
+--
+-- Indexes for table `chatRoom`
+--
+ALTER TABLE `chatRoom`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `chatRoom_users`
+--
+ALTER TABLE `chatRoom_users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
+  ADD KEY `id_chatRoom` (`id_chatRoom`),
+  ADD KEY `id_users` (`id_users`);
 
 --
 -- Indexes for table `fields`
@@ -1517,10 +1610,15 @@ ALTER TABLE `actions`
 ALTER TABLE `chat`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `chatRoom`
+--
+ALTER TABLE `chatRoom`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
@@ -1545,7 +1643,7 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 --
 -- AUTO_INCREMENT for table `pageType`
 --
@@ -1608,8 +1706,24 @@ ALTER TABLE `acl_users`
 -- Constraints for table `chat`
 --
 ALTER TABLE `chat`
+  ADD CONSTRAINT `fk_chat_id_rcv_grp` FOREIGN KEY (`id_rcv_grp`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_chat_id_rcv_user` FOREIGN KEY (`id_rcv`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_chat_id_send` FOREIGN KEY (`id_snd`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `chatRecipiants`
+--
+ALTER TABLE `chatRecipiants`
+  ADD CONSTRAINT `chatRecipiants_fk_id_chat` FOREIGN KEY (`id_chat`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatRoom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chatRecipiants_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `chatRoom_users`
+--
+ALTER TABLE `chatRoom_users`
+  ADD CONSTRAINT `chatRoom_users_fk_id_chatRoom` FOREIGN KEY (`id_chatRoom`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chatRoom_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `fields`

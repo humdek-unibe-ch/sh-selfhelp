@@ -30,15 +30,31 @@ class ChatModelTherapist extends ChatModel
     /* Protected Methods ******************************************************/
 
     /**
-     * In the therapist role, the active user is the user id passed via GET
-     * parameters.
+     * Get the chat items. Get all items, associated to a group where the
+     * current user is the recipiant and the active user is the sender or
+     * recipiant and all items the current user has sent to the active user.
      *
-     * @retval int
-     *  The id of the selected user.
+     * @retval array
+     *  See ChatModel::get_chat_items_spec()
      */
-    protected function get_active_user()
+    protected function get_chat_items_spec()
     {
-        return $this->uid;
+        $sql = "SELECT c.id AS cid, sender.id AS uid, sender.name AS name,
+            c.content AS msg, c.timestamp, receiver.is_new
+            FROM chat AS c
+            LEFT JOIN users AS sender ON sender.id = c.id_snd
+            LEFT JOIN chatRecipiants AS receiver ON c.id = receiver.id_chat
+            WHERE c.id_rcv_grp = :rid AND (
+                (receiver.id_users = :me
+                    AND (c.id_snd = :uid OR c.id_rcv = :uid))
+                OR (c.id_snd = :me AND receiver.id_users = :uid)
+            )
+            ORDER BY c.timestamp";
+        return $this->db->query_db($sql, array(
+            ":me" => $_SESSION['id_user'],
+            ":rid" => $this->gid,
+            ":uid" => $this->uid,
+        ));
     }
 
     /* Public Methods *********************************************************/
@@ -103,36 +119,15 @@ class ChatModelTherapist extends ChatModel
      */
     public function get_subject_message_count($id)
     {
-        $sql = "SELECT COUNT(c.id) AS count FROM chat AS c
-            WHERE c.is_new = '1' AND c.id_rcv_grp = :gid AND (c.id_snd = :uid
-                OR (c.id_rcv = :uid AND c.id_snd != :me))";
+        $sql = "SELECT COUNT(cr.id_chat) AS count FROM chatRecipiants AS cr
+            LEFT JOIN chat AS c ON c.id = cr.id_chat
+            WHERE cr.is_new = '1' AND cr.id_users = :me
+                AND (c.id_snd = :uid OR c.id_rcv = :uid)
+                AND c.id_rcv_grp = :gid";
         $res = $this->db->query_db_first($sql, array(
             ':uid' => $id,
             ':me' => $_SESSION['id_user'],
             ':gid' => $this->gid,
-        ));
-        if($res)
-            return intval($res['count']);
-        return 0;
-    }
-
-    /**
-     * Get the number of new room messages. With the role therapist this are
-     * all new messages that were sent to the indicated group (excluding the
-     * ones sent by the current user).
-     *
-     * @param int $id
-     *  The id of the chat room the check for new messages.
-     * @retval int
-     *  The number of new messages in a chat room.
-     */
-    public function get_room_message_count($id)
-    {
-        $sql = "SELECT COUNT(c.id) AS count FROM chat AS c
-            WHERE c.is_new = '1' AND c.id_rcv_grp = :gid AND c.id_snd != :me";
-        $res = $this->db->query_db_first($sql, array(
-            ':gid' => $id,
-            ':me' => $_SESSION['id_user'],
         ));
         if($res)
             return intval($res['count']);
@@ -174,13 +169,49 @@ class ChatModelTherapist extends ChatModel
      */
     public function send_chat_msg($msg)
     {
-        return $this->db->insert("chat", array(
+        $msg_id = $this->db->insert("chat", array(
             "id_snd" => $_SESSION['id_user'],
             "id_rcv" => $this->uid,
             "id_rcv_grp" => $this->gid,
             "content" => $msg,
-            "is_new" => '1',
         ));
+        if($msg_id)
+        {
+            if($this->gid === GLOBAL_CHAT_ROOM_ID)
+            {
+                // send to all therapists but me and the user
+                $sql = "SELECT ug.id_users AS id_users, :cid AS id_chat
+                    FROM users_groups AS ug
+                    WHERE (ug.id_groups = :gid AND ug.id_users != :me)
+                        OR ug.id_users = :uid";
+                $users = $this->db->query_db($sql, array(
+                    ':cid' => $msg_id,
+                    ':gid' => EXPERIMENTER_GROUP_ID,
+                    ':uid' => $this->uid,
+                    ':me' => $_SESSION['id_user'],
+                ));
+            }
+            else
+            {
+                // send to all therapists but me and the user in the room
+                $sql = "SELECT cru.id AS id_room_users, cru.id_users AS id_users,
+                    :cid AS id_chat FROM chatRoom_users AS cru
+                    LEFT JOIN users_groups AS ug ON ug.id_users = cru.id_users
+                    WHERE cru.id_chatRoom = :rid
+                        AND ((ug.id_groups = :gid AND ug.id_users != :me)
+                            OR ug.id_users = :uid)";
+                $users = $this->db->query_db($sql, array(
+                    ':rid' => $this->gid,
+                    ':cid' => $msg_id,
+                    ':gid' => EXPERIMENTER_GROUP_ID,
+                    ':uid' => $this->uid,
+                    ':me' => $_SESSION['id_user'],
+                ));
+            }
+            foreach($users as $user)
+                $this->db->insert('chatRecipiants', $user);
+        }
+        return $msg_id;
     }
 }
 ?>

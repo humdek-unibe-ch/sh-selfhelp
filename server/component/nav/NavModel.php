@@ -145,14 +145,8 @@ class NavModel extends BaseModel
      */
     public function get_new_message_count()
     {
-        $sql = "SELECT count(c.id) AS count
-            FROM chat AS c
-            LEFT JOIN chatRoom_users AS cru ON cru.id_chatRoom = c.id_rcv_grp
-            LEFT JOIN users AS u ON u.id = :uid
-            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-            WHERE (c.is_new = '1' AND c.id_snd != u.id)
-                AND (cru.id_users = u.id OR cru.id_users IS NULL)
-                AND (ug.id_groups != 3 OR c.id_rcv = u.id)";
+        $sql = "SELECT count(cr.id_chat) AS count FROM chatRecipiants AS cr
+            WHERE cr.is_new = '1' AND cr.id_users = :uid";
         $res = $this->db->query_db_first($sql,
             array(":uid" => $_SESSION['id_user']));
         if($res)

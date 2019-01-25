@@ -18,42 +18,101 @@ UPDATE `pages` SET `protocol` = 'GET|POST' WHERE `pages`.`id_type` = 0000000003;
 -- change group name
 UPDATE `groups` SET `name` = 'therapist' WHERE `groups`.`id` = 0000000002;
 
--- chat changes for new messages indicator
-ALTER TABLE `chat` ADD `is_new` TINYINT(0) NOT NULL DEFAULT '1' AFTER `timestamp`;
-
 -- chat changes for chat groups
 UPDATE `pages` SET `url` = '/kontakt/[i:gid]?/[i:uid]?' WHERE `pages`.`keyword` = 'contact';
+
+--
+-- Table structure for table `chatRoom`
+--
 
 CREATE TABLE `chatRoom` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(100) NOT NULL,
-  `description` LONGTEXT NOT NULL
+  `description` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `chatRoom`
+--
+
+INSERT INTO `chatRoom` (`id`, `name`, `description`) VALUES
+(0000000001, 'root', 'The main room where every user is part of');
+
+--
+-- Indexes for table `chatRoom`
+--
 ALTER TABLE `chatRoom`
   ADD PRIMARY KEY (`id`);
-ALTER TABLE `chatRoom`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
-INSERT INTO `chatRoom` (`id`, `name`, `description`) VALUES (NULL, 'root', 'The main room where every user is part of');
+--
+-- AUTO_INCREMENT for table `chatRoom`
+--
+ALTER TABLE `chatRoom`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- Table structure for table `chatRoom_users`
+--
 
 CREATE TABLE `chatRoom_users` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_chatRoom` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for table `chatRoom_users`
+--
 ALTER TABLE `chatRoom_users`
-  ADD PRIMARY KEY (`id_chatRoom`,`id_users`),
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
   ADD KEY `id_chatRoom` (`id_chatRoom`),
   ADD KEY `id_users` (`id_users`);
+
+--
+-- Constraints for table `chatRoom_users`
+--
 ALTER TABLE `chatRoom_users`
   ADD CONSTRAINT `chatRoom_users_fk_id_chatRoom` FOREIGN KEY (`id_chatRoom`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chatRoom_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- Add a chat receive group col
 ALTER TABLE `chat` ADD `id_rcv_grp` INT UNSIGNED ZEROFILL NULL DEFAULT NULL AFTER `id_rcv`, ADD INDEX (`id_rcv_grp`);
 ALTER TABLE `chat` ADD CONSTRAINT `fk_chat_id_rcv_grp` FOREIGN KEY (`id_rcv_grp`) REFERENCES `chatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+--
+-- Table structure for table `chatRecipiants`
+--
+
+CREATE TABLE `chatRecipiants` (
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_chat` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_room_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `is_new` tinyint(4) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for table `chatRecipiants`
+--
+ALTER TABLE `chatRecipiants`
+  ADD PRIMARY KEY (`id_users`,`id_chat`),
+  ADD KEY `id_users` (`id_users`),
+  ADD KEY `id_chat` (`id_chat`),
+  ADD KEY `id_room_users` (`id_room_users`);
+
+--
+-- Constraints for table `chatRecipiants`
+--
+ALTER TABLE `chatRecipiants`
+  ADD CONSTRAINT `chatRecipiants_fk_id_chat` FOREIGN KEY (`id_chat`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatRoom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chatRecipiants_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- change the field label to label_submit in chat style
 UPDATE `styles_fields` SET `id_fields` = '0000000090' WHERE `styles_fields`.`id_styles` = 0000000010 AND `styles_fields`.`id_fields` = 0000000008;
 UPDATE `sections_fields_translation` SET `id_fields` = '0000000090' WHERE `sections_fields_translation`.`id_sections` = 0000000025 AND `sections_fields_translation`.`id_fields` = 0000000008 AND `sections_fields_translation`.`id_languages` = 0000000002 AND `sections_fields_translation`.`id_genders` = 0000000001; UPDATE `sections_fields_translation` SET `id_fields` = '0000000090' WHERE `sections_fields_translation`.`id_sections` = 0000000025 AND `sections_fields_translation`.`id_fields` = 0000000008 AND `sections_fields_translation`.`id_languages` = 0000000003 AND `sections_fields_translation`.`id_genders` = 0000000001;
 
+-- Add the fields label_lobby and label_new to the chat style
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_lobby', '0000000001', '1');
 SET @id_field_label_lobby = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000010', @id_field_label_lobby, 'Lobby');

@@ -70,24 +70,19 @@ abstract class ChatModel extends StyleModel
     /* Abstract Protected Methodes ********************************************/
 
     /**
-     * Get the active user (either defined vie GET param or the session)
+     * Get the chat items. This is role specific.
      *
-     * @retval int
-     *  The active user id.
+     * @retval array
+     *  The database result with the following keys:
+     *   - 'uid':         The id of the user who sent the chat item.
+     *   - 'name':        The name of the user who sent the chat item.
+     *   - 'msg':         The content of the chat item.
+     *   - 'timestamp':   The timestamp of when the chat item was sent.
+     *   - 'is_new':      Indicates whether the message is new.
      */
-    abstract protected function get_active_user();
+    abstract protected function get_chat_items_spec();
 
     /* Abstract Public Methodes ***********************************************/
-
-    /**
-     * Get the number of neww room messages. This dependes on the role.
-     *
-     * @param int $id
-     *  The id of the chat room the check for new messages.
-     * @retval int
-     *  The number of new messages in a chat room.
-     */
-    abstract public function get_room_message_count($id);
 
     /**
      * Checks whether all required parameters are set. This depends on the role.
@@ -106,25 +101,11 @@ abstract class ChatModel extends StyleModel
      * experimenter all chat items related to the current user are returned.
      *
      * @retval array
-     *  The database result with the following keys:
-     *   - 'uid':         The id of the user who sent the chat item.
-     *   - 'name':        The name of the user who sent the chat item.
-     *   - 'msg':         The content of the chat item.
-     *   - 'timestamp':   The timestamp of when the chat item was sent.
-     *   - 'is_new':      Indicates whether the message is new.
+     *  See ChatModel::get_chat_items_spec()
      */
     public function get_chat_items()
     {
-        $sql = "SELECT c.is_new, c.id AS cid, u.id AS uid, u.name AS name,
-            c.content AS msg, c.timestamp, c.is_new
-            FROM chat AS c
-            LEFT JOIN users AS u ON u.id = c.id_snd
-            WHERE c.id_rcv_grp = :rid AND (c.id_snd = :uid OR c.id_rcv = :uid)
-            ORDER BY c.timestamp";
-        $items = $this->db->query_db($sql, array(
-            ":uid" => $this->get_active_user(),
-            ":rid" => $this->gid,
-        ));
+        $items = $this->get_chat_items_spec();
         $ids = array();
         foreach($items as $item)
         {
@@ -134,11 +115,37 @@ abstract class ChatModel extends StyleModel
         }
         if(count($ids) > 0)
         {
-            $sql = 'UPDATE chat SET is_new = 0 WHERE id in (' . implode(',', $ids) . ')';
+            $sql = 'UPDATE chatRecipiants SET is_new = 0 WHERE id_chat in (' . implode(',', $ids) . ') AND id_users = ' . $_SESSION['id_user'];
             $this->db->execute_db($sql);
         }
         return $items;
     }
+
+    /**
+     * Get the number of new room messages.
+     *
+     * @param int $id
+     *  The id of the chat room the check for new messages.
+     * @retval int
+     *  The number of new messages in a chat room.
+     */
+    public function get_room_message_count($id)
+    {
+        $sql = "SELECT COUNT(cr.id_chat) AS count FROM chatRecipiants AS cr
+            LEFT JOIN chat AS c ON c.id = cr.id_chat
+            WHERE cr.is_new = '1' AND cr.id_users = :me
+                AND (c.id_rcv_grp = :gid
+                    OR (:gid = :ggid AND cr.id_room_users IS NULL))";
+        $res = $this->db->query_db_first($sql, array(
+            ':gid' => $id,
+            ':me' => $_SESSION['id_user'],
+            ':ggid' => GLOBAL_CHAT_ROOM_ID,
+        ));
+        if($res)
+            return intval($res['count']);
+        return 0;
+    }
+
 
     /**
      * Get the list of rooms.
