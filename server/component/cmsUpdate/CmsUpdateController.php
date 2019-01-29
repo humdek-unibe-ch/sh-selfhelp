@@ -114,6 +114,7 @@ class CmsUpdateController extends BaseController
                 "email",
                 "month",
                 "number",
+                "password",
                 "range",
                 "search",
                 "tel",
