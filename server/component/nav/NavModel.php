@@ -168,15 +168,11 @@ class NavModel extends BaseModel
         if(array_key_exists($keyword, $pages))
         {
             $profile = $pages[$keyword];
-            if(!array_key_exists("title", $profile))
-                $profile["title"] = "";
             $profile["title"] .= ' (' . $this->db->fetch_user_name() . ')';
-            if(!array_key_exists("children", $profile))
-                $profile["children"] = array();
             return $profile;
         }
         else
-            return array();
+            return array("title" => "", "children" => array());
     }
 
     /**
