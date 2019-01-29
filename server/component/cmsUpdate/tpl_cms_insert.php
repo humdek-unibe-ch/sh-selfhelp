@@ -4,6 +4,7 @@
         <h1>Add Section</h1>
         <p>Add a section to the <?php echo $child; ?> list of <?php echo $target; ?>
         Either a new section can be created or an already existing section can be chosen.</p>
+        Note that the section name must be <strong>unique</strong>. Otherwise the operation will fail.
     </div>
     <form action="<?php echo $url; ?>" method="post">
         <input type="hidden" value="" name="add-section-link">

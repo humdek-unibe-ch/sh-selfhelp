@@ -104,7 +104,7 @@ class CmsUpdateView extends BaseView
                 "search_text" => "Search"
             )))
         ));
-        $allowed->output_content();
+        //$allowed->output_content();
     }
 
     /**

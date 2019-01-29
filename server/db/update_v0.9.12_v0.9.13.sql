@@ -208,3 +208,6 @@ DELETE FROM `sections` WHERE name = "user_input_success-container";
 DELETE FROM `sections` WHERE name = "user_input_success-jumbotron";
 DELETE FROM `sections` WHERE name = "user_input_success-heading";
 DELETE FROM `sections` WHERE name = "user_input_success-markdown";
+
+-- section names must be unique
+ALTER TABLE `sections` ADD UNIQUE(`name`);
