@@ -10,22 +10,22 @@ class ProfileController extends BaseController
     /**
      * The success flag for password changes.
      */
-    private $success_change;
+    private $success_change = false;
 
     /**
      * The fail flag for password changes.
      */
-    private $fail_change;
+    private $fail_change = false;
 
     /**
      * The success flag for deliting an account.
      */
-    private $success_delete;
+    private $success_delete = false;
 
     /**
      * The fail flag for deliting an account.
      */
-    private $fail_delete;
+    private $fail_delete = false;
 
     /* Constructors ***********************************************************/
 
@@ -39,22 +39,29 @@ class ProfileController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->success_change = false;
-        $this->fail_change = false;
-        $this->success_delete = false;
-        $this->fail_delte = false;
 
         if(isset($_POST['email']))
         {
-            $res = $model->delete_user($_POST['email']);
+            $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+            $res = $model->delete_user($email);
             $this->success_delete = $res;
             $this->fail_delete = !$res;
         }
 
+        if(isset($_POST['user_name']))
+        {
+            $name = filter_var($_POST['user_name'], FILTER_SANITIZE_STRING);
+            $res = $model->change_user_name($name);
+            $this->success_change = $res;
+            $this->fail_change = !$res;
+        }
+
         if(isset($_POST['password']) && isset($_POST['verification']))
         {
-            $res = $model->change_password($_POST['password'],
-                $_POST['verification']);
+            $res = $model->change_password(
+                filter_var($_POST['password'], FILTER_SANITIZE_STRING),
+                filter_var($_POST['verification'], FILTER_SANITIZE_STRING)
+            );
             $this->success_change = $res;
             $this->fail_change = !$res;
         }
@@ -90,7 +97,7 @@ class ProfileController extends BaseController
      * @retval bool
      *  true if the password change has failed, false otherwise.
      */
-    public function has_pw_change_failed()
+    public function has_change_failed()
     {
         return $this->fail_change;
     }
@@ -101,7 +108,7 @@ class ProfileController extends BaseController
      * @retval bool
      *  true if the password change has succeeded, false otherwise.
      */
-    public function has_pw_change_succeeded()
+    public function has_change_succeeded()
     {
         return $this->success_change;
     }

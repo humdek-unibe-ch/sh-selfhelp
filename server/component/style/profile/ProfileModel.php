@@ -40,6 +40,20 @@ class ProfileModel extends StyleModel
     }
 
     /**
+     * Change the user name of the active user in the database.
+     *
+     * @param string $name
+     *  The new username
+     * @retval bool
+     *  True on success, false otherwise.
+     */
+    public function change_user_name($name)
+    {
+        return $this->db->update_by_ids('users', array("name" => $name),
+            array('id' => $_SESSION['id_user']));
+    }
+
+    /**
      * Change the password of the active user.
      *
      * @param string $password
