@@ -201,3 +201,10 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000002, 0000000019, NULL),
 (0000000002, 0000000020, NULL),
 (0000000002, 0000000035, NULL);
+
+-- Cleanup user_input_success page (not needed anymore as input is handeled differntly)
+DELETE FROM `pages` WHERE keyword = "user_input_success";
+DELETE FROM `sections` WHERE name = "user_input_success-container";
+DELETE FROM `sections` WHERE name = "user_input_success-jumbotron";
+DELETE FROM `sections` WHERE name = "user_input_success-heading";
+DELETE FROM `sections` WHERE name = "user_input_success-markdown";
