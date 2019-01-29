@@ -51,6 +51,8 @@ class ValidateComponent extends BaseComponent
      */
     public function has_access()
     {
+        if($this->model->is_cms_page())
+            return parent::has_access();
         if(!$this->has_params || !$this->model->is_token_valid())
             return false;
         return parent::has_access();
