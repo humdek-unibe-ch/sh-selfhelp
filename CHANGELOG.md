@@ -17,9 +17,10 @@
  - Allow to change notification settings on the profile page
  - Allow to change the user name on the profile page
  - Notify a user by email or SMS on chat message reception (#144)
- - Allow to upload CSS files on the assests page (close #107)
+ - Allow to upload CSS files on the assests page (#107)
  - Allow to overwrite existing asset and css files
  - Allow to remove asset and css files from the server
+ - A new style `carousel` to display images in a slide show (#125)
 
 # v0.9.12
 

@@ -303,3 +303,18 @@ UPDATE `pages` SET `url` = '/admin/asset_insert/[css|asset:mode]' WHERE `pages`.
 
 -- allow to delete asset and css files
 UPDATE `pages` SET `url` = '/admin/asset_delete/[css|asset:mode]/[*:file]' WHERE `pages`.`id` = 0000000027;
+
+-- new style carousel
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES (NULL, 'carousel', '0000000001', '0000000007');
+SET @id_style_carousel = LAST_INSERT_ID();
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'has_controls', '0000000003', '0');
+SET @id_fields_has_controls = LAST_INSERT_ID();
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'has_indicators', '0000000003', '0');
+SET @id_fields_has_indicators = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
+(@id_style_carousel, @id_fields_has_controls, '1'),
+(@id_style_carousel, @id_fields_has_indicators, '0'),
+(@id_style_carousel, '0000000083', NULL),
+(@id_style_carousel, '0000000071', NULL);
+
+UPDATE `styleGroup` SET `description` = 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `audio` allows to load and replay an audio source on a page.\r\n- `carousel` allows to render multiple images as a slide-show.\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.\r\n- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.' WHERE `styleGroup`.`id` = 0000000007;
