@@ -5,3 +5,7 @@ server/db/privileges.sql
 server/db/reminder_db_script.sql
 assets/*
 !assets/logo
+css/*
+!css/ext
+js/*
+!js/ext
