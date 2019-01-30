@@ -300,3 +300,6 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 
 -- allow to upload css files
 UPDATE `pages` SET `url` = '/admin/asset_insert/[css|asset:mode]' WHERE `pages`.`id` = 0000000025;
+
+-- allow to delete asset and css files
+UPDATE `pages` SET `url` = '/admin/asset_delete/[css|asset:mode]/[*:file]' WHERE `pages`.`id` = 0000000027;

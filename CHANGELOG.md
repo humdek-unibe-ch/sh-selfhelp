@@ -19,6 +19,7 @@
  - Notify a user by email or SMS on chat message reception (#144)
  - Allow to upload CSS files on the assests page (close #107)
  - Allow to overwrite existing asset and css files
+ - Allow to remove asset and css files from the server
 
 # v0.9.12
 

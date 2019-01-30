@@ -27,6 +27,8 @@ class AssetInsertController extends BaseController
         parent::__construct($model);
         $this->name = "";
         // check that post_max_size has not been reached
+        if(!$model->can_insert_asset())
+            return;
         if(isset($_SERVER['CONTENT_LENGTH'])
                 && (int)$_SERVER['CONTENT_LENGTH']
                     > $this->convert_to_bytes(ini_get('post_max_size')))

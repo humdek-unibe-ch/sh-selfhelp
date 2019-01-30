@@ -32,8 +32,10 @@ class AssetSelectView extends BaseView
     {
         $del_target = "";
         if($this->model->can_delete_asset())
-            $del_target = $this->model->get_link_url("assetDelete",
-                array("file" => ":did"));
+            $del_target = $this->model->get_link_url("assetDelete", array(
+                "file" => ":did",
+                "mode" => $mode,
+            ));
         $add_target = "";
         if($this->model->can_insert_asset())
             $add_target = $this->model->get_link_url("assetInsert",
@@ -41,7 +43,7 @@ class AssetSelectView extends BaseView
         $list = new BaseStyleComponent("sortableList", array(
             "items" => $this->model->get_asset_files($mode),
             "is_editable" => true,
-            /* "url_delete" => $del_target, */
+            "url_delete" => $del_target,
             "url_add" => $add_target,
         ));
         $list->output_content();

@@ -9,6 +9,9 @@ class AssetInsertView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     *  Specifies the insert mode (either 'css' or 'asset').
+     */
     private $mode;
 
     /* Constructors ***********************************************************/
