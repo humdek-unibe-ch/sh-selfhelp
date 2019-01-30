@@ -30,12 +30,15 @@ CALL grant_proc("INSERT, UPDATE (position), DELETE", @db_name, "sections_hierarc
 CALL grant_proc("INSERT, UPDATE (nav_position), DELETE", @db_name, "pages", @user_name);
 CALL grant_proc("INSERT, UPDATE (position), DELETE", @db_name, "sections_navigation", @user_name);
 CALL grant_proc("INSERT", @db_name, "chat", @user_name);
-CALL grant_proc("INSERT, UDATE (is_new)", @db_name, "chatRecipiants", @user_name);
+CALL grant_proc("INSERT, UPDATE (is_new)", @db_name, "chatRecipiants", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "chatRoom", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "chatRoom_users", @user_name);
 CALL grant_proc("INSERT, UPDATE (id_users)", @db_name, "validation_codes", @user_name);
 
-SET @user_name_reminder = "selfhelpReminder";
-CALL grant_proc("SELECT (pages_fields_translation, users, pages, fields)", @db_name, "*", @user_name_reminder);
+SET @user_name_reminder = "selfhelp_reminder";
+CALL grant_proc("SELECT", @db_name, "pages_fields_translation", @user_name_reminder);
+CALL grant_proc("SELECT", @db_name, "users", @user_name_reminder);
+CALL grant_proc("SELECT", @db_name, "pages", @user_name_reminder);
+CALL grant_proc("SELECT", @db_name, "fields", @user_name_reminder);
 
 DROP PROCEDURE IF EXISTS grant_proc;

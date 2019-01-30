@@ -15,7 +15,7 @@ cd __experiment_name__
 
 Checkout the latest relaese.
 The expression `__latest_release__` is used as a placeholder for the latest version number.
-To list all releases use the command `git tags`.
+To list all releases use the command `git tag`.
 
 ```
 git checkout v__latest_release__
