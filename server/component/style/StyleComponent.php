@@ -112,5 +112,18 @@ class StyleComponent extends BaseComponent
     {
         return $this->style;
     }
+
+    /**
+     * Search for a child section of a specific name.
+     *
+     * @param string $name
+     *  The name of the section to be seacrhed
+     * @retval reference
+     *  Reference to the section instance.
+     */
+    public function &get_child_section_by_name($name)
+    {
+        return $this->model->get_child_section_by_name($name);
+    }
 }
 ?>

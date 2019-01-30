@@ -47,5 +47,16 @@ abstract class FormFieldComponent extends BaseComponent
     {
         $this->model->set_user_input(true);
     }
+
+    /**
+     * Update the value of the form field view.
+     *
+     * @param string $value
+     *  The new value.
+     */
+    public function update_value_view($value)
+    {
+        $this->view->set_value($value);
+    }
 }
 ?>

@@ -153,7 +153,76 @@ SET @id_section_pum = LAST_INSERT_ID();
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
 (@id_section_pum, 0000000023, 0000000001, 0000000001, ''),
 (@id_section_pum, 0000000025, 0000000002, 0000000001, 'Dies ist der Name mit dem Sie angesprochen werden wollen. Aus Gründen der Anonymisierung verwenden Sie bitte **nicht** ihren richtigen Namen.'),
-(@id_section_pum, 0000000025, 0000000003, 0000000001, 'The name with which you would like to be addressed. For reasons of anonymity pleas do **not** use your real name.');
+(@id_section_pum, 0000000025, 0000000003, 0000000001, 'The name with which you would like to be addressed. For reasons of anonymity please do **not** use your real name.');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000012, 'profile-notification-card', NULL);
+SET @id_section_pnc = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnc, 0000000022, 0000000002, 0000000001, 'Benachrichtigungen'),
+(@id_section_pnc, 0000000022, 0000000003, 0000000001, 'Notifications'),
+(@id_section_pnc, 0000000023, 0000000001, 0000000001, 'mb-3 mb-lg-0'),
+(@id_section_pnc, 0000000028, 0000000001, 0000000001, 'light'),
+(@id_section_pnc, 0000000046, 0000000001, 0000000001, '1'),
+(@id_section_pnc, 0000000047, 0000000001, 0000000001, '0'),
+(@id_section_pnc, 0000000048, 0000000001, 0000000001, '');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000006, 'profile-notification-markdown', NULL);
+SET @id_section_pnm = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnm, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnm, 0000000025, 0000000002, 0000000001, 'Hier können sie automatische Benachrichtigungen ein- und ausschalten. Asserdem können sie eine Telefonnummer hinterlegen um per SMS benachrichtigt zu werden. '),
+(@id_section_pnm, 0000000025, 0000000003, 0000000001, 'Here you can enable and disable automatic notifications.\r\nAlso, by entering a phone number you can choose to be notified by SMS.');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000036, 'profile-notification-formUserInput', NULL);
+SET @id_section_pnf = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnf, 0000000008, 0000000002, 0000000001, 'Ändern'),
+(@id_section_pnf, 0000000008, 0000000003, 0000000001, 'Change'),
+(@id_section_pnf, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnf, 0000000028, 0000000001, 0000000001, 'primary'),
+(@id_section_pnf, 0000000057, 0000000001, 0000000001, 'notification'),
+(@id_section_pnf, 0000000087, 0000000001, 0000000001, '0'),
+(@id_section_pnf, 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Benachrichtigungen wurden erfolgreich gespeichert'),
+(@id_section_pnf, 0000000035, 0000000003, 0000000001, 'The notification settings were successfully saved');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-notification-chat-input', NULL);
+SET @id_section_pnci = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnci, 0000000008, 0000000002, 0000000001, 'Benachrichtigung bei neuer Nachricht im Chat'),
+(@id_section_pnci, 0000000008, 0000000003, 0000000001, 'Notification on new chat message'),
+(@id_section_pnci, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnci, 0000000054, 0000000001, 0000000001, 'checkbox'),
+(@id_section_pnci, 0000000055, 0000000002, 0000000001, ''),
+(@id_section_pnci, 0000000055, 0000000003, 0000000001, ''),
+(@id_section_pnci, 0000000056, 0000000001, 0000000001, '0'),
+(@id_section_pnci, 0000000057, 0000000001, 0000000001, 'chat'),
+(@id_section_pnci, 0000000058, 0000000001, 0000000001, '');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-notification-reminder-input', NULL);
+SET @id_section_pnri = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnri, 0000000008, 0000000002, 0000000001, 'Benachrichtung bei Inaktivität'),
+(@id_section_pnri, 0000000008, 0000000003, 0000000001, 'Notification by inactivity'),
+(@id_section_pnri, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnri, 0000000054, 0000000001, 0000000001, 'checkbox'),
+(@id_section_pnri, 0000000055, 0000000002, 0000000001, ''),
+(@id_section_pnri, 0000000055, 0000000003, 0000000001, ''),
+(@id_section_pnri, 0000000056, 0000000001, 0000000001, '0'),
+(@id_section_pnri, 0000000057, 0000000001, 0000000001, 'reminder'),
+(@id_section_pnri, 0000000058, 0000000001, 0000000001, '');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-notification-phone-input', NULL);
+SET @id_section_pnpi = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnpi, 0000000008, 0000000002, 0000000001, 'Telefonnummer für SMS Benachrichtigung'),
+(@id_section_pnpi, 0000000008, 0000000003, 0000000001, 'Phone Number for receiving SMS notifications'),
+(@id_section_pnpi, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnpi, 0000000054, 0000000001, 0000000001, 'text'),
+(@id_section_pnpi, 0000000055, 0000000002, 0000000001, 'Bitte Telefonnummer eingeben'),
+(@id_section_pnpi, 0000000055, 0000000003, 0000000001, 'Please enter a phone number'),
+(@id_section_pnpi, 0000000056, 0000000001, 0000000001, '0'),
+(@id_section_pnpi, 0000000057, 0000000001, 0000000001, 'phone'),
+(@id_section_pnpi, 0000000058, 0000000001, 0000000001, '');
 
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
 (0000000002, 0000000005, 0000000002, 0000000001, 'Die Benutzerdaten konnten nicht geändert werden.'),
@@ -178,7 +247,13 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (@id_section_puf, @id_section_pum, 0),
 (@id_section_ppf, @id_section_ppi, 0),
 (@id_section_ppf, @id_section_ppci, 10),
-(@id_section_pdf, @id_section_pdi, 0);
+(@id_section_pdf, @id_section_pdi, 0),
+(@id_section_pc1d, @id_section_pnc, 10),
+(@id_section_pnc, @id_section_pnm, 0),
+(@id_section_pnc, @id_section_pnf, 10),
+(@id_section_pnf, @id_section_pnci, 0),
+(@id_section_pnf, @id_section_pnri, 10),
+(@id_section_pnf, @id_section_pnpi, 20);
 
 -- remove unused profile field content
 DELETE FROM `sections_fields_translation` WHERE id_sections = 2 AND id_fields = 1;
@@ -208,6 +283,11 @@ DELETE FROM `sections` WHERE name = "user_input_success-container";
 DELETE FROM `sections` WHERE name = "user_input_success-jumbotron";
 DELETE FROM `sections` WHERE name = "user_input_success-heading";
 DELETE FROM `sections` WHERE name = "user_input_success-markdown";
+
+-- Update login text
+UPDATE `sections_fields_translation` SET content = 'Email' WHERE id_sections = 1 AND id_fields = 1;
+UPDATE `sections_fields_translation` SET content = 'Die Email Adresse oder das Passwort ist nicht korrekt.' WHERE id_sections = 1 AND id_fields = 5 AND id_languages = 2;
+UPDATE `sections_fields_translation` SET content = 'The email address or the password is not correct.' WHERE id_sections = 1 AND id_fields = 5 AND id_languages = 3;
 
 -- section names must be unique
 ALTER TABLE `sections` ADD UNIQUE(`name`);

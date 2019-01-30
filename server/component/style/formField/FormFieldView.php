@@ -169,5 +169,16 @@ abstract class FormFieldView extends StyleView
         else
             require __DIR__ . "/tpl_label.php";
     }
+
+    /**
+     * Public setter for the value.
+     *
+     * @param string $value
+     *  The value to be set
+     */
+    public function set_value($value)
+    {
+        $this->value = $value;
+    }
 }
 ?>

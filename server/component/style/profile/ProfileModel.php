@@ -49,8 +49,16 @@ class ProfileModel extends StyleModel
      */
     public function change_user_name($name)
     {
-        return $this->db->update_by_ids('users', array("name" => $name),
+        $res = $this->db->update_by_ids('users', array("name" => $name),
             array('id' => $_SESSION['id_user']));
+        if($res)
+        {
+            $input = $this->get_child_section_by_name('profile-username-input');
+            $input = $input->get_style_instance();
+            $input->update_value_view($name);
+            return true;
+        }
+        return false;
     }
 
     /**

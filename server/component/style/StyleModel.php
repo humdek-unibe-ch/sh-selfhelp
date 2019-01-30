@@ -72,7 +72,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
         {
-            $this->children[] = new StyleComponent(
+            $this->children[$child['name']] = new StyleComponent(
                 $services, intval($child['id']), $params);
         }
     }
@@ -295,6 +295,27 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_section_name()
     {
         return $this->section_name;
+    }
+
+    /**
+     * Search for a child section of a specific name.
+     *
+     * @param string $name
+     *  The name of the section to be seacrhed
+     * @retval reference
+     *  Reference to the section instance.
+     */
+    public function &get_child_section_by_name($name)
+    {
+        if(array_key_exists($name, $this->children))
+            return $this->children[$name];
+        foreach($this->children as $child)
+        {
+            $section = $child->get_child_section_by_name($name);
+            if($section !== null)
+                return $section;
+        }
+        return null;
     }
 }
 ?>
