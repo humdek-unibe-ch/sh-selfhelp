@@ -297,3 +297,6 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_n
 SET @id_field_email_notification = LAST_INSERT_ID();
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) SELECT id AS id_pages, @id_field_email_notification AS id_fields, 0000000002 AS id_languages, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team' AS content FROM pages WHERE keyword = 'email');
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) SELECT id AS id_pages, @id_field_email_notification AS id_fields, 0000000003 AS id_languages, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team' AS content FROM pages WHERE keyword = 'email');
+
+-- allow to upload css files
+UPDATE `pages` SET `url` = '/admin/asset_insert/[css|asset:mode]' WHERE `pages`.`id` = 0000000025;

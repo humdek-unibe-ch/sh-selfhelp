@@ -19,12 +19,16 @@ class AssetInsertComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
+     * @param array $params
+     *  The array of get parameters:
+     *   - 'mode':  Specifies the insert mode (either 'css' or 'asset').
      */
-    public function __construct($services)
+    public function __construct($services, $params)
     {
+        $mode = $params['mode'] ?? "";
         $model = new AssetModel($services);
-        $controller = new AssetInsertController($model);
-        $view = new AssetInsertView($model, $controller);
+        $controller = new AssetInsertController($model, $mode);
+        $view = new AssetInsertView($model, $controller, $mode);
         parent::__construct($model, $view, $controller);
     }
 }

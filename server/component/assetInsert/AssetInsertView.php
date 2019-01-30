@@ -7,6 +7,10 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
  */
 class AssetInsertView extends BaseView
 {
+    /* Private Properties *****************************************************/
+
+    private $mode;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -16,9 +20,12 @@ class AssetInsertView extends BaseView
      *  The model instance of the component.
      * @param object $controller
      *  The controller instance of the component.
+     * @param string $mode
+     *  Specifies the insert mode (either 'css' or 'asset').
      */
-    public function __construct($model, $controller)
+    public function __construct($model, $controller, $mode)
     {
+        $this->mode = $mode;
         parent::__construct($model, $controller);
     }
 
@@ -61,7 +68,8 @@ class AssetInsertView extends BaseView
         else
         {
             $cancel_url = $this->model->get_link_url("assetSelect");
-            $action_url = $this->model->get_link_url("assetInsert");
+            $action_url = $this->model->get_link_url("assetInsert",
+                array('mode' => $this->mode));
             require __DIR__ . "/tpl_insert.php";
         }
     }

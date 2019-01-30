@@ -18,22 +18,6 @@ class AssetSelectView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $del_target = "";
-        if($this->model->can_delete_asset())
-            $del_target = $this->model->get_link_url("assetDelete",
-                array("file" => ":did"));
-        $add_target = "";
-        if($this->model->can_insert_asset())
-            $add_target = $this->model->get_link_url("assetInsert");
-
-        $this->add_local_component("asset-list",
-            new BaseStyleComponent("sortableList", array(
-                "items" => $this->model->get_asset_files(),
-                "is_editable" => true,
-                /* "url_delete" => $del_target, */
-                "url_add" => $add_target,
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
@@ -41,9 +25,23 @@ class AssetSelectView extends BaseView
     /**
      * Render the asset list.
      */
-    private function output_assets()
+    private function output_assets($mode)
     {
-        $this->output_local_component("asset-list");
+        $del_target = "";
+        if($this->model->can_delete_asset())
+            $del_target = $this->model->get_link_url("assetDelete",
+                array("file" => ":did"));
+        $add_target = "";
+        if($this->model->can_insert_asset())
+            $add_target = $this->model->get_link_url("assetInsert",
+                array('mode' => $mode));
+        $list = new BaseStyleComponent("sortableList", array(
+            "items" => $this->model->get_asset_files($mode),
+            "is_editable" => true,
+            /* "url_delete" => $del_target, */
+            "url_add" => $add_target,
+        ));
+        $list->output_content();
     }
 
     /* Public Methods *********************************************************/

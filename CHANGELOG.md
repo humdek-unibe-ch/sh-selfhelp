@@ -1,3 +1,25 @@
+# v1.0.0
+
+### Bugfix
+
+ - Validation style is now displayed correctly in CMS
+
+### Changes
+
+ - In the `input` style add the type `password` to the list of possibilities
+ - Add the user name next to the profile label
+ - Use styles to design the profile page (instead of a hardcoded template)
+ - Remove page `user_input_success`
+ - Section names must be unique
+
+### New Features
+
+ - Allow to change notification settings on the profile page
+ - Allow to change the user name on the profile page
+ - Notify a user by email or SMS on chat message reception (#144)
+ - Allow to upload CSS files on the assests page (close #107)
+ - Allow to overwrite existing asset and css files
+
 # v0.9.12
 
 ### Bugfix

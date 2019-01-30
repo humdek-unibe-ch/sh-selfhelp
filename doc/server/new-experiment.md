@@ -21,10 +21,11 @@ To list all releases use the command `git tag`.
 git checkout v__latest_release__
 ```
 
-### 2. Prepare the asset folder
+### 2. Prepare the asset and css folder
 
 ```
 chmod 777 assets
+chmod 777 css
 ```
 
 ### 3. Set the global variables of the experiment

@@ -19,8 +19,10 @@ class AssetInsertController extends BaseController
      *
      * @param object $model
      *  The model instance of the component.
+     * @param string $mode
+     *  Specifies the insert mode (either 'css' or 'asset').
      */
-    public function __construct($model)
+    public function __construct($model, $mode)
     {
         parent::__construct($model);
         $this->name = "";
@@ -39,8 +41,8 @@ class AssetInsertController extends BaseController
             $ext = $info['extension'];
             $this->name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
             $this->name = $this->name. '.' .$ext;
-            $target = ASSET_SERVER_PATH . '/' . $this->name;
-            if(file_exists($target))
+            $target = $this->model->get_server_path($mode) . '/' . $this->name;
+            if(!isset($_POST['overwrite']) && file_exists($target))
             {
                 $this->fail = true;
                 $this->error_msgs[] = "A file with the same name already exists";
