@@ -49,10 +49,13 @@ class AssetModel extends BaseModel
     /**
      * Returns an array of asset files.
      *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css' or 'asset').
      * @retval array
      *  An array of asset files where each file has the following keys:
      *   'title':   The name of the file.
      *   'id':      The index of the file.
+     *   'url':     The url to the file.
      */
     public function get_asset_files($mode)
     {
@@ -74,6 +77,14 @@ class AssetModel extends BaseModel
         return $assets;
     }
 
+    /**
+     * Return the server path depending on the asset mode.
+     *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css' or 'asset').
+     * @retval string
+     *  The server path.
+     */
     public function get_server_path($mode)
     {
         if($mode === "css")
@@ -82,6 +93,14 @@ class AssetModel extends BaseModel
             return ASSET_SERVER_PATH;
     }
 
+    /**
+     * Return the base url depending on the asset mode.
+     *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css' or 'asset').
+     * @retval string
+     *  The base url.
+     */
     public function get_base_url($mode)
     {
         if($mode === "css")

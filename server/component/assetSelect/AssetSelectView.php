@@ -24,6 +24,9 @@ class AssetSelectView extends BaseView
 
     /**
      * Render the asset list.
+     *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css' or 'asset').
      */
     private function output_assets($mode)
     {
