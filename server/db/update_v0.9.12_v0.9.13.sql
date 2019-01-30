@@ -192,11 +192,11 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (@id_section_pnci, 0000000008, 0000000003, 0000000001, 'Notification on new chat message'),
 (@id_section_pnci, 0000000023, 0000000001, 0000000001, ''),
 (@id_section_pnci, 0000000054, 0000000001, 0000000001, 'checkbox'),
-(@id_section_pnci, 0000000055, 0000000002, 0000000001, ''),
-(@id_section_pnci, 0000000055, 0000000003, 0000000001, ''),
+(@id_section_pnci, 0000000055, 0000000002, 0000000001, 'chat'),
+(@id_section_pnci, 0000000055, 0000000003, 0000000001, 'chat'),
 (@id_section_pnci, 0000000056, 0000000001, 0000000001, '0'),
 (@id_section_pnci, 0000000057, 0000000001, 0000000001, 'chat'),
-(@id_section_pnci, 0000000058, 0000000001, 0000000001, '');
+(@id_section_pnci, 0000000058, 0000000001, 0000000001, 'chat');
 
 INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-notification-reminder-input', NULL);
 SET @id_section_pnri = LAST_INSERT_ID();
@@ -205,11 +205,11 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (@id_section_pnri, 0000000008, 0000000003, 0000000001, 'Notification by inactivity'),
 (@id_section_pnri, 0000000023, 0000000001, 0000000001, ''),
 (@id_section_pnri, 0000000054, 0000000001, 0000000001, 'checkbox'),
-(@id_section_pnri, 0000000055, 0000000002, 0000000001, ''),
-(@id_section_pnri, 0000000055, 0000000003, 0000000001, ''),
+(@id_section_pnri, 0000000055, 0000000002, 0000000001, 'reminder'),
+(@id_section_pnri, 0000000055, 0000000003, 0000000001, 'reminder'),
 (@id_section_pnri, 0000000056, 0000000001, 0000000001, '0'),
 (@id_section_pnri, 0000000057, 0000000001, 0000000001, 'reminder'),
-(@id_section_pnri, 0000000058, 0000000001, 0000000001, '');
+(@id_section_pnri, 0000000058, 0000000001, 0000000001, 'reminder');
 
 INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-notification-phone-input', NULL);
 SET @id_section_pnpi = LAST_INSERT_ID();
@@ -291,3 +291,9 @@ UPDATE `sections_fields_translation` SET content = 'The email address or the pas
 
 -- section names must be unique
 ALTER TABLE `sections` ADD UNIQUE(`name`);
+
+-- add notification email
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_notification', '0000000011', '1');
+SET @id_field_email_notification = LAST_INSERT_ID();
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) SELECT id AS id_pages, @id_field_email_notification AS id_fields, 0000000002 AS id_languages, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team' AS content FROM pages WHERE keyword = 'email');
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) SELECT id AS id_pages, @id_field_email_notification AS id_fields, 0000000003 AS id_languages, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team' AS content FROM pages WHERE keyword = 'email');

@@ -76,5 +76,25 @@ class ProfileModel extends StyleModel
         if($password != $verification) return false;
         return $this->login->change_password($password);
     }
+
+    /**
+     * Propagate the remindier setting to the user table. This is necessary
+     * beacuse the reminder settings are stored as user data while the reminder
+     * script checks the is_reminded falg in the users table.
+     */
+    public function update_user_reminder_settings()
+    {
+        $field_reminder = $this->user_input->get_input_fields(array(
+            'page' => 'profile',
+            'id_user' => $_SESSION['id_user'],
+            'form_name' => 'notification',
+            'field_name' => 'reminder',
+        ));
+        $val = 0;
+        if(count($field_reminder) === 0 || $field_reminder[0]['value'] !== "")
+            $val = 1;
+        $this->db->update_by_ids('users', array('is_reminded' => $val),
+            array('id' => $_SESSION['id_user']));
+    }
 }
 ?>

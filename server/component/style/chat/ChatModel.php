@@ -92,6 +92,42 @@ abstract class ChatModel extends StyleModel
      */
     abstract public function is_chat_ready();
 
+    /**
+     * Notyfy a user about a new chat message.
+     *
+     * @param int $id
+     *  The id of the user to be notified.
+     */
+    protected function notify($id)
+    {
+        $subject = $_SESSION['project'] . " Notification";
+        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $msg = $this->login->email_get_content($this->get_link_url('contact'),
+            'email_notification');
+        $field_chat = $this->user_input->get_input_fields(array(
+            'page' => 'profile',
+            'id_user' => $id,
+            'form_name' => 'notification',
+            'field_name' => 'chat',
+        ));
+        if(count($field_chat) === 0 || $field_chat[0]['value'] !== "")
+        {
+            $sql = "SELECT email FROM users WHERE id = :id";
+            $email = $this->db->query_db_first($sql, array(':id' => $id));
+            $this->login->email_send($from, $email['email'], $subject, $msg);
+        }
+        $field_phone = $this->user_input->get_input_fields(array(
+            'page' => 'profile',
+            'id_user' => $id,
+            'form_name' => 'notification',
+            'field_name' => 'phone',
+        ));
+        if(count($field_phone) === 1 && $field_phone[0]['value'] !== "")
+        {
+            $email = $field_phone[0]['value'] . "@sms.unibe.ch";
+            $this->login->email_send($from, $email, $subject, $msg);
+        }
+    }
 
     /* Public Methods *********************************************************/
 

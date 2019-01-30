@@ -17,7 +17,7 @@ CALL grant_proc("USAGE", "*", "*", @user_name);
 CALL grant_proc("SELECT", @db_name, "*", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "sections", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "groups", @user_name);
-CALL grant_proc("INSERT, UPDATE (email, blocked, token, id_genders, name, password, last_login), DELETE", @db_name, "users", @user_name);
+CALL grant_proc("INSERT, UPDATE (email, blocked, token, id_genders, name, password, last_login, is_reminded), DELETE", @db_name, "users", @user_name);
 CALL grant_proc("INSERT", @db_name, "user_activity", @user_name);
 CALL grant_proc("INSERT, UPDATE (`value`, `edit_time`)", @db_name, "user_input", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "users_groups", @user_name);

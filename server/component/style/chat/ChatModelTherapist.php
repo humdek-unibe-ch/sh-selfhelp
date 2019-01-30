@@ -209,7 +209,10 @@ class ChatModelTherapist extends ChatModel
                 ));
             }
             foreach($users as $user)
+            {
                 $this->db->insert('chatRecipiants', $user);
+                $this->notify(intval($user['id_users']));
+            }
         }
         return $msg_id;
     }
