@@ -13,6 +13,10 @@ require_once __DIR__ . "/ChatController.php";
  */
 class ChatComponent extends BaseComponent
 {
+
+    /**
+     * The instance of the db service.
+     */
     private $db;
 
     /* Constructors ***********************************************************/
@@ -55,7 +59,7 @@ class ChatComponent extends BaseComponent
     /**
      * Check whether a user is part of the experimenter group.
      *
-     * @param int $aid
+     * @param int $uid
      *  The id of the user to check.
      * @retval array
      *  True if the user is part of the experimneter group, false otherwise.

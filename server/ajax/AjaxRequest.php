@@ -33,8 +33,11 @@ class AjaxRequest
      *
      * @param object $db
      *  The db instance which grants access to the DB.
-     * @param object $params
-     *  The get parameters of the request
+     * @param string $class_name
+     *  The name of the calss to be instantiated.
+     * @param string $method_name
+     *  The name of the method to be called on the instcane of
+     *  AjaxRequest::class_name.
      */
     public function __construct($db, $class_name, $method_name=null)
     {

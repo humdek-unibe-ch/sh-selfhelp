@@ -6,8 +6,6 @@ require_once __DIR__ . "/../BaseModel.php";
  */
 class EmailModel extends BaseModel
 {
-    /* Private Properties *****************************************************/
-
     /* Constructors ***********************************************************/
 
     /**
@@ -21,8 +19,6 @@ class EmailModel extends BaseModel
     {
         parent::__construct($services);
     }
-
-    /* Private Methods ********************************************************/
 
     /* Public Methods *********************************************************/
 
@@ -51,6 +47,18 @@ class EmailModel extends BaseModel
         return $emails;
     }
 
+    /**
+     * Fetch a specific email from the database in multiple languages.
+     *
+     * @param int $id
+     *  The id of the email to be fetched.
+     * @retval array
+     *  An array of database entries with the following keys:
+     *   - 'locale':    A short notation of the language.
+     *   - 'l_id':      The id of the langauge.
+     *   - 'p_id':      The page id associated to the email.
+     *   - 'content':   The email message.
+     */
     public function get_email($id)
     {
         $sql = "SELECT l.locale AS locale, l.id AS l_id, p.id AS p_id, pft.content
@@ -65,6 +73,20 @@ class EmailModel extends BaseModel
         ));
     }
 
+    /**
+     * Update the email content.
+     *
+     * @param int $pid
+     *  The id of the page associated to the email.
+     * @param int $fid
+     *  The id of the field associted to the email.
+     * @param int $lid
+     *  The id of the language in which the email is written.
+     * @param string $content
+     *  The email message.
+     * @retval bool
+     *  True on success, false on failure
+     */
     public function update_email($pid, $fid, $lid, $content)
     {
         $update = array(

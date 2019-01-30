@@ -8,9 +8,19 @@ class ChatAdminModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the currently selected chat room.
+     */
     private $rid;
 
+    /**
+     * The name of the currently selected chat room.
+     */
     private $room_name = "";
+
+    /**
+     * The description of the currently selected chat room.
+     */
     private $room_desc = "";
 
     /* Constructors ***********************************************************/
@@ -35,7 +45,7 @@ class ChatAdminModel extends BaseModel
     /* Private Methods ********************************************************/
 
     /**
-     * Fetch the active room nfo from the db and store it as class property.
+     * Fetch the active room info from the db and store it as class property.
      */
     private function fetch_active_room_info()
     {
@@ -53,8 +63,8 @@ class ChatAdminModel extends BaseModel
     /**
      * Add users to the active chat room.
      *
-     * @param array $users
-     *  An array of ids where an id correspond to the id of a user.
+     * @param int $user
+     *  The id of a user to be added the the active chat room.
      * @retval bool
      *  True on success, false on failure.
      */

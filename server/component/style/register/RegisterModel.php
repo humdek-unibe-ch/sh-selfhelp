@@ -9,6 +9,9 @@ class RegisterModel extends StyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The instance of the user model from the user component.
+     */
     private $user_model = null;
 
     /* Constructors ***********************************************************/
@@ -54,10 +57,10 @@ class RegisterModel extends StyleModel
      * Claim a validation code for a user and make it unusable for any other
      * registration.
      *
-     * @param string $email
-     *  The email address of the user.
      * @param string $code
      *  The code string entered by the user.
+     * @param int $uid
+     *  The id of the user claiming the coed.
      * @retval bool
      *  True if the check was successful, false otherwise.
      */

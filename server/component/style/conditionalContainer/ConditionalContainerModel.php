@@ -32,7 +32,7 @@ class ConditionalContainerModel extends StyleModel
      *
      * @param array $condition
      *  An array representing the json condition string.
-     * @param mixed
+     * @retval mixed
      *  The evaluated condition.
      */
     public function compute_condition($condition)

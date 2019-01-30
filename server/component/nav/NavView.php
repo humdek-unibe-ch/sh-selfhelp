@@ -57,6 +57,9 @@ class NavView extends BaseView
      *  The identification string of a route.
      * @param string $page_name
      *  The title of the page the link is pointing to.
+     * @param int $nav_child
+     *  The id of the target navigation section (only relevant for navigation
+     *  pages).
      */
     private function output_nav_item($key, $page_name, $nav_child=null)
     {
@@ -95,6 +98,9 @@ class NavView extends BaseView
      *  The identification string of a route.
      * @param string $page_name
      *  The title of the page the link is pointing to.
+     * @param int $nav_child
+     *  The id of the target navigation section (only relevant for navigation
+     *  pages).
      */
     private function output_nav_menu_item($key, $page_name, $nav_child)
     {

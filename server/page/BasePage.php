@@ -206,11 +206,23 @@ abstract class BasePage
             $includes[] = $path_prefix . $file;
     }
 
+    /**
+     * Return a valid js string definig global constants.
+     *
+     * @retval string
+     *  A string of valid js code.
+     */
     private function get_js_constants()
     {
         return 'const BASE_PATH = "' . BASE_PATH . '";';
     }
 
+    /**
+     * Return a valid string of csp rules.
+     *
+     * @retval string
+     *  A string of valid csp rules.
+     */
     private function get_csp_rules()
     {
         return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-"

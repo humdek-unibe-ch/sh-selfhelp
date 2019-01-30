@@ -149,8 +149,6 @@ class UserModel extends BaseModel
     /**
      * Generate random validation codes and store them to the database.
      *
-     * @param int $count
-     *  The number of codes to generate.
      * @retval bool
      *  True on success, false on failure.
      */

@@ -9,6 +9,9 @@ class EmailView extends BaseView
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * The id of the currently selected email.
+     */
     private $active_id;
 
     /* Constructors ***********************************************************/
@@ -59,6 +62,9 @@ class EmailView extends BaseView
         $emails->output_content();
     }
 
+    /**
+     * Render either the intro or a specific email form.
+     */
     private function output_email()
     {
         if($this->active_id === null)
@@ -72,6 +78,12 @@ class EmailView extends BaseView
 
     }
 
+    /**
+     * Render the email forms for each language.
+     *
+     * @param array $langs
+     *  An array of emails in different languages (see EmailModel::get_email()).
+     */
     private function output_form_items($langs)
     {
         foreach($langs as $lang)

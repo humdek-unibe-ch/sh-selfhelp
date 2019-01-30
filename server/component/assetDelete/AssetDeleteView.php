@@ -30,6 +30,8 @@ class AssetDeleteView extends BaseView
      *  The controller instance.
      * @param string $mode
      *  Specifies the insert mode (either 'css' or 'asset').
+     * @param string $name
+     *  The file name of the file to be deleted.
      */
     public function __construct($model, $controller, $mode, $name)
     {
