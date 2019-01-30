@@ -61,3 +61,7 @@ button.clear-search
         padding: 0 !important;
     }
 }
+.collapsible
+{
+    cursor: pointer;
+}
