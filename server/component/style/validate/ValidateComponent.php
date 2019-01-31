@@ -3,6 +3,8 @@ require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/ValidateView.php";
 require_once __DIR__ . "/ValidateModel.php";
 require_once __DIR__ . "/ValidateController.php";
+require_once __DIR__ . "/../formUserInput/FormUserInputModel.php";
+require_once __DIR__ . "/../formUserInput/FormUserInputController.php";
 
 /**
  * The user validation component. This component is intended for the user
@@ -39,9 +41,18 @@ class ValidateComponent extends BaseComponent
         $this->has_params = ($uid != null && $token != null);
         $model = new ValidateModel($services, $id, $uid, $token);
         $controller = null;
+        $ui_controller = null;
         if(!$model->is_cms_page())
-            $controller = new ValidateController($model);
-        $view = new ValidateView($model, $controller);
+        {
+            $uid_session = $_SESSION['id_user'];
+            $_SESSION['id_user'] = $uid;
+            $ui_model = new FormUserInputModel($services, $id);
+            $ui_controller = new FormUserInputController($ui_model);
+            $_SESSION['id_user'] = $uid_session;
+            if(!$ui_controller->has_failed())
+                $controller = new ValidateController($model);
+        }
+        $view = new ValidateView($model, $controller, $ui_controller);
         parent::__construct($model, $view, $controller);
     }
 

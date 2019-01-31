@@ -73,6 +73,7 @@ class FormUserInputController extends BaseController
         $post = array();
         foreach($_POST as $name => $values)
         {
+            if(!isset($values['id'])) continue;
             $id_section = intval($values['id']);
             if(!isset($values['value']))
                 $values['value'] = "";

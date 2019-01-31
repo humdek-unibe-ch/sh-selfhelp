@@ -36,6 +36,7 @@
                         <label class="form-check-label"><?php echo $this->gender_female; ?></label>
                     </div>
                 </div>
+                <?php $this->output_custom_fields(); ?>
                 <button type="submit" class="btn btn-primary"><?php echo $this->activate_label; ?></button>
             </form>
         </div>

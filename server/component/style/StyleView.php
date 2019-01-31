@@ -29,7 +29,7 @@ abstract class StyleView extends BaseView
     /**
      * The list of child components. These components where loaded from the db.
      */
-    private $children;
+    protected $children;
 
     /* Constructors ***********************************************************/
 
