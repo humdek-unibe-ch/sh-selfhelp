@@ -7,6 +7,8 @@
    *light* or *warning*.
  - Add custom css classes in style `nestedList` also if collapsed on small
    screens.
+ - For females, the input label for the style `showUserInput` was not shown if
+   no female version was available. Now it defaults back to the male label.
 
 ### Changes
 

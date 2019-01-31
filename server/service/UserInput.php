@@ -76,13 +76,16 @@ class UserInput
         {
             $id = intval($field["id_sections"]);
             if(!isset($this->field_attrs[$id])) continue;
+            $field_label = $this->field_attrs[$id]["label"][$gender][$language] ?? "";
+            if($gender === "female" && $field_label === "")
+                $field_label = $this->field_attrs[$id]["label"]["male"][$language] ?? "";
             $fields[] = array(
                 "user_code" => $field['code'],
                 "user_gender" => $field['gender'],
                 "page" => $this->field_attrs[$id]["page"],
                 "nav" => $this->field_attrs[$id]["nav"],
                 "field_name" => $this->field_attrs[$id]["name"],
-                "field_label" => $this->field_attrs[$id]["label"][$gender][$language] ?? "",
+                "field_label" => $field_label,
                 "field_type" => $this->field_attrs[$id]["type"],
                 "form_name" => $this->field_attrs[$id]["form_name"],
                 "value" => $field["value"],
