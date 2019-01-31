@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 25, 2019 at 05:55 PM
+-- Generation Time: Jan 31, 2019 at 04:48 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 
 --
 -- Database: `selfhelp_initial`
--- Version: `v0.9.12`
+-- Version: `v1.0.0`
 --
 
 -- --------------------------------------------------------
@@ -74,7 +74,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000031, 1, 1, 1, 1),
 (0000000001, 0000000032, 1, 1, 1, 1),
 (0000000001, 0000000033, 1, 1, 1, 1),
-(0000000001, 0000000034, 1, 1, 1, 1),
 (0000000001, 0000000035, 1, 1, 1, 1),
 (0000000001, 0000000036, 1, 1, 0, 0),
 (0000000001, 0000000037, 1, 0, 1, 0),
@@ -115,7 +114,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000031, 1, 0, 0, 0),
 (0000000002, 0000000032, 1, 0, 0, 0),
 (0000000002, 0000000033, 1, 0, 0, 0),
-(0000000002, 0000000034, 1, 0, 0, 0),
 (0000000002, 0000000035, 1, 0, 0, 0),
 (0000000002, 0000000036, 1, 1, 0, 0),
 (0000000002, 0000000037, 0, 0, 0, 0),
@@ -152,7 +150,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000003, 0000000031, 1, 0, 0, 0),
 (0000000003, 0000000032, 1, 0, 0, 0),
 (0000000003, 0000000033, 1, 0, 0, 0),
-(0000000003, 0000000034, 1, 0, 0, 0),
 (0000000003, 0000000035, 1, 0, 0, 0),
 (0000000003, 0000000036, 0, 0, 0, 0);
 
@@ -372,7 +369,13 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000094, 'email_reminder', 0000000011, 1),
 (0000000095, 'label_lobby', 0000000001, 1),
 (0000000096, 'label_new', 0000000001, 1),
-(0000000097, 'debug', 0000000003, 0);
+(0000000097, 'debug', 0000000003, 0),
+(0000000098, 'email_notification', 0000000011, 1),
+(0000000099, 'has_controls', 0000000003, 0),
+(0000000100, 'has_indicators', 0000000003, 0),
+(0000000101, 'is_striped', 0000000003, 0),
+(0000000102, 'has_label', 0000000003, 0),
+(0000000103, 'has_crossfade', 0000000003, 0);
 
 -- --------------------------------------------------------
 
@@ -513,16 +516,15 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000022, 'export', '/admin/export', 'GET', 0000000002, NULL, 0000000009, 0, 40, NULL, 0000000001),
 (0000000023, 'exportData', '/admin/export/[user_input|user_activity|validation_codes:selector]', 'GET', 0000000001, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000024, 'assetSelect', '/admin/asset', 'GET', 0000000002, NULL, 0000000009, 0, 15, NULL, 0000000001),
-(0000000025, 'assetInsert', '/admin/asset_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000025, 'assetInsert', '/admin/asset_insert/[css|asset:mode]', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000027, 'assetDelete', '/admin/asset_delete/[v:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000027, 'assetDelete', '/admin/asset_delete/[css|asset:mode]/[*:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000028, 'request', '/request/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
 (0000000029, 'contact', '/kontakt/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
 (0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000034, 'user_input_success', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001),
@@ -594,8 +596,6 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000032, 0000000008, 0000000003, 'Disclaimer'),
 (0000000033, 0000000008, 0000000002, 'Benutzer Validierung'),
 (0000000033, 0000000008, 0000000003, 'User Validation'),
-(0000000034, 0000000008, 0000000002, 'Benutzer Daten'),
-(0000000034, 0000000008, 0000000003, 'User Data'),
 (0000000035, 0000000008, 0000000002, 'Passwort zurücksetzen'),
 (0000000035, 0000000008, 0000000003, 'Reset Password'),
 (0000000036, 0000000008, 0000000001, 'Generate Validation Codes'),
@@ -606,6 +606,8 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000037, 0000000093, 0000000003, 'Hello\r\n\r\nTo reset password of your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team.\r\n'),
 (0000000037, 0000000094, 0000000002, 'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
 (0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
+(0000000037, 0000000098, 0000000002, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
+(0000000037, 0000000098, 0000000003, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
 (0000000038, 0000000008, 0000000001, 'Chat Rooms'),
 (0000000039, 0000000008, 0000000001, 'Create Chat Room'),
 (0000000040, 0000000008, 0000000001, 'Delete Chat Room'),
@@ -639,7 +641,6 @@ INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 (0000000031, 0000000020, 0),
 (0000000032, 0000000018, 0),
 (0000000033, 0000000026, NULL),
-(0000000034, 0000000021, 0),
 (0000000035, 0000000028, NULL);
 
 -- --------------------------------------------------------
@@ -700,10 +701,6 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000018, 0000000003, 'disclaimer-container', NULL),
 (0000000019, 0000000003, 'home-container', NULL),
 (0000000020, 0000000003, 'impressum-container', NULL),
-(0000000021, 0000000003, 'user_input_success-container', NULL),
-(0000000022, 0000000004, 'user_input_success-jumbotron', NULL),
-(0000000023, 0000000005, 'user_input_success-heading', NULL),
-(0000000024, 0000000006, 'user_input_success-markdown', NULL),
 (0000000025, 0000000010, 'contact-chat', NULL),
 (0000000026, 0000000009, 'validate-validate', NULL),
 (0000000027, 0000000008, 'toLogin-button', NULL),
@@ -715,7 +712,29 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000033, 0000000012, 'impressum-ext-card', NULL),
 (0000000034, 0000000006, 'impressum-ext-markdown', NULL),
 (0000000035, 0000000041, 'register-register', NULL),
-(0000000036, 0000000003, 'login-container', NULL);
+(0000000036, 0000000003, 'login-container', NULL),
+(0000000037, 0000000003, 'profile-container', NULL),
+(0000000038, 0000000040, 'profile-row-div', NULL),
+(0000000039, 0000000040, 'profile-col1-div', NULL),
+(0000000040, 0000000040, 'profile-col2-div', NULL),
+(0000000041, 0000000012, 'profile-username-card', NULL),
+(0000000042, 0000000012, 'profile-password-card', NULL),
+(0000000043, 0000000012, 'profile-delete-card', NULL),
+(0000000044, 0000000014, 'profile-username-form', NULL),
+(0000000045, 0000000016, 'profile-username-input', NULL),
+(0000000046, 0000000014, 'profile-password-form', NULL),
+(0000000047, 0000000016, 'profile-password-input', NULL),
+(0000000048, 0000000016, 'profile-password-confirm-input', NULL),
+(0000000049, 0000000006, 'profile-delete-markdown', NULL),
+(0000000050, 0000000014, 'profile-delete-form', NULL),
+(0000000051, 0000000016, 'profile-delete-input', NULL),
+(0000000052, 0000000006, 'profile-username-markdown', NULL),
+(0000000053, 0000000012, 'profile-notification-card', NULL),
+(0000000054, 0000000006, 'profile-notification-markdown', NULL),
+(0000000055, 0000000036, 'profile-notification-formUserInput', NULL),
+(0000000056, 0000000016, 'profile-notification-chat-input', NULL),
+(0000000057, 0000000016, 'profile-notification-reminder-input', NULL),
+(0000000058, 0000000016, 'profile-notification-phone-input', NULL);
 
 -- --------------------------------------------------------
 
@@ -736,46 +755,27 @@ CREATE TABLE `sections_fields_translation` (
 --
 
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-(0000000001, 0000000001, 0000000002, 0000000001, 'Benutzername'),
-(0000000001, 0000000001, 0000000003, 0000000001, 'Username'),
+(0000000001, 0000000001, 0000000002, 0000000001, 'Email'),
+(0000000001, 0000000001, 0000000003, 0000000001, 'Email'),
 (0000000001, 0000000002, 0000000002, 0000000001, 'Passwort'),
 (0000000001, 0000000002, 0000000003, 0000000001, 'Password'),
 (0000000001, 0000000003, 0000000002, 0000000001, 'Anmelden'),
 (0000000001, 0000000003, 0000000003, 0000000001, 'Login'),
 (0000000001, 0000000004, 0000000002, 0000000001, 'Passwort vergessen?'),
 (0000000001, 0000000004, 0000000003, 0000000001, 'Forgotten the Password?'),
-(0000000001, 0000000005, 0000000002, 0000000001, 'Der Benutzername oder das Passwort ist nicht korrekt.'),
-(0000000001, 0000000005, 0000000003, 0000000001, 'The username or the password is not correct.'),
+(0000000001, 0000000005, 0000000002, 0000000001, 'Die Email Adresse oder das Passwort ist nicht korrekt.'),
+(0000000001, 0000000005, 0000000003, 0000000001, 'The email address or the password is not correct.'),
 (0000000001, 0000000007, 0000000002, 0000000001, 'Bitte einloggen'),
 (0000000001, 0000000007, 0000000003, 0000000001, 'Please Login'),
-(0000000002, 0000000001, 0000000002, 0000000001, 'Email Adresse'),
-(0000000002, 0000000001, 0000000003, 0000000001, 'Email Address'),
-(0000000002, 0000000002, 0000000002, 0000000001, 'Neues Passwort'),
-(0000000002, 0000000002, 0000000003, 0000000001, 'New Password'),
-(0000000002, 0000000009, 0000000002, 0000000001, 'Neues Passwort wiederholen'),
-(0000000002, 0000000009, 0000000003, 0000000001, 'Repeat New Password'),
-(0000000002, 0000000010, 0000000002, 0000000001, 'Ändern'),
-(0000000002, 0000000010, 0000000003, 0000000001, 'Submit Change'),
-(0000000002, 0000000011, 0000000002, 0000000001, 'Passwort ändern'),
-(0000000002, 0000000011, 0000000003, 0000000001, 'Change the Password'),
-(0000000002, 0000000012, 0000000002, 0000000001, 'Account löschen'),
-(0000000002, 0000000012, 0000000003, 0000000001, 'Delete Account'),
-(0000000002, 0000000013, 0000000002, 0000000001, 'Löschen'),
-(0000000002, 0000000013, 0000000003, 0000000001, 'Delete'),
-(0000000002, 0000000014, 0000000002, 0000000001, 'Alle Benutzerdaten werden gelöscht. Das Löschen des Accounts ist permanent und kann nicht rückgängig gemacht werden!'),
-(0000000002, 0000000014, 0000000003, 0000000001, 'All user data will be deleted. The deletion of the account is permanent and cannot be undone!'),
-(0000000002, 0000000015, 0000000002, 0000000001, 'Löschen bestätigen'),
-(0000000002, 0000000015, 0000000003, 0000000001, 'Confirm Deletion'),
-(0000000002, 0000000016, 0000000002, 0000000001, 'Wollen sie ihren Account wirklich löschen? Bestätigen Sie dies indem Sie ihre Email Adresse eingeben.'),
-(0000000002, 0000000016, 0000000003, 0000000001, 'Are you sure you want to delete the account? Please confirm by entering your email address.'),
-(0000000002, 0000000017, 0000000002, 0000000001, 'Das Passwort konnte nicht geändert werden.'),
-(0000000002, 0000000017, 0000000003, 0000000001, 'Unable to change the password.'),
-(0000000002, 0000000018, 0000000002, 0000000001, 'Das Passwort wurde erfolgreich geändert.'),
-(0000000002, 0000000018, 0000000003, 0000000001, 'The password was successfully changed.'),
+(0000000002, 0000000005, 0000000002, 0000000001, 'Die Benutzerdaten konnten nicht geändert werden.'),
+(0000000002, 0000000005, 0000000003, 0000000001, 'Unable to change the user data.'),
 (0000000002, 0000000019, 0000000002, 0000000001, 'Die Benutzerdaten konnten nicht gelöscht werden.'),
 (0000000002, 0000000019, 0000000003, 0000000001, 'Unable to delete the account.'),
 (0000000002, 0000000020, 0000000002, 0000000001, 'Die Benutzerdaten wurden erfolgreich gelöscht.'),
 (0000000002, 0000000020, 0000000003, 0000000001, 'Successfully deleted the account.'),
+(0000000002, 0000000023, 0000000001, 0000000001, ''),
+(0000000002, 0000000035, 0000000002, 0000000001, 'Die Benutzerdaten wurden erfolgreich geändert.'),
+(0000000002, 0000000035, 0000000003, 0000000001, 'The user data were successfully changed.'),
 (0000000003, 0000000029, 0000000001, 0000000001, '0'),
 (0000000004, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000005, 0000000021, 0000000001, 0000000001, '1'),
@@ -811,13 +811,6 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000019, 0000000029, 0000000001, 0000000001, '1'),
 (0000000020, 0000000023, 0000000001, 0000000001, 'my-3'),
 (0000000020, 0000000029, 0000000001, 0000000001, '0'),
-(0000000021, 0000000029, 0000000001, 0000000001, '0'),
-(0000000022, 0000000023, 0000000001, 0000000001, 'my-3'),
-(0000000023, 0000000021, 0000000001, 0000000001, '1'),
-(0000000023, 0000000022, 0000000002, 0000000001, 'Die Daten wurden erfolgreich erfasst'),
-(0000000023, 0000000022, 0000000003, 0000000001, 'The Data was Successfully Saved'),
-(0000000024, 0000000025, 0000000002, 0000000001, 'Die Daten wurden erfolgreich in der Datenbank gespeichert.\r\nBesten Dank!'),
-(0000000024, 0000000025, 0000000003, 0000000001, 'The data was successfully saved to the databases. Thanks a lot!'),
 (0000000025, 0000000005, 0000000002, 0000000001, 'Es ist ein Fehler aufgetreten. Die Nachricht konnte nicht gesendet werden.'),
 (0000000025, 0000000005, 0000000003, 0000000001, 'An error occurred. The message could not be sent.'),
 (0000000025, 0000000030, 0000000002, 0000000001, 'Bitte wählen Sie einen Probanden aus.'),
@@ -913,7 +906,144 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000035, 0000000044, 0000000003, 0000000001, 'Registration Successful'),
 (0000000035, 0000000090, 0000000002, 0000000001, 'Registrieren'),
 (0000000035, 0000000090, 0000000003, 0000000001, 'Register'),
-(0000000036, 0000000023, 0000000001, 0000000001, 'mt-3');
+(0000000036, 0000000023, 0000000001, 0000000001, 'mt-3'),
+(0000000037, 0000000023, 0000000001, 0000000001, 'my-3'),
+(0000000037, 0000000029, 0000000001, 0000000001, '0'),
+(0000000038, 0000000023, 0000000001, 0000000001, 'row'),
+(0000000039, 0000000023, 0000000001, 0000000001, 'col-12 col-lg'),
+(0000000040, 0000000023, 0000000001, 0000000001, 'col'),
+(0000000041, 0000000022, 0000000002, 0000000001, 'Benutzername ändern'),
+(0000000041, 0000000022, 0000000003, 0000000001, 'Change the Username'),
+(0000000041, 0000000023, 0000000001, 0000000001, 'mb-3'),
+(0000000041, 0000000028, 0000000001, 0000000001, 'light'),
+(0000000041, 0000000046, 0000000001, 0000000001, '1'),
+(0000000041, 0000000047, 0000000001, 0000000001, '0'),
+(0000000041, 0000000048, 0000000001, 0000000001, ''),
+(0000000042, 0000000022, 0000000002, 0000000001, 'Passwort ändern'),
+(0000000042, 0000000022, 0000000003, 0000000001, 'Change the Password'),
+(0000000042, 0000000023, 0000000001, 0000000001, ''),
+(0000000042, 0000000028, 0000000001, 0000000001, 'light'),
+(0000000042, 0000000046, 0000000001, 0000000001, '1'),
+(0000000042, 0000000047, 0000000001, 0000000001, '0'),
+(0000000042, 0000000048, 0000000001, 0000000001, ''),
+(0000000043, 0000000022, 0000000002, 0000000001, 'Account löschen'),
+(0000000043, 0000000022, 0000000003, 0000000001, 'Delete the Account'),
+(0000000043, 0000000023, 0000000001, 0000000001, 'mt-3'),
+(0000000043, 0000000028, 0000000001, 0000000001, 'danger'),
+(0000000043, 0000000046, 0000000001, 0000000001, '0'),
+(0000000043, 0000000047, 0000000001, 0000000001, '1'),
+(0000000043, 0000000048, 0000000001, 0000000001, ''),
+(0000000044, 0000000008, 0000000002, 0000000001, 'Ändern'),
+(0000000044, 0000000008, 0000000003, 0000000001, 'Change'),
+(0000000044, 0000000023, 0000000001, 0000000001, ''),
+(0000000044, 0000000027, 0000000001, 0000000001, '#self'),
+(0000000044, 0000000028, 0000000001, 0000000001, 'primary'),
+(0000000044, 0000000051, 0000000002, 0000000001, ''),
+(0000000044, 0000000051, 0000000003, 0000000001, ''),
+(0000000044, 0000000052, 0000000001, 0000000001, ''),
+(0000000045, 0000000008, 0000000002, 0000000001, ''),
+(0000000045, 0000000008, 0000000003, 0000000001, ''),
+(0000000045, 0000000023, 0000000001, 0000000001, 'mb-3'),
+(0000000045, 0000000054, 0000000001, 0000000001, 'text'),
+(0000000045, 0000000055, 0000000002, 0000000001, 'Neuer Benutzername'),
+(0000000045, 0000000055, 0000000003, 0000000001, 'New Username'),
+(0000000045, 0000000056, 0000000001, 0000000001, '1'),
+(0000000045, 0000000057, 0000000001, 0000000001, 'user_name'),
+(0000000045, 0000000058, 0000000001, 0000000001, ''),
+(0000000046, 0000000008, 0000000002, 0000000001, 'Ändern'),
+(0000000046, 0000000008, 0000000003, 0000000001, 'Change'),
+(0000000046, 0000000023, 0000000001, 0000000001, ''),
+(0000000046, 0000000027, 0000000001, 0000000001, '#self'),
+(0000000046, 0000000028, 0000000001, 0000000001, 'primary'),
+(0000000046, 0000000051, 0000000002, 0000000001, ''),
+(0000000046, 0000000051, 0000000003, 0000000001, ''),
+(0000000046, 0000000052, 0000000001, 0000000001, ''),
+(0000000047, 0000000008, 0000000002, 0000000001, ''),
+(0000000047, 0000000008, 0000000003, 0000000001, ''),
+(0000000047, 0000000023, 0000000001, 0000000001, 'mb-3'),
+(0000000047, 0000000054, 0000000001, 0000000001, 'password'),
+(0000000047, 0000000055, 0000000002, 0000000001, 'Neues Passwort'),
+(0000000047, 0000000055, 0000000003, 0000000001, 'New Password'),
+(0000000047, 0000000056, 0000000001, 0000000001, '1'),
+(0000000047, 0000000057, 0000000001, 0000000001, 'password'),
+(0000000047, 0000000058, 0000000001, 0000000001, ''),
+(0000000048, 0000000008, 0000000002, 0000000001, ''),
+(0000000048, 0000000008, 0000000003, 0000000001, ''),
+(0000000048, 0000000023, 0000000001, 0000000001, 'mb-3'),
+(0000000048, 0000000054, 0000000001, 0000000001, 'password'),
+(0000000048, 0000000055, 0000000002, 0000000001, 'Neues Passwort wiederholen'),
+(0000000048, 0000000055, 0000000003, 0000000001, 'Repeat New Password'),
+(0000000048, 0000000056, 0000000001, 0000000001, '1'),
+(0000000048, 0000000057, 0000000001, 0000000001, 'verification'),
+(0000000048, 0000000058, 0000000001, 0000000001, ''),
+(0000000049, 0000000023, 0000000001, 0000000001, ''),
+(0000000049, 0000000025, 0000000002, 0000000001, 'Alle Benutzerdaten werden gelöscht. Das Löschen des Accounts ist permanent und kann **nicht** rückgängig gemacht werden!\r\n\r\nWenn sie ihren Account wirklich löschen wollen bestätigen Sie dies indem Sie ihre Email Adresse eingeben.'),
+(0000000049, 0000000025, 0000000003, 0000000001, 'All user data will be deleted. The deletion of the account is permanent and **cannot** be undone!\r\n\r\nIf you are sure you want to delete the account confirm this by entering your email address.'),
+(0000000050, 0000000008, 0000000002, 0000000001, 'Löschen'),
+(0000000050, 0000000008, 0000000003, 0000000001, 'Delete'),
+(0000000050, 0000000023, 0000000001, 0000000001, ''),
+(0000000050, 0000000027, 0000000001, 0000000001, '#self'),
+(0000000050, 0000000028, 0000000001, 0000000001, 'danger'),
+(0000000050, 0000000051, 0000000002, 0000000001, ''),
+(0000000050, 0000000051, 0000000003, 0000000001, ''),
+(0000000050, 0000000052, 0000000001, 0000000001, ''),
+(0000000051, 0000000008, 0000000002, 0000000001, ''),
+(0000000051, 0000000008, 0000000003, 0000000001, ''),
+(0000000051, 0000000023, 0000000001, 0000000001, 'mb-3'),
+(0000000051, 0000000054, 0000000001, 0000000001, 'email'),
+(0000000051, 0000000055, 0000000002, 0000000001, 'Email Adresse'),
+(0000000051, 0000000055, 0000000003, 0000000001, 'Email Address'),
+(0000000051, 0000000056, 0000000001, 0000000001, '1'),
+(0000000051, 0000000057, 0000000001, 0000000001, 'email'),
+(0000000051, 0000000058, 0000000001, 0000000001, ''),
+(0000000052, 0000000023, 0000000001, 0000000001, ''),
+(0000000052, 0000000025, 0000000002, 0000000001, 'Dies ist der Name mit dem Sie angesprochen werden wollen. Aus Gründen der Anonymisierung verwenden Sie bitte **nicht** ihren richtigen Namen.'),
+(0000000052, 0000000025, 0000000003, 0000000001, 'The name with which you would like to be addressed. For reasons of anonymity please do **not** use your real name.'),
+(0000000053, 0000000022, 0000000002, 0000000001, 'Benachrichtigungen'),
+(0000000053, 0000000022, 0000000003, 0000000001, 'Notifications'),
+(0000000053, 0000000023, 0000000001, 0000000001, 'mb-3 mb-lg-0'),
+(0000000053, 0000000028, 0000000001, 0000000001, 'light'),
+(0000000053, 0000000046, 0000000001, 0000000001, '1'),
+(0000000053, 0000000047, 0000000001, 0000000001, '0'),
+(0000000053, 0000000048, 0000000001, 0000000001, ''),
+(0000000054, 0000000023, 0000000001, 0000000001, ''),
+(0000000054, 0000000025, 0000000002, 0000000001, 'Hier können sie automatische Benachrichtigungen ein- und ausschalten. Asserdem können sie eine Telefonnummer hinterlegen um per SMS benachrichtigt zu werden. '),
+(0000000054, 0000000025, 0000000003, 0000000001, 'Here you can enable and disable automatic notifications.\r\nAlso, by entering a phone number you can choose to be notified by SMS.'),
+(0000000055, 0000000008, 0000000002, 0000000001, 'Ändern'),
+(0000000055, 0000000008, 0000000003, 0000000001, 'Change'),
+(0000000055, 0000000023, 0000000001, 0000000001, ''),
+(0000000055, 0000000028, 0000000001, 0000000001, 'primary'),
+(0000000055, 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Benachrichtigungen wurden erfolgreich gespeichert'),
+(0000000055, 0000000035, 0000000003, 0000000001, 'The notification settings were successfully saved'),
+(0000000055, 0000000057, 0000000001, 0000000001, 'notification'),
+(0000000055, 0000000087, 0000000001, 0000000001, '0'),
+(0000000056, 0000000008, 0000000002, 0000000001, 'Benachrichtigung bei neuer Nachricht im Chat'),
+(0000000056, 0000000008, 0000000003, 0000000001, 'Notification on new chat message'),
+(0000000056, 0000000023, 0000000001, 0000000001, ''),
+(0000000056, 0000000054, 0000000001, 0000000001, 'checkbox'),
+(0000000056, 0000000055, 0000000002, 0000000001, 'chat'),
+(0000000056, 0000000055, 0000000003, 0000000001, 'chat'),
+(0000000056, 0000000056, 0000000001, 0000000001, '0'),
+(0000000056, 0000000057, 0000000001, 0000000001, 'chat'),
+(0000000056, 0000000058, 0000000001, 0000000001, 'chat'),
+(0000000057, 0000000008, 0000000002, 0000000001, 'Benachrichtung bei Inaktivität'),
+(0000000057, 0000000008, 0000000003, 0000000001, 'Notification by inactivity'),
+(0000000057, 0000000023, 0000000001, 0000000001, ''),
+(0000000057, 0000000054, 0000000001, 0000000001, 'checkbox'),
+(0000000057, 0000000055, 0000000002, 0000000001, 'reminder'),
+(0000000057, 0000000055, 0000000003, 0000000001, 'reminder'),
+(0000000057, 0000000056, 0000000001, 0000000001, '0'),
+(0000000057, 0000000057, 0000000001, 0000000001, 'reminder'),
+(0000000057, 0000000058, 0000000001, 0000000001, 'reminder'),
+(0000000058, 0000000008, 0000000002, 0000000001, 'Telefonnummer für SMS Benachrichtigung'),
+(0000000058, 0000000008, 0000000003, 0000000001, 'Phone Number for receiving SMS notifications'),
+(0000000058, 0000000023, 0000000001, 0000000001, ''),
+(0000000058, 0000000054, 0000000001, 0000000001, 'text'),
+(0000000058, 0000000055, 0000000002, 0000000001, 'Bitte Telefonnummer eingeben'),
+(0000000058, 0000000055, 0000000003, 0000000001, 'Please enter a phone number'),
+(0000000058, 0000000056, 0000000001, 0000000001, '0'),
+(0000000058, 0000000057, 0000000001, 0000000001, 'phone'),
+(0000000058, 0000000058, 0000000001, 0000000001, '');
 
 -- --------------------------------------------------------
 
@@ -932,6 +1062,7 @@ CREATE TABLE `sections_hierarchy` (
 --
 
 INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
+(0000000002, 0000000037, 0),
 (0000000003, 0000000004, NULL),
 (0000000004, 0000000005, 0),
 (0000000004, 0000000006, 10),
@@ -951,16 +1082,32 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (0000000020, 0000000029, 0),
 (0000000020, 0000000031, 10),
 (0000000020, 0000000033, 20),
-(0000000021, 0000000022, 0),
-(0000000022, 0000000007, 20),
-(0000000022, 0000000008, 30),
-(0000000022, 0000000023, 0),
-(0000000022, 0000000024, 10),
 (0000000029, 0000000030, 0),
 (0000000031, 0000000032, 0),
 (0000000033, 0000000034, 0),
 (0000000036, 0000000001, 1),
-(0000000036, 0000000035, 2);
+(0000000036, 0000000035, 2),
+(0000000037, 0000000038, 0),
+(0000000038, 0000000039, 0),
+(0000000038, 0000000040, 10),
+(0000000039, 0000000041, 0),
+(0000000039, 0000000053, 10),
+(0000000040, 0000000042, 0),
+(0000000040, 0000000043, 10),
+(0000000041, 0000000044, 0),
+(0000000042, 0000000046, 0),
+(0000000043, 0000000049, 0),
+(0000000043, 0000000050, 10),
+(0000000044, 0000000045, 10),
+(0000000044, 0000000052, 0),
+(0000000046, 0000000047, 0),
+(0000000046, 0000000048, 10),
+(0000000050, 0000000051, 0),
+(0000000053, 0000000054, 0),
+(0000000053, 0000000055, 10),
+(0000000055, 0000000056, 0),
+(0000000055, 0000000057, 10),
+(0000000055, 0000000058, 20);
 
 -- --------------------------------------------------------
 
@@ -999,7 +1146,7 @@ INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 (0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `conditionalContainer` is a **invisible** wrapper which has a condition attached. The content of the wrapper is only displayed if the condition is true.\r\n- `container` is an **invisible** wrapper.\r\n- `div` allows to wrap its children in a simple `<div>` tag. This allows to create more complex layouts with the help of bootstrap classes.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visible** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
 (0000000005, 'Text', 'Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:\r\n\r\n\r\n- `heading` is used to display the 6 levels of HTML headings.\r\n- `markdown` is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.\r\n- `markdownInline` is similar to the markdown style but is intended for one-line text where emphasis is required.\r\n- `plaintext` renders simple text. No special syntax is allowed here.\r\n- `rawText` renders text in a mono-space font which makes it useful to display code.', 20),
 (0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:\r\n\r\n- `accordionList` is a hierarchical list where the root level is rendered as an accordion with only one root item expanded at a time.\r\n- `nestedList`is a hierarchical list where each root item item can be collapsed and expanded by clicking on a chevron.\r\n- `sortableList` is not hierarchical but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).', 50),
-(0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `audio` allows to load and replay an audio source on a page.\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.\r\n- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.', 40),
+(0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `audio` allows to load and replay an audio source on a page.\r\n- `carousel` allows to render multiple images as a slide-show.\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.\r\n- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.', 40),
 (0000000008, 'Link', 'Link styles allow to render different types of links:\r\n\r\n- `button` renders a button-style link with several predefined colour schemes.\r\n- `link` renders a standard link but allows to open the target in a new tab.', 30),
 (0000000009, 'Admin', 'The admin styles are for user registration and access handling.\r\nThe following styles are available:\r\n\r\n- `login` provides a small form where the user can enter his or her email and password to access the WebApp. It also includes a link to reset a password.\r\n- `register` provides a small form to allow a user to register for the WebApp. In order to register a user must provide a valid email and activation code. Activation codes can be generated in the admin section of the WebApp. The list of available codes can be exported.', 80);
 
@@ -1061,7 +1208,8 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES
 (0000000040, 'div', 0000000001, 0000000004),
 (0000000041, 'register', 0000000002, 0000000009),
 (0000000042, 'conditionalContainer', 0000000002, 0000000004),
-(0000000043, 'audio', 0000000001, 0000000007);
+(0000000043, 'audio', 0000000001, 0000000007),
+(0000000044, 'carousel', 0000000001, 0000000007);
 
 -- --------------------------------------------------------
 
@@ -1087,6 +1235,11 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000001, 0000000005, NULL),
 (0000000001, 0000000007, NULL),
 (0000000001, 0000000028, 'dark'),
+(0000000002, 0000000005, NULL),
+(0000000002, 0000000006, NULL),
+(0000000002, 0000000019, NULL),
+(0000000002, 0000000020, NULL),
+(0000000002, 0000000035, NULL),
 (0000000003, 0000000006, NULL),
 (0000000003, 0000000029, '0'),
 (0000000004, 0000000006, NULL),
@@ -1100,6 +1253,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000009, 0000000002, NULL),
 (0000000009, 0000000003, NULL),
 (0000000009, 0000000005, NULL),
+(0000000009, 0000000006, NULL),
 (0000000009, 0000000009, NULL),
 (0000000009, 0000000022, NULL),
 (0000000009, 0000000034, NULL),
@@ -1113,6 +1267,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000009, 0000000042, NULL),
 (0000000009, 0000000043, NULL),
 (0000000009, 0000000044, NULL),
+(0000000009, 0000000057, NULL),
 (0000000010, 0000000005, NULL),
 (0000000010, 0000000030, NULL),
 (0000000010, 0000000031, NULL),
@@ -1157,6 +1312,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000019, 0000000028, 'primary'),
 (0000000019, 0000000060, '0'),
 (0000000019, 0000000061, '1'),
+(0000000019, 0000000101, '1'),
+(0000000019, 0000000102, '1'),
 (0000000020, 0000000028, 'light'),
 (0000000020, 0000000050, NULL),
 (0000000020, 0000000062, NULL),
@@ -1260,7 +1417,12 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000042, 0000000091, NULL),
 (0000000042, 0000000097, '0'),
 (0000000043, 0000000030, NULL),
-(0000000043, 0000000071, NULL);
+(0000000043, 0000000071, NULL),
+(0000000044, 0000000071, NULL),
+(0000000044, 0000000083, NULL),
+(0000000044, 0000000099, '1'),
+(0000000044, 0000000100, '0'),
+(0000000044, 0000000103, '0');
 
 -- --------------------------------------------------------
 
@@ -1308,7 +1470,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`) VALUES
 (0000000001, 'guest', '', NULL, NULL, 0, 1, NULL, NULL, 0, NULL),
-(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0, NULL, NULL, 0, NULL);
+(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0, NULL, NULL, 0, '2019-01-31');
 
 -- --------------------------------------------------------
 
@@ -1340,6 +1502,13 @@ CREATE TABLE `user_activity` (
   `url` varchar(200) NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `user_activity`
+--
+
+INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`) VALUES
+(0000000001, 0000000002, '/sleep_coach/admin/export/user_input', '2019-01-31 16:47:00');
 
 -- --------------------------------------------------------
 
@@ -1497,6 +1666,7 @@ ALTER TABLE `pageType`
 --
 ALTER TABLE `sections`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`),
   ADD KEY `id_styles` (`id_styles`),
   ADD KEY `owner` (`owner`);
 
@@ -1623,7 +1793,7 @@ ALTER TABLE `chatRoom_users`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
@@ -1658,7 +1828,7 @@ ALTER TABLE `pageType`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 --
 -- AUTO_INCREMENT for table `styleGroup`
 --
@@ -1668,7 +1838,7 @@ ALTER TABLE `styleGroup`
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 --
 -- AUTO_INCREMENT for table `styleType`
 --
@@ -1683,7 +1853,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_activity`
 --
 ALTER TABLE `user_activity`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `user_input`
 --
