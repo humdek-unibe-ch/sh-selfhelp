@@ -22,6 +22,12 @@ class CarouselView extends StyleView
     private $has_indicators;
 
     /**
+     * DB field 'has_crossfade' (false).
+     * If set to true, the the images do not slide but fade from one to another.
+     */
+    private $has_crossfade;
+
+    /**
      * DB field 'id_prefix' (empty string).
      * An string which will be prefixed to the carousel html id.
      */
@@ -48,6 +54,7 @@ class CarouselView extends StyleView
         parent::__construct($model);
         $this->has_indicators = $this->model->get_db_field("has_indicators", false);
         $this->has_controls = $this->model->get_db_field("has_controls", true);
+        $this->has_crossfade = $this->model->get_db_field("has_crossfade", false);
         $this->id_prefix = $this->model->get_db_field("id_prefix");
         $this->sources = $this->model->get_db_field("sources");
     }
@@ -77,6 +84,18 @@ class CarouselView extends StyleView
     }
 
     /**
+     * Render the image caption.
+     *
+     * @param string $caption
+     *  The caption string.
+     */
+    private function output_caption($caption)
+    {
+        if($caption === null || $caption === "") return;
+        require __DIR__ . '/tpl_caption.php';
+    }
+
+    /**
      * Render the carousel items.
      */
     private function output_carousel_items()
@@ -91,12 +110,9 @@ class CarouselView extends StyleView
             else
                 $url = ASSET_PATH . '/' . $item['source'];
             $alt = $item['alt'] ?? "";
-            $active = "";
-            if($first)
-            {
-                $active = "active";
-                $first = false;
-            }
+            $active = $first ? "active" : "";
+            $first = false;
+            $caption = $item['caption'] ?? null;
             require __DIR__ . '/tpl_carousel_item.php';
         }
     }
@@ -124,6 +140,7 @@ class CarouselView extends StyleView
      */
     public function output_content()
     {
+        $crossfade = $this->has_crossfade ? "carousel-fade" : "";
         require __DIR__ . "/tpl_carousel.php";
     }
 }

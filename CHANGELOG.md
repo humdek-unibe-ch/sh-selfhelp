@@ -2,6 +2,23 @@
 
 ### Bugfix
 
+ - Add missing email description.
+ - Change the colour of the `progressBar` label when the `type` is set to
+   *light* or *warning*.
+ - Add custom css classes in style `nestedList` also if collapsed on small
+   screens.
+
+### Changes
+
+### New Features
+
+ - Improve the style `progressBar` (enable/disable label and stripes)
+ - Improve the style `carousel` (enable/disable crossfade, allow captions)
+
+# v0.9.13
+
+### Bugfix
+
  - Validation style is now displayed correctly in CMS
 
 ### Changes
