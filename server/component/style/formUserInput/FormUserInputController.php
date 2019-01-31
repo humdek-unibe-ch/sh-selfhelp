@@ -55,7 +55,7 @@ class FormUserInputController extends BaseController
         }
     }
 
-    /* Public Methods *********************************************************/
+    /* Private Methods ********************************************************/
 
     /**
      * Use GUMP service to validate and sanitize user inputs.
@@ -80,44 +80,44 @@ class FormUserInputController extends BaseController
             $label = $this->model->get_field_label($id_section);
             if($label == "")
                 $label = $name;
-            $field_names[$name] = $label;
+            $field_names[$id_section] = $label;
             // determine the type of the field
             $style = $this->model->get_field_style($id_section);
             if($style == "slider")
             {
-                $validation_rules[$name] = "integer";
-                $filter_rules[$name] = "sanitize_numbers";
+                $validation_rules[$id_section] = "integer";
+                $filter_rules[$id_section] = "sanitize_numbers";
             }
             else if($style == "textarea")
-                $filter_rules[$name] = "sanitize_string";
+                $filter_rules[$id_section] = "sanitize_string";
             else if($style == "select" || $style == "radio")
             {
-                $validation_rules[$name] = "alpha_dash";
-                $filter_rules[$name] = "trim|sanitize_string";
+                $validation_rules[$id_section] = "alpha_dash";
+                $filter_rules[$id_section] = "trim|sanitize_string";
             }
             else if($style == "input")
             {
                 $type = $this->model->get_field_type($id_section);
                 if($type == "text" || $type == "checkbox" || $type == "month"
                     || $type == "week" || $type == "search" || $type == "tel")
-                    $filter_rules[$name] = "trim|sanitize_string";
+                    $filter_rules[$id_section] = "trim|sanitize_string";
                 else if($type == "color")
-                    $validation_rules[$name] = "regex,/#[a-fA-F0-9]{6}/";
+                    $validation_rules[$id_section] = "regex,/#[a-fA-F0-9]{6}/";
                 else if($type == "date")
-                    $validation_rules[$name] = "date";
+                    $validation_rules[$id_section] = "date";
                 else if($type == "email")
-                    $validation_rules[$name] = "valid_email";
+                    $validation_rules[$id_section] = "valid_email";
                 else if($type == "number" || $type == "range")
-                    $validation_rules[$name] = "numeric";
+                    $validation_rules[$id_section] = "numeric";
                 else if($type == "time")
-                    $validation_rules[$name] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
+                    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if($type == "url")
-                    $validation_rules[$name] = "valid_url";
+                    $validation_rules[$id_section] = "valid_url";
                 else
-                    $filter_rules[$name] = "sanitize_string";
+                    $filter_rules[$id_section] = "sanitize_string";
             }
             else
-                $filter_rules[$name] = "sanitize_string";
+                $filter_rules[$id_section] = "sanitize_string";
             $post[$id_section] = $value;
         }
         $gump->validation_rules($validation_rules);

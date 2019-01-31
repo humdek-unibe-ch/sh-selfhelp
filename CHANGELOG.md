@@ -9,6 +9,7 @@
    screens.
  - For females, the input label for the style `showUserInput` was not shown if
    no female version was available. Now it defaults back to the male label.
+ - User inputs are now properly checked in the style `fromUserInput`.
 
 ### Changes
 
