@@ -7,8 +7,9 @@
         <li><code>@link</code> will be replaced by a link that is specific to the email it is used in:</li>
         <ul>
             <li>In <code>email_activate</code> the activation link is generated.</li>
-            <li>In <code>email_reset</code> the link to reset the password is generated.</li>
+            <li>In <code>email_notification</code> the link to the chat page is generated.</li>
             <li>In <code>email_reminder</code> the link to the project home is generated.</li>
+            <li>In <code>email_reset</code> the link to reset the password is generated.</li>
         </ul>
     </ul>
 </div>

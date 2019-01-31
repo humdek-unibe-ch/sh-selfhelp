@@ -32,7 +32,7 @@ class EmailModel extends BaseModel
      */
     public function get_emails()
     {
-        $sql = "SELECT id, name from fields WHERE id_type = :type";
+        $sql = "SELECT id, name from fields WHERE id_type = :type ORDER BY name";
         $emails_db = $this->db->query_db($sql, array(':type' => EMAIL_TYPE_ID));
         $emails = array();
         foreach($emails_db as $email)
