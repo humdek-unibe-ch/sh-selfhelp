@@ -17,6 +17,7 @@
 
  - Improve the style `progressBar` (enable/disable label and stripes)
  - Improve the style `carousel` (enable/disable crossfade, allow captions)
+ - Allow custom input fields in the style `validate` (#124).
 
 # v0.9.13
 
