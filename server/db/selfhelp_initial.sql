@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 31, 2019 at 04:48 PM
+-- Generation Time: Feb 01, 2019 at 01:14 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -17,8 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelp_initial`
--- Version: `v1.0.0`
+-- Database: `selfhelp`
+-- Version: `v1.0.1`
 --
 
 -- --------------------------------------------------------
@@ -375,7 +375,8 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000100, 'has_indicators', 0000000003, 0),
 (0000000101, 'is_striped', 0000000003, 0),
 (0000000102, 'has_label', 0000000003, 0),
-(0000000103, 'has_crossfade', 0000000003, 0);
+(0000000103, 'has_crossfade', 0000000003, 0),
+(0000000104, 'has_navigation_menu', 0000000003, 0);
 
 -- --------------------------------------------------------
 
@@ -1141,14 +1142,14 @@ CREATE TABLE `styleGroup` (
 
 INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 (0000000001, 'intern', NULL, NULL),
-(0000000002, 'Form', 'A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:\r\n\r\n- `form` provides only the client-side functionality and does not do anything with the submitted data. This is intended to be connected with a custom component (required PHP programming).\r\n- `formUserInput` stores the data from all child input fields into the database and displays the latest set of data in the database as values in the child input field (if `show_data` is checked).\r\n- `showUserInput` allows to display user input data. Use the name of a form to display the corresponding data.', 60),
-(0000000003, 'Input', 'An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:\r\n\r\n- `input` is a one-line input field style that allows to enter different types of data (e.g. text, color, time, date, checkbox).\r\n- `radio` allows to predefine a set of options for the user to select. It provides a list of options where only one option can be chosen.\r\n- `select` is a input field style that provides a predefined set of choices which can be selected with a dropdown menu. In contrast to the radio style the select style has a different visual appearance and provides a list of options where also multiple options can be chosen.\r\n- `slider` is an extension of the style input of type range. It allows to provide a label for each position of the slider.\r\n- `textarea` is a multi-line input field style that allows to enter multiple lines of text.', 70),
-(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:\r\n\r\n- `alert` is **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.\r\n- `card` is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.\r\n- `conditionalContainer` is a **invisible** wrapper which has a condition attached. The content of the wrapper is only displayed if the condition is true.\r\n- `container` is an **invisible** wrapper.\r\n- `div` allows to wrap its children in a simple `<div>` tag. This allows to create more complex layouts with the help of bootstrap classes.\r\n- `jumbotron` is a **visible** wrapper that wraps its content in a grey box with large spacing.\r\n- `navigationContainer` is an **invisible** wrapper and is used specifically for navigation pages.\r\n- `quiz` is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.\r\n- `tabs` is a **visible** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.', 10),
-(0000000005, 'Text', 'Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:\r\n\r\n\r\n- `heading` is used to display the 6 levels of HTML headings.\r\n- `markdown` is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.\r\n- `markdownInline` is similar to the markdown style but is intended for one-line text where emphasis is required.\r\n- `plaintext` renders simple text. No special syntax is allowed here.\r\n- `rawText` renders text in a mono-space font which makes it useful to display code.', 20),
-(0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:\r\n\r\n- `accordionList` is a hierarchical list where the root level is rendered as an accordion with only one root item expanded at a time.\r\n- `nestedList`is a hierarchical list where each root item item can be collapsed and expanded by clicking on a chevron.\r\n- `sortableList` is not hierarchical but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).', 50),
-(0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:\r\n\r\n- `audio` allows to load and replay an audio source on a page.\r\n- `carousel` allows to render multiple images as a slide-show.\r\n- `figure` allows to attach a caption to media elements. A figure expects a media style as its immediate child.\r\n- `image` allows to render an image on a page.\r\n- `progressBar` allows to render a static progress bar.\r\n- `video` allows to load and display a video on a page.', 40),
-(0000000008, 'Link', 'Link styles allow to render different types of links:\r\n\r\n- `button` renders a button-style link with several predefined colour schemes.\r\n- `link` renders a standard link but allows to open the target in a new tab.', 30),
-(0000000009, 'Admin', 'The admin styles are for user registration and access handling.\r\nThe following styles are available:\r\n\r\n- `login` provides a small form where the user can enter his or her email and password to access the WebApp. It also includes a link to reset a password.\r\n- `register` provides a small form to allow a user to register for the WebApp. In order to register a user must provide a valid email and activation code. Activation codes can be generated in the admin section of the WebApp. The list of available codes can be exported.', 80);
+(0000000002, 'Form', 'A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:', 60),
+(0000000003, 'Input', 'An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:', 70),
+(0000000004, 'Wrapper', 'A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:', 10),
+(0000000005, 'Text', 'Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:', 20),
+(0000000006, 'List', 'Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:', 50),
+(0000000007, 'Media', 'The media styles allow to display different media on a webpage. The following styles are available:', 40),
+(0000000008, 'Link', 'Link styles allow to render different types of links:', 30),
+(0000000009, 'Admin', 'The admin styles are for user registration and access handling.\r\nThe following styles are available:', 80);
 
 -- --------------------------------------------------------
 
@@ -1160,56 +1161,57 @@ CREATE TABLE `styles` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `id_group` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001'
+  `id_group` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
+  `description` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
 --
 
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`) VALUES
-(0000000001, 'login', 0000000002, 0000000009),
-(0000000002, 'profile', 0000000002, 0000000001),
-(0000000003, 'container', 0000000001, 0000000004),
-(0000000004, 'jumbotron', 0000000001, 0000000004),
-(0000000005, 'heading', 0000000001, 0000000005),
-(0000000006, 'markdown', 0000000001, 0000000005),
-(0000000007, 'markdownInline', 0000000001, 0000000005),
-(0000000008, 'button', 0000000001, 0000000008),
-(0000000009, 'validate', 0000000002, 0000000001),
-(0000000010, 'chat', 0000000002, 0000000001),
-(0000000011, 'alert', 0000000001, 0000000004),
-(0000000012, 'card', 0000000001, 0000000004),
-(0000000013, 'figure', 0000000001, 0000000007),
-(0000000014, 'form', 0000000001, 0000000002),
-(0000000015, 'image', 0000000001, 0000000007),
-(0000000016, 'input', 0000000002, 0000000003),
-(0000000017, 'plaintext', 0000000001, 0000000005),
-(0000000018, 'link', 0000000001, 0000000008),
-(0000000019, 'progressBar', 0000000001, 0000000007),
-(0000000020, 'quiz', 0000000001, 0000000004),
-(0000000021, 'rawText', 0000000001, 0000000005),
-(0000000022, 'select', 0000000002, 0000000003),
-(0000000023, 'slider', 0000000002, 0000000003),
-(0000000024, 'tab', 0000000001, 0000000004),
-(0000000025, 'tabs', 0000000001, 0000000004),
-(0000000026, 'textarea', 0000000002, 0000000003),
-(0000000027, 'video', 0000000001, 0000000007),
-(0000000028, 'accordionList', 0000000002, 0000000006),
-(0000000030, 'navigationContainer', 0000000001, 0000000004),
-(0000000031, 'navigationAccordion', 0000000003, 0000000001),
-(0000000032, 'nestedList', 0000000002, 0000000006),
-(0000000033, 'navigationNested', 0000000003, 0000000001),
-(0000000034, 'sortableList', 0000000001, 0000000006),
-(0000000035, 'resetPassword', 0000000002, 0000000001),
-(0000000036, 'formUserInput', 0000000002, 0000000002),
-(0000000038, 'radio', 0000000002, 0000000003),
-(0000000039, 'showUserInput', 0000000002, 0000000002),
-(0000000040, 'div', 0000000001, 0000000004),
-(0000000041, 'register', 0000000002, 0000000009),
-(0000000042, 'conditionalContainer', 0000000002, 0000000004),
-(0000000043, 'audio', 0000000001, 0000000007),
-(0000000044, 'carousel', 0000000001, 0000000007);
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
+(0000000001, 'login', 0000000002, 0000000009, 'provides a small form where the user can enter his or her email and password to access the WebApp. It also includes a link to reset a password.'),
+(0000000002, 'profile', 0000000002, 0000000001, ''),
+(0000000003, 'container', 0000000001, 0000000004, 'is an **invisible** wrapper.'),
+(0000000004, 'jumbotron', 0000000001, 0000000004, 'is a **visible** wrapper that wraps its content in a grey box with large spacing.'),
+(0000000005, 'heading', 0000000001, 0000000005, 'is used to display the 6 levels of HTML headings.'),
+(0000000006, 'markdown', 0000000001, 0000000005, 'is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.'),
+(0000000007, 'markdownInline', 0000000001, 0000000005, 'is similar to the markdown style but is intended for one-line text where emphasis is required.'),
+(0000000008, 'button', 0000000001, 0000000008, 'renders a button-style link with several predefined colour schemes.'),
+(0000000009, 'validate', 0000000002, 0000000001, ''),
+(0000000010, 'chat', 0000000002, 0000000001, ''),
+(0000000011, 'alert', 0000000001, 0000000004, 'is a **visible** wrapper that draws a solid, coloured box around its content. The text colour of the content is changed according to the type of alert.'),
+(0000000012, 'card', 0000000001, 0000000004, 'is a versatile **visible** wrapper that draws a fine border around its content. A card can also have a title and can be made collapsible.'),
+(0000000013, 'figure', 0000000001, 0000000007, 'allows to attach a caption to media elements. A figure expects a media style as its immediate child.'),
+(0000000014, 'form', 0000000001, 0000000002, 'provides only the client-side functionality and does not do anything with the submitted data. This is intended to be connected with a custom component (required PHP programming).'),
+(0000000015, 'image', 0000000001, 0000000007, 'allows to render an image on a page.'),
+(0000000016, 'input', 0000000002, 0000000003, 'is a one-line input field style that allows to enter different types of data (e.g. text, color, time, date, checkbox).'),
+(0000000017, 'plaintext', 0000000001, 0000000005, 'renders simple text. No special syntax is allowed here.'),
+(0000000018, 'link', 0000000001, 0000000008, 'renders a standard link but allows to open the target in a new tab.'),
+(0000000019, 'progressBar', 0000000001, 0000000007, 'allows to render a static progress bar.'),
+(0000000020, 'quiz', 0000000001, 0000000004, 'is a predefined assembly of tabs, intended to ask a question and provide a right and wrong answer tab.'),
+(0000000021, 'rawText', 0000000001, 0000000005, 'renders text in a mono-space font which makes it useful to display code.'),
+(0000000022, 'select', 0000000002, 0000000003, 'is a input field style that provides a predefined set of choices which can be selected with a dropdown menu. In contrast to the radio style the select style has a different visual appearance and provides a list of options where also multiple options can be chosen.'),
+(0000000023, 'slider', 0000000002, 0000000003, 'is an extension of the style input of type range. It allows to provide a label for each position of the slider.'),
+(0000000024, 'tab', 0000000001, 0000000004, 'is a child element of the style `tabs`.'),
+(0000000025, 'tabs', 0000000001, 0000000004, 'is a **visible** wrapper that allows to group content into tabs and only show one tab at a time. It requires `tab` styles as its immediate children. Each `tab` then accepts children which represent the content of each tab.'),
+(0000000026, 'textarea', 0000000002, 0000000003, 'is a multi-line input field style that allows to enter multiple lines of text.'),
+(0000000027, 'video', 0000000001, 0000000007, 'allows to load and display a video on a page.'),
+(0000000028, 'accordionList', 0000000002, 0000000006, 'is a **hierarchical** list where the root level is rendered as an accordion with only one root item expanded at a time.'),
+(0000000030, 'navigationContainer', 0000000001, 0000000004, 'is an **invisible** wrapper and is used specifically for navigation pages.'),
+(0000000031, 'navigationAccordion', 0000000003, 0000000001, ''),
+(0000000032, 'nestedList', 0000000002, 0000000006, 'is a **hierarchical** list where each root item item can be collapsed and expanded by clicking on a chevron.'),
+(0000000033, 'navigationNested', 0000000003, 0000000001, ''),
+(0000000034, 'sortableList', 0000000001, 0000000006, 'is **non-hierarchical** but can be sorted, new items can be added as well as items can be deleted. Note that only the visual aspects of these functions are rendered. The implementation of the functions need to be defined separately with javascript (See <a href=\"https://github.com/RubaXa/Sortable\" target=\"_blank\">Sortable</a> for more details).'),
+(0000000035, 'resetPassword', 0000000002, 0000000001, ''),
+(0000000036, 'formUserInput', 0000000002, 0000000002, 'stores the data from all child input fields into the database and displays the latest set of data in the database as values in the child input field (if `is_log` is unchecked).'),
+(0000000038, 'radio', 0000000002, 0000000003, 'allows to predefine a set of options for the user to select. It provides a list of options where only one option can be chosen.'),
+(0000000039, 'showUserInput', 0000000002, 0000000002, 'allows to display user input data. Use the name of a form to display the corresponding data.'),
+(0000000040, 'div', 0000000001, 0000000004, 'allows to wrap its children in a simple HTML `<div>` tag. This allows to create more complex layouts with the help of bootstrap classes.'),
+(0000000041, 'register', 0000000002, 0000000009, 'provides a small form to allow a user to register for the WebApp. In order to register a user must provide a valid email and activation code. Activation codes can be generated in the admin section of the WebApp. The list of available codes can be exported.'),
+(0000000042, 'conditionalContainer', 0000000002, 0000000004, 'is an **invisible** wrapper which has a condition attached. The content of the wrapper is only displayed if the condition resolves to true.'),
+(0000000043, 'audio', 0000000001, 0000000007, 'allows to load and replay an audio source on a page.'),
+(0000000044, 'carousel', 0000000001, 0000000007, 'allows to render multiple images as a slide-show.');
 
 -- --------------------------------------------------------
 
@@ -1360,6 +1362,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000031, 0000000073, NULL),
 (0000000031, 0000000074, NULL),
 (0000000031, 0000000075, NULL),
+(0000000031, 0000000104, '1'),
 (0000000032, 0000000031, NULL),
 (0000000032, 0000000046, '0'),
 (0000000032, 0000000047, '1'),
@@ -1376,6 +1379,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000033, 0000000075, '1'),
 (0000000033, 0000000077, NULL),
 (0000000033, 0000000089, NULL),
+(0000000033, 0000000104, '1'),
 (0000000034, 0000000066, NULL),
 (0000000034, 0000000078, '0'),
 (0000000034, 0000000079, '0'),
@@ -1793,7 +1797,7 @@ ALTER TABLE `chatRoom_users`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
