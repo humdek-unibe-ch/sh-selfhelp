@@ -35,6 +35,9 @@
                     </div>
                 </div>
             </div>
+            <div class="col-12 col-lg-auto select-section-list">
+                <?php $this->output_section_search_list(); ?>
+            </div>
         </div>
     </form>
 </div>
