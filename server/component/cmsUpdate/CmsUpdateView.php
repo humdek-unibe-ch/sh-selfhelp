@@ -118,6 +118,11 @@ class CmsUpdateView extends BaseView
         foreach($groups as $index => $group)
         {
             $id = intval($group['id']);
+            $styles = $this->model->get_style_list($id);
+            $description = $group['description'] . "\r\n\r\n";
+            foreach($styles as $style)
+                $description .= "- `" . $style['text'] . "` "
+                    . $style['description'] . "\r\n";
             $tabs[] = new BaseStyleComponent("tab", array(
                 "label" => $group["name"],
                 "type" => "light",
@@ -125,7 +130,7 @@ class CmsUpdateView extends BaseView
                 "is_expanded" => $first,
                 "children" => array(
                     new BaseStyleComponent("markdown", array(
-                        "text_md" => $group['description'],
+                        "text_md" => $description,
                     )),
                     new BaseStyleComponent("select", array(
                         "name" => "helper-style-" . $id,

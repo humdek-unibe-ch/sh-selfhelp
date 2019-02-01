@@ -1497,7 +1497,7 @@ class CmsModel extends BaseModel
         }
         else
             $rel = "=";
-        $sql = "SELECT id AS value, name AS text FROM styles
+        $sql = "SELECT id AS value, name AS text, description FROM styles
             WHERE id_group $rel :id ORDER BY name";
         return $this->db->query_db($sql, array(":id" => $id_group));
     }
