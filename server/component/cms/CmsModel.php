@@ -251,6 +251,10 @@ class CmsModel extends BaseModel
      */
     private function fetch_unassigned_sections()
     {
+        if($this->relation === "page_nav" || $this->relation === "section_nav")
+            $where = "AND st.id = :sid";
+        else
+            $where = "AND st.id != :sid";
         $sections = array();
         $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -259,10 +263,12 @@ class CmsModel extends BaseModel
             LEFT JOIN sections_navigation AS sn ON s.id = sn.child
             WHERE sh.child IS NULL AND ps.id_sections IS NULL
             AND sn.child IS NULL AND (s.owner IS NULL OR s.owner = :uid)
-            AND st.id_type <> 3
+            AND st.id_type <> 3 $where
             ORDER BY s.name";
-        $sections_db = $this->db->query_db($sql,
-            array(":uid" => $_SESSION["id_user"]));
+        $sections_db = $this->db->query_db($sql, array(
+            ":uid" => $_SESSION["id_user"],
+            ":sid" => NAVIGATION_CONTAINER_STYLE_ID,
+        ));
         foreach($sections_db as $section)
         {
             $id = intval($section['id']);
