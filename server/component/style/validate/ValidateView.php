@@ -213,7 +213,7 @@ class ValidateView extends StyleView
     public function output_content()
     {
         if($this->controller == null || !$this->controller->has_succeeded()
-            || !$this->ui_controller->has_succeeded())
+            || $this->ui_controller->has_failed())
         {
             $gender = $this->model->get_user_gender();
             $male_checked = ($gender === "male") ? "checked" : "";
@@ -221,8 +221,9 @@ class ValidateView extends StyleView
             $name = $this->model->get_user_name();
             require __DIR__ . "/tpl_validate.php";
         }
-        if($this->controller == null || ($this->controller->has_succeeded()
-            && $this->ui_controller->has_succeeded()))
+        if($this->model->is_cms_page()
+            || ($this->controller !== null && $this->controller->has_succeeded()
+                && !$this->ui_controller->has_failed()))
         {
             $url = $this->model->get_link_url("login");
             require __DIR__ . "/tpl_success.php";
