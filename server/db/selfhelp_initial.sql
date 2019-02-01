@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 01, 2019 at 01:14 PM
+-- Generation Time: Feb 01, 2019 at 02:21 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -1355,7 +1355,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
 (0000000028, 0000000084, '0'),
 (0000000030, 0000000006, NULL),
 (0000000030, 0000000022, NULL),
-(0000000030, 0000000025, NULL),
+(0000000030, 0000000025, '# @title'),
 (0000000031, 0000000029, '1'),
 (0000000031, 0000000031, NULL),
 (0000000031, 0000000072, NULL),
