@@ -47,6 +47,18 @@ class StyleModel extends BaseModel implements IStyleModel
     public function __construct($services, $id, $params=array())
     {
         parent::__construct($services);
+        if($this->is_cms_page())
+        {
+            if($_SESSION['cms_gender'] !== "both")
+                $_SESSION['gender'] = $_SESSION['cms_gender'];
+            if($_SESSION['cms_language'] !== "all")
+                $_SESSION['language'] = $_SESSION['cms_language'];
+        }
+        else
+        {
+            $_SESSION['gender'] = $_SESSION['user_gender'];
+            $_SESSION['language'] = $_SESSION['user_language'];
+        }
         $this->db_fields['id'] = array(
             "content" => $id,
             "type" => "internal",

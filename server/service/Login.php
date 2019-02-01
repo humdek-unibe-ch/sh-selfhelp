@@ -26,8 +26,10 @@ class Login
         session_name(PROJECT_NAME);
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
+        if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = "male";
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = "male";
         if(!isset($_SESSION['language'])) $_SESSION['language'] = LANGUAGE;
+        if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = LANGUAGE;
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
@@ -74,6 +76,7 @@ class Login
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
+            $_SESSION['user_gender'] = $user['gender'];
             $this->update_timestamp($user['id']);
             return true;
         }
