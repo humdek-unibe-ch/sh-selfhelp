@@ -1,3 +1,14 @@
+# v1.0.2
+
+### Bugfix
+
+ - Fix validation behaviour when no custom input field is present.
+ - Fix bad url in chat notification email.
+ - Fix bug where CMS menu was overlapping with navbar.
+
+
+------------
+
 # v1.0.1
 
 ### Bugfix
@@ -16,6 +27,7 @@
 ### New Features
 
  - Allow to enable/disable the navigation menu on navigation pages (#75)
+
 
 ------------
 
@@ -37,6 +49,7 @@
  - Improve the style `progressBar` (enable/disable label and stripes)
  - Improve the style `carousel` (enable/disable crossfade, allow captions)
  - Allow custom input fields in the style `validate` (#124).
+
 
 ------------
 
@@ -63,6 +76,7 @@
  - Allow to overwrite existing asset and css files
  - Allow to remove asset and css files from the server
  - A new style `carousel` to display images in a slide show (#125)
+
 
 ------------
 
@@ -93,6 +107,7 @@
      users from a room
    - A changed chat interface where rooms can be selected if available.
 
+
 ------------
 
 # v0.9.11
@@ -112,6 +127,7 @@
  - Allow to modify email content in the admin section (#141)
  - Implement automatic email reminder (#79)
 
+
 ------------
 
 # v0.9.10
@@ -123,6 +139,7 @@
 ### Changes
 
  - Update style descriptions (#138)
+
 
 ------------
 
@@ -142,6 +159,7 @@
    true (#128)
  - New style audio (#116)
 
+
 ------------
 
 # v0.9.8
@@ -150,6 +168,7 @@
 
  - Navigation pages can be added to the header menu (links to the first entry)
    (#134)
+
 
 ------------
 
@@ -173,6 +192,7 @@
  - A list of validation codes can be generated which can be used to register
    (#121)
 
+
 ------------
 
 # v0.9.6
@@ -195,6 +215,7 @@
    `nav\_css` (#105)
  - Allow to generate links to nav sections (#104)
 
+
 ------------
 
 # v0.9.5
@@ -210,6 +231,7 @@
 ### New Features
 
  - A new style `showUserInput` to display user input (#87)
+
 
 ------------
 
@@ -228,6 +250,7 @@
 
  - Style descriptions and style groups (#99)
  - Load default values of style fields from the db (#98)
+
 
 ------------
 
