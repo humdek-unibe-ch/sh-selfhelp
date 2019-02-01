@@ -6,8 +6,7 @@
         <div class="col">
             <?php $this->output_children(); ?>
             <div>
-                <?php $this->output_button($button_back); ?>
-                <?php $this->output_button($button_next); ?>
+                <?php $this->output_buttons(); ?>
             </div>
         </div>
     </div>

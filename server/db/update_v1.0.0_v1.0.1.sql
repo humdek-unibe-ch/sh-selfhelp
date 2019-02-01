@@ -44,3 +44,8 @@ UPDATE `styleGroup` SET `description` = 'Lists are styles that allow to define m
 UPDATE `styleGroup` SET `description` = 'The media styles allow to display different media on a webpage. The following styles are available:' WHERE `styleGroup`.`id` = 0000000007;
 UPDATE `styleGroup` SET `description` = 'Link styles allow to render different types of links:' WHERE `styleGroup`.`id` = 0000000008;
 UPDATE `styleGroup` SET `description` = 'The admin styles are for user registration and access handling.\r\nThe following styles are available:' WHERE `styleGroup`.`id` = 0000000009;
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'has_navigation_menu', '0000000003', '0');
+SET @id_field_has_navigation_menu = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000033', @id_field_has_navigation_menu, '1');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000031', @id_field_has_navigation_menu, '1');
