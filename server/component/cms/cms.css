@@ -30,3 +30,11 @@ textarea
 {
     font-family: monospace;
 }
+
+.sticky-menu
+{
+    position: -webkit-sticky;
+    position: sticky;
+    top: 1rem;
+    z-index: 900;
+}
