@@ -10,6 +10,8 @@
  - Add a style description for each style and generate the style list for each
    Style group.
  - Make CMS page and section navigation sticky.
+ - Set the default of the `text_md` field of style `navigationContainer` to
+   `# @title`.
 
 ### New Features
 

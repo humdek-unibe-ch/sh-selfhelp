@@ -1,3 +1,4 @@
+-- seperate style description from style group description
 ALTER TABLE `styles` ADD `description` LONGTEXT NOT NULL AFTER `id_group`;
 UPDATE `styles` SET `description` = 'provides a small form where the user can enter his or her email and password to access the WebApp. It also includes a link to reset a password.' WHERE `styles`.`name` = "login";
 UPDATE `styles` SET `description` = 'is an **invisible** wrapper.' WHERE `styles`.`name` = "container";
@@ -45,9 +46,13 @@ UPDATE `styleGroup` SET `description` = 'The media styles allow to display diffe
 UPDATE `styleGroup` SET `description` = 'Link styles allow to render different types of links:' WHERE `styleGroup`.`id` = 0000000008;
 UPDATE `styleGroup` SET `description` = 'The admin styles are for user registration and access handling.\r\nThe following styles are available:' WHERE `styleGroup`.`id` = 0000000009;
 
+-- allow to enable/disable navigation menu
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'has_navigation_menu', '0000000003', '0');
 SET @id_field_has_navigation_menu = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000033', @id_field_has_navigation_menu, '1');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000031', @id_field_has_navigation_menu, '1');
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) SELECT id AS id_sections, @id_field_has_navigation_menu AS id_fields, 1 AS id_languages, 1 AS id_genders, 1 AS content FROM sections WHERE id_styles = 33 ON DUPLICATE KEY UPDATE content=1;
 INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) SELECT id AS id_sections, @id_field_has_navigation_menu AS id_fields, 1 AS id_languages, 1 AS id_genders, 1 AS content FROM sections WHERE id_styles = 31 ON DUPLICATE KEY UPDATE content=1;
+
+-- set default of navigation container text_md field
+UPDATE `styles_fields` SET `default_value` = '# @title' WHERE `styles_fields`.`id_styles` = 0000000030 AND `styles_fields`.`id_fields` = 0000000025;
