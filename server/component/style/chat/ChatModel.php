@@ -102,8 +102,9 @@ abstract class ChatModel extends StyleModel
     {
         $subject = $_SESSION['project'] . " Notification";
         $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        $msg = $this->login->email_get_content($this->get_link_url('contact'),
-            'email_notification');
+        $url = "https://" . $_SERVER['HTTP_HOST']
+            . $this->get_link_url('contact');
+        $msg = $this->login->email_get_content($url, 'email_notification');
         $field_chat = $this->user_input->get_input_fields(array(
             'page' => 'profile',
             'id_user' => $id,
