@@ -49,3 +49,5 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'has_nav
 SET @id_field_has_navigation_menu = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000033', @id_field_has_navigation_menu, '1');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES ('0000000031', @id_field_has_navigation_menu, '1');
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) SELECT id AS id_sections, @id_field_has_navigation_menu AS id_fields, 1 AS id_languages, 1 AS id_genders, 1 AS content FROM sections WHERE id_styles = 33 ON DUPLICATE KEY UPDATE content=1;
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) SELECT id AS id_sections, @id_field_has_navigation_menu AS id_fields, 1 AS id_languages, 1 AS id_genders, 1 AS content FROM sections WHERE id_styles = 31 ON DUPLICATE KEY UPDATE content=1;
