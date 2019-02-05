@@ -1,3 +1,12 @@
+# v1.0.3
+
+### Bugfix
+
+ - Allow the reminder script to update the `is_reminded` flag and reset the
+   flag on user login, depending on the user settings.
+
+
+------------
 # v1.0.2
 
 ### Bugfix
