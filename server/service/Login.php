@@ -50,8 +50,22 @@ class Login
      */
     private function update_timestamp($id)
     {
-        $sql = "UPDATE users SET last_login = now() WHERE id = :id";
-        return $this->db->execute_update_db($sql, array(':id' => $id));
+        $ui = new UserInput($this->db);
+        $val = 0;
+        $field = $ui->get_input_fields(array(
+            'page' => 'profile',
+            'id_user' => $id,
+            'form_name' => 'notification',
+            'field_name' => 'reminder',
+        ));
+        if(count($field) === 0 || $field[0]['value'] !== "")
+            $val = 1;
+        $sql = "UPDATE users SET last_login = now(), is_reminded = :field
+            WHERE id = :id";
+        return $this->db->execute_update_db($sql, array(
+            ':id' => $id,
+            ':field' => $val,
+        ));
     }
 
     /**
