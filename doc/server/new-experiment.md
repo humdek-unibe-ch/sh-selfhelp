@@ -156,6 +156,6 @@ source /home/www/__experiment_name__/server/db/reminder_db_script.sql;
 The following list provides a short description of the columns in the table `projects` of the DB `selfhelpReminder`:
  - `id`: An automatically incremented unique id for each project. Do not touch this.
  - `db_name`: The exact name of the database belonging to the project (this will most likely be set to `__experiment_name__`).
- - `url`: the part of the url that is appended to the host address which allows a user to reach the project (this will most likely be set to `__experiment_name__` which results in a full url `https:\\selfhelp.psy.unibe.ch/__experiment_name__`).
+ - `url`: The part of the url that is appended to the host address which allows a user to reach the project (this will most likely be set to `__experiment_name__` which results in a full url `https:\\selfhelp.psy.unibe.ch/__experiment_name__`).
  - `has_reminder`: If set to '1' the reminder is activated for this project. If set to '0' the reminder is deactivated for this project.
  - `days`: Specifies the number of days a user must be inactive to receive a reminder email.
