@@ -126,6 +126,7 @@ sudo service apache2 restart
 
 The server periodically checks whether a user was inactive for more than a specified amount of time and can be configured to send a reminder email if this is the case.
 This feature can be enabled and disabled individually for each experiment.
+To do this, the correct permissions have to be granted and the new project has to be added to the table `projects` of the DB `selfhelpReminder`.
 
 As user `www` do
 
@@ -152,4 +153,9 @@ USE __experiment_name__;
 source /home/www/__experiment_name__/server/db/reminder_db_script.sql;
 ```
 
-Note that the filed `days` can be used to specify the number of days a user must be inactive to receive a reminder email.
+The following list provides a short description of the calumns in the table `projects` of the DB `selfhelpReminder`:
+ - `id`: An automatically incremented unique id for each project. Do not touch this.
+ - `db_name`: The exact name of the databse belonging to the project (this will most likely be set to `__experiment_name__`).
+ - `url`: the part of the url that is appended to the host address which allows a user to reach the prject (this will most likely be set to `__experiment_name__` which results in a full url `https:\\selfhelp.psy.unibe.ch/__experiment_name__`).
+ - `has_reminder`: If set to '1' the reminder is activated for this project. If set to '0' the reminder is deactivated for this project.
+ - `days`: Specifies the number of days a user must be inactive to receive a reminder email.
