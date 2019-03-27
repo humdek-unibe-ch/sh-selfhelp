@@ -1,6 +1,8 @@
 $(document).ready(function() {
+    new ResizeSensor(jQuery('.selfhelp-slider'), function(){
+        position_slider_legend();
+    });
     position_slider_legend();
-    $(window).resize(position_slider_legend);
 });
 
 function position_slider_legend()

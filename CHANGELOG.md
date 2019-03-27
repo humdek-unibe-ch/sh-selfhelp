@@ -1,3 +1,11 @@
+# latest
+
+### Bugfix
+
+ - Slider lables need to recompute their position on slide size change (#153).
+
+
+------------
 # v1.0.3
 
 ### Bugfix
