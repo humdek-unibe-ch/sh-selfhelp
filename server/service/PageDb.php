@@ -314,7 +314,7 @@ class PageDb extends BaseDb
         $user_name = $this->fetch_user_name();
         if($gender === null) $gender = $_SESSION['gender'];
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.id AS id, f.name, ft.name AS type,
+        $sql = "SELECT f.id AS id, f.name, ft.name AS type, g.name AS gender,
             REPLACE(REPLACE(sft.content, '@user', :uname),
                 '@project', :project) AS content, sf.default_value
             FROM sections_fields_translation AS sft
@@ -326,16 +326,24 @@ class PageDb extends BaseDb
             LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
             AND sf.id_fields = f.id
             WHERE sft.id_sections = :id AND $locale_cond
-            AND g.name = :gender";
+            ORDER BY g.id DESC";
 
-        $res = $this->query_db($sql, array(
+        $res_all = $this->query_db($sql, array(
             ":id" => $id,
-            ":gender" => $gender,
             ":uname" => $user_name,
             ":project" => $_SESSION['project']
         ));
-        if(!$res && $gender != "male")
-            $res = $this->fetch_section_fields($id, "male");
+        $ids = array();
+        $res = array();
+        foreach($res_all as $item)
+        {
+            if($item['gender'] !== $gender && $item['gender'] !== "male")
+                continue;
+            if(in_array($item['id'], $ids))
+                continue;
+            $ids[] = $item['id'];
+            $res[] = $item;
+        }
         return $res;
     }
 
