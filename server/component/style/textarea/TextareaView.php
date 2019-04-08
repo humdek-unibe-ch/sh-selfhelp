@@ -6,6 +6,14 @@ require_once __DIR__ . "/../formField/FormFieldView.php";
  */
 class TextareaView extends FormFieldView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'placeholder' (empty string).
+     * The text to be displayed inside the input field.
+     */
+    private $placeholder;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -17,6 +25,7 @@ class TextareaView extends FormFieldView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->placeholder = $this->model->get_db_field("placeholder");
     }
 
     /* Protected Methods ********************************************************/
