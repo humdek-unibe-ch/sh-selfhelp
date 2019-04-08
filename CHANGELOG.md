@@ -3,6 +3,11 @@
 ### Bugfix
 
  - Slider lables need to recompute their position on slide size change (#153).
+ - Gender specific information was not displayed correctly (#159).
+
+### New Features
+
+ - Add field placeholder to the style textarea (#160).
 
 
 ------------
