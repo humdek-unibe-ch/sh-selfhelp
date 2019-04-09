@@ -325,7 +325,7 @@ class PageDb extends BaseDb
             LEFT JOIN sections AS s ON s.id = sft.id_sections
             LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
             AND sf.id_fields = f.id
-            WHERE sft.id_sections = :id AND $locale_cond
+            WHERE sft.id_sections = :id AND $locale_cond AND content != ''
             ORDER BY g.id DESC";
 
         $res_all = $this->query_db($sql, array(
