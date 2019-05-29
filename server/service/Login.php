@@ -202,6 +202,7 @@ class Login
         $headers = array();
         $headers[] = "MIME-Version: 1.0";
         $headers[] = "Content-type: text/plain; charset=utf-8";
+        $headers[] = "Content-Transfer-Encoding: quoted-printable";
         $headers[] = "From: {$from}";
         $headers[] = "Subject: {$subject}";
         $headers[] = "X-Mailer: PHP/".phpversion();
