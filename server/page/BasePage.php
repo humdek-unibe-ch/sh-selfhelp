@@ -226,7 +226,7 @@ abstract class BasePage
     private function get_csp_rules()
     {
         return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-"
-            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "';";
+            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' data:";
     }
 
     /**
