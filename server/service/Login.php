@@ -37,17 +37,33 @@ class Login
         if(!isset($_SESSION['language'])) $_SESSION['language'] = LANGUAGE;
         if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = LANGUAGE;
-        if(!isset($_SESSION['target_url']))
-            $_SESSION['target_url'] = $this->router->generate('home');
-        else if($_SERVER['REQUEST_URI'] !== $this->router->generate('login'))
-            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
+        if(!array_key_exists('target_url', $_SESSION))
+            $_SESSION['target_url'] = null;
+        else if($_SERVER['REQUEST_URI'] !== $this->router->generate('login'))
+            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
         }
+        else
+            $this->update_last_url($_SESSION['id_user'], $_SESSION['target_url']);
+    }
+
+    /**
+     * Update the last visited url of the active user.
+     *
+     * @param $id
+     *  The user id
+     * @param $url
+     *  The target url
+     */
+    private function update_last_url($id, $url)
+    {
+        $this->db->update_by_ids('users',
+            array('last_url' => $url), array('id' => $id));
     }
 
     /**
@@ -218,6 +234,38 @@ class Login
         $headers[] = "X-Mailer: PHP/".phpversion();
 
         return mail($to, $subject, $msg , implode("\r\n", $headers));
+    }
+
+    /**
+     * Get the target URL to redirec after login. This is either
+     *  1. a target url specified by a link
+     *  2. the last used url by the user
+     *  3. the home url
+     *
+     * @retval string
+     *  The target URL.
+     */
+    public function get_target_url()
+    {
+        // if target_url is set use it
+        if($_SESSION['target_url'] !== null)
+            return $_SESSION['target_url'];
+
+        $url = $_SESSION['target_url'] ?? $this->router->generate('home');
+
+        // if user is not logged in use target_url or fallback
+        if(!$this->is_logged_in())
+            return $url;
+
+        $sql = "SELECT last_url FROM users WHERE id = :uid";
+        $url_db = $this->db->query_db_first($sql,
+            array(':uid' => $_SESSION['id_user']));
+
+        // if last_url is set n the DB use it
+        if($url_db['last_url'] != "")
+            $url = $url_db['last_url'];
+
+        return $url;
     }
 
     /**

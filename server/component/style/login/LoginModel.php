@@ -41,11 +41,20 @@ class LoginModel extends StyleModel
     }
 
     /**
-     * A wrapper function for the method Logon::logout of the login service.
+     * A wrapper function for the method Login::logout of the login service.
      */
     public function logout()
     {
         return $this->login->logout();
+    }
+
+    /**
+     * A wrapper function for the method Login::get_last_url of the login
+     * service.
+     */
+    public function get_target_url()
+    {
+        return $this->login->get_target_url();
     }
 
     /**
