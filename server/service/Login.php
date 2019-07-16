@@ -10,11 +10,17 @@ class Login
     private $db;
 
     /**
+     * The router instance which provides routing functionality.
+     */
+    private $router;
+
+    /**
      * Start the session.
      */
-    public function __construct($db)
+    public function __construct($db, $router)
     {
         $this->db = $db;
+        $this->router = $router;
         $this->init_session();
     }
 
@@ -31,6 +37,10 @@ class Login
         if(!isset($_SESSION['language'])) $_SESSION['language'] = LANGUAGE;
         if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = LANGUAGE;
+        if(!isset($_SESSION['target_url']))
+            $_SESSION['target_url'] = $this->router->generate('home');
+        else if($_SERVER['REQUEST_URI'] !== $this->router->generate('login'))
+            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
         if(!$this->is_logged_in())

@@ -127,7 +127,7 @@ abstract class BasePage
             //  The db instance which grants access to the DB.
             "db" => $db,
             // The login instance that allows to check user credentials.
-            "login" => new Login($db),
+            "login" => new Login($db, $router),
             // The instance of the access control layer (ACL) which allows to
             // decide which links to display.
             "acl" => new Acl($db),
