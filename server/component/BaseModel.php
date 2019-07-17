@@ -34,6 +34,11 @@ abstract class BaseModel
     protected $acl;
 
     /**
+     * The parsedown instance that allows to parse markdown content.
+     */
+    protected $parsedown;
+
+    /**
      * User input handler.
      */
     protected $user_input;

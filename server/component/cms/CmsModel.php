@@ -196,6 +196,8 @@ class CmsModel extends BaseModel
      *  The id of the target gender of the field.
      * @param string $name
      *  The name of the field.
+     * @param string $help
+     *  A description of what the field is for.
      * @param string $locale
      *  The locale string of the language.
      * @param string $type
@@ -209,13 +211,14 @@ class CmsModel extends BaseModel
      *  The gender the content is associated with.
      */
     private function add_property_item($id, $id_language, $id_gender, $name,
-        $locale, $type, $relation, $content, $gender="")
+        $help, $locale, $type, $relation, $content, $gender="")
     {
         return array(
             "id" => $id,
             "id_language" => $id_language,
             "id_gender" => $id_gender,
             "name" => $name,
+            "help" => $this->parsedown->text($help),
             "locale" => $locale,
             "type" => $type,
             "relation" => $relation,
@@ -511,7 +514,8 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type, sf.default_value
+        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+            sf.default_value, sf.help
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
@@ -1310,6 +1314,7 @@ class CmsModel extends BaseModel
                 intval($content['id']),
                 MALE_GENDER_ID,
                 "title",
+                "",
                 $content['locale'],
                 "text",
                 "page_field",
@@ -1332,6 +1337,7 @@ class CmsModel extends BaseModel
                 MALE_GENDER_ID,
                 "sections",
                 "",
+                "",
                 "style-list",
                 "page_children",
                 $this->page_sections_static,
@@ -1343,6 +1349,7 @@ class CmsModel extends BaseModel
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
                 "navigation",
+                "",
                 "",
                 "style-list",
                 "page_nav",
@@ -1438,6 +1445,7 @@ class CmsModel extends BaseModel
                     intval($content['id_language']),
                     intval($content['id_gender']),
                     $field['name'],
+                    $field['help'],
                     $content['locale'],
                     $field['type'],
                     $relation,
@@ -1452,6 +1460,7 @@ class CmsModel extends BaseModel
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
                 "navigation",
+                "",
                 "",
                 "style-list",
                 "section_nav",

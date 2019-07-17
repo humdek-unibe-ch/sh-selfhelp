@@ -593,6 +593,7 @@ class CmsView extends BaseView
             "title" => $field['name'],
             "locale" => $field['locale'],
             "alt" => "field is not set",
+            "help" => $field['help'],
             "children" => $children
         ));
     }

@@ -40,6 +40,12 @@ class DescriptionItemView extends StyleView
      */
     private $type;
 
+    /**
+     * DB field 'help' (empty string)
+     * A small text describing what this field does.
+     */
+    private $help;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -56,6 +62,7 @@ class DescriptionItemView extends StyleView
         $this->gender = $this->model->get_db_field("gender");
         $this->alt = $this->model->get_db_field("alt");
         $this->type = $this->model->get_db_field("type_input");
+        $this->help = $this->model->get_db_field("help");
     }
 
     /* Private Methods ********************************************************/
@@ -72,6 +79,15 @@ class DescriptionItemView extends StyleView
             $na = $this->alt;
             require __DIR__ . "/tpl_item_na.php";
         }
+    }
+
+    /**
+     * Render the help text.
+     */
+    private function output_help()
+    {
+        if($this->help == "") return;
+        require __DIR__ . "/tpl_help.php";
     }
 
     /**
