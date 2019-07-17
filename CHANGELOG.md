@@ -1,3 +1,22 @@
+# pending
+
+### Bugfix
+
+ - fix umlaut problem with SMS service (#164)
+ - Workaround for Safari bug with audio and video controls (#166)
+
+### Changes
+
+ - Change CSP rule to allow images from https://via.placeholder.com/
+
+### New Features
+
+ - Remember the target url when not logged in (#150)
+ - Remember the last url of a user and redirect to it after login (#147)
+ - Add a JSON style which allows to define base styles with JSON (covers #168)
+
+
+------------
 # latest
 
 ### Bugfix
