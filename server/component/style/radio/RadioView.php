@@ -51,7 +51,7 @@ class RadioView extends FormFieldView
         {
             if(!isset($field['value']) || !isset($field['text'])) continue;
             $value = htmlspecialchars($field['value']);
-            $text = htmlspecialchars($field['text']);
+            $text = $field['text'];
             $checked = ($value == $this->value) ? "checked" : "";
             require __DIR__ . "/tpl_radio.php";
         }

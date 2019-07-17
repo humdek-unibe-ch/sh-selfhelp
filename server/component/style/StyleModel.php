@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/StyleComponent.php";
+require_once __DIR__ . "/BaseStyleComponent.php";
 require_once __DIR__ . "/IStyleModel.php";
 /**
  * This class is used to prepare all data related to the style component such
@@ -188,7 +189,10 @@ class StyleModel extends BaseModel implements IStyleModel
             else if($field['type'] == "markdown-inline")
                 $field['content'] = $this->parsedown->line($field['content']);
             else if($field['type'] == "json")
+            {
                 $field['content'] = json_decode($field['content'], true);
+                $field['content'] = $this->parse_base_style($field['content']);
+            }
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
                 "type" => $field['type'],
@@ -196,6 +200,50 @@ class StyleModel extends BaseModel implements IStyleModel
                 "default" => $default,
             );
         }
+    }
+
+    /**
+     * Parses a json array to find `baseStyle` keys. Such keys are then
+     * transformed to HTML string to be rendered on the screen. This is a
+     * recursive function.
+     *
+     * @param array $j_array
+     *  The json array to be parsed.
+     * @param bool $is_child
+     *  A flag indicating whether children are processed or the final root
+     *  element (the root needs to perform an output buffering of the style).
+     */
+    private function parse_base_style($j_array, $is_child=false)
+    {
+        if(!is_array($j_array))
+            return $j_array;
+
+        foreach($j_array as $key => $item)
+        {
+            if($key === "children")
+                $is_child = true;
+            $item = $this->parse_base_style($item, $is_child);
+            if($key === "baseStyle")
+            {
+                if(!isset($item['name']))
+                    return "invalid baseStyle definition: 'name' is undefined";
+                if(!isset($item['fields']))
+                    return "invalid '" . $item['name'] . "' baseStyle definition: 'fields' is undefined";
+                $style = new BaseStyleComponent($item['name'], $item['fields']);
+                if(!$is_child)
+                {
+                    ob_start();
+                    $style->output_content();
+                    $content = ob_get_contents();
+                    ob_end_clean();
+                    return $content;
+                }
+                else
+                    return $style;
+            }
+            $arr[$key] = $item;
+        }
+        return $arr;
     }
 
     /**

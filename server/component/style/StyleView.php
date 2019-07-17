@@ -82,7 +82,11 @@ abstract class StyleView extends BaseView
     protected function output_children()
     {
         foreach($this->children as $child)
-            $child->output_content();
+            if($child instanceof StyleComponent
+                    || $child instanceof BaseStyleComponent)
+                $child->output_content();
+            else
+                echo "invalid child element of type '" . gettype($child) . "'";
     }
 }
 ?>
