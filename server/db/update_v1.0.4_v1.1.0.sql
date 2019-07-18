@@ -62,3 +62,9 @@ ALTER TABLE `activityType`
 ALTER TABLE `user_activity` ADD `id_type` INT UNSIGNED ZEROFILL NOT NULL DEFAULT '1' AFTER `timestamp`, ADD INDEX (`id_type`);
 ALTER TABLE `user_activity` ADD CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 UPDATE `user_activity` SET `id_type` = (SELECT `id` FROM `activityType` WHERE `name` = 'export') WHERE `url` LIKE '%/admin/export/%';
+
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'userProgress', '0000000001', '0000000009', 'A progress bar to indicate the overall experiment progress of a user.');
+SET @id_style_userProgress = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style_userProgress, (SELECT `id` FROM `fields` WHERE `name` = 'type'), NULL, '.Use the type to change the appearance of individual progress bars');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style_userProgress, (SELECT `id` FROM `fields` WHERE `name` = 'is_striped'), NULL, 'iIf set apply a stripe via CSS gradient over the progress bar’s background color.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style_userProgress, (SELECT `id` FROM `fields` WHERE `name` = 'has_label'), NULL, 'If set display the progress in numbers ontop of the progress bar.');

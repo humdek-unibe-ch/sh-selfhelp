@@ -4,16 +4,21 @@
 
  - fix umlaut problem with SMS service (#164)
  - Workaround for Safari bug with audio and video controls (#166)
+ - fix a problem when trying to add a user to a chatroom without having a user selected
 
 ### Changes
 
  - Change CSP rule to allow images from https://via.placeholder.com/
+ - Update Bootstrap to version v4.3.1
+ - Distinguish between export and experiment activity
 
 ### New Features
 
  - Remember the target url when not logged in (#150)
  - Remember the last url of a user and redirect to it after login (#147)
  - Add a JSON style which allows to define base styles with JSON (covers #168)
+ - Add user overview table with user activity information to the user admin menu (#163)
+ - Add a userProgress style which allows to display the current user progress (#80)
 
 
 ------------
