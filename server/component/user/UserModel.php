@@ -435,10 +435,58 @@ class UserModel extends BaseModel
      */
     public function get_user_activity($id)
     {
-        $sql = "SELECT COUNT(id_users) AS activity FROM user_activity
+        $sql = "SELECT COUNT(*) AS activity FROM user_activity
             WHERE id_users = :uid";
         $res = $this->db->query_db_first($sql, array(':uid' => $id));
         return $res['activity'];
+    }
+
+    /**
+     * Count all pages of type experiment as well as all navigation page
+     * sections and copmpare this count to all distinct URLs the user visited.
+     *
+     * @param int $id
+     *  The id of the user to be counted
+     *
+     * @retval float
+     *  A percentage between 0 and 1
+     */
+    public function get_user_progress($id)
+    {
+        $sql = "SELECT id_pages FROM sections_navigation";
+        $nav_sections = $this->db->query_db($sql);
+        $pc = count($nav_sections);
+
+        $sql = "SELECT id, parent FROM pages WHERE id_type = 3";
+        $pages = $this->db->query_db($sql);
+
+        // do not count parent pages and parent navigation pages (those are not
+        // reachable)
+        foreach($pages as $parent_page)
+        {
+            $has_child = false;
+            foreach($pages as $child_page)
+                if($parent_page['id'] === $child_page['parent'] )
+                {
+                    $has_child = true;
+                    break;
+                }
+            foreach($nav_sections as $nav_section)
+                if($parent_page['id'] === $nav_section['id_pages'] )
+                {
+                    $has_child = true;
+                    break;
+                }
+            if(!$has_child)
+                $pc++;
+        }
+
+        $sql = "SELECT DISTINCT url FROM user_activity WHERE id_users = :uid";
+        $activity = $this->db->query_db($sql, array(':uid' => $id));
+        $ac = count($activity);
+        /* if($pc === 0 || $ac > $pc) */
+        /*     return 1; */
+        return $ac/$pc;
     }
 
     /**

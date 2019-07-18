@@ -8,6 +8,7 @@
                 <th title="Validation code associated to the user" scope="col">Code</th>
                 <th title="Date of the last login" scope="col">Last Login</th>
                 <th title="Access count to experimentor pages" scope="col">Activity</th>
+                <th title="Percentage of vistited experimenter pages and navigation sections" scope="col">Progress</th>
             </tr>
         </thead>
         <tbody>

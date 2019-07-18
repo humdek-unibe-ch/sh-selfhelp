@@ -206,26 +206,6 @@ class UserSelectView extends BaseView
     }
 
     /**
-     * Render the list of users.
-     */
-    private function output_users()
-    {
-        $users = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
-            "is_expanded" => true,
-            "is_collapsible" => false,
-            "title" => "Registered Users",
-            "children" => array(new BaseStyleComponent("nestedList", array(
-                "items" => $this->model->get_users(),
-                "id_prefix" => "users",
-                "is_collapsible" => false,
-                "id_active" => $this->selected_user['id'],
-            )))
-        ));
-        $users->output_content();
-    }
-
-    /**
      * Render the list of users and their activity.
      */
     private function output_user_activity()
@@ -240,23 +220,28 @@ class UserSelectView extends BaseView
     {
         foreach($this->model->get_users() as $user)
         {
+            $url = $user['url'];
             $id = $user['id'];
             $email = $user['title'];
-            /* $name = $user['name']; */
             $state = $user['state'];
             $row_state = "";
             if($state === "blocked")
                 $row_state = "table-warning";
             if($state === "inactive")
                 $row_state = "text-muted";
-            $url = $user['url'];
+            $code = $this->model->get_user_code($id) ?? "-";
             $days = round((time() - strtotime($user['last_login'])) / (60*60*24)) . " day";
             if($days > 1) $days .= "s";
             $last_login = "never";
             if($user['last_login'] !== null)
                 $last_login = $user['last_login'] . " (" . $days . " ago)";
             $activity = $this->model->get_user_activity($id);
-            $code = $this->model->get_user_code($id) ?? "-";
+            $progress = $this->model->get_user_progress($id);
+            $bar = new BaseStyleComponent('progressBar', array(
+                'count' => round($progress * 100),
+                'count_max' => 100,
+                'is_striped' => false,
+            ));
             require __DIR__ . "/tpl_user_activity_row.php";
         }
     }

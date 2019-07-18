@@ -5,4 +5,5 @@
     <td><?php echo $code; ?></td>
     <td><?php echo $last_login; ?></td>
     <td><?php echo $activity; ?></td>
+    <td><?php $bar->output_content(); ?></td>
 </tr>
