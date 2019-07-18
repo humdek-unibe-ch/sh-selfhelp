@@ -17,6 +17,11 @@ class AjaxRequest
     private $db;
 
     /**
+     * The Router handler
+     */
+    private $router;
+
+    /**
      * The name of the request class.
      */
     private $class_name = null;
@@ -39,12 +44,13 @@ class AjaxRequest
      *  The name of the method to be called on the instcane of
      *  AjaxRequest::class_name.
      */
-    public function __construct($db, $class_name, $method_name=null)
+    public function __construct($db, $router, $class_name, $method_name=null)
     {
         $this->db = $db;
+        $this->router = $router;
         $this->class_name = $class_name;
         $this->method_name = $method_name;
-        $login = new Login($db);
+        $login = new Login($db, $router);
     }
 
     /* Protected Methods ******************************************************/
