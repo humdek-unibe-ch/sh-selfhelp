@@ -213,6 +213,26 @@ class UserUpdateView extends BaseView
     }
 
     /**
+     * Render the specific success message.
+     *
+     * @param string $type
+     *  The type of success message to render.
+     */
+    private function output_success($type)
+    {
+        if($type === "block")
+            require __DIR__ . "/tpl_success_block.php";
+        else if($type === "unblock")
+            require __DIR__ . "/tpl_success_unblock.php";
+        else if($type === "add_group")
+            require __DIR__ . "/tpl_success_add_group.php";
+        else if($type === "rm_group")
+            require __DIR__ . "/tpl_success_rm_group.php";
+        else
+            echo "<p>Success-type '$type' does not exist.</p>";
+    }
+
+    /**
      * Render a list of user groups.
      */
     private function output_user_groups()
@@ -232,24 +252,25 @@ class UserUpdateView extends BaseView
      */
     public function output_content()
     {
-        $url = $this->model->get_link_url("userSelect",
+        $url_user = $this->model->get_link_url("userSelect",
             array("uid" => $this->selected_user['id']));
+        $url_users = $this->model->get_link_url("userSelect");
         if($this->mode == "block")
         {
             if($this->controller->has_succeeded())
-                require __DIR__ . "/tpl_success_block.php";
+                require __DIR__ . "/tpl_success.php";
             else
                 require __DIR__ . "/tpl_block.php";
         }
         else if($this->mode == "unblock")
             if($this->controller->has_succeeded())
-                require __DIR__ . "/tpl_success_unblock.php";
+                require __DIR__ . "/tpl_success.php";
             else
                 require __DIR__ . "/tpl_unblock.php";
         else if($this->mode == "add_group")
         {
             if($this->controller->has_succeeded())
-                require __DIR__ . "/tpl_success_add_group.php";
+                require __DIR__ . "/tpl_success.php";
             else
                 require __DIR__ . "/tpl_add_group.php";
         }
@@ -257,7 +278,7 @@ class UserUpdateView extends BaseView
         {
             $group = $this->model->get_rm_group_name();
             if($this->controller->has_succeeded())
-                require __DIR__ . "/tpl_success_rm_group.php";
+                require __DIR__ . "/tpl_success.php";
             else
                 require __DIR__ . "/tpl_rm_group.php";
         }

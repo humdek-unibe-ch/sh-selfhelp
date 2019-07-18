@@ -105,10 +105,12 @@ abstract class BasePage
         $this->css_includes = array(
             "/css/ext/bootstrap.min.css",
             "/css/ext/fontawesome.min.css",
+            "/css/ext/datatables.min.css",
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
             "/js/ext/bootstrap.bundle.min.js",
+            "/js/ext/datatables.min.js",
         );
         if(DEBUG == 0)
         {

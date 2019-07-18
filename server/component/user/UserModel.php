@@ -79,12 +79,18 @@ class UserModel extends BaseModel
      *
      * @retval array
      *  A list of db items where each item has the keys
-     *   'id':      The id of the user.
-     *   'email':   The email of the user.
+     *   'id':          The id of the user.
+     *   'email':       The email of the user.
+     *   'name':        The name of the user.
+     *   'last_login':  The date of the last login.
+     *   'active':      Indicates whether the user is activated or not.
+     *   'blocked':     Indicates whether the user is blocked or not.
      */
     private function fetch_users()
     {
-        $sql = "SELECT u.id, u.email FROM users AS u
+        $sql = "SELECT u.id, u.email, u.name, last_login,
+            (u.password IS NOT NULL) AS active, u.blocked
+            FROM users AS u
             WHERE u.intern <> 1
             ORDER BY u.email";
         return $this->db->query_db($sql);
@@ -393,9 +399,12 @@ class UserModel extends BaseModel
      *
      * @retval array
      *  An array of items where each item has the following keys:
-     *   'id':      The id of the user.
-     *   'title':   The email address of the user.
-     *   'url':     The url pointing to the user.
+     *   'id':          The id of the user.
+     *   'title':       The email address of the user.
+     *   'name':        The name of the user.
+     *   'url':         The url pointing to the user.
+     *   'state':       The state of the user.
+     *   'last_login':  The date of the last login.
      */
     public function get_users()
     {
@@ -403,13 +412,48 @@ class UserModel extends BaseModel
         foreach($this->fetch_users() as $user)
         {
             $id = intval($user["id"]);
+            $state = $user['blocked'] ? "blocked" : ($user["active"] ? "active" : "inactive");
             $res[] = array(
                 "id" => $id,
                 "title" => $user["email"],
+                "name" => $user["name"],
+                "last_login" => $user["last_login"],
+                "state" => $state,
                 "url" => $this->get_link_url("userSelect", array("uid" => $id))
             );
         }
         return $res;
+    }
+
+    /**
+     * Count the entries in the user_activity table given a user id.
+     *
+     * @param int $id
+     *  The id of the user to be counted
+     * @retval int
+     *  The number of activity entries of the user.
+     */
+    public function get_user_activity($id)
+    {
+        $sql = "SELECT COUNT(id_users) AS activity FROM user_activity
+            WHERE id_users = :uid";
+        $res = $this->db->query_db_first($sql, array(':uid' => $id));
+        return $res['activity'];
+    }
+
+    /**
+     * Return the validation code of a user.
+     *
+     * @param int $id
+     *  The id of the user
+     * @retval int
+     *  The validation code of the user.
+     */
+    public function get_user_code($id)
+    {
+        $sql = "SELECT code FROM validation_codes WHERE id_users = :uid";
+        $res = $this->db->query_db_first($sql, array(':uid' => $id));
+        return $res['code'];
     }
 
     /**

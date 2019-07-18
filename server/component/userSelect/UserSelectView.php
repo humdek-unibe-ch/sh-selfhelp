@@ -35,6 +35,16 @@ class UserSelectView extends BaseView
      */
     private function output_button()
     {
+        if($this->selected_user !== null)
+        {
+            $button_table = new BaseStyleComponent("button", array(
+                "label" => "Users",
+                "url" => $this->model->get_link_url("userSelect"),
+                "type" => "primary",
+                "css" => "d-block mb-3",
+            ));
+            $button_table->output_content();
+        }
         if($this->model->can_create_new_user())
         {
             $button_new = new BaseStyleComponent("button", array(
@@ -216,6 +226,38 @@ class UserSelectView extends BaseView
     }
 
     /**
+     * Render the list of users and their activity.
+     */
+    private function output_user_activity()
+    {
+        require __DIR__ . "/tpl_user_activity.php";
+    }
+
+    /**
+     * Render the activity table content.
+     */
+    private function output_user_activity_rows()
+    {
+        foreach($this->model->get_users() as $user)
+        {
+            $id = $user['id'];
+            $email = $user['title'];
+            /* $name = $user['name']; */
+            $state = $user['state'];
+            $row_state = "";
+            if($state === "blocked")
+                $row_state = "table-warning";
+            if($state === "inactive")
+                $row_state = "text-muted";
+            $url = $user['url'];
+            $last_login = $user['last_login'];
+            $activity = $this->model->get_user_activity($id);
+            $code = $this->model->get_user_code($id) ?? "undefined";
+            require __DIR__ . "/tpl_user_activity_row.php";
+        }
+    }
+
+    /**
      * Render the user description or the intro text.
      */
     private function output_main_content()
@@ -251,6 +293,32 @@ class UserSelectView extends BaseView
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(__DIR__ . "/css/users.css");
+        return parent::get_css_includes($local);
+    }
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $local = array(__DIR__ . "/js/users.js");
+        return parent::get_js_includes($local);
+    }
 
     /**
      * Render the cms view.
