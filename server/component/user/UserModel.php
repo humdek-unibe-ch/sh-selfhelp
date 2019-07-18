@@ -481,11 +481,12 @@ class UserModel extends BaseModel
                 $pc++;
         }
 
-        $sql = "SELECT DISTINCT url FROM user_activity WHERE id_users = :uid";
+        $sql = "SELECT DISTINCT url FROM user_activity
+            WHERE id_users = :uid AND id_type = 1";
         $activity = $this->db->query_db($sql, array(':uid' => $id));
         $ac = count($activity);
-        /* if($pc === 0 || $ac > $pc) */
-        /*     return 1; */
+        if($pc === 0 || $ac > $pc)
+            return 1;
         return $ac/$pc;
     }
 

@@ -38,6 +38,7 @@ class ExportPage extends BasePage
         $this->services['db']->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
             "url" => $_SERVER['REQUEST_URI'],
+            "id_type" => 2,
         ));
 
         // output headers so that the file is downloaded rather than displayed
