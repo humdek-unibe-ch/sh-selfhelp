@@ -37,7 +37,8 @@ $(document).ready(function() {
         {
             e.preventDefault();
             var $active = $('.list-group-item-action.active[id|="user_search"]');
-            select_item($active.attr('id'), $active.text());
+            if($active.length !== 0)
+                select_item($active.attr('id'), $active.text());
         }
     });
     $search.on('keyup', function(e) {
