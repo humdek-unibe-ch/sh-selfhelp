@@ -108,8 +108,7 @@ abstract class BasePage
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
-            "/js/ext/popper.min.js",
-            "/js/ext/bootstrap.min.js",
+            "/js/ext/bootstrap.bundle.min.js",
         );
         if(DEBUG == 0)
         {
