@@ -36,7 +36,7 @@ class UserModel extends BaseModel
      * @param int $did
      *  The user id to delete or null if nothing ought to be deleted.
      */
-    public function __construct($services, $uid, $did=null)
+    public function __construct($services, $uid=null, $did=null)
     {
         parent::__construct($services);
         $this->uid = $uid;

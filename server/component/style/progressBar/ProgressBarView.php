@@ -13,13 +13,13 @@ class ProgressBarView extends StyleView
      * The current state of the progress bar. $count : $count_max defines the
      * percentage at which the progress bar stands.
      */
-    private $count;
+    protected $count;
 
     /**
      * DB field 'count_max' (1).
      * Corresponds to 100% of the progress bar value.
      */
-    private $count_max;
+    protected $count_max;
 
     /**
      * DB field 'type' ('primary').
