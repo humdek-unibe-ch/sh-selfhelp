@@ -123,13 +123,14 @@ abstract class BasePage
             $this->js_includes);
         if(DEBUG == 1)
             $this->collect_style_includes();
+
         $this->services = array(
             // The router instance which is used to generate valid links.
             "router" => $router,
             //  The db instance which grants access to the DB.
             "db" => $db,
             // The login instance that allows to check user credentials.
-            "login" => new Login($db, $router),
+            "login" => new Login($db, ($keyword !== "login")),
             // The instance of the access control layer (ACL) which allows to
             // decide which links to display.
             "acl" => new Acl($db),
