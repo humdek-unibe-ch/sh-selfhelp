@@ -31,7 +31,7 @@ $db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 // custom page creation functions
 function create_request_page($router, $db, $class_name, $method_name)
 {
-    $ajax = new AjaxRequest($db, $class_name, $method_name);
+    $ajax = new AjaxRequest($db, $router, $class_name, $method_name);
     $ajax->print_json();
 }
 function create_exportData_page($router, $db, $select)

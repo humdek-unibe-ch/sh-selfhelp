@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . "/../service/Login.php";
 require_once __DIR__ . "/../service/BaseDb.php";
+require_once __DIR__ . "/../server/service/Router.php";
 require_once __DIR__ . "/../service/globals_untracked.php";
 
+$router = new Router();
 $db = new BaseDb(DBSERVER, DBNAME, DBUSER, DBPW);
-$login = new Login($db);
+$login = new Login($db, $router);
 echo "<p>Test access denied bad password: ";
 echo ($login->check_credentials("me@mydomain.com", "wotuele")) ? "failed" : "success";
 echo "</p>";
