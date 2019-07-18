@@ -250,9 +250,13 @@ class UserSelectView extends BaseView
             if($state === "inactive")
                 $row_state = "text-muted";
             $url = $user['url'];
-            $last_login = $user['last_login'];
+            $days = round((time() - strtotime($user['last_login'])) / (60*60*24)) . " day";
+            if($days > 1) $days .= "s";
+            $last_login = "never";
+            if($user['last_login'] !== null)
+                $last_login = $user['last_login'] . " (" . $days . " ago)";
             $activity = $this->model->get_user_activity($id);
-            $code = $this->model->get_user_code($id) ?? "undefined";
+            $code = $this->model->get_user_code($id) ?? "-";
             require __DIR__ . "/tpl_user_activity_row.php";
         }
     }
