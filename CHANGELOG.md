@@ -19,7 +19,7 @@
  - Add a JSON style which allows to define base styles with JSON (covers #168)
  - Add user overview table with user activity information to the user admin menu (#163)
  - Add a userProgress style which allows to display the current user progress (#80)
-
+ - Allow to customize the `meta:description` tag (#164)
 
 ------------
 # latest
