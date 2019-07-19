@@ -347,6 +347,29 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch the 'all' language content of a specific page field.
+     *
+     * @param int $id_page
+     *  The id of the page the field is part of.
+     * @param int $id_field
+     *  The id of the field from which the translations shall be fetched.
+     * @retval array
+     *  An array with one database item.
+     */
+    private function fetch_page_field_independent($id_page, $id_field)
+    {
+        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
+            FROM languages AS l
+            LEFT JOIN pages_fields_translation AS pft
+            ON l.id = pft.id_languages AND pft.id_pages = :pid
+            AND pft.id_fields = :fid
+            WHERE l.locale = 'all'";
+
+        return $this->db->query_db($sql,
+            array(":pid" => $id_page, ":fid" => $id_field));
+    }
+
+    /**
      * Fetch all translations of the content of a specific page field,
      * except the 'all' language.
      *
@@ -363,7 +386,7 @@ class CmsModel extends BaseModel
             $where = "WHERE l.locale <> :lang";
         else
             $where = "WHERE l.locale = :lang";
-        $sql = "SELECT l.locale AS locale, l.id, pft.content
+        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
             FROM languages AS l
             LEFT JOIN pages_fields_translation AS pft
             ON l.id = pft.id_languages AND pft.id_pages = :pid
@@ -374,6 +397,27 @@ class CmsModel extends BaseModel
             ":fid" => $id_field,
             ":lang" => $_SESSION['cms_language'],
         ));
+    }
+
+    /**
+     * Fetch all fields that are associated to a page.
+     *
+     * @param int $id
+     *  The id of the page.
+     * @retval array
+     *  An array of database items.
+     */
+    private function fetch_page_fields($id)
+    {
+        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+            pf.default_value, pf.help
+            FROM pages AS p
+            LEFT JOIN pages_fields AS pf ON pf.id_pages = p.id
+            LEFT JOIN fields AS f ON f.id = pf.id_fields
+            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            WHERE p.id = :id
+            ORDER BY ft.position, f.display, f.name";
+        return $this->db->query_db($sql, array(":id" => $id));
     }
 
     /**
@@ -1304,17 +1348,17 @@ class CmsModel extends BaseModel
      */
     public function get_page_properties()
     {
-        $fields = array();
+        $res = array();
         $page_title = $this->fetch_page_field_languages($this->id_page,
             LABEL_FIELD_ID);
         foreach($page_title as $content)
         {
-            $fields[] = $this->add_property_item(
+            $res[] = $this->add_property_item(
                 LABEL_FIELD_ID,
-                intval($content['id']),
+                intval($content['id_language']),
                 MALE_GENDER_ID,
                 "title",
-                "",
+                "The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header",
                 $content['locale'],
                 "text",
                 "page_field",
@@ -1322,16 +1366,45 @@ class CmsModel extends BaseModel
                 ""
             );
         }
+        $fields = $this->fetch_page_fields($this->id_page);
+        foreach($fields as $field)
+        {
+            $relation = "page_field";
+            $id = intval($field['id']);
+            if($field['display'] == '1')
+            {
+                $contents = $this->fetch_page_field_languages(
+                    $this->id_page, $id);
+            }
+            else
+                $contents = $this->fetch_page_field_independent($this->id_page,
+                    $id);
+            foreach($contents as $content)
+            {
+                $res[] = $this->add_property_item(
+                    $id,
+                    intval($content['id_language']),
+                    MALE_GENDER_ID,
+                    $field['name'],
+                    $field['help'],
+                    $content['locale'],
+                    $field['type'],
+                    "page_field",
+                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
+                    ""
+                );
+            }
+        }
         if($this->is_navigation())
         {
             // add navigation section fields
             $section_fields = $this->get_section_properties(
                     $this->page_info['id_navigation_section']);
             foreach($section_fields as $section_field)
-                $fields[] = $section_field;
+                $res[] = $section_field;
         }
         if($this->page_info['action'] === "sections")
-            $fields[] = $this->add_property_item(
+            $res[] = $this->add_property_item(
                 null,
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
@@ -1344,7 +1417,7 @@ class CmsModel extends BaseModel
                 ""
             );
         if($this->is_navigation())
-            $fields[] = $this->add_property_item(
+            $res[] = $this->add_property_item(
                 null,
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
@@ -1357,7 +1430,7 @@ class CmsModel extends BaseModel
                     $this->page_info['id_navigation_section'], false),
                 ""
             );
-        return $fields;
+        return $res;
     }
 
     /**
