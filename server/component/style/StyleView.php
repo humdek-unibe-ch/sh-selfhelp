@@ -53,7 +53,7 @@ abstract class StyleView extends BaseView
             {
                 $this->css = $model->get_db_field("css", null);
                 $this->id_section = $model->get_db_field("id", null);
-                if($this->css !== null && $this->id_section !== null)
+                if($this->id_section !== null)
                 {
                     $this->css .= " style-section-" . $this->id_section;
                     if($this->id_section === $_SESSION['active_section_id'])
