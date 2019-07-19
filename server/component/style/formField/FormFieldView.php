@@ -148,6 +148,24 @@ abstract class FormFieldView extends StyleView
     abstract protected function output_form_field();
 
     /* Public Methods *********************************************************/
+	
+	/** 
+	* public getter for form field view to get the name of the field
+	*/
+	
+	public function get_name_base()
+	{
+		return $this->name_base;
+	}
+
+   	/** 
+	* public getter for form field view to get the label of the field
+	*/
+	
+	public function get_label()
+	{
+		return $this->label;
+	}
 
     /**
      * Render the style view.
@@ -179,6 +197,6 @@ abstract class FormFieldView extends StyleView
     public function set_value($value)
     {
         $this->value = $value;
-    }
+    }	
 }
 ?>

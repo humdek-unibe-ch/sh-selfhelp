@@ -121,6 +121,28 @@ abstract class BaseComponent
     {
         return $this->view;
     }
+	
+	/**
+     * Returns the model instance of this component.
+     *
+     * @retval object
+     *  The model instance of this component.
+     */
+    public function get_model()
+    {
+        return $this->model;
+    }
+	
+	/**
+     * Returns the controller instance of this component.
+     *
+     * @retval object
+     *  The controller instance of this component.
+     */
+    public function get_controller()
+    {
+        return $this->controller;
+    }
 
     /**
      * Always returns true. A component extending the base component should
