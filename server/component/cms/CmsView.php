@@ -537,6 +537,7 @@ class CmsView extends BaseView
             "title" => $field['name'],
             "type_input" => $field['type'],
             "locale" => $field['locale'],
+            "help" => $field['help'],
             "children" => $children
         ));
     }

@@ -333,6 +333,11 @@ abstract class BasePage
      */
     protected function output_meta_tags()
     {
+        $description = "";
+        $fields = $this->services['db']->fetch_page_fields('home');
+        foreach($fields as $field)
+            if($field['name'] === "description")
+                $description = $field['content'];
         require __DIR__ . "/tpl_meta.php";
     }
 
