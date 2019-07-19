@@ -190,19 +190,19 @@ class CmsView extends BaseView
             $page_components[] = $text;
         }
         $this->add_local_component("page-view",
-            new BaseStyleComponent("card", array(
+            new BaseStyleComponent("div", array(
                 "css" => "mb-3",
-                "is_collapsible" => true,
-                "title" => "Page View",
                 "children" => $page_components,
+                "css" => "page-view",
             ))
         );
         if($this->model->get_active_section_id() != null)
             $this->add_local_component("section-view",
                 new BaseStyleComponent("card", array(
-                    "css" => "mb-3",
+                    "css" => "mb-3 section-view",
                     "is_collapsible" => true,
                     "title" => "Section View",
+                    "id" => "section-view",
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
                         $this->model->get_active_section_id()
@@ -739,10 +739,7 @@ class CmsView extends BaseView
         if($this->model->is_navigation_main())
             require __DIR__ . "/tpl_intro_nav.php";
         else
-        {
             $this->output_local_component("section-view");
-            $this->output_local_component("page-view");
-        }
     }
 
     /* Public Methods *********************************************************/

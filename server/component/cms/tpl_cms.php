@@ -11,4 +11,7 @@
     <div class="col">
         <?php $this->output_page_preview(); ?>
     </div>
+    <div class="col-auto">
+        <?php $this->output_local_component("page-view"); ?>
+    </div>
 </div>

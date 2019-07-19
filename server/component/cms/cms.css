@@ -1,22 +1,38 @@
 .highlight, .highlight-hover
 {
-    position: relative;
-    display: block !important;
-    z-index: 100;
+    /* position: relative; */
+    /* display: block !important; */
 }
 
 .highlight
 {
-    -moz-box-shadow: 0 0 5px #007bff;
-    -webkit-box-shadow: 0 0 5px #007bff;
-    box-shadow: 0 0 5px #007bff;
+    /* -moz-box-shadow: 0 0 5px #007bff; */
+    /* -webkit-box-shadow: 0 0 5px #007bff; */
+    /* box-shadow: 0 0 5px #007bff; */
 }
 
-.highlight-hover
+.section-view * .highlight-hover
 {
     -moz-box-shadow: 0 0 5px #28a745;
     -webkit-box-shadow: 0 0 5px #28a745;
     box-shadow: 0 0 5px #28a745;
+}
+
+.page-view * .page-view-element
+{
+    min-width: 80px;
+    min-height: 20px;
+    padding: 0;
+}
+
+.page-view * .highlight
+{
+    background-color: #007bff;
+}
+
+.page-view * .highlight-hover
+{
+    background-color: #28a745;
 }
 
 pre.db-fields
