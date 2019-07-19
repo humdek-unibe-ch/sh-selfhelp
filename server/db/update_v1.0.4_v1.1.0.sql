@@ -1,6 +1,6 @@
 ALTER TABLE `users` ADD `last_url` VARCHAR(100) NULL DEFAULT NULL AFTER `last_login`;
 
-ALTER TABLE `styles_fields` ADD `help` VARCHAR(500) NULL DEFAULT NULL AFTER `default_value`;
+ALTER TABLE `styles_fields` ADD `help` LONGTEXT NULL DEFAULT NULL AFTER `default_value`;
 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'json', '0000000008', '1');
 SET @id_field_json = LAST_INSERT_ID();
