@@ -4,7 +4,8 @@
 
  - fix umlaut problem with SMS service (#164)
  - Workaround for Safari bug with audio and video controls (#166)
- - fix a problem when trying to add a user to a chatroom without having a user selected
+ - fix a problem when trying to add a user to a chatroom without having a user
+   selected
 
 ### Changes
 
@@ -16,10 +17,19 @@
 
  - Remember the target url when not logged in (#150)
  - Remember the last url of a user and redirect to it after login (#147)
- - Add a JSON style which allows to define base styles with JSON (covers #168)
- - Add user overview table with user activity information to the user admin menu (#163)
- - Add a userProgress style which allows to display the current user progress (#80)
+ - Add a `json` style which allows to define base styles with JSON (covers #168)
+ - Add user overview table with user activity information to the user admin
+   menu (#163)
+ - Add a `userProgress` style which allows to display the current user progress
+   (#80)
  - Allow to customize the `meta:description` tag (#164)
+ - Add a `mermaidForm` style which allows to describe graphs and allows a
+   subject to change node labels (!2)
+ - Improve the CMS:
+   - add a schematic page overview
+   - allow to jump to the real page
+   - if acl allows it, a user sees a small edit icon on to bottom right of each
+     section page which allows an experimenter to switch back to the CMS.
 
 ------------
 # latest
