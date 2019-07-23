@@ -29,17 +29,19 @@ $(document).ready(function() {
         $('[data-toggle="popover"]').popover({html:true});
     });
     var $root = $('<div/>');
-    var $parent = $('.page-view');
-    traverse_page_view($root, $parent.children().first());
-    $parent.html($root);
+    traverse_page_view($root, $('#section-page-view').find('[class*="style-section"]').first());
+    $('.cms-page-overview').html($root);
 });
 
 function traverse_page_view($root, $parent)
 {
     var $new_root = $root;
-    if($parent.is('[class*=style-section]')
-        && $parent.css('display') !== 'inline'
-        && $parent.css('display') !== 'inline-block')
+    var $children = $parent.children();
+    var add_leaf = false;
+    var has_child = false;
+    var has_style_child = false;
+    var is_style_child = false;
+    if($parent.is('[class*=style-section]'))
     {
         var css = "";
         $parent.attr('class').split(' ').map(function(className) {
@@ -50,10 +52,18 @@ function traverse_page_view($root, $parent)
             )
                 css += " " + className;
         });
-        $new_root = $('<div/>', {"class": "page-view-element border rounded m-1 " + css});
+        $new_root = $('<div/>', {"class": "p-0 page-view-element border rounded m-1 " + css});
         $root.append($new_root);
+        has_child = true;
+        if($children.length === 0)
+            add_leaf = true;
     }
-    $parent.children().each(function() {
-        traverse_page_view($new_root, $(this));
+    else
+        is_style_child = true;
+    $children.each(function() {
+        has_style_child |= traverse_page_view($new_root, $(this));
     });
+    if(add_leaf | (!has_style_child && !is_style_child))
+        $new_root.append('<div class="page-view-element-leaf"></div>');
+    return has_child;
 }

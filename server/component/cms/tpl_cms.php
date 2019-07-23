@@ -12,6 +12,6 @@
         <?php $this->output_page_preview(); ?>
     </div>
     <div class="col-auto">
-        <?php $this->output_local_component("page-view"); ?>
+        <?php $this->output_page_overview(); ?>
     </div>
 </div>

@@ -190,10 +190,13 @@ class CmsView extends BaseView
             $page_components[] = $text;
         }
         $this->add_local_component("page-view",
-            new BaseStyleComponent("div", array(
-                "css" => "mb-3",
+            new BaseStyleComponent("card", array(
+                "id" => "page-view",
+                "title" => "Page View",
+                "is_collapsible" => true,
+                "is_expanded" => ($this->model->get_active_section_id() == null),
+                "css" => "mb-3 section-view",
                 "children" => $page_components,
-                "css" => "page-view",
             ))
         );
         if($this->model->get_active_section_id() != null)
@@ -734,12 +737,36 @@ class CmsView extends BaseView
     /**
      * Renders the page preview card.
      */
+    private function output_page_overview()
+    {
+        $url = $this->model->get_link_url($this->page_info['keyword'],
+                array("nav" => $this->page_info['id_navigation_section']));
+        $url .= '#section-' . $this->model->get_active_section_id();
+        $button = new BaseStyleComponent("button", array(
+            "label" => "To the Page",
+            "css" => "d-block m-1 mb-3",
+            "url" => $url,
+            "type" => "secondary",
+        ));
+        $button->output_content();
+        $div = new BaseStyleComponent("div", array(
+            "css" => "cms-page-overview page-view"
+        ));
+        $div->output_content();
+    }
+
+    /**
+     * Renders the page preview card.
+     */
     private function output_page_preview()
     {
         if($this->model->is_navigation_main())
             require __DIR__ . "/tpl_intro_nav.php";
         else
+        {
             $this->output_local_component("section-view");
+            $this->output_local_component("page-view");
+        }
     }
 
     /* Public Methods *********************************************************/
