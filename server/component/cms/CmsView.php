@@ -741,7 +741,9 @@ class CmsView extends BaseView
     {
         $url = $this->model->get_link_url($this->page_info['keyword'],
                 array("nav" => $this->model->get_active_root_section_id()));
-        $url .= '#section-' . $this->model->get_active_section_id();
+        if($this->model->get_active_section_id())
+            $url .= '#section-' . $this->model->get_active_section_id();
+        $_SESSION['cms_edit_url'] = $this->model->get_current_url_params();
         $button = new BaseStyleComponent("button", array(
             "label" => "To the Page",
             "css" => "d-block m-1 mb-3",

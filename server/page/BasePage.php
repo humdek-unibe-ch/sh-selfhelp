@@ -163,6 +163,7 @@ abstract class BasePage
     private function collect_style_includes()
     {
         if($handle = opendir(STYLE_SERVER_PATH)) {
+            $this->css_includes[] = STYLE_PATH . '/style.css';
             while(false !== ($file = readdir($handle)))
             {
                 if(filetype(STYLE_SERVER_PATH . '/' . $file) !== "dir"

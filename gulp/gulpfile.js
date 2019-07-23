@@ -8,7 +8,8 @@ var uglify = require('gulp-uglify');
 
 // Gulp task to minify CSS files
 gulp.task('styles', function () {
-  return gulp.src('../server/component/style/**/css/*.css')
+  return gulp.src(['../server/component/style/style.css',
+        '../server/component/style/**/css/*.css'])
     // Minify the file
     .pipe(csso())
     // Concat
