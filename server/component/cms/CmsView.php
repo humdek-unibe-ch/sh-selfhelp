@@ -740,7 +740,7 @@ class CmsView extends BaseView
     private function output_page_overview()
     {
         $url = $this->model->get_link_url($this->page_info['keyword'],
-                array("nav" => $this->page_info['id_navigation_section']));
+                array("nav" => $this->model->get_active_root_section_id()));
         $url .= '#section-' . $this->model->get_active_section_id();
         $button = new BaseStyleComponent("button", array(
             "label" => "To the Page",
