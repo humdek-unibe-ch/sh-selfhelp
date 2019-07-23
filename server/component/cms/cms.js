@@ -65,5 +65,5 @@ function traverse_page_view($root, $parent)
     });
     if(add_leaf | (!has_style_child && !is_style_child))
         $new_root.append('<div class="page-view-element-leaf"></div>');
-    return has_child;
+    return has_child | has_style_child;
 }
