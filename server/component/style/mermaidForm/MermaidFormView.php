@@ -61,7 +61,7 @@ class MermaidFormView extends FormUserInputView
             "id" => $this->id_section,
         ));
         $formModal = new BaseStyleComponent("card", array(
-            "title" => "<span id='modalFormTitle'></span>",
+            "title" => "Please enter your input",
             "children" => array($form),
             "type" => "warning",
             "css" => ""

@@ -99,3 +99,19 @@ ALTER TABLE `pages_fields`
 INSERT INTO `fields` (`name`, `id_type`, `display`) VALUES('description', (SELECT id FROM `fieldType` WHERE `name` = 'textarea'), 1);
 SET @id_field_description = LAST_INSERT_ID();
 INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `default_value`, `help`) VALUES((SELECT id FROM `pages` WHERE `keyword` = 'home'), @id_field_description, NULL, 'A short description of the research project. This field will be used as `meta:description` in the HTML header. Some services use this tag to provide the user with information on the webpage (e.g. automatic link-replacement in messaging tools on smartphones use this description.)');
+
+-- style mermaidForm
+
+#fieldType code
+INSERT INTO fieldType (name, position) VALUES ('code', 42);
+#field code
+INSERT INTO fields (name, id_type, display) VALUES ('code', (select id from `fieldType` where `name` = 'code' limit 1), 1);
+#mermaidForm style
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('mermaidForm', '2', (select id from styleGroup where `name` = 'Form' limit 1), 'Style to create diagrams using markdown syntax. Use <a href="https://mermaidjs.github.io/demos.html" target="_blank">mermaid markdown</a> syntax here.');
+#mermaid styles fields
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES ((select id from styles where `name` = 'mermaidForm' limit 1), (select id from `fields` where `name` = 'code' limit 1), 'Use <a href="https://mermaidjs.github.io/demos.html" target="_blank">mermaid markdown</a> syntax here.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES ((select id from styles where `name` = 'mermaidForm' limit 1), (select id from `fields` where `name` = 'name' limit 1), 'Name of the form');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES ((select id from styles where `name` = 'mermaidForm' limit 1), (select id from `fields` where `name` = 'label' limit 1), 'Label of the form');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES ((select id from styles where `name` = 'mermaidForm' limit 1), (select id from `fields` where `name` = 'type' limit 1), 'Type of the form');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES ((select id from styles where `name` = 'mermaidForm' limit 1), (select id from `fields` where `name` = 'children' limit 1), 'Add only styles from type `input` for the edditable nodes. If they have input they could be eddited by the subject when they are clicked.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES ((select id from styles where `name` = 'mermaidForm' limit 1), (select id from `fields` where `name` = 'alert_success' limit 1), 'The alert message for the succes');

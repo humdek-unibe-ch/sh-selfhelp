@@ -1,48 +1,58 @@
 $(document).ready(function () {
     mermaid.mermaidAPI.initialize({
-        startOnLoad: true,
-        mermaid: {
-            callback: preload // call fucntion preload after mermaid initialize the svg objects
-        }
+        startOnLoad:false
     });
-    mermaid.init(undefined, $('.mermaidDiagram'))
+    $(".mermaidForm").each(function() {
+        var $element = $(this).children('div.mermaidCode:first');
+        var formName = $(this).children('div.mermaidFormName:first').text();
+        var j_editableFields = $(this).children('div.mermaidFormEditableFields:first').text();
+
+        var insertSvg = function(svgCode) {
+            var $svgCode = $(svgCode);
+            addNodeIdPrefix(formName, $svgCode);
+            $element.html($svgCode);
+            addPointerClassAndClickEvent(formName, j_editableFields);
+        };
+
+        var graph = mermaid.mermaidAPI.render('graph-' + formName, $element.text(), insertSvg);
+    });
 });
 
-function addPointerClassAndClickEvent(){
+function addNodeIdPrefix(formName, $svgCode){
+    //prefix each node with formName for uniquness
+    var allNodes = $svgCode.find('.node');
+    allNodes.each(function(){
+        if(!$(this).attr('id').includes(formName)){
+            $(this).attr('id', formName + '_' + $(this).attr('id'));
+        }
+    });
+}
+
+function addPointerClassAndClickEvent(formName, j_editableFields){
     // add pointer class to editable fields
-    var editableFields = getEditableFields();
-    var formName = $('#mermaidFormName').text();
+    var editableFields = parseEditableFields(j_editableFields);
     for (var name in editableFields){
         $('#' + formName + '_' + name).addClass('pointer');
         $('#' + formName + '_' + name).click(function() {
-            onClickToEdit($(this).attr('id'));
+            onClickToEdit($(this).attr('id'), formName, editableFields[name]);
         });
     }
 }
 
-function getEditableFields(){
-    // get editable fields and values and return them as object
-    try{
-        return JSON.parse($('#mermaidFormEditableFields').text());
-    }
-    catch(e){
-        console.log(e);
-        return {};
-    }
-}
-
-function onClickToEdit(id){ 
+function onClickToEdit(id, formName, editableField){
     // fire modal form on clik on editable field
-    var formName = $('#mermaidFormName').text();
-    var editableFields = getEditableFields();
-    $("form input[type=text]").each(function(){
-        if (formName + "_" + $(this).attr('name') == id+"[value]") {
+    $("#" + formName).find("form input[type=text]").each(function(){
+        if(formName + "_" + $(this).attr('name') == id + "[value]") {
             //add label as title and if it is empty put a default one
-            var label = editableFields[id.replace(formName + '_', '')].label;
-            $('#modalFormTitle').html(label != '' ? label : 'Please enter your input');
+            if(editableField.label != '')
+                $('#' + formName).find('.card-header').html(editableField.label);
+            else
+                $(this).addClass('mb-3');
             //add visble class to the field that the user wants to edit
             $(this).addClass('mermaidFieldVisible');
         }
+        else
+            $(this).prop('required', false);
     });
     $("#"+ formName).modal();
     $("#"+ formName).on('hidden.bs.modal', function () {
@@ -54,14 +64,13 @@ function onClickToEdit(id){
     });
 }
 
-function preload(){
-    //preload the id of mermaid and assign them formName as a prefix for uniquness
-    var allNodes = $('.node');
-    var formName = $('#mermaidFormName').text();
-    allNodes.each(function(){
-        if(!$(this).attr('id').includes(formName)){
-            $(this).attr('id', formName + '_' + $(this).attr('id'));
-        }
-    });
-    addPointerClassAndClickEvent();
+function parseEditableFields(j_editableFields){
+    // get editable fields and values and return them as object
+    try{
+        return JSON.parse(j_editableFields);
+    }
+    catch(e){
+        console.log(e);
+        return {};
+    }
 }
