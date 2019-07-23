@@ -476,7 +476,7 @@ class CmsView extends BaseView
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
             ));
-        else if(in_array($field['type'], array("textarea", "markdown", "json")))
+        else if(in_array($field['type'], array("textarea", "markdown", "json", "code")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,

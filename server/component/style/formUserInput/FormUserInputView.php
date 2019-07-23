@@ -14,19 +14,19 @@ class FormUserInputView extends StyleView
      * The name of the form. This will help to group all input data to
      * a specific set. If this field is not set, the style will not be rendered.
      */
-    private $name;
+    protected $name;
 
     /**
      * DB field 'label' ('Submit').
      * The label of the submit button.
      */
-    private $label;
+    protected $label;
 
     /**
      * DB field 'type' ('primary').
      * The type of the submit button, e.g. 'primary', 'success', etc.
      */
-    private $type;
+    protected $type;
 
     /**
      * DB field 'is_log' (false).
@@ -34,7 +34,7 @@ class FormUserInputView extends StyleView
      * stored individually with a timestamp. If set to false the form will save
      * persistent data which can be edited continuously by the user.
      */
-    private $is_log;
+    protected $is_log;
 
     /* Constructors ***********************************************************/
 
@@ -65,7 +65,7 @@ class FormUserInputView extends StyleView
      *  If set to true, existing data is updated.
      *  If set to false, each data set is saved as a timestamped new entry.
      */
-    private function propagate_input_field_settings($children, $show_data)
+    protected function propagate_input_field_settings($children, $show_data)
     {
         foreach($children as $child)
         {
