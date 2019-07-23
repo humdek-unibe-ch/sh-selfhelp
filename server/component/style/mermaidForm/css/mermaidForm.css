@@ -1,31 +1,31 @@
 .pointer {
-   cursor: pointer;
+    cursor: pointer;
 }
 
 .mermaidFormHidden {
-   display: none;   
+    display: none;
 }
 
 .mermaidFormHiddenFields div label {
-   display: none;
+    display: none;
 }
 
 .mermaidFormHiddenFields div input {
-   display: none;
+    display: none;
 }
 
 .mermaidFormHiddenFields label {
-   display: none;
+    display: none;
 }
 
 .mermaidFormHiddenFields input {
-   display: none;
+    display: none;
 }
 
 .mermaidFieldVisible{
-   display: block !important;
+    display: block !important;
 }
 
 .modal-content > .card{
-   z-index: 100000 !important;
+    z-index: 100000 !important;
 }

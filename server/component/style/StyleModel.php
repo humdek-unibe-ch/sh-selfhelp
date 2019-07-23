@@ -198,8 +198,8 @@ class StyleModel extends BaseModel implements IStyleModel
                 "type" => $field['type'],
                 "id" => $field['id'],
                 "default" => $default,
-            );			
-        }		
+            );
+        }
     }
 
     /**
