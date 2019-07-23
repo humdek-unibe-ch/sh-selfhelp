@@ -28,7 +28,7 @@ class MermaidFormView extends FormUserInputView
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the login component.
+     *  The model instance of the component.
      */
     public function __construct($model, $controller)
     {
@@ -38,43 +38,6 @@ class MermaidFormView extends FormUserInputView
     }
 
     /* Private Methods *********************************************************/
-
-    /**
-     * Get fields that will be editable by the mermaid, we return a json array
-     * with a structure
-     * name:{
-     *   value: field_value,
-     *   label: label_used_for_description
-     * }
-     */
-    private function getUserFieldNamesWithValues()
-    {
-        $arrFields = [];
-        foreach($this->form_children as $child)
-        {
-            if(is_a($child, "StyleComponent"))
-            {
-                $name = $child->get_style_instance()->get_view()
-                    ->get_name_base();
-                $value = $child->get_style_instance()->get_model()
-                    ->get_form_field_value();
-                if($this->model->is_cms_page()){
-                    $arrFields[$name] = array(
-                        "value" => '',
-                        "label" => ''
-                    );
-                }else{
-                    $arrFields[$name] = array(
-                        "value" => $value,
-                        "label" => ''
-                    );
-                }
-                $arrFields[$name]['label'] = $child->get_style_instance()
-                    ->get_view()->get_label();
-            }
-        }
-        return json_encode($arrFields);
-    }
 
     /**
      * render modal form in a card view
@@ -115,9 +78,11 @@ class MermaidFormView extends FormUserInputView
     public function output_content()
     {
         if($this->name === "") return;
-        $fields =  $this->getUserFieldNamesWithValues();
-        $code = $this->code_text;
+        $fields =  $this->model->get_user_field_names_with_values(
+            $this->form_children);
+        $code = $this->model->replace_user_field_values_in_code($fields, $this->code_text);
         $formName = $this->name;
+        $fields = json_encode($fields);
         require __DIR__ . "/tpl_mermaidForm.php";
     }
 }

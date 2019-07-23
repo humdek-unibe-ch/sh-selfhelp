@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/MermaidFormView.php";
-require_once __DIR__ . "/../formUserInput/FormUserInputModel.php";
+require_once __DIR__ . "/MermaidFormModel.php";
 require_once __DIR__ . "/../formUserInput/FormUserInputController.php";
 
 /**
@@ -30,7 +30,7 @@ class MermaidFormComponent extends BaseComponent
      */
     public function __construct($services, $id)
     {
-        $model = new FormUserInputModel($services, $id);
+        $model = new MermaidFormModel($services, $id);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new FormUserInputController($model);
