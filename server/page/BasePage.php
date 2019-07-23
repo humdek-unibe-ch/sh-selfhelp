@@ -117,9 +117,9 @@ abstract class BasePage
             $this->css_includes[] = "/css/ext/styles.min.css";
             $this->js_includes[] = "/js/ext/styles.min.js";
         }
-        $this->add_main_include_files(CSS_SERVER_PATH, "/css/",
+        $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
             $this->css_includes);
-        $this->add_main_include_files(JS_SERVER_PATH, "/js/",
+        $this->add_main_include_files(JS_SERVER_PATH, "/js/", "js",
             $this->js_includes);
         if(DEBUG == 1)
             $this->collect_style_includes();
@@ -170,12 +170,12 @@ abstract class BasePage
                     || $file === "." || $file === "..") continue;
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/css',
-                    STYLE_PATH . '/' . $file . '/css/',
+                    STYLE_PATH . '/' . $file . '/css/', 'css',
                     $this->css_includes
                 );
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/js',
-                    STYLE_PATH . '/' . $file . '/js/',
+                    STYLE_PATH . '/' . $file . '/js/', 'js',
                     $this->js_includes
                 );
             }
@@ -190,10 +190,13 @@ abstract class BasePage
      *  The server path to the folder holding include files.
      * @param string $path_prefix
      *  The relative host path to reach the include files.
+     * @param string $extension
+     *  The file extension of the file to be added.
      * @param reference &$includes
      *  A reference to the array where the include paths will be attached.
      */
-    private function add_main_include_files($path, $path_prefix, &$includes)
+    private function add_main_include_files($path, $path_prefix, $extension,
+        &$includes)
     {
         if(!file_exists($path)) return;
         $files = array();
@@ -207,7 +210,11 @@ abstract class BasePage
         }
         natcasesort($files);
         foreach($files as $file)
-            $includes[] = $path_prefix . $file;
+        {
+            $file_parts = pathinfo($file);
+            if($file_parts['extension'] === $extension)
+                $includes[] = $path_prefix . $file;
+        }
     }
 
     /**
