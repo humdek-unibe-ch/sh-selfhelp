@@ -17,7 +17,7 @@ class ParsedownExtension extends Parsedown
      *
      * The size and class attributes are postfixe to the filename, delimited by
      * a colon:
-     * \<image_src\>:\<width\>x\<height\>:\<class_n\>,...,\<class_n\>
+     * \<image_src\>|\<width\>x\<height\>|\<class_n\>,...,\<class_n\>
      */
     protected function inlineImage($excerpt)
     {
@@ -28,7 +28,7 @@ class ParsedownExtension extends Parsedown
             return null;
         }
 
-        $attrs = explode(':', $image['element']['attributes']['src']);
+        $attrs = explode('|', $image['element']['attributes']['src']);
         $image['element']['attributes']['src'] = $attrs[0];
         if(count($attrs) > 1)
         {
@@ -46,11 +46,36 @@ class ParsedownExtension extends Parsedown
                 "img-fluid img-thumbnail " . $class;
         }
 
-        if($image['element']['attributes']['src'][0] !== '/')
-            $image['element']['attributes']['src'] = ASSET_PATH . '/'
-                . $image['element']['attributes']['src'];
-
         return $image;
+    }
+
+    /**
+     * Extends the inlineLink parser to add the following features:
+     *
+     * - prepending a link url with '!' will open the link in a new tab
+     * - prepending a link url with '%' will prepend the asset path
+     * - prepending a link url with '|' will prepend the base path
+     */
+    protected function inlineLink($excerpt)
+    {
+        $link = parent::inlineLink($excerpt);
+
+        if($link['element']['attributes']['href'][0] === '!')
+        {
+            $link['element']['attributes']['target'] = '_blank';
+            $link['element']['attributes']['href'] =
+                substr($link['element']['attributes']['href'], 1);
+        }
+        if($link['element']['attributes']['href'][0] === '%')
+        {
+            $link['element']['attributes']['href'] = ASSET_PATH . '/'
+                . substr($link['element']['attributes']['href'], 1);
+        }
+        else if($link['element']['attributes']['href'][0] === '|')
+            $link['element']['attributes']['href'] = BASE_PATH . '/'
+                . substr($link['element']['attributes']['href'], 1);
+
+        return $link;
     }
 
     /**

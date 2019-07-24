@@ -12,6 +12,7 @@
  - Change CSP rule to allow images from https://via.placeholder.com/
  - Update Bootstrap to version v4.3.1
  - Distinguish between export and experiment activity
+ - Change the image syntax in markdown to allow more linking options
 
 ### New Features
 
@@ -30,6 +31,8 @@
    - allow to jump to the real page
    - if acl allows it, a user sees a small edit icon on to bottom right of each
      section page which allows an experimenter to switch back to the CMS.
+ - Improve Markdown
+   - Allow more linking options (use prefixes '|', '!', '%')
 
 ------------
 # latest
