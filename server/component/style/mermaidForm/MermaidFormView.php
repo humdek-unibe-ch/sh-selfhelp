@@ -62,14 +62,13 @@ class MermaidFormView extends FormUserInputView
             "css" => "mermaidFormHiddenFields",
             "id" => $this->id_section,
         ));
-        $formModal = new BaseStyleComponent("card", array(
-            "title" => "Please enter your input",
-            "children" => array($form),
-            "type" => "warning",
-            "css" => ""
+        $modal = new BaseStyleComponent('modal', array(
+            'id' => $this->name,
+            'title' => "Please enter your input",
+            'children' => array($form),
         ));
 
-        $formModal->output_content();
+        $modal->output_content();
     }
 
     /* Public Methods *********************************************************/
