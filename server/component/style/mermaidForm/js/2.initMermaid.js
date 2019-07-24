@@ -57,7 +57,7 @@ function onClickToEdit(id, formName, editableField){
         if(formName + "_" + $(this).attr('name') == id + "[value]") {
             //add label as title and if it is empty put a default one
             if(editableField.label != '')
-                $('#' + formName).find('.card-header').html(editableField.label);
+                $('#' + formName).find('.modal-title').html(editableField.label);
             else
                 $(this).addClass('mb-3');
             //add visble class to the field that the user wants to edit

@@ -39,6 +39,7 @@ class UserInput
      *  db column and the value to the db value.
      * @retval array
      *  An array of field items where eeach item has the following keys:
+     *  - 'id'            A unique id of the field
      *  - 'user_code'     A unique string that connects values to a user without
      *                    revealing the identity of the user.
      *  - 'user_gender'   The gender of the user.
@@ -55,7 +56,7 @@ class UserInput
      */
     private function fetch_input_fields($conds = array())
     {
-        $sql = "SELECT ui.id_users, ui.value, ui.edit_time, ui.id_sections,
+        $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
             g.name AS gender, vc.code
             FROM user_input AS ui
             LEFT JOIN users AS u ON u.id = ui.id_users
@@ -80,6 +81,7 @@ class UserInput
             if($gender === "female" && $field_label === "")
                 $field_label = $this->field_attrs[$id]["label"]["male"][$language] ?? "";
             $fields[] = array(
+                "id" => $field['id'],
                 "user_code" => $field['code'],
                 "user_gender" => $field['gender'],
                 "page" => $this->field_attrs[$id]["page"],
@@ -203,6 +205,7 @@ class UserInput
      *
      * @param array $filter
      *  The filter array can be empty or have any of the following keys:
+     *   - 'id'           Selects a field with a given id.
      *   - 'gender'       This can either be set to 'male' or 'female'.
      *   - 'field_name'   Selects all fields with the given name.
      *   - 'form_name'    Selects all fields from the given form name.
@@ -210,6 +213,7 @@ class UserInput
      *   - 'nav'          Selects all fields in a given navigation sections.
      *   - 'id_section'   Selects all fields with given section id.
      *   - 'id_user'      Selects all fields from a given user id.
+     *   - 'removed'      Selects all fields matching the removed flag
      * @retval array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
@@ -223,6 +227,10 @@ class UserInput
             $db_cond["ui.id_sections"] = $filter["id_section"];
         if(isset($filter["id_user"]))
             $db_cond["ui.id_users"] = $filter["id_user"];
+        if(isset($filter["id"]))
+            $db_cond["ui.id"] = $filter["id"];
+        if(isset($filter["removed"]))
+            $db_cond["ui.removed"] = $filter["removed"] ? '1' : '0';
         $fields_all = $this->fetch_input_fields($db_cond);
         $fields = array();
         foreach($fields_all as $field)

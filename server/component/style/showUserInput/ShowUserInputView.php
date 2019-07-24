@@ -31,6 +31,29 @@ class ShowUserInputView extends StyleView
      */
     private $label;
 
+    /**
+     * DB field 'label_delete' (false).
+     * If set a subject is allowed to mark entries as deleted.
+     */
+    private $label_delete;
+
+    /**
+     * DB field 'delete_title' (empty string).
+     * The title of the modal form.
+     */
+    private $delete_title;
+
+    /**
+     * DB field 'delete_content' (empty string).
+     * The content of the modal form.
+     */
+    private $delete_content;
+
+    /**
+     * Internal attribute to track wether a subject can mark fields as deleted.
+     */
+    private $can_delete = false;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -39,15 +62,65 @@ class ShowUserInputView extends StyleView
      * @param object $model
      *  The model instance of a base style component.
      */
-    public function __construct($model)
+    public function __construct($model, $controller)
     {
-        parent::__construct($model);
+        parent::__construct($model, $controller);
         $this->source = $this->model->get_db_field("source");
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Date");
+        $this->label_delete = $this->model->get_db_field("label_delete", "Remove");
+        $this->delete_content = $this->model->get_db_field("text", "Do you want to remove the entry?");
+        $this->delete_title = $this->model->get_db_field("text", "Remove Entry");
+        $this->can_delete = $this->label_delete != "";
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Render the body items of a log form.
+     *
+     * @param array $rows
+     *  The rows of fields to be rendered.
+     */
+    private function output_body_items($rows)
+    {
+        foreach($rows as $cols)
+            require __DIR__ . "/tpl_table_row.php";
+    }
+
+    /**
+     * Render all colomns of a row.
+     *
+     * @param array $cols
+     *  An array of values top be rendered in one row.
+     */
+    private function output_cols($cols)
+    {
+        foreach($cols as $id => $value)
+        {
+            if($id !== 0)
+                $id = 'id="user-input-field-' . $id . '"';
+            else
+                $id = "";
+            $this->output_field($id, $value);
+        }
+        if($this->can_delete)
+        {
+            $target = "modal-" . $this->source;
+            require __DIR__ . "/tpl_delete.php";
+        }
+    }
+
+    /**
+     * Render a table field.
+     *
+     * @param array $value
+     *  The value to be displayed in the table field.
+     */
+    private function output_field($id, $value)
+    {
+        require __DIR__ . "/tpl_field.php";
+    }
 
     /**
      * Render the form fields.
@@ -75,31 +148,9 @@ class ShowUserInputView extends StyleView
         {
             $label = $field['field_label'];
             $value = $field['value'];
+            $id = intval($field['id']);
             require __DIR__ . "/tpl_doc_field.php";
         }
-    }
-
-    /**
-     * Render all colomns of a row.
-     *
-     * @param array $cols
-     *  An array of values top be rendered in one row.
-     */
-    private function output_cols($cols)
-    {
-        foreach($cols as $value)
-            $this->output_field($value);
-    }
-
-    /**
-     * Render a table field.
-     *
-     * @param array $value
-     *  The value to be displayed in the table field.
-     */
-    private function output_field($value)
-    {
-        require __DIR__ . "/tpl_field.php";
     }
 
     /**
@@ -117,9 +168,11 @@ class ShowUserInputView extends StyleView
             $header[] = $field['field_label'];
             if(!isset($rows[$field['timestamp']]))
                 $rows[$field['timestamp']] = array($field['timestamp']);
-            $rows[$field['timestamp']][] = $field['value'];
+            $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
         }
         $header = array_unique($header);
+        if($this->can_delete)
+            $header[] = "";
 
         require __DIR__ . "/tpl_table_header.php";
         require __DIR__ . "/tpl_table_body.php";
@@ -138,15 +191,31 @@ class ShowUserInputView extends StyleView
     }
 
     /**
-     * Render the body items of a log form.
-     *
-     * @param array $rows
-     *  The rows of fields to be rendered.
+     * Render to modal dialog
      */
-    private function output_body_items($rows)
+    private function output_modal()
     {
-        foreach($rows as $cols)
-            require __DIR__ . "/tpl_table_row.php";
+        $modal = new BaseStyleComponent('modal', array(
+            'id' => "modal-" . $this->source,
+            'title' => $this->delete_title,
+            'children' => array(
+                new BaseStyleComponent('markdown', array(
+                    "text_md" => $this->delete_content,
+                )),
+                new BaseStyleComponent('form', array(
+                    "type" =>'danger',
+                    'url' => $_SERVER['REQUEST_URI'],
+                    'label' => $this->label_delete,
+                    'children' => array(
+                        new BaseStyleComponent('input', array(
+                            'name' => 'user_input_remove_id',
+                            'type_input' => "hidden",
+                        )),
+                    ),
+                )),
+            ),
+        ));
+        $modal->output_content();
     }
 
     /* Public Methods *********************************************************/

@@ -2,6 +2,7 @@
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/ShowUserInputView.php";
 require_once __DIR__ . "/ShowUserInputModel.php";
+require_once __DIR__ . "/ShowUserInputController.php";
 
 /**
  * A component class for a showUserInput style component. This style is
@@ -26,8 +27,11 @@ class ShowUserInputComponent extends BaseComponent
     public function __construct($services, $id)
     {
         $model = new ShowUserInputModel($services, $id);
-        $view = new ShowUserInputView($model);
-        parent::__construct($model, $view);
+        $controller = null;
+        if(!$model->is_cms_page())
+            $controller = new ShowUserInputController($model);
+        $view = new ShowUserInputView($model, $controller);
+        parent::__construct($model, $view, $controller);
     }
 }
 ?>

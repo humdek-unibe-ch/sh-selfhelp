@@ -41,7 +41,20 @@ class ShowUserInputModel extends StyleModel
         return $this->user_input->get_input_fields(array(
             "form_name" => $form_name,
             "id_user" => $_SESSION['id_user'],
+            "removed" => false,
         ));
+    }
+
+    /**
+     * Mark this user input as removed in the database.
+     *
+     * @param int $id
+     *  The id of the field to be marked as removed.
+     */
+    public function mark_user_input_as_removed($id)
+    {
+        $this->db->update_by_ids('user_input', array('removed' => 1),
+            array('id' => $id));
     }
 }
 ?>
