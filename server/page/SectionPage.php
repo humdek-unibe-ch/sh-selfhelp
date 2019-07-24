@@ -69,6 +69,15 @@ class SectionPage extends BasePage
      */
     protected function output_content()
     {
+        if($this->services['acl']->has_access($_SESSION['id_user'],
+                $this->id_page, 'insert'))
+        {
+            $arr = array('pid' => $this->id_page);
+            if($this->id_page == $_SESSION['cms_edit_url']['pid'])
+                $arr = $_SESSION['cms_edit_url'];
+            $url = $this->services['router']->generate('cmsSelect', $arr);
+            require __DIR__ . "/tpl_cms_edit.php";
+        }
         $was_section_rendered = false;
         foreach($this->sections as $section)
         {

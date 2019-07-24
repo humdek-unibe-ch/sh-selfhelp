@@ -37,6 +37,11 @@ class Login
         if(!isset($_SESSION['language'])) $_SESSION['language'] = LANGUAGE;
         if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = LANGUAGE;
+        if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
+            "pid" => null,
+            "sid" => null,
+            "ssid" => null
+        );
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
         if(!array_key_exists('target_url', $_SESSION))

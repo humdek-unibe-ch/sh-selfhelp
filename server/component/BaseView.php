@@ -113,9 +113,10 @@ abstract class BaseView
     {
         if($this->controller === null) return;
         if(!$this->controller->has_succeeded()) return;
-        foreach($this->controller->get_success_msgs() as $msg)
+        foreach($this->controller->get_success_msgs() as $idx => $msg)
         {
             $alert = new BaseStyleComponent("alert", array(
+                "id" => "controller-success-" . $idx,
                 "type" => "success",
                 "is_dismissable" => true,
                 "children" => array(new BaseStyleComponent("plaintext", array(

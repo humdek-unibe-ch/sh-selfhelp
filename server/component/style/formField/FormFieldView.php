@@ -150,6 +150,22 @@ abstract class FormFieldView extends StyleView
     /* Public Methods *********************************************************/
 
     /**
+     * public getter for form field view to get the name of the field
+     */
+    public function get_name_base()
+    {
+        return $this->name_base;
+    }
+
+    /**
+     * public getter for form field view to get the label of the field
+     */
+    public function get_label()
+    {
+        return $this->label;
+    }
+
+    /**
      * Render the style view.
      */
     public function output_content()

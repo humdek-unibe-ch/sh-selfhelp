@@ -4,11 +4,12 @@ var concat = require('gulp-concat');
 var gulp = require('gulp');
 var htmlmin = require('gulp-htmlmin');
 var runSequence = require('run-sequence');
-var uglify = require('gulp-uglify');
+var terser = require('gulp-terser');
 
 // Gulp task to minify CSS files
 gulp.task('styles', function () {
-  return gulp.src('../server/component/style/**/css/*.css')
+  return gulp.src(['../server/component/style/style.css',
+        '../server/component/style/**/css/*.css'])
     // Minify the file
     .pipe(csso())
     // Concat
@@ -21,7 +22,7 @@ gulp.task('styles', function () {
 gulp.task('scripts', function() {
   return gulp.src('../server/component/style/**/js/*.js')
     // Minify the file
-    .pipe(uglify())
+    .pipe(terser())
     // Concat
     .pipe(concat('styles.min.js'))
     // Output

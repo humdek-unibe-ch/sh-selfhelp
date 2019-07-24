@@ -191,18 +191,21 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_collapsible" => true,
+                "id" => "page-view",
                 "title" => "Page View",
+                "is_collapsible" => true,
+                "is_expanded" => ($this->model->get_active_section_id() == null),
+                "css" => "mb-3 section-view",
                 "children" => $page_components,
             ))
         );
         if($this->model->get_active_section_id() != null)
             $this->add_local_component("section-view",
                 new BaseStyleComponent("card", array(
-                    "css" => "mb-3",
+                    "css" => "mb-3 section-view",
                     "is_collapsible" => true,
                     "title" => "Section View",
+                    "id" => "section-view",
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
                         $this->model->get_active_section_id()
@@ -473,7 +476,7 @@ class CmsView extends BaseView
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
             ));
-        else if(in_array($field['type'], array("textarea", "markdown", "json")))
+        else if(in_array($field['type'], array("textarea", "markdown", "json", "code")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
@@ -729,6 +732,29 @@ class CmsView extends BaseView
             require __DIR__ . "/tpl_intro_cms.php";
         else
             require __DIR__ . "/tpl_cms.php";
+    }
+
+    /**
+     * Renders the page preview card.
+     */
+    private function output_page_overview()
+    {
+        $url = $this->model->get_link_url($this->page_info['keyword'],
+                array("nav" => $this->model->get_active_root_section_id()));
+        if($this->model->get_active_section_id())
+            $url .= '#section-' . $this->model->get_active_section_id();
+        $_SESSION['cms_edit_url'] = $this->model->get_current_url_params();
+        $button = new BaseStyleComponent("button", array(
+            "label" => "To the Page",
+            "css" => "d-block m-1 mb-3",
+            "url" => $url,
+            "type" => "secondary",
+        ));
+        $button->output_content();
+        $div = new BaseStyleComponent("div", array(
+            "css" => "cms-page-overview page-view"
+        ));
+        $div->output_content();
     }
 
     /**
