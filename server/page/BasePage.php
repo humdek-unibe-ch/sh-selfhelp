@@ -124,6 +124,7 @@ abstract class BasePage
         if(DEBUG == 1)
             $this->collect_style_includes();
 
+        $user_input = new UserInput($db);
         $this->services = array(
             // The router instance which is used to generate valid links.
             "router" => $router,
@@ -135,14 +136,14 @@ abstract class BasePage
             // decide which links to display.
             "acl" => new Acl($db),
             // A markdown parser.
-            "parsedown" => new ParsedownExtension(),
+            "parsedown" => new ParsedownExtension($user_input),
             // The instance to the navigation service which allows to switch
             // between sections, associated to a specific page. Unlike the
             // other elements in this array, "nav" may be null if a page has
             // only one view.
             "nav" => null,
             // User input handler
-            "user_input" => new UserInput($db),
+            "user_input" => $user_input,
         );
         $this->services['parsedown']->setSafeMode(false);
         $this->fetch_page_info($keyword);

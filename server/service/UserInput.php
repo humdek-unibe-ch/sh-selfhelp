@@ -321,6 +321,47 @@ class UserInput
     }
 
     /**
+     * Get the user input value of an input field specified by a pattern.
+     *
+     * @param string $pattern
+     *  A field identifier of the form `@<form_name>#<field_name>`.
+     * @param int $uid
+     *  The id of a user.
+     * @retval mixed
+     *  On success, the value corresponding to the requested form field, null in
+     *  case of a bad pattern syntax, and the empty string if no value was found.
+     */
+    public function get_input_value_by_pattern($pattern, $uid)
+    {
+        $names = explode('#', $pattern);
+        if(count($names) !== 2)
+            return null;
+
+        $form = substr($names[0], 1);
+        $field = $names[1];
+        $vals = $this->get_input_fields(array(
+            "form_name" => $form,
+            "field_name" => $field,
+            "id_user" => $uid
+        ));
+        if(count($vals) > 0)
+            return $vals[0]['value'];
+
+        return "";
+    }
+
+    /**
+     * Returns the regular expression to find a form field
+     *
+     * @retval string the regular expression that finds a field identifier of
+     * the form `@<form_name>#<field_name>`.
+     */
+    public function get_input_value_pattern()
+    {
+        return '@[^"@#]+#[^"@#]+';
+    }
+
+    /**
      * Collect attributes for each existing user input field.
      * The following attributes are set:
      *  - 'page'  The name of the parent page of the field.
