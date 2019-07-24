@@ -15,6 +15,7 @@ $(document).ready(function () {
         };
 
         var graph = mermaid.mermaidAPI.render('graph-' + formName, $element.text(), insertSvg);
+        growNodesToFitText($('#graph-' + formName).find('.node'));
     });
 });
 
@@ -25,6 +26,17 @@ function addNodeIdPrefix(formName, $svgCode){
         if(!$(this).attr('id').includes(formName)){
             $(this).attr('id', formName + '_' + $(this).attr('id'));
         }
+    });
+}
+
+function growNodesToFitText($nodes){
+    // grow the bounding box of the text of a node to not crop the text.
+    $nodes.each(function(){
+        var $foreignObject = $(this).find('foreignObject:first');
+        var $div = $foreignObject.children('div:first');
+        var delta = $foreignObject.find('div:first').width()
+            - $foreignObject.attr('width');
+        $foreignObject.attr('width', parseInt($foreignObject.attr('width')) + delta);
     });
 }
 
