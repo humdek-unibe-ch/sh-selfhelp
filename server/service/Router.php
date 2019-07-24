@@ -29,8 +29,7 @@ class Router extends AltoRouter {
      * @param array $matchTypes
      *  The set of types to match.
      */
-    function __construct( $db, $routes = array(), $basePath = '',
-        $matchTypes = array() )
+    function __construct( $db, $routes, $basePath, $matchTypes )
     {
         $this->db = $db;
         parent::__construct( $routes, $basePath, $matchTypes );

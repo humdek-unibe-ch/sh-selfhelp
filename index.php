@@ -24,9 +24,25 @@ if(DEBUG == 1) set_error_handler("exception_error_handler");
 
 $db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
-$router = new Router($db);
-$router->setBasePath(BASE_PATH);
-$router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
+// define routing paths
+$routes = array();
+$sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword
+    FROM pages AS p
+    LEFT JOIN actions AS a ON a.id = p.id_actions
+    WHERE protocol IS NOT NULL";
+$pages = $db->query_db($sql, array());
+foreach($pages as $page)
+    $routes[] = array( $page['protocol'], $page['url'], $page['action'],
+        $page['keyword']);
+
+// define additional route match types
+$matchTypes = array('v' => '[A-Za-z_]+[A-Za-z_0-9]*');
+
+// create router
+$router = new Router($db, $routes, BASE_PATH, $matchTypes);
+
+// match current request url
+$router->update_route();
 
 // custom page creation functions
 function create_request_page($router, $db, $class_name, $method_name)
@@ -39,18 +55,6 @@ function create_exportData_page($router, $db, $select)
     $page = new ExportPage($router, $db);
     $page->output($select);
 }
-
-// define routing paths
-$sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword FROM pages AS p
-    LEFT JOIN actions AS a ON a.id = p.id_actions
-    WHERE protocol IS NOT NULL";
-$pages = $db->query_db($sql, array());
-foreach($pages as $page)
-    $router->map( $page['protocol'], $page['url'], $page['action'],
-        $page['keyword']);
-
-// match current request url
-$router->update_route();
 
 // call closure or throw 404 status
 if($router->route)
