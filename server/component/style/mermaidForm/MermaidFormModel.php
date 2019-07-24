@@ -88,7 +88,7 @@ class MermaidFormModel extends FormUserInputModel
             return $code;
         foreach($fields as $name => $field)
         {
-            $pattern = "~" . $name . "(\[|\(\(|{|>)(.*?)(\]|\)\)|})~";
+            $pattern = "~" . $name . "(\[|\(\(|\(|{|>)(.*?)(\]|\)|\)\)|})~";
             preg_match_all($pattern, $code, $matches, PREG_PATTERN_ORDER);
             foreach($matches[0] as $match)
             {
