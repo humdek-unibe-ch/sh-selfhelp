@@ -15,10 +15,12 @@
     "gulp-concat": "latest",
     "gulp-csso": "^2.0.0",
     "gulp-htmlmin": "^3.0.0",
-    "gulp-uglify": "^2.0.0",
     "run-sequence": "^1.2.2"
   },
   "engines": {
     "node": ">=0.12.0"
+  },
+  "dependencies": {
+    "gulp-terser": "^1.2.0"
   }
 }
