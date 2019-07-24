@@ -29,6 +29,8 @@ class MermaidFormView extends FormUserInputView
      *
      * @param object $model
      *  The model instance of the component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
     public function __construct($model, $controller)
     {

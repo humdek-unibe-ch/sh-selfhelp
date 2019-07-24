@@ -32,8 +32,9 @@
    - if acl allows it, a user sees a small edit icon on to bottom right of each
      section page which allows an experimenter to switch back to the CMS.
  - Improve Markdown
-   - Allow more linking options (use prefixes '|', '!', '%')
+   - Allow more linking options (same syntax as with linking styles)
    - Allow to fetch user form input fields (#154)
+
 
 ------------
 # latest
