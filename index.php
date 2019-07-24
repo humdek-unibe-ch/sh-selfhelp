@@ -22,11 +22,11 @@ function exception_error_handler($severity, $message, $file, $line) {
 // only activate in debug mode
 if(DEBUG == 1) set_error_handler("exception_error_handler");
 
-$router = new Router();
+$db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+
+$router = new Router($db);
 $router->setBasePath(BASE_PATH);
 $router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
-
-$db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
 // custom page creation functions
 function create_request_page($router, $db, $class_name, $method_name)

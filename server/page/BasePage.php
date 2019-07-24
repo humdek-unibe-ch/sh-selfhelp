@@ -136,7 +136,7 @@ abstract class BasePage
             // decide which links to display.
             "acl" => new Acl($db),
             // A markdown parser.
-            "parsedown" => new ParsedownExtension($user_input),
+            "parsedown" => new ParsedownExtension($user_input, $router),
             // The instance to the navigation service which allows to switch
             // between sections, associated to a specific page. Unlike the
             // other elements in this array, "nav" may be null if a page has

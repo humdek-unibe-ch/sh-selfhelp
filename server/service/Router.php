@@ -1,10 +1,16 @@
 <?php
 require_once __DIR__ . "/ext/AltoRouter.php";
+require_once __DIR__ . "/globals_untracked.php";
 
 /**
  * An extension class to the altorouter library.
  */
 class Router extends AltoRouter {
+
+    /**
+     *  The instance of the service class PageDb.
+     */
+    private $db;
 
     /**
      * The router array which holds the name, target, and parameters of a route.
@@ -14,6 +20,8 @@ class Router extends AltoRouter {
     /**
      * The constructor which calls the parent constructor.
      *
+     * @param instance $db
+     *  The instance of the service class PageDb
      * @param array $routes
      *  The array of existing routes.
      * @param string $basePath
@@ -21,8 +29,10 @@ class Router extends AltoRouter {
      * @param array $matchTypes
      *  The set of types to match.
      */
-    function __construct( $routes = array(), $basePath = '',
-        $matchTypes = array() ) {
+    function __construct( $db, $routes = array(), $basePath = '',
+        $matchTypes = array() )
+    {
+        $this->db = $db;
         parent::__construct( $routes, $basePath, $matchTypes );
     }
 
@@ -37,6 +47,70 @@ class Router extends AltoRouter {
     public function get_asset_path( $path ) {
         $path = str_replace($_SERVER['DOCUMENT_ROOT'], "", $path);
         return $this->basePath . $path;
+    }
+
+    /**
+     * Returns an url given a router keyword. The keyword \#back will generate
+     * the url of the last visited page or the home page if the last visited
+     * page is the current page or unknown. The keyword \#self points to the
+     * current page.
+     *
+     * @retval string
+     *  The generated url.
+     */
+    public function get_url($url)
+    {
+        if($url == "") return $url;
+        if($url == "#back")
+        {
+            if(isset($_SERVER['HTTP_REFERER'])
+                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
+            {
+                return htmlspecialchars($_SERVER['HTTP_REFERER']);
+            }
+            return $this->generate("home");
+        }
+        else if($url == "#self")
+            return $_SERVER['REQUEST_URI'];
+        else if($url[0] == "#")
+        {
+            $links = explode('#', substr($url, 1));
+            $target = $links[0];
+            $names = explode('/', $target);
+            $name = $names[0];
+            if(!$this->has_route($name))
+                return $url;
+            $link = "";
+            $sql = "SELECT id FROM sections WHERE name = :name";
+            if(count($names) === 2)
+            {
+                $section_id = $this->db->query_db_first($sql,
+                    array(":name" => $names[1]));
+                if($section_id)
+                    $link = $this->generate($name,
+                        array('nav' => intval($section_id['id'])));
+            }
+            else
+                $link = $this->generate($name);
+            if(count($links) === 2)
+            {
+                $section_id = $this->db->query_db_first($sql,
+                    array(":name" => $links[1]));
+                if($section_id)
+                    $link .= '#section-' . intval($section_id['id']);
+            }
+            return $link;
+        }
+        else if($url[0] == "%")
+        {
+            return ASSET_PATH . '/' . substr($url, 1);
+        }
+        else if($url[0] == "|")
+        {
+            return BASE_PATH . '/' . substr($url, 1);
+        }
+        else
+            return $url;
     }
 
     /**

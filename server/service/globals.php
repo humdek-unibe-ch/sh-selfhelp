@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . "/globals.php";
+
 define('CSS_FOLDER', 'css');
 define('CSS_PATH', BASE_PATH . '/' . CSS_FOLDER);
 define('CSS_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . CSS_FOLDER);

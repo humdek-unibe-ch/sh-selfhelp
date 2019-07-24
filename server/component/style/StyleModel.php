@@ -103,53 +103,7 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function get_url($url)
     {
-        if($url == "") return $url;
-        if($url == "#back")
-        {
-            if(isset($_SERVER['HTTP_REFERER'])
-                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
-            {
-                return htmlspecialchars($_SERVER['HTTP_REFERER']);
-            }
-            return $this->router->generate("home");
-        }
-        else if($url == "#self")
-            return $_SERVER['REQUEST_URI'];
-        else if($url[0] == "#")
-        {
-            $links = explode('#', substr($url, 1));
-            $target = $links[0];
-            $names = explode('/', $target);
-            $name = $names[0];
-            if(!$this->router->has_route($name))
-                return $url;
-            $link = "";
-            $sql = "SELECT id FROM sections WHERE name = :name";
-            if(count($names) === 2)
-            {
-                $section_id = $this->db->query_db_first($sql,
-                    array(":name" => $names[1]));
-                if($section_id)
-                    $link = $this->router->generate($name,
-                        array('nav' => intval($section_id['id'])));
-            }
-            else
-                $link = $this->router->generate($name);
-            if(count($links) === 2)
-            {
-                $section_id = $this->db->query_db_first($sql,
-                    array(":name" => $links[1]));
-                if($section_id)
-                    $link .= '#section-' . intval($section_id['id']);
-            }
-            return $link;
-        }
-        else if($url[0] == "%")
-        {
-            return ASSET_PATH . '/' . substr($url, 1);
-        }
-        else
-            return $url;
+        return $this->router->get_url($url);
     }
 
     /**

@@ -13,14 +13,24 @@ class ParsedownExtension extends Parsedown
     private $user_input;
 
     /**
+     * The private attribute to access the instance of the service class
+     * Router.
+     */
+    private $router;
+
+    /**
      * The constructor to add the new inline parser for user form fields.
      *
      * @param instance $user_input
      *  An instance of the service class UserInput.
+     * @param instance $router
+     *  An instance of the service class Router.
      */
-    function __construct($user_input = null)
+    function __construct($user_input = null, $router = null)
     {
         $this->user_input = $user_input;
+        $this->router = $router;
+
         $this->InlineTypes['@'][]= 'UserFormField';
         $this->inlineMarkerList .= '@';
     }
@@ -97,11 +107,10 @@ class ParsedownExtension extends Parsedown
     }
 
     /**
-     * Extends the inlineLink parser to add the following features:
+     * Extends the inlineLink parser to allow the same behaviour as the link
+     * syles, with one addition:
      *
      * - prepending a link url with '!' will open the link in a new tab
-     * - prepending a link url with '%' will prepend the asset path
-     * - prepending a link url with '|' will prepend the base path
      */
     protected function inlineLink($excerpt)
     {
@@ -113,14 +122,8 @@ class ParsedownExtension extends Parsedown
             $link['element']['attributes']['href'] =
                 substr($link['element']['attributes']['href'], 1);
         }
-        if($link['element']['attributes']['href'][0] === '%')
-        {
-            $link['element']['attributes']['href'] = ASSET_PATH . '/'
-                . substr($link['element']['attributes']['href'], 1);
-        }
-        else if($link['element']['attributes']['href'][0] === '|')
-            $link['element']['attributes']['href'] = BASE_PATH . '/'
-                . substr($link['element']['attributes']['href'], 1);
+        $link['element']['attributes']['href'] =
+            $this->router->get_url($link['element']['attributes']['href']);
 
         return $link;
     }
