@@ -25,7 +25,7 @@
    (#80)
  - Allow to customize the `meta:description` tag (#164)
  - Add a `mermaidForm` style which allows to describe graphs and allows a
-   subject to change node labels (!2)
+   subject to change node labels (#162)
  - Improve the CMS:
    - add a schematic page overview
    - allow to jump to the real page
@@ -33,6 +33,7 @@
      section page which allows an experimenter to switch back to the CMS.
  - Improve Markdown
    - Allow more linking options (use prefixes '|', '!', '%')
+   - Allow to fetch user form input fields (#154)
 
 ------------
 # latest
