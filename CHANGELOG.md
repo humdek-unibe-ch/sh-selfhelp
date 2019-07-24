@@ -33,7 +33,8 @@
      section page which allows an experimenter to switch back to the CMS.
  - Improve Markdown
    - Allow more linking options (same syntax as with linking styles)
-   - Allow to fetch user form input fields (#154)
+   - Allow to fetch user form input fields (covers #154)
+ - Allow to mark user inputs as deleted (when `is_log` is checked) (#118)
 
 
 ------------
