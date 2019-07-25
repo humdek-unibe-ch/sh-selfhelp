@@ -40,4 +40,5 @@ define('GLOBAL_CHAT_ROOM_ID', 1);
 define('INTERNAL_PAGE_ID', 1);
 define('CORE_PAGE_ID', 2);
 define('EXPERIMENT_PAGE_ID', 3);
+define('OPEN_PAGE_ID', 4);
 ?>

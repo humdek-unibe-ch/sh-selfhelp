@@ -725,12 +725,16 @@ class CmsModel extends BaseModel
      *
      * @param int $pid
      *  The id of the page.
+     * @param bool $is_open
+     *  If set select access to the guest user is granted.
      */
-    private function set_new_page_acl($pid)
+    private function set_new_page_acl($pid, $is_open = false)
     {
         $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
         $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 4, true);
         $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+        if($is_open)
+            $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
     }
 
     /**
@@ -1051,16 +1055,19 @@ class CmsModel extends BaseModel
      * @param bool $is_headless
      *  If set to true the page has no header or footer. If set to false the
      *  page is rendered with header and footer.
+     * @param bool $is_open
+     *  If set to true the page is accessible by anyone. If set to false a login
+     *  is required.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
      * @retval int
      *  The id of the created page.
      */
     public function create_new_page($keyword, $url, $protocol, $action,
-        $position, $is_headless, $parent)
+        $position, $is_headless, $is_open, $parent)
     {
         $nav_id = null;
-        $page_type = EXPERIMENT_PAGE_ID;
+        $page_type = $is_open ? OPEN_PAGE_ID : EXPERIMENT_PAGE_ID;
         if($action == 4)
         {
             $action = 3;
@@ -1077,7 +1084,7 @@ class CmsModel extends BaseModel
             "parent" => $parent,
             "is_headless" => $is_headless ? 1 : 0,
         ));
-        $this->set_new_page_acl($pid);
+        $this->set_new_page_acl($pid, $is_open);
         if($position)
             $this->update_page_order($position, $parent);
         return $pid;

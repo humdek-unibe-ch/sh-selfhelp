@@ -86,6 +86,13 @@
                 </div>
                 <div class="form-group">
                     <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="set-open" value="1">
+                        <label class="form-check-label">Open Access</label>
+                    </div>
+                    <small class="form-text text-muted">When activated the page will be accessible by anyone without having to log in.</small>
+                </div>
+                <div class="form-group">
+                    <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" name="set-advanced" value="1">
                         <label class="form-check-label">Advanced</label>
                     </div>
