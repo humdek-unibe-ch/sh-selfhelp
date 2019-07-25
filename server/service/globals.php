@@ -18,6 +18,7 @@ define('MAX_USER_COUNT', 100000);
 
 /* Static DB Content */
 define('GUEST_USER_ID', 1);
+define('ADMIN_USER_ID', 2);
 define('ADMIN_GROUP_ID', 1);
 
 define('NAVIGATION_STYLE_ID', 33);

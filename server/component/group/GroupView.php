@@ -112,7 +112,7 @@ class GroupView extends BaseView
     private function output_group_simple_acl()
     {
         $url_edit = "";
-        if($this->model->can_modify_group_acl($this->model->get_gid()))
+        if($this->model->can_modify_group_acl())
             $url_edit = $this->model->get_link_url("groupUpdate",
                 array('gid' => $this->selected_group['id']));
         $table = new BaseStyleComponent("card", array(

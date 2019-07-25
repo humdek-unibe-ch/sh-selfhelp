@@ -417,6 +417,8 @@ class Acl
      */
     public function has_access($id, $id_page, $mode, $is_group = false)
     {
+        if(!$is_group && $id == ADMIN_USER_ID)
+            return true;
         $acl = $this->get_access_levels($id, $id_page, $is_group);
         if(isset($acl[$mode]))
             return $acl[$mode];

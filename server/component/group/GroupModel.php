@@ -412,8 +412,10 @@ class GroupModel extends BaseModel
      * @retval bool
      *  True if the current user can modify the ACL of groups, false otherwise.
      */
-    public function can_modify_group_acl($id = null)
+    public function can_modify_group_acl()
     {
+        if($this->selected_group['id'] === ADMIN_GROUP_ID)
+            return false;
         return $this->acl->has_access_update($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("groupUpdate"));
     }
