@@ -275,6 +275,22 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Check whether the experiment permissions corresponding to a certain
+     * level are given.
+     *
+     * @param array $acl
+     *  An array of ACL rights. See UserModel::fetch_acl_by_id.
+     * @param string $lvl
+     *  The level of access e.g. select, insert, update, or delete.
+     * @retval bool
+     *  True if access is allowed, false otherwise.
+     */
+    private function get_open_access($acl, $lvl)
+    {
+        return $this->get_access($acl, "open", $lvl);
+    }
+
+    /**
      * Check whether the page permissions corresponding to a certain level are
      * given.
      *
@@ -487,6 +503,15 @@ class GroupModel extends BaseModel
                 "delete" => $this->get_experiment_access($acl, "delete"),
             ),
         );
+        $sgacl["open"] = array(
+            "name" => "Open Content",
+            "acl" => array(
+                "select" => $this->get_open_access($acl, "select"),
+                "insert" => $this->get_open_access($acl, "insert"),
+                "update" => $this->get_open_access($acl, "update"),
+                "delete" => $this->get_open_access($acl, "delete"),
+            ),
+        );
         $sgacl["page"] = array(
             "name" => "Page Management",
             "acl" => array(
@@ -694,6 +719,18 @@ class GroupModel extends BaseModel
     public function set_experiment_access($lvl)
     {
         $this->set_access("experiment", $lvl);
+    }
+
+    /**
+     * Set the access level for all pages that are targeted by the open
+     * content collection.
+     *
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_open_access($lvl)
+    {
+        $this->set_access("open", $lvl);
     }
 
     /**
