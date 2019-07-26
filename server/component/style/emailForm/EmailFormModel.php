@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../StyleModel.php";
+require_once __DIR__ . "/../emailFormBase/EmailFormBaseModel.php";
 require_once __DIR__ . "/../StyleComponent.php";
 require_once __DIR__ . "/../../user/UserModel.php";
 
@@ -8,7 +8,7 @@ require_once __DIR__ . "/../../user/UserModel.php";
  * components such that the data can easily be displayed in the view of the
  * component.
  */
-class EmailFormModel extends StyleModel
+class EmailFormModel extends EmailFormBaseModel
 {
     /* Private Properties *****************************************************/
 
@@ -17,12 +17,6 @@ class EmailFormModel extends StyleModel
      * If set to true the entered email address will be stored in the database.
      */
     private $do_store;
-
-    /**
-     * DB field 'is_html' (false)
-     * If set to true the email will be sent with an html body.
-     */
-    private $is_html;
 
     /**
      * DB field 'admins' (empty string)
@@ -37,29 +31,9 @@ class EmailFormModel extends StyleModel
     private $email_admins;
 
     /**
-     * DB field 'email_user' (empty string)
-     * The email to be sent to the email address that was entered to the form.
+     * The commonly used sender address.
      */
-    private $email_user;
-
-    /**
-     * DB field 'subject_user' (empty string)
-     * The subject of the email to be sent to the email address that was
-     * entered to the form.
-     */
-    private $subject_user;
-
-    /**
-     * DB field 'attachments_user' (empty string)
-     * The assets to be attached to the email that will be sent to the address
-     * entered to the form.
-     */
-    private $attachments_user;
-
-    /**
-     * The instance of the user model.
-     */
-    private $user;
+    private $from;
 
     /* Constructors ***********************************************************/
 
@@ -77,18 +51,11 @@ class EmailFormModel extends StyleModel
         parent::__construct($services, $id);
         $this->admins = $this->get_db_field("admins", array());
         $this->email_admins = $this->get_db_field("email_admins");
-        $this->email_user = $this->get_db_field("email_user");
-        $this->subject_user = $this->get_db_field("subject_user");
-        $this->attachments_user = $this->get_db_field(
-            "attachments_user", array());
         $this->do_store = $this->get_db_field('do_store', false);
-        $this->is_html = $this->get_db_field('is_html', false);
-        $this->user = new UserModel($services);
+        $this->from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
     }
 
     /* Private Methods ********************************************************/
-
-    /* Public Methods *********************************************************/
 
     /**
      * Add the email address to the database.
@@ -101,7 +68,7 @@ class EmailFormModel extends StyleModel
      *  true immediately. If the email is already present in the DB the
      *  function also returns true.
      */
-    public function add_email($address)
+    private function add_email($address)
     {
         if(!$this->do_store)
             return true;
@@ -118,41 +85,57 @@ class EmailFormModel extends StyleModel
     }
 
     /**
-     * Send the email IntrestedUserFormModel::email_user to the specified
-     * address and send the email IntrestedUserFormModel::email_admins to
-     * IntrestedUserFormModel::admins.
+     * Send the email EmailForm::email_user to the specified address.
      *
      * @param string $address
      *  The address entered through the input form.
      * @retval bool
      *  True if the email was sent successfully to the user, False otherwise.
-     *  Note that if the admin emails fail, this will only be logged in the
-     *  server logs.
      */
-    public function send_emails($address)
+    private function send_email_user($address)
     {
-        // send mail to user
-        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
-        $url = "https://" . $_SERVER['HTTP_HOST'] . $this->get_link_url('login');
         $to = $this->mail->create_single_to($address);
         $msg_html = $this->is_html ? $this->parsedown->text($this->email_user) : null;
         foreach($this->attachments_user as $idx => $attachment)
             $this->attachments_user[$idx] = ASSET_SERVER_PATH . "/" . $attachment;
 
-        $res = $this->mail->send_mail($from, $to, $this->subject_user,
+        return $this->mail->send_mail($this->from, $to, $this->subject_user,
             $this->email_user, $msg_html, $this->attachments_user);
+    }
 
-        // send mail to admins
-        $url = "https://" . $_SERVER['HTTP_HOST'] . $this->get_link_url('home');
+    /**
+     * Send the email EmailFormModel::email_admins to * EmailFormModel::admins.
+     */
+    private function send_emails_admin()
+    {
         $msg = str_replace('@email', $address, $this->email_admins);
         $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
         $subject = "Interested User for Platform " . $_SESSION['project'];
         foreach($this->admins as $admin)
         {
             $to = $this->mail->create_single_to($admin);
-            $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
+            $this->mail->send_mail($this->from, $to, $subject, $msg, $msg_html);
         }
+    }
 
+    /* Public Methods *********************************************************/
+
+    /**
+     * Implementation of the parent abstract method:
+     *  1. Add the email to the DB (if required)
+     *  2. Send an email to the user
+     *  3. Send an email to each admin
+     *
+     * @param string $mail
+     *  The email address of the user.
+     */
+    public function perform_email_actions($mail)
+    {
+        $res = $this->add_email($mail);
+        if($res)
+            $res = $this->send_email_user($mail);
+        if($res)
+            $this->send_emails_admin();
         return $res;
     }
 }

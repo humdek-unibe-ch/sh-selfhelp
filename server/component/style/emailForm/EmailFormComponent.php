@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
-require_once __DIR__ . "/EmailFormView.php";
+require_once __DIR__ . "/../emailFormBase/EmailFormBaseView.php";
+require_once __DIR__ . "/../emailFormBase/EmailFormBaseController.php";
 require_once __DIR__ . "/EmailFormModel.php";
-require_once __DIR__ . "/EmailFormController.php";
 
 /**
  * A component class for a emailForm style component. This style is
@@ -29,8 +29,8 @@ class EmailFormComponent extends BaseComponent
         $model = new EmailFormModel($services, $id);
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new EmailFormController($model);
-        $view = new EmailFormView($model, $controller);
+            $controller = new EmailFormBaseController($model);
+        $view = new EmailFormBaseView($model, $controller);
 
         parent::__construct($model, $view, $controller);
     }

@@ -3,9 +3,9 @@ require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
- * The view class of the emailForm style component.
+ * The base view class of a emailForm style component.
  */
-class EmailFormView extends StyleView
+class EmailFormBaseView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -13,19 +13,19 @@ class EmailFormView extends StyleView
      * DB field 'label' ('Submit').
      * The label of the submit button.
      */
-    private $label;
+    protected $label;
 
     /**
      * DB field 'placeholder' (empty string).
      * The placeholder of the email input field.
      */
-    private $placeholder;
+    protected $placeholder;
 
     /**
      * DB field 'type' ('primary').
      * The type of the submit button, e.g. 'primary', 'success', etc.
      */
-    private $type;
+    protected $type;
 
 
     /* Constructors ***********************************************************/
@@ -56,7 +56,7 @@ class EmailFormView extends StyleView
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $input = new BaseStyleComponent('input', array(
             "type_input" => "email",
-            "name" => "email_intersted_user",
+            "name" => "email_user",
             "placeholder" => $this->placeholder,
             "is_required" => true,
         ));

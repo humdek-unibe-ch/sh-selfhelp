@@ -1,9 +1,10 @@
+
 <?php
 require_once __DIR__ . "/../../BaseController.php";
 /**
- * The controller class of emailForm style component.
+ * The base controller class of emailForm style components.
  */
-class EmailFormController extends BaseController
+class EmailFormBaseController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -11,7 +12,7 @@ class EmailFormController extends BaseController
      * DB field 'alert_success' (empty string).
      * The allert message to be shown if the content was updated successfully.
      */
-    private $alert_success;
+    protected $alert_success;
 
     /* Constructors ***********************************************************/
 
@@ -24,18 +25,17 @@ class EmailFormController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(!isset($_POST['email_intersted_user']))
+        if(isset($_POST['phone7h92jP']) && trim($_POST['phone7h92jP']) != "")
+            return; // Probably a bot
+        if(!isset($_POST['email_user']))
             return;
 
-        $mail = $_POST['email_intersted_user'];
+        $mail = $_POST['email_user'];
         $this->alert_success = $model->get_db_field("alert_success");
 
         if(filter_var($mail, FILTER_VALIDATE_EMAIL))
         {
-            $res = $model->add_email($mail);
-            if($res)
-                $res = $model->send_emails($mail);
-            if($res)
+            if($model->perform_email_actions($mail))
             {
                 $this->success = true;
                 if($this->alert_success !== "")
