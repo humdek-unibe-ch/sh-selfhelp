@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . "/../emailFormBase/EmailFormBaseModel.php";
-require_once __DIR__ . "/../StyleComponent.php";
-require_once __DIR__ . "/../../user/UserModel.php";
 
 /**
  * This class is used to prepare all data related to the emailForm style

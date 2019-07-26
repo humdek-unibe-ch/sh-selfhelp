@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../StyleModel.php";
+require_once __DIR__ . "/../emailFormBase/EmailFormBaseModel.php";
 /**
  * This class is used to prepare all data related to the ResetPasswordComponent
  * such that the data can easily be displayed in the view of the component.
  */
-class ResetPasswordModel extends StyleModel
+class ResetPasswordModel extends EmailFormBaseModel
 {
     /* Constructors ***********************************************************/
 
@@ -22,7 +22,7 @@ class ResetPasswordModel extends StyleModel
         parent::__construct($services, $id);
     }
 
-    /* Public Methods *********************************************************/
+    /* Private Methods ********************************************************/
 
     /**
      * Create a new activation token for a user and send an email with the new
@@ -31,7 +31,7 @@ class ResetPasswordModel extends StyleModel
      * @return bool
      *  True on success, false otherwise.
      */
-    public function user_set_new_token($email)
+    private function user_set_new_token($email)
     {
         $sql = "SELECT id FROM users WHERE email = :email";
         $uid = $this->db->query_db_first($sql, array(":email" => $email));
@@ -51,6 +51,21 @@ class ResetPasswordModel extends StyleModel
         $to = $this->mail->create_single_to($email);
         $msg = $this->mail->get_content($url, 'email_reset');
         return $this->mail->send_mail($from, $to, $subject, $msg);
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Implementation of the parent abstract method:
+     *  1. Add a new validation togen to the DB
+     *  2. Send an email to the user
+     *
+     * @param string $mail
+     *  The email address of the user.
+     */
+    public function perform_email_actions($mail)
+    {
+        return $this->user_set_new_token($mail);
     }
 }
 ?>
