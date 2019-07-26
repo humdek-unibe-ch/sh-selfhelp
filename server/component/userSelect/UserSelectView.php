@@ -31,6 +31,24 @@ class UserSelectView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
+     * Return the last login string
+     *
+     * @param string $data
+     *  The data string as it was returned by the DB
+     * @retval string
+     *  A human-readable time stamp with verbose additions.
+     */
+    private function get_last_login($data)
+    {
+        $days = round((time() - strtotime($data)) / (60*60*24)) . " day";
+        if($days > 1) $days .= "s";
+        $last_login = "never";
+        if($data !== null)
+            $last_login = $data . " (" . $days . " ago)";
+        return $last_login;
+    }
+
+    /**
      * Render the button to create a new user.
      */
     private function output_button()
@@ -62,6 +80,54 @@ class UserSelectView extends BaseView
             ));
             $button_codes->output_content();
         }
+    }
+
+    /**
+     * Render the title of a user attribute (including a popover description).
+     *
+     * @param string $key
+     *  A key to identify which title to render.
+     */
+    private function output_title($key)
+    {
+        if($key === "id")
+        {
+            $title = "#";
+            $content = "Unique id of the user (used internally).";
+        }
+        else if($key === "email")
+        {
+            $title = "Email";
+            $content = "The email address of the user. Emails must be unique.";
+        }
+        else if($key === "status")
+        {
+            $title = "Status";
+            $content = "The status of the user.";
+        }
+        else if($key === "code")
+        {
+            $title = "User Code";
+            $content = "The validation code associated to the user.";
+        }
+        else if($key === "login")
+        {
+            $title = "Last Login";
+            $content = "The date of the last login.";
+        }
+        else if($key === "activity")
+        {
+            $title = "Activity";
+            $content = "A user activity metric: The number of accesses of the user to experimenter pages (including repeted access to the same page).";
+        }
+        else if($key === "progress")
+        {
+            $title = "Progress";
+            $content = "A user progress metric: The percentage of vistited experimenter pages and navigation sections";
+        }
+        else
+            $content = $title = "bad key";
+        require __DIR__ . "/tpl_user_attr_title.php";
     }
 
     /**
@@ -223,27 +289,33 @@ class UserSelectView extends BaseView
             $url = $user['url'];
             $id = $user['id'];
             $email = $user['title'];
-            $state = $user['state'];
+            $state = $user['status'];
+            $desc = $user['description'];
             $row_state = "";
-            if($state === "blocked")
+            if(strpos($state, "blocked") !== false)
                 $row_state = "table-warning";
-            if($state === "inactive")
-                $row_state = "text-muted";
             $code = $this->model->get_user_code($id) ?? "-";
-            $days = round((time() - strtotime($user['last_login'])) / (60*60*24)) . " day";
-            if($days > 1) $days .= "s";
-            $last_login = "never";
-            if($user['last_login'] !== null)
-                $last_login = $user['last_login'] . " (" . $days . " ago)";
+            $last_login = $this->get_last_login($user['last_login']);
             $activity = $this->model->get_user_activity($id);
             $progress = $this->model->get_user_progress($id);
-            $bar = new BaseStyleComponent('progressBar', array(
-                'count' => round($progress * 100),
-                'count_max' => 100,
-                'is_striped' => false,
-            ));
             require __DIR__ . "/tpl_user_activity_row.php";
         }
+    }
+
+    /**
+     * Render the user progress bar.
+     *
+     * @param float $progress
+     *  The progress of the user (a value between 0 and 1).
+     */
+    private function output_user_progress_bar($progress)
+    {
+        $bar = new BaseStyleComponent('progressBar', array(
+            'count' => round($progress * 100),
+            'count_max' => 100,
+            'is_striped' => false,
+        ));
+        $bar->output_content();
     }
 
     /**
@@ -253,8 +325,12 @@ class UserSelectView extends BaseView
     {
         if($this->selected_user != null)
         {
-            $state = $this->selected_user['active'] ? "active" : "inactive";
-            if($this->selected_user['blocked']) $state = "blocked";
+            $state = $this->selected_user['status'];
+            $code = $this->selected_user['code'] ?? "-";
+            $desc = $this->selected_user['description'];
+            $last_login = $this->get_last_login($this->selected_user['last_login']);
+            $activity = $this->model->get_user_activity($this->selected_user['id']);
+            $progress = $this->model->get_user_progress($this->selected_user['id']);
             require __DIR__ . "/tpl_user.php";
         }
         else

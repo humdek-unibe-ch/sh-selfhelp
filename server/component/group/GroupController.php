@@ -84,6 +84,8 @@ class GroupController extends BaseController
                 $this->model->set_core_access($lvl);
             if(isset($_POST["experiment"][$lvl]))
                 $this->model->set_experiment_access($lvl);
+            if(isset($_POST["open"][$lvl]))
+                $this->model->set_open_access($lvl);
             if(isset($_POST["user"][$lvl]))
                 $this->model->set_user_access($lvl);
             if(isset($_POST["page"][$lvl]))

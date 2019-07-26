@@ -42,7 +42,7 @@ class UserModel extends BaseModel
         $this->uid = $uid;
         $this->did = $did;
         $this->selected_user = null;
-        if($uid != null) $this->selected_user = $this->fetch_user($uid);
+        if($uid != null) $this->selected_user = $this->get_user($this->fetch_user($uid));
     }
 
     /* Private Methods ********************************************************/
@@ -54,24 +54,27 @@ class UserModel extends BaseModel
      *  The id of the user to fetch.
      * @retval array
      *  An array with the following keys:
-     *   'id':      The id of the user.
-     *   'email':   The email of the user.
-     *   'active':  A boolean indicationg whether the user is active or not.
-     *   'blocked': A boolean indication whether the user is blocked or not.
+     *   'id':          The id of the user.
+     *   'email':       The email of the user.
+     *   'name':        The name of the user.
+     *   'last_login':  The date of the last login.
+     *   'status':      The status of the user.
+     *   'description': The description of status of the user.
+     *   'blocked':     A boolean indication whether the user is blocked or not.
+     *   'code':        The validation code of the user.
      */
     private function fetch_user($uid)
     {
-        $sql = "SELECT u.email, (u.password IS NOT NULL) AS active, u.blocked
+        $sql = "SELECT u.email, u.blocked, u.name, us.name AS status, us.description,
+            vc.code, u.last_login
             FROM users AS u
+            LEFT JOIN userStatus AS us ON us.id = u.id_status
+            LEFT JOIN validation_codes AS vc ON vc.id_users = u.id
             WHERE u.id = :uid and u.intern <> 1";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
-        if(!$res) return null;
-        return array(
-            "id" => $uid,
-            "email" => $res['email'],
-            "active" => ($res['active'] == '1') ? true : false,
-            "blocked" => ($res['blocked'] == '1') ? true : false,
-        );
+        if($res)
+            $res['id'] = $uid;
+        return $res;
     }
 
     /**
@@ -83,15 +86,17 @@ class UserModel extends BaseModel
      *   'email':       The email of the user.
      *   'name':        The name of the user.
      *   'last_login':  The date of the last login.
-     *   'active':      Indicates whether the user is activated or not.
+     *   'status':      Indicates the state of the user.
+     *   'description': The state description of the user.
      *   'blocked':     Indicates whether the user is blocked or not.
      */
     private function fetch_users()
     {
-        $sql = "SELECT u.id, u.email, u.name, last_login,
-            (u.password IS NOT NULL) AS active, u.blocked
+        $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
+            us.description, u.blocked
             FROM users AS u
-            WHERE u.intern <> 1
+            LEFT JOIN userStatus AS us ON us.id = u.id_status
+            WHERE u.intern <> 1 AND u.id_status > 1
             ORDER BY u.email";
         return $this->db->query_db($sql);
     }
@@ -237,6 +242,42 @@ class UserModel extends BaseModel
             return false;
         return $this->acl->has_access_update($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("userUpdate"));
+    }
+
+    /**
+     * Create a new user. This generates a new validation token, adds the user
+     * to the DB, and sends an email to the user with the activation link.
+     *
+     * @param string $email
+     *  The email address of the user to be added.
+     * @param string $code
+     *  A unique user code.
+     * @retval int
+     *  The id of the new user or false if the process failed.
+     */
+    public function create_new_user($email, $code=null)
+    {
+        $token = $this->login->create_token();
+        $uid = $this->insert_new_user($email, $token, 2);
+        $code_res = true;
+        if($code !== null)
+            $code_res = $this->db->insert("validation_codes", array(
+                "code" => $code,
+                "id_users" => $uid,
+            ));
+        if(!$uid || !$code_res) return null;
+        $url = $this->get_link_url("validate", array(
+            "uid" => $uid,
+            "token" => $token,
+            "mode" => "activate",
+        ));
+        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
+        $subject = $_SESSION['project'] . " Email Verification";
+        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
+        $to = $this->mail->create_single_to($email);
+        $msg = $this->mail->get_content($url, 'email_activate');
+        $this->mail->send_mail($from, $to, $subject, $msg);
+        return $uid;
     }
 
     /**
@@ -394,34 +435,59 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Get a list of users and prepare the list such that it can be passed to a
-     * list component.
+     * Prepare a set of user data such that it is compatible with a list
+     * component item.
      *
+     * @param array $user
+     *  The data returnd by a db query to the user db (see
+     *  UserModel::fetch_users() and UserData::fetch_user()).
      * @retval array
      *  An array of items where each item has the following keys:
      *   'id':          The id of the user.
      *   'title':       The email address of the user.
      *   'name':        The name of the user.
      *   'url':         The url pointing to the user.
-     *   'state':       The state of the user.
+     *   'status':      The status of the user.
+     *   'blocked':     A boolean indication whether the user is blocked or not.
+     *   'description': The description of the user status.
      *   'last_login':  The date of the last login.
+     */
+    public function get_user($user)
+    {
+        $id = intval($user["id"]);
+        $state = $user["status"];
+        $desc = $user['description'];
+        if($user['blocked'])
+        {
+            $state = "<strong>[blocked]</strong> " . $state;
+            $desc = "This user cannot login until the blocked status is reversed";
+        }
+        return array(
+            "id" => $id,
+            "title" => $user["email"],
+            "email" => $user["email"],
+            "name" => $user["name"],
+            "last_login" => $user["last_login"],
+            "status" => $state,
+            "blocked" => ($user['blocked'] == '1') ? true : false,
+            "description" => $desc,
+            "url" => $this->get_link_url("userSelect", array("uid" => $id))
+        );
+    }
+
+    /**
+     * Get a list of users and prepare the list such that it can be passed to a
+     * list component.
+     *
+     * @retval array
+     *  An array of items where each item has the keys as defined in
+     *  UserModel::get_user().
      */
     public function get_users()
     {
         $res = array();
         foreach($this->fetch_users() as $user)
-        {
-            $id = intval($user["id"]);
-            $state = $user['blocked'] ? "blocked" : ($user["active"] ? "active" : "inactive");
-            $res[] = array(
-                "id" => $id,
-                "title" => $user["email"],
-                "name" => $user["name"],
-                "last_login" => $user["last_login"],
-                "state" => $state,
-                "url" => $this->get_link_url("userSelect", array("uid" => $id))
-            );
-        }
+            $res[] = $this->get_user($user);
         return $res;
     }
 
@@ -517,40 +583,24 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Insert a new user to the DB.
+     * Add a new user to the DB.
      *
      * @param string $email
-     *  The email address of the user to be added.
-     * @param string $code
-     *  A unique user code.
+     *  The email of the user.
+     * @param string $token
+     *  The validation token of the new user.
+     * @param int $id_status
+     *  The initial status of the new user.
      * @retval int
-     *  The id of the new user or false if the process failed.
+     *  The id of the new user.
      */
-    public function insert_new_user($email, $code=null)
+    public function insert_new_user($email, $token, $id_status)
     {
-        $token = $this->login->create_token();
-        $uid = $this->db->insert("users", array(
+        return $this->db->insert("users", array(
             "email" => $email,
             "token" => $token,
+            "id_status" => $id_status,
         ));
-        $code_res = true;
-        if($code !== null)
-            $code_res = $this->db->insert("validation_codes", array(
-                "code" => $code,
-                "id_users" => $uid,
-            ));
-        if(!$uid || !$code_res) return null;
-        $url = $this->get_link_url("validate", array(
-            "uid" => $uid,
-            "token" => $token,
-            "mode" => "activate",
-        ));
-        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-        $subject = $_SESSION['project'] . " Email Verification";
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        $this->login->email_send($from, $email, $subject,
-            $this->login->email_get_content($url, 'email_activate'));
-        return $uid;
     }
 
     /**

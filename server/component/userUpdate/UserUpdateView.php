@@ -49,7 +49,7 @@ class UserUpdateView extends BaseView
         parent::__construct($model, $controller);
         $this->mode = $mode;
         $this->selected_user = $this->model->get_selected_user();
-        $this->user_status = $this->selected_user['active'] ? "active" : "inactive";
+        $this->user_status = $this->selected_user['status'];
     }
 
     /* Private Methods ********************************************************/

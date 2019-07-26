@@ -6,4 +6,7 @@ $(document).ready(function() {
         var ids = $(this).attr('id').split('-');
         document.location = ids[2];
     });
+    $(function () {
+        $('[data-toggle="popover"]').popover({html:true});
+    });
 });

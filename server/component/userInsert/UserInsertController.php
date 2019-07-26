@@ -50,7 +50,7 @@ class UserInsertController extends UserController
                     return;
                 }
             }
-            $this->uid = $this->model->insert_new_user($_POST['email'], $_POST['code']);
+            $this->uid = $this->model->create_new_user($_POST['email'], $_POST['code']);
             if($this->uid && $this->model->add_groups_to_user($this->uid,
                 $groups))
                 $this->success = true;

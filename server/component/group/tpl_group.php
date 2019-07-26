@@ -8,14 +8,10 @@
  </p>
             <ul>
                 <li><strong>Core Content</strong> is composed of all the pages which do not relate directly to the experiment (e.g. impressum, disclaimer, profile, etc.).
-                    <ul>
-                        <li><code>select</code> grants read access to a page.</li>
-                        <li><code>insert</code> allows to add new sections to a page.</li>
-                        <li><code>update</code> allows to modify existing content on a page.</li>
-                        <li><code>delete</code> allows to remove sections from a page.</li>
-                    </ul>
                 </li>
                 <li><strong>Experiment Content</strong> is composed of all pages which are created explicitly for the experiment.
+                </li>
+                <li><strong>Open Content</strong> is composed of all pages which are openly accessible. These pages are not considered as experiment pages. For all the above:
                     <ul>
                         <li><code>select</code> grants read access to a page.</li>
                         <li><code>insert</code> allows to add new sections to a page.</li>

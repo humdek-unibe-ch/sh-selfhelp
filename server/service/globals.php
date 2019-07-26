@@ -18,6 +18,7 @@ define('MAX_USER_COUNT', 100000);
 
 /* Static DB Content */
 define('GUEST_USER_ID', 1);
+define('ADMIN_USER_ID', 2);
 define('ADMIN_GROUP_ID', 1);
 
 define('NAVIGATION_STYLE_ID', 33);
@@ -40,4 +41,5 @@ define('GLOBAL_CHAT_ROOM_ID', 1);
 define('INTERNAL_PAGE_ID', 1);
 define('CORE_PAGE_ID', 2);
 define('EXPERIMENT_PAGE_ID', 3);
+define('OPEN_PAGE_ID', 4);
 ?>

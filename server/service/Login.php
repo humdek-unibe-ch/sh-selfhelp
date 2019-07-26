@@ -183,65 +183,6 @@ class Login
     }
 
     /**
-     * Read the email content from the db.
-     *
-     * @param string $url
-     *  The activation link that will be included into the mail content.
-     * @param string $email_type
-     *  The field name identifying which email will be loaded from the database.
-     * @retval string
-     *  The email content with replaced keywords.
-     */
-    public function email_get_content($url, $email_type)
-    {
-        $content = "";
-        $sql = "SELECT content FROM pages_fields_translation AS pft
-            LEFT JOIN pages AS p ON p.id = pft.id_pages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            WHERE p.keyword = 'email' AND f.name = :field
-            AND l.locale = :lang";
-        $res = $this->db->query_db_first($sql, array(
-            ':lang' => $_SESSION['language'],
-            ':field' => $email_type,
-        ));
-        if($res)
-        {
-            $content = $res['content'];
-            $content = str_replace('@project', $_SESSION['project'], $content);
-            $content = str_replace('@link', $url, $content);
-        }
-        return $content;
-    }
-
-    /**
-     * Send activation email to new user.
-     *
-     * @param string $from
-     *  The source of the email address.
-     * @param string $to
-     *  The email address of the new user.
-     * @param string $subject
-     *  The subject of the email.
-     * @param string $msg
-     *  The email message.
-     * @retval bool
-     *  True on success, false otherwise.
-     */
-    public function email_send($from, $to, $subject, $msg)
-    {
-        $headers = array();
-        $headers[] = "MIME-Version: 1.0";
-        $headers[] = "Content-type: text/plain; charset=utf-8";
-        $headers[] = "Content-Transfer-Encoding: quoted-printable";
-        $headers[] = "From: {$from}";
-        $headers[] = "Subject: {$subject}";
-        $headers[] = "X-Mailer: PHP/".phpversion();
-
-        return mail($to, $subject, $msg , implode("\r\n", $headers));
-    }
-
-    /**
      * Get the target URL to redirec after login. This is either
      *  1. a target url specified by a link
      *  2. the last used url by the user
