@@ -132,6 +132,9 @@ class EmailFormModel extends StyleModel
         $url = "https://" . $_SERVER['HTTP_HOST'] . $this->get_link_url('login');
         $to = $this->mail->create_single_to($address);
         $msg_html = $this->is_html ? $this->parsedown->text($this->email_user) : null;
+        foreach($this->attachments_user as $idx => $attachment)
+            $this->attachments_user[$idx] = ASSET_SERVER_PATH . "/" . $attachment;
+
         $this->mail->send_mail($from, $to, $this->subject_user,
             $this->email_user, $msg_html, $this->attachments_user);
 
