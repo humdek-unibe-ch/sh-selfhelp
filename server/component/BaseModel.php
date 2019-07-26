@@ -44,6 +44,11 @@ abstract class BaseModel
     protected $user_input;
 
     /**
+     * Mail handler.
+     */
+    protected $mail;
+
+    /**
      * An associative array holding the different available services. See the
      * class definition basepage for a list of all services.
      */
@@ -74,6 +79,7 @@ abstract class BaseModel
         $this->nav = $services['nav'];
         $this->parsedown = $services['parsedown'];
         $this->user_input = $services['user_input'];
+        $this->mail = $services['mail'];
     }
 
     /** Private Methods *******************************************************/

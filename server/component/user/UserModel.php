@@ -245,6 +245,42 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Create a new user. This generates a new validation token, adds the user
+     * to the DB, and sends an email to the user with the activation link.
+     *
+     * @param string $email
+     *  The email address of the user to be added.
+     * @param string $code
+     *  A unique user code.
+     * @retval int
+     *  The id of the new user or false if the process failed.
+     */
+    public function create_new_user($email, $code=null)
+    {
+        $token = $this->login->create_token();
+        $uid = $this->insert_new_user($email, $token, 2);
+        $code_res = true;
+        if($code !== null)
+            $code_res = $this->db->insert("validation_codes", array(
+                "code" => $code,
+                "id_users" => $uid,
+            ));
+        if(!$uid || !$code_res) return null;
+        $url = $this->get_link_url("validate", array(
+            "uid" => $uid,
+            "token" => $token,
+            "mode" => "activate",
+        ));
+        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
+        $subject = $_SESSION['project'] . " Email Verification";
+        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
+        $to = $this->mail->create_single_to($email);
+        $msg = $this->mail->get_content($url, 'email_activate');
+        $this->mail->send_mail($from, $to, $subject, $msg);
+        return $uid;
+    }
+
+    /**
      * Delete a user from the database.
      *
      * @param int $uid
@@ -544,41 +580,6 @@ class UserModel extends BaseModel
     public function get_uid()
     {
         return $this->uid;
-    }
-
-    /**
-     * Create a new user. This generates a new validation token, adds the user
-     * to the DB, and sends an email to the user with the activation link.
-     *
-     * @param string $email
-     *  The email address of the user to be added.
-     * @param string $code
-     *  A unique user code.
-     * @retval int
-     *  The id of the new user or false if the process failed.
-     */
-    public function create_new_user($email, $code=null)
-    {
-        $token = $this->login->create_token();
-        $uid = $this->insert_new_user($email, $token, 2);
-        $code_res = true;
-        if($code !== null)
-            $code_res = $this->db->insert("validation_codes", array(
-                "code" => $code,
-                "id_users" => $uid,
-            ));
-        if(!$uid || !$code_res) return null;
-        $url = $this->get_link_url("validate", array(
-            "uid" => $uid,
-            "token" => $token,
-            "mode" => "activate",
-        ));
-        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-        $subject = $_SESSION['project'] . " Email Verification";
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        $this->login->email_send($from, $email, $subject,
-            $this->login->email_get_content($url, 'email_activate'));
-        return $uid;
     }
 
     /**

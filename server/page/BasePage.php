@@ -7,6 +7,7 @@ require_once __DIR__ . "/../service/Acl.php";
 require_once __DIR__ . "/../service/Navigation.php";
 require_once __DIR__ . "/../service/ParsedownExtension.php";
 require_once __DIR__ . "/../service/ext/Gump.php";
+require_once __DIR__ . "/../service/Mailer.php";
 require_once __DIR__ . "/../service/UserInput.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
@@ -144,6 +145,8 @@ abstract class BasePage
             "nav" => null,
             // User input handler
             "user_input" => $user_input,
+            // PHPMailer
+            "mail" => new Mailer($db),
         );
         $this->services['parsedown']->setSafeMode(false);
         $this->fetch_page_info($keyword);

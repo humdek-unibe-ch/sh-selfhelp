@@ -47,9 +47,10 @@ class ResetPasswordModel extends StyleModel
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
         $subject = $_SESSION['project'] . " Password Reset";
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        return $this->login->email_send($from, $email, $subject,
-            $this->login->email_get_content($url, 'email_reset'));
+        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
+        $to = $this->mail->create_single_to($email);
+        $msg = $this->mail->get_content($url, 'email_reset');
+        return $this->mail->send_mail($from, $to, $subject, $msg);
     }
 }
 ?>

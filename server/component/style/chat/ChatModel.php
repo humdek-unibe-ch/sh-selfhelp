@@ -101,10 +101,10 @@ abstract class ChatModel extends StyleModel
     protected function notify($id)
     {
         $subject = $_SESSION['project'] . " Notification";
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
         $url = "https://" . $_SERVER['HTTP_HOST']
             . $this->get_link_url('contact');
-        $msg = $this->login->email_get_content($url, 'email_notification');
+        $msg = $this->mail->get_content($url, 'email_notification');
         $field_chat = $this->user_input->get_input_fields(array(
             'page' => 'profile',
             'id_user' => $id,
@@ -115,7 +115,8 @@ abstract class ChatModel extends StyleModel
         {
             $sql = "SELECT email FROM users WHERE id = :id";
             $email = $this->db->query_db_first($sql, array(':id' => $id));
-            $this->login->email_send($from, $email['email'], $subject, $msg);
+            $to = $this->mail->create_single_to($email['email']);
+            $this->mail->send_mail($from, $to, $subject, $msg);
         }
         $field_phone = $this->user_input->get_input_fields(array(
             'page' => 'profile',
@@ -126,7 +127,8 @@ abstract class ChatModel extends StyleModel
         if(count($field_phone) === 1 && $field_phone[0]['value'] !== "")
         {
             $email = $field_phone[0]['value'] . "@sms.unibe.ch";
-            $this->login->email_send($from, $email, $subject, $msg);
+            $to = $this->mail->create_single_to($email);
+            $this->mail->send_mail($from, $to, $subject, $msg);
         }
     }
 
