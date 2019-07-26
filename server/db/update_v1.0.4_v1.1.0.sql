@@ -217,7 +217,7 @@ DELETE FROM `styles_fields` WHERE `id_styles` = @id_style_resetPassword AND `id_
 DELETE FROM `styles_fields` WHERE `id_styles` = @id_style_resetPassword AND `id_fields` IN (SELECT id FROM `fields` WHERE name = 'success');
 -- insert new fields
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style_resetPassword, @id_field_is_html, '0', 'If *checked*, the email will parsed as markdown and sent as html. The unparsed email content will be sent as plaintext alternative. If left *unchecked* the emails will only be sent as plaintext');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES (@id_style_resetPassword @id_field_subject_user, 'The subject of the email to be sent to the the email address that was entered into the form. Use the following keywords to create dynamic content:\n- `@project` will be replaced by the project name.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES (@id_style_resetPassword, @id_field_subject_user, 'The subject of the email to be sent to the the email address that was entered into the form. Use the following keywords to create dynamic content:\n- `@project` will be replaced by the project name.');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES (@id_style_resetPassword, @id_field_email_user, 'The email to be sent to the the email address that was entered into the form. Use markdown syntax in conjunction with the field `is_html` if you want to send an email with html content.\n');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES (@id_style_resetPassword, (SELECT `id` FROM `fields` WHERE `name` = 'type'), 'The bootstrap color of the submit button.');
 -- assign values to the new fields

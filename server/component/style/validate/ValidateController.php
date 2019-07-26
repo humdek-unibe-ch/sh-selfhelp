@@ -33,7 +33,10 @@ class ValidateController extends BaseController
                     filter_var($_POST['name'], FILTER_SANITIZE_STRING),
                     password_hash($_POST['pw'], PASSWORD_DEFAULT),
                     filter_var($_POST['gender'], FILTER_SANITIZE_NUMBER_INT)))
+            {
                 $this->success = true;
+                unset($_SESSION['target_url']);
+            }
             else
                 $this->fail = true;
         }
