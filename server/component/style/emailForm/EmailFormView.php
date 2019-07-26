@@ -3,9 +3,9 @@ require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
- * The view class of the interstedUserForm style component.
+ * The view class of the emailForm style component.
  */
-class InterestedUserFormView extends StyleView
+class EmailFormView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -26,24 +26,6 @@ class InterestedUserFormView extends StyleView
      * The type of the submit button, e.g. 'primary', 'success', etc.
      */
     private $type;
-
-    /**
-     * DB field 'recepients' (empty string)
-     * The recepients to receive an automatically sent email.
-     */
-    private $recepients;
-
-    /**
-     * DB field 'email_recepients' (empty string)
-     * The email to be sent to the recepients.
-     */
-    private $email_recepients;
-
-    /**
-     * DB field 'email_recepients' (empty string)
-     * The email to be sent to the email address that was entered to the form.
-     */
-    private $email_intersted_user;
 
 
     /* Constructors ***********************************************************/

@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . "/../../BaseController.php";
 /**
- * The controller class of interestedUserForm style component.
+ * The controller class of emailForm style component.
  */
-class InterestedUserFormController extends BaseController
+class EmailFormController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -18,6 +18,13 @@ class InterestedUserFormController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        if(!isset($_POST['email_intersted_user']))
+            return;
+
+        $mail = filter_var($_POST['email_intersted_user'], FILTER_SANITIZE_EMAIL);
+
+        if($model->add_email($mail))
+            $model->send_emails($mail);
     }
 
     /* Private Methods ********************************************************/
