@@ -1,10 +1,8 @@
 <?php
 require_once __DIR__ . "/globals_untracked.php";
 require_once __DIR__ . "/ext/PHPMailer.php";
-require_once __DIR__ . "/ext/PHPMailer_Exception.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 class Mailer extends PHPMailer
 {
@@ -24,7 +22,7 @@ class Mailer extends PHPMailer
         $this->db = $db;
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';
-        parent::__construct(DEBUG);
+        parent::__construct(false);
     }
 
     /* Public Methods *********************************************************/
