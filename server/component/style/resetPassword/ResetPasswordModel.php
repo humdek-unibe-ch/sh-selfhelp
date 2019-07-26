@@ -49,8 +49,9 @@ class ResetPasswordModel extends EmailFormBaseModel
         $subject = $_SESSION['project'] . " Password Reset";
         $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
         $to = $this->mail->create_single_to($email);
-        $msg = $this->mail->get_content($url, 'email_reset');
-        return $this->mail->send_mail($from, $to, $subject, $msg);
+        $msg = str_replace('@link', $url, $this->email_user);
+        $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
+        return $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
     }
 
     /* Public Methods *********************************************************/
