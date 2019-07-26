@@ -124,6 +124,10 @@ class EmailFormModel extends StyleModel
      *
      * @param string $address
      *  The address entered through the input form.
+     * @retval bool
+     *  True if the email was sent successfully to the user, False otherwise.
+     *  Note that if the admin emails fail, this will only be logged in the
+     *  server logs.
      */
     public function send_emails($address)
     {
@@ -135,7 +139,7 @@ class EmailFormModel extends StyleModel
         foreach($this->attachments_user as $idx => $attachment)
             $this->attachments_user[$idx] = ASSET_SERVER_PATH . "/" . $attachment;
 
-        $this->mail->send_mail($from, $to, $this->subject_user,
+        $res = $this->mail->send_mail($from, $to, $this->subject_user,
             $this->email_user, $msg_html, $this->attachments_user);
 
         // send mail to admins
@@ -148,6 +152,8 @@ class EmailFormModel extends StyleModel
             $to = $this->mail->create_single_to($admin);
             $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
         }
+
+        return $res;
     }
 }
 ?>

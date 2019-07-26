@@ -7,6 +7,12 @@ class EmailFormController extends BaseController
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * DB field 'alert_success' (empty string).
+     * The allert message to be shown if the content was updated successfully.
+     */
+    private $alert_success;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -21,10 +27,31 @@ class EmailFormController extends BaseController
         if(!isset($_POST['email_intersted_user']))
             return;
 
-        $mail = filter_var($_POST['email_intersted_user'], FILTER_SANITIZE_EMAIL);
+        $mail = $_POST['email_intersted_user'];
+        $this->alert_success = $model->get_db_field("alert_success");
 
-        if($model->add_email($mail))
-            $model->send_emails($mail);
+        if(filter_var($mail, FILTER_VALIDATE_EMAIL))
+        {
+            $res = $model->add_email($mail);
+            if($res)
+                $res = $model->send_emails($mail);
+            if($res)
+            {
+                $this->success = true;
+                if($this->alert_success !== "")
+                    $this->success_msgs[] = $this->alert_success;
+            }
+            else
+            {
+                $this->fail = true;
+                $this->error_msgs[] = "An unexpected problem occurred. Please Contact the Server Administrator.";
+            }
+        }
+        else
+        {
+            $this->fail = true;
+            $this->error_msgs[] = "The email address is invalid.";
+        }
     }
 
     /* Private Methods ********************************************************/
