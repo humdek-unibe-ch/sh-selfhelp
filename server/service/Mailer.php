@@ -22,6 +22,8 @@ class Mailer extends PHPMailer
     public function __construct($db)
     {
         $this->db = $db;
+        $this->CharSet = 'UTF-8';
+        $this->Encoding = 'base64';
         parent::__construct(DEBUG);
     }
 
