@@ -61,6 +61,8 @@ class ShowUserInputView extends StyleView
      *
      * @param object $model
      *  The model instance of a base style component.
+     * @param object $controller
+     *  The controller instance of the component.
      */
     public function __construct($model, $controller)
     {
@@ -114,6 +116,8 @@ class ShowUserInputView extends StyleView
     /**
      * Render a table field.
      *
+     * @param array $id
+     *  The field id to be referenced in HTML.
      * @param array $value
      *  The value to be displayed in the table field.
      */

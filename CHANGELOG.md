@@ -2,39 +2,52 @@
 
 ### Bugfix
 
- - fix umlaut problem with SMS service (#164)
- - Workaround for Safari bug with audio and video controls (#166)
- - fix a problem when trying to add a user to a chatroom without having a user
-   selected
+ - Fix umlaut problem with SMS service (#164).
+ - Workaround for Safari bug with audio and video controls (#166).
+ - Fix a problem when trying to add a user to a chatroom without having a user
+   selected.
+ - Only show contact icon when logged in.
+ - Fix chat subject dropdown on small screens.
 
 ### Changes
 
- - Change CSP rule to allow images from https://via.placeholder.com/
- - Update Bootstrap to version v4.3.1
- - Distinguish between export and experiment activity
- - Change the image syntax in markdown to allow more linking options
+ - Change CSP rule to allow images from `https://via.placeholder.com/`.
+ - Update Bootstrap to version v4.3.1.
+ - Distinguish between export and experiment activity.
+ - Change the image syntax in markdown to allow more linking options.
+ - Use PHPMailer for sending mails. A new service `mail` was created for this
+   purpose.
+ - Only grant select rights to experimenter group when creating a new page.
+ - New user state and slightly changed user state handling. Note that this
+   **requires updated DB privileges**.
 
 ### New Features
 
- - Remember the target url when not logged in (#150)
- - Remember the last url of a user and redirect to it after login (#147)
- - Add a `json` style which allows to define base styles with JSON (covers #168)
+ - Remember the target url when not logged in (#150).
+ - Remember the last url of a user and redirect to it after login (#147).
+ - Add a `json` style which allows to define base styles with JSON (covers #168).
  - Add user overview table with user activity information to the user admin
-   menu (#163)
+   menu (#163).
  - Add a `userProgress` style which allows to display the current user progress
-   (#80)
- - Allow to customize the `meta:description` tag (#164)
+   (#80).
+ - Allow to customize the `meta:description` tag (#164).
  - Add a `mermaidForm` style which allows to describe graphs and allows a
-   subject to change node labels (#162)
+   subject to change node labels (#162).
  - Improve the CMS:
-   - add a schematic page overview
-   - allow to jump to the real page
+   - add a schematic page overview.
+   - allow to jump to the real page.
    - if acl allows it, a user sees a small edit icon on to bottom right of each
      section page which allows an experimenter to switch back to the CMS.
  - Improve Markdown
-   - Allow more linking options (same syntax as with linking styles)
-   - Allow to fetch user form input fields (covers #154)
- - Allow to mark user inputs as deleted (when `is_log` is checked) (#118)
+   - Allow more linking options (same syntax as with linking styles).
+   - Allow to fetch user form input fields (covers #154).
+ - Allow to mark user inputs as deleted (when `is_log` is checked) (#118).
+ - Allow to create a open access page (related to #174).
+ - New style `emailForm` which allows a user to enter an email address and
+   receive emails which are customizable in the CMS (#174).
+ - Allow to store emails of interested users (#174). This introduced a new
+   user state.
+ - Improved users overview and user overview.
 
 
 ------------

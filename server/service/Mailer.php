@@ -6,6 +6,10 @@ require_once __DIR__ . "/ext/PHPMailer_Exception.php";
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+/**
+ * A wrapper class for PHPMailer. It provides a simple email sending method
+ * which should be usable throughout this rpoject.
+ */
 class Mailer extends PHPMailer
 {
     /**
@@ -90,7 +94,9 @@ class Mailer extends PHPMailer
      * @param string $subject
      *  The email subject.
      * @param string $content
-     *  The email body.
+     *  The email plaintext body.
+     * @param string $content_html
+     *  The email HTML body.
      * @param array $attachments
      *  A list of attachment paths.
      * @param $replyto
