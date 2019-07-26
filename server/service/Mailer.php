@@ -115,7 +115,7 @@ class Mailer extends PHPMailer
         $this->Subject = $subject;
         if($content_html)
         {
-            $this->mgHTML($content_html);
+            $this->msgHTML($content_html);
             $this->AltBody = $content;
         }
         else
