@@ -12,9 +12,9 @@ class AjaxRequest
     /* Private Properties *****************************************************/
 
     /**
-     * The DB handler
+     * The service handler instance which holds all services
      */
-    private $db;
+    private $services;
 
     /**
      * The name of the request class.
@@ -31,20 +31,19 @@ class AjaxRequest
     /**
      * The constructor.
      *
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param string $class_name
      *  The name of the calss to be instantiated.
      * @param string $method_name
      *  The name of the method to be called on the instcane of
      *  AjaxRequest::class_name.
      */
-    public function __construct($db, $class_name, $method_name=null)
+    public function __construct($services, $class_name, $method_name=null)
     {
-        $this->db = $db;
+        $this->services = $services;
         $this->class_name = $class_name;
         $this->method_name = $method_name;
-        $login = new Login($db);
     }
 
     /* Protected Methods ******************************************************/
@@ -59,7 +58,7 @@ class AjaxRequest
         $success = false;
         if(class_exists($this->class_name))
         {
-            $instance = new $this->class_name($this->db);
+            $instance = new $this->class_name($this->services);
             if(!method_exists($instance, $this->method_name))
                 $data = "Request '$this->class_name' has no method '$this->method_name'";
             else

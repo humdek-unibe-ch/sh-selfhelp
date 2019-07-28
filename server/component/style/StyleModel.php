@@ -37,9 +37,8 @@ class StyleModel extends BaseModel implements IStyleModel
      * The constructor fetches a section item from the database and assignes
      * the fetched content to private class properties.
      *
-     * @param array $services
-     *  An associative array holding the different available services. See the
-     *  class definition basepage for a list of all services.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param int $id
      *  The id of the database section item to be rendered.
      * @param array $params

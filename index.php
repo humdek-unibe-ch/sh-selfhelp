@@ -1,5 +1,6 @@
 <?php
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
+require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
 require_once "./server/service/PageDb.php";
 require_once "./server/service/globals_untracked.php";
@@ -22,7 +23,7 @@ function exception_error_handler($severity, $message, $file, $line) {
 // only activate in debug mode
 if(DEBUG == 1) set_error_handler("exception_error_handler");
 
-$db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+$services = new Services();
 
 // define routing paths
 $routes = array();
@@ -45,29 +46,32 @@ $router = new Router($db, $routes, BASE_PATH, $matchTypes);
 $router->update_route();
 
 // custom page creation functions
-function create_request_page($router, $db, $class_name, $method_name)
+function create_request_page($services, $class_name, $method_name)
 {
-    $ajax = new AjaxRequest($db, $router, $class_name, $method_name);
+    $ajax = new AjaxRequest($services, $class_name, $method_name);
     $ajax->print_json();
 }
-function create_exportData_page($router, $db, $select)
+function create_exportData_page($services, $select)
 {
-    $page = new ExportPage($router, $db);
+    $page = new ExportPage($services->get_router(), $services->get_db());
     $page->output($select);
 }
+
+$router = $services->get_router();
+$db = $services->get_db();
 
 // call closure or throw 404 status
 if($router->route)
 {
     if($router->route['target'] == "sections")
     {
-        $page = new SectionPage($router, $db, $router->route['name'],
+        $page = new SectionPage($services, $router->route['name'],
             $router->route['params']);
         $page->output();
     }
     else if($router->route['target'] == "component")
     {
-        $page = new ComponentPage($router, $db, $router->route['name'],
+        $page = new ComponentPage($services, $router->route['name'],
             $router->route['params']);
         $page->output();
     }
@@ -76,7 +80,7 @@ if($router->route)
         $function_name = "create_" . $router->route['name'] . "_page";
         if(is_callable($function_name))
             call_user_func_array($function_name,
-                array_merge(array($router, $db), $router->route['params'])
+                array_merge(array($services), $router->route['params'])
             );
         else
             throw new Exception("Cannot call custom function '$function_name'");

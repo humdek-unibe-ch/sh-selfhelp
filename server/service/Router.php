@@ -22,17 +22,17 @@ class Router extends AltoRouter {
      *
      * @param instance $db
      *  The instance of the service class PageDb
-     * @param array $routes
-     *  The array of existing routes.
      * @param string $basePath
      *  The path prefix.
+     * @param array $routes
+     *  The array of existing routes.
      * @param array $matchTypes
      *  The set of types to match.
      */
-    function __construct( $db, $routes, $basePath, $matchTypes )
+    function __construct($db, $basePath, $routes = array(), $matchTypes = array())
     {
         $this->db = $db;
-        parent::__construct( $routes, $basePath, $matchTypes );
+        parent::__construct($routes, $basePath, $matchTypes);
     }
 
     /**

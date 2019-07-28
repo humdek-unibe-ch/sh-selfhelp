@@ -1,25 +1,21 @@
 <?php
+require_once __DIR__ . "/BaseAjax.php";
 
 /**
  * A small class to allow to search for users. This class is used for AJAX
  * calls.
  */
-class AjaxSearch
+class AjaxSearch extends BaseAjax
 {
-    /**
-     * The instance of the db service.
-     */
-    private $db = null;
-
     /**
      * The constructor.
      *
-     * @param object $db
-     *  The instance of the db service.
+     * @param object $services
+     *  The service handler instance which holds all services
      */
-    public function __construct($db)
+    public function __construct($services)
     {
-        $this->db = $db;
+        parent::__construct($services);
     }
 
     /**

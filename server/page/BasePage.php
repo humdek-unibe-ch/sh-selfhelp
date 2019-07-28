@@ -90,14 +90,12 @@ abstract class BasePage
      * The constructor initialises the css and js include arrays with the
      * base files that are common for all pages.
      *
-     * @param object $router
-     *  The router instance is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param string $keyword
      *  The identification name of the page.
      */
-    public function __construct($router, $db, $keyword)
+    public function __construct($services, $keyword)
     {
         $this->render_nav = true;
         $this->render_footer = true;
@@ -124,35 +122,12 @@ abstract class BasePage
             $this->js_includes);
         if(DEBUG == 1)
             $this->collect_style_includes();
-
-        $user_input = new UserInput($db);
-        $this->services = array(
-            // The router instance which is used to generate valid links.
-            "router" => $router,
-            //  The db instance which grants access to the DB.
-            "db" => $db,
-            // The login instance that allows to check user credentials.
-            "login" => new Login($db, ($keyword !== "login")),
-            // The instance of the access control layer (ACL) which allows to
-            // decide which links to display.
-            "acl" => new Acl($db),
-            // A markdown parser.
-            "parsedown" => new ParsedownExtension($user_input, $router),
-            // The instance to the navigation service which allows to switch
-            // between sections, associated to a specific page. Unlike the
-            // other elements in this array, "nav" may be null if a page has
-            // only one view.
-            "nav" => null,
-            // User input handler
-            "user_input" => $user_input,
-            // PHPMailer
-            "mail" => new Mailer($db),
-        );
-        $this->services['parsedown']->setSafeMode(false);
+        $this->services = $services;
         $this->fetch_page_info($keyword);
         if($this->id_navigation_section != null)
-            $this->services['nav'] = new Navigation($router, $db, $keyword,
-                $this->id_navigation_section);
+            $this->services->set_nav(new Navigation(
+                $this->services->get_router(), $this->services->get_db(),
+                $keyword, $this->id_navigation_section));
         $this->add_component("nav",
             new NavComponent($this->services));
         $this->add_component("footer",
@@ -252,7 +227,8 @@ abstract class BasePage
      */
     private function fetch_page_info($keyword)
     {
-        $info = $this->services['db']->fetch_page_info($keyword);
+        $db = $this->services->get_db();
+        $info = $db->fetch_page_info($keyword);
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
@@ -272,7 +248,8 @@ abstract class BasePage
             $this->get_css_includes()));
         foreach($this->css_includes as $css_include)
         {
-            $include_path = $this->services['router']->get_asset_path($css_include);
+            $router = $this->services->get_router();
+            $include_path = $router->get_asset_path($css_include);
             require __DIR__ . '/tpl_css_include.php';
         }
     }
@@ -286,7 +263,8 @@ abstract class BasePage
             $this->get_js_includes()));
         foreach($this->js_includes as $js_include)
         {
-            $include_path = $this->services['router']->get_asset_path($js_include);
+            $router = $this->services->get_router();
+            $include_path = $router->get_asset_path($js_include);
             require __DIR__ . '/tpl_js_include.php';
         }
     }
@@ -323,11 +301,13 @@ abstract class BasePage
      */
     protected function output_base_content()
     {
+        $acl = $this->services->get_acl();
+        $login= $this->services->get_login();
         if($this->render_nav) $this->output_component("nav");
-        if($this->services['acl']->has_access($_SESSION['id_user'],
+        if($acl->has_access($_SESSION['id_user'],
                 $this->id_page, $this->required_access_level))
             $this->output_content();
-        else if($this->services['login']->is_logged_in())
+        else if($login->is_logged_in())
         {
             $page = new InternalPage($this, "no_access");
             $page->output_content();
