@@ -14,16 +14,16 @@ class Router extends AltoRouter {
     /**
      * The constructor which calls the parent constructor.
      *
-     * @param array $routes
-     *  The array of existing routes.
      * @param string $basePath
      *  The path prefix.
+     * @param array $routes
+     *  The array of existing routes.
      * @param array $matchTypes
      *  The set of types to match.
      */
-    function __construct( $routes = array(), $basePath = '',
-        $matchTypes = array() ) {
-        parent::__construct( $routes, $basePath, $matchTypes );
+    function __construct($basePath, $routes = array(), $matchTypes = array())
+    {
+        parent::__construct($routes, $basePath, $matchTypes);
     }
 
     /**

@@ -23,18 +23,16 @@ class ComponentPage extends BasePage
      * The constructor of this class. It calls the constructor of the parent
      * class and instanciates the specified component.
      *
-     * @param object $router
-     *  The router instance is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param string $keyword
      *  The identification name of the page.
      * @param array $params
      *  The get parameters to be propagated to the component.
      */
-    public function __construct($router, $db, $keyword, $params)
+    public function __construct($services, $keyword, $params)
     {
-        parent::__construct($router, $db, $keyword);
+        parent::__construct($services, $keyword);
         $componentClass = ucfirst($keyword) . "Component";
         if(class_exists($componentClass))
         {

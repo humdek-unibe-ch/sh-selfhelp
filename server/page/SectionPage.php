@@ -30,10 +30,8 @@ class SectionPage extends BasePage
      * For each section, a StyleComponent is created and added to the component
      * list of the page.
      *
-     * @param object $router
-     *  The router instance is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param string $keyword
      *  The identification name of the page.
      * @param array $params
@@ -41,11 +39,12 @@ class SectionPage extends BasePage
      *  If the page is a navigation page it must hold the key 'nav' where the
      *  value defines the id of the current navigation section.
      */
-    public function __construct($router, $db, $keyword, $params=array())
+    public function __construct($services, $keyword, $params=array())
     {
-        parent::__construct($router, $db, $keyword);
+        parent::__construct($services, $keyword);
         $this->nav_section_id = isset($params['nav']) ? $params['nav'] : null;
 
+        $db = $services->get_db();
         $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
             $this->add_component("section-" . $section['id'],
@@ -54,7 +53,8 @@ class SectionPage extends BasePage
 
         if($this->nav_section_id != null)
         {
-            $this->services['nav']->set_current_index($this->nav_section_id);
+            $nav = $this->services->get_nav();
+            $nav->set_current_index($this->nav_section_id);
             $this->add_component("navigation", new StyleComponent(
                 $this->services, $this->id_navigation_section, $params));
         }
@@ -83,7 +83,8 @@ class SectionPage extends BasePage
         {
             $sql = "SELECT * FROM sections_navigation
                 WHERE child = :id AND id_pages = :pid";
-            if($this->services['db']->query_db_first($sql, array(
+            $db = $this->services->get_db();
+            if($db->query_db_first($sql, array(
                     ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
             {
                 $this->output_component("navigation");

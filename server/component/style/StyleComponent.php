@@ -39,9 +39,8 @@ class StyleComponent extends BaseComponent
      * the view instance of the style to render to the constructor of the
      * parent class.
      *
-     * @param array $services
-     *  An associative array holding the different available services. See the
-     *  class definition basepage for a list of all services.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param int $id
      *  The id of the database section item to be rendered.
      * @param array $params
@@ -52,12 +51,13 @@ class StyleComponent extends BaseComponent
         $model = null;
         $this->is_style_known = true;
         // get style name and type
+        $db = $services->get_db();
         $sql = "SELECT s.name, t.name AS type
             FROM styles AS s
             LEFT JOIN styleType AS t ON t.id = s.id_type
             LEFT JOIN sections AS sec ON sec.id_styles = s.id
             WHERE sec.id = :id";
-        $style = $services['db']->query_db_first($sql, array(":id" => $id));
+        $style = $db->query_db_first($sql, array(":id" => $id));
         if(!$style) {
             $this->is_style_known = false;
             return;
