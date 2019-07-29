@@ -78,7 +78,7 @@ if($router->route)
 }
 else {
     // no route was matched
-    $page = new SectionPage($router, $db, 'missing', array());
+    $page = new SectionPage($services, 'missing', array());
     $page->output();
 }
 ?>
