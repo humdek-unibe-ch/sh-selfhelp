@@ -25,26 +25,6 @@ if(DEBUG == 1) set_error_handler("exception_error_handler");
 
 $services = new Services();
 
-// define routing paths
-$routes = array();
-$sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword
-    FROM pages AS p
-    LEFT JOIN actions AS a ON a.id = p.id_actions
-    WHERE protocol IS NOT NULL";
-$pages = $db->query_db($sql, array());
-foreach($pages as $page)
-    $routes[] = array( $page['protocol'], $page['url'], $page['action'],
-        $page['keyword']);
-
-// define additional route match types
-$matchTypes = array('v' => '[A-Za-z_]+[A-Za-z_0-9]*');
-
-// create router
-$router = new Router($db, $routes, BASE_PATH, $matchTypes);
-
-// match current request url
-$router->update_route();
-
 // custom page creation functions
 function create_request_page($services, $class_name, $method_name)
 {
@@ -53,7 +33,7 @@ function create_request_page($services, $class_name, $method_name)
 }
 function create_exportData_page($services, $select)
 {
-    $page = new ExportPage($services->get_router(), $services->get_db());
+    $page = new ExportPage($services);
     $page->output($select);
 }
 

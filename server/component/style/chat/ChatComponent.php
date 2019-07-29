@@ -36,7 +36,7 @@ class ChatComponent extends BaseComponent
      */
     public function __construct($services, $id, $params)
     {
-        $this->db = $services['db'];
+        $this->db = $services->get_db();
         $uid = isset($params['uid']) ? intval($params['uid']) : null;
         $gid = isset($params['gid']) ? intval($params['gid']) : null;
         $is_therapist = $this->check_experimenter_relation($_SESSION['id_user']);

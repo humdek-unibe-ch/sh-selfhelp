@@ -13,14 +13,12 @@ class ExportPage extends BasePage
      * class and checks the login fields if they are set. If the fields are set
      * but the login fails, the page is redirected to the login page.
      *
-     * @param object $router
-     *  The router instance is used to generate valid links.
-     * @param object $db
-     *  The db instance which grants access to the DB.
+     * @param object $services
+     *  The service handler instance which holds all services
      */
-    public function __construct($router, $db)
+    public function __construct($services)
     {
-        parent::__construct($router, $db, "export");
+        parent::__construct($services, "export");
     }
 
     /* Private Methods ********************************************************/
@@ -35,7 +33,7 @@ class ExportPage extends BasePage
     private function export_data($selector)
     {
         // log user activity on export pages
-        $this->services['db']->insert("user_activity", array(
+        $this->services->get_db()->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
@@ -69,7 +67,7 @@ class ExportPage extends BasePage
         $sql = "SELECT ua.url, vc.code, ua.timestamp
             FROM user_activity AS ua
             LEFT JOIN validation_codes AS vc ON vc.id_users = ua.id_users";
-        $fields = $this->services['db']->query_db($sql);
+        $fields = $this->services->get_db()->query_db($sql);
         foreach($fields as $field)
             fputcsv($output, array($field['code'], $field['url'],
                 $field['timestamp']));
@@ -84,7 +82,7 @@ class ExportPage extends BasePage
     private function export_user_input($output)
     {
 
-        $fields = $this->services['user_input']->get_input_fields();
+        $fields = $this->services->get_user_input()->get_input_fields();
 
         // output the column headings
         if(count($fields) > 0)
@@ -105,7 +103,7 @@ class ExportPage extends BasePage
     {
         fputcsv($output, array("codes"));
         $sql = "SELECT code FROM validation_codes WHERE id_users IS NULL";
-        $fields = $this->services['db']->query_db($sql);
+        $fields = $this->services->get_db()->query_db($sql);
         foreach($fields as $field)
         {
             fputcsv($output, array($field['code']));
@@ -139,7 +137,7 @@ class ExportPage extends BasePage
      */
     public function output($selector = "")
     {
-        if($this->services['acl']->has_access($_SESSION['id_user'],
+        if($this->services->get_acl()->has_access($_SESSION['id_user'],
                 $this->id_page, $this->required_access_level))
             $this->export_data($selector);
         else

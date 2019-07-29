@@ -1,14 +1,5 @@
 <?php
 require_once __DIR__ . "/InternalPage.php";
-require_once __DIR__ . "/../service/PageDb.php";
-require_once __DIR__ . "/../service/globals_untracked.php";
-require_once __DIR__ . "/../service/Login.php";
-require_once __DIR__ . "/../service/Acl.php";
-require_once __DIR__ . "/../service/Navigation.php";
-require_once __DIR__ . "/../service/ParsedownExtension.php";
-require_once __DIR__ . "/../service/ext/Gump.php";
-require_once __DIR__ . "/../service/Mailer.php";
-require_once __DIR__ . "/../service/UserInput.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
@@ -326,7 +317,8 @@ abstract class BasePage
     protected function output_meta_tags()
     {
         $description = "";
-        $fields = $this->services['db']->fetch_page_fields('home');
+        $db = $this->services->get_db();
+        $fields = $db->fetch_page_fields('home');
         foreach($fields as $field)
             if($field['name'] === "description")
                 $description = $field['content'];

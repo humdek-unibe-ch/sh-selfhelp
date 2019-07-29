@@ -69,13 +69,16 @@ class SectionPage extends BasePage
      */
     protected function output_content()
     {
-        if($this->services['acl']->has_access($_SESSION['id_user'],
+        $router = $this->services->get_router();
+        $acl = $this->services->get_acl();
+        $db = $this->services->get_db();
+        if($acl->has_access($_SESSION['id_user'],
                 $this->id_page, 'insert'))
         {
             $arr = array('pid' => $this->id_page);
             if($this->id_page == $_SESSION['cms_edit_url']['pid'])
                 $arr = $_SESSION['cms_edit_url'];
-            $url = $this->services['router']->generate('cmsSelect', $arr);
+            $url = $router->generate('cmsSelect', $arr);
             require __DIR__ . "/tpl_cms_edit.php";
         }
         $was_section_rendered = false;
@@ -92,7 +95,6 @@ class SectionPage extends BasePage
         {
             $sql = "SELECT * FROM sections_navigation
                 WHERE child = :id AND id_pages = :pid";
-            $db = $this->services->get_db();
             if($db->query_db_first($sql, array(
                     ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
             {

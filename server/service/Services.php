@@ -3,6 +3,7 @@ require_once __DIR__ . "/globals.php";
 require_once __DIR__ . "/Acl.php";
 require_once __DIR__ . "/PageDb.php";
 require_once __DIR__ . "/Login.php";
+require_once __DIR__ . "/Mailer.php";
 require_once __DIR__ . "/Navigation.php";
 require_once __DIR__ . "/ParsedownExtension.php";
 require_once __DIR__ . "/Router.php";
@@ -73,7 +74,7 @@ class Services
         $this->login = new Login($this->db,
             $this->router->route['name'] !== 'login');
 
-        $this->mail = new Mailer($this->db),
+        $this->mail = new Mailer($this->db);
 
         $this->user_input = new UserInput($this->db);
 
