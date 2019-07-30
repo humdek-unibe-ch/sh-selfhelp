@@ -29,8 +29,10 @@ class ExportPage extends BasePage
      *
      * @param string $selector
      *  An identifier indicating which data to export.
+     * @param string $option
+     *  An option to add specifics of what to export
      */
-    private function export_data($selector)
+    private function export_data($selector, $option)
     {
         // log user activity on export pages
         $this->services->get_db()->insert("user_activity", array(
@@ -52,7 +54,7 @@ class ExportPage extends BasePage
         else if($selector === "user_activity")
             $this->export_user_activity($output);
         else if($selector === "validation_codes")
-            $this->export_validation_codes($output);
+            $this->export_validation_codes($output, $option);
     }
 
     /**
@@ -98,14 +100,34 @@ class ExportPage extends BasePage
      *
      * @param pointer $output
      *  The file pointer to the output stream.
+     * @param string $option
+     *  An option to add specifics of what to export
      */
-    private function export_validation_codes($output)
+    private function export_validation_codes($output, $option)
     {
-        fputcsv($output, array("codes"));
-        $sql = "SELECT code FROM validation_codes WHERE id_users IS NULL";
+        $header = array("codes");
+        if($option === "all" || $option === "used")
+        {
+            $header[] = "user_email";
+            $header[] = "timestamp";
+        }
+        fputcsv($output, $header);
+        $sql = "SELECT u.email, vc.code, vc.timestamp FROM validation_codes AS vc
+            LEFT JOIN users AS u ON u.id = vc.id_users
+            WHERE 1";
+        if($option === "open")
+            $sql .= " AND id_users IS NULL";
+        else if($option === "used")
+            $sql .= " AND id_users IS NOT NULL";
         $fields = $this->services->get_db()->query_db($sql);
         foreach($fields as $field)
         {
+            $data = array($field['code']);
+            if($option === "all" || $option === "used")
+            {
+                $data[] = $field['email'];
+                $data[] = $field['timestamp'];
+            }
             fputcsv($output, array($field['code']));
         }
     }
@@ -135,11 +157,11 @@ class ExportPage extends BasePage
      * @param string $selector
      *  An identifier indicating which data to export.
      */
-    public function output($selector = "")
+    public function output($selector = "", $option = null)
     {
         if($this->services->get_acl()->has_access($_SESSION['id_user'],
                 $this->id_page, $this->required_access_level))
-            $this->export_data($selector);
+            $this->export_data($selector, $option);
         else
             parent::output();
     }

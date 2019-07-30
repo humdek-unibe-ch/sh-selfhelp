@@ -31,10 +31,10 @@ function create_request_page($services, $class_name, $method_name)
     $ajax = new AjaxRequest($services, $class_name, $method_name);
     $ajax->print_json();
 }
-function create_exportData_page($services, $select)
+function create_exportData_page($services, $select, $option=null)
 {
     $page = new ExportPage($services);
-    $page->output($select);
+    $page->output($select, $option);
 }
 
 $router = $services->get_router();

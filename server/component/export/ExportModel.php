@@ -47,25 +47,52 @@ class ExportModel extends BaseModel
         {
             $fields["title"] = "User Input";
             $fields["text"] = "The collection of all data that was entered by users through a form field. Only form fields from pages marked as user input pages are considered. Each item was timestamped at the time of creation.";
-            $fields["url"] = $this->get_link_url("exportData",
-                array("selector" => "user_input"));
-            $fields["label"] = "Get User Data";
+            $fields["options"] = array(
+                array(
+                    "url" => $this->get_link_url("exportData",
+                            array("selector" => "user_input")),
+                    "label" => "Get User Data",
+                    "type" => "primary",
+                ),
+            );
         }
         if($selector === "user_activity")
         {
             $fields["title"] = "User Activity";
             $fields["text"] = "The collection of all user activity on experiment pages.";
-            $fields["url"] = $this->get_link_url("exportData",
-                array("selector" => "user_activity"));
-            $fields["label"] = "Get User Activity";
+            $fields["options"] = array(
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "user_activity")),
+                    "label" => "Get User Activity",
+                    "type" => "primary",
+                ),
+            );
         }
         if($selector === "validation_codes")
         {
             $fields["title"] = "Validation Codes";
             $fields["text"] = "The list of valid validation codes users can use to register.";
-            $fields["url"] = $this->get_link_url("exportData",
-                array("selector" => "validation_codes"));
-            $fields["label"] = "Get Validation Codes";
+            $fields["options"] = array(
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "validation_codes", "option" => "all")),
+                    "label" => "Get All Validation Codes",
+                    "type" => "primary",
+                ),
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "validation_codes", "option" => "used")),
+                    "label" => "Get Used Validation Codes",
+                    "type" => "warning",
+                ),
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "validation_codes", "option" => "open")),
+                    "label" => "Get Open Validation Codes",
+                    "type" => "success",
+                ),
+            );
         }
         return $fields;
     }
