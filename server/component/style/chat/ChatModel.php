@@ -32,6 +32,19 @@ abstract class ChatModel extends StyleModel
      */
     private $email_user;
 
+    /**
+     * DB field 'subject_user' (empty string)
+     * The subject of the notification email to be sent to the receiver of the
+     * chat msg.
+     */
+    private $subject_user;
+
+    /**
+     * DB field 'is_html' (false)
+     * If true, send the notification email as HTML, otherwise as plaintext.
+     */
+    private $is_html;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -54,6 +67,8 @@ abstract class ChatModel extends StyleModel
         $this->uid = $uid;
         $this->rooms = $this->fetch_rooms();
         $this->email_user = $this->get_db_field("email_user");
+        $this->subject_user = $this->get_db_field("subject_user");
+        $this->is_html = $this->get_db_field("is_html", false);
     }
 
     /* Private Methodes *******************************************************/
@@ -112,6 +127,7 @@ abstract class ChatModel extends StyleModel
         $url = "https://" . $_SERVER['HTTP_HOST']
             . $this->get_link_url('contact');
         $msg = str_replace('@link', $url, $this->email_user);
+        $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
         $field_chat = $this->user_input->get_input_fields(array(
             'page' => 'profile',
             'id_user' => $id,
@@ -135,7 +151,7 @@ abstract class ChatModel extends StyleModel
         {
             $email = $field_phone[0]['value'] . "@sms.unibe.ch";
             $to = $this->mail->create_single_to($email);
-            $this->mail->send_mail($from, $to, $subject, $msg);
+            $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
         }
     }
 
