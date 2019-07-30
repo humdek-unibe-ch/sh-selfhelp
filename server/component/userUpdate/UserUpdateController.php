@@ -42,6 +42,24 @@ class UserUpdateController extends UserController
                 $this->error_msgs[] = "Failed to unblock the user.";
             }
         }
+        else if($mode == "clean" && isset($_POST["email"]))
+        {
+            if($_POST['email'] == $this->selected_user['email'])
+            {
+                if($this->model->clean_user_data($this->selected_user['id']))
+                    $this->success = true;
+                else
+                {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Failed to clean the user data.";
+                }
+            }
+            else
+            {
+                $this->fail = true;
+                $this->error_msgs[] = "Failed to clean the user data: The verification text does not match with the user email.";
+            }
+        }
         else if($mode == "add_group" && isset($_POST["groups"]))
         {
             foreach($_POST['groups'] as $group)

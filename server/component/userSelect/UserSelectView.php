@@ -159,6 +159,34 @@ class UserSelectView extends BaseView
     }
 
     /**
+     * Render the card to clean user data.
+     */
+    private function output_user_clean()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Clean User Data",
+            "type" => "danger",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Cleaning user data will remove all activity logs as well as all input data entered by this user. This cannot be undone.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Clean User Data",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "clean")),
+                    "type" => "danger",
+                )),
+            )
+        ));
+        $card->output_content();
+    }
+
+    /**
      * Render the card to delete a button.
      */
     private function output_user_delete()
@@ -238,6 +266,7 @@ class UserSelectView extends BaseView
                 $this->output_user_blocking();
             else
                 $this->output_user_unblocking();
+            $this->output_user_clean();
         }
         if($this->model->can_delete_user())
             $this->output_user_delete();

@@ -247,6 +247,24 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Clean all user data in the db.
+     *
+     * @param int $uid
+     *  The id of the user from which the data will be cleaned.
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function clean_user_data($uid)
+    {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+            return false;
+
+        $res = $this->db->remove_by_fk('user_activity', 'id_users', $uid);
+        $res &= $this->db->remove_by_fk('user_input', 'id_users', $uid);
+        return $res;
+    }
+
+    /**
      * Create a new user. This generates a new validation token, adds the user
      * to the DB, and sends an email to the user with the activation link.
      *

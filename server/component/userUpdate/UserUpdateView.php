@@ -139,6 +139,45 @@ class UserUpdateView extends BaseView
     }
 
     /**
+     * Render the clean user data form.
+     */
+    private function output_form_clean()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Clean User Data",
+            "type" => "danger",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the email address of the user.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Clean User Data",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "clean")),
+                    "type" => "danger",
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "text",
+                            "name" => "email",
+                            "is_required" => true,
+                            "css" => "mb-3",
+                            "placeholder" => "Enter Email Address",
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
      * Render the from to remove a group from a user.
      */
     private function output_form_rm_group()
@@ -224,6 +263,8 @@ class UserUpdateView extends BaseView
             require __DIR__ . "/tpl_success_block.php";
         else if($type === "unblock")
             require __DIR__ . "/tpl_success_unblock.php";
+        else if($type === "clean")
+            require __DIR__ . "/tpl_success_clean.php";
         else if($type === "add_group")
             require __DIR__ . "/tpl_success_add_group.php";
         else if($type === "rm_group")
@@ -263,10 +304,19 @@ class UserUpdateView extends BaseView
                 require __DIR__ . "/tpl_block.php";
         }
         else if($this->mode == "unblock")
+        {
             if($this->controller->has_succeeded())
                 require __DIR__ . "/tpl_success.php";
             else
                 require __DIR__ . "/tpl_unblock.php";
+        }
+        else if($this->mode == "clean")
+        {
+            if($this->controller->has_succeeded())
+                require __DIR__ . "/tpl_success.php";
+            else
+                require __DIR__ . "/tpl_clean.php";
+        }
         else if($this->mode == "add_group")
         {
             if($this->controller->has_succeeded())
