@@ -45,8 +45,8 @@ abstract class BaseAjax
     /**
      * The constructor.
      *
-     * @param object $db
-     *  The instance of the db service.
+     * @param object $services
+     *  The service handler instance which holds all services
      */
     public function __construct($services)
     {

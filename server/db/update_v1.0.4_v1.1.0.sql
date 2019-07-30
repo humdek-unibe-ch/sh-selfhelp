@@ -262,3 +262,9 @@ UPDATE `styles_fields` SET `help` = 'The title of on the collapsed list of subje
 UPDATE `styles_fields` SET `help` = 'The postfix of the chat title which serves to indicate to the subject with whom he/she is talking. Only a subject sees this. It should be a general description of experimenters. The chat title is composed as follows:\n- if user is an experimenter the title is composed from the field `title_prefix` and the selected subject_name\n- if user is a subject the title is composed from the fields `title_prefix` and `experimenter`' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'experimenter');
 UPDATE `styles_fields` SET `help` = 'The prefix of the chat title which serves to indicate to the user with whom he/she is talking. The chat title is composed as follows:\n- if user is an experimenter the title is composed from the field `title_prefix` and the selected subject_name\n- if user is a subject the title is composed from the fields `title_prefix` and `experimenter`.' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'title_prefix');
 DELETE FROM `fields` WHERE `name` = 'email_notification';
+
+SET @id_page_exportData = (SELECT `id` FROM `pages` WHERE `keyword` = 'exportData');
+UPDATE `pages` SET `url` = '/admin/export/[user_input|user_activity|validation_codes:selector]/[all|used|open:option]?' WHERE `pages`.`id` = @id_page_exportData;
+
+ALTER TABLE `validation_codes` CHANGE `timestamp` `consumed` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE `validation_codes` ADD `created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `id_users`;

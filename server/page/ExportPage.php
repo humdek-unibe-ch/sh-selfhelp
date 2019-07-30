@@ -156,6 +156,8 @@ class ExportPage extends BasePage
      *
      * @param string $selector
      *  An identifier indicating which data to export.
+     * @param string $option
+     *  An option string which allows to specify how to export data.
      */
     public function output($selector = "", $option = null)
     {

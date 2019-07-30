@@ -20,6 +20,13 @@
  - Only grant select rights to experimenter group when creating a new page.
  - New user state and slightly changed user state handling. Note that this
    **requires updated DB privileges**.
+ - Move the `email_reset` form from the email CMS to the style `resetPassword`
+   which allows to provide more options on how the email is sent (html,
+   subject).
+ - Move the `email_notification` form from the email CMS to the style `chat`
+   which allows to provide more options on how the email is sent (html,
+   subject).
+ - Changed the way how services are passed along the styles and components.
 
 ### New Features
 
@@ -48,6 +55,7 @@
  - Allow to store emails of interested users (#174). This introduced a new
    user state.
  - Improved users overview and user overview.
+ - Improved the validation code handling (#157).
 
 
 ------------
