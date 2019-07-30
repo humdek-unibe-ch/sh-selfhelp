@@ -26,6 +26,12 @@ abstract class ChatModel extends StyleModel
      */
     protected $rooms;
 
+    /**
+     * DB field 'user_email' (empty string)
+     * The notification email to be sent to the receiver of the chat msg.
+     */
+    private $user_email;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -47,6 +53,7 @@ abstract class ChatModel extends StyleModel
         $this->gid = $gid ?? GLOBAL_CHAT_ROOM_ID;
         $this->uid = $uid;
         $this->rooms = $this->fetch_rooms();
+        $this->user_email = $this->get_db_field("user_email");
     }
 
     /* Private Methodes *******************************************************/
@@ -104,7 +111,7 @@ abstract class ChatModel extends StyleModel
         $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
         $url = "https://" . $_SERVER['HTTP_HOST']
             . $this->get_link_url('contact');
-        $msg = $this->mail->get_content($url, 'email_notification');
+        $msg = str_replace('@link', $url, $this->user_email);
         $field_chat = $this->user_input->get_input_fields(array(
             'page' => 'profile',
             'id_user' => $id,
