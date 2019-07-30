@@ -235,6 +235,7 @@ UPDATE `styles_fields` SET `help` = 'The label on the submit button.' WHERE `id_
 UPDATE `styles_fields` SET `help` = 'The placeholder in the email input field.' WHERE `id_styles` = @id_style_resetPassword AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'placeholder');
 UPDATE `styles_fields` SET `help` = 'The success message to be shown when an email address was successfully stored in the database (if enabled) and the automatic emails were sent successfully.' WHERE `id_styles` = @id_style_resetPassword AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'alert_success');
 UPDATE `styles_fields` SET `help` = 'The description to be displayed on the page when a user wants to reset the password.' WHERE `id_styles` = @id_style_resetPassword AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'text_md');
+DELETE FROM `fields` WHERE `name` = 'email_reset';
 
 -- move chat notification to chat style
 SET @id_style_chat = (SELECT `id` FROM `styles` WHERE `name` = 'chat');
@@ -253,3 +254,4 @@ UPDATE `styles_fields` SET `help` = 'The label on the button to send a message.'
 UPDATE `styles_fields` SET `help` = 'The title of on the collapsed list of subjects (only on small screens).' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'subjects');
 UPDATE `styles_fields` SET `help` = 'The postfix of the chat title which serves to indicate to the subject with whom he/she is talking. Only a subject sees this. It should be a general description of experimenters. The chat title is composed as follows:\n- if user is an experimenter the title is composed from the field `title_prefix` and the selected subject_name\n- if user is a subject the title is composed from the fields `title_prefix` and `experimenter`' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'experimenter');
 UPDATE `styles_fields` SET `help` = 'The prefix of the chat title which serves to indicate to the user with whom he/she is talking. The chat title is composed as follows:\n- if user is an experimenter the title is composed from the field `title_prefix` and the selected subject_name\n- if user is a subject the title is composed from the fields `title_prefix` and `experimenter`.' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'title_prefix');
+DELETE FROM `fields` WHERE `name` = 'email_notification';

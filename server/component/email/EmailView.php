@@ -68,7 +68,10 @@ class EmailView extends BaseView
     private function output_email()
     {
         if($this->active_id === null)
+        {
+            $cms_url = $this->model->get_link_url('cmsSelect');
             require __DIR__ . "/tpl_intro.php";
+        }
         else
         {
             $target = $_SERVER['REQUEST_URI'];
