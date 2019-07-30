@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
+require_once __DIR__ . "/../export/ExportModel.php";
 /**
  * This class is used to prepare all data related to the user component such
  * that the data can easily be displayed in the view of the component.
@@ -160,12 +161,13 @@ class UserModel extends BaseModel
     /**
      * Generate random validation codes and store them to the database.
      *
-     * @retval bool
-     *  True on success, false on failure.
+     * @retval string
+     *  A random string token.
      */
     private function generate_code()
     {
-        return bin2hex(openssl_random_pseudo_bytes(4));
+        $hash = bin2hex(openssl_random_pseudo_bytes(5));
+        return base_convert($hash, 16, 36);
     }
 
     /* Public Methods *********************************************************/
@@ -307,8 +309,11 @@ class UserModel extends BaseModel
         for($i = 0; $i < $count; $i++)
             $codes[] = $this->generate_code();
 
-        $sql = "INSERT INTO validation_codes (code) VALUES('" . implode("'),('", array_unique($codes)) . "')";
-        return $this->db->execute_db($sql);
+        $sql = "INSERT IGNORE INTO validation_codes (code) VALUES('" . implode("'),('", array_unique($codes)) . "')";
+        $dbh = $this->db->get_dbh();
+        $insert = $dbh->prepare($sql);
+        $insert->execute();
+        return $insert->rowCount();
     }
 
     /**
@@ -336,6 +341,36 @@ class UserModel extends BaseModel
             return intval($res['count']);
         else
             return 0;
+    }
+
+    /**
+     * Get the number of consumed validation codes.
+     *
+     * @retval int
+     *  The number of consumed validation codes.
+     */
+    public function get_code_count_consumed()
+    {
+        $sql = "SELECT COUNT(*) AS count FROM validation_codes
+            WHERE id_users IS NOT NULL";
+        $res = $this->db->query_db_first($sql);
+        if($res)
+            return intval($res['count']);
+        else
+            return 0;
+    }
+
+    /**
+     * Return the necessary fields to render the validation code export buttons.
+     * See ExportModel::get_export_view_fields() for more details.
+     *
+     * @retval array
+     *  An array of fields as defined in ExportModel::get_export_view_fields().
+     */
+    public function get_export_button_fields()
+    {
+        $model = new ExportModel($this->services);
+        return $model->get_export_view_fields("validation_codes");
     }
 
     /**

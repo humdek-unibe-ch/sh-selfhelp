@@ -36,6 +36,8 @@ class ExportView extends BaseView
         require __DIR__ . "/tpl_export_item.php";
     }
 
+    /* Public Methods *********************************************************/
+
     /**
      * Render the export item option.
      *
@@ -45,7 +47,7 @@ class ExportView extends BaseView
      *  - `label`:  The label on the export button.
      *  - `type`:   The bootstrap type to color th ebutton.
      */
-    private function output_export_item_options($options)
+    public function output_export_item_options($options)
     {
         foreach($options as $option)
         {
@@ -55,8 +57,6 @@ class ExportView extends BaseView
             require __DIR__ . "/tpl_export_item_option.php";
         }
     }
-
-    /* Public Methods *********************************************************/
 
     /**
      * Render the footer view.

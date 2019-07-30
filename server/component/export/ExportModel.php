@@ -83,7 +83,7 @@ class ExportModel extends BaseModel
                 array(
                     "url" => $this->get_link_url("exportData",
                         array("selector" => "validation_codes", "option" => "used")),
-                    "label" => "Get Used Validation Codes",
+                    "label" => "Get Consumed Validation Codes",
                     "type" => "warning",
                 ),
                 array(

@@ -105,14 +105,14 @@ class ExportPage extends BasePage
      */
     private function export_validation_codes($output, $option)
     {
-        $header = array("codes");
+        $header = array("codes", "created");
         if($option === "all" || $option === "used")
         {
             $header[] = "user_email";
-            $header[] = "timestamp";
+            $header[] = "consumed";
         }
         fputcsv($output, $header);
-        $sql = "SELECT u.email, vc.code, vc.timestamp FROM validation_codes AS vc
+        $sql = "SELECT u.email, vc.code, vc.consumed, vc.created FROM validation_codes AS vc
             LEFT JOIN users AS u ON u.id = vc.id_users
             WHERE 1";
         if($option === "open")
@@ -122,13 +122,13 @@ class ExportPage extends BasePage
         $fields = $this->services->get_db()->query_db($sql);
         foreach($fields as $field)
         {
-            $data = array($field['code']);
+            $data = array($field['code'], $field['created']);
             if($option === "all" || $option === "used")
             {
                 $data[] = $field['email'];
-                $data[] = $field['timestamp'];
+                $data[] = $field['consumed'];
             }
-            fputcsv($output, array($field['code']));
+            fputcsv($output, $data);
         }
     }
 
