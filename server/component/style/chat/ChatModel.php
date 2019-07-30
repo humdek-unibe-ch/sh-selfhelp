@@ -107,7 +107,7 @@ abstract class ChatModel extends StyleModel
      */
     protected function notify($id)
     {
-        $subject = $_SESSION['project'] . " Notification";
+        $subject = $this->subject_user;
         $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
         $url = "https://" . $_SERVER['HTTP_HOST']
             . $this->get_link_url('contact');
