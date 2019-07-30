@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/globals.php";
+require_once __DIR__ . "/globals_untracked.php";
 
 define('CSS_FOLDER', 'css');
 define('CSS_PATH', BASE_PATH . '/' . CSS_FOLDER);
