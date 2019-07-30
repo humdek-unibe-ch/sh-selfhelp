@@ -18,6 +18,7 @@
             user count.
         </p>
     </div>
+    <?php $this->output_codes(); ?>
     <div class="card mb-3">
         <div class="card-header">
             <h5 class="mb-0">Code Generation</h5>

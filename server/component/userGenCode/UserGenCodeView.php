@@ -30,24 +30,37 @@ class UserGenCodeView extends BaseView
     private function output_alert()
     {
         $this->output_controller_alerts_fail();
-        $this->output_warning();
     }
 
     /**
-     * Render the fail alerts.
+     * Render the number of existing validation codes in the database.
      */
-    private function output_warning()
+    private function output_codes()
     {
         $count = $this->model->get_code_count();
-        if($count === 0) return;
-        $alert = new BaseStyleComponent("alert", array(
-            "type" => "warning",
-            "is_dismissable" => true,
-            "children" => array(new BaseStyleComponent("markdownInline", array(
-                "text_md_inline" => "The database already holds `" . $count . "` validation codes. If further codes are added, the uniquness of each code **can no longer be guaranteed**.",
-            )))
-        ));
-        $alert->output_content();
+        if($count === 0)
+            return;
+        $count_consumed = $this->model->get_code_count_consumed();
+        $count_open = $count - $count_consumed;
+        require __DIR__ . "/tpl_code_counts.php";
+    }
+
+    /**
+     * Render the validation code export buttons.
+     */
+    private function output_export_buttons()
+    {
+        $fields = $this->model->get_export_button_fields();
+        foreach($fields['options'] as $option)
+        {
+            $button = new BaseStyleComponent('button', array(
+                'url' => $option['url'],
+                'label' => $option['label'],
+                'type' => $option['type'],
+            ));
+            $button->output_content();
+            echo "\n";
+        }
     }
 
     /**
@@ -72,8 +85,7 @@ class UserGenCodeView extends BaseView
         if($this->controller->has_succeeded())
         {
             $count = $this->controller->get_final_count();
-            $url = $this->model->get_link_url('exportData',
-                array('selector' => 'validation_codes'));
+            $url = $this->model->get_link_url('userGenCode');
             require __DIR__ . "/tpl_success.php";
         }
         else

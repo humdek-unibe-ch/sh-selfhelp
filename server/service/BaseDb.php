@@ -40,6 +40,17 @@ class BaseDb {
     }
 
     /**
+     * Return the PDO handler.
+     *
+     * @retval object
+     *  The database handler.
+     */
+    public function get_dbh()
+    {
+        return $this->dbh;
+    }
+
+    /**
      * Exectute an arbitrary query on the db.
      *
      * @param string $sql
