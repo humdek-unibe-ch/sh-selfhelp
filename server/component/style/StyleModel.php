@@ -171,6 +171,7 @@ class StyleModel extends BaseModel implements IStyleModel
         if(!is_array($j_array))
             return $j_array;
 
+        $arr = array();
         foreach($j_array as $key => $item)
         {
             if($key === "children")
