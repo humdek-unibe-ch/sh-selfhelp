@@ -282,3 +282,25 @@ ALTER TABLE `styles` CHANGE `description` `description` LONGTEXT CHARACTER SET u
 
 -- add CSV seperator to the language table
 ALTER TABLE `languages` ADD `csv_separator` VARCHAR(1) NOT NULL DEFAULT ',' AFTER `language`;
+
+-- update style field help texts
+-- alert
+SET @id_style = (SELECT `id` FROM `styles` WHERE `name` = 'alert');
+SET @id_field_chidlren = (SELECT `id` FROM `fields` WHERE `name` = 'children');
+SET @id_field_type = (SELECT `id` FROM `fields` WHERE `name` = 'type');
+SET @id_field_title = (SELECT `id` FROM `fields` WHERE `name` = 'title');
+SET @id_field_is_dismissable = (SELECT `id` FROM `fields` WHERE `name` = 'is_dismissable');
+SET @id_field_is_collapsible = (SELECT `id` FROM `fields` WHERE `name` = 'is_collapsible');
+SET @id_field_is_expanded = (SELECT `id` FROM `fields` WHERE `name` = 'is_expanded');
+SET @id_field_url_edit = (SELECT `id` FROM `fields` WHERE `name` = 'url_edit');
+UPDATE `styles_fields` SET `help` = 'The child elements to be added to the alert wrapper.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_chidlren;
+UPDATE `styles_fields` SET `help` = 'The bootstrap color styling of the alert wrapper.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_type;
+UPDATE `styles_fields` SET `help` = 'If *checked* the alert wrapper can be dismissed by clicking on a close symbol.\r\nIf *unchecked* the close symbol is not rendered.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_is_dismissable;
+-- card
+SET @id_style = (SELECT `id` FROM `styles` WHERE `name` = 'card');
+UPDATE `styles_fields` SET `help` = 'The child elements to be added to the card body.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_chidlren;
+UPDATE `styles_fields` SET `help` = 'A bootstrap-esque color styling of the card border and header.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_type;
+UPDATE `styles_fields` SET `help` = 'The target url of the edit button. If set, an edit button will appear on right of the card header and link to the specified url. If not set no button will be shown.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_url_edit;
+UPDATE `styles_fields` SET `help` = 'The content of the card header. If not set, the card will be rendered without a header section.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_title;
+UPDATE `styles_fields` SET `help` = 'If *checked* the card body can be collapsed into the header by clicking on the header.\nIf left *unchecked* no such interaction is possible.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_is_collapsible;
+UPDATE `styles_fields` SET `help` = 'If the field `is_collapsible` is *checked* and the field `is_expanded` is *unchecked* the card is collapsed by default and only by clicking on the header will the body be shown. This field has no effect if `is_collapsible` is left *unchecked*.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_is_expanded;
