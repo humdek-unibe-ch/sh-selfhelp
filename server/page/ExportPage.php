@@ -22,6 +22,17 @@ class ExportPage extends BasePage
     }
 
     /* Private Methods ********************************************************/
+    /**
+     * Checks whether the current user is allowed to export validation codes.
+     *
+     * @retval bool
+     *  True if the current user can export validation codes, false otherwise.
+     */
+    public function can_export_codes()
+    {
+        return $this->services->get_acl()->has_access_select($_SESSION['id_user'],
+            $this->services->get_db()->fetch_page_id_by_keyword("userSelect"));
+    }
 
     /**
      * Prepare the haders and an output stream such that a CSV file can be made
@@ -161,6 +172,11 @@ class ExportPage extends BasePage
      */
     public function output($selector = "", $option = null)
     {
+        if(!$this->can_export_codes() && $selector === "validation_codes")
+        {
+            parent::output();
+            return;
+        }
         if($this->services->get_acl()->has_access($_SESSION['id_user'],
                 $this->id_page, $this->required_access_level))
             $this->export_data($selector, $option);

@@ -268,3 +268,11 @@ UPDATE `pages` SET `url` = '/admin/export/[user_input|user_activity|validation_c
 
 ALTER TABLE `validation_codes` CHANGE `timestamp` `consumed` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
 ALTER TABLE `validation_codes` ADD `created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `id_users`;
+
+-- add page to remove all user activity and user input
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES (NULL, 'exportDelete', '/admin/exportDelete/[user_activity|user_input:selector]', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+SET @id_page_exportDelete = LAST_INSERT_ID();
+SET @id_field_label = (SELECT `id` FROM `fields` WHERE `name` = 'label');
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_exportDelete, @id_field_label, '0000000002', 'Userdaten Löschen'), (@id_page_exportDelete, @id_field_label, '0000000003', 'Remove User Data');
+-- set ACL for export page
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_exportDelete, '1', '0', '0', '1');

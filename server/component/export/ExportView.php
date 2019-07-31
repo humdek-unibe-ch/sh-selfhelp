@@ -29,6 +29,8 @@ class ExportView extends BaseView
      */
     private function output_export_item($selector)
     {
+        if(!$this->model->can_export_codes() && $selector === "validation_codes")
+            return;
         $fields = $this->model->get_export_view_fields($selector);
         $title = $fields["title"];
         $text = $fields["text"];

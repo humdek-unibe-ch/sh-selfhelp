@@ -23,6 +23,30 @@ class ExportModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
+     * Checks whether the current user is allowed to delete user data.
+     *
+     * @retval bool
+     *  True if the current user can delete user data, false otherwise.
+     */
+    public function can_delete_user_data()
+    {
+        return $this->acl->has_access_delete($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("exportDelete"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to export validation codes.
+     *
+     * @retval bool
+     *  True if the current user can export validation codes, false otherwise.
+     */
+    public function can_export_codes()
+    {
+        return $this->acl->has_access_select($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("userSelect"));
+    }
+
+    /**
      * Returns the view data of an export item.
      *
      * @param string $selector
@@ -51,10 +75,17 @@ class ExportModel extends BaseModel
                 array(
                     "url" => $this->get_link_url("exportData",
                             array("selector" => "user_input")),
-                    "label" => "Get User Data",
+                    "label" => "Get User Input Data",
                     "type" => "primary",
                 ),
             );
+            if($this->can_delete_user_data())
+                $fields['options'][] = array(
+                    "url" => $this->get_link_url("exportDelete",
+                        array("selector" => "user_input")),
+                    "label" => "Remove User Input Data",
+                    "type" => "danger",
+                );
         }
         if($selector === "user_activity")
         {
@@ -68,6 +99,13 @@ class ExportModel extends BaseModel
                     "type" => "primary",
                 ),
             );
+            if($this->can_delete_user_data())
+                $fields['options'][] = array(
+                    "url" => $this->get_link_url("exportDelete",
+                        array("selector" => "user_activity")),
+                    "label" => "Remove User Activity",
+                    "type" => "danger",
+                );
         }
         if($selector === "validation_codes")
         {

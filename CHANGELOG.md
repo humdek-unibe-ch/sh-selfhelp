@@ -1,4 +1,4 @@
-# pending
+# v1.1.0 (pending)
 
 ### Bugfix
 
@@ -56,11 +56,11 @@
    user state.
  - Improved users overview and user overview.
  - Improved the validation code handling (#157).
- - Allow to clean user data (remove activity and user input of a user).
+ - Allow to clean user data (remove activity and user input of a user) (#172).
 
 
 ------------
-# latest
+# v1.0.4 (latest)
 
 ### Bugfix
 

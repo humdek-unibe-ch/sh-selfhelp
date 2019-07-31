@@ -255,6 +255,10 @@ class GroupModel extends BaseModel
             $res &= $acl["export"]["acl"]["select"];
             $res &= $acl["exportData"]["acl"]["select"];
         }
+        else if($lvl == "delete")
+        {
+            $res &= $acl["exportDelete"]["acl"]["delete"];
+        }
         return $res;
     }
 
@@ -708,6 +712,10 @@ class GroupModel extends BaseModel
         {
             $this->gacl["export"]["acl"]["select"] = true;
             $this->gacl["exportData"]["acl"]["select"] = true;
+        }
+        else if($lvl == "delete")
+        {
+            $this->gacl["exportDelete"]["acl"]["delete"] = true;
         }
     }
 
