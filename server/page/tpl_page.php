@@ -17,7 +17,7 @@
 </head>
 <body>
 <?php
-    if( DEBUG ) echo '<div class="alert alert-warning m-0" role="alert">Test Mode!</div>';
+    $this->output_warnings();
     $this->output_base_content();
 ?>
 </body>

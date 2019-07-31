@@ -464,7 +464,7 @@ class CmsView extends BaseView
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
-                array("text", "number", "markdown-inline")))
+                array("text", "number", "markdown-inline", "time", "date")))
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,

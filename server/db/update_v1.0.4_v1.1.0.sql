@@ -283,6 +283,23 @@ ALTER TABLE `styles` CHANGE `description` `description` LONGTEXT CHARACTER SET u
 -- add CSV seperator to the language table
 ALTER TABLE `languages` ADD `csv_separator` VARCHAR(1) NOT NULL DEFAULT ',' AFTER `language`;
 
+-- add maintenance fields to home page
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'maintenance', '0000000004', '1');
+SET @id_page_home = (SELECT `id` FROM `pages` WHERE `keyword` = 'home');
+SET @id_field_maintenance = (SELECT `id` FROM `fields` WHERE `name` = 'maintenance');
+INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `help`) VALUES (@id_page_home, @id_field_maintenance, 'This field defines the content of the alert message that is shown when a date is set in the field `maintenance_date`. Use markdown with the special keywords `@date` and `@time` which will be replaced by a human-readable form of the fields `maintenance_date` and `maintenance_time`.');
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_home, @id_field_maintenance, '0000000002', 'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldingung.'), (@id_page_home, @id_field_maintenance, '0000000003', 'There will be a short service disruption on the @date at @time due to server maintenance. Please accept our apologies for the caused inconveniences.');
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'date', '25');
+SET @id_field_type_date = (SELECT `id` FROM `fieldType` WHERE `name` = 'date');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'maintenance_date', @id_field_type_date, '0');
+SET @id_field_maintenance_date = (SELECT `id` FROM `fields` WHERE `name` = 'maintenance_date');
+INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `help`) VALUES (@id_page_home, @id_field_maintenance_date, 'If set (together with the field `maintenance_time`), starting from the given date an alert message is shown at the top of the page displaying to content as defined in the field `maintenance`.');
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'time', '24');
+SET @id_field_type_time = (SELECT `id` FROM `fieldType` WHERE `name` = 'time');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'maintenance_time', @id_field_type_time, '0');
+SET @id_field_maintenance_time = (SELECT `id` FROM `fields` WHERE `name` = 'maintenance_time');
+INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `help`) VALUES (@id_page_home, @id_field_maintenance_time, 'If set (together with the field `maintenance_date`), starting from the given time an alert message is shown at the top of the page displaying to content as defined in the field `maintenance`.');
+
 -- update style field help texts
 -- alert
 SET @id_style = (SELECT `id` FROM `styles` WHERE `name` = 'alert');

@@ -278,6 +278,50 @@ abstract class BasePage
         }
     }
 
+    /**
+     * Render warning s at the top of the page.
+     */
+    private function output_warnings()
+    {
+        if(DEBUG)
+        {
+            $alert = new BaseStyleComponent('alert', array(
+                "type" => "warning",
+                "css" => "mb-0",
+                "children" => array(new BaseStyleComponent('plaintext', array(
+                    "text" => "Test Mode!"
+                )))
+            ));
+            $alert->output_content();
+        }
+        $msg = null;
+        $date = null;
+        $time = null;
+        $fields = $this->services->get_db()->fetch_page_fields('home');
+        foreach($fields as $field)
+        {
+            if($field['name'] === "maintenance")
+                $msg = $field['content'];
+            else if($field['name'] === "maintenance_date")
+                $date = $field['content'];
+            else if($field['name'] === "maintenance_time")
+                $time = $field['content'];
+        }
+        if($msg && $date && $time)
+        {
+            $msg = str_replace('@date', $date, $msg);
+            $msg = str_replace('@time', $time, $msg);
+            $alert = new BaseStyleComponent('alert', array(
+                "type" => "warning",
+                "css" => "mb-0",
+                "children" => array(new BaseStyleComponent('markdown', array(
+                    "text_md" => $msg,
+                )))
+            ));
+            $alert->output_content();
+        }
+    }
+
     /* Protected Abstract Methods ***********************************************/
 
     /**
