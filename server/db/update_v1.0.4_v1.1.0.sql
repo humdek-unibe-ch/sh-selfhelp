@@ -276,3 +276,6 @@ SET @id_field_label = (SELECT `id` FROM `fields` WHERE `name` = 'label');
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_exportDelete, @id_field_label, '0000000002', 'Userdaten Löschen'), (@id_page_exportDelete, @id_field_label, '0000000003', 'Remove User Data');
 -- set ACL for export page
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_exportDelete, '1', '0', '0', '1');
+
+-- set style description to NULL by default
+ALTER TABLE `styles` CHANGE `description` `description` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
