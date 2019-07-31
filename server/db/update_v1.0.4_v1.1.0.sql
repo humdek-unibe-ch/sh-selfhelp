@@ -310,6 +310,7 @@ SET @id_field_is_dismissable = (SELECT `id` FROM `fields` WHERE `name` = 'is_dis
 SET @id_field_is_collapsible = (SELECT `id` FROM `fields` WHERE `name` = 'is_collapsible');
 SET @id_field_is_expanded = (SELECT `id` FROM `fields` WHERE `name` = 'is_expanded');
 SET @id_field_url_edit = (SELECT `id` FROM `fields` WHERE `name` = 'url_edit');
+SET @id_field_condition = (SELECT `id` FROM `fields` WHERE `name` = 'condition');
 UPDATE `styles_fields` SET `help` = 'The child elements to be added to the alert wrapper.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_chidlren;
 UPDATE `styles_fields` SET `help` = 'The bootstrap color styling of the alert wrapper.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_type;
 UPDATE `styles_fields` SET `help` = 'If *checked* the alert wrapper can be dismissed by clicking on a close symbol.\r\nIf *unchecked* the close symbol is not rendered.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_is_dismissable;
@@ -321,3 +322,17 @@ UPDATE `styles_fields` SET `help` = 'The target url of the edit button. If set, 
 UPDATE `styles_fields` SET `help` = 'The content of the card header. If not set, the card will be rendered without a header section.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_title;
 UPDATE `styles_fields` SET `help` = 'If *checked* the card body can be collapsed into the header by clicking on the header.\nIf left *unchecked* no such interaction is possible.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_is_collapsible;
 UPDATE `styles_fields` SET `help` = 'If the field `is_collapsible` is *checked* and the field `is_expanded` is *unchecked* the card is collapsed by default and only by clicking on the header will the body be shown. This field has no effect if `is_collapsible` is left *unchecked*.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_is_expanded;
+-- conditionalContainer
+SET @id_style = (SELECT `id` FROM `styles` WHERE `name` = 'conditionalContainer');
+UPDATE `styles_fields` SET `help` = 'The field `condition` allows to specify a condition. Note that the field `condition` is of type `json` and requires\n1. valid json syntax (see https://www.json.org/)\n2. a valid condition structure (see https://github.com/jwadhams/json-logic-php/)\n\nOnly if a condition resolves to true the sections added to the field `children` will be rendered.\n\nIn order to refer to a form-field use the syntax `"@__form_name__#__from_field_name__"` (the quotes are necessary to make it valid json syntax) where `__form_name__` is the value of the field `name` of the style `formUserInput` and `__form_field_name__` is the value of the field `name` of any form-field style.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_condition;
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'debug');
+UPDATE `styles_fields` SET `help` = 'If *checked*, debug messages will be rendered to the screen. These might help to understand the result of a condition evaluation. **Make sure that this field is *unchecked* once the page is productive**.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field;
+UPDATE `styles_fields` SET `help` = 'The children to be rendered if the condition defined by the field `condition` resolves to true.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field_chidlren;
+-- navigationContainer
+SET @id_style = (SELECT `id` FROM `styles` WHERE `name` = 'navigationContainer');
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'title');
+UPDATE `styles_fields` SET `help` = 'All navigation sections of a navigation page can be rendered as a list style. This field specifies the name of this navigation section to be used in such a list style.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field;
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'text_md');
+UPDATE `styles_fields` SET `help` = 'The content (markdown) of this field will be rendered at the top of the navigation section. Further sections added through the field `children` will be rendered below this. Note that here, the keyword `@title` can be used and will be replaced by the content of the field `title`.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field;
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'children');
+UPDATE `styles_fields` SET `help` = 'Add sections here wich will be rendered below the content defined in field `text_md`.' WHERE `styles_fields`.`id_styles` = @id_style AND `styles_fields`.`id_fields` = @id_field;
