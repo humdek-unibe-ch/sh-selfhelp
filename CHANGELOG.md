@@ -57,6 +57,7 @@
  - Improved users overview and user overview.
  - Improved the validation code handling (#157).
  - Allow to clean user data (remove activity and user input of a user) (#172).
+ - Use a language-specific CSV separator (#161).
 
 
 ------------
