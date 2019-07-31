@@ -8,6 +8,13 @@ require_once __DIR__ . "/../service/UserInput.php";
  */
 class ExportPage extends BasePage
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * The CSV seperator.
+     */
+    private $separator = ',';
+
     /**
      * The constructor of this class. It calls the constructor of the parent
      * class and checks the login fields if they are set. If the fields are set
@@ -19,19 +26,38 @@ class ExportPage extends BasePage
     public function __construct($services)
     {
         parent::__construct($services, "export");
+        $this->separator = $this->get_separator();
     }
 
     /* Private Methods ********************************************************/
+
     /**
      * Checks whether the current user is allowed to export validation codes.
      *
      * @retval bool
      *  True if the current user can export validation codes, false otherwise.
      */
-    public function can_export_codes()
+    private function can_export_codes()
     {
         return $this->services->get_acl()->has_access_select($_SESSION['id_user'],
             $this->services->get_db()->fetch_page_id_by_keyword("userSelect"));
+    }
+
+    /**
+     * Fetch the CSV seperator from the database.
+     *
+     * @retval string
+     *  The CSV seperator.
+     */
+    private function get_separator()
+    {
+        $sql = "SELECT csv_separator FROM languages WHERE locale = :locale";
+        $res = $this->services->get_db()->query_db_first($sql, array(
+            ':locale' => $_SESSION['language']
+        ));
+        if($res)
+            return $res['csv_separator'];
+        return ',';
     }
 
     /**
@@ -76,13 +102,13 @@ class ExportPage extends BasePage
      */
     private function export_user_activity($output)
     {
-        fputcsv($output, array("user_code", "url", "timestamp"));
+        $this->fputcsv_wrap($output, array("user_code", "url", "timestamp"));
         $sql = "SELECT ua.url, vc.code, ua.timestamp
             FROM user_activity AS ua
             LEFT JOIN validation_codes AS vc ON vc.id_users = ua.id_users";
         $fields = $this->services->get_db()->query_db($sql);
         foreach($fields as $field)
-            fputcsv($output, array($field['code'], $field['url'],
+            $this->fputcsv_wrap($output, array($field['code'], $field['url'],
                 $field['timestamp']));
     }
 
@@ -99,11 +125,11 @@ class ExportPage extends BasePage
 
         // output the column headings
         if(count($fields) > 0)
-            fputcsv($output, array_keys($fields[0]));
+            $this->fputcsv_wrap($output, array_keys($fields[0]));
 
         // loop over the rows, outputting them
         foreach($fields as $field)
-            fputcsv($output, $field);
+            $this->fputcsv_wrap($output, $field);
     }
 
     /**
@@ -122,7 +148,7 @@ class ExportPage extends BasePage
             $header[] = "user_email";
             $header[] = "consumed";
         }
-        fputcsv($output, $header);
+        $this->fputcsv_wrap($output, $header);
         $sql = "SELECT u.email, vc.code, vc.consumed, vc.created FROM validation_codes AS vc
             LEFT JOIN users AS u ON u.id = vc.id_users
             WHERE 1";
@@ -139,8 +165,21 @@ class ExportPage extends BasePage
                 $data[] = $field['email'];
                 $data[] = $field['consumed'];
             }
-            fputcsv($output, $data);
+            $this->fputcsv_wrap($output, $data);
         }
+    }
+
+    /**
+     * A wrapper for the PHP fputcsv function.
+     *
+     * @param file
+     *  The file descriptor to output the csv data to
+     * @param array
+     *  An array of fields to add to the csv file.
+     */
+    private function fputcsv_wrap($output, $fields)
+    {
+        fputcsv($output, $fields, $this->separator);
     }
 
     /* Protected Methods ******************************************************/

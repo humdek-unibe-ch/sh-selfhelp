@@ -279,3 +279,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 
 -- set style description to NULL by default
 ALTER TABLE `styles` CHANGE `description` `description` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+-- add CSV seperator to the language table
+ALTER TABLE `languages` ADD `csv_separator` VARCHAR(1) NOT NULL DEFAULT ',' AFTER `language`;
