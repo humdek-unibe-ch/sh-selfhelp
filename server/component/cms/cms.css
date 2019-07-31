@@ -1,25 +1,46 @@
-.highlight
-{
-    -moz-box-shadow: 0 0 5px #007bff;
-    -webkit-box-shadow: 0 0 5px #007bff;
-    box-shadow: 0 0 5px #007bff;
-    display: block !important;
-}
-
-.highlight-hover
+.section-view * .highlight-hover
 {
     -moz-box-shadow: 0 0 5px #28a745;
     -webkit-box-shadow: 0 0 5px #28a745;
     box-shadow: 0 0 5px #28a745;
 }
 
+.page-view * .page-view-element-leaf
+{
+    height: 1rem;
+    width: 1rem;
+}
+
+.page-view * .highlight
+{
+    background-color: #007bff;
+}
+
+.page-view * .highlight-hover
+{
+    background-color: #28a745;
+}
+
+.cms-page-overview
+{
+}
+
 pre.db-fields
 {
     white-space: pre-wrap;
     padding-top: 3px;
+    margin-left: 0.5rem;
 }
 
 textarea
 {
     font-family: monospace;
+}
+
+.sticky-menu
+{
+    position: -webkit-sticky;
+    position: sticky;
+    top: 1rem;
+    z-index: 900;
 }

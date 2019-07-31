@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the video style component.
  */
-class VideoView extends BaseView
+class VideoView extends StyleView
 {
     /* Private Properties *****************************************************/
 

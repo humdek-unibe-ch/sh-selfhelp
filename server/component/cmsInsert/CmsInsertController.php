@@ -42,6 +42,7 @@ class CmsInsertController extends BaseController
                     && $protocol != "DELTE")
                 {
                     $this->fail = true;
+                    $this->error_msgs[] = "Failed to create new page: Invalid protocol settings.";
                     return;
                 }
             $protocol = implode('|', $_POST['protocol']);
@@ -50,6 +51,7 @@ class CmsInsertController extends BaseController
             if(!$this->name || !$url || !$type)
             {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to create new page: Insufficient parameters provided.";
                 return;
             }
             $position = null;
@@ -59,16 +61,23 @@ class CmsInsertController extends BaseController
                 foreach(explode(',', $_POST['set-position']) as $item)
                     $position[] = filter_var($item, FILTER_SANITIZE_NUMBER_INT);
             }
-
-            $is_user_input = isset($_POST['set-user_input']) ? true : false;
+            $is_headless = false;
+            if(isset($_POST['set-headless']))
+                $is_headless = true;
+            $is_open = false;
+            if(isset($_POST['set-open']))
+                $is_open = true;
 
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
-                intval($type), $position, $this->model->get_active_page_id(),
-                $is_user_input);
+                intval($type), $position, $is_headless, $is_open,
+                $this->model->get_active_page_id());
             if($this->pid)
                 $this->success = true;
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to create new page.";
+            }
         }
     }
 

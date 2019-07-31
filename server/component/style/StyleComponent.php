@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
-require_once __DIR__ . "/StyleView.php";
 require_once __DIR__ . "/StyleModel.php";
 
 /**
@@ -25,7 +24,7 @@ class StyleComponent extends BaseComponent
     /**
      * The component instance of the style.
      */
-    private $style;
+    private $style = null;
 
     /**
      * A flag indicating whther the style is known or whether the style name is
@@ -36,13 +35,12 @@ class StyleComponent extends BaseComponent
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor creates an instance of the StyleModel class and the
-     * StyleView class and passes the view instance to the constructor of the
+     * The constructor creates an instance of the StyleModel class and passes
+     * the view instance of the style to render to the constructor of the
      * parent class.
      *
-     * @param array $services
-     *  An associative array holding the different available services. See the
-     *  class definition basepage for a list of all services.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param int $id
      *  The id of the database section item to be rendered.
      * @param array $params
@@ -50,30 +48,43 @@ class StyleComponent extends BaseComponent
      */
     public function __construct($services, $id, $params=array())
     {
-        $model = new StyleModel($services, $id, $params);
+        $model = null;
         $this->is_style_known = true;
-        if($model->get_style_type() == "view")
+        // get style name and type
+        $db = $services->get_db();
+        $sql = "SELECT s.name, t.name AS type
+            FROM styles AS s
+            LEFT JOIN styleType AS t ON t.id = s.id_type
+            LEFT JOIN sections AS sec ON sec.id_styles = s.id
+            WHERE sec.id = :id";
+        $style = $db->query_db_first($sql, array(":id" => $id));
+        if(!$style) {
+            $this->is_style_known = false;
+            return;
+        }
+
+        if($style['type'] == "view")
         {
+            $model = new StyleModel($services, $id, $params);
             $this->style = new BaseStyleComponent($model->get_style_name(),
                 array( "children" => $model->get_children()),
                 $model->get_db_fields());
         }
-        else if($model->get_style_type() == "component"
-            || $model->get_style_type() == "navigation")
+        else if($style['type'] == "component" || $style['type'] == "navigation")
         {
-            $className = ucfirst($model->get_style_name()) . "Component";
+            $className = ucfirst($style['name']) . "Component";
             if(class_exists($className))
                 $this->style = new $className($services, $id, $params);
-            else
+            if($this->style === null || !$this->style->has_access())
                 $this->style = new BaseStyleComponent("unknownStyle",
-                    array("style_name" => $model->get_style_name()));
+                    array("style_name" => $style['name']));
         }
         else
         {
             $this->is_style_known = false;
             return;
         }
-        $view = new StyleView($model, $this->style, true);
+        $view = $this->style->get_view();
         parent::__construct($model, $view);
     }
 
@@ -89,6 +100,30 @@ class StyleComponent extends BaseComponent
     {
         return parent::has_access() && $this->is_style_known
             && $this->style->has_access();
+    }
+
+    /**
+     * Returns the reference to the instance of a style class.
+     *
+     * @retval reference
+     *  Refernce to the style instance class.
+     */
+    public function &get_style_instance()
+    {
+        return $this->style;
+    }
+
+    /**
+     * Search for a child section of a specific name.
+     *
+     * @param string $name
+     *  The name of the section to be seacrhed
+     * @retval reference
+     *  Reference to the section instance.
+     */
+    public function &get_child_section_by_name($name)
+    {
+        return $this->model->get_child_section_by_name($name);
     }
 }
 ?>

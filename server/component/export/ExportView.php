@@ -29,15 +29,36 @@ class ExportView extends BaseView
      */
     private function output_export_item($selector)
     {
+        if(!$this->model->can_export_codes() && $selector === "validation_codes")
+            return;
         $fields = $this->model->get_export_view_fields($selector);
         $title = $fields["title"];
         $text = $fields["text"];
-        $url = $fields["url"];
-        $label = $fields["label"];
+        $options = $fields["options"];
         require __DIR__ . "/tpl_export_item.php";
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Render the export item option.
+     *
+     * @param array $options
+     *  An array of options where each option has the following keys:
+     *  - `url`:    The url to the exported item.
+     *  - `label`:  The label on the export button.
+     *  - `type`:   The bootstrap type to color th ebutton.
+     */
+    public function output_export_item_options($options)
+    {
+        foreach($options as $option)
+        {
+            $url = $option['url'];
+            $label = $option['label'];
+            $type = $option['type'];
+            require __DIR__ . "/tpl_export_item_option.php";
+        }
+    }
 
     /**
      * Render the footer view.

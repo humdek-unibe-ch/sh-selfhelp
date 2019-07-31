@@ -35,7 +35,8 @@ class InternalPage
     {
         $this->base = $base;
         $services = $this->base->get_services();
-        $this->sections = $services['db']->fetch_page_sections($keyword);
+        $db = $services->get_db();
+        $this->sections = $db->fetch_page_sections($keyword);
         foreach($this->sections as $section)
         {
             $this->base->add_component("section-" . $section['id'],

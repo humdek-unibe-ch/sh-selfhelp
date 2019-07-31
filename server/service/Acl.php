@@ -225,6 +225,74 @@ class Acl
     /* Public Methods *********************************************************/
 
     /**
+     * Checks whether page access rights of a user are higher or equal to the
+     * page access rights of a group.
+     *
+     * @param int $id_user
+     *  The unique identifier of the user.
+     * @param int $id_group
+     *  The unique identifier of the group.
+     * @retval bool
+     *  Returns true if the user has at least the same access level as the
+     *  group for each page. Otherwise false is returned.
+     *
+     */
+    public function is_user_of_higer_level_than_group($id_user, $id_group)
+    {
+        $sql = "SELECT id FROM pages";
+        $pages_db = $this->db->query_db($sql);
+        foreach($pages_db as $page)
+        {
+            $id_page = intval($page['id']);
+            $acl_user = $this->get_access_levels_user($id_user, $id_page);
+            $acl_group = $this->get_access_levels_group($id_group, $id_page);
+            if(!$acl_user['delete'] && $acl_group['delete'])
+                return false;
+            if(!$acl_user['update'] && $acl_group['update'])
+                return false;
+            if(!$acl_user['insert'] && $acl_group['insert'])
+                return false;
+            if(!$acl_user['select'] && $acl_group['select'])
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether page access rights of a user are higher or equal to the
+     * page access rights of another user.
+     *
+     * @param int $id_user_1
+     *  The unique identifier of one user.
+     * @param int $id_user_2
+     *  The unique identifier of another user.
+     * @retval bool
+     *  Returns true if the user has at least the same access level as the
+     *  other user for each page. Otherwise false is returned.
+     *
+     */
+    public function is_user_of_higer_level_than_user($id_user_1, $id_user_2)
+    {
+        $sql = "SELECT id FROM pages";
+        $pages_db = $this->db->query_db($sql);
+        foreach($pages_db as $page)
+        {
+            $id_page = intval($page['id']);
+            $acl_user_1 = $this->get_access_levels_user($id_user_1, $id_page);
+            $acl_user_2 = $this->get_access_levels_user($id_user_2, $id_page);
+            if(!$acl_user_1['delete'] && $acl_user_2['delete'])
+                return false;
+            if(!$acl_user_1['update'] && $acl_user_2['update'])
+                return false;
+            if(!$acl_user_1['insert'] && $acl_user_2['insert'])
+                return false;
+            if(!$acl_user_1['select'] && $acl_user_2['select'])
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Grants the user delete access to a specific page.
      *
      * @param int $id
@@ -349,6 +417,8 @@ class Acl
      */
     public function has_access($id, $id_page, $mode, $is_group = false)
     {
+        if(!$is_group && $id == ADMIN_USER_ID)
+            return true;
         $acl = $this->get_access_levels($id, $id_page, $is_group);
         if(isset($acl[$mode]))
             return $acl[$mode];

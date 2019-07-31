@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the jumbotron style component.
+ * This is a visual container with large padding spaces.
  */
-class JumbotronView extends BaseView
+class JumbotronView extends StyleView
 {
     /* Constructors ***********************************************************/
 

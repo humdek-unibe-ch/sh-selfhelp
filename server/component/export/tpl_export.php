@@ -5,4 +5,5 @@
     </div>
     <?php $this->output_export_item("user_input"); ?>
     <?php $this->output_export_item("user_activity"); ?>
+    <?php $this->output_export_item("validation_codes"); ?>
 </div>

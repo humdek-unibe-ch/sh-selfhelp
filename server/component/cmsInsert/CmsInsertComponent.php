@@ -40,7 +40,7 @@ class CmsInsertComponent extends CmsComponent
      */
     public function __construct($services, $params)
     {
-        $this->acl = $services['acl'];
+        $this->acl = $services->get_acl();
         $model = new CmsModel($services, $params, "insert");
         $controller = new CmsInsertController($model);
         $view = new CmsInsertView($model, $controller);

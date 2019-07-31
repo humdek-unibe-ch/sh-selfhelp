@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the button style component.
+ * This style components allows to represent a link as a button.
  */
-class ButtonView extends BaseView
+class ButtonView extends StyleView
 {
     /* Private Properties *****************************************************/
 

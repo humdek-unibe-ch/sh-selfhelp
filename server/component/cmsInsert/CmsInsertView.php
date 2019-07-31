@@ -15,6 +15,11 @@ class CmsInsertView extends BaseView
      */
     private $position_value;
 
+    /**
+     * The list of pages at the current level.
+     */
+    private $pages;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -28,34 +33,17 @@ class CmsInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to create a new page.",
-                )))
-            ))
-        );
-        $position_value = "";
-        $pages = $this->model->get_pages_header(
+        $this->position_value = "";
+        $this->pages = $this->model->get_pages_header(
             $this->model->get_active_page_id());
-        foreach($pages as $idx => $page)
+        foreach($this->pages as $idx => $page)
         {
             $this->position_value .= (string)($idx * 10) . ",";
-            $pages[$idx]["css"] = "fixed text-muted";
+            $this->pages[$idx]["css"] = "fixed text-muted";
         }
 
-        $pages[] = array("id" => "new", "title" => "New Page");
-        $this->add_local_component("page-position",
-            new BaseStyleComponent("sortableList", array(
-                "is_sortable" => true,
-                "is_editable" => true,
-                "items" => $pages,
-                "is_user_input" => false,
-            ))
-        );
-
-        $this->position_value .= (string)(count($pages) * 10);
+        $this->pages[] = array("id" => "new", "title" => "New Page");
+        $this->position_value .= (string)(count($this->pages) * 10);
     }
 
     /* Private Methods ********************************************************/
@@ -65,8 +53,7 @@ class CmsInsertView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_failed())
-            $this->output_local_component("alert-fail");
+        $this->output_controller_alerts_fail();
     }
 
     /**
@@ -74,7 +61,12 @@ class CmsInsertView extends BaseView
      */
     private function output_page_order()
     {
-        $this->output_local_component("page-position");
+        $list = new BaseStyleComponent("sortableList", array(
+            "is_sortable" => true,
+            "is_editable" => true,
+            "items" => $this->pages,
+        ));
+        $list->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -113,8 +105,12 @@ class CmsInsertView extends BaseView
         if($this->controller->has_succeeded())
         {
             $name = $this->controller->get_new_page_name();
-            $url = $this->model->get_link_url("cmsSelect",
-                array("pid" => $this->controller->get_new_pid()));
+            $url = $this->model->get_link_url("cmsUpdate",
+                array(
+                    "pid" => $this->controller->get_new_pid(),
+                    "mode" => "update",
+                    "type" => "prop",
+                ));
             require __DIR__ . "/tpl_success.php";
         }
         else

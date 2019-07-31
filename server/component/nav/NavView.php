@@ -22,6 +22,19 @@ class NavView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
+     * Render the contact link.
+     */
+    private function output_nav_contact()
+    {
+        $key = 'contact';
+        if(!$this->model->has_route($key))
+            return;
+        $active = ($this->model->is_link_active($key)) ? "active" : "";
+        $url = $this->model->get_link_url($key);
+        require __DIR__ .'/tpl_contact.php';
+    }
+
+    /**
      * Render all navigation links.
      */
     private function output_nav_items()
@@ -29,8 +42,9 @@ class NavView extends BaseView
         $pages = $this->model->get_pages();
         foreach($pages as $key => $page)
         {
+            $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
             if(empty($page['children']))
-                $this->output_nav_item($key, $page['title']);
+                $this->output_nav_item($key, $page['title'], $nav_child);
             else
                 $this->output_nav_menu($key, $page['title'], $page['children']);
         }
@@ -43,11 +57,17 @@ class NavView extends BaseView
      *  The identification string of a route.
      * @param string $page_name
      *  The title of the page the link is pointing to.
+     * @param int $nav_child
+     *  The id of the target navigation section (only relevant for navigation
+     *  pages).
      */
-    private function output_nav_item($key, $page_name)
+    private function output_nav_item($key, $page_name, $nav_child=null)
     {
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
+        $params = array();
+        if($nav_child !== null)
+            $params['nav'] = $nav_child;
+        $url = $this->model->get_link_url($key, $params);
         require __DIR__ . "/tpl_nav_item.php";
     }
 
@@ -78,11 +98,17 @@ class NavView extends BaseView
      *  The identification string of a route.
      * @param string $page_name
      *  The title of the page the link is pointing to.
+     * @param int $nav_child
+     *  The id of the target navigation section (only relevant for navigation
+     *  pages).
      */
-    private function output_nav_menu_item($key, $page_name)
+    private function output_nav_menu_item($key, $page_name, $nav_child)
     {
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
+        $params = array();
+        if($nav_child !== null)
+            $params['nav'] = $nav_child;
+        $url = $this->model->get_link_url($key, $params);
         require __DIR__ . "/tpl_nav_menu_item.php";
     }
 
@@ -97,10 +123,23 @@ class NavView extends BaseView
         foreach($children as $key => $page)
         {
             if(empty($page['children']))
-                $this->output_nav_menu_item($key, $page['title']);
+            {
+                $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
+                $this->output_nav_menu_item($key, $page['title'], $nav_child);
+            }
             else
                 $this->output_nav_menu($key, $page['title'], $page['children']);
         }
+    }
+
+    /**
+     * Render the pill indicating new messages.
+     */
+    private function output_new_messages()
+    {
+        $count = $this->model->get_new_message_count();
+        if($count)
+            require __DIR__ .'/tpl_new_messages.php';
     }
 
     /* Public Methods *********************************************************/
@@ -114,10 +153,8 @@ class NavView extends BaseView
         $home = $this->model->get_home();
         $login = $this->model->get_login();
         $profile = $this->model->get_profile();
-        $profile_title = array_key_exists("title", $profile) ?
-            $profile["title"] : "";
-        $profile_children = array_key_exists("children", $profile) ?
-            $profile["children"] : array();
+        $profile_title = $profile["title"];
+        $profile_children = $profile["children"];
         require __DIR__ . "/tpl_nav.php";
     }
 }

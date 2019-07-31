@@ -40,7 +40,64 @@ class BaseDb {
     }
 
     /**
+     * Return the PDO handler.
+     *
+     * @retval object
+     *  The database handler.
+     */
+    public function get_dbh()
+    {
+        return $this->dbh;
+    }
+
+    /**
      * Exectute an arbitrary query on the db.
+     *
+     * @param string $sql
+     *  The query to be executed.
+     *
+     * @retval int
+     *  The number of affected rows.
+     */
+    public function execute_db($sql)
+    {
+        try {
+            return $this->dbh->exec($sql);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::execute_db: ".$e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Exectute an arbitrary update query on the db.
+     *
+     * @param string $sql
+     *  The query to be executed.
+     * @param array $arguments
+     *  An associative array with value key pairs where the keys are variable
+     *  identifiers used in the query (e.g ':id') which will be replaced with
+     *  the associated value on query execution.
+     *
+     * @retval array
+     *  The number of affected rows or false if the query failed.
+     */
+    public function execute_update_db($sql, $arguments=array())
+    {
+        try {
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->execute($arguments);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::execute_db: ".$e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Exectute an arbitrary select query on the db.
      *
      * @param string $sql
      *  The query to be executed.
@@ -67,7 +124,8 @@ class BaseDb {
     }
 
     /**
-     * Exectute an arbitrary query on the db and return the first matching row.
+     * Exectute an arbitrary select query on the db and return the first
+     * matching row.
      *
      * @param string $sql
      *  The query to be executed.
@@ -424,10 +482,8 @@ class BaseDb {
             $insertStr = rtrim($insertStr, ", ");
             $sql = "UPDATE ".$table." SET ".$insertStr.$where_cond;
             $stmt = $this->dbh->prepare($sql);
-            if($stmt->execute($data))
-                return true;
-            else
-                return false;
+            $stmt->execute($data);
+            return $stmt->rowCount();
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();

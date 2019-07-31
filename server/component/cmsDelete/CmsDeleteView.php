@@ -27,54 +27,9 @@ class CmsDeleteView extends BaseView
     {
         parent::__construct($model, $controller);
         if($this->model->get_active_section_id() == null)
-            $target = "page";
+            $this->target = "page";
         else
-            $target = "section";
-        $this->target = $target;
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to delete the " . $target . ".",
-                )))
-            ))
-        );
-        $this->add_local_component("form",
-            new BaseStyleComponent("card", array(
-                "is_expanded" => true,
-                "is_collapsible" => false,
-                "title" => "Delete " . ucfirst($target),
-                "type" => "danger",
-                "children" => array(
-                    new BaseStyleComponent("plaintext", array(
-                        "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the " . $target . ".",
-                        "is_paragraph" => true,
-                    )),
-                    new BaseStyleComponent("form", array(
-                        "label" => "Delete " . ucfirst($target),
-                        "url" => $this->model->get_link_url("cmsDelete",
-                            array(
-                                "pid" => $this->model->get_active_page_id(),
-                                "sid" => $this->model->get_active_section_id(),
-                            )
-                        ),
-                        "type" => "danger",
-                        "url_cancel" => $this->model->get_link_url("cmsSelect",
-                            $this->model->get_current_url_params()),
-                        "children" => array(
-                            new BaseStyleComponent("input", array(
-                                "type_input" => "text",
-                                "name" => "name",
-                                "is_required" => true,
-                                "css" => "mb-3",
-                                "placeholder" => "Enter the Name",
-                                "is_user_input" => false,
-                            )),
-                        )
-                    )),
-                )
-            ))
-        );
+            $this->target = "section";
     }
 
     /* Private Methods ********************************************************/
@@ -84,8 +39,7 @@ class CmsDeleteView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_failed())
-            $this->output_local_component("alert-fail");
+        $this->output_controller_alerts_fail();
     }
 
     /**
@@ -93,7 +47,41 @@ class CmsDeleteView extends BaseView
      */
     private function output_form()
     {
-        $this->output_local_component("form");
+        $form = new BaseStyleComponent("card", array(
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Delete " . ucfirst($this->target),
+            "type" => "danger",
+            "css" => "mb-3",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the " . $this->target . ".",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Delete " . ucfirst($this->target),
+                    "url" => $this->model->get_link_url("cmsDelete",
+                        array(
+                            "pid" => $this->model->get_active_page_id(),
+                            "sid" => $this->model->get_active_section_id(),
+                        )
+                    ),
+                    "type" => "danger",
+                    "url_cancel" => $this->model->get_link_url("cmsSelect",
+                        $this->model->get_current_url_params()),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "text",
+                            "name" => "name",
+                            "is_required" => true,
+                            "css" => "mb-3",
+                            "placeholder" => "Enter the Name",
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
     }
 
     /* Public Methods *********************************************************/

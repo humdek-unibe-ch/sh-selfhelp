@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
+require_once __DIR__ . "/../export/ExportModel.php";
 /**
  * This class is used to prepare all data related to the user component such
  * that the data can easily be displayed in the view of the component.
@@ -36,13 +37,13 @@ class UserModel extends BaseModel
      * @param int $did
      *  The user id to delete or null if nothing ought to be deleted.
      */
-    public function __construct($services, $uid, $did=null)
+    public function __construct($services, $uid=null, $did=null)
     {
         parent::__construct($services);
         $this->uid = $uid;
         $this->did = $did;
         $this->selected_user = null;
-        if($uid != null) $this->selected_user = $this->fetch_user($uid);
+        if($uid != null) $this->selected_user = $this->get_user($this->fetch_user($uid));
     }
 
     /* Private Methods ********************************************************/
@@ -54,24 +55,27 @@ class UserModel extends BaseModel
      *  The id of the user to fetch.
      * @retval array
      *  An array with the following keys:
-     *   'id':      The id of the user.
-     *   'email':   The email of the user.
-     *   'active':  A boolean indicationg whether the user is active or not.
-     *   'blocked': A boolean indication whether the user is blocked or not.
+     *   'id':          The id of the user.
+     *   'email':       The email of the user.
+     *   'name':        The name of the user.
+     *   'last_login':  The date of the last login.
+     *   'status':      The status of the user.
+     *   'description': The description of status of the user.
+     *   'blocked':     A boolean indication whether the user is blocked or not.
+     *   'code':        The validation code of the user.
      */
     private function fetch_user($uid)
     {
-        $sql = "SELECT u.email, (u.password IS NOT NULL) AS active, u.blocked
+        $sql = "SELECT u.email, u.blocked, u.name, us.name AS status, us.description,
+            vc.code, u.last_login
             FROM users AS u
+            LEFT JOIN userStatus AS us ON us.id = u.id_status
+            LEFT JOIN validation_codes AS vc ON vc.id_users = u.id
             WHERE u.id = :uid and u.intern <> 1";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
-        if(!$res) return null;
-        return array(
-            "id" => $uid,
-            "email" => $res['email'],
-            "active" => ($res['active'] == '1') ? true : false,
-            "blocked" => ($res['blocked'] == '1') ? true : false,
-        );
+        if($res)
+            $res['id'] = $uid;
+        return $res;
     }
 
     /**
@@ -79,13 +83,21 @@ class UserModel extends BaseModel
      *
      * @retval array
      *  A list of db items where each item has the keys
-     *   'id':      The id of the user.
-     *   'email':   The email of the user.
+     *   'id':          The id of the user.
+     *   'email':       The email of the user.
+     *   'name':        The name of the user.
+     *   'last_login':  The date of the last login.
+     *   'status':      Indicates the state of the user.
+     *   'description': The state description of the user.
+     *   'blocked':     Indicates whether the user is blocked or not.
      */
     private function fetch_users()
     {
-        $sql = "SELECT u.id, u.email FROM users AS u
-            WHERE u.intern <> 1
+        $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
+            us.description, u.blocked
+            FROM users AS u
+            LEFT JOIN userStatus AS us ON us.id = u.id_status
+            WHERE u.intern <> 1 AND u.id_status > 1
             ORDER BY u.email";
         return $this->db->query_db($sql);
     }
@@ -146,6 +158,18 @@ class UserModel extends BaseModel
         return $acl;
     }
 
+    /**
+     * Generate random validation codes and store them to the database.
+     *
+     * @retval string
+     *  A random string token.
+     */
+    private function generate_code()
+    {
+        $hash = bin2hex(openssl_random_pseudo_bytes(5));
+        return base_convert($hash, 16, 36);
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -177,6 +201,8 @@ class UserModel extends BaseModel
      */
     public function block_user($uid)
     {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+            return false;
         return $this->db->update_by_ids("users", array("blocked" => 1),
             array("id" => $uid));
     }
@@ -213,8 +239,65 @@ class UserModel extends BaseModel
      */
     public function can_modify_user()
     {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'],
+            $this->selected_user['id']))
+            return false;
         return $this->acl->has_access_update($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("userUpdate"));
+    }
+
+    /**
+     * Clean all user data in the db.
+     *
+     * @param int $uid
+     *  The id of the user from which the data will be cleaned.
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function clean_user_data($uid)
+    {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+            return false;
+
+        $res = $this->db->remove_by_fk('user_activity', 'id_users', $uid);
+        $res &= $this->db->remove_by_fk('user_input', 'id_users', $uid);
+        return $res;
+    }
+
+    /**
+     * Create a new user. This generates a new validation token, adds the user
+     * to the DB, and sends an email to the user with the activation link.
+     *
+     * @param string $email
+     *  The email address of the user to be added.
+     * @param string $code
+     *  A unique user code.
+     * @retval int
+     *  The id of the new user or false if the process failed.
+     */
+    public function create_new_user($email, $code=null)
+    {
+        $token = $this->login->create_token();
+        $uid = $this->insert_new_user($email, $token, 2);
+        $code_res = true;
+        if($code !== null)
+            $code_res = $this->db->insert("validation_codes", array(
+                "code" => $code,
+                "id_users" => $uid,
+            ));
+        if(!$uid || !$code_res) return null;
+        $url = $this->get_link_url("validate", array(
+            "uid" => $uid,
+            "token" => $token,
+            "mode" => "activate",
+        ));
+        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
+        $subject = $_SESSION['project'] . " Email Verification";
+        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
+        $to = $this->mail->create_single_to($email);
+        $msg = $this->mail->get_content($url, 'email_activate');
+        $this->mail->send_mail($from, $to, $subject, $msg);
+        return $uid;
     }
 
     /**
@@ -231,20 +314,24 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Read the email content from a php file and assign it to a string.
+     * Generate random validation codes and store them to the database.
      *
-     * @param string $url
-     *  The activation link that will be included into the mail content.
-     * @retval string
-     *  The email contnet with evaluated php statements.
+     * @param int $count
+     *  The number of codes to generate.
+     * @retval int
+     *  The number of generated codes.
      */
-    private function email_get_content($url)
+    public function generate_codes($count)
     {
-        ob_start();
-        include(EMAIL_PATH . "/activate_" . $_SESSION['language'] . ".php");
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
+        $codes = [];
+        for($i = 0; $i < $count; $i++)
+            $codes[] = $this->generate_code();
+
+        $sql = "INSERT IGNORE INTO validation_codes (code) VALUES('" . implode("'),('", array_unique($codes)) . "')";
+        $dbh = $this->db->get_dbh();
+        $insert = $dbh->prepare($sql);
+        $insert->execute();
+        return $insert->rowCount();
     }
 
     /**
@@ -256,6 +343,52 @@ class UserModel extends BaseModel
     public function get_acl_selected_user()
     {
         return $this->fetch_acl_by_user($this->uid);
+    }
+
+    /**
+     * Get the number of validation codes.
+     *
+     * @retval int
+     *  The number of validation codes.
+     */
+    public function get_code_count()
+    {
+        $sql = "SELECT COUNT(*) AS count FROM validation_codes";
+        $res = $this->db->query_db_first($sql);
+        if($res)
+            return intval($res['count']);
+        else
+            return 0;
+    }
+
+    /**
+     * Get the number of consumed validation codes.
+     *
+     * @retval int
+     *  The number of consumed validation codes.
+     */
+    public function get_code_count_consumed()
+    {
+        $sql = "SELECT COUNT(*) AS count FROM validation_codes
+            WHERE id_users IS NOT NULL";
+        $res = $this->db->query_db_first($sql);
+        if($res)
+            return intval($res['count']);
+        else
+            return 0;
+    }
+
+    /**
+     * Return the necessary fields to render the validation code export buttons.
+     * See ExportModel::get_export_view_fields() for more details.
+     *
+     * @retval array
+     *  An array of fields as defined in ExportModel::get_export_view_fields().
+     */
+    public function get_export_button_fields()
+    {
+        $model = new ExportModel($this->services);
+        return $model->get_export_view_fields("validation_codes");
     }
 
     /**
@@ -280,9 +413,16 @@ class UserModel extends BaseModel
      */
     public function get_group_options()
     {
+        $groups = array();
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             ORDER BY g.name";
-        return $this->db->query_db($sql);
+        $groups_db = $this->db->query_db($sql);
+        foreach($groups_db as $group)
+        {
+            if($this->is_group_allowed(intval($group['value'])))
+                $groups[] = $group;
+        }
+        return $groups;
     }
 
     /**
@@ -296,11 +436,18 @@ class UserModel extends BaseModel
      */
     public function get_new_group_options($uid)
     {
+        $groups = array();
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
             WHERE ug.id_users IS NULL
             ORDER BY g.name";
-        return $this->db->query_db($sql, array(":uid" => $uid));
+        $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
+        foreach($groups_db as $group)
+        {
+            if($this->is_group_allowed(intval($group['value'])))
+                $groups[] = $group;
+        }
+        return $groups;
     }
 
     /**
@@ -341,28 +488,140 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Prepare a set of user data such that it is compatible with a list
+     * component item.
+     *
+     * @param array $user
+     *  The data returnd by a db query to the user db (see
+     *  UserModel::fetch_users() and UserData::fetch_user()).
+     * @retval array
+     *  An array of items where each item has the following keys:
+     *   'id':          The id of the user.
+     *   'title':       The email address of the user.
+     *   'name':        The name of the user.
+     *   'url':         The url pointing to the user.
+     *   'status':      The status of the user.
+     *   'blocked':     A boolean indication whether the user is blocked or not.
+     *   'description': The description of the user status.
+     *   'last_login':  The date of the last login.
+     */
+    public function get_user($user)
+    {
+        $id = intval($user["id"]);
+        $state = $user["status"];
+        $desc = $user['description'];
+        if($user['blocked'])
+        {
+            $state = "<strong>[blocked]</strong> " . $state;
+            $desc = "This user cannot login until the blocked status is reversed";
+        }
+        return array(
+            "id" => $id,
+            "title" => $user["email"],
+            "email" => $user["email"],
+            "name" => $user["name"],
+            "last_login" => $user["last_login"],
+            "status" => $state,
+            "blocked" => ($user['blocked'] == '1') ? true : false,
+            "description" => $desc,
+            "url" => $this->get_link_url("userSelect", array("uid" => $id))
+        );
+    }
+
+    /**
      * Get a list of users and prepare the list such that it can be passed to a
      * list component.
      *
      * @retval array
-     *  An array of items where each item has the following keys:
-     *   'id':      The id of the user.
-     *   'title':   The email address of the user.
-     *   'url':     The url pointing to the user.
+     *  An array of items where each item has the keys as defined in
+     *  UserModel::get_user().
      */
     public function get_users()
     {
         $res = array();
         foreach($this->fetch_users() as $user)
-        {
-            $id = intval($user["id"]);
-            $res[] = array(
-                "id" => $id,
-                "title" => $user["email"],
-                "url" => $this->get_link_url("userSelect", array("uid" => $id))
-            );
-        }
+            $res[] = $this->get_user($user);
         return $res;
+    }
+
+    /**
+     * Count the entries in the user_activity table given a user id.
+     *
+     * @param int $id
+     *  The id of the user to be counted
+     * @retval int
+     *  The number of activity entries of the user.
+     */
+    public function get_user_activity($id)
+    {
+        $sql = "SELECT COUNT(*) AS activity FROM user_activity
+            WHERE id_users = :uid";
+        $res = $this->db->query_db_first($sql, array(':uid' => $id));
+        return $res['activity'];
+    }
+
+    /**
+     * Count all pages of type experiment as well as all navigation page
+     * sections and copmpare this count to all distinct URLs the user visited.
+     *
+     * @param int $id
+     *  The id of the user to be counted
+     *
+     * @retval float
+     *  A percentage between 0 and 1
+     */
+    public function get_user_progress($id)
+    {
+        $sql = "SELECT id_pages FROM sections_navigation";
+        $nav_sections = $this->db->query_db($sql);
+        $pc = count($nav_sections);
+
+        $sql = "SELECT id, parent FROM pages WHERE id_type = 3";
+        $pages = $this->db->query_db($sql);
+
+        // do not count parent pages and parent navigation pages (those are not
+        // reachable)
+        foreach($pages as $parent_page)
+        {
+            $has_child = false;
+            foreach($pages as $child_page)
+                if($parent_page['id'] === $child_page['parent'] )
+                {
+                    $has_child = true;
+                    break;
+                }
+            foreach($nav_sections as $nav_section)
+                if($parent_page['id'] === $nav_section['id_pages'] )
+                {
+                    $has_child = true;
+                    break;
+                }
+            if(!$has_child)
+                $pc++;
+        }
+
+        $sql = "SELECT DISTINCT url FROM user_activity
+            WHERE id_users = :uid AND id_type = 1";
+        $activity = $this->db->query_db($sql, array(':uid' => $id));
+        $ac = count($activity);
+        if($pc === 0 || $ac > $pc)
+            return 1;
+        return $ac/$pc;
+    }
+
+    /**
+     * Return the validation code of a user.
+     *
+     * @param int $id
+     *  The id of the user
+     * @retval int
+     *  The validation code of the user.
+     */
+    public function get_user_code($id)
+    {
+        $sql = "SELECT code FROM validation_codes WHERE id_users = :uid";
+        $res = $this->db->query_db_first($sql, array(':uid' => $id));
+        return $res['code'];
     }
 
     /**
@@ -377,34 +636,37 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Insert a new user to the DB.
+     * Add a new user to the DB.
      *
      * @param string $email
-     *  The email address of the user to be added.
+     *  The email of the user.
+     * @param string $token
+     *  The validation token of the new user.
+     * @param int $id_status
+     *  The initial status of the new user.
      * @retval int
-     *  The id of the new user or false if the process failed.
+     *  The id of the new user.
      */
-    public function insert_new_user($email)
+    public function insert_new_user($email, $token, $id_status)
     {
-        $token = $this->login->create_token();
-        $uid = $this->db->insert("users", array(
+        return $this->db->insert("users", array(
             "email" => $email,
             "token" => $token,
+            "id_status" => $id_status,
         ));
-        if($uid)
-        {
-            $url = $this->get_link_url("validate", array(
-                "uid" => $uid,
-                "token" => $token,
-                "mode" => "activate",
-            ));
-            $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-            $subject = $_SESSION['project'] . " Email Verification";
-            $from = "noreply@" . $_SERVER['HTTP_HOST'];
-            $this->login->email_send($from, $email, $subject,
-                $this->email_get_content($url));
-        }
-        return $uid;
+    }
+
+    /**
+     * Checks whether a group can be added by the current user.
+     *
+     * @retval bool
+     *  Returns true if the current user has at least the same access level as
+     *  the group for each page. Otherwise false is returned.
+     */
+    public function is_group_allowed($id_group)
+    {
+        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
+                $id_group);
     }
 
     /**
@@ -443,6 +705,8 @@ class UserModel extends BaseModel
      */
     public function unblock_user($uid)
     {
+        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+            return false;
         return $this->db->update_by_ids("users", array("blocked" => 0),
             array("id" => $uid));
     }

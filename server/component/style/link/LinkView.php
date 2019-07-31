@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the link style component.
  */
-class LinkView extends BaseView
+class LinkView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -22,6 +22,13 @@ class LinkView extends BaseView
      */
     private $label;
 
+    /**
+     * DB field 'open_in_new_tab' (false).
+     * If set to true, the link is opened in a new tab or window. If set to
+     * false the link is opened in the current context.
+     */
+    private $open_in_new_tab;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -35,6 +42,8 @@ class LinkView extends BaseView
         parent::__construct($model);
         $this->label = $this->model->get_db_field("label");
         $this->url = $this->model->get_db_field("url");
+        $this->open_in_new_tab = $this->model->get_db_field("open_in_new_tab",
+            false);
     }
 
     /* Public Methods *********************************************************/
@@ -46,6 +55,7 @@ class LinkView extends BaseView
     {
         if($this->url == "") return;
         if($this->label == "") $this->label = htmlspecialchars($this->url);
+        $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
         require __DIR__ . "/tpl_link.php";
     }
 }

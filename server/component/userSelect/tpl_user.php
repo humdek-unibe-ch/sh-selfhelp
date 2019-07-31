@@ -1,13 +1,21 @@
 <div class="row">
     <div class="col">
         <div class="jumbotron">
-            <h1>User <code><?php echo $this->selected_user['email']; ?></code> <small>[<?php echo $state; ?>]</small></h1>
-            <p>A user can be in one of the following states:</p>
-            <ul>
-                <li>An <code>active</code> user can log in and visit all accessible pages.</li>
-                <li>An <code>inactive</code> user cannot login as long as the account is not veryfied.</li>
-                <li>A <code>blocked</code> user cannot login until the blocked status is reversed.</li>
-            </ul>
+            <h1>User <code><?php echo $this->selected_user['email']; ?></code></h1>
+            <div class="card card-body mb-3">
+                <dl class="row">
+                    <dt class="col-12"><?php $this->output_title('status'); ?></dt>
+                    <dd class="col"><code><?php echo $state; ?></code> &ndash; <small class="text-muted"><?php echo $desc; ?></small></dd>
+                    <dt class="col-12"><?php $this->output_title('code'); ?></dt>
+                    <dd class="col"><code><?php echo $code; ?></code></dd>
+                    <dt class="col-12"><?php $this->output_title('login'); ?></dt>
+                    <dd class="col"><?php echo $last_login; ?></dd>
+                    <dt class="col-12"><?php $this->output_title('activity'); ?></dt>
+                    <dd class="col"><?php echo $activity; ?></dd>
+                    <dt class="col-12"><?php $this->output_title('progress'); ?></dt>
+                    <dd class="col"><?php $this->output_user_progress_bar($progress); ?></dd>
+                </dl>
+            </div>
             <p>Use the cards on the right (if available) to manipulate the groups of the user, block the user, or delete the user. The button <code>ACL</code> in the top right corner expands to a table, listing the access rights of the user in detail.</p>
         </div>
     </div>

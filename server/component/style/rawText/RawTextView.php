@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the raw text style component. This component renders text
  * into a pre and code tag.
  */
-class RawTextView extends BaseView
+class RawTextView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -26,7 +26,7 @@ class RawTextView extends BaseView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->text = $this->model->get_db_field("text");
+        $this->text = htmlspecialchars($this->model->get_db_field("text"));
     }
 
     /* Private Methods ********************************************************/

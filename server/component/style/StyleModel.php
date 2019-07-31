@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/StyleComponent.php";
+require_once __DIR__ . "/BaseStyleComponent.php";
 require_once __DIR__ . "/IStyleModel.php";
 /**
  * This class is used to prepare all data related to the style component such
@@ -36,9 +37,8 @@ class StyleModel extends BaseModel implements IStyleModel
      * The constructor fetches a section item from the database and assignes
      * the fetched content to private class properties.
      *
-     * @param array $services
-     *  An associative array holding the different available services. See the
-     *  class definition basepage for a list of all services.
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param int $id
      *  The id of the database section item to be rendered.
      * @param array $params
@@ -47,9 +47,21 @@ class StyleModel extends BaseModel implements IStyleModel
     public function __construct($services, $id, $params=array())
     {
         parent::__construct($services);
+        if($this->is_cms_page())
+        {
+            if($_SESSION['cms_gender'] !== "both")
+                $_SESSION['gender'] = $_SESSION['cms_gender'];
+            if($_SESSION['cms_language'] !== "all")
+                $_SESSION['language'] = $_SESSION['cms_language'];
+        }
+        else
+        {
+            $_SESSION['gender'] = $_SESSION['user_gender'];
+            $_SESSION['language'] = $_SESSION['user_language'];
+        }
         $this->db_fields['id'] = array(
             "content" => $id,
-            "type" => "internal"
+            "type" => "internal",
         );
 
         $sql = "SELECT s.id, sec.name, s.name AS style, t.name AS type
@@ -62,10 +74,6 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->style_name = $style['style'];
         $this->style_type = $style['type'];
         $this->section_name = $style['name'];
-        $this->db_fields['is_active'] = array(
-            "content" => ($id === $_SESSION['active_section_id']),
-            "type" => "internal"
-        );
 
         $fields = $this->db->fetch_page_fields($this->get_style_name());
         $this->set_db_fields($fields);
@@ -75,8 +83,10 @@ class StyleModel extends BaseModel implements IStyleModel
 
         $db_children = $this->db->fetch_section_children($id);
         foreach($db_children as $child)
-            $this->children[] = new StyleComponent(
+        {
+            $this->children[$child['name']] = new StyleComponent(
                 $services, intval($child['id']), $params);
+        }
     }
 
     /* Protected Methods ******************************************************/
@@ -92,28 +102,7 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function get_url($url)
     {
-        if($url == "") return $url;
-        if($url == "#back")
-        {
-            if(isset($_SERVER['HTTP_REFERER'])
-                    && ($_SERVER['HTTP_REFERER'] != $_SERVER['REQUEST_URI']))
-            {
-                return htmlspecialchars($_SERVER['HTTP_REFERER']);
-            }
-            return $this->router->generate("home");
-        }
-        else if($url == "#self")
-            return $_SERVER['REQUEST_URI'];
-        else if($url[0] == "#")
-        {
-            $name = substr($url, 1);
-            if($this->router->has_route($name))
-                return $this->router->generate($name);
-            else
-                return $url;
-        }
-        else
-            return $url;
+        return $this->router->get_url($url);
     }
 
     /**
@@ -145,6 +134,7 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         foreach($fields as $field)
         {
+            $default = $field["default_value"] ?? "";
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);
             else if($field['type'] == "markdown")
@@ -152,13 +142,61 @@ class StyleModel extends BaseModel implements IStyleModel
             else if($field['type'] == "markdown-inline")
                 $field['content'] = $this->parsedown->line($field['content']);
             else if($field['type'] == "json")
+            {
                 $field['content'] = json_decode($field['content'], true);
+                $field['content'] = $this->parse_base_style($field['content']);
+            }
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
                 "type" => $field['type'],
-                "id" => $field['id']
+                "id" => $field['id'],
+                "default" => $default,
             );
         }
+    }
+
+    /**
+     * Parses a json array to find `baseStyle` keys. Such keys are then
+     * transformed to HTML string to be rendered on the screen. This is a
+     * recursive function.
+     *
+     * @param array $j_array
+     *  The json array to be parsed.
+     * @param bool $is_child
+     *  A flag indicating whether children are processed or the final root
+     *  element (the root needs to perform an output buffering of the style).
+     */
+    private function parse_base_style($j_array, $is_child=false)
+    {
+        if(!is_array($j_array))
+            return $j_array;
+
+        foreach($j_array as $key => $item)
+        {
+            if($key === "children")
+                $is_child = true;
+            $item = $this->parse_base_style($item, $is_child);
+            if($key === "baseStyle")
+            {
+                if(!isset($item['name']))
+                    return "invalid baseStyle definition: 'name' is undefined";
+                if(!isset($item['fields']))
+                    return "invalid '" . $item['name'] . "' baseStyle definition: 'fields' is undefined";
+                $style = new BaseStyleComponent($item['name'], $item['fields']);
+                if(!$is_child)
+                {
+                    ob_start();
+                    $style->output_content();
+                    $content = ob_get_contents();
+                    ob_end_clean();
+                    return $content;
+                }
+                else
+                    return $style;
+            }
+            $arr[$key] = $item;
+        }
+        return $arr;
     }
 
     /**
@@ -196,7 +234,13 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_db_field($key, $default="")
     {
         $field = $this->get_db_field_full($key);
-        if($field == "") return $default;
+        if($field == "")
+        {
+            if(isset($field['default']) && $field['default'] != "")
+                return $field['default'];
+            else
+                return $default;
+        }
         return $field['content'];
     }
 
@@ -264,6 +308,27 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_section_name()
     {
         return $this->section_name;
+    }
+
+    /**
+     * Search for a child section of a specific name.
+     *
+     * @param string $name
+     *  The name of the section to be seacrhed
+     * @retval reference
+     *  Reference to the section instance.
+     */
+    public function &get_child_section_by_name($name)
+    {
+        if(array_key_exists($name, $this->children))
+            return $this->children[$name];
+        foreach($this->children as $child)
+        {
+            $section = $child->get_child_section_by_name($name);
+            if($section !== null)
+                return $section;
+        }
+        return null;
     }
 }
 ?>

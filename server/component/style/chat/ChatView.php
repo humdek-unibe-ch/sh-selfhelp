@@ -1,49 +1,56 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the chat component.
+ * The chat component is not made available to the CMS in is only used
+ * internally.
  */
-class ChatView extends BaseView
+abstract class ChatView extends StyleView
 {
     /* Private Properties******************************************************/
-
-    /**
-     * DB field 'label' ("Send")
-     * The label of the send button.
-     */
-    private $label;
-
-    /**
-     * DB field 'alert_fail' (empty string)
-     * The alert message on failure.
-     */
-    private $alert_fail;
 
     /**
      * DB field 'alt' (empty string)
      * The text to be displayed if no subject is selected.
      */
-    private $alt;
+    protected $alt;
+
+    /**
+     * DB field 'label_submit' ("Send")
+     * The label of the send button.
+     */
+    protected $label;
+
+    /**
+     * DB field 'label_global' ("Lobby")
+     * The label of the global room.
+     */
+    protected $label_global;
+
+    /**
+     * DB field 'alert_fail' (empty string)
+     * The alert message on failure.
+     */
+    protected $alert_fail;
 
     /**
      * DB field 'title_prefix' (empty string)
      * The first part of the title in the chat header.
      */
-    private $title_prefix;
+    protected $title_prefix;
 
     /**
-     * DB field 'experimenter' (empty string)
-     * The text to be displayed when addressing experimenter.
+     * DB field 'title_prefix' ("New Messages")
+     * A divider with this text indicating the new messages.
      */
-    private $experimenter;
+    private $label_new;
 
     /**
-     * DB field 'subjects' (empty string)
-     * The text to be displayed when addressing subjects.
+     * The list of chat items (see ChatModel::get_chat_items).
      */
-    private $subjects;
+    protected $items = null;
 
     /* Constructors ***********************************************************/
 
@@ -58,12 +65,13 @@ class ChatView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->label = $this->model->get_db_field("label", "Send");
-        $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alt = $this->model->get_db_field("alt");
+        $this->label = $this->model->get_db_field("label_submit", "Send");
+        $this->label_global = $this->model->get_db_field("label_global", "Lobby");
+        $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->title_prefix = $this->model->get_db_field("title_prefix");
-        $this->experimenter = $this->model->get_db_field("experimenter");
-        $this->subjects = $this->model->get_db_field("subjects");
+        $this->label_new = $this->model->get_db_field("label_new", "New Messages");
+        $this->items = $this->model->get_chat_items();
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -74,12 +82,35 @@ class ChatView extends BaseView
         );
     }
 
-    /* Private Methods ********************************************************/
+    /* Abstract Protecetd Methods *********************************************/
+
+    /**
+     * Render the chat messages. This depends on the role of the current user.
+     *
+     * @param string $user
+     *  The user name of the author.
+     * @param string $msg
+     *  The message.
+     * @param int $uid
+     *  The user id of the author.
+     * @param string $datetime
+     *  The date and time of the message.
+     */
+    abstract protected function output_msgs_spec($user, $msg, $uid, $datetime);
+
+    /* Abstract Public Methods ************************************************/
+
+    /**
+     * Render the role-specific content.
+     */
+    abstract public function output_content_spec();
+
+    /* Protecetd Methods ******************************************************/
 
     /**
      * Render the fail alert.
      */
-    private function output_alert()
+    protected function output_alert()
     {
         if($this->controller == null || $this->controller->has_failed())
             $this->output_local_component("alert-fail");
@@ -88,7 +119,7 @@ class ChatView extends BaseView
     /**
      * Render the chat window.
      */
-    private function output_chat($title)
+    protected function output_chat($title)
     {
         if($this->model->is_chat_ready())
         {
@@ -101,99 +132,79 @@ class ChatView extends BaseView
     }
 
     /**
+     * Render the list of available rooms.
+     */
+    protected function output_room_list()
+    {
+        $rooms = $this->model->get_rooms();
+        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
+            "name" => $this->label_global));
+        if(count($rooms) === 1)
+            return;
+        require __DIR__ . "/tpl_room_list.php";
+    }
+
+    /**
+     * Render the room list.
+     *
+     * @param array $rooms
+     *  A list of rooms with the following keys:
+     *   - 'id':    the id of the chat room
+     *   - 'name':  the name of the chat room
+     */
+    protected function output_rooms($rooms)
+    {
+        foreach($rooms as $room)
+        {
+            $id = intval($room['id']);
+            $name = $room['name'];
+            $url = $this->model->get_link_url("contact", array("gid" => $id));
+            $active = "";
+            if($this->model->is_room_selected($id))
+                $active = "active";
+            require __DIR__ . "/tpl_room.php";
+        }
+    }
+
+    /**
      * Render the chat messages.
      */
-    private function output_msgs()
+    protected function output_msgs()
     {
-        foreach($this->model->get_chat_items() as $item)
+        $first_new = true;
+        foreach($this->items as $item)
         {
             $user = $item['name'];
             $msg = $item['msg'];
             $uid = intval($item['uid']);
             $datetime = $item['timestamp'];
-            $css = "";
-            if($uid == $_SESSION['id_user'])
-                $css = "me ml-auto";
-            else if($this->model->is_selected_user($uid))
-                $css .= " subject";
-            else if($this->model->is_current_user_experimenter())
-                $css .= " experimenter ml-auto";
-            require __DIR__ . "/tpl_chat_item.php";
+            if($first_new && $item['is_new'] == '1' && $uid != $_SESSION['id_user'])
+            {
+                require __DIR__ . "/tpl_divider.php";
+                $first_new = false;
+            }
+            $this->output_msgs_spec($user, $msg, $uid, $datetime);
         }
     }
 
     /**
-     * Render the new badge.
+     * Render the new badge that is displayed next to the room name.
      */
-    private function output_new_badge()
+    protected function output_new_badge_room($id)
     {
-        $count = 0;
+        $count = $this->model->get_room_message_count($id);
         if($count > 0)
             require __DIR__ . "/tpl_new_badge.php";
     }
 
-    /**
-     * Render the subject list.
-     */
-    private function output_subjects()
-    {
-        foreach($this->model->get_subjects() as $subject)
-        {
-            $id = intval($subject['id']);
-            $name = $subject['name'];
-            $url = $this->model->get_link_url("contact", array("uid" => $id));
-            $active = "";
-            if($this->model->is_selected_user($id))
-                $active = "bg-info text-white";
-            require __DIR__ . "/tpl_subject.php";
-        }
-    }
-
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/chat.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/chat.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the user view.
      */
     public function output_content()
     {
-        if($this->model->is_current_user_experimenter())
-        {
-            $title = $this->title_prefix . " "
-                . $this->model->get_selected_user_name();
-            require __DIR__ . "/tpl_chat_experimenter.php";
-        }
-        else
-        {
-            $title = $this->title_prefix . " "
-                . $this->experimenter;
-            require __DIR__ . "/tpl_chat_subject.php";
-        }
+        $this->output_content_spec();
     }
 }
 ?>

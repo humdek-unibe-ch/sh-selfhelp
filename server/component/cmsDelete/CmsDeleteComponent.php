@@ -38,7 +38,7 @@ class CmsDeleteComponent extends CmsComponent
      */
     public function __construct($services, $params)
     {
-        $this->acl = $services['acl'];
+        $this->acl = $services->get_acl();
         $model = new CmsModel($services, $params, "delete");
         $controller = new CmsDeleteController($model);
         $model->update_delete_properties();

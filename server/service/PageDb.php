@@ -152,10 +152,11 @@ class PageDb extends BaseDb
             "parent" => null,
             "id_type" => 1,
             "protocol" => "",
-            "has_user_input" => false,
+            "is_headless" => false,
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            p.protocol, a.name AS action, parent, id_type, user_input FROM pages AS p
+            p.protocol, a.name AS action, parent, is_headless, id_type
+            FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE keyword=:keyword";
         $info = $this->query_db_first($sql, array(":keyword" => $keyword));
@@ -168,7 +169,7 @@ class PageDb extends BaseDb
             $page_info["action"] = $info["action"];
             $page_info["protocol"] = $info["protocol"];
             $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
-            $page_info["has_user_input"] = ($info['user_input'] == '1') ? true : false;
+            $page_info["is_headless"] = ($info['is_headless'] == '1') ? true : false;
             $protocols = explode("|", $info["protocol"]);
             if(in_array("DELETE", $protocols)) $page_info["access_level"] = "delete";
             else if(in_array("PATCH", $protocols)) $page_info["access_level"] = "update";
@@ -313,25 +314,36 @@ class PageDb extends BaseDb
         $user_name = $this->fetch_user_name();
         if($gender === null) $gender = $_SESSION['gender'];
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.id AS id, f.name, ft.name AS type,
+        $sql = "SELECT f.id AS id, f.name, ft.name AS type, g.name AS gender,
             REPLACE(REPLACE(sft.content, '@user', :uname),
-                '@project', :project) AS content
+                '@project', :project) AS content, sf.default_value
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             LEFT JOIN genders AS g ON g.id = sft.id_genders
-            WHERE sft.id_sections = :id AND $locale_cond
-            AND g.name = :gender AND sft.content != ''";
+            LEFT JOIN sections AS s ON s.id = sft.id_sections
+            LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
+            AND sf.id_fields = f.id
+            WHERE sft.id_sections = :id AND $locale_cond AND content != ''
+            ORDER BY g.id DESC";
 
-        $res = $this->query_db($sql, array(
+        $res_all = $this->query_db($sql, array(
             ":id" => $id,
-            ":gender" => $gender,
             ":uname" => $user_name,
             ":project" => $_SESSION['project']
         ));
-        if(!$res && $gender != "male")
-            $res = $this->fetch_section_fields($id, "male");
+        $ids = array();
+        $res = array();
+        foreach($res_all as $item)
+        {
+            if($item['gender'] !== $gender && $item['gender'] !== "male")
+                continue;
+            if(in_array($item['id'], $ids))
+                continue;
+            $ids[] = $item['id'];
+            $res[] = $item;
+        }
         return $res;
     }
 

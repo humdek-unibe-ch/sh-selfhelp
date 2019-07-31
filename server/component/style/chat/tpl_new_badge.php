@@ -1,1 +1,1 @@
-<span class="badge badge-dark ml-3 d-none"><?php echo $count; ?></span>
+<span class="badge badge-pill badge-primary ml-3"><?php echo $count; ?></span>

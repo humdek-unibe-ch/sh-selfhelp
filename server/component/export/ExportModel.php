@@ -23,6 +23,30 @@ class ExportModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
+     * Checks whether the current user is allowed to delete user data.
+     *
+     * @retval bool
+     *  True if the current user can delete user data, false otherwise.
+     */
+    public function can_delete_user_data()
+    {
+        return $this->acl->has_access_delete($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("exportDelete"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to export validation codes.
+     *
+     * @retval bool
+     *  True if the current user can export validation codes, false otherwise.
+     */
+    public function can_export_codes()
+    {
+        return $this->acl->has_access_select($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("userSelect"));
+    }
+
+    /**
      * Returns the view data of an export item.
      *
      * @param string $selector
@@ -47,17 +71,66 @@ class ExportModel extends BaseModel
         {
             $fields["title"] = "User Input";
             $fields["text"] = "The collection of all data that was entered by users through a form field. Only form fields from pages marked as user input pages are considered. Each item was timestamped at the time of creation.";
-            $fields["url"] = $this->get_link_url("exportData",
-                array("selector" => "user_input"));
-            $fields["label"] = "Get User Data";
+            $fields["options"] = array(
+                array(
+                    "url" => $this->get_link_url("exportData",
+                            array("selector" => "user_input")),
+                    "label" => "Get User Input Data",
+                    "type" => "primary",
+                ),
+            );
+            if($this->can_delete_user_data())
+                $fields['options'][] = array(
+                    "url" => $this->get_link_url("exportDelete",
+                        array("selector" => "user_input")),
+                    "label" => "Remove User Input Data",
+                    "type" => "danger",
+                );
         }
         if($selector === "user_activity")
         {
             $fields["title"] = "User Activity";
             $fields["text"] = "The collection of all user activity on experiment pages.";
-            $fields["url"] = $this->get_link_url("exportData",
-                array("selector" => "user_activity"));
-            $fields["label"] = "Get User Activity";
+            $fields["options"] = array(
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "user_activity")),
+                    "label" => "Get User Activity",
+                    "type" => "primary",
+                ),
+            );
+            if($this->can_delete_user_data())
+                $fields['options'][] = array(
+                    "url" => $this->get_link_url("exportDelete",
+                        array("selector" => "user_activity")),
+                    "label" => "Remove User Activity",
+                    "type" => "danger",
+                );
+        }
+        if($selector === "validation_codes")
+        {
+            $fields["title"] = "Validation Codes";
+            $fields["text"] = "The list of valid validation codes users can use to register.";
+            $fields["options"] = array(
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "validation_codes", "option" => "all")),
+                    "label" => "Get All Validation Codes",
+                    "type" => "primary",
+                ),
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "validation_codes", "option" => "used")),
+                    "label" => "Get Consumed Validation Codes",
+                    "type" => "warning",
+                ),
+                array(
+                    "url" => $this->get_link_url("exportData",
+                        array("selector" => "validation_codes", "option" => "open")),
+                    "label" => "Get Open Validation Codes",
+                    "type" => "success",
+                ),
+            );
         }
         return $fields;
     }

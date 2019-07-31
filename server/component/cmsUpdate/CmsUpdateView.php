@@ -34,42 +34,27 @@ class CmsUpdateView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->mode = $mode;
-        $this->add_local_component("allowed-sections",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => false,
-                "is_collapsible" => true,
-                "title" => "Sections in Use",
-                "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_accessible_sections(),
-                    "id_prefix" => "sections-search-accessible",
-                    "is_expanded" => false,
-                    "is_collapsible" => false,
-                    "id_active" => 0,
-                    "search_text" => "Search"
-                )))
-            ))
-        );
-
-        $this->add_local_component("unassigned-sections",
-            new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_expanded" => true,
-                "is_collapsible" => true,
-                "title" => "Unassigned Sections",
-                "children" => array(new BaseStyleComponent("nestedList", array(
-                    "items" => $this->model->get_unassigned_sections(),
-                    "id_prefix" => "sections-search-unassigned",
-                    "is_expanded" => false,
-                    "is_collapsible" => false,
-                    "id_active" => 0,
-                    "search_text" => "Search"
-                )))
-            ))
-        );
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Render the warning when an existing section is selected.
+     */
+    private function output_alert()
+    {
+        $alert = new BaseStyleComponent("alert", array(
+            "css" => "alert-reuse-section d-none",
+            "type" => "warning",
+            "is_dismissable" => true,
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Note that a section refers to a single set of section fields. This means that changes to section fields will affect all views of the section when using the same section in different places.",
+                )),
+            ),
+        ));
+        $alert->output_content();
+    }
 
     /**
      * Render the list of styles.
@@ -79,8 +64,8 @@ class CmsUpdateView extends BaseView
         $styles = $this->model->get_style_list();
         foreach($styles as $style)
         {
-            $value = intval($style['id']);
-            $name = $style['name'];
+            $value = intval($style['value']);
+            $name = $style['text'];
             require __DIR__ . "/tpl_select_option.php";
         }
     }
@@ -90,8 +75,77 @@ class CmsUpdateView extends BaseView
      */
     private function output_section_search_list()
     {
-        $this->output_local_component("unassigned-sections");
-        $this->output_local_component("allowed-sections");
+        $unassigned = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => true,
+            "title" => "Select an Unassigned Section",
+            "children" => array(new BaseStyleComponent("nestedList", array(
+                "items" => $this->model->get_unassigned_sections(),
+                "id_prefix" => "sections-search-unassigned",
+                "is_expanded" => false,
+                "is_collapsible" => false,
+                "id_active" => 0,
+                "search_text" => "Search"
+            )))
+        ));
+        $unassigned->output_content();
+        $allowed = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => false,
+            "is_collapsible" => true,
+            "title" => "Select an Existing Section",
+            "children" => array(new BaseStyleComponent("nestedList", array(
+                "items" => $this->model->get_accessible_sections(),
+                "id_prefix" => "sections-search-accessible",
+                "is_expanded" => false,
+                "is_collapsible" => false,
+                "id_active" => 0,
+                "search_text" => "Search"
+            )))
+        ));
+        //$allowed->output_content();
+    }
+
+    /**
+     * Render the style group tabs.
+     */
+    private function output_style_tabs()
+    {
+        $tabs = array();
+        $groups = $this->model->get_style_groups();
+        $first = true;
+        foreach($groups as $index => $group)
+        {
+            $id = intval($group['id']);
+            $styles = $this->model->get_style_list($id);
+            $description = $group['description'] . "\r\n\r\n";
+            foreach($styles as $style)
+                $description .= "- `" . $style['text'] . "` "
+                    . $style['description'] . "\r\n";
+            $tabs[] = new BaseStyleComponent("tab", array(
+                "label" => $group["name"],
+                "type" => "light",
+                "id" => $index,
+                "is_expanded" => $first,
+                "children" => array(
+                    new BaseStyleComponent("markdown", array(
+                        "text_md" => $description,
+                    )),
+                    new BaseStyleComponent("select", array(
+                        "name" => "helper-style-" . $id,
+                        "alt" => "select a style",
+                        "items" => $this->model->get_style_list($id),
+                    )),
+                ),
+            ));
+            $first = false;
+        }
+
+        $tabs_wrapper = new BaseStyleComponent("tabs", array(
+            "children" => $tabs,
+        ));
+        $tabs_wrapper->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -164,7 +218,10 @@ class CmsUpdateView extends BaseView
         else
             $target = "the section <code>" . $section_info['name'] . "</code>"
                 . " on page <code>" . $page_info['keyword'] . "</code>.";
-        require __DIR__ . "/tpl_cms_insert.php";
+        if($child == "navigation")
+            require __DIR__ . "/tpl_cms_insert_nav.php";
+        else
+            require __DIR__ . "/tpl_cms_insert.php";
     }
 
     /**

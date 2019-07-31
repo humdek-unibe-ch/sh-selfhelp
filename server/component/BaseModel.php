@@ -34,9 +34,19 @@ abstract class BaseModel
     protected $acl;
 
     /**
+     * The parsedown instance that allows to parse markdown content.
+     */
+    protected $parsedown;
+
+    /**
      * User input handler.
      */
     protected $user_input;
+
+    /**
+     * Mail handler.
+     */
+    protected $mail;
 
     /**
      * An associative array holding the different available services. See the
@@ -54,21 +64,21 @@ abstract class BaseModel
     /**
      * The constructor.
      *
-     * @param array $services
-     *  An associative array holding the differnt available services. See the
-     *  class definition BasePage for a list of all services.
+     * @param object $services
+     *  The service handler instance which holds all services
      */
     public function __construct($services)
     {
         $this->children = array();
         $this->services = $services;
-        $this->router = $services['router'];
-        $this->db = $services['db'];
-        $this->acl = $services['acl'];
-        $this->login = $services['login'];
-        $this->nav = $services['nav'];
-        $this->parsedown = $services['parsedown'];
-        $this->user_input = $services['user_input'];
+        $this->router = $services->get_router();
+        $this->db = $services->get_db();
+        $this->acl = $services->get_acl();
+        $this->login = $services->get_login();
+        $this->mail = $services->get_mail();
+        $this->nav = $services->get_nav();
+        $this->parsedown = $services->get_parsedown();
+        $this->user_input = $services->get_user_input();
     }
 
     /** Private Methods *******************************************************/

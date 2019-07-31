@@ -24,10 +24,16 @@ class GroupDeleteController extends GroupController
                 if($res)
                     $this->success = true;
                 else
+                {
                     $this->fail = true;
+                    $this->error_msgs[] = "Failed to delete the group.";
+                }
             }
             else
+            {
                 $this->fail = true;
+                $this->error_msgs[] = "Failed to delete the group: The verification text does not match with the group name.";
+            }
         }
     }
 }

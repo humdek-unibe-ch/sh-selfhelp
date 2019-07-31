@@ -16,7 +16,10 @@
             <ul class="navbar-nav navbar-right">
                 <?php
                     if($_SESSION['logged_in'])
+                    {
+                        $this->output_nav_contact();
                         $this->output_nav_menu('profile', $profile_title, $profile_children, true);
+                    }
                     else
                         $this->output_nav_item('login', $login);
                 ?>

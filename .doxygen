@@ -38,7 +38,7 @@ PROJECT_NAME           = "SelfHelp WebApp"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = "v0.9.2"
+PROJECT_NUMBER         = "v1.0.4"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -878,7 +878,9 @@ EXCLUDE                =    css \
                             assets \
                             webfonts \
                             doc \
-                            server/service/ext
+                            server/service/ext \
+                            server/component/style/conditionalContainer/JsonLogic.php \
+                            gulp
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

@@ -47,7 +47,7 @@ class CmsUpdateComponent extends CmsComponent
      */
     public function __construct($services, $params)
     {
-        $this->acl = $services['acl'];
+        $this->acl = $services->get_acl();
         $model = new CmsModel($services, $params, "update");
         $controller = new CmsUpdateController($model);
         if($params["mode"] == "update")

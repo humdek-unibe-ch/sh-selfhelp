@@ -9,14 +9,14 @@
         </div>
         <div class="card-body">
             <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
+                <div class="form-group d-none">
+                    <label>Leave this field empty</label>
+                    <input type="text" class="form-control" name="phone7h92jP" autocomplete="off">
+                </div>
                 <div class="form-group">
                     <label><?php echo $this->name_label; ?></label>
                     <input type="text" class="form-control" name="name" placeholder="<?php echo $this->name_placeholder; ?>" value="<?php echo $name; ?>" required>
                     <small class="form-text text-muted"><?php echo $this->name_description; ?></small>
-                </div>
-                <div class="form-group d-none">
-                    <label>Leave this field empty</label>
-                    <input type="text" class="form-control" name="phone7h92jP" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label><?php echo $this->pw_label; ?></label>
@@ -36,6 +36,7 @@
                         <label class="form-check-label"><?php echo $this->gender_female; ?></label>
                     </div>
                 </div>
+                <?php $this->output_custom_fields(); ?>
                 <button type="submit" class="btn btn-primary"><?php echo $this->activate_label; ?></button>
             </form>
         </div>

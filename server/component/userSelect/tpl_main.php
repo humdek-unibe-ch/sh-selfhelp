@@ -2,7 +2,6 @@
     <div class="row">
         <div class="col-auto">
             <?php $this->output_button(); ?>
-            <?php $this->output_users(); ?>
         </div>
         <div class="col">
             <?php $this->output_main_content(); ?>

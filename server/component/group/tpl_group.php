@@ -8,14 +8,10 @@
  </p>
             <ul>
                 <li><strong>Core Content</strong> is composed of all the pages which do not relate directly to the experiment (e.g. impressum, disclaimer, profile, etc.).
-                    <ul>
-                        <li><code>select</code> grants read access to a page.</li>
-                        <li><code>insert</code> allows to add new sections to a page.</li>
-                        <li><code>update</code> allows to modify existing content on a page.</li>
-                        <li><code>delete</code> allows to remove sections from a page.</li>
-                    </ul>
                 </li>
                 <li><strong>Experiment Content</strong> is composed of all pages which are created explicitly for the experiment.
+                </li>
+                <li><strong>Open Content</strong> is composed of all pages which are openly accessible. These pages are not considered as experiment pages. For all the above:
                     <ul>
                         <li><code>select</code> grants read access to a page.</li>
                         <li><code>insert</code> allows to add new sections to a page.</li>
@@ -33,8 +29,8 @@
                 </li>
                 <li><strong>User Management</strong>
                     <ul>
-                        <li><code>select</code> grants read access to the user and group overview.</li>
-                        <li><code>insert</code> allows to create new users and groups.</li>
+                        <li><code>select</code> grants read access to the user and group overview and allows to download generated validation codes.</li>
+                        <li><code>insert</code> allows to create new users and groups and generate validation codes.</li>
                         <li><code>update</code> allows to modify access right of users and groups.</li>
                         <li><code>delete</code> allows to delete users and groups.</li>
                     </ul>
@@ -44,7 +40,15 @@
                         <li><code>select</code> allows to download user data and see the list of assets.</li>
                         <li><code>insert</code> allows to upload new assets.</li>
                         <li><code>update</code> allows to modify asset names (not implemented).</li>
-                        <li><code>delete</code> allows to delete assets (not implemented).</li>
+                        <li><code>delete</code> allows to delete assets and user data.</li>
+                    </ul>
+                </li>
+                <li><strong>Chat Management</strong>
+                    <ul>
+                        <li><code>select</code> grants read access to the chat management page.</li>
+                        <li><code>insert</code> allows to create new chat rooms.</li>
+                        <li><code>update</code> allows to add users to chat rooms, and remove users from chat rooms.</li>
+                        <li><code>delete</code> allows to delete chat rooms.</li>
                     </ul>
                 </li>
             </ul>

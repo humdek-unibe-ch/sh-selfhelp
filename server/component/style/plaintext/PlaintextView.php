@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the plaintext style component.
  * A plaintext style supports the following fields:
  *  'text': The text to be rendered.
  */
-class PlaintextView extends BaseView
+class PlaintextView extends StyleView
 {
     /* Private Properties *****************************************************/
 

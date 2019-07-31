@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the markdown component.
+ * This style component is one of the main styles to produce content. This
+ * allows to display markdown content.
  */
-class MarkdownView extends BaseView
+class MarkdownView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -35,7 +37,14 @@ class MarkdownView extends BaseView
      */
     public function output_content()
     {
-        echo $this->text_md;
+        if(is_a($this->model, "BaseStyleModel"))
+        {
+            $pd = new ParsedownExtension();
+            $md = $pd->text($this->text_md);
+        }
+        else
+            $md = $this->text_md;
+        require __DIR__ . "/tpl_markdown.php";
     }
 }
 ?>

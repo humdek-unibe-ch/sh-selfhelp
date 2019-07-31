@@ -40,6 +40,28 @@ class ProfileModel extends StyleModel
     }
 
     /**
+     * Change the user name of the active user in the database.
+     *
+     * @param string $name
+     *  The new username
+     * @retval bool
+     *  True on success, false otherwise.
+     */
+    public function change_user_name($name)
+    {
+        $res = $this->db->update_by_ids('users', array("name" => $name),
+            array('id' => $_SESSION['id_user']));
+        if($res)
+        {
+            $input = $this->get_child_section_by_name('profile-username-input');
+            $input = $input->get_style_instance();
+            $input->update_value_view($name);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Change the password of the active user.
      *
      * @param string $password
@@ -53,6 +75,26 @@ class ProfileModel extends StyleModel
     {
         if($password != $verification) return false;
         return $this->login->change_password($password);
+    }
+
+    /**
+     * Propagate the remindier setting to the user table. This is necessary
+     * beacuse the reminder settings are stored as user data while the reminder
+     * script checks the is_reminded falg in the users table.
+     */
+    public function update_user_reminder_settings()
+    {
+        $field_reminder = $this->user_input->get_input_fields(array(
+            'page' => 'profile',
+            'id_user' => $_SESSION['id_user'],
+            'form_name' => 'notification',
+            'field_name' => 'reminder',
+        ));
+        $val = 0;
+        if(count($field_reminder) === 0 || $field_reminder[0]['value'] !== "")
+            $val = 1;
+        $this->db->update_by_ids('users', array('is_reminded' => $val),
+            array('id' => $_SESSION['id_user']));
     }
 }
 ?>

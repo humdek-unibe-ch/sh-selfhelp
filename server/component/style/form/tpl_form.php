@@ -1,4 +1,4 @@
-<form action="<?php echo $this->url ?>" method="post" class="<?php echo $this->css; ?>">
+<form id="section-<?php echo $this->id_section; ?>" action="<?php echo $this->url ?>" method="post" class="<?php echo $this->css; ?>">
     <?php $this->output_children(); ?>
     <button type="submit" class="btn btn-<?php echo $this->type; ?>">
         <?php echo $this->label; ?>

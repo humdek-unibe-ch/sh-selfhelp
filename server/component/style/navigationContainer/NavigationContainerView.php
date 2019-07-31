@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the container style component.
+ * This style wraps the content that is shown on a navigation page.
  */
-class NavigationContainerView extends BaseView
+class NavigationContainerView extends StyleView
 {
     /* Private Properties *****************************************************/
 

@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the description item style component.
+ * This style component is currently only used for internal purposes and is not
+ * made available vie the CMS.
  */
-class DescriptionItemView extends BaseView
+class DescriptionItemView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -38,6 +40,12 @@ class DescriptionItemView extends BaseView
      */
     private $type;
 
+    /**
+     * DB field 'help' (empty string)
+     * A small text describing what this field does.
+     */
+    private $help;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -54,6 +62,7 @@ class DescriptionItemView extends BaseView
         $this->gender = $this->model->get_db_field("gender");
         $this->alt = $this->model->get_db_field("alt");
         $this->type = $this->model->get_db_field("type_input");
+        $this->help = $this->model->get_db_field("help");
     }
 
     /* Private Methods ********************************************************/
@@ -70,6 +79,15 @@ class DescriptionItemView extends BaseView
             $na = $this->alt;
             require __DIR__ . "/tpl_item_na.php";
         }
+    }
+
+    /**
+     * Render the help text.
+     */
+    private function output_help()
+    {
+        if($this->help == "") return;
+        require __DIR__ . "/tpl_help.php";
     }
 
     /**

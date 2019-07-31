@@ -196,6 +196,8 @@ class CmsModel extends BaseModel
      *  The id of the target gender of the field.
      * @param string $name
      *  The name of the field.
+     * @param string $help
+     *  A description of what the field is for.
      * @param string $locale
      *  The locale string of the language.
      * @param string $type
@@ -209,13 +211,14 @@ class CmsModel extends BaseModel
      *  The gender the content is associated with.
      */
     private function add_property_item($id, $id_language, $id_gender, $name,
-        $locale, $type, $relation, $content, $gender="")
+        $help, $locale, $type, $relation, $content, $gender="")
     {
         return array(
             "id" => $id,
             "id_language" => $id_language,
             "id_gender" => $id_gender,
             "name" => $name,
+            "help" => $this->parsedown->text($help),
             "locale" => $locale,
             "type" => $type,
             "relation" => $relation,
@@ -251,6 +254,10 @@ class CmsModel extends BaseModel
      */
     private function fetch_unassigned_sections()
     {
+        if($this->relation === "page_nav" || $this->relation === "section_nav")
+            $where = "AND st.id = :sid";
+        else
+            $where = "AND st.id != :sid";
         $sections = array();
         $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -259,10 +266,12 @@ class CmsModel extends BaseModel
             LEFT JOIN sections_navigation AS sn ON s.id = sn.child
             WHERE sh.child IS NULL AND ps.id_sections IS NULL
             AND sn.child IS NULL AND (s.owner IS NULL OR s.owner = :uid)
-            AND st.id_type <> 3
+            AND st.id_type <> 3 $where
             ORDER BY s.name";
-        $sections_db = $this->db->query_db($sql,
-            array(":uid" => $_SESSION["id_user"]));
+        $sections_db = $this->db->query_db($sql, array(
+            ":uid" => $_SESSION["id_user"],
+            ":sid" => NAVIGATION_CONTAINER_STYLE_ID,
+        ));
         foreach($sections_db as $section)
         {
             $id = intval($section['id']);
@@ -338,6 +347,29 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch the 'all' language content of a specific page field.
+     *
+     * @param int $id_page
+     *  The id of the page the field is part of.
+     * @param int $id_field
+     *  The id of the field from which the translations shall be fetched.
+     * @retval array
+     *  An array with one database item.
+     */
+    private function fetch_page_field_independent($id_page, $id_field)
+    {
+        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
+            FROM languages AS l
+            LEFT JOIN pages_fields_translation AS pft
+            ON l.id = pft.id_languages AND pft.id_pages = :pid
+            AND pft.id_fields = :fid
+            WHERE l.locale = 'all'";
+
+        return $this->db->query_db($sql,
+            array(":pid" => $id_page, ":fid" => $id_field));
+    }
+
+    /**
      * Fetch all translations of the content of a specific page field,
      * except the 'all' language.
      *
@@ -354,7 +386,7 @@ class CmsModel extends BaseModel
             $where = "WHERE l.locale <> :lang";
         else
             $where = "WHERE l.locale = :lang";
-        $sql = "SELECT l.locale AS locale, l.id, pft.content
+        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
             FROM languages AS l
             LEFT JOIN pages_fields_translation AS pft
             ON l.id = pft.id_languages AND pft.id_pages = :pid
@@ -365,6 +397,27 @@ class CmsModel extends BaseModel
             ":fid" => $id_field,
             ":lang" => $_SESSION['cms_language'],
         ));
+    }
+
+    /**
+     * Fetch all fields that are associated to a page.
+     *
+     * @param int $id
+     *  The id of the page.
+     * @retval array
+     *  An array of database items.
+     */
+    private function fetch_page_fields($id)
+    {
+        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+            pf.default_value, pf.help
+            FROM pages AS p
+            LEFT JOIN pages_fields AS pf ON pf.id_pages = p.id
+            LEFT JOIN fields AS f ON f.id = pf.id_fields
+            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            WHERE p.id = :id
+            ORDER BY ft.position, f.display, f.name";
+        return $this->db->query_db($sql, array(":id" => $id));
     }
 
     /**
@@ -505,7 +558,8 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type
+        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+            sf.default_value, sf.help
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
@@ -644,7 +698,10 @@ class CmsModel extends BaseModel
             FROM sections AS s
             LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
             LEFT JOIN sections_navigation AS psn ON psn.child = s.id
-            WHERE ps.id_pages IS NOT NULL OR psn.id_pages IS NOT NULL";
+            LEFT JOIN pages AS pp ON pp.id = ps.id_pages
+            LEFT JOIN pages AS pn ON pn.id = psn.id_pages
+            WHERE (pp.id_type = 3 OR pn.id_type = 3)
+            AND (ps.id_pages IS NOT NULL OR psn.id_pages IS NOT NULL)";
         $root_sections = $this->db->query_db($sql);
         foreach($root_sections as $section)
         {
@@ -668,12 +725,16 @@ class CmsModel extends BaseModel
      *
      * @param int $pid
      *  The id of the page.
+     * @param bool $is_open
+     *  If set select access to the guest user is granted.
      */
-    private function set_new_page_acl($pid)
+    private function set_new_page_acl($pid, $is_open = false)
     {
         $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
-        $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 4, true);
+        $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true);
         $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+        if($is_open)
+            $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
     }
 
     /**
@@ -991,18 +1052,22 @@ class CmsModel extends BaseModel
      * @param string $position
      *  The position string if the new page should appear in the navbar, null
      *  otherwise.
+     * @param bool $is_headless
+     *  If set to true the page has no header or footer. If set to false the
+     *  page is rendered with header and footer.
+     * @param bool $is_open
+     *  If set to true the page is accessible by anyone. If set to false a login
+     *  is required.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
-     * @param bool $is_user_input
-     *  A flag indicating whether the page allows user input or not.
      * @retval int
      *  The id of the created page.
      */
     public function create_new_page($keyword, $url, $protocol, $action,
-        $position, $parent, $is_user_input)
+        $position, $is_headless, $is_open, $parent)
     {
         $nav_id = null;
-        $page_type = EXPERIMENT_PAGE_ID;
+        $page_type = $is_open ? OPEN_PAGE_ID : EXPERIMENT_PAGE_ID;
         if($action == 4)
         {
             $action = 3;
@@ -1017,9 +1082,9 @@ class CmsModel extends BaseModel
             "id_type" => $page_type,
             "nav_position" => $position ? 999 : null,
             "parent" => $parent,
-            "user_input" => $is_user_input ? 1 : 0,
+            "is_headless" => $is_headless ? 1 : 0,
         ));
-        $this->set_new_page_acl($pid);
+        $this->set_new_page_acl($pid, $is_open);
         if($position)
             $this->update_page_order($position, $parent);
         return $pid;
@@ -1197,10 +1262,12 @@ class CmsModel extends BaseModel
      * @retval string
      *  The css string from the current section.
      */
-    public function get_css()
+    public function get_css($id_section = null)
     {
+        if($id_section === null)
+            $id_section = $this->get_active_section_id();
         $css = $this->db->select_by_fks("sections_fields_translation", array(
-            "id_sections" => $this->get_active_section_id(),
+            "id_sections" => $id_section,
             "id_fields" => CSS_FIELD_ID,
             "id_languages" => 1,
         ));
@@ -1288,16 +1355,17 @@ class CmsModel extends BaseModel
      */
     public function get_page_properties()
     {
-        $fields = array();
+        $res = array();
         $page_title = $this->fetch_page_field_languages($this->id_page,
             LABEL_FIELD_ID);
         foreach($page_title as $content)
         {
-            $fields[] = $this->add_property_item(
+            $res[] = $this->add_property_item(
                 LABEL_FIELD_ID,
-                intval($content['id']),
+                intval($content['id_language']),
                 MALE_GENDER_ID,
                 "title",
+                "The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header",
                 $content['locale'],
                 "text",
                 "page_field",
@@ -1305,20 +1373,50 @@ class CmsModel extends BaseModel
                 ""
             );
         }
+        $fields = $this->fetch_page_fields($this->id_page);
+        foreach($fields as $field)
+        {
+            $relation = "page_field";
+            $id = intval($field['id']);
+            if($field['display'] == '1')
+            {
+                $contents = $this->fetch_page_field_languages(
+                    $this->id_page, $id);
+            }
+            else
+                $contents = $this->fetch_page_field_independent($this->id_page,
+                    $id);
+            foreach($contents as $content)
+            {
+                $res[] = $this->add_property_item(
+                    $id,
+                    intval($content['id_language']),
+                    MALE_GENDER_ID,
+                    $field['name'],
+                    $field['help'],
+                    $content['locale'],
+                    $field['type'],
+                    "page_field",
+                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
+                    ""
+                );
+            }
+        }
         if($this->is_navigation())
         {
             // add navigation section fields
             $section_fields = $this->get_section_properties(
                     $this->page_info['id_navigation_section']);
             foreach($section_fields as $section_field)
-                $fields[] = $section_field;
+                $res[] = $section_field;
         }
         if($this->page_info['action'] === "sections")
-            $fields[] = $this->add_property_item(
+            $res[] = $this->add_property_item(
                 null,
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
                 "sections",
+                "",
                 "",
                 "style-list",
                 "page_children",
@@ -1326,11 +1424,12 @@ class CmsModel extends BaseModel
                 ""
             );
         if($this->is_navigation())
-            $fields[] = $this->add_property_item(
+            $res[] = $this->add_property_item(
                 null,
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
                 "navigation",
+                "",
                 "",
                 "style-list",
                 "page_nav",
@@ -1338,7 +1437,7 @@ class CmsModel extends BaseModel
                     $this->page_info['id_navigation_section'], false),
                 ""
             );
-        return $fields;
+        return $res;
     }
 
     /**
@@ -1426,10 +1525,11 @@ class CmsModel extends BaseModel
                     intval($content['id_language']),
                     intval($content['id_gender']),
                     $field['name'],
+                    $field['help'],
                     $content['locale'],
                     $field['type'],
                     $relation,
-                    $content['content'],
+                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
                     $content['gender']
                 );
             }
@@ -1441,6 +1541,7 @@ class CmsModel extends BaseModel
                 MALE_GENDER_ID,
                 "navigation",
                 "",
+                "",
                 "style-list",
                 "section_nav",
                 $this->fetch_navigation_items($id_section, false),
@@ -1450,15 +1551,44 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch and return all styles from the database except navigation styles.
+     * Fetch and return all style groups from the database.
      *
      * @retval array
-     *  The resulting db array.
+     *  An array of style group items where each item has the following keys:
+     *   - id:          The id of the style group.
+     *   - name:        The name of the style group.
+     *   - description: The description of the style group.
      */
-    public function get_style_list()
+    public function get_style_groups()
     {
-        $sql = "SELECT id, name FROM styles WHERE intern = 0 ORDER BY name";
+        $sql = "SELECT id, name, description FROM styleGroup
+            WHERE id <> 1 ORDER BY position";
         return $this->db->query_db($sql);
+    }
+
+    /**
+     * Fetch and return styles of a specific group from the database. If no
+     * group is id provided, all styles except internal styles are returned.
+     *
+     * @param int $id_group
+     *  The id of a style group.
+     * @retval array
+     *  The resulting db array where each item has the following keys:
+     *   - value:   The id of the style.
+     *   - text:    The name of the style.
+     */
+    public function get_style_list($id_group = null)
+    {
+        if($id_group == null)
+        {
+            $id_group = 1;
+            $rel = "<>";
+        }
+        else
+            $rel = "=";
+        $sql = "SELECT id AS value, name AS text, description FROM styles
+            WHERE id_group $rel :id ORDER BY name";
+        return $this->db->query_db($sql, array(":id" => $id_group));
     }
 
     /**

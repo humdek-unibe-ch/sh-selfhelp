@@ -15,7 +15,7 @@ class SliderView extends FormFieldView
     private $min;
 
     /**
-     * DB field 'max' (10).
+     * DB field 'max' (5).
      * The maximal value of the slider.
      */
     private $max;
@@ -38,7 +38,7 @@ class SliderView extends FormFieldView
     {
         parent::__construct($model);
         $this->min = $this->model->get_db_field("min", 0);
-        $this->max = $this->model->get_db_field("max", 10);
+        $this->max = $this->model->get_db_field("max", 5);
         $this->labels = $this->model->get_db_field("labels", array());
     }
 
@@ -50,6 +50,8 @@ class SliderView extends FormFieldView
     private function output_legend()
     {
         if(!is_array($this->labels)) return;
+        if($this->value === null)
+            $this->value = $this->default_value;
         for($idx = 0; $idx <= ($this->max - $this->min); $idx++)
         {
             $text = "unknown";
@@ -69,35 +71,5 @@ class SliderView extends FormFieldView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(
-            __DIR__ . "/slider.css",
-        );
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(
-            __DIR__ . "/slider.js",
-        );
-        return parent::get_js_includes($local);
-    }
 }
 ?>

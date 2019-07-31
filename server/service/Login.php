@@ -10,11 +10,17 @@ class Login
     private $db;
 
     /**
+     * If true the current url is stored as session attribute.
+     */
+    private $store_url;
+
+    /**
      * Start the session.
      */
-    public function __construct($db)
+    public function __construct($db, $store_url=false)
     {
         $this->db = $db;
+        $this->store_url = $store_url;
         $this->init_session();
     }
 
@@ -26,16 +32,71 @@ class Login
         session_name(PROJECT_NAME);
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
+        if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = "male";
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = "male";
         if(!isset($_SESSION['language'])) $_SESSION['language'] = LANGUAGE;
+        if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = LANGUAGE;
+        if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
+            "pid" => null,
+            "sid" => null,
+            "ssid" => null
+        );
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
+        if(!array_key_exists('target_url', $_SESSION))
+            $_SESSION['target_url'] = null;
+        if($this->store_url)
+            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
         }
+        else if($this->store_url)
+            $this->update_last_url($_SESSION['id_user'], $_SESSION['target_url']);
+    }
+
+    /**
+     * Update the last visited url of the active user.
+     *
+     * @param $id
+     *  The user id
+     * @param $url
+     *  The target url
+     */
+    private function update_last_url($id, $url)
+    {
+        $this->db->update_by_ids('users',
+            array('last_url' => $url), array('id' => $id));
+    }
+
+    /**
+     * Update the timestamp of the last login.
+     *
+     * @param int $id
+     *  The user id
+     * @retval int
+     *  The number of affected rows or false on failure.
+     */
+    private function update_timestamp($id)
+    {
+        $ui = new UserInput($this->db);
+        $val = 0;
+        $field = $ui->get_input_fields(array(
+            'page' => 'profile',
+            'id_user' => $id,
+            'form_name' => 'notification',
+            'field_name' => 'reminder',
+        ));
+        if(count($field) === 0 || $field[0]['value'] !== "")
+            $val = 1;
+        $sql = "UPDATE users SET last_login = now(), is_reminded = :field
+            WHERE id = :id";
+        return $this->db->execute_update_db($sql, array(
+            ':id' => $id,
+            ':field' => $val,
+        ));
     }
 
     /**
@@ -60,6 +121,8 @@ class Login
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
+            $_SESSION['user_gender'] = $user['gender'];
+            $this->update_timestamp($user['id']);
             return true;
         }
         else
@@ -120,29 +183,35 @@ class Login
     }
 
     /**
-     * Send activation email to new user.
+     * Get the target URL to redirec after login. This is either
+     *  1. a target url specified by a link
+     *  2. the last used url by the user
+     *  3. the home url
      *
-     * @param string $from
-     *  The source of the email address.
-     * @param string $to
-     *  The email address of the new user.
-     * @param string $subject
-     *  The subject of the email.
-     * @param string $msg
-     *  The email message.
-     * @retval bool
-     *  True on success, false otherwise.
+     * @retval string
+     *  The target URL.
      */
-    public function email_send($from, $to, $subject, $msg)
+    public function get_target_url($default_url)
     {
-        $headers = array();
-        $headers[] = "MIME-Version: 1.0";
-        $headers[] = "Content-type: text/plain; charset=utf-8";
-        $headers[] = "From: {$from}";
-        $headers[] = "Subject: {$subject}";
-        $headers[] = "X-Mailer: PHP/".phpversion();
+        // if target_url is set use it
+        if($_SESSION['target_url'] !== null)
+            return $_SESSION['target_url'];
 
-        return mail($to, $subject, $msg , implode("\r\n", $headers));
+        $url = $_SESSION['target_url'] ?? $default_url;
+
+        // if user is not logged in use target_url or fallback
+        if(!$this->is_logged_in())
+            return $url;
+
+        $sql = "SELECT last_url FROM users WHERE id = :uid";
+        $url_db = $this->db->query_db_first($sql,
+            array(':uid' => $_SESSION['id_user']));
+
+        // if last_url is set n the DB use it
+        if($url_db['last_url'] != "")
+            $url = $url_db['last_url'];
+
+        return $url;
     }
 
     /**

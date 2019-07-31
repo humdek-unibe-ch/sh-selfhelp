@@ -37,5 +37,14 @@ interface IStyleModel
      *  key does not exist.
      */
     public function get_db_field_full($key);
+
+    /**
+     * Returns the style name. This will be used to load the corresponding
+     * include files.
+     *
+     * @retval string
+     *  The style name.
+     */
+    public function get_style_name();
 }
 ?>

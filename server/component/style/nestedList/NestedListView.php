@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the nested list style component.
  */
-class NestedListView extends BaseView
+class NestedListView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -60,6 +60,11 @@ class NestedListView extends BaseView
      */
     private $items;
 
+    /**
+     * A global index counter which increases for each rendered item.
+     */
+    private $global_index = 0;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -114,7 +119,8 @@ class NestedListView extends BaseView
         {
             if($id_active == $this->get_id($item['id']))
                 return true;
-            if($this->is_child_active($item['children'], $id_active))
+            if(isset($item['children'])
+                    && $this->is_child_active($item['children'], $id_active))
                 return true;
         }
     }
@@ -135,8 +141,11 @@ class NestedListView extends BaseView
         {
             if($id_active == $this->get_id($item['id']))
                 return $item['title'];
-            $res = $this->get_child_active($item['children'], $id_active);
-            if($res) return $res;
+            if(isset($item['children']))
+            {
+                $res = $this->get_child_active($item['children'], $id_active);
+                if($res) return $res;
+            }
         }
         return null;
     }
@@ -155,7 +164,8 @@ class NestedListView extends BaseView
         if($item == null) return;
         $children = isset($item['children']) ? $item['children'] : array();
         $id = $this->get_id($item['id']);
-        $id_html = $this->id_prefix . "-" . $id . "-" . $index;
+        $id_html = $this->id_prefix . "-" . $this->global_index . "-" . $id;
+        $this->global_index++;
 
         $is_collapsible = (count($children) > 0 && $this->has_chevron);
         $collapsible = $is_collapsible ? "collapsible" : "";
@@ -185,6 +195,7 @@ class NestedListView extends BaseView
      */
     private function output_list_item_name($item, $active, $id_html)
     {
+        if(!isset($item['title'])) return;
         $margin = ($this->has_chevron) ? "ml-4" : "";
         $name = $item['title'];
         if(isset($item['url']) && $item['url'] != "")
@@ -260,32 +271,6 @@ class NestedListView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/nestedList.css");
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/nestedList.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the style view.

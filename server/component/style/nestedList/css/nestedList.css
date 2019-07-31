@@ -1,0 +1,67 @@
+.nested-list > .list-group-item-action,
+.nested-list * .list-group-item-action
+{
+    cursor: pointer;
+}
+
+.nested-list > .list-group-item,
+.nested-list * .list-group-item
+{
+    border:none;
+    margin-bottom: 1px;
+}
+
+.nested-list > .list-group-item:first-child,
+.nested-list * .list-group-item:first-child,
+.nested-list > .list-group-item:last-child,
+.nested-list * .list-group-item:last-child
+{
+    border-radius: 0;
+}
+
+button.clear-search
+{
+    margin-top:-1.5em;
+}
+
+.nested-list * a,
+.nested-list * span
+{
+    display: block;
+    padding: 0.2em 0.4em;
+}
+
+.nested-list * .chevron
+{
+    display: inline-block;
+    float: left;
+    margin-top:0.5em;
+    margin-left:0.4em;
+}
+
+.nested-list-item-name:hover
+{
+    text-decoration: none;
+}
+
+.nested-list-item-name.active
+{
+    background-color: #007bff;
+    color: white;
+}
+
+.nested-list-item-name.active:hover
+{
+    background-color: #0062cc;
+}
+
+@media (min-width:768px) {
+    .nested-list-menu-collapsible {
+        border: 0px !important;
+        padding: 0 !important;
+    }
+}
+.collapsible
+{
+    cursor: pointer;
+}

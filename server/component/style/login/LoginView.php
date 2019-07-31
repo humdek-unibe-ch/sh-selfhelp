@@ -1,11 +1,13 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the login component.
+ * The login style component renders the login form. This is not made available
+ * in the CMS and is only used internally.
  */
-class LoginView extends BaseView
+class LoginView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -46,16 +48,10 @@ class LoginView extends BaseView
     private $login_title;
 
     /**
-     * DB field 'intro_title' (empty string).
-     * The title of the introduction.
+     * DB field 'type' ('success').
+     * The style of the card and the submit button. E.g. 'warning', 'danger', etc.
      */
-    private $intro_title;
-
-    /**
-     * DB field 'intro_content' (empty string).
-     * The content of the introduction.
-     */
-    private $intro_content;
+    private $type;
 
 
     /* Constructors ***********************************************************/
@@ -77,8 +73,7 @@ class LoginView extends BaseView
         $this->login_label = $this->model->get_db_field('label_login');
         $this->reset_label = $this->model->get_db_field('label_pw_reset');
         $this->login_title = $this->model->get_db_field('login_title');
-        $this->intro_title = $this->model->get_db_field('intro_title');
-        $this->intro_content = $this->model->get_db_field('intro_text');
+        $this->type = $this->model->get_db_field("type", "dark");
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(
@@ -101,19 +96,6 @@ class LoginView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/login.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the login view.

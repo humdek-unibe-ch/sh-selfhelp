@@ -1,9 +1,10 @@
-<div class="container mt-3">
+<div class="container-fluid mt-3">
+    <?php $this->output_alert(); ?>
     <div class="jumbotron">
         <h1>Add Section</h1>
-        <p>Add a section to the <?php echo $child; ?> list of <?php echo $target; ?></p>
-        <p>Either a new section can be created or an already existing section can be chosen.</p>
-        <p><strong>Note, a sections refers to a single set of section fields. This is important when using the same section in different places as changes to section fields will affect all views of the section.</strong></p>
+        <p>Add a section to the <?php echo $child; ?> list of <?php echo $target; ?>
+        Either a new section can be created or an already existing section can be chosen.</p>
+        Note that the section name must be <strong>unique</strong>. Otherwise the operation will fail.
     </div>
     <form action="<?php echo $url; ?>" method="post">
         <input type="hidden" value="" name="add-section-link">
@@ -33,7 +34,7 @@
                         <div class="form-group">
                             <label>Style</label>
                             <select class="form-control" name="section-style" required>
-                                <option disabled selected value>-- select an option --</option>
+                                <option disabled selected value>-- select a style --</option>
                                 <?php $this->output_style_list(); ?>
                             </select>
                         </div>
@@ -42,7 +43,17 @@
                     </div>
                 </div>
             </div>
-            <div class="col-auto select-section-list">
+            <div class="col-12 col-xl-6 order-md-3 order-xl-2">
+                <div class="card mb-3">
+                <div class="card-header">
+                    Style Selection Helper
+                </div>
+                <div class="card-body">
+                    <?php $this->output_style_tabs(); ?>
+                </div>
+                </div>
+            </div>
+            <div class="col col-xl-auto order-md-2 order-xl-3 select-section-list">
                 <?php $this->output_section_search_list(); ?>
             </div>
         </div>

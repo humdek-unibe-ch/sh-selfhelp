@@ -1,5 +1,6 @@
 <?php
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
+require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
 require_once "./server/service/PageDb.php";
 require_once "./server/service/globals_untracked.php";
@@ -22,54 +23,35 @@ function exception_error_handler($severity, $message, $file, $line) {
 // only activate in debug mode
 if(DEBUG == 1) set_error_handler("exception_error_handler");
 
-$router = new Router();
-$router->setBasePath(BASE_PATH);
-$router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
-
-$db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+$services = new Services();
 
 // custom page creation functions
-function create_login_page($router, $db)
+function create_request_page($services, $class_name, $method_name)
 {
-    $page = new SectionPage($router, $db, "login");
-    $page->disable_navigation();
-    $page->output();
-}
-function create_request_page($router, $db, $request)
-{
-    $ajax = new AjaxRequest($db, $request);
+    $ajax = new AjaxRequest($services, $class_name, $method_name);
     $ajax->print_json();
 }
-function create_exportData_page($router, $db, $select)
+function create_exportData_page($services, $select, $option=null)
 {
-    $page = new ExportPage($router, $db);
-    $page->output($select);
+    $page = new ExportPage($services);
+    $page->output($select, $option);
 }
 
-// define routing paths
-$sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword FROM pages AS p
-    LEFT JOIN actions AS a ON a.id = p.id_actions
-    WHERE protocol IS NOT NULL";
-$pages = $db->query_db($sql, array());
-foreach($pages as $page)
-    $router->map( $page['protocol'], $page['url'], $page['action'],
-        $page['keyword']);
-
-// match current request url
-$router->update_route();
+$router = $services->get_router();
+$db = $services->get_db();
 
 // call closure or throw 404 status
 if($router->route)
 {
     if($router->route['target'] == "sections")
     {
-        $page = new SectionPage($router, $db, $router->route['name'],
+        $page = new SectionPage($services, $router->route['name'],
             $router->route['params']);
         $page->output();
     }
     else if($router->route['target'] == "component")
     {
-        $page = new ComponentPage($router, $db, $router->route['name'],
+        $page = new ComponentPage($services, $router->route['name'],
             $router->route['params']);
         $page->output();
     }
@@ -78,7 +60,7 @@ if($router->route)
         $function_name = "create_" . $router->route['name'] . "_page";
         if(is_callable($function_name))
             call_user_func_array($function_name,
-                array_merge(array($router, $db), $router->route['params'])
+                array_merge(array($services), $router->route['params'])
             );
         else
             throw new Exception("Cannot call custom function '$function_name'");
@@ -96,7 +78,7 @@ if($router->route)
 }
 else {
     // no route was matched
-    $page = new SectionPage($router, $db, 'missing', array());
+    $page = new SectionPage($services, 'missing', array());
     $page->output();
 }
 ?>

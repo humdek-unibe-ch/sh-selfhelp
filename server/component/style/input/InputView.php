@@ -2,8 +2,7 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the input item style component. This component renders an
- * input form field.
+ * The view class of the input item style component.
  */
 class InputView extends FormFieldView
 {
@@ -34,7 +33,7 @@ class InputView extends FormFieldView
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
-        if($this->type == "checkbox" || $this->type == "radio")
+        if($this->type == "checkbox")
         {
             $this->css_group = "form-check";
             $this->css_label = "form-check-label";
@@ -52,11 +51,24 @@ class InputView extends FormFieldView
         $css_input = "form-control";
         if($this->label == "") $css_input .= " " . $this->css;
         $checked = "";
-        if($this->type == "checkbox" || $this->type == "radio")
+        if($this->type == "checkbox")
         {
             $css_input = "form-check-input position-static float-left";
-            if($this->value != "" || isset($_POST[$this->name])) $checked = "checked";
+            if($this->is_user_input())
+            {
+                if($this->default_value == "") return;
+                if(($this->value !== null && $this->value !== "")
+                    || ($this->value === null && $this->placeholder != ""))
+                    $checked = "checked";
+            }
+            else if($this->default_value != "")
+            {
+                $checked = "checked";
+            }
+            $this->value = $this->default_value;
         }
+        else if($this->value === null)
+            $this->value = $this->default_value;
         require __DIR__ . "/tpl_input.php";
     }
 }

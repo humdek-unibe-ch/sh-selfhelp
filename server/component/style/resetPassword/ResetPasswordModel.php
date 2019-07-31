@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . "/../StyleModel.php";
+require_once __DIR__ . "/../emailFormBase/EmailFormBaseModel.php";
 /**
  * This class is used to prepare all data related to the ResetPasswordComponent
  * such that the data can easily be displayed in the view of the component.
  */
-class ResetPasswordModel extends StyleModel
+class ResetPasswordModel extends EmailFormBaseModel
 {
     /* Constructors ***********************************************************/
 
@@ -25,32 +25,13 @@ class ResetPasswordModel extends StyleModel
     /* Private Methods ********************************************************/
 
     /**
-     * Read the email content from a php file and assign it to a string.
-     *
-     * @param string $url
-     *  The activation link that will be included into the mail content.
-     * @retval string
-     *  The email content with evaluated php statements.
-     */
-    private function email_get_content($url)
-    {
-        ob_start();
-        include(EMAIL_PATH . "/resetPassword_" . $_SESSION['language'] . ".php");
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
-    }
-
-    /* Public Methods *********************************************************/
-
-    /**
      * Create a new activation token for a user and send an email with the new
      * token to the user. This will allow the user to set a new password.
      *
      * @return bool
      *  True on success, false otherwise.
      */
-    public function user_set_new_token($email)
+    private function user_set_new_token($email)
     {
         $sql = "SELECT id FROM users WHERE email = :email";
         $uid = $this->db->query_db_first($sql, array(":email" => $email));
@@ -60,15 +41,32 @@ class ResetPasswordModel extends StyleModel
             array("email" => $email));
         if(!$res) return false;
         $url = $this->get_link_url("validate", array(
-            "uid" => $uid['id'],
+            "uid" => intval($uid['id']),
             "token" => $token,
             "mode" => "reset",
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
         $subject = $_SESSION['project'] . " Password Reset";
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        return $this->login->email_send($from, $email, $subject,
-            $this->email_get_content($url));
+        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
+        $to = $this->mail->create_single_to($email);
+        $msg = str_replace('@link', $url, $this->email_user);
+        $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
+        return $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Implementation of the parent abstract method:
+     *  1. Add a new validation togen to the DB
+     *  2. Send an email to the user
+     *
+     * @param string $mail
+     *  The email address of the user.
+     */
+    public function perform_email_actions($mail)
+    {
+        return $this->user_set_new_token($mail);
     }
 }
 ?>

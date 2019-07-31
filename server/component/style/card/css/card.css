@@ -1,0 +1,124 @@
+.card-header.collapsed
+{
+    border-bottom: none;
+    border-radius: 0.25rem;
+}
+
+.card-header.collapsible
+{
+    cursor: pointer;
+}
+
+.card.card-primary > .card-header
+{
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.card.card-primary > .card-header, .card.card-primary
+{
+    border-color: #007bff;
+}
+
+.card.card-secondary > .card-header
+{
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.card.card-secondary > .card-header, .card.card-secondary
+{
+    border-color: #6c757d;
+}
+
+.card.card-success > .card-header
+{
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.card.card-success > .card-header, .card.card-success
+{
+    border-color: #28a745;
+}
+
+.card.card-danger > .card-header
+{
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.card.card-danger > .card-header, .card.card-danger
+{
+    border-color: #dc3545;
+}
+
+.card.card-warning > .card-header
+{
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.card.card-warning > .card-header, .card.card-warning
+{
+    border-color: #ffc107;
+}
+
+.card.card-info > .card-header
+{
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.card.card-info > .card-header, .card.card-info
+{
+    border-color: #17a2b8;
+}
+
+.card.card-dark > .card-header
+{
+    background-color: #d6d8d9;
+    color: #1b1e21;
+}
+
+.card.card-dark > .card-header, .card.card-dark
+{
+    border-color: #343a40;
+}
+
+a.card-edit
+{
+    color: inherit
+}
+.card.card-primary > .card-header > a.card-edit:hover
+{
+    color: #007bff;
+}
+.card.card-secondary > .card-header > a.card-edit:hover
+{
+    color: #6c757d;
+}
+.card.card-success > .card-header > a.card-edit:hover
+{
+    color: #28a745;
+}
+.card.card-danger > .card-header > a.card-edit:hover
+{
+    color: #dc3545;
+}
+.card.card-warning > .card-header > a.card-edit:hover
+{
+    color: #ffc107;
+}
+.card.card-info > .card-header > a.card-edit:hover
+{
+    color: #17a2b8;
+}
+.card.card-dark > .card-header > a.card-edit:hover
+{
+    color: #343a40;
+}
+.card.card-light > .card-header > a.card-edit:hover
+{
+    color: #6c757d;
+}

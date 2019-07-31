@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 
 /**
  * The view class of the heading style component.
+ * This style component allows to display html headings.
  */
-class HeadingView extends BaseView
+class HeadingView extends StyleView
 {
     /* Private Properties *****************************************************/
 

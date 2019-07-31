@@ -1,11 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The base view class of a navigation component.
+ * This class provides common fiunctionallity that is used by navigation styles.
  */
-abstract class NavigationView extends BaseView
+abstract class NavigationView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -27,6 +28,13 @@ abstract class NavigationView extends BaseView
      * to false the buttons are omitted.
      */
     private $has_navigation_buttons;
+
+    /**
+     * DB style field 'has_navigation_menu' (false).
+     * If set to true the navigation menu on the left is rendered. If set
+     * to false the menu is omitted.
+     */
+    private $has_navigation_menu;
 
     /**
      * DB field 'is_fluid' (true).
@@ -51,14 +59,8 @@ abstract class NavigationView extends BaseView
         $this->is_fluid = $this->model->get_db_field('is_fluid', true);
         $this->has_navigation_buttons =
             $this->model->get_db_field("has_navigation_buttons", false);
-
-        if($this->has_navigation_buttons)
-        {
-            $this->add_button_component("button_next", $this->label_next,
-                $this->model->get_next_nav_url());
-            $this->add_button_component("button_back", $this->label_back,
-                $this->model->get_previous_nav_url());
-        }
+        $this->has_navigation_menu =
+            $this->model->get_db_field("has_navigation_menu", false);
     }
 
     /* Private Methods ********************************************************/
@@ -69,47 +71,24 @@ abstract class NavigationView extends BaseView
     abstract protected function output_nav();
 
     /**
-     * Add a button component to the local component list.
-     *
-     * @param string $name
-     *  The button style type.
-     * @param string $label
-     *  The label of the button.
-     * @param string $url
-     *  The url of the button.
+     * Render the navigation buttons.
      */
-    private function add_button_component($name, $label, $url)
+    private function output_buttons()
     {
-        $this->add_local_component($name,
-            new BaseStyleComponent("button",
-                array("label" => $label, "url" => $url)));
-    }
-
-    /**
-     * Render a button component.
-     *
-     * @param string $name
-     *  The name of the local button component.
-     */
-    private function output_button($name)
-    {
-        $this->output_local_component($name);
+        if(!$this->has_navigation_buttons) return;
+        $back = new BaseStyleComponent("button", array(
+            "label" => $this->label_back,
+            "url" => $this->model->get_previous_nav_url()
+        ));
+        $next = new BaseStyleComponent("button", array(
+            "label" => $this->label_next,
+            "url" => $this->model->get_next_nav_url()
+        ));
+        $back->output_content();
+        $next->output_content();
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/navigation.css");
-        return parent::get_css_includes($local);
-    }
 
     /**
      * Render the login view.
@@ -117,9 +96,10 @@ abstract class NavigationView extends BaseView
     public function output_content()
     {
         $fluid = ($this->is_fluid) ? "-fluid" : "";
-        $button_next = "button_next";
-        $button_back = "button_back";
-        require __DIR__ . "/tpl_nav.php";
+        if($this->has_navigation_menu)
+            require __DIR__ . "/tpl_nav.php";
+        else
+            require __DIR__ . "/tpl_nav_no_menu.php";
     }
 }
 ?>

@@ -27,22 +27,6 @@ class UserInsertView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->add_local_component("alert-fail",
-            new BaseStyleComponent("alert", array(
-                "type" => "danger",
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => "Failed to create a new user.",
-                )))
-            ))
-        );
-        $this->add_local_component("select", new BaseStyleComponent("select",
-            array(
-                "name" => "user_groups[]",
-                "is_multiple" => true,
-                "items" => $this->model->get_group_options(),
-                "is_user_input" => false,
-            )
-        ));
     }
 
     /* Private Methods ********************************************************/
@@ -52,8 +36,7 @@ class UserInsertView extends BaseView
      */
     private function output_alert()
     {
-        if($this->controller->has_failed())
-            $this->output_local_component("alert-fail");
+        $this->output_controller_alerts_fail();
     }
 
     /**
@@ -61,7 +44,12 @@ class UserInsertView extends BaseView
      */
     private function output_group_selection()
     {
-        $this->output_local_component("select");
+        $select = new BaseStyleComponent("select", array(
+            "name" => "user_groups[]",
+            "is_multiple" => true,
+            "items" => $this->model->get_group_options(),
+        ));
+        $select->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -74,8 +62,10 @@ class UserInsertView extends BaseView
         if($this->controller->has_succeeded())
         {
             $user = $this->controller->get_new_email();
-            $url = $this->model->get_link_url("userSelect",
+            $url_user = $this->model->get_link_url("userSelect",
                 array("uid" => $this->controller->get_new_uid()));
+            $url_users = $this->model->get_link_url("userSelect");
+            $url_new = $this->model->get_link_url("userInsert");
             require __DIR__ . "/tpl_success.php";
         }
         else

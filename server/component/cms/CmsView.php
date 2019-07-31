@@ -103,10 +103,6 @@ class CmsView extends BaseView
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id());
 
-        $global_sections = $this->model->get_accessible_sections();
-        $this->add_list_component("global-section-list", "Choose a Section",
-            $global_sections, "global-sections", false, 0, "Search");
-
         $page_sections = $this->model->get_page_sections();
         $this->add_list_component("page-section-list", "Page Sections",
             $page_sections, "sections-page", true,
@@ -195,18 +191,21 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3",
-                "is_collapsible" => true,
+                "id" => "page-view",
                 "title" => "Page View",
+                "is_collapsible" => true,
+                "is_expanded" => ($this->model->get_active_section_id() == null),
+                "css" => "mb-3 section-view",
                 "children" => $page_components,
             ))
         );
         if($this->model->get_active_section_id() != null)
             $this->add_local_component("section-view",
                 new BaseStyleComponent("card", array(
-                    "css" => "mb-3",
+                    "css" => "mb-3 section-view",
                     "is_collapsible" => true,
                     "title" => "Section View",
+                    "id" => "section-view",
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
                         $this->model->get_active_section_id()
@@ -404,7 +403,6 @@ class CmsView extends BaseView
             "value" => "update",
             "name" => "mode",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
 
         if($render_margin)
@@ -417,7 +415,6 @@ class CmsView extends BaseView
                     "value" => $css,
                     "name" => "css",
                     "type_input" => "text",
-                    "is_user_input" => false,
                 ))),
             ));
         }
@@ -454,41 +451,35 @@ class CmsView extends BaseView
             "value" => $field['id'],
             "name" => $field_name_prefix . "[id]",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['type'],
             "name" => $field_name_prefix . "[type]",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
             "type_input" => "hidden",
-            "is_user_input" => false,
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
-                array("text", "number", "markdown-inline")))
+                array("text", "number", "markdown-inline", "time", "date")))
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
-                "is_user_input" => false,
             ));
         if($field['type'] === "checkbox")
             $children[] = new BaseStyleComponent("input", array(
                 "value" => ($field['content'] != '0') ? $field['content'] : "",
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
-                "is_user_input" => false,
             ));
-        else if(in_array($field['type'], array("textarea", "markdown", "json")))
+        else if(in_array($field['type'], array("textarea", "markdown", "json", "code", "email")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
-                "is_user_input" => false,
             ));
         else if($field['type'] == "type-input")
         {
@@ -503,7 +494,7 @@ class CmsView extends BaseView
                     array("value" => "email", "text" => "email"),
                     array("value" => "month", "text" => "month"),
                     array("value" => "number", "text" => "number"),
-                    array("value" => "radio", "text" => "radio"),
+                    array("value" => "password", "text" => "password"),
                     array("value" => "range", "text" => "range"),
                     array("value" => "search", "text" => "search"),
                     array("value" => "tel", "text" => "tel"),
@@ -512,7 +503,6 @@ class CmsView extends BaseView
                     array("value" => "url", "text" => "url"),
                     array("value" => "week", "text" => "week"),
                 ),
-                "is_user_input" => false,
             ));
         }
         else if($field['type'] == "style-bootstrap")
@@ -530,7 +520,6 @@ class CmsView extends BaseView
                     array("value" => "light", "text" => "light"),
                     array("value" => "dark", "text" => "dark"),
                 ),
-                "is_user_input" => false,
             ));
         }
         else if($field['type'] == "style-list")
@@ -539,7 +528,6 @@ class CmsView extends BaseView
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => "hidden",
-                "is_user_input" => false,
             ));
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
@@ -552,6 +540,7 @@ class CmsView extends BaseView
             "title" => $field['name'],
             "type_input" => $field['type'],
             "locale" => $field['locale'],
+            "help" => $field['help'],
             "children" => $children
         ));
     }
@@ -592,7 +581,6 @@ class CmsView extends BaseView
                 "label_add" => "Add",
                 "url_add" => $insert_target,
                 "url_delete" => $delete_target,
-                "is_user_input" => false,
             ));
         }
         else if($field['type'] === "checkbox" && $field['content'] != "")
@@ -609,6 +597,7 @@ class CmsView extends BaseView
             "title" => $field['name'],
             "locale" => $field['locale'],
             "alt" => "field is not set",
+            "help" => $field['help'],
             "children" => $children
         ));
     }
@@ -643,7 +632,6 @@ class CmsView extends BaseView
                         $this->model->get_current_url_params()),
                     "children" => array(
                         new BaseStyleComponent("select", array(
-                            "is_user_input" => false,
                             "label" => "Select CMS Content Language",
                             "value" => $_SESSION['cms_language'],
                             "name" => "cms_language",
@@ -744,6 +732,29 @@ class CmsView extends BaseView
             require __DIR__ . "/tpl_intro_cms.php";
         else
             require __DIR__ . "/tpl_cms.php";
+    }
+
+    /**
+     * Renders the page preview card.
+     */
+    private function output_page_overview()
+    {
+        $url = $this->model->get_link_url($this->page_info['keyword'],
+                array("nav" => $this->model->get_active_root_section_id()));
+        if($this->model->get_active_section_id())
+            $url .= '#section-' . $this->model->get_active_section_id();
+        $_SESSION['cms_edit_url'] = $this->model->get_current_url_params();
+        $button = new BaseStyleComponent("button", array(
+            "label" => "To the Page",
+            "css" => "d-block m-1 mb-3",
+            "url" => $url,
+            "type" => "secondary",
+        ));
+        $button->output_content();
+        $div = new BaseStyleComponent("div", array(
+            "css" => "cms-page-overview page-view"
+        ));
+        $div->output_content();
     }
 
     /**

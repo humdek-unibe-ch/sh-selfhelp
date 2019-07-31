@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the user profile component.
  */
-class ValidateView extends BaseView
+class ValidateView extends StyleView
 {
     /* Private Properties******************************************************/
 
@@ -105,19 +105,33 @@ class ValidateView extends BaseView
      */
     private $login_action_label;
 
+    /**
+     * DB field 'name' (empty string)
+     * The form name under which the custom input fields will be grouped.
+     */
+    private $custom_form_name;
+
+    /**
+     * The controller instance of the formUserInput component.
+     */
+    private $ui_controller;
+
     /* Constructors ***********************************************************/
 
     /**
      * The constructor.
      *
      * @param object $model
-     *  The model instance of the user profile component.
+     *  The model instance of the validate component.
      * @param object $controller
-     *  The controller instance of the user profile component.
+     *  The controller instance of the validate component.
+     * @param object $ui_controller
+     *  The controller instance of the formUserInput component.
      */
-    public function __construct($model, $controller)
+    public function __construct($model, $controller, $ui_controller)
     {
         parent::__construct($model, $controller);
+        $this->ui_controller = $ui_controller;
         $this->title = $this->model->get_db_field("title");
         $this->subtitle = $this->model->get_db_field("subtitle");
         $this->name_label = $this->model->get_db_field("label_name");
@@ -134,6 +148,7 @@ class ValidateView extends BaseView
         $this->alert_success = $this->model->get_db_field("alert_success");
         $this->success = $this->model->get_db_field("success");
         $this->login_action_label = $this->model->get_db_field("label_login");
+        $this->custom_form_name = $this->model->get_db_field("name");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -153,29 +168,52 @@ class ValidateView extends BaseView
     {
         if($this->controller == null || $this->controller->has_failed())
             $this->output_local_component("alert-fail");
+        if($this->ui_controller !== null && $this->ui_controller->has_failed())
+        {
+            foreach($this->ui_controller->get_error_msgs() as $msg)
+            {
+                $alert = new BaseStyleComponent("alert", array(
+                    "type" => "danger",
+                    "is_dismissable" => true,
+                    "children" => array(new BaseStyleComponent("plaintext", array(
+                        "text" => $msg,
+                    )))
+                ));
+                $alert->output_content();
+            }
+        }
+    }
+
+    /**
+     * Render to user-defined input fields.
+     */
+    private function output_custom_fields()
+    {
+        if(count($this->children) === 0) return;
+        $input = new BaseStyleComponent('input', array(
+            'type_input' => 'hidden',
+            'name' => '__form_name',
+            'value' => $this->custom_form_name,
+        ));
+        $input->output_content();
+        foreach($this->children as $child)
+        {
+            $input = $child->get_style_instance();
+            if(is_a($input, "FormFieldComponent"))
+                $input->enable_user_input();
+            $child->output_content();
+        }
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/validate.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the user view.
      */
     public function output_content()
     {
-        if($this->controller == null || !$this->controller->has_succeeded())
+        if($this->controller == null || !$this->controller->has_succeeded()
+            || $this->ui_controller->has_failed())
         {
             $gender = $this->model->get_user_gender();
             $male_checked = ($gender === "male") ? "checked" : "";
@@ -183,7 +221,9 @@ class ValidateView extends BaseView
             $name = $this->model->get_user_name();
             require __DIR__ . "/tpl_validate.php";
         }
-        if($this->controller == null || $this->controller->has_succeeded())
+        if($this->model->is_cms_page()
+            || ($this->controller !== null && $this->controller->has_succeeded()
+                && !$this->ui_controller->has_failed()))
         {
             $url = $this->model->get_link_url("login");
             require __DIR__ . "/tpl_success.php";

@@ -14,6 +14,10 @@
         <div class="card-body">
             <form action="<?php echo $action_url; ?>" method="post">
                 <div class="form-group">
+                    <label>Unique User Code</label>
+                    <input type="text" class="form-control" name="code" maxlength="16" placeholder="Enter User Code" required>
+                </div>
+                <div class="form-group">
                     <label>Email address</label>
                     <input type="email" class="form-control" name="email" placeholder="Enter email" required>
                 </div>

@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . "/../../BaseView.php";
+require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
 /**
  * The view class of the form style component. This component renders a html
  * form.
  */
-class FormView extends BaseView
+class FormView extends StyleView
 {
     /* Private Properties *****************************************************/
 
@@ -56,16 +56,9 @@ class FormView extends BaseView
         $this->url = $this->model->get_db_field("url");
         $this->type = $this->model->get_db_field("type", "primary");
         $this->label = $this->model->get_db_field("label", "Submit");
-        $url = "";
+        $this->label_cancel = $this->model->get_db_field("label_cancel",
+            "Cancel");
         $this->cancel_url = $this->model->get_db_field("url_cancel");
-        $this->add_local_component("cancel", new BaseStyleComponent(
-            "button", array(
-                "label" => $this->model->get_db_field("label_cancel", "Cancel"),
-                "type" => "secondary",
-                "url" => $this->cancel_url,
-                "css" => "float-right",
-            )
-        ));
     }
 
     /* Private Methods ********************************************************/
@@ -75,7 +68,13 @@ class FormView extends BaseView
      */
     private function output_cancel()
     {
-        $this->output_local_component("cancel");
+        $button = new BaseStyleComponent("button", array(
+            "label" => $this->label_cancel,
+            "type" => "secondary",
+            "url" => $this->cancel_url,
+            "css" => "float-right",
+        ));
+        $button->output_content();
     }
 
     /* Public Methods *********************************************************/
