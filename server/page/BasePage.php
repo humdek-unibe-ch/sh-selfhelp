@@ -133,21 +133,39 @@ abstract class BasePage
     private function collect_style_includes()
     {
         if($handle = opendir(STYLE_SERVER_PATH)) {
-            $this->css_includes[] = STYLE_PATH . '/style.css';
             while(false !== ($file = readdir($handle)))
             {
                 if(filetype(STYLE_SERVER_PATH . '/' . $file) !== "dir"
                     || $file === "." || $file === "..") continue;
-                $this->add_main_include_files(
-                    STYLE_SERVER_PATH . '/' . $file . '/css',
-                    STYLE_PATH . '/' . $file . '/css/', 'css',
-                    $this->css_includes
-                );
-                $this->add_main_include_files(
-                    STYLE_SERVER_PATH . '/' . $file . '/js',
-                    STYLE_PATH . '/' . $file . '/js/', 'js',
-                    $this->js_includes
-                );
+                if($file === "css")
+                {
+                    $this->add_main_include_files(
+                        STYLE_SERVER_PATH . '/' . $file,
+                        STYLE_PATH . '/' . $file . '/', 'css',
+                        $this->css_includes
+                    );
+                }
+                else if($file === "js")
+                {
+                    $this->add_main_include_files(
+                        STYLE_SERVER_PATH . '/' . $file,
+                        STYLE_PATH . '/' . $file . '/', 'js',
+                        $this->js_includes
+                    );
+                }
+                else
+                {
+                    $this->add_main_include_files(
+                        STYLE_SERVER_PATH . '/' . $file . '/css',
+                        STYLE_PATH . '/' . $file . '/css/', 'css',
+                        $this->css_includes
+                    );
+                    $this->add_main_include_files(
+                        STYLE_SERVER_PATH . '/' . $file . '/js',
+                        STYLE_PATH . '/' . $file . '/js/', 'js',
+                        $this->js_includes
+                    );
+                }
             }
             closedir($handle);
         }

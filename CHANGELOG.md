@@ -27,6 +27,8 @@
    which allows to provide more options on how the email is sent (html,
    subject).
  - Changed the way how services are passed along the styles and components.
+ - Create a common css and js collection for styles. These files are loaded
+   before the specific ones from a style.
 
 ### New Features
 
