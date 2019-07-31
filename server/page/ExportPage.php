@@ -172,9 +172,9 @@ class ExportPage extends BasePage
     /**
      * A wrapper for the PHP fputcsv function.
      *
-     * @param file
+     * @param file $output
      *  The file descriptor to output the csv data to
-     * @param array
+     * @param array $fields
      *  An array of fields to add to the csv file.
      */
     private function fputcsv_wrap($output, $fields)
