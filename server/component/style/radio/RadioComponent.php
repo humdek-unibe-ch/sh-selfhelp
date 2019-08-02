@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/../formField/FormFieldComponent.php";
-require_once __DIR__ . "/../formField/FormFieldModel.php";
+require_once __DIR__ . "/RadioModel.php";
 require_once __DIR__ . "/RadioView.php";
 
 /**
@@ -24,7 +24,7 @@ class RadioComponent extends FormFieldComponent
      */
     public function __construct($services, $id)
     {
-        $model = new FormFieldModel($services, $id);
+        $model = new RadioModel($services, $id);
         $view = new RadioView($model);
         parent::__construct($model, $view);
     }
