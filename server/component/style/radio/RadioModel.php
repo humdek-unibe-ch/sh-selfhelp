@@ -29,11 +29,20 @@ class RadioModel extends FormFieldModel
 
     /* Public Methods *********************************************************/
 
+    /**
+     * Use the parser from the json style model to allow style definitions in
+     * the items field.
+     *
+     * @param array $items
+     *  The json array of the parsed json string of the itmes field, returned by
+     *  the style model.
+     * @retval array
+     *  The json array with style definitions replaced by style components.
+     */
     public function json_style_parse($items)
     {
         $json = new JsonModel($this->services, 0);
         return $json->json_style_parse($items);
-
     }
 }
 ?>
