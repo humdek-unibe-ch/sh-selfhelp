@@ -93,7 +93,8 @@ class MermaidFormModel extends FormUserInputModel
             foreach($matches[0] as $match)
             {
                 if($field['value'] == "") continue;
-                $new = $name.$matches[1][0].$field['value'].$matches[3][0];
+                $val = preg_replace("/[^a-zA-Z0-9_-]+/", "", $field['value']);
+                $new = $name.$matches[1][0].$val.$matches[3][0];
                 $code = str_replace($match, $new, $code);
             }
         }
