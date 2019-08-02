@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 01, 2019 at 02:21 PM
--- Server version: 5.7.24-0ubuntu0.18.04.1
--- PHP Version: 7.2.10-0ubuntu0.18.04.1
+-- Generation Time: Aug 02, 2019 at 01:48 PM
+-- Server version: 5.7.26-0ubuntu0.18.04.1
+-- PHP Version: 7.2.19-0ubuntu0.18.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,8 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelp`
--- Version: `v1.0.1`
+-- Database: `selfhelpv110`
 --
 
 -- --------------------------------------------------------
@@ -81,6 +80,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000039, 1, 1, 0, 0),
 (0000000001, 0000000040, 1, 0, 0, 1),
 (0000000001, 0000000041, 1, 0, 1, 0),
+(0000000001, 0000000042, 1, 0, 0, 1),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -196,6 +196,25 @@ INSERT INTO `actions` (`id`, `name`) VALUES
 (0000000001, 'custom'),
 (0000000002, 'component'),
 (0000000003, 'sections');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activityType`
+--
+
+CREATE TABLE `activityType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `activityType`
+--
+
+INSERT INTO `activityType` (`id`, `name`) VALUES
+(0000000001, 'experiment'),
+(0000000002, 'export');
 
 -- --------------------------------------------------------
 
@@ -365,18 +384,29 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000090, 'label_submit', 0000000001, 1),
 (0000000091, 'condition', 0000000008, 0),
 (0000000092, 'email_activate', 0000000011, 1),
-(0000000093, 'email_reset', 0000000011, 1),
 (0000000094, 'email_reminder', 0000000011, 1),
 (0000000095, 'label_lobby', 0000000001, 1),
 (0000000096, 'label_new', 0000000001, 1),
 (0000000097, 'debug', 0000000003, 0),
-(0000000098, 'email_notification', 0000000011, 1),
 (0000000099, 'has_controls', 0000000003, 0),
 (0000000100, 'has_indicators', 0000000003, 0),
 (0000000101, 'is_striped', 0000000003, 0),
 (0000000102, 'has_label', 0000000003, 0),
 (0000000103, 'has_crossfade', 0000000003, 0),
-(0000000104, 'has_navigation_menu', 0000000003, 0);
+(0000000104, 'has_navigation_menu', 0000000003, 0),
+(0000000105, 'json', 0000000008, 1),
+(0000000106, 'description', 0000000002, 1),
+(0000000107, 'code', 0000000012, 1),
+(0000000108, 'admins', 0000000008, 0),
+(0000000109, 'email_admins', 0000000011, 1),
+(0000000110, 'email_user', 0000000011, 1),
+(0000000111, 'subject_user', 0000000001, 1),
+(0000000112, 'attachments_user', 0000000008, 1),
+(0000000113, 'do_store', 0000000003, 0),
+(0000000114, 'is_html', 0000000003, 0),
+(0000000115, 'maintenance', 0000000004, 1),
+(0000000116, 'maintenance_date', 0000000013, 0),
+(0000000117, 'maintenance_time', 0000000014, 0);
 
 -- --------------------------------------------------------
 
@@ -405,7 +435,10 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 (0000000008, 'json', 45),
 (0000000009, 'style-bootstrap', 5),
 (0000000010, 'type-input', 4),
-(0000000011, 'email', 90);
+(0000000011, 'email', 90),
+(0000000012, 'code', 42),
+(0000000013, 'date', 25),
+(0000000014, 'time', 24);
 
 -- --------------------------------------------------------
 
@@ -456,17 +489,18 @@ INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 CREATE TABLE `languages` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `locale` varchar(5) NOT NULL COMMENT '"e.g en-GB, de-CH"',
-  `language` varchar(100) NOT NULL
+  `language` varchar(100) NOT NULL,
+  `csv_separator` varchar(1) NOT NULL DEFAULT ','
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `languages`
 --
 
-INSERT INTO `languages` (`id`, `locale`, `language`) VALUES
-(0000000001, 'all', 'Independent'),
-(0000000002, 'de-CH', 'Deutsch (Schweiz)'),
-(0000000003, 'en-GB', 'English (GB)');
+INSERT INTO `languages` (`id`, `locale`, `language`, `csv_separator`) VALUES
+(0000000001, 'all', 'Independent', ','),
+(0000000002, 'de-CH', 'Deutsch (Schweiz)', ','),
+(0000000003, 'en-GB', 'English (GB)', ',');
 
 -- --------------------------------------------------------
 
@@ -515,7 +549,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000020, 'groupUpdate', '/admin/group_update/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000021, 'groupDelete', '/admin/group_delete/[i:gid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000022, 'export', '/admin/export', 'GET', 0000000002, NULL, 0000000009, 0, 40, NULL, 0000000001),
-(0000000023, 'exportData', '/admin/export/[user_input|user_activity|validation_codes:selector]', 'GET', 0000000001, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000023, 'exportData', '/admin/export/[user_input|user_activity|validation_codes:selector]/[all|used|open:option]?', 'GET', 0000000001, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000024, 'assetSelect', '/admin/asset', 'GET', 0000000002, NULL, 0000000009, 0, 15, NULL, 0000000001),
 (0000000025, 'assetInsert', '/admin/asset_insert/[css|asset:mode]', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
@@ -532,7 +566,31 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000038, 'chatAdminSelect', '/admin/chat/[i:rid]?', 'GET', 0000000002, NULL, 0000000009, 0, 35, NULL, 0000000001),
 (0000000039, 'chatAdminInsert', '/admin/chat_insert/', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000040, 'chatAdminDelete', '/admin/chat_delete/[i:rid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000041, 'chatAdminUpdate', '/admin/chat_update/[i:rid]/[add_user|rm_user:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
+(0000000041, 'chatAdminUpdate', '/admin/chat_update/[i:rid]/[add_user|rm_user:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000042, 'exportDelete', '/admin/exportDelete/[user_activity|user_input:selector]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pages_fields`
+--
+
+CREATE TABLE `pages_fields` (
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `default_value` varchar(100) DEFAULT NULL,
+  `help` longtext
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `pages_fields`
+--
+
+INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `default_value`, `help`) VALUES
+(0000000002, 0000000106, NULL, 'A short description of the research project. This field will be used as `meta:description` in the HTML header. Some services use this tag to provide the user with information on the webpage (e.g. automatic link-replacement in messaging tools on smartphones use this description.)'),
+(0000000002, 0000000115, NULL, 'This field defines the content of the alert message that is shown when a date is set in the field `maintenance_date`. Use markdown with the special keywords `@date` and `@time` which will be replaced by a human-readable form of the fields `maintenance_date` and `maintenance_time`.'),
+(0000000002, 0000000116, NULL, 'If set (together with the field `maintenance_time`), starting from the given date an alert message is shown at the top of the page displaying to content as defined in the field `maintenance`.'),
+(0000000002, 0000000117, NULL, 'If set (together with the field `maintenance_date`), starting from the given time an alert message is shown at the top of the page displaying to content as defined in the field `maintenance`.');
 
 -- --------------------------------------------------------
 
@@ -556,6 +614,8 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000001, 0000000008, 0000000003, 'Login'),
 (0000000002, 0000000008, 0000000002, 'Projekt Name'),
 (0000000002, 0000000008, 0000000003, 'Project Name'),
+(0000000002, 0000000115, 0000000002, 'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldingung.'),
+(0000000002, 0000000115, 0000000003, 'There will be a short service disruption on the @date at @time due to server maintenance. Please accept our apologies for the caused inconveniences.'),
 (0000000003, 0000000008, 0000000002, 'Profil'),
 (0000000003, 0000000008, 0000000003, 'Profile'),
 (0000000004, 0000000008, 0000000002, 'Einstellungen'),
@@ -603,16 +663,14 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000037, 0000000008, 0000000001, 'Email CMS'),
 (0000000037, 0000000092, 0000000002, 'Guten Tag\r\n\r\nUm Ihre Email Adresse zu verifizieren und Ihren @project Account zu aktivieren klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team'),
 (0000000037, 0000000092, 0000000003, 'Hello\r\n\r\nTo verify you email address and to activate your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team'),
-(0000000037, 0000000093, 0000000002, 'Guten Tag\r\n\r\nUm das Passwort von Ihrem @project Account zurück zu setzten klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team\r\n'),
-(0000000037, 0000000093, 0000000003, 'Hello\r\n\r\nTo reset password of your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team.\r\n'),
 (0000000037, 0000000094, 0000000002, 'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
 (0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
-(0000000037, 0000000098, 0000000002, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
-(0000000037, 0000000098, 0000000003, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
 (0000000038, 0000000008, 0000000001, 'Chat Rooms'),
 (0000000039, 0000000008, 0000000001, 'Create Chat Room'),
 (0000000040, 0000000008, 0000000001, 'Delete Chat Room'),
-(0000000041, 0000000008, 0000000001, 'Administrate Chat Room');
+(0000000041, 0000000008, 0000000001, 'Administrate Chat Room'),
+(0000000042, 0000000008, 0000000002, 'Userdaten Löschen'),
+(0000000042, 0000000008, 0000000003, 'Remove User Data');
 
 -- --------------------------------------------------------
 
@@ -662,7 +720,8 @@ CREATE TABLE `pageType` (
 INSERT INTO `pageType` (`id`, `name`) VALUES
 (0000000001, 'intern'),
 (0000000002, 'core'),
-(0000000003, 'experiment');
+(0000000003, 'experiment'),
+(0000000004, 'open');
 
 -- --------------------------------------------------------
 
@@ -828,6 +887,10 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000025, 0000000095, 0000000003, 0000000001, 'Lobby'),
 (0000000025, 0000000096, 0000000002, 0000000001, 'Neue Nachrichten'),
 (0000000025, 0000000096, 0000000003, 0000000001, 'New Messages'),
+(0000000025, 0000000110, 0000000002, 0000000001, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
+(0000000025, 0000000110, 0000000003, 0000000001, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
+(0000000025, 0000000111, 0000000002, 0000000001, '@project Chat Benachrichtigung'),
+(0000000025, 0000000111, 0000000003, 0000000001, '@project Chat Notification'),
 (0000000026, 0000000002, 0000000002, 0000000001, 'Passwort'),
 (0000000026, 0000000002, 0000000003, 0000000001, 'Password'),
 (0000000026, 0000000003, 0000000002, 0000000001, 'Zum Login'),
@@ -872,12 +935,18 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000028, 0000000005, 0000000003, 0000000001, 'Activation email could not be sent.'),
 (0000000028, 0000000025, 0000000002, 0000000001, '# Passwort Zurücksetzen\r\n\r\nHier können sie Ihr Passwort zurücksetzen.\r\nBitte geben sie Ihre Email Adresse ein mit welcher sie bei @project registriert sind.\r\nSie werden eine Email erhalten mit einem neuen Aktivierungslink um Ihr Passwort zurück zu setzen.'),
 (0000000028, 0000000025, 0000000003, 0000000001, '# Reset Password\r\n\r\nThis page allows you to reset your password.\r\nPlease enter the email address with which you are registered on @project.\r\nYou will receive an email with a new activation link which will allow you to reset the password.'),
+(0000000028, 0000000028, 0000000001, 0000000001, 'primary'),
 (0000000028, 0000000035, 0000000002, 0000000001, 'Die Aktivierungs Email wurde versendet. Klicken sie auf den Aktivierungslink um Ihr Passwort zurück zu setzen.'),
 (0000000028, 0000000035, 0000000003, 0000000001, 'The activation mail was sent. Click the activation link to rest your password.'),
 (0000000028, 0000000044, 0000000002, 0000000001, 'Email versendet'),
 (0000000028, 0000000044, 0000000003, 0000000001, 'Email Sent'),
 (0000000028, 0000000055, 0000000002, 0000000001, 'Bitte Email eingeben'),
 (0000000028, 0000000055, 0000000003, 0000000001, 'Please Enter Email'),
+(0000000028, 0000000110, 0000000002, 0000000001, 'Guten Tag\r\n\r\nUm das Passwort von Ihrem @project Account zurück zu setzten klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team\r\n'),
+(0000000028, 0000000110, 0000000003, 0000000001, 'Hello\r\n\r\nTo reset password of your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team.\r\n'),
+(0000000028, 0000000111, 0000000002, 0000000001, '@project Passwort zurück setzen'),
+(0000000028, 0000000111, 0000000003, 0000000001, '@project Password Reset'),
+(0000000028, 0000000114, 0000000001, 0000000001, '0'),
 (0000000030, 0000000021, 0000000001, 0000000001, '1'),
 (0000000030, 0000000022, 0000000002, 0000000001, 'Impressum'),
 (0000000030, 0000000022, 0000000003, 0000000001, 'Impressum'),
@@ -885,13 +954,13 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000031, 0000000028, 0000000001, 0000000001, 'light'),
 (0000000031, 0000000046, 0000000001, 0000000001, '0'),
 (0000000031, 0000000047, 0000000001, 0000000001, '0'),
-(0000000032, 0000000025, 0000000002, 0000000001, '![Logo University of Bern](logo/Unibe_Logo_16pt_RGB_201807.png:250x:float-left,border-0,mr-5 \"Logo University of Bern\")\r\n\r\n**Universität Bern**  \r\n**Philosophisch-humanwissenschaftliche Fakultät**\r\n\r\nFabrikstrasse 8  \r\n3012 Bern\r\n\r\nTelefon: +41 31 631 55 11\r\n\r\n**Entwicklung:** [Technologieplatform (TPF)](http://www.philhum.unibe.ch/forschung/tpf/index_ger.html)'),
-(0000000032, 0000000025, 0000000003, 0000000001, '![Logo University of Bern](logo/Unibe_Logo_16pt_RGB_201807.png:250x:float-left,border-0,mr-5 \"Logo University of Bern\")\r\n\r\n**University of Bern**  \r\n**Faculty of Human Sciences**\r\n\r\nFabrikstrasse 8  \r\n3012 Bern\r\n\r\nPhone: +41 31 631 55 11\r\n\r\n**Development:** [Technologieplatform (TPF)](http://www.philhum.unibe.ch/forschung/tpf/index_ger.html)'),
+(0000000032, 0000000025, 0000000002, 0000000001, '![Logo University of Bern](%logo/Unibe_Logo_16pt_RGB_201807.png|250x|float-left,border-0,mr-5 \"Logo University of Bern\")\r\n\r\n**Universität Bern**  \r\n**Philosophisch-humanwissenschaftliche Fakultät**\r\n\r\nFabrikstrasse 8  \r\n3012 Bern\r\n\r\nTelefon: +41 31 631 55 11\r\n\r\n**Entwicklung:** [Technologieplatform (TPF)](http://www.philhum.unibe.ch/forschung/tpf/index_ger.html)'),
+(0000000032, 0000000025, 0000000003, 0000000001, '![Logo University of Bern](%logo/Unibe_Logo_16pt_RGB_201807.png|250x|float-left,border-0,mr-5 \"Logo University of Bern\")\r\n\r\n**University of Bern**  \r\n**Faculty of Human Sciences**\r\n\r\nFabrikstrasse 8  \r\n3012 Bern\r\n\r\nPhone: +41 31 631 55 11\r\n\r\n**Development:** [Technologieplatform (TPF)](http://www.philhum.unibe.ch/forschung/tpf/index_ger.html)'),
 (0000000033, 0000000028, 0000000001, 0000000001, 'light'),
 (0000000033, 0000000046, 0000000001, 0000000001, '0'),
 (0000000033, 0000000047, 0000000001, 0000000001, '0'),
-(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)   | 1.3.10 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
-(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)  | 1.1.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.1.3 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.0/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.1/about/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0 | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1 | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)   | 1.3.10 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1 | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0 | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0   | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)          | 1.1.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.3/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.3/about/license/) |\r\n| [Datatables](https://datatables.net/)                      | 1.10.18 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](https://datatables.net/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0   | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)   | 1.3.10  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [mermaid](https://mermaidjs.github.io/)                    | 8.2.3   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [PHPMailer](https://github.com/PHPMailer/PHPMailer)        | 6.0.7   | [LGPL](https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)) | [License Details](https://github.com/PHPMailer/PHPMailer#license) |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0   | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0   | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)          | 1.1.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.3/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.3/about/license/) |\r\n| [Datatables](https://datatables.net/)                      | 1.10.18 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](https://datatables.net/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0   | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)   | 1.3.10  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [mermaid](https://mermaidjs.github.io/)                    | 8.2.3   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [PHPMailer](https://github.com/PHPMailer/PHPMailer)        | 6.0.7   | [LGPL](https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)) | [License Details](https://github.com/PHPMailer/PHPMailer#license) |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0   | [MIT](https://tldrlegal.com/license/mit-license) | |'),
 (0000000035, 0000000001, 0000000002, 0000000001, 'Email'),
 (0000000035, 0000000001, 0000000003, 0000000001, 'Email'),
 (0000000035, 0000000002, 0000000002, 0000000001, 'Validierungs-Code'),
@@ -1162,7 +1231,7 @@ CREATE TABLE `styles` (
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
   `id_group` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `description` longtext NOT NULL
+  `description` longtext
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1211,7 +1280,11 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000041, 'register', 0000000002, 0000000009, 'provides a small form to allow a user to register for the WebApp. In order to register a user must provide a valid email and activation code. Activation codes can be generated in the admin section of the WebApp. The list of available codes can be exported.'),
 (0000000042, 'conditionalContainer', 0000000002, 0000000004, 'is an **invisible** wrapper which has a condition attached. The content of the wrapper is only displayed if the condition resolves to true.'),
 (0000000043, 'audio', 0000000001, 0000000007, 'allows to load and replay an audio source on a page.'),
-(0000000044, 'carousel', 0000000001, 0000000007, 'allows to render multiple images as a slide-show.');
+(0000000044, 'carousel', 0000000001, 0000000007, 'allows to render multiple images as a slide-show.'),
+(0000000045, 'json', 0000000002, 0000000004, 'allows to describe styles with `json` Syntax'),
+(0000000046, 'userProgress', 0000000001, 0000000009, 'A progress bar to indicate the overall experiment progress of a user.'),
+(0000000047, 'mermaidForm', 0000000002, 0000000002, 'Style to create diagrams using markdown syntax. Use <a href=\"https://mermaidjs.github.io/demos.html\" target=\"_blank\">mermaid markdown</a> syntax here.'),
+(0000000048, 'emailForm', 0000000002, 0000000002, 'A form to accept an email address and automatically send two emails: An email to the address entered in the form and another email to admins, specified in the style.');
 
 -- --------------------------------------------------------
 
@@ -1222,212 +1295,241 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 CREATE TABLE `styles_fields` (
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `default_value` varchar(100) DEFAULT NULL
+  `default_value` varchar(100) DEFAULT NULL,
+  `help` longtext
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles_fields`
 --
 
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`) VALUES
-(0000000001, 0000000001, NULL),
-(0000000001, 0000000002, NULL),
-(0000000001, 0000000003, NULL),
-(0000000001, 0000000004, NULL),
-(0000000001, 0000000005, NULL),
-(0000000001, 0000000007, NULL),
-(0000000001, 0000000028, 'dark'),
-(0000000002, 0000000005, NULL),
-(0000000002, 0000000006, NULL),
-(0000000002, 0000000019, NULL),
-(0000000002, 0000000020, NULL),
-(0000000002, 0000000035, NULL),
-(0000000003, 0000000006, NULL),
-(0000000003, 0000000029, '0'),
-(0000000004, 0000000006, NULL),
-(0000000005, 0000000021, '1'),
-(0000000005, 0000000022, NULL),
-(0000000006, 0000000025, NULL),
-(0000000007, 0000000026, NULL),
-(0000000008, 0000000008, NULL),
-(0000000008, 0000000027, NULL),
-(0000000008, 0000000028, 'primary'),
-(0000000009, 0000000002, NULL),
-(0000000009, 0000000003, NULL),
-(0000000009, 0000000005, NULL),
-(0000000009, 0000000006, NULL),
-(0000000009, 0000000009, NULL),
-(0000000009, 0000000022, NULL),
-(0000000009, 0000000034, NULL),
-(0000000009, 0000000035, NULL),
-(0000000009, 0000000036, NULL),
-(0000000009, 0000000037, NULL),
-(0000000009, 0000000038, NULL),
-(0000000009, 0000000039, NULL),
-(0000000009, 0000000040, NULL),
-(0000000009, 0000000041, NULL),
-(0000000009, 0000000042, NULL),
-(0000000009, 0000000043, NULL),
-(0000000009, 0000000044, NULL),
-(0000000009, 0000000057, NULL),
-(0000000010, 0000000005, NULL),
-(0000000010, 0000000030, NULL),
-(0000000010, 0000000031, NULL),
-(0000000010, 0000000032, NULL),
-(0000000010, 0000000033, NULL),
-(0000000010, 0000000090, NULL),
-(0000000010, 0000000095, 'Lobby'),
-(0000000010, 0000000096, 'New Messages'),
-(0000000011, 0000000006, NULL),
-(0000000011, 0000000028, 'primary'),
-(0000000011, 0000000045, '0'),
-(0000000012, 0000000006, NULL),
-(0000000012, 0000000022, NULL),
-(0000000012, 0000000028, 'light'),
-(0000000012, 0000000046, '1'),
-(0000000012, 0000000047, '0'),
-(0000000012, 0000000048, NULL),
-(0000000013, 0000000006, NULL),
-(0000000013, 0000000049, NULL),
-(0000000013, 0000000050, NULL),
-(0000000014, 0000000006, NULL),
-(0000000014, 0000000008, NULL),
-(0000000014, 0000000027, NULL),
-(0000000014, 0000000028, NULL),
-(0000000014, 0000000051, NULL),
-(0000000014, 0000000052, NULL),
-(0000000015, 0000000022, NULL),
-(0000000015, 0000000029, '1'),
-(0000000015, 0000000030, NULL),
-(0000000015, 0000000053, NULL),
-(0000000016, 0000000008, NULL),
-(0000000016, 0000000054, 'text'),
-(0000000016, 0000000055, NULL),
-(0000000016, 0000000056, '0'),
-(0000000016, 0000000057, NULL),
-(0000000016, 0000000058, NULL),
-(0000000017, 0000000024, NULL),
-(0000000017, 0000000059, '0'),
-(0000000018, 0000000008, NULL),
-(0000000018, 0000000027, NULL),
-(0000000018, 0000000086, NULL),
-(0000000019, 0000000028, 'primary'),
-(0000000019, 0000000060, '0'),
-(0000000019, 0000000061, '1'),
-(0000000019, 0000000101, '1'),
-(0000000019, 0000000102, '1'),
-(0000000020, 0000000028, 'light'),
-(0000000020, 0000000050, NULL),
-(0000000020, 0000000062, NULL),
-(0000000020, 0000000063, NULL),
-(0000000020, 0000000064, NULL),
-(0000000020, 0000000065, NULL),
-(0000000021, 0000000024, NULL),
-(0000000022, 0000000008, NULL),
-(0000000022, 0000000030, NULL),
-(0000000022, 0000000056, '0'),
-(0000000022, 0000000057, NULL),
-(0000000022, 0000000058, NULL),
-(0000000022, 0000000066, NULL),
-(0000000022, 0000000067, '0'),
-(0000000023, 0000000008, NULL),
-(0000000023, 0000000057, NULL),
-(0000000023, 0000000058, NULL),
-(0000000023, 0000000068, NULL),
-(0000000023, 0000000069, '0'),
-(0000000023, 0000000070, '5'),
-(0000000024, 0000000006, NULL),
-(0000000024, 0000000008, NULL),
-(0000000024, 0000000028, 'light'),
-(0000000024, 0000000046, '0'),
-(0000000025, 0000000006, NULL),
-(0000000026, 0000000008, NULL),
-(0000000026, 0000000056, '0'),
-(0000000026, 0000000057, NULL),
-(0000000026, 0000000058, NULL),
-(0000000026, 0000000055, NULL),
-(0000000027, 0000000029, '1'),
-(0000000027, 0000000030, NULL),
-(0000000027, 0000000071, NULL),
-(0000000028, 0000000031, NULL),
-(0000000028, 0000000066, NULL),
-(0000000028, 0000000072, NULL),
-(0000000028, 0000000083, NULL),
-(0000000028, 0000000084, '0'),
-(0000000030, 0000000006, NULL),
-(0000000030, 0000000022, NULL),
-(0000000030, 0000000025, '# @title'),
-(0000000031, 0000000029, '1'),
-(0000000031, 0000000031, NULL),
-(0000000031, 0000000072, NULL),
-(0000000031, 0000000073, NULL),
-(0000000031, 0000000074, NULL),
-(0000000031, 0000000075, NULL),
-(0000000031, 0000000104, '1'),
-(0000000032, 0000000031, NULL),
-(0000000032, 0000000046, '0'),
-(0000000032, 0000000047, '1'),
-(0000000032, 0000000066, NULL),
-(0000000032, 0000000077, NULL),
-(0000000032, 0000000083, NULL),
-(0000000032, 0000000084, '0'),
-(0000000033, 0000000029, '1'),
-(0000000033, 0000000031, NULL),
-(0000000033, 0000000046, '1'),
-(0000000033, 0000000047, '0'),
-(0000000033, 0000000073, NULL),
-(0000000033, 0000000074, NULL),
-(0000000033, 0000000075, '1'),
-(0000000033, 0000000077, NULL),
-(0000000033, 0000000089, NULL),
-(0000000033, 0000000104, '1'),
-(0000000034, 0000000066, NULL),
-(0000000034, 0000000078, '0'),
-(0000000034, 0000000079, '0'),
-(0000000034, 0000000080, NULL),
-(0000000034, 0000000081, NULL),
-(0000000034, 0000000082, NULL),
-(0000000035, 0000000003, NULL),
-(0000000035, 0000000004, NULL),
-(0000000035, 0000000005, NULL),
-(0000000035, 0000000025, NULL),
-(0000000035, 0000000035, NULL),
-(0000000035, 0000000044, NULL),
-(0000000035, 0000000055, NULL),
-(0000000036, 0000000006, NULL),
-(0000000036, 0000000008, NULL),
-(0000000036, 0000000028, 'primary'),
-(0000000036, 0000000035, NULL),
-(0000000036, 0000000057, NULL),
-(0000000036, 0000000087, '0'),
-(0000000038, 0000000008, NULL),
-(0000000038, 0000000056, '0'),
-(0000000038, 0000000057, NULL),
-(0000000038, 0000000058, NULL),
-(0000000038, 0000000066, NULL),
-(0000000038, 0000000085, NULL),
-(0000000039, 0000000053, NULL),
-(0000000039, 0000000087, '0'),
-(0000000039, 0000000088, NULL),
-(0000000040, 0000000006, NULL),
-(0000000041, 0000000001, NULL),
-(0000000041, 0000000002, NULL),
-(0000000041, 0000000005, NULL),
-(0000000041, 0000000022, NULL),
-(0000000041, 0000000028, 'success'),
-(0000000041, 0000000035, NULL),
-(0000000041, 0000000044, NULL),
-(0000000041, 0000000090, NULL),
-(0000000042, 0000000006, NULL),
-(0000000042, 0000000091, NULL),
-(0000000042, 0000000097, '0'),
-(0000000043, 0000000030, NULL),
-(0000000043, 0000000071, NULL),
-(0000000044, 0000000071, NULL),
-(0000000044, 0000000083, NULL),
-(0000000044, 0000000099, '1'),
-(0000000044, 0000000100, '0'),
-(0000000044, 0000000103, '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES
+(0000000001, 0000000001, NULL, NULL),
+(0000000001, 0000000002, NULL, NULL),
+(0000000001, 0000000003, NULL, NULL),
+(0000000001, 0000000004, NULL, NULL),
+(0000000001, 0000000005, NULL, NULL),
+(0000000001, 0000000007, NULL, NULL),
+(0000000001, 0000000028, 'dark', NULL),
+(0000000002, 0000000005, NULL, NULL),
+(0000000002, 0000000006, NULL, NULL),
+(0000000002, 0000000019, NULL, NULL),
+(0000000002, 0000000020, NULL, NULL),
+(0000000002, 0000000035, NULL, NULL),
+(0000000003, 0000000006, NULL, NULL),
+(0000000003, 0000000029, '0', 'Select for a full width container, spanning the entire width of the viewport.'),
+(0000000004, 0000000006, NULL, NULL),
+(0000000005, 0000000021, '1', 'The HTML heading level (1-6)'),
+(0000000005, 0000000022, NULL, NULL),
+(0000000006, 0000000025, NULL, 'Use <a href=\"https://en.wikipedia.org/wiki/Markdown\" target=\"_blank\">markdown</a> syntax here.'),
+(0000000007, 0000000026, NULL, 'Only use <a href=\"https://en.wikipedia.org/wiki/Markdown\" target=\"_blank\">markdown</a> elements that can be displayed inline (e.g. bold, italic, etc).'),
+(0000000008, 0000000008, NULL, 'The text to appear on the button.'),
+(0000000008, 0000000027, NULL, 'Use a full URL or any special characters as defined <a href=\"https://selfhelp.psy.unibe.ch/demo/style/440\" target=\"_blank\">here</a>.'),
+(0000000008, 0000000028, 'primary', 'The <a href=\"https://getbootstrap.com/docs/4.1/components/buttons/#examples\" target=\"_blank\">bootstrap type</a> of the button.'),
+(0000000009, 0000000002, NULL, NULL),
+(0000000009, 0000000003, NULL, NULL),
+(0000000009, 0000000005, NULL, NULL),
+(0000000009, 0000000006, NULL, NULL),
+(0000000009, 0000000009, NULL, NULL),
+(0000000009, 0000000022, NULL, NULL),
+(0000000009, 0000000034, NULL, NULL),
+(0000000009, 0000000035, NULL, NULL),
+(0000000009, 0000000036, NULL, NULL),
+(0000000009, 0000000037, NULL, NULL),
+(0000000009, 0000000038, NULL, NULL),
+(0000000009, 0000000039, NULL, NULL),
+(0000000009, 0000000040, NULL, NULL),
+(0000000009, 0000000041, NULL, NULL),
+(0000000009, 0000000042, NULL, NULL),
+(0000000009, 0000000043, NULL, NULL),
+(0000000009, 0000000044, NULL, NULL),
+(0000000009, 0000000057, NULL, NULL),
+(0000000010, 0000000005, NULL, 'The alert to be shown if the message could not be sent.'),
+(0000000010, 0000000030, NULL, 'This text is displayed when an experimenter has not yet chosen a subject to chat with.'),
+(0000000010, 0000000031, NULL, 'The prefix of the chat title which serves to indicate to the user with whom he/she is talking. The chat title is composed as follows:\n- if user is an experimenter the title is composed from the field `title_prefix` and the selected subject_name\n- if user is a subject the title is composed from the fields `title_prefix` and `experimenter`.'),
+(0000000010, 0000000032, NULL, 'The postfix of the chat title which serves to indicate to the subject with whom he/she is talking. Only a subject sees this. It should be a general description of experimenters. The chat title is composed as follows:\n- if user is an experimenter the title is composed from the field `title_prefix` and the selected subject_name\n- if user is a subject the title is composed from the fields `title_prefix` and `experimenter`'),
+(0000000010, 0000000033, NULL, 'The title of on the collapsed list of subjects (only on small screens).'),
+(0000000010, 0000000090, NULL, 'The label on the button to send a message.'),
+(0000000010, 0000000095, 'Lobby', 'The name of the default chat room.'),
+(0000000010, 0000000096, 'New Messages', 'The label to be displayed in the chat window that seperates new messges from old ones.'),
+(0000000010, 0000000110, NULL, 'The notification email to be sent to receiver of the chat message. Use markdown syntax in conjunction with the field `is_html` if you want to send an email with html content. In addition to markdown, the following keyword is supported:\n- `@link` will be replaced by the link to the chat page.'),
+(0000000010, 0000000111, NULL, 'The subject of the notification email to be sent to the receiver of the chat message. Use the following keywords to create dynamic content:\n- `@project` will be replaced by the project name.'),
+(0000000010, 0000000114, '0', 'If *checked*, the email will be parsed as markdown and sent as html. The unparsed email content will be sent as plaintext alternative. If left *unchecked* the emails will only be sent as plaintext'),
+(0000000011, 0000000006, NULL, 'The child elements to be added to the alert wrapper.'),
+(0000000011, 0000000028, 'primary', 'The bootstrap color styling of the alert wrapper.'),
+(0000000011, 0000000045, '0', 'If *checked* the alert wrapper can be dismissed by clicking on a close symbol.\r\nIf *unchecked* the close symbol is not rendered.'),
+(0000000012, 0000000006, NULL, 'The child elements to be added to the card body.'),
+(0000000012, 0000000022, NULL, 'The content of the card header. If not set, the card will be rendered without a header section.'),
+(0000000012, 0000000028, 'light', 'A bootstrap-esque color styling of the card border and header.'),
+(0000000012, 0000000046, '1', 'If the field `is_collapsible` is *checked* and the field `is_expanded` is *unchecked* the card is collapsed by default and only by clicking on the header will the body be shown. This field has no effect if `is_collapsible` is left *unchecked*.'),
+(0000000012, 0000000047, '0', 'If *checked* the card body can be collapsed into the header by clicking on the header.\nIf left *unchecked* no such interaction is possible.'),
+(0000000012, 0000000048, NULL, 'The target url of the edit button. If set, an edit button will appear on right of the card header and link to the specified url. If not set no button will be shown.'),
+(0000000013, 0000000006, NULL, NULL),
+(0000000013, 0000000049, NULL, NULL),
+(0000000013, 0000000050, NULL, NULL),
+(0000000014, 0000000006, NULL, NULL),
+(0000000014, 0000000008, NULL, NULL),
+(0000000014, 0000000027, NULL, NULL),
+(0000000014, 0000000028, NULL, NULL),
+(0000000014, 0000000051, NULL, NULL),
+(0000000014, 0000000052, NULL, NULL),
+(0000000015, 0000000022, NULL, NULL),
+(0000000015, 0000000029, '1', NULL),
+(0000000015, 0000000030, NULL, NULL),
+(0000000015, 0000000053, NULL, NULL),
+(0000000016, 0000000008, NULL, NULL),
+(0000000016, 0000000054, 'text', NULL),
+(0000000016, 0000000055, NULL, NULL),
+(0000000016, 0000000056, '0', NULL),
+(0000000016, 0000000057, NULL, NULL),
+(0000000016, 0000000058, NULL, NULL),
+(0000000017, 0000000024, NULL, NULL),
+(0000000017, 0000000059, '0', NULL),
+(0000000018, 0000000008, NULL, NULL),
+(0000000018, 0000000027, NULL, NULL),
+(0000000018, 0000000086, NULL, NULL),
+(0000000019, 0000000028, 'primary', NULL),
+(0000000019, 0000000060, '0', NULL),
+(0000000019, 0000000061, '1', NULL),
+(0000000019, 0000000101, '1', NULL),
+(0000000019, 0000000102, '1', NULL),
+(0000000020, 0000000028, 'light', NULL),
+(0000000020, 0000000050, NULL, NULL),
+(0000000020, 0000000062, NULL, NULL),
+(0000000020, 0000000063, NULL, NULL),
+(0000000020, 0000000064, NULL, NULL),
+(0000000020, 0000000065, NULL, NULL),
+(0000000021, 0000000024, NULL, NULL),
+(0000000022, 0000000008, NULL, NULL),
+(0000000022, 0000000030, NULL, NULL),
+(0000000022, 0000000056, '0', NULL),
+(0000000022, 0000000057, NULL, NULL),
+(0000000022, 0000000058, NULL, NULL),
+(0000000022, 0000000066, NULL, NULL),
+(0000000022, 0000000067, '0', NULL),
+(0000000023, 0000000008, NULL, NULL),
+(0000000023, 0000000057, NULL, NULL),
+(0000000023, 0000000058, NULL, NULL),
+(0000000023, 0000000068, NULL, NULL),
+(0000000023, 0000000069, '0', NULL),
+(0000000023, 0000000070, '5', NULL),
+(0000000024, 0000000006, NULL, NULL),
+(0000000024, 0000000008, NULL, NULL),
+(0000000024, 0000000028, 'light', NULL),
+(0000000024, 0000000046, '0', NULL),
+(0000000025, 0000000006, NULL, NULL),
+(0000000026, 0000000008, NULL, NULL),
+(0000000026, 0000000055, NULL, NULL),
+(0000000026, 0000000056, '0', NULL),
+(0000000026, 0000000057, NULL, NULL),
+(0000000026, 0000000058, NULL, NULL),
+(0000000027, 0000000029, '1', NULL),
+(0000000027, 0000000030, NULL, NULL),
+(0000000027, 0000000071, NULL, NULL),
+(0000000028, 0000000031, NULL, NULL),
+(0000000028, 0000000066, NULL, NULL),
+(0000000028, 0000000072, NULL, NULL),
+(0000000028, 0000000083, NULL, NULL),
+(0000000028, 0000000084, '0', NULL),
+(0000000030, 0000000006, NULL, 'Add sections here wich will be rendered below the content defined in field `text_md`.'),
+(0000000030, 0000000022, NULL, 'All navigation sections of a navigation page can be rendered as a list style. This field specifies the name of this navigation section to be used in such a list style.'),
+(0000000030, 0000000025, '# @title', 'The content (markdown) of this field will be rendered at the top of the navigation section. Further sections added through the field `children` will be rendered below this. Note that here, the keyword `@title` can be used and will be replaced by the content of the field `title`.'),
+(0000000031, 0000000029, '1', NULL),
+(0000000031, 0000000031, NULL, NULL),
+(0000000031, 0000000072, NULL, NULL),
+(0000000031, 0000000073, NULL, NULL),
+(0000000031, 0000000074, NULL, NULL),
+(0000000031, 0000000075, NULL, NULL),
+(0000000031, 0000000104, '1', NULL),
+(0000000032, 0000000031, NULL, NULL),
+(0000000032, 0000000046, '0', NULL),
+(0000000032, 0000000047, '1', NULL),
+(0000000032, 0000000066, NULL, NULL),
+(0000000032, 0000000077, NULL, NULL),
+(0000000032, 0000000083, NULL, NULL),
+(0000000032, 0000000084, '0', NULL),
+(0000000033, 0000000029, '1', NULL),
+(0000000033, 0000000031, NULL, NULL),
+(0000000033, 0000000046, '1', NULL),
+(0000000033, 0000000047, '0', NULL),
+(0000000033, 0000000073, NULL, NULL),
+(0000000033, 0000000074, NULL, NULL),
+(0000000033, 0000000075, '1', NULL),
+(0000000033, 0000000077, NULL, NULL),
+(0000000033, 0000000089, NULL, NULL),
+(0000000033, 0000000104, '1', NULL),
+(0000000034, 0000000066, NULL, NULL),
+(0000000034, 0000000078, '0', NULL),
+(0000000034, 0000000079, '0', NULL),
+(0000000034, 0000000080, NULL, NULL),
+(0000000034, 0000000081, NULL, NULL),
+(0000000034, 0000000082, NULL, NULL),
+(0000000035, 0000000004, NULL, 'The label on the submit button.'),
+(0000000035, 0000000025, NULL, 'The description to be displayed on the page when a user wants to reset the password.'),
+(0000000035, 0000000028, NULL, 'The bootstrap color of the submit button.'),
+(0000000035, 0000000035, NULL, 'The success message to be shown when an email address was successfully stored in the database (if enabled) and the automatic emails were sent successfully.'),
+(0000000035, 0000000055, NULL, 'The placeholder in the email input field.'),
+(0000000035, 0000000110, NULL, 'The email to be sent to the the email address that was entered into the form. Use markdown syntax in conjunction with the field `is_html` if you want to send an email with html content. In addition to markdown, the following keyword is supported:\n- `@link` will be replaced by the activation link the user needs to reset the password.'),
+(0000000035, 0000000111, NULL, 'The subject of the email to be sent to the the email address that was entered into the form. Use the following keywords to create dynamic content:\n- `@project` will be replaced by the project name.'),
+(0000000035, 0000000114, '0', 'If *checked*, the email will be parsed as markdown and sent as html. The unparsed email content will be sent as plaintext alternative. If left *unchecked* the emails will only be sent as plaintext'),
+(0000000036, 0000000006, NULL, NULL),
+(0000000036, 0000000008, NULL, NULL),
+(0000000036, 0000000028, 'primary', NULL),
+(0000000036, 0000000035, NULL, NULL),
+(0000000036, 0000000057, NULL, NULL),
+(0000000036, 0000000087, '0', NULL),
+(0000000038, 0000000008, NULL, NULL),
+(0000000038, 0000000056, '0', NULL),
+(0000000038, 0000000057, NULL, NULL),
+(0000000038, 0000000058, NULL, NULL),
+(0000000038, 0000000066, NULL, NULL),
+(0000000038, 0000000085, NULL, NULL),
+(0000000039, 0000000012, NULL, 'The title of the modal form that pops up when the delete button is clicked.\n\nNote the following important point:\n- this field only has an effect if `is_log` is enabled.'),
+(0000000039, 0000000013, NULL, 'The label of the remove button of the modal form.\n\nNote the following important points:\n- this field only has an effect if `is_log` is enabled.\n- if this field is not set, the remove button is not rendered.\n- entries that are removed with this button are only marked as removed but not deleted from the DB.'),
+(0000000039, 0000000014, NULL, 'The content of the modal form that pops up when the delete button is clicked.\n\nNote the following important point:\n- this field only has an effect if `is_log` is enabled.'),
+(0000000039, 0000000053, NULL, 'The name of the source form (i.e. the field `name` of the target form style).'),
+(0000000039, 0000000087, '0', 'If *checked*, the style will render a table where each row represents all fields of the source form at the time instant of data submission.\n\nIf left *unchecked*, a table is rendered where each row represents one field of the source form.\n\nNote the following important points:\n- Check this only if the source form also has `is_log` checked.\n- The fields, `delete_title`, `label_date_time`, `label_delete`, and `delete_content` only have an effect if `is_log` is *checked*.'),
+(0000000039, 0000000088, NULL, 'The column title of the timestamp column.\n\nNote the following important point:\n- this field only has an effect if `is_log` is enabled.'),
+(0000000040, 0000000006, NULL, NULL),
+(0000000041, 0000000001, NULL, NULL),
+(0000000041, 0000000002, NULL, NULL),
+(0000000041, 0000000005, NULL, NULL),
+(0000000041, 0000000022, NULL, NULL),
+(0000000041, 0000000028, 'success', NULL),
+(0000000041, 0000000035, NULL, NULL),
+(0000000041, 0000000044, NULL, NULL),
+(0000000041, 0000000090, NULL, NULL),
+(0000000042, 0000000006, NULL, 'The children to be rendered if the condition defined by the field `condition` resolves to true.'),
+(0000000042, 0000000091, NULL, 'The field `condition` allows to specify a condition. Note that the field `condition` is of type `json` and requires\n1. valid json syntax (see https://www.json.org/)\n2. a valid condition structure (see https://github.com/jwadhams/json-logic-php/)\n\nOnly if a condition resolves to true the sections added to the field `children` will be rendered.\n\nIn order to refer to a form-field use the syntax `\"@__form_name__#__from_field_name__\"` (the quotes are necessary to make it valid json syntax) where `__form_name__` is the value of the field `name` of the style `formUserInput` and `__form_field_name__` is the value of the field `name` of any form-field style.'),
+(0000000042, 0000000097, '0', 'If *checked*, debug messages will be rendered to the screen. These might help to understand the result of a condition evaluation. **Make sure that this field is *unchecked* once the page is productive**.'),
+(0000000043, 0000000030, NULL, NULL),
+(0000000043, 0000000071, NULL, NULL),
+(0000000044, 0000000071, NULL, NULL),
+(0000000044, 0000000083, NULL, NULL),
+(0000000044, 0000000099, '1', NULL),
+(0000000044, 0000000100, '0', NULL),
+(0000000044, 0000000103, '0', NULL),
+(0000000045, 0000000105, NULL, 'The JSON string to specify the (potentially) nested base styles.\r\n\r\nThere are a few things to note:\r\n - the key `_baseStyle` must be used to indicate that the assigned object is a *style object*\r\n - the *style object* must contain the key `_name` where the value must match a style name\r\n - the *style object* must contain the key `_fields` where the value is an object holding all required fields of the style (refer to the <a href=\"https://selfhelp.psy.unibe.ch/demo/styles\" target=\"_blank\">style documentation</a> for more information)'),
+(0000000046, 0000000028, NULL, '.Use the type to change the appearance of individual progress bars'),
+(0000000046, 0000000101, NULL, 'iIf set apply a stripe via CSS gradient over the progress bar’s background color.'),
+(0000000046, 0000000102, NULL, 'If set display the progress in numbers ontop of the progress bar.'),
+(0000000047, 0000000006, NULL, 'Add only styles from type `input` for the edditable nodes. If they have input they could be eddited by the subject when they are clicked.'),
+(0000000047, 0000000008, NULL, 'Label of the form'),
+(0000000047, 0000000028, NULL, 'Type of the form'),
+(0000000047, 0000000035, NULL, 'The alert message for the succes'),
+(0000000047, 0000000057, NULL, 'Name of the form'),
+(0000000047, 0000000107, NULL, 'Use <a href=\"https://mermaidjs.github.io/demos.html\" target=\"_blank\">mermaid markdown</a> syntax here.'),
+(0000000048, 0000000008, NULL, 'The label on the submit button.'),
+(0000000048, 0000000028, NULL, 'The bootstrap color of the submit button.'),
+(0000000048, 0000000035, NULL, 'The success message to be shown when an email address was successfully stored in the database (if enabled) and the automatic emails were sent successfully.'),
+(0000000048, 0000000055, NULL, 'The placeholder in the email input field.'),
+(0000000048, 0000000108, NULL, 'A list of email addresses to be notified on submit with an email as defined in field `email_admins`. Use `json` syntax to specify the list of admins (e.g. `[\"__admin_1__\", ..., \"__admin_n__\"]`) where `__admin_*__` is the email address of an admin.'),
+(0000000048, 0000000109, NULL, 'The email to be sent to the the list of admins defined in the field `admins`. Use markdown syntax in conjunction with the field `is_html` if you want to send an email with html content. In addition to markdown, the following keyword is supported:\n- `@email` will be replaced by the email address entered in the form.'),
+(0000000048, 0000000110, NULL, 'The email to be sent to the the email address that was entered into the form. Use markdown syntax in conjunction with the field `is_html` if you want to send an email with html content.\n'),
+(0000000048, 0000000111, NULL, 'The subject of the email to be sent to the the email address that was entered into the form. Use the following keywords to create dynamic content:\n- `@project` will be replaced by the project name.'),
+(0000000048, 0000000112, NULL, 'The list of attachments to the email to be sent to the the address that was entered into the form. Use `json` syntax to specify a list of assets (e.g. `[\"__asset_1__\", ..., \"__asset_n__\"]`) where `__asset_*__` is the name of an uploaded asset.'),
+(0000000048, 0000000113, '0', 'If checked, the entered email address will be stored in the database.'),
+(0000000048, 0000000114, '0', 'If *checked*, the email will be parsed as markdown and sent as html. The unparsed email content will be sent as plaintext alternative. If left *unchecked* the emails will only be sent as plaintext');
 
 -- --------------------------------------------------------
 
@@ -1462,20 +1564,43 @@ CREATE TABLE `users` (
   `password` varchar(255) DEFAULT NULL,
   `id_genders` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `blocked` tinyint(1) NOT NULL DEFAULT '0',
+  `id_status` int(10) UNSIGNED ZEROFILL DEFAULT '0000000001',
   `intern` tinyint(1) NOT NULL DEFAULT '0',
   `token` varchar(32) DEFAULT NULL,
   `id_languages` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `is_reminded` tinyint(1) NOT NULL DEFAULT '1',
-  `last_login` date DEFAULT NULL
+  `last_login` date DEFAULT NULL,
+  `last_url` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`) VALUES
-(0000000001, 'guest', '', NULL, NULL, 0, 1, NULL, NULL, 0, NULL),
-(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0, NULL, NULL, 0, '2019-01-31');
+INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `id_status`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`, `last_url`) VALUES
+(0000000001, 'guest', '', NULL, NULL, 0, NULL, 1, NULL, NULL, 0, NULL, NULL),
+(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `userStatus`
+--
+
+CREATE TABLE `userStatus` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(500) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `userStatus`
+--
+
+INSERT INTO `userStatus` (`id`, `name`, `description`) VALUES
+(0000000001, 'interested', 'This user has shown interest in the platform but has not yet met the preconditions to be invited.'),
+(0000000002, 'invited', 'This user was invited to join the platform but has not yet validated the email address.'),
+(0000000003, 'active', 'This user can log in and visit all accessible pages.');
 
 -- --------------------------------------------------------
 
@@ -1505,15 +1630,9 @@ CREATE TABLE `user_activity` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `url` varchar(200) NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `user_activity`
---
-
-INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`) VALUES
-(0000000001, 0000000002, '/sleep_coach/admin/export/user_input', '2019-01-31 16:47:00');
 
 -- --------------------------------------------------------
 
@@ -1527,7 +1646,8 @@ CREATE TABLE `user_input` (
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_section_form` int(10) UNSIGNED ZEROFILL NOT NULL,
   `value` longtext NOT NULL,
-  `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `removed` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1539,7 +1659,8 @@ CREATE TABLE `user_input` (
 CREATE TABLE `validation_codes` (
   `code` varchar(16) NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `timestamp` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `consumed` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1566,6 +1687,12 @@ ALTER TABLE `acl_users`
 -- Indexes for table `actions`
 --
 ALTER TABLE `actions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `activityType`
+--
+ALTER TABLE `activityType`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1642,6 +1769,14 @@ ALTER TABLE `pages`
   ADD KEY `id_actions` (`id_actions`),
   ADD KEY `id_navigation_section` (`id_navigation_section`),
   ADD KEY `id_type` (`id_type`);
+
+--
+-- Indexes for table `pages_fields`
+--
+ALTER TABLE `pages_fields`
+  ADD PRIMARY KEY (`id_pages`,`id_fields`),
+  ADD KEY `id_pages` (`id_pages`),
+  ADD KEY `id_fields` (`id_fields`);
 
 --
 -- Indexes for table `pages_fields_translation`
@@ -1737,7 +1872,14 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD KEY `id_genders` (`id_genders`),
-  ADD KEY `id_languages` (`id_languages`);
+  ADD KEY `id_languages` (`id_languages`),
+  ADD KEY `id_status` (`id_status`);
+
+--
+-- Indexes for table `userStatus`
+--
+ALTER TABLE `userStatus`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `users_groups`
@@ -1752,7 +1894,8 @@ ALTER TABLE `users_groups`
 --
 ALTER TABLE `user_activity`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_users` (`id_users`);
+  ADD KEY `id_users` (`id_users`),
+  ADD KEY `id_type` (`id_type`);
 
 --
 -- Indexes for table `user_input`
@@ -1780,6 +1923,11 @@ ALTER TABLE `validation_codes`
 ALTER TABLE `actions`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
+-- AUTO_INCREMENT for table `activityType`
+--
+ALTER TABLE `activityType`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
 -- AUTO_INCREMENT for table `chat`
 --
 ALTER TABLE `chat`
@@ -1798,12 +1946,12 @@ ALTER TABLE `chatRoom_users`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=118;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
 ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT for table `genders`
 --
@@ -1823,12 +1971,12 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 --
 -- AUTO_INCREMENT for table `pageType`
 --
 ALTER TABLE `pageType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `sections`
 --
@@ -1843,7 +1991,7 @@ ALTER TABLE `styleGroup`
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 --
 -- AUTO_INCREMENT for table `styleType`
 --
@@ -1855,10 +2003,15 @@ ALTER TABLE `styleType`
 ALTER TABLE `users`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
+-- AUTO_INCREMENT for table `userStatus`
+--
+ALTER TABLE `userStatus`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
 -- AUTO_INCREMENT for table `user_activity`
 --
 ALTER TABLE `user_activity`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `user_input`
 --
@@ -1919,6 +2072,13 @@ ALTER TABLE `pages`
   ADD CONSTRAINT `pages_fk_id_navigation_section` FOREIGN KEY (`id_navigation_section`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `pages_fields`
+--
+ALTER TABLE `pages_fields`
+  ADD CONSTRAINT `fk_page_fields_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_page_fields_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pages_fields_translation`
@@ -1985,7 +2145,8 @@ ALTER TABLE `styles_fields`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `fk_users_id_genders` FOREIGN KEY (`id_genders`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_users_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_users_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_users_id_status` FOREIGN KEY (`id_status`) REFERENCES `userStatus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users_groups`
@@ -1998,6 +2159,7 @@ ALTER TABLE `users_groups`
 -- Constraints for table `user_activity`
 --
 ALTER TABLE `user_activity`
+  ADD CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_user_activity_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
