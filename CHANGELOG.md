@@ -1,4 +1,4 @@
-# v1.1.0 (pending)
+# v1.1.0 (latest)
 
 ### Bugfix
 
@@ -63,7 +63,7 @@
 
 
 ------------
-# v1.0.4 (latest)
+# v1.0.4
 
 ### Bugfix
 
