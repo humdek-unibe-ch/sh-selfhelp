@@ -35,7 +35,8 @@ class RadioView extends FormFieldView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->items = $this->model->get_db_field("items", array());
+        $items = $this->model->get_db_field("items", array());
+        $this->items = $this->model->json_style_parse($items);
         $this->is_inline = $this->model->get_db_field("is_inline", true);
     }
 

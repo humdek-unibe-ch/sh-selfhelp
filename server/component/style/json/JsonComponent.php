@@ -1,13 +1,13 @@
 <?php
-require_once __DIR__ . "/../formField/FormFieldComponent.php";
-require_once __DIR__ . "/RadioModel.php";
-require_once __DIR__ . "/RadioView.php";
+require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/JsonModel.php";
+require_once __DIR__ . "/JsonView.php";
 
 /**
- * A component class for the radio style component.
- * This component renders multiple radio form fields.
+ * A component class for the json style component.
+ * This component allows to describe nested styles as a json string.
  */
-class RadioComponent extends FormFieldComponent
+class JsonComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -24,8 +24,8 @@ class RadioComponent extends FormFieldComponent
      */
     public function __construct($services, $id)
     {
-        $model = new RadioModel($services, $id);
-        $view = new RadioView($model);
+        $model = new JsonModel($services, $id);
+        $view = new JsonView($model);
         parent::__construct($model, $view);
     }
 }
