@@ -247,10 +247,10 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`) VALUES (@id_style
 SET @email_2 = (SELECT content FROM `pages_fields_translation` WHERE `id_pages` IN (SELECT id FROM pages WHERE keyword = 'email') AND id_fields IN (SELECT id FROM fields WHERE `name` = 'email_notification') AND id_languages = 2);
 SET @email_3 = (SELECT content FROM `pages_fields_translation` WHERE `id_pages` IN (SELECT id FROM pages WHERE keyword = 'email') AND id_fields IN (SELECT id FROM fields WHERE `name` = 'email_notification') AND id_languages = 3);
 SET @id_section_chat = (SELECT id FROM `sections` WHERE `name` = 'contact-chat');
-INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_email_user, 2, 1, @email_2);
-INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_email_user, 3, 1, @email_3);
-INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_subject_user, 2, 1, '@project Chat Benachrichtigung');
-INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_subject_user, 3, 1, '@project Chat Notification');
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_email_user, 2, 1, @email_2);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_email_user, 3, 1, @email_3);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_subject_user, 2, 1, '@project Chat Benachrichtigung');
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES (@id_section_chat, @id_field_subject_user, 3, 1, '@project Chat Notification');
 -- update field help messages
 UPDATE `styles_fields` SET `help` = 'The alert to be shown if the message could not be sent.' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'alert_fail');
 UPDATE `styles_fields` SET `help` = 'This text is displayed when an experimenter has not yet chosen a subject to chat with.' WHERE `id_styles` = @id_style_chat AND `id_fields` IN (SELECT `id` FROM `fields` WHERE `name` = 'alt');
