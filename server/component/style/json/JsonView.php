@@ -37,7 +37,7 @@ class JsonView extends StyleView
      */
     public function output_content()
     {
-        echo $this->json;
+        echo $this->model->json_style_parse($this->json);
     }
 }
 ?>

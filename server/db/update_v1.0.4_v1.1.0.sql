@@ -4,7 +4,7 @@ ALTER TABLE `styles_fields` ADD `help` LONGTEXT NULL DEFAULT NULL AFTER `default
 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'json', '0000000008', '1');
 SET @id_field_json = LAST_INSERT_ID();
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'json', '0000000001', '0000000004', 'allows to describe styles with `json` Syntax');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'json', '0000000002', '0000000004', 'allows to describe styles with `json` Syntax');
 SET @id_style_json = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style_json, @id_field_json, NULL, 'The JSON string to specify the (potentially) nested base styles.');
 
