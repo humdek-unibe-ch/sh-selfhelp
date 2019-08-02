@@ -1,8 +1,4 @@
-# v1.1.1 (latest)
-
- - Fix a bug with the page preview when the root has multiple children.
-
-# v1.1.0
+# v1.1.2
 
 ### Bugfix
 
