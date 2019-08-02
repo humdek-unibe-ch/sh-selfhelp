@@ -122,8 +122,9 @@ class ParsedownExtension extends Parsedown
             $link['element']['attributes']['href'] =
                 substr($link['element']['attributes']['href'], 1);
         }
-        $link['element']['attributes']['href'] =
-            $this->router->get_url($link['element']['attributes']['href']);
+        if($link !== null)
+            $link['element']['attributes']['href'] =
+                $this->router->get_url($link['element']['attributes']['href']);
 
         return $link;
     }
