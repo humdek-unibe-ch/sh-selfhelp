@@ -9,6 +9,7 @@
  - Fix a bug in the style `mermaidForm` where always the last label was shown as
    modal title instead of the label of the node that was clicked.
 
+
 ------------
 # v1.1.2
 
