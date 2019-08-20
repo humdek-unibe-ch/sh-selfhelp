@@ -18,19 +18,9 @@ abstract class BasePage
     private $css_includes;
 
     /**
-     * An array of css include paths with custom browser selection tags.
-     */
-    private $css_includes_tagged;
-
-    /**
      * An array of js include paths.
      */
     private $js_includes;
-
-    /**
-     * An array of js include paths with custom browser selection tags.
-     */
-    private $js_includes_tagged;
 
     /**
      * An array of components assigned to this page.
@@ -107,26 +97,11 @@ abstract class BasePage
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
         );
-        $this->css_includes_tagged = array(
-            array(
-                'path' => "/server/component/style/mermaidForm/css_no_ie/mermaidForm.css",
-                'condition' => "!IE"
-            ),
-        );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
-        );
-        $this->js_includes_tagged = array(
-            array(
-                'path' => "/server/component/style/mermaidForm/js_no_ie/mermaid.min.js",
-                'condition' => "!IE"
-            ),
-            array(
-                'path' => "/server/component/style/mermaidForm/js_no_ie/initMermaid.js",
-                'condition' => "!IE"
-            ),
+            "/js/ext/mermaid.min.js",
         );
         if(DEBUG == 0)
         {
@@ -280,14 +255,6 @@ abstract class BasePage
             $include_path = $router->get_asset_path($css_include);
             require __DIR__ . '/tpl_css_include.php';
         }
-        foreach($this->css_includes_tagged as $css_include)
-        {
-            $router = $this->services->get_router();
-            $include_path = $router->get_asset_path($css_include['path']);
-            echo "<!--[if " . $css_include['condition'] . "]> -->";
-            require __DIR__ . '/tpl_css_include.php';
-            echo "<!--<![endif]-->";
-        }
     }
 
     /**
@@ -302,14 +269,6 @@ abstract class BasePage
             $router = $this->services->get_router();
             $include_path = $router->get_asset_path($js_include);
             require __DIR__ . '/tpl_js_include.php';
-        }
-        foreach($this->js_includes_tagged as $js_include)
-        {
-            $router = $this->services->get_router();
-            $include_path = $router->get_asset_path($js_include['path']);
-            echo "<!--[if " . $js_include['condition'] . "]> -->";
-            require __DIR__ . '/tpl_js_include.php';
-            echo "<!--<![endif]-->";
         }
     }
 
