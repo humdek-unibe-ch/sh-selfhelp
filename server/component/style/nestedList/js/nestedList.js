@@ -34,7 +34,7 @@ $(document).ready(function() {
                 $collapsible.addClass("show");
             });
         }
-        $chevron = $(this).children('.fas:first');
+        var $chevron = $(this).children('.fas:first');
         if($chevron.hasClass('fa-chevron-right'))
             $chevron
                 .removeClass('fa-chevron-right')
