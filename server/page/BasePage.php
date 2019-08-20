@@ -101,6 +101,7 @@ abstract class BasePage
             "/js/ext/jquery.min.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
+            "/js/ext/mermaid.min.js",
         );
         if(DEBUG == 0)
         {

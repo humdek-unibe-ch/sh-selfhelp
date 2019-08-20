@@ -1,8 +1,8 @@
 $(document).ready(function() {
-    $('#user-activity').DataTable({
+    var table = $('#user-activity').DataTable({
         "order": [[1, "asc"]]
     });
-    $('tr[id|="user-url"]').click(function(e) {
+    table.on('click', 'tr[id|="user-url"]', function(e) {
         var ids = $(this).attr('id').split('-');
         document.location = ids[2];
     });

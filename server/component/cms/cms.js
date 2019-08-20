@@ -29,8 +29,10 @@ $(document).ready(function() {
         $('[data-toggle="popover"]').popover({html:true});
     });
     var $root = $('<div/>');
-    traverse_page_view($root, $('#section-page-view').find('[class*="style-section"]').first());
-    $('.cms-page-overview').html($root);
+    $('#section-page-view>.card-body').children('[class*="style-section"]').each(function() {
+        traverse_page_view($root, $(this));
+        $('.cms-page-overview').append($root);
+    })
 });
 
 function traverse_page_view($root, $parent)

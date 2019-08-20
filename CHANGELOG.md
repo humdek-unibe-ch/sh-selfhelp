@@ -1,4 +1,16 @@
-# v1.1.0 (latest)
+# v1.1.3
+
+### Bugfix
+
+ - Separate mermaid js file from the minified style js file to avoid breaking
+   scripts on IE (#179).
+ - Make users clickable on all pages of the user table (#178).
+ - Fix a problem with the minified js file of the style `nestedList` (#176).
+ - Fix a bug in the style `mermaidForm` where always the last label was shown as
+   modal title instead of the label of the node that was clicked.
+
+------------
+# v1.1.2
 
 ### Bugfix
 

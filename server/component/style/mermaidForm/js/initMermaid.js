@@ -45,9 +45,11 @@ function addPointerClassAndClickEvent(formName, j_editableFields){
     var editableFields = parseEditableFields(j_editableFields);
     for (var name in editableFields){
         $('#' + formName + '_' + name).addClass('pointer');
-        $('#' + formName + '_' + name).click(function() {
-            onClickToEdit($(this).attr('id'), formName, editableFields[name]);
-        });
+        $('#' + formName + '_' + name).click((function(_name) {
+            return function() {
+                onClickToEdit($(this).attr('id'), formName, editableFields[_name]);
+            }
+        })(name));
     }
 }
 
