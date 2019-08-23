@@ -37,7 +37,7 @@ class AssetDeleteView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->mode = $mode;
-        $this->file_name = $name;
+        $this->file_name = urldecode($name);
     }
 
     /* Private Methods ********************************************************/
