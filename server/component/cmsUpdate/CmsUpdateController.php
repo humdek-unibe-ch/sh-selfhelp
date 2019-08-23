@@ -103,6 +103,7 @@ class CmsUpdateController extends BaseController
                 "info",
                 "light",
                 "dark",
+                "none",
             ));
         if($type === "type-input")
             return in_array($value, array(
