@@ -1,3 +1,18 @@
+# v1.1.4
+
+### Bugfix
+
+ - Improve asset deletion handling and fixing a bug where filenames with umlaut
+   could not be deleted (#180).
+
+### Changes
+
+ - Add an option `none` for all bootstrap style selections. This allows for
+   more bootstrap classes which would be used instead of the default styles
+   (#181).
+
+
+------------
 # v1.1.3
 
 ### Bugfix
