@@ -1,3 +1,20 @@
+# v1.1.5
+
+### Bugfix
+
+ - Several fixes with the style `mermaidForm`:
+   - Support all types of input styles as child elements (#185)
+   - Allow all kind of characters as node content. One exception: `"` is
+     automatically replaced with `'` (#182).
+   - Fix a bug where multiple input fields used the same title (#183).
+
+### New Features
+
+ - The style `mermaidForm` uses the label of a child input field as a title of
+   a mermaid node (#184).
+
+
+------------
 # v1.1.4
 
 ### Bugfix
