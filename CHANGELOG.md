@@ -1,3 +1,35 @@
+# v1.1.5
+
+### Bugfix
+
+ - Several fixes with the style `mermaidForm`:
+   - Support all types of input styles as child elements (#185)
+   - Allow all kind of characters as node content. One exception: `"` is
+     automatically replaced with `'` (#182).
+   - Fix a bug where multiple input fields used the same title (#183).
+
+### New Features
+
+ - The style `mermaidForm` uses the label of a child input field as a title of
+   a mermaid node (#184).
+
+
+------------
+# v1.1.4
+
+### Bugfix
+
+ - Improve asset deletion handling and fixing a bug where filenames with umlaut
+   could not be deleted (#180).
+
+### Changes
+
+ - Add an option `none` for all bootstrap style selections. This allows for
+   more bootstrap classes which would be used instead of the default styles
+   (#181).
+
+
+------------
 # v1.1.3
 
 ### Bugfix
@@ -8,6 +40,7 @@
  - Fix a problem with the minified js file of the style `nestedList` (#176).
  - Fix a bug in the style `mermaidForm` where always the last label was shown as
    modal title instead of the label of the node that was clicked.
+
 
 ------------
 # v1.1.2

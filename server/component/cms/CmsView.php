@@ -519,6 +519,7 @@ class CmsView extends BaseView
                     array("value" => "info", "text" => "info"),
                     array("value" => "light", "text" => "light"),
                     array("value" => "dark", "text" => "dark"),
+                    array("value" => "none", "text" => "none"),
                 ),
             ));
         }
