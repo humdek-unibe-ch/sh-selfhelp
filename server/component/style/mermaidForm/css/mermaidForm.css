@@ -14,11 +14,27 @@
     display: none;
 }
 
+.mermaidFormHiddenFields div textarea {
+    display: none;
+}
+
+.mermaidFormHiddenFields div select {
+    display: none;
+}
+
 .mermaidFormHiddenFields label {
     display: none;
 }
 
 .mermaidFormHiddenFields input {
+    display: none;
+}
+
+.mermaidFormHiddenFields textarea {
+    display: none;
+}
+
+.mermaidFormHiddenFields select {
     display: none;
 }
 
