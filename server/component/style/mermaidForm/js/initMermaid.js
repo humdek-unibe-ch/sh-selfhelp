@@ -63,7 +63,6 @@ function onClickToEdit(id, formName, editableField) {
             $(this).addClass('mb-3');
          }
          //add visble class to the field that the user wants to edit
-         console.log(this);
          $(this).addClass('mermaidFieldVisible');
       }
       else
