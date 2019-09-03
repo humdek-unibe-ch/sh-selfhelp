@@ -1,3 +1,11 @@
+# v1.1.6
+
+### New Features
+
+ - Allow to customize navigation buttons (#186).
+
+
+------------
 # v1.1.5
 
 ### Bugfix

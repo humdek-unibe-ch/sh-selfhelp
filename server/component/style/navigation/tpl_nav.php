@@ -1,4 +1,4 @@
-<div class="container<?php echo $fluid; ?> my-3">
+<div class="container<?php echo $fluid; ?> my-3 <?php echo $this->css; ?>">
     <div class="row">
         <div class="col-md-auto nav-col nav-md-col mb-2">
             <?php $this->output_nav(); ?>
