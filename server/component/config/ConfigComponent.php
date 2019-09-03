@@ -49,7 +49,7 @@ class ConfigComponent extends BaseComponent
     {
         $path = $_SERVER['DOCUMENT_ROOT'] . "/doc/server/" . $this->target . ".md";
         if(file_exists($path))
-            echo $this->services['parsedown']->text(file_get_contents($path));
+            echo $this->services->get_parsedown()->text(file_get_contents($path));
     }
 
     /* Public Methods *********************************************************/
@@ -60,8 +60,8 @@ class ConfigComponent extends BaseComponent
      */
     public function output_content()
     {
-	$url = $this->services['router']->generate("configs");
-	require __DIR__ . "/tpl_config.php";
+        $url = $this->services->get_router()->generate("configs");
+        require __DIR__ . "/tpl_config.php";
     }
 }
 ?>
