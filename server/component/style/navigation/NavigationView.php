@@ -77,10 +77,12 @@ abstract class NavigationView extends StyleView
     {
         if(!$this->has_navigation_buttons) return;
         $back = new BaseStyleComponent("button", array(
+            "css" => "nav-back",
             "label" => $this->label_back,
             "url" => $this->model->get_previous_nav_url()
         ));
         $next = new BaseStyleComponent("button", array(
+            "css" => "nav-next",
             "label" => $this->label_next,
             "url" => $this->model->get_next_nav_url()
         ));
