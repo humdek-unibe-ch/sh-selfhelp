@@ -10,17 +10,28 @@ class Login
     private $db;
 
     /**
-     * If true the current url is stored as session attribute.
+     * If true the current url is stored as last url in the db.
      */
     private $store_url;
 
     /**
-     * Start the session.
+     * If true the user is redirected to the current url after login.
      */
-    public function __construct($db, $store_url=false)
+    private $redirect;
+
+    /**
+     * Start the session.
+     *
+     * @param bool $store_url
+     *  If true the current url is stored as last url in the db.
+     * @param bool $redirect
+     *  If true the user is redirected to the current url after login.
+     */
+    public function __construct($db, $store_url=false, $redirect=false)
     {
         $this->db = $db;
         $this->store_url = $store_url;
+        $this->redirect = $redirect;
         $this->init_session();
     }
 
@@ -46,15 +57,20 @@ class Login
         $_SESSION['project'] = $this->db->get_link_title("home");
         if(!array_key_exists('target_url', $_SESSION))
             $_SESSION['target_url'] = null;
-        if($this->store_url)
+        if($this->redirect)
             $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
         }
-        else if($this->store_url)
-            $this->update_last_url($_SESSION['id_user'], $_SESSION['target_url']);
+        else
+        {
+            if($this->store_url)
+                $this->update_last_url($_SESSION['id_user'], $_SESSION['target_url']);
+            else if($this->redirect)
+                $this->update_last_url($_SESSION['id_user'], null);
+        }
     }
 
     /**
