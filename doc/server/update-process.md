@@ -19,7 +19,17 @@ git pull
 
 **Make sure that all merge conflicts are resolved.**
 
-### 2. Update the file `CHANGELOG.md`
+### 2. Produce the new Documentation
+
+Increment the version number in the file `.doxygen` by changing the value of key `PROJECT_NUMBER` to the new version and produce the new doxygen documentation with
+```
+doxygen .doxygen
+```
+
+Fix all warnings that are produced and recreated the document until no warnings appear.
+Commit the file changes with an appropriate commit message.
+
+### 3. Update the file `CHANGELOG.md`
 
 Document all the incremental changes with respect to the last version.
 Use GitLab syntax to link to issues (issue number prefixed with `#`) and merge requests (merge request number prefixed with `!`).
@@ -28,7 +38,7 @@ Separate the changes into the categories **Bugfixe**, **Changes**, and **New Fea
 
 Add move the suffix `(latest)` to the latest version heading.
 
-### 3. Generate the Minified Styles JS and CSS Files
+### 4. Generate the Minified Styles JS and CSS Files
 
 In order to limit the number of requests, all `*.js` and `*.css` files from styles are combined into a minified file.
 This can be done by following commands
@@ -38,7 +48,7 @@ cd gulp
 gulp
 ```
 
-### 4. Merge the DB Update Script with the Initial DB File
+### 5. Merge the DB Update Script with the Initial DB File
 
 If no DB update script was necessary for this release, skip this step.
 
@@ -50,20 +60,7 @@ To do this perform the following steps:
  4. Export the updated content of the database and save it as `server/db/selfhelp_initial.sql`
  5. (If required) adapt the file `server/db/privileges_default.sql`
 
-### 5. Change the Version number in the Doxygen Configuration
-
-Increment the version number in the file `.doxygen` by changing the value of key `PROJECT_NUMBER` to the new version.
-
-### 6. Produce the new Documentation
-
-To produce the new doxygen documentation type
-```
-doxygen .doxygen
-```
-
-Fix all warnings that are produced and recreated the document until no warnings appear.
-
-### 7. Add and Commit the Changed Files
+### 6. Add and Commit the Changed Files
 
 Add the changed files to git
 ```
@@ -72,7 +69,7 @@ git ct -m "new version __new_version__"
 git push
 ```
 
-### 8. Create a new Tag
+### 7. Create a new Tag
 
 To create and push a new tag
 
@@ -81,7 +78,7 @@ git tag __new_version__
 git push --tags
 ```
 
-### 9. Deploy the Source Code
+### 8. Deploy the Source Code
 
 In order to deploy the new version, `ssh` to the SelfHelp server where the project to update is hosted and perform the following operations:
 
@@ -91,14 +88,14 @@ cd
 ./check_versions.sh
 ```
 
-Note the current version of `__experiment_name` (this is important for applying the DB update scripts in step 10).
+Note the current version of `__experiment_name` (this is important for applying the DB update scripts in step 9).
 
 ```
 cd __experiment_name__
 git checkout __new_version__
 ```
 
-### 10. Deploy the DB Update
+### 9. Deploy the DB Update
 
 If no DB update script was necessary for this release, skip this step.
 
