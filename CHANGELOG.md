@@ -1,4 +1,8 @@
-# v1.1.6 (in progress)
+# v1.1.6 (latest)
+
+### Bugfix
+
+ - Fix typos and misinformation in DB with respect to the fields on page `home`.
 
 ### Changes
 
@@ -11,7 +15,7 @@
 
 
 ------------
-# v1.1.5 (latest)
+# v1.1.5
 
 ### Bugfix
 
