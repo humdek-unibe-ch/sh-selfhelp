@@ -22,6 +22,8 @@ class Login
     /**
      * Start the session.
      *
+     * @param object $db
+     *  The db instance which grants access to the DB.
      * @param bool $store_url
      *  If true the current url is stored as last url in the db.
      * @param bool $redirect
