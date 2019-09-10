@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 02, 2019 at 01:48 PM
--- Server version: 5.7.26-0ubuntu0.18.04.1
--- PHP Version: 7.2.19-0ubuntu0.18.04.1
+-- Generation Time: Sep 10, 2019 at 02:14 PM
+-- Server version: 5.7.27-0ubuntu0.18.04.1
+-- PHP Version: 7.2.19-0ubuntu0.18.04.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpv110`
+-- Database: `selfhelpv116`
 --
 
 -- --------------------------------------------------------
@@ -589,8 +589,8 @@ CREATE TABLE `pages_fields` (
 INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `default_value`, `help`) VALUES
 (0000000002, 0000000106, NULL, 'A short description of the research project. This field will be used as `meta:description` in the HTML header. Some services use this tag to provide the user with information on the webpage (e.g. automatic link-replacement in messaging tools on smartphones use this description.)'),
 (0000000002, 0000000115, NULL, 'This field defines the content of the alert message that is shown when a date is set in the field `maintenance_date`. Use markdown with the special keywords `@date` and `@time` which will be replaced by a human-readable form of the fields `maintenance_date` and `maintenance_time`.'),
-(0000000002, 0000000116, NULL, 'If set (together with the field `maintenance_time`), starting from the given date an alert message is shown at the top of the page displaying to content as defined in the field `maintenance`.'),
-(0000000002, 0000000117, NULL, 'If set (together with the field `maintenance_date`), starting from the given time an alert message is shown at the top of the page displaying to content as defined in the field `maintenance`.');
+(0000000002, 0000000116, NULL, 'If set (together with the field `maintenance_time`), an alert message is shown at the top of the page displaying to content as defined in the field `maintenance` (where the key `@data` is replaced by this field).'),
+(0000000002, 0000000117, NULL, 'If set (together with the field `maintenance_date`), an alert message is shown at the top of the page displaying to content as defined in the field `maintenance` (where the key `@time` is replaced by this field).');
 
 -- --------------------------------------------------------
 
@@ -614,7 +614,7 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000001, 0000000008, 0000000003, 'Login'),
 (0000000002, 0000000008, 0000000002, 'Projekt Name'),
 (0000000002, 0000000008, 0000000003, 'Project Name'),
-(0000000002, 0000000115, 0000000002, 'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldingung.'),
+(0000000002, 0000000115, 0000000002, 'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldigung.'),
 (0000000002, 0000000115, 0000000003, 'There will be a short service disruption on the @date at @time due to server maintenance. Please accept our apologies for the caused inconveniences.'),
 (0000000003, 0000000008, 0000000002, 'Profil'),
 (0000000003, 0000000008, 0000000003, 'Profile'),
@@ -1448,6 +1448,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000032, 0000000077, NULL, NULL),
 (0000000032, 0000000083, NULL, NULL),
 (0000000032, 0000000084, '0', NULL),
+(0000000033, 0000000023, NULL, 'Use this field to add custom CSS classes to the root navigation page container.'),
 (0000000033, 0000000029, '1', NULL),
 (0000000033, 0000000031, NULL, NULL),
 (0000000033, 0000000046, '1', NULL),
@@ -1456,7 +1457,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000033, 0000000074, NULL, NULL),
 (0000000033, 0000000075, '1', NULL),
 (0000000033, 0000000077, NULL, NULL),
-(0000000033, 0000000089, NULL, NULL),
+(0000000033, 0000000089, NULL, 'Use this field to add custom CSS classes to the navigation menu of a navigation page.'),
 (0000000033, 0000000104, '1', NULL),
 (0000000034, 0000000066, NULL, NULL),
 (0000000034, 0000000078, '0', NULL),

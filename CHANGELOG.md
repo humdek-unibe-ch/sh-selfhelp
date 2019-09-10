@@ -1,4 +1,13 @@
-# v1.1.6
+# v1.1.6 (latest)
+
+### Bugfix
+
+ - Fix typos and misinformation in DB with respect to the fields on page `home`.
+
+### Changes
+
+ - Only store the last URL in the DB if the URL points to an experimenter page
+   (#187).
 
 ### New Features
 

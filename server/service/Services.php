@@ -72,7 +72,8 @@ class Services
         $this->acl = new Acl($this->db);
 
         $this->login = new Login($this->db,
-            $this->router->route['name'] !== 'login');
+            $this->is_experimenter_page($this->router->route['name']),
+            !$this->is_login_page($this->router->route['name']));
 
         $this->mail = new Mailer($this->db);
 
@@ -97,6 +98,39 @@ class Services
             $this->router->map($page['protocol'], $page['url'], $page['action'],
                 $page['keyword']);
         $this->router->update_route();
+    }
+
+    /**
+     * Checks wether the current page is an experimenter page.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is an experimenter page, false otherwise.
+     */
+    private function is_experimenter_page($keyword)
+    {
+        $sql = "SELECT * FROM pages WHERE keyword = :kw AND id_type = :type";
+        $res = $this->db->query_db_first($sql, array(':kw' => $keyword,
+            ':type' => EXPERIMENT_PAGE_ID));
+        if($res)
+            return true;
+        return false;
+    }
+
+    /**
+     * Checks wether the current page is the login page.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is the login page, false otherwise.
+     */
+    private function is_login_page($keyword)
+    {
+        if($keyword === "login" || $keyword === "logout")
+            return true;
+        return false;
     }
 
     /**

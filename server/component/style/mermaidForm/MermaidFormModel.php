@@ -72,10 +72,12 @@ class MermaidFormModel extends FormUserInputModel
    }
 
    /**
-    * Parse the code string and replace all double quotes with single quotes
+    * Parse the code string and replace all double quotes with single quotes.
     *
-    * @orig_string string 
-
+    * @param string $orig_string
+    *  The original string.
+    * @retval string
+    *  The string where quotes are replaced by the HTML code.
     */
 
    public function replaceQuotes($orig_string)
