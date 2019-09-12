@@ -1,3 +1,12 @@
+# v1.1.7 (work in progress)
+
+### Bugfix
+
+ - In style `mermaidForm` adjust visible node size and size of the final `svg`
+   to correct overlapping text (#189).
+
+
+----------
 # v1.1.6 (latest)
 
 ### Bugfix
