@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../StyleModel.php";
+require_once __DIR__ . "/../../user/UserModel.php";
 
 /**
  * This class is used to prepare all data related to the userProgress style

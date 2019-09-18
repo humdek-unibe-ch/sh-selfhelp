@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . "/../StyleView.php";
-require_once __DIR__ . "./../../user/UserModel.php";
+require_once __DIR__ . "/../progressBar/ProgressBarView.php";
 
 /**
  * The view class of the userProgress style component.

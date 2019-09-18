@@ -4,6 +4,7 @@
 
  - In style `mermaidForm` adjust visible node size and size of the final `svg`
    to correct overlapping text (#189).
+ - Fix the style `userProgerss` (#192).
 
 
 ----------
