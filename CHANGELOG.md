@@ -5,6 +5,12 @@
  - In style `mermaidForm` adjust visible node size and size of the final `svg`
    to correct overlapping text (#189).
  - Fix the style `userProgerss` (#192).
+ - Fix redirect after Login (#187).
+ - Fix style `mermaidForm` id handling (#190).
+
+### New Features
+
+ - Add a back to the top button (#191).
 
 
 ----------
