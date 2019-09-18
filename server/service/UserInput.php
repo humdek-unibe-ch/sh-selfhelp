@@ -201,6 +201,26 @@ class UserInput
     /* Public Methods *********************************************************/
 
     /**
+     * Convert a string to HTML valid id
+     *
+     * @param string $string
+     *  the string value that we want to convert to a valid HTML id
+     * @retval string
+     * the converted string which will be used as ID
+     */
+     public function convert_to_valid_html_id($string){
+        //Lower case everything
+         $string = strtolower($string);
+         //Make alphanumeric (removes all other characters)
+         $string = preg_replace("/[^a-z0-9_\s-]/", "", $string);
+         //Clean up multiple dashes or whitespaces
+         $string = preg_replace("/[\s-]+/", " ", $string);
+         //Convert whitespaces and underscore to dash
+         $string = preg_replace("/[\s_]/", "-", $string);
+         return $string;        
+     }
+
+    /**
      * Get all input fields given a filter
      *
      * @param array $filter
