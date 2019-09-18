@@ -1,4 +1,23 @@
-# v1.1.6 (latest)
+# v1.1.7 (latest)
+
+### Bugfix
+
+ - In style `mermaidForm` adjust visible node size and size of the final `svg`
+   to correct overlapping text (#189).
+ - Fix the style `userProgerss` (#192).
+ - Fix redirect after Login (#187).
+ - Fix style `mermaidForm` id handling (#190).
+ - Allow all types of characters in select and radio buttons (#193).
+ - Fix styles `formUserInput` and `mermaidForm` to handle special characters as
+   form name (#194).
+
+### New Features
+
+ - Add a back to the top button (#191).
+
+
+----------
+# v1.1.6
 
 ### Bugfix
 

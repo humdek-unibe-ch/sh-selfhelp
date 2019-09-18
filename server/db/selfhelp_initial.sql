@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 10, 2019 at 02:14 PM
+-- Generation Time: Sep 18, 2019 at 02:11 PM
 -- Server version: 5.7.27-0ubuntu0.18.04.1
 -- PHP Version: 7.2.19-0ubuntu0.18.04.2
 
@@ -1282,7 +1282,7 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000043, 'audio', 0000000001, 0000000007, 'allows to load and replay an audio source on a page.'),
 (0000000044, 'carousel', 0000000001, 0000000007, 'allows to render multiple images as a slide-show.'),
 (0000000045, 'json', 0000000002, 0000000004, 'allows to describe styles with `json` Syntax'),
-(0000000046, 'userProgress', 0000000001, 0000000009, 'A progress bar to indicate the overall experiment progress of a user.'),
+(0000000046, 'userProgress', 0000000002, 0000000009, 'A progress bar to indicate the overall experiment progress of a user.'),
 (0000000047, 'mermaidForm', 0000000002, 0000000002, 'Style to create diagrams using markdown syntax. Use <a href=\"https://mermaidjs.github.io/demos.html\" target=\"_blank\">mermaid markdown</a> syntax here.'),
 (0000000048, 'emailForm', 0000000002, 0000000002, 'A form to accept an email address and automatically send two emails: An email to the address entered in the form and another email to admins, specified in the style.');
 

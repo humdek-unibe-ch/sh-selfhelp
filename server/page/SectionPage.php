@@ -69,19 +69,9 @@ class SectionPage extends BasePage
      */
     protected function output_content()
     {
-        $router = $this->services->get_router();
-        $acl = $this->services->get_acl();
         $db = $this->services->get_db();
-        if($acl->has_access($_SESSION['id_user'],
-                $this->id_page, 'insert'))
-        {
-            $arr = array('pid' => $this->id_page);
-            if($this->id_page == $_SESSION['cms_edit_url']['pid'])
-                $arr = $_SESSION['cms_edit_url'];
-            $url = $router->generate('cmsSelect', $arr);
-            require __DIR__ . "/tpl_cms_edit.php";
-        }
         $was_section_rendered = false;
+        require __DIR__ . "/tpl_fixed_box.php";
         foreach($this->sections as $section)
         {
             $comp = $this->get_component("section-" . $section['id']);
@@ -109,6 +99,35 @@ class SectionPage extends BasePage
             $page = new InternalPage($this, "missing");
             $page->output_content();
         }
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * Render a button to edit the page in CMS
+     */
+    private function output_cms_edit()
+    {
+        $router = $this->services->get_router();
+        $acl = $this->services->get_acl();
+        if($acl->has_access($_SESSION['id_user'],
+                $this->id_page, 'insert'))
+        {
+            $arr = array('pid' => $this->id_page);
+            if($this->id_page == $_SESSION['cms_edit_url']['pid'])
+                $arr = $_SESSION['cms_edit_url'];
+            $url = $router->generate('cmsSelect', $arr);
+            require __DIR__ . "/tpl_cms_edit.php";
+        }
+    }
+
+    /**
+     * Render a button to jump back to the top of the page
+     */
+    private function output_back_to_top()
+    {
+        $url = "#top";
+        require __DIR__ . "/tpl_to_top.php";
     }
 }
 ?>

@@ -93,7 +93,7 @@ class FormUserInputView extends StyleView
         $children[] = new BaseStyleComponent("input", array(
             "type_input" => "hidden",
             "name" => "__form_name",
-            "value" => $this->name,
+            "value" => htmlentities($this->name),
         ));
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,

@@ -30,6 +30,18 @@ class MermaidFormModel extends FormUserInputModel
    /* Public Methods *********************************************************/
 
    /**
+     * Convert a string to HTML valid id
+     *
+     * @param string $string
+     *  the string value that we want to convert to a valid HTML id
+     * @retval string
+     * the converted string which will be used as ID
+     */
+     public function convert_to_valid_html_id($string){
+        return $this->user_input->convert_to_valid_html_id($string);
+     }
+
+   /**
     * Get fields that will be editable by the mermaid, we return a json array.
     *
     * @param array $children

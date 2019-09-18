@@ -52,7 +52,7 @@ class MermaidFormView extends FormUserInputView
         $children[] = new BaseStyleComponent("input", array(
             "type_input" => "hidden",
             "name" => "__form_name",
-            "value" => $this->name,
+            "value" => htmlentities($this->name),
         ));
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
@@ -63,7 +63,7 @@ class MermaidFormView extends FormUserInputView
             "id" => $this->id_section,
         ));
         $modal = new BaseStyleComponent('modal', array(
-            'id' => $this->name,
+            'id' => $this->model->convert_to_valid_html_id($this->name),
             'title' => "Please enter your input",
             'children' => array($form),
         ));
@@ -82,7 +82,7 @@ class MermaidFormView extends FormUserInputView
         $fields =  $this->model->get_user_field_names_with_values(
             $this->form_children);
         $code = $this->model->replace_user_field_values_in_code($fields, $this->code_text);
-        $formName = $this->name;
+        $formName = $this->model->convert_to_valid_html_id($this->name);
         $fields = json_encode($fields);
         require __DIR__ . "/tpl_mermaidForm.php";
     }

@@ -14,7 +14,7 @@ $(document).ready(function () {
          addPointerClassAndClickEvent(formName, j_editableFields);
       };
       var graph = mermaid.mermaidAPI.render('graph-' + formName, $element.text(), insertSvg);
-      growNodesToFitText($('#graph-' + formName).find('.node'));
+      growNodesToFitText($('#graph-' + formName));
    });
 });
 
@@ -28,15 +28,25 @@ function addNodeIdPrefix(formName, $svgCode) {
    });
 }
 
-function growNodesToFitText($nodes) {
+function growNodesToFitText($graph) {
    // grow the bounding box of the text of a node to not crop the text.
-   $nodes.each(function () {
+   var max_delta = 0;
+   $graph.find('.node').each(function () {
       var $foreignObject = $(this).find('foreignObject:first');
       var $div = $foreignObject.children('div:first');
-      var delta = $foreignObject.find('div:first').width()
-         - $foreignObject.attr('width');
-      $foreignObject.attr('width', parseInt($foreignObject.attr('width')) + delta);
+      var width = parseFloat($foreignObject.attr('width'))
+      var delta = $div.width() - width;
+      if( delta > max_delta )
+           max_delta = delta;
+      var $shape = $(this).children().first()
+      $foreignObject.attr('width', width + delta);
+      $shape.attr('width', parseFloat($shape.attr('width')) + delta );
    });
+   var width = parseFloat($graph.css('max-width'));
+   var viewBox = $graph.attr('viewBox').split(' ');
+   viewBox[2] = parseFloat(viewBox[2]) + max_delta;
+   $graph.css('max-width', width + max_delta );
+   $graph.attr('viewBox', viewBox.join(' ' ) );
 }
 
 function addPointerClassAndClickEvent(formName, j_editableFields) {
