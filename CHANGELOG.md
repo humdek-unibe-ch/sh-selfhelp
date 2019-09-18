@@ -1,4 +1,4 @@
-# v1.1.7 (work in progress)
+# v1.1.7 (latest)
 
 ### Bugfix
 
@@ -17,7 +17,7 @@
 
 
 ----------
-# v1.1.6 (latest)
+# v1.1.6
 
 ### Bugfix
 

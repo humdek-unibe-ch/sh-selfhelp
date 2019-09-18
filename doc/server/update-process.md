@@ -34,9 +34,9 @@ Commit the file changes with an appropriate commit message.
 Document all the incremental changes with respect to the last version.
 Use GitLab syntax to link to issues (issue number prefixed with `#`) and merge requests (merge request number prefixed with `!`).
 
-Separate the changes into the categories **Bugfixe**, **Changes**, and **New Features**.
+Separate the changes into the categories **Bugfix**, **Changes**, and **New Features**.
 
-Add move the suffix `(latest)` to the latest version heading.
+Add or move the suffix `(latest)` to the latest version heading.
 
 ### 4. Generate the Minified Styles JS and CSS Files
 
