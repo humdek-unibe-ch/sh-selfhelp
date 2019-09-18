@@ -92,10 +92,7 @@ class FormUserInputController extends BaseController
             else if($style == "textarea")
                 $filter_rules[$id_section] = "sanitize_string";
             else if($style == "select" || $style == "radio")
-            {
-                $validation_rules[$id_section] = "alpha_dash";
                 $filter_rules[$id_section] = "trim|sanitize_string";
-            }
             else if($style == "input")
             {
                 $type = $this->model->get_field_type($id_section);

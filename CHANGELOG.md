@@ -7,6 +7,7 @@
  - Fix the style `userProgerss` (#192).
  - Fix redirect after Login (#187).
  - Fix style `mermaidForm` id handling (#190).
+ - Allow all types of characters in select and radio buttons (#193).
 
 ### New Features
 
