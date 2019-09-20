@@ -82,7 +82,7 @@ class ExportPage extends BasePage
         $output = fopen('php://output', 'w');
 
         // write data
-        $fileName;
+        $fileName = null;
         if($selector === "user_input")
             $this->export_user_input($output);
         else if($selector === "user_input_form")
@@ -146,7 +146,7 @@ class ExportPage extends BasePage
     private function export_user_input_form($output, $form_id)
     {
         $fileName = null;  
-        $sql = 'call getFormData(' . $form_id . ')';
+        $sql = 'call get_form_data(' . $form_id . ')';
         $fields = $this->services->get_db()->query_db($sql);
 
         // output the column headings
@@ -156,8 +156,7 @@ class ExportPage extends BasePage
         // loop over the rows, outputting them
         foreach($fields as $field){
             $this->fputcsv_wrap($output, $field);
-            if(!$fileName & empty($field)){
-               print_r($field);
+            if(!$fileName && array_key_exists("form_name", $field)){
                $fileName = $field['form_name'];
             }
         }
