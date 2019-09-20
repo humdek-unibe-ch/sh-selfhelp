@@ -76,24 +76,25 @@ class ExportPage extends BasePage
             "id_users" => $_SESSION['id_user'],
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
-        ));
-
-        // output headers so that the file is downloaded rather than displayed
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename='.$selector.'.csv');
+        ));        
 
         // create a file pointer connected to the output stream
         $output = fopen('php://output', 'w');
 
         // write data
+        $fileName;
         if($selector === "user_input")
             $this->export_user_input($output);
         else if($selector === "user_input_form")
-            $this->export_user_input_form($output, $id); 
+            $fileName = $this->export_user_input_form($output, $id); 
         else if($selector === "user_activity")
             $this->export_user_activity($output);
         else if($selector === "validation_codes")
             $this->export_validation_codes($output, $option);
+
+         // output headers so that the file is downloaded rather than displayed
+        header('Content-Type: text/csv; charset=utf-8');        
+        header('Content-Disposition: attachment; filename=' . ($fileName ? $fileName : $selector) . '[' . date('d-m-Y H:i:s') . '].csv');
     }
 
     /**
@@ -144,6 +145,7 @@ class ExportPage extends BasePage
      */
     private function export_user_input_form($output, $form_id)
     {
+        $fileName = null;  
         $sql = 'call getFormData(' . $form_id . ')';
         $fields = $this->services->get_db()->query_db($sql);
 
@@ -152,8 +154,14 @@ class ExportPage extends BasePage
             $this->fputcsv_wrap($output, array_keys($fields[0]));
 
         // loop over the rows, outputting them
-        foreach($fields as $field)
+        foreach($fields as $field){
             $this->fputcsv_wrap($output, $field);
+            if(!$fileName & empty($field)){
+               print_r($field);
+               $fileName = $field['form_name'];
+            }
+        }
+        return $fileName;
     }
 
     /**
