@@ -73,7 +73,7 @@ class Services
 
         $this->login = new Login($this->db,
             $this->is_experimenter_page($this->router->route['name']),
-            !$this->is_login_page($this->router->route['name']));
+            $this->does_redirect($this->router->route['name']));
 
         $this->mail = new Mailer($this->db);
 
@@ -82,6 +82,22 @@ class Services
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
+    }
+
+    /**
+     * Checks wether the current page should enable a login redirect.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the redirec is enabled, false otherwise.
+     *
+     */
+    private function does_redirect($keyword)
+    {
+        return !$this->is_login_page($this->router->route['name'])
+            && !$this->acl->has_access_select(GUEST_USER_ID,
+                    $this->db->fetch_page_id_by_keyword($keyword));
     }
 
     /**
