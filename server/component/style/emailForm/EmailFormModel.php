@@ -103,8 +103,11 @@ class EmailFormModel extends EmailFormBaseModel
 
     /**
      * Send the email EmailFormModel::email_admins to * EmailFormModel::admins.
+     *
+     * @param string $address
+     *  The address entered through the input form.
      */
-    private function send_emails_admin()
+    private function send_emails_admin($address)
     {
         $msg = str_replace('@email', $address, $this->email_admins);
         $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
@@ -133,7 +136,7 @@ class EmailFormModel extends EmailFormBaseModel
         if($res)
             $res = $this->send_email_user($mail);
         if($res)
-            $this->send_emails_admin();
+            $this->send_emails_admin($mail);
         return $res;
     }
 }

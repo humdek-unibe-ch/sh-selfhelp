@@ -91,7 +91,6 @@ class Services
      *  The keyword of the page to check.
      * @retval bool
      *  True if the redirec is enabled, false otherwise.
-     *
      */
     private function does_redirect($keyword)
     {
