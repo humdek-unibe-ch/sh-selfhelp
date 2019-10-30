@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.23, for Win32 (AMD64)
 --
--- Host: 127.0.0.1    Database: selfhelp
+-- Host: localhost    Database: selfhelp
 -- ------------------------------------------------------
--- Server version	5.7.23
+-- Server version	5.7.27-0ubuntu0.18.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -104,13 +104,13 @@ INSERT INTO `actions` VALUES (0000000001,'custom'),(0000000002,'component'),(000
 UNLOCK TABLES;
 
 --
--- Table structure for table `activitytype`
+-- Table structure for table `activityType`
 --
 
-DROP TABLE IF EXISTS `activitytype`;
+DROP TABLE IF EXISTS `activityType`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `activitytype` (
+CREATE TABLE `activityType` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
@@ -118,13 +118,13 @@ CREATE TABLE `activitytype` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `activitytype`
+-- Dumping data for table `activityType`
 --
 
-LOCK TABLES `activitytype` WRITE;
-/*!40000 ALTER TABLE `activitytype` DISABLE KEYS */;
-INSERT INTO `activitytype` VALUES (0000000001,'experiment'),(0000000002,'export');
-/*!40000 ALTER TABLE `activitytype` ENABLE KEYS */;
+LOCK TABLES `activityType` WRITE;
+/*!40000 ALTER TABLE `activityType` DISABLE KEYS */;
+INSERT INTO `activityType` VALUES (0000000001,'experiment'),(0000000002,'export');
+/*!40000 ALTER TABLE `activityType` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -145,7 +145,7 @@ CREATE TABLE `chat` (
   KEY `id_snd` (`id_snd`) USING BTREE,
   KEY `id_rcv` (`id_rcv`) USING BTREE,
   KEY `id_rcv_grp` (`id_rcv_grp`),
-  CONSTRAINT `fk_chat_id_rcv_grp` FOREIGN KEY (`id_rcv_grp`) REFERENCES `chatroom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_chat_id_rcv_grp` FOREIGN KEY (`id_rcv_grp`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_chat_id_rcv_user` FOREIGN KEY (`id_rcv`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_chat_id_send` FOREIGN KEY (`id_snd`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -161,13 +161,13 @@ LOCK TABLES `chat` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `chatrecipiants`
+-- Table structure for table `chatRecipiants`
 --
 
-DROP TABLE IF EXISTS `chatrecipiants`;
+DROP TABLE IF EXISTS `chatRecipiants`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `chatrecipiants` (
+CREATE TABLE `chatRecipiants` (
   `id_users` int(10) unsigned zerofill NOT NULL,
   `id_chat` int(10) unsigned zerofill NOT NULL,
   `id_room_users` int(10) unsigned zerofill DEFAULT NULL,
@@ -177,28 +177,28 @@ CREATE TABLE `chatrecipiants` (
   KEY `id_chat` (`id_chat`),
   KEY `id_room_users` (`id_room_users`),
   CONSTRAINT `chatRecipiants_fk_id_chat` FOREIGN KEY (`id_chat`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatroom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatRoom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `chatRecipiants_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `chatrecipiants`
+-- Dumping data for table `chatRecipiants`
 --
 
-LOCK TABLES `chatrecipiants` WRITE;
-/*!40000 ALTER TABLE `chatrecipiants` DISABLE KEYS */;
-/*!40000 ALTER TABLE `chatrecipiants` ENABLE KEYS */;
+LOCK TABLES `chatRecipiants` WRITE;
+/*!40000 ALTER TABLE `chatRecipiants` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chatRecipiants` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `chatroom`
+-- Table structure for table `chatRoom`
 --
 
-DROP TABLE IF EXISTS `chatroom`;
+DROP TABLE IF EXISTS `chatRoom`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `chatroom` (
+CREATE TABLE `chatRoom` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext NOT NULL,
@@ -207,23 +207,23 @@ CREATE TABLE `chatroom` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `chatroom`
+-- Dumping data for table `chatRoom`
 --
 
-LOCK TABLES `chatroom` WRITE;
-/*!40000 ALTER TABLE `chatroom` DISABLE KEYS */;
-INSERT INTO `chatroom` VALUES (0000000001,'root','The main room where every user is part of');
-/*!40000 ALTER TABLE `chatroom` ENABLE KEYS */;
+LOCK TABLES `chatRoom` WRITE;
+/*!40000 ALTER TABLE `chatRoom` DISABLE KEYS */;
+INSERT INTO `chatRoom` VALUES (0000000001,'root','The main room where every user is part of');
+/*!40000 ALTER TABLE `chatRoom` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `chatroom_users`
+-- Table structure for table `chatRoom_users`
 --
 
-DROP TABLE IF EXISTS `chatroom_users`;
+DROP TABLE IF EXISTS `chatRoom_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `chatroom_users` (
+CREATE TABLE `chatRoom_users` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `id_chatRoom` int(10) unsigned zerofill NOT NULL,
   `id_users` int(10) unsigned zerofill NOT NULL,
@@ -231,18 +231,43 @@ CREATE TABLE `chatroom_users` (
   UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
   KEY `id_chatRoom` (`id_chatRoom`),
   KEY `id_users` (`id_users`),
-  CONSTRAINT `chatRoom_users_fk_id_chatRoom` FOREIGN KEY (`id_chatRoom`) REFERENCES `chatroom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `chatRoom_users_fk_id_chatRoom` FOREIGN KEY (`id_chatRoom`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `chatRoom_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `chatroom_users`
+-- Dumping data for table `chatRoom_users`
 --
 
-LOCK TABLES `chatroom_users` WRITE;
-/*!40000 ALTER TABLE `chatroom_users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `chatroom_users` ENABLE KEYS */;
+LOCK TABLES `chatRoom_users` WRITE;
+/*!40000 ALTER TABLE `chatRoom_users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chatRoom_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `fieldType`
+--
+
+DROP TABLE IF EXISTS `fieldType`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fieldType` (
+  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `position` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `fieldType`
+--
+
+LOCK TABLES `fieldType` WRITE;
+/*!40000 ALTER TABLE `fieldType` DISABLE KEYS */;
+INSERT INTO `fieldType` VALUES (0000000001,'text',10),(0000000002,'textarea',30),(0000000003,'checkbox',60),(0000000004,'markdown',40),(0000000005,'number',50),(0000000006,'style-list',70),(0000000007,'markdown-inline',20),(0000000008,'json',45),(0000000009,'style-bootstrap',5),(0000000010,'type-input',4),(0000000011,'email',90),(0000000012,'code',42),(0000000013,'date',25),(0000000014,'time',24);
+/*!40000 ALTER TABLE `fieldType` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -259,7 +284,7 @@ CREATE TABLE `fields` (
   `display` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`),
-  CONSTRAINT `fields_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `fieldtype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fields_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -271,31 +296,6 @@ LOCK TABLES `fields` WRITE;
 /*!40000 ALTER TABLE `fields` DISABLE KEYS */;
 INSERT INTO `fields` VALUES (0000000001,'label_user',0000000001,1),(0000000002,'label_pw',0000000001,1),(0000000003,'label_login',0000000001,1),(0000000004,'label_pw_reset',0000000001,1),(0000000005,'alert_fail',0000000001,1),(0000000006,'children',0000000006,0),(0000000007,'login_title',0000000001,1),(0000000008,'label',0000000001,1),(0000000009,'label_pw_confirm',0000000001,1),(0000000010,'label_change',0000000001,1),(0000000011,'pw_change_title',0000000001,1),(0000000012,'delete_title',0000000001,1),(0000000013,'label_delete',0000000001,1),(0000000014,'delete_content',0000000002,1),(0000000015,'label_delete_confirm',0000000001,1),(0000000016,'delete_confirm_content',0000000002,1),(0000000017,'alert_pw_fail',0000000001,1),(0000000018,'alert_pw_success',0000000001,1),(0000000019,'alert_del_fail',0000000001,1),(0000000020,'alert_del_success',0000000001,1),(0000000021,'level',0000000005,0),(0000000022,'title',0000000007,1),(0000000023,'css',0000000001,0),(0000000024,'text',0000000002,1),(0000000025,'text_md',0000000004,1),(0000000026,'text_md_inline',0000000007,1),(0000000027,'url',0000000001,0),(0000000028,'type',0000000009,0),(0000000029,'is_fluid',0000000003,0),(0000000030,'alt',0000000001,1),(0000000031,'title_prefix',0000000001,1),(0000000032,'experimenter',0000000001,1),(0000000033,'subjects',0000000001,1),(0000000034,'subtitle',0000000001,1),(0000000035,'alert_success',0000000001,1),(0000000036,'label_name',0000000001,1),(0000000037,'name_placeholder',0000000001,1),(0000000038,'name_description',0000000007,1),(0000000039,'label_gender',0000000001,1),(0000000040,'gender_male',0000000001,1),(0000000041,'gender_female',0000000001,1),(0000000042,'label_activate',0000000001,1),(0000000043,'pw_placeholder',0000000001,1),(0000000044,'success',0000000001,1),(0000000045,'is_dismissable',0000000003,0),(0000000046,'is_expanded',0000000003,0),(0000000047,'is_collapsible',0000000003,0),(0000000048,'url_edit',0000000001,0),(0000000049,'caption_title',0000000001,1),(0000000050,'caption',0000000007,1),(0000000051,'label_cancel',0000000001,1),(0000000052,'url_cancel',0000000001,0),(0000000053,'source',0000000001,1),(0000000054,'type_input',0000000010,0),(0000000055,'placeholder',0000000001,1),(0000000056,'is_required',0000000003,0),(0000000057,'name',0000000001,0),(0000000058,'value',0000000002,0),(0000000059,'is_paragraph',0000000003,0),(0000000060,'count',0000000005,0),(0000000061,'count_max',0000000005,0),(0000000062,'label_right',0000000001,1),(0000000063,'label_wrong',0000000001,1),(0000000064,'right_content',0000000001,1),(0000000065,'wrong_content',0000000001,1),(0000000066,'items',0000000008,1),(0000000067,'is_multiple',0000000003,0),(0000000068,'labels',0000000008,1),(0000000069,'min',0000000005,0),(0000000070,'max',0000000005,0),(0000000071,'sources',0000000008,1),(0000000072,'label_root',0000000001,1),(0000000073,'label_back',0000000001,1),(0000000074,'label_next',0000000001,1),(0000000075,'has_navigation_buttons',0000000003,0),(0000000077,'search_text',0000000001,1),(0000000078,'is_sortable',0000000003,0),(0000000079,'is_editable',0000000003,0),(0000000080,'url_delete',0000000001,0),(0000000081,'label_add',0000000001,1),(0000000082,'url_add',0000000001,0),(0000000083,'id_prefix',0000000001,0),(0000000084,'id_active',0000000005,0),(0000000085,'is_inline',0000000003,0),(0000000086,'open_in_new_tab',0000000003,0),(0000000087,'is_log',0000000003,0),(0000000088,'label_date_time',0000000001,1),(0000000089,'css_nav',0000000001,0),(0000000090,'label_submit',0000000001,1),(0000000091,'condition',0000000008,0),(0000000092,'email_activate',0000000011,1),(0000000094,'email_reminder',0000000011,1),(0000000095,'label_lobby',0000000001,1),(0000000096,'label_new',0000000001,1),(0000000097,'debug',0000000003,0),(0000000099,'has_controls',0000000003,0),(0000000100,'has_indicators',0000000003,0),(0000000101,'is_striped',0000000003,0),(0000000102,'has_label',0000000003,0),(0000000103,'has_crossfade',0000000003,0),(0000000104,'has_navigation_menu',0000000003,0),(0000000105,'json',0000000008,1),(0000000106,'description',0000000002,1),(0000000107,'code',0000000012,1),(0000000108,'admins',0000000008,0),(0000000109,'email_admins',0000000011,1),(0000000110,'email_user',0000000011,1),(0000000111,'subject_user',0000000001,1),(0000000112,'attachments_user',0000000008,1),(0000000113,'do_store',0000000003,0),(0000000114,'is_html',0000000003,0),(0000000115,'maintenance',0000000004,1),(0000000116,'maintenance_date',0000000013,0),(0000000117,'maintenance_time',0000000014,0);
 /*!40000 ALTER TABLE `fields` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `fieldtype`
---
-
-DROP TABLE IF EXISTS `fieldtype`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fieldtype` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `position` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `fieldtype`
---
-
-LOCK TABLES `fieldtype` WRITE;
-/*!40000 ALTER TABLE `fieldtype` DISABLE KEYS */;
-INSERT INTO `fieldtype` VALUES (0000000001,'text',10),(0000000002,'textarea',30),(0000000003,'checkbox',60),(0000000004,'markdown',40),(0000000005,'number',50),(0000000006,'style-list',70),(0000000007,'markdown-inline',20),(0000000008,'json',45),(0000000009,'style-bootstrap',5),(0000000010,'type-input',4),(0000000011,'email',90),(0000000012,'code',42),(0000000013,'date',25),(0000000014,'time',24);
-/*!40000 ALTER TABLE `fieldtype` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -374,6 +374,30 @@ INSERT INTO `languages` VALUES (0000000001,'all','Independent',','),(0000000002,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pageType`
+--
+
+DROP TABLE IF EXISTS `pageType`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pageType` (
+  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pageType`
+--
+
+LOCK TABLES `pageType` WRITE;
+/*!40000 ALTER TABLE `pageType` DISABLE KEYS */;
+INSERT INTO `pageType` VALUES (0000000001,'intern'),(0000000002,'core'),(0000000003,'experiment'),(0000000004,'open');
+/*!40000 ALTER TABLE `pageType` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pages`
 --
 
@@ -400,7 +424,7 @@ CREATE TABLE `pages` (
   KEY `id_type` (`id_type`),
   CONSTRAINT `pages_fk_id_actions` FOREIGN KEY (`id_actions`) REFERENCES `actions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `pages_fk_id_navigation_section` FOREIGN KEY (`id_navigation_section`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pagetype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -504,30 +528,6 @@ LOCK TABLES `pages_sections` WRITE;
 /*!40000 ALTER TABLE `pages_sections` DISABLE KEYS */;
 INSERT INTO `pages_sections` VALUES (0000000001,0000000036,NULL),(0000000002,0000000019,0),(0000000004,0000000002,NULL),(0000000006,0000000003,NULL),(0000000007,0000000009,0),(0000000008,0000000012,0),(0000000029,0000000017,0),(0000000030,0000000016,0),(0000000031,0000000020,0),(0000000032,0000000018,0),(0000000033,0000000026,NULL),(0000000035,0000000028,NULL);
 /*!40000 ALTER TABLE `pages_sections` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `pagetype`
---
-
-DROP TABLE IF EXISTS `pagetype`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pagetype` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `pagetype`
---
-
-LOCK TABLES `pagetype` WRITE;
-/*!40000 ALTER TABLE `pagetype` DISABLE KEYS */;
-INSERT INTO `pagetype` VALUES (0000000001,'intern'),(0000000002,'core'),(0000000003,'experiment'),(0000000004,'open');
-/*!40000 ALTER TABLE `pagetype` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -657,13 +657,13 @@ LOCK TABLES `sections_navigation` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `stylegroup`
+-- Table structure for table `styleGroup`
 --
 
-DROP TABLE IF EXISTS `stylegroup`;
+DROP TABLE IF EXISTS `styleGroup`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `stylegroup` (
+CREATE TABLE `styleGroup` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext,
@@ -673,13 +673,37 @@ CREATE TABLE `stylegroup` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `stylegroup`
+-- Dumping data for table `styleGroup`
 --
 
-LOCK TABLES `stylegroup` WRITE;
-/*!40000 ALTER TABLE `stylegroup` DISABLE KEYS */;
-INSERT INTO `stylegroup` VALUES (0000000001,'intern',NULL,NULL),(0000000002,'Form','A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:',60),(0000000003,'Input','An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:',70),(0000000004,'Wrapper','A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:',10),(0000000005,'Text','Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:',20),(0000000006,'List','Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:',50),(0000000007,'Media','The media styles allow to display different media on a webpage. The following styles are available:',40),(0000000008,'Link','Link styles allow to render different types of links:',30),(0000000009,'Admin','The admin styles are for user registration and access handling.\r\nThe following styles are available:',80);
-/*!40000 ALTER TABLE `stylegroup` ENABLE KEYS */;
+LOCK TABLES `styleGroup` WRITE;
+/*!40000 ALTER TABLE `styleGroup` DISABLE KEYS */;
+INSERT INTO `styleGroup` VALUES (0000000001,'intern',NULL,NULL),(0000000002,'Form','A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:',60),(0000000003,'Input','An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:',70),(0000000004,'Wrapper','A wrapper is a style that allows to group child elements. Wrappers can have a visual component or can be invisible. Visible wrapper are useful to provide some structure in a document while invisible wrappers serve merely as a grouping option . The latter can be useful in combination with CSS classes. The following wrappers are available:',10),(0000000005,'Text','Text styles allow to control how text is displayed. These styles are used to create the main content. The following styles are available:',20),(0000000006,'List','Lists are styles that allow to define more sophisticated lists than the markdown syntax allows. They come with attached javascript functionality. The following lists are available:',50),(0000000007,'Media','The media styles allow to display different media on a webpage. The following styles are available:',40),(0000000008,'Link','Link styles allow to render different types of links:',30),(0000000009,'Admin','The admin styles are for user registration and access handling.\r\nThe following styles are available:',80);
+/*!40000 ALTER TABLE `styleGroup` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `styleType`
+--
+
+DROP TABLE IF EXISTS `styleType`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `styleType` (
+  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `styleType`
+--
+
+LOCK TABLES `styleType` WRITE;
+/*!40000 ALTER TABLE `styleType` DISABLE KEYS */;
+INSERT INTO `styleType` VALUES (0000000001,'view'),(0000000002,'component'),(0000000003,'navigation');
+/*!40000 ALTER TABLE `styleType` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -698,8 +722,8 @@ CREATE TABLE `styles` (
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`),
   KEY `id_group` (`id_group`),
-  CONSTRAINT `styles_fk_id_group` FOREIGN KEY (`id_group`) REFERENCES `stylegroup` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `styles_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `styletype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `styles_fk_id_group` FOREIGN KEY (`id_group`) REFERENCES `styleGroup` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `styles_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `styleType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -744,27 +768,28 @@ INSERT INTO `styles_fields` VALUES (0000000001,0000000001,NULL,NULL),(0000000001
 UNLOCK TABLES;
 
 --
--- Table structure for table `styletype`
+-- Table structure for table `userStatus`
 --
 
-DROP TABLE IF EXISTS `styletype`;
+DROP TABLE IF EXISTS `userStatus`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `styletype` (
+CREATE TABLE `userStatus` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
+  `description` varchar(500) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `styletype`
+-- Dumping data for table `userStatus`
 --
 
-LOCK TABLES `styletype` WRITE;
-/*!40000 ALTER TABLE `styletype` DISABLE KEYS */;
-INSERT INTO `styletype` VALUES (0000000001,'view'),(0000000002,'component'),(0000000003,'navigation');
-/*!40000 ALTER TABLE `styletype` ENABLE KEYS */;
+LOCK TABLES `userStatus` WRITE;
+/*!40000 ALTER TABLE `userStatus` DISABLE KEYS */;
+INSERT INTO `userStatus` VALUES (0000000001,'interested','This user has shown interest in the platform but has not yet met the preconditions to be invited.'),(0000000002,'invited','This user was invited to join the platform but has not yet validated the email address.'),(0000000003,'active','This user can log in and visit all accessible pages.');
+/*!40000 ALTER TABLE `userStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -783,7 +808,7 @@ CREATE TABLE `user_activity` (
   PRIMARY KEY (`id`),
   KEY `id_users` (`id_users`),
   KEY `id_type` (`id_type`),
-  CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activitytype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_user_activity_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -859,7 +884,7 @@ CREATE TABLE `users` (
   KEY `id_status` (`id_status`),
   CONSTRAINT `fk_users_id_genders` FOREIGN KEY (`id_genders`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_users_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_users_id_status` FOREIGN KEY (`id_status`) REFERENCES `userstatus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `fk_users_id_status` FOREIGN KEY (`id_status`) REFERENCES `userStatus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -899,31 +924,6 @@ LOCK TABLES `users_groups` WRITE;
 /*!40000 ALTER TABLE `users_groups` DISABLE KEYS */;
 INSERT INTO `users_groups` VALUES (0000000002,0000000001);
 /*!40000 ALTER TABLE `users_groups` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `userstatus`
---
-
-DROP TABLE IF EXISTS `userstatus`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `userstatus` (
-  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` varchar(500) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userstatus`
---
-
-LOCK TABLES `userstatus` WRITE;
-/*!40000 ALTER TABLE `userstatus` DISABLE KEYS */;
-INSERT INTO `userstatus` VALUES (0000000001,'interested','This user has shown interest in the platform but has not yet met the preconditions to be invited.'),(0000000002,'invited','This user was invited to join the platform but has not yet validated the email address.'),(0000000003,'active','This user can log in and visit all accessible pages.');
-/*!40000 ALTER TABLE `userstatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1048,9 +1048,9 @@ SET character_set_client = @saved_cs_client;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'MYSQL40,HIGH_NOT_PRECEDENCE' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `get_field_id`(field varchar(100)) RETURNS int(11)
+CREATE DEFINER=`bashev`@`%` FUNCTION `get_field_id`(field varchar(100)) RETURNS int(11)
 BEGIN 
 	DECLARE field_id INT;    
 	select id into field_id
@@ -1071,13 +1071,13 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'MYSQL40,HIGH_NOT_PRECEDENCE' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `get_field_type_id`(field_type varchar(100)) RETURNS int(11)
+CREATE DEFINER=`bashev`@`%` FUNCTION `get_field_type_id`(field_type varchar(100)) RETURNS int(11)
 BEGIN 
 	DECLARE field_type_id INT;    
 	select id into field_type_id
-	from fieldtype
+	from fieldType
 	where name = field_type;
     return field_type_id;
 END ;;
@@ -1094,9 +1094,9 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'MYSQL40,HIGH_NOT_PRECEDENCE' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `get_style_group_id`(style_group varchar(100)) RETURNS int(11)
+CREATE DEFINER=`bashev`@`%` FUNCTION `get_style_group_id`(style_group varchar(100)) RETURNS int(11)
 BEGIN 
 	DECLARE style_group_id INT;    
 	select id into style_group_id
@@ -1117,9 +1117,9 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'MYSQL40,HIGH_NOT_PRECEDENCE' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `get_style_id`(style varchar(100)) RETURNS int(11)
+CREATE DEFINER=`bashev`@`%` FUNCTION `get_style_id`(style varchar(100)) RETURNS int(11)
 BEGIN 
 	DECLARE style_id INT;    
 	select id into style_id
@@ -1140,9 +1140,9 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'MYSQL40,HIGH_NOT_PRECEDENCE' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_form_data`( form_id_param INT )
+CREATE DEFINER=`bashev`@`%` PROCEDURE `get_form_data`( form_id_param INT )
 BEGIN  
     SET @@group_concat_max_len = 32000;
 	SET @sql = NULL;
@@ -1191,8 +1191,8 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_fields` AS select cast(`f`.`id` as unsigned) AS `field_id`,`f`.`name` AS `field_name`,`f`.`display` AS `display`,cast(`ft`.`id` as unsigned) AS `field_type_id`,`ft`.`name` AS `field_type`,`ft`.`position` AS `position` from (`fields` `f` left join `fieldtype` `ft` on((`f`.`id_type` = `ft`.`id`))) */;
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_fields` AS select cast(`f`.`id` as unsigned) AS `field_id`,`f`.`name` AS `field_name`,`f`.`display` AS `display`,cast(`ft`.`id` as unsigned) AS `field_type_id`,`ft`.`name` AS `field_type`,`ft`.`position` AS `position` from (`fields` `f` left join `fieldType` `ft` on((`f`.`id_type` = `ft`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1209,7 +1209,7 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
 /*!50001 VIEW `view_style_fields` AS select `s`.`style_id` AS `style_id`,`s`.`style_name` AS `style_name`,`s`.`style_type` AS `style_type`,`s`.`style_group` AS `style_group`,`f`.`field_id` AS `field_id`,`f`.`field_name` AS `field_name`,`f`.`field_type` AS `field_type`,`f`.`display` AS `display`,`f`.`position` AS `position`,`sf`.`default_value` AS `default_value`,`sf`.`help` AS `help` from ((`view_styles` `s` left join `styles_fields` `sf` on((`s`.`style_id` = `sf`.`id_styles`))) left join `view_fields` `f` on((`f`.`field_id` = `sf`.`id_fields`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -1227,8 +1227,8 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_styles` AS select cast(`s`.`id` as unsigned) AS `style_id`,`s`.`name` AS `style_name`,`s`.`description` AS `style_description`,cast(`st`.`id` as unsigned) AS `style_type_id`,`st`.`name` AS `style_type`,cast(`sg`.`id` as unsigned) AS `style_group_id`,`sg`.`name` AS `style_group`,`sg`.`description` AS `style_group_description`,`sg`.`position` AS `style_group_position` from ((`styles` `s` left join `styletype` `st` on((`s`.`id_type` = `st`.`id`))) left join `stylegroup` `sg` on((`s`.`id_group` = `sg`.`id`))) */;
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_styles` AS select cast(`s`.`id` as unsigned) AS `style_id`,`s`.`name` AS `style_name`,`s`.`description` AS `style_description`,cast(`st`.`id` as unsigned) AS `style_type_id`,`st`.`name` AS `style_type`,cast(`sg`.`id` as unsigned) AS `style_group_id`,`sg`.`name` AS `style_group`,`sg`.`description` AS `style_group_description`,`sg`.`position` AS `style_group_position` from ((`styles` `s` left join `styleType` `st` on((`s`.`id_type` = `st`.`id`))) left join `styleGroup` `sg` on((`s`.`id_group` = `sg`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1245,7 +1245,7 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
 /*!50001 VIEW `view_user_input` AS select cast(`ui`.`id` as unsigned) AS `id`,cast(`u`.`id` as unsigned) AS `user_id`,`u`.`name` AS `user_name`,cast(`form`.`id` as unsigned) AS `form_id`,`sft_if`.`content` AS `form_name`,cast(`field`.`id` as unsigned) AS `field_id`,`sft_in`.`content` AS `field_name`,`ui`.`value` AS `value`,`ui`.`edit_time` AS `edit_time`,`ui`.`removed` AS `removed` from (((((`user_input` `ui` left join `users` `u` on((`ui`.`id_users` = `u`.`id`))) left join `sections` `field` on((`ui`.`id_sections` = `field`.`id`))) left join `sections` `form` on((`ui`.`id_section_form` = `form`.`id`))) left join `sections_fields_translation` `sft_in` on(((`sft_in`.`id_sections` = `ui`.`id_sections`) and (`sft_in`.`id_fields` = 57)))) left join `sections_fields_translation` `sft_if` on(((`sft_if`.`id_sections` = `ui`.`id_section_form`) and (`sft_if`.`id_fields` = 57)))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -1260,4 +1260,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-09-20 14:58:21
+-- Dump completed on 2019-10-30 14:32:56
