@@ -1,4 +1,16 @@
-# v1.1.7 (latest)
+# v1.1.7.1 (latest)
+### Changes
+ - include interested users to the user overview table (#207)
+ - update GULP to version 4.0.2
+
+### Bugfix
+ - do not redirect login when coming from an open page (#206)
+ - fix a php error (pass the email address as param) (#208)
+ - only render the page overview on actual pages
+ - also allow child pages for open pages (#204)
+
+---------
+# v1.1.7
 
 ### Bugfix
 

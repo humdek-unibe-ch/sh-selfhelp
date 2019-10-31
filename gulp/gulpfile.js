@@ -34,9 +34,6 @@ gulp.task('scripts', function() {
 gulp.task('clean', () => del(['dist']));
 
 // Gulp task to minify all files
-gulp.task('default', ['clean'], function () {
-  runSequence(
-    'styles',
-    'scripts'
-  );
-});
+gulp.task('default', gulp.series('clean', 'styles', 'scripts', function (done) {
+    done();
+}));

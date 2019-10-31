@@ -97,7 +97,7 @@ class UserModel extends BaseModel
             us.description, u.blocked
             FROM users AS u
             LEFT JOIN userStatus AS us ON us.id = u.id_status
-            WHERE u.intern <> 1 AND u.id_status > 1
+            WHERE u.intern <> 1 AND u.id_status > 0
             ORDER BY u.email";
         return $this->db->query_db($sql);
     }
