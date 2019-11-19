@@ -17,7 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpv1171`
+-- Database: `selfhelp_initial`
+-- Version: `v1.1.7.2`
 --
 
 -- --------------------------------------------------------
