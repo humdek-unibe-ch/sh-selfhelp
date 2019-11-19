@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 18, 2019 at 02:11 PM
+-- Generation Time: Nov 19, 2019 at 11:25 AM
 -- Server version: 5.7.27-0ubuntu0.18.04.1
 -- PHP Version: 7.2.19-0ubuntu0.18.04.2
 
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpv116`
+-- Database: `selfhelpv1171`
 --
 
 -- --------------------------------------------------------
@@ -1580,7 +1580,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `id_status`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`, `last_url`) VALUES
 (0000000001, 'guest', '', NULL, NULL, 0, NULL, 1, NULL, NULL, 0, NULL, NULL),
-(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, NULL, NULL);
+(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, NULL, NULL),
+(0000000003, 'tpf', 'TPF', '$2y$10$VxLANpP09THlDIDDfvL7PurilxKZ8vU8WzdGdfCYkdeBgy7hUkiUu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL),
+(0000000004, 'sysadmin', 'sysadmin', '$2y$10$H5MhmUF3cLLMNayuIQ4g.OXikV528bDOkConwtVBjdpj4rqrUtAXu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1619,7 +1621,9 @@ CREATE TABLE `users_groups` (
 --
 
 INSERT INTO `users_groups` (`id_users`, `id_groups`) VALUES
-(0000000002, 0000000001);
+(0000000002, 0000000001),
+(0000000003, 0000000001),
+(0000000004, 0000000001);
 
 -- --------------------------------------------------------
 
@@ -1650,6 +1654,16 @@ CREATE TABLE `user_input` (
   `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `removed` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `user_input`
+--
+
+INSERT INTO `user_input` (`id`, `id_users`, `id_sections`, `id_section_form`, `value`, `edit_time`, `removed`) VALUES
+(0000000001, 0000000003, 0000000056, 0000000055, '', '2019-11-19 11:21:28', 0),
+(0000000002, 0000000003, 0000000057, 0000000055, '', '2019-11-19 11:21:28', 0),
+(0000000003, 0000000004, 0000000056, 0000000055, '', '2019-11-19 11:21:28', 0),
+(0000000004, 0000000004, 0000000057, 0000000055, '', '2019-11-19 11:21:28', 0);
 
 -- --------------------------------------------------------
 
@@ -2002,7 +2016,7 @@ ALTER TABLE `styleType`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `userStatus`
 --
@@ -2017,7 +2031,7 @@ ALTER TABLE `user_activity`
 -- AUTO_INCREMENT for table `user_input`
 --
 ALTER TABLE `user_input`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- Constraints for dumped tables
 --
