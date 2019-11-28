@@ -28,6 +28,9 @@ fi
 
 # Begin script in case all parameters are correct
 
+# got to install script folder. Keep it as a basic path
+cd /home/$user/$name/server/utils
+
 sudo chmod 777 ../../assets
 sudo chmod 777 ../../css
 echo "Prepare the asset and css folder"
@@ -36,10 +39,6 @@ sudo -u $user cp ../service/globals_untracked.default.php ../service/globals_unt
 sudo -u $user sed -i "s/__experiment_name__/${name}/g" ../service/globals_untracked.php
 sudo -u $user sed -i "s/__password__/${password}/g" ../service/globals_untracked.php
 echo "Set the global variables of the experiment"
-
-sudo -u $user cp ../db/privileges.default.sql ../db/privileges.sql
-sudo -u $user sed -i "s/__experiment_name__/${name}/g" ../db/privileges.sql
-echo "Prepare the database script"
 
 sudo -u $user cp ../db/create_db.default.sql ../db/create_db.sql
 sudo -u $user sed -i "s/__experiment_name__/${name}/g" ../db/create_db.sql
