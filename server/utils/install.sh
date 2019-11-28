@@ -32,16 +32,16 @@ chmod 777 ../../assets
 chmod 777 ../../css
 echo "Prepare the asset and css folder"
 
-cp ../service/globals_untracked.default.php ../service/globals_untracked.php
+sudo -u $user cp ../service/globals_untracked.default.php ../service/globals_untracked.php
 sed -i "s/__experiment_name__/${name}/g" ../service/globals_untracked.php
 sed -i "s/__password__/${password}/g" ../service/globals_untracked.php
 echo "Set the global variables of the experiment"
 
-cp ../db/privileges.default.sql ../db/privileges.sql
+sudo -u $user cp ../db/privileges.default.sql ../db/privileges.sql
 sed -i "s/__experiment_name__/${name}/g" ../db/privileges.sql
 echo "Prepare the database script"
 
-cp ../db/create_db.default.sql ../db/create_db.sql
+sudo -u $user cp ../db/create_db.default.sql ../db/create_db.sql
 sed -i "s/__experiment_name__/${name}/g" ../db/create_db.sql
 sed -i "s/__password__/${password}/g" ../db/create_db.sql
 sudo mysql < ../db/create_db.sql
@@ -53,7 +53,7 @@ sudo mysql -u $name -p$password -D $name < ../db/FUN_PRO_VIEWS/fun_pro_views.sql
 echo "Functions, views and proceuderes are created!"
 
 echo "Setting up appache"
-cp ../../server/apache.default.conf ../../server/apache.conf
+sudo -u $user cp ../../server/apache.default.conf ../../server/apache.conf
 sed -i "s/__experiment_name__/${name}/g" ../../server/apache.conf
 sed -i "s/__user__/${user}/g" ../../server/apache.conf
 cd /etc/apache2/sites-available
