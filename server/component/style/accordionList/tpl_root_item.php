@@ -1,3 +1,8 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
 <div class="card">
     <div class="card-header accordion-header" id="<?php echo $this->id_prefix; ?>-<?php echo $child['id']; ?>" data-toggle="collapse" data-target="#<?php echo $this->id_prefix; ?>-content-<?php echo $child['id']; ?>" aria-expanded="true" aria-controls="collapseOne">
         <h5 class="mb-0">
