@@ -73,7 +73,7 @@ class Services
 
         $this->login = new Login($this->db,
             $this->is_experimenter_page($this->router->route['name']),
-            !$this->is_login_page($this->router->route['name']));
+            $this->does_redirect($this->router->route['name']));
 
         $this->mail = new Mailer($this->db);
 
@@ -82,6 +82,20 @@ class Services
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
+    }
+
+    /**
+     * Checks wether the current page should enable a login redirect.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the redirec is enabled, false otherwise.
+     */
+    private function does_redirect($keyword)
+    {
+        return !$this->is_login_page($keyword)
+            && !$this->is_open_page($keyword);
     }
 
     /**
@@ -98,6 +112,24 @@ class Services
             $this->router->map($page['protocol'], $page['url'], $page['action'],
                 $page['keyword']);
         $this->router->update_route();
+    }
+
+    /**
+     * Checks wether the current page is an open page.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is an open page, false otherwise.
+     */
+    private function is_open_page($keyword)
+    {
+        $sql = "SELECT * FROM pages WHERE keyword = :kw AND id_type = :type";
+        $res = $this->db->query_db_first($sql, array(':kw' => $keyword,
+            ':type' => OPEN_PAGE_ID));
+        if($res)
+            return true;
+        return false;
     }
 
     /**

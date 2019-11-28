@@ -1023,7 +1023,8 @@ class CmsModel extends BaseModel
         return ($this->can_create_new_page()
             && $this->get_active_section_id() == null
             && $this->page_info['parent'] == null
-            && $this->page_info['id_type'] == EXPERIMENT_PAGE_ID);
+            && ($this->page_info['id_type'] == EXPERIMENT_PAGE_ID
+                || $this->page_info['id_type'] == OPEN_PAGE_ID));
     }
 
     /**

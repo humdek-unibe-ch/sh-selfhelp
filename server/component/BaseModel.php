@@ -114,7 +114,10 @@ abstract class BaseModel
      */
     public function get_link_url($key, $params=array())
     {
-        return $this->router->generate($key, $params);
+        if($this->router->has_route($key))
+            return $this->router->generate($key, $params);
+        else
+            return "";
     }
 
     /**
