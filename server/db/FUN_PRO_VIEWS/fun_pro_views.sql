@@ -3,7 +3,7 @@ create view view_fields
 as
 select cast(f.id as unsigned) as field_id, f.name as field_name, f.display, cast(ft.id as unsigned) as field_type_id, ft.name as field_type, ft.position
 from fields f
-left join fieldtype ft on (f.id_type = ft.id);
+left join fieldType ft on (f.id_type = ft.id);
 drop view if exists view_styles;
 create view view_styles
 as
@@ -11,8 +11,8 @@ select cast(s.id as unsigned) as style_id, s.name as style_name, s.description a
 cast(st.id as unsigned) as style_type_id, st.name as style_type, cast(sg.id as unsigned) as style_group_id,
 sg.name as style_group, sg.description as style_group_description, sg.position as style_group_position
 from styles s
-left join styletype st on (s.id_type = st.id)
-left join stylegroup sg on (s.id_group = sg.id);
+left join styleType st on (s.id_type = st.id)
+left join styleGroup sg on (s.id_group = sg.id);
 drop view if exists view_style_fields;
 create view view_style_fields
 as
@@ -40,7 +40,7 @@ CREATE FUNCTION get_field_type_id(field_type varchar(100)) RETURNS INT
 BEGIN 
 	DECLARE field_type_id INT;    
 	select id into field_type_id
-	from fieldtype
+	from fieldType
 	where name = field_type;
     return field_type_id;
 END

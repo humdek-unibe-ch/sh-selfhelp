@@ -35,10 +35,11 @@ CALL grant_proc("INSERT, DELETE", @db_name, "chatRoom", @user_name);
 CALL grant_proc("INSERT, DELETE", @db_name, "chatRoom_users", @user_name);
 CALL grant_proc("INSERT, UPDATE (id_users)", @db_name, "validation_codes", @user_name);
 
-SET @user_name_reminder = "selfhelp_reminder";
+/* SET @user_name_reminder = "selfhelp_reminder";
 CALL grant_proc("SELECT", @db_name, "pages_fields_translation", @user_name_reminder);
 CALL grant_proc("SELECT, UPDATE (is_reminded)", @db_name, "users", @user_name_reminder);
 CALL grant_proc("SELECT", @db_name, "pages", @user_name_reminder);
 CALL grant_proc("SELECT", @db_name, "fields", @user_name_reminder);
+ reminders will be restructured */
 
 DROP PROCEDURE IF EXISTS grant_proc;
