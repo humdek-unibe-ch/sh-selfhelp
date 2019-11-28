@@ -9,6 +9,6 @@
     </div>
     <div class="card-body">
         <p><?php echo $text; ?></p>
-        <?php $this->output_export_item_options($options); ?>
+        <?php echo $form ? $this->output_select_form() : $this->output_export_item_options($options); ?>
     </div>
 </div>

@@ -39,9 +39,36 @@ class ExportView extends BaseView
         $fields = $this->model->get_export_view_fields($selector);
         $title = $fields["title"];
         $text = $fields["text"];
+        $form = isset($fields['form']);
         $options = $fields["options"];
         require __DIR__ . "/tpl_export_item.php";
     }
+
+   private function output_select_form()
+   {
+      $forms = $this->model->get_forms();
+      $options = array();
+      foreach ($forms as $form)
+         $options[] = array(
+            "value" => $form['form_id'],
+            "text" => $form['form_name']
+         );
+      $form_export = new BaseStyleComponent("form", array(         
+         "name" => "export_form_name",
+         "label" => "Export selected form",
+         "url" => $_SERVER['REQUEST_URI'],
+         "children" => array(new BaseStyleComponent("select", array(
+            "label" => "Select form:",
+            "value" => sizeof($options) > 0 ? array_values($options)[0]['value'] :'',
+            "name" => "export_form_name_select",
+            "css" => 'mb-3',
+            "items" => $options,
+         )))
+      ));
+
+      $form_export->output_content();
+   }
+    
 
     /* Public Methods *********************************************************/
 
