@@ -28,8 +28,8 @@ fi
 
 # Begin script in case all parameters are correct
 
-chmod 777 ../../assets
-chmod 777 ../../css
+sudo chmod 777 ../../assets
+sudo chmod 777 ../../css
 echo "Prepare the asset and css folder"
 
 sudo -u $user cp ../service/globals_untracked.default.php ../service/globals_untracked.php
