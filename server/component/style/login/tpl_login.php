@@ -1,3 +1,8 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
 <div class="card card-<?php echo $this->type; ?> <?php echo $this->css; ?>">
     <div class="card-header">
         <h5 class="m-0"><?php echo $this->login_title; ?></h5>

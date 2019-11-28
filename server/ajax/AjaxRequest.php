@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 spl_autoload_register(function ($class_name) {
     if(strpos($class_name, "Ajax") === 0)
         require_once __DIR__ . '/' . $class_name . ".php";
