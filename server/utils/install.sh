@@ -1,4 +1,5 @@
 #!/bin/bash 
+# script should be used from version 1.1.8.1
 user=www
 
 helpFunction()
