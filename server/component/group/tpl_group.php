@@ -61,9 +61,12 @@
         </div>
     </div>
     <div class="col">
+       <?php $this->output_group_acl_custom(); ?>        
+    </div>
+    <?php /*    
+    <div class="col-auto">
+       <!-- I find it confusing if I show both options. I will hide it for now -->
         <?php $this->output_group_manipulation(); ?>
     </div>
-    <div class="col-auto">
-        <?php $this->output_group_acl(); ?>
-    </div>
+    */ ?>
 </div>

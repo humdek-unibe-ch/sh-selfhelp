@@ -785,5 +785,17 @@ class GroupModel extends BaseModel
             $this->gacl["email"]["acl"][$lvl] = true;
         }
     }
+
+    /**
+     * Set the access level for custom page
+     *
+     * @param string $page The page name 
+     * 
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_custom_access_for_group($page, $lvl){
+        $this->gacl[$page]["acl"][$lvl] = true;
+    }
 }
 ?>
