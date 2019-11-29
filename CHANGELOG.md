@@ -1,4 +1,12 @@
-# v1.1.7.2 (latest)
+# v1.1.8.2 (latest)
+
+### Changes
+
+ - added new install.ch script
+ - database initial do not contain views, functions and procedure. There is another sql script.
+ - removed the privileges sql file. Not needed anymore. The new user has grant access all.
+
+# v1.1.7.2
 
 ### Changes
 
