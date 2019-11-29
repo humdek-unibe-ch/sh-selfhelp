@@ -248,7 +248,7 @@ class GroupView extends BaseView
             "is_expanded" => true,
             "is_collapsible" => false,
             "type" => "warning",
-            "title" => "Modify Group ACL",
+            "title" => "Modify Group" .  $this->selected_group['name'] . " ACL",
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "label" => "Update Group",
@@ -294,7 +294,7 @@ class GroupView extends BaseView
             "is_expanded" => true,
             "is_collapsible" => false,
             "url_edit" => $url_edit,
-            "title" => "Group ACL",
+            "title" => "Group " .  $this->selected_group['name'] . " ACL",
             "children" => array(new BaseStyleComponent("acl", array(
                 "title" => "Function",
                 "items" => $this->model->get_acl_selected_group()
