@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/BaseCallback.php";
+require_once __DIR__ . "/../service/globals_untracked.php";
 
 /**
  * A small class that handles callbak and set the group number for validation code
@@ -28,11 +29,15 @@ class CallbackSetGroup extends BaseCallback
      *
      * @param $data
      *  The POST data of the callback call:
+     * callbackKey is expected from where the callback is initialized
      */
     public function set_group($data)
     {
-       $result = [];
-       $result['selfhelpCallback'] = 'selfelhp result';
+        $result = [];
+        $result['selfhelpCallback'] = 'selfelhp';
+        if(!isset($data['callbackKey']) || CALLBACK_KEY !== $data['callbackKey']){
+            $result['selfhelpCallback'] = 'wrong callback key';
+        }
         echo json_encode($result);
     }
 }

@@ -10,3 +10,8 @@ ALTER TABLE groups ADD UNIQUE (name);
 
 -- add callback request page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES (NULL, 'callback', '/callback/[v:class]/[v:method]?', 'GET|POST', '0000000001', NULL, NULL, '0', NULL, NULL, '0000000001');
+
+-- add group to the validation codes. If there is agroup it is assinged to the user once the user is activated.
+ALTER TABLE validation_codes
+ADD COLUMN id_groups INT(10) UNSIGNED ZEROFILL NULL,
+ADD CONSTRAINT validation_codes_fk_id_groups FOREIGN KEY (id_groups)  REFERENCES groups(id) ON DELETE CASCADE;	
