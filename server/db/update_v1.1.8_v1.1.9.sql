@@ -4,3 +4,6 @@ SET @id_page_group_custom_update = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_group_custom_update, '0000000008', '0000000001', 'Custom Group Update');
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page_group_custom_update, '1', '0', '1', '0');
+
+-- the name field in groups should be unique. It will prevent duplicates
+ALTER TABLE groups ADD UNIQUE (name);
