@@ -30,6 +30,10 @@ class GroupUpdateCustomComponent extends GroupComponent
     public function __construct($services, $params)
     {
         $gid = isset($params['gid']) ? intval($params['gid']) : null;
+        if($gid === ADMIN_GROUP_ID){
+            // prevent editing the adming group by manually enter the link
+            $gid = -1;
+        }
         $model = new GroupModel($services, $gid);
         $controller = new GroupUpdateCustomController($model);
         $mode = $controller->has_succeeded() ? "select" : "updateCustom";
