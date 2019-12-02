@@ -13,4 +13,5 @@ define('DBSERVER', 'localhost');
 define('DBNAME', '__experiment_name__');
 define('DBUSER', '__experiment_name__');
 define('DBPW', '__password__');
+define('CALLBACK_KEY', "__callback_key__");
 ?>

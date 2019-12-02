@@ -7,3 +7,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 
 -- the name field in groups should be unique. It will prevent duplicates #213
 ALTER TABLE groups ADD UNIQUE (name);
+
+-- add callback request page
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES (NULL, 'callback', '/callback/[v:class]/[v:method]?', 'GET|POST', '0000000001', NULL, NULL, '0', NULL, NULL, '0000000001');
