@@ -114,12 +114,10 @@ class RegisterModel extends StyleModel
     {
         if($this->check_validation_code($code))
         {
-            $group = $this->get_group_from_code($code);
-            // asign default group
-            $groupId = SUBJECT_GROUP_ID;
-            if(isset($group['id_groups'])){
-                //if there is a group assigned to that validation code, assign the default one
-                $groupId = $group['id_groups'];
+            $group = $this->get_group_from_code($code);            
+            $groupId = SUBJECT_GROUP_ID; // asign default group
+            if(isset($group['id_groups'])){                
+                $groupId = $group['id_groups']; //if there is a group assigned to that validation code, assign the default one
             }
             $uid = $this->user_model->create_new_user($email);
             if($uid && $this->claim_validation_code($code, $uid))

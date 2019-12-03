@@ -25,6 +25,36 @@ class CallbackSetGroup extends BaseCallback
     }
 
     /**
+     * Assign group to code in the table validation codes
+     *
+     * @param $group
+     * @param $code
+     */
+    private function assignGroupToCode($group, $code){
+        return (bool)$this->db->update_by_ids('validation_codes',
+            array('id_groups' => $group),
+            array('code' => $code)
+        );
+    }
+
+    /**
+     * Get the group id
+     *
+     * @param $groupName
+     * @return $groupId
+     */
+    private function getGroupId($group){
+        $sql = "SELECT id FROM groups
+            WHERE name = :group";
+        $res = $this->db->query_db_first($sql, array(':group' => $group));
+        if(!isset($res['id'])){
+            return -1;
+        }else{
+            return $res['id'];
+        }
+    }
+
+    /**
      * The setgroup function that can be called by the callback
      *
      * @param $data
@@ -37,6 +67,20 @@ class CallbackSetGroup extends BaseCallback
         $result['selfhelpCallback'] = 'selfelhp';
         if(!isset($data['callbackKey']) || CALLBACK_KEY !== $data['callbackKey']){
             $result['selfhelpCallback'] = 'wrong callback key';
+            echo json_encode($result);
+            return $result;
+        }
+        if(!isset($data['group']) || !isset($data['code'])){
+            $result['selfhelpCallback'] = 'missing parameter: code or group';
+            echo json_encode($result);
+            return $result;
+        }
+        $groupId = $this->getGroupId($data['group']);
+        $result['groupId'] = $groupId;
+        if ($this->assignGroupToCode($groupId, $data['code'])) {
+            $result['selfhelpCallback'] = 'Code: ' . $data['code'] . ' was assigned to group: ' . $groupId . ' with name: ' . $data['group'];
+        }else{
+            $result['selfhelpCallback'] = 'Failed! Code: ' . $data['code'] . ' was not assigned to group: ' . $groupId . ' with name: ' . $data['group'];
         }
         echo json_encode($result);
     }
