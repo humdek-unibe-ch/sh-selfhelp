@@ -22,7 +22,7 @@ class NavModel extends BaseModel
      */
     public function __construct($services)
     {
-        parent::__construct($services);
+        parent::__construct($services);        
     }
 
     /* Private Methods ********************************************************/
@@ -197,5 +197,17 @@ class NavModel extends BaseModel
      *  True if the route exists, false otherwise.
      */
     public function has_route($route) { return $this->router->has_route($route); }
+
+    /**
+     * Checks whether user has access to the chat. If not later the icon is not visualized
+     *
+     * @param string $key
+     *  The page name of the chat; in this case "contact"
+     * @retval bool
+     *  True if the user has access to the chat.
+     */
+    public function has_access_to_chat($key){
+        return $this->acl->has_access_select($_SESSION['id_user'], $this->db->fetch_page_id_by_keyword($key)); 
+    }
 }
 ?>
