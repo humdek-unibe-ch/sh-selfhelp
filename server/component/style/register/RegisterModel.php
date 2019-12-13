@@ -89,9 +89,9 @@ class RegisterModel extends StyleModel
      */
     private function get_group_from_code($code)
     {
-        $sql = "SELECT id_groups FROM validation_codes
-            WHERE id_users is NULL AND code = :code";
-        return $this->db->query_db_first($sql, array(':code' => $code));
+        $sql = "SELECT id_groups FROM codes_groups
+            WHERE code = :code";
+        return $this->db->query_db($sql, array(':code' => $code));
     }
 
     /* Public Methods *********************************************************/
@@ -115,15 +115,16 @@ class RegisterModel extends StyleModel
         if($this->check_validation_code($code))
         {
             $group = $this->get_group_from_code($code);            
-            $groupId = SUBJECT_GROUP_ID; // asign default group
-            if(isset($group['id_groups'])){                
-                $groupId = $group['id_groups']; //if there is a group assigned to that validation code, assign the default one
+            $groupId = array(SUBJECT_GROUP_ID); // asign default group
+            if(!empty($group)){  
+                              
+                $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }
             $uid = $this->user_model->create_new_user($email);
             if($uid && $this->claim_validation_code($code, $uid))
             {
                 $this->user_model->add_groups_to_user($uid,
-                    array($groupId));
+                    $groupId);
                 return $uid;
             }
         }
