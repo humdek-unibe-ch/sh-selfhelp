@@ -65,14 +65,26 @@ abstract class BaseCallback
     }
 
     public function insert_callback_log($log, $params)
-    { 
+    {
         $callback_id = $this->db->insert("callbackLogs", array(
-            "callback_date" => 'NOW()',
             "remote_addr" => $log['REMOTE_ADDR'],
             "callback_params" => json_encode($params),
-            "status" => "init",
-            "log" => json_encode($log)
+            "status" => CALLBACK_NEW,
+            "redirect_url" => $log["REDIRECT_URL"]
         ));
+        return $callback_id;
+    }
+
+    public function update_callback_log($callback_id, $output, $status)
+    {
+        $callback_id = $this->db->update_by_ids(
+            "callbackLogs",
+            array(
+                "callback_output" => json_encode($output),
+                "status" => $status
+            ),
+            array("id" => $callback_id)
+        );
         return $callback_id;
     }
 }

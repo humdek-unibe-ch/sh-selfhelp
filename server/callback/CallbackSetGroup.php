@@ -64,26 +64,28 @@ class CallbackSetGroup extends BaseCallback
     public function set_group($data)
     {
         $callback_log_id = $this->insert_callback_log($_SERVER, $data);
-        $ip = $_SERVER['REMOTE_ADDR'];
         $result = [];
+        $callback_status = CALLBACK_ERROR;
         $result['selfhelpCallback'] = 'selfelhp';
         if(!isset($data['callbackKey']) || CALLBACK_KEY !== $data['callbackKey']){
             $result['selfhelpCallback'] = 'wrong callback key';
             echo json_encode($result);
-            return $result;
+            return $this->update_callback_log($callback_log_id, $result, $callback_status);;
         }
         if(!isset($data['group']) || !isset($data['code'])){
             $result['selfhelpCallback'] = 'missing parameter: code or group';
             echo json_encode($result);
-            return $result;
+            return $this->update_callback_log($callback_log_id, $result, $callback_status);;
         }
         $groupId = $this->getGroupId($data['group']);
         $result['groupId'] = $groupId;
         if ($this->assignGroupToCode($groupId, $data['code'])) {
+            $callback_status = CALLBACK_SUCCESS;
             $result['selfhelpCallback'] = 'Code: ' . $data['code'] . ' was assigned to group: ' . $groupId . ' with name: ' . $data['group'];
         }else{
             $result['selfhelpCallback'] = 'Failed! Code: ' . $data['code'] . ' was not assigned to group: ' . $groupId . ' with name: ' . $data['group'];
         }
+        $this->update_callback_log($callback_log_id, $result, $callback_status);
         echo json_encode($result);
     }
 }

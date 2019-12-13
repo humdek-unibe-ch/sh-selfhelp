@@ -20,9 +20,10 @@ ADD CONSTRAINT validation_codes_fk_id_groups FOREIGN KEY (id_groups)  REFERENCES
 drop table callbackLogs;
 CREATE TABLE `callbackLogs` (
   `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
-  `callback_date` DATETIME,
+  `callback_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `remote_addr` VARCHAR(200),
   `redirect_url` VARCHAR(1000),
   `callback_params` LONGTEXT,
-  `status` VARCHAR(200)
+  `status` VARCHAR(200), -- statuscode are defined in the globals.php 
+  `callback_output` longtext
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
