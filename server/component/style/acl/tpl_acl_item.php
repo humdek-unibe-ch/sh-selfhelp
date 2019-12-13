@@ -5,5 +5,5 @@
 ?>
 <tr>
     <th scope="row"><?php echo $name; ?></th>
-    <?php $this->output_items_checkbox($key, $acl["acl"], $disabled); ?>
+    <?php $this->output_items_checkbox($key, $acl["acl"], $is_disabled); ?>
 </tr>

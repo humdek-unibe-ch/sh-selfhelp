@@ -68,7 +68,7 @@ class AclView extends StyleView
      */
     private function output_items()
     {
-        $disabled = ($this->is_editable) ? "" : "disabled";
+        $is_disabled = !$this->is_editable;
         foreach($this->items as $key => $acl)
         {
             $name = $acl["name"];
@@ -88,16 +88,20 @@ class AclView extends StyleView
      *  Holds either an empty string if the checkbox is enabled or the html
      *  disabled attribute if the checkbox is disabled.
      */
-    private function output_items_checkbox($key, $checkboxes, $disabled)
-    {
+    private function output_items_checkbox($key, $checkboxes, $is_disabled)
+    {                       
         foreach($checkboxes as $level => $item)
-        {
-            if(isset($this->items_granted[$key]["acl"][$level])
+        {           
+            if($is_disabled || isset($this->items_granted[$key]["acl"][$level])
                     && !$this->items_granted[$key]["acl"][$level])
-                $disabled = "disabled";
-            $checked = $item ? "checked" : "";
+            {
+                $disabled = "disabled";                
+            }else{
+                $disabled = "";                
+            }      
+            $checked = $item ? "checked" : "";                
             require __DIR__ . "/tpl_acl_item_checkbox.php";
-        }
+        }        
     }
 
     /* Public Methods *********************************************************/

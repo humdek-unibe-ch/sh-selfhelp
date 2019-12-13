@@ -15,3 +15,14 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 ALTER TABLE validation_codes
 ADD COLUMN id_groups INT(10) UNSIGNED ZEROFILL NULL,
 ADD CONSTRAINT validation_codes_fk_id_groups FOREIGN KEY (id_groups)  REFERENCES groups(id) ON DELETE CASCADE;	
+
+-- create table that keeps information about the requested callbacks
+drop table callbackLogs;
+CREATE TABLE `callbackLogs` (
+  `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `callback_date` DATETIME,
+  `remote_addr` VARCHAR(200),
+  `redirect_url` VARCHAR(1000),
+  `callback_params` LONGTEXT,
+  `status` VARCHAR(200)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

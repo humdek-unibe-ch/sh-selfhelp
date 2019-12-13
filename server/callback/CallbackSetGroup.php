@@ -63,6 +63,8 @@ class CallbackSetGroup extends BaseCallback
      */
     public function set_group($data)
     {
+        $callback_log_id = $this->insert_callback_log($_SERVER, $data);
+        $ip = $_SERVER['REMOTE_ADDR'];
         $result = [];
         $result['selfhelpCallback'] = 'selfelhp';
         if(!isset($data['callbackKey']) || CALLBACK_KEY !== $data['callbackKey']){

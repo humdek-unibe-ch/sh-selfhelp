@@ -63,5 +63,17 @@ abstract class BaseCallback
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
     }
+
+    public function insert_callback_log($log, $params)
+    { 
+        $callback_id = $this->db->insert("callbackLogs", array(
+            "callback_date" => 'NOW()',
+            "remote_addr" => $log['REMOTE_ADDR'],
+            "callback_params" => json_encode($params),
+            "status" => "init",
+            "log" => json_encode($log)
+        ));
+        return $callback_id;
+    }
 }
 ?>

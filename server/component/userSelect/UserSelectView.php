@@ -384,7 +384,7 @@ class UserSelectView extends BaseView
             "is_collapsible" => true,
             "title" => "ACL",
             "children" => array(new BaseStyleComponent("acl", array(
-                "title" => "Page",
+                "title" => "Page",                
                 "items" => $this->model->get_acl_selected_user()
             )))
         ));
