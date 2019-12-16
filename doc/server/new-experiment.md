@@ -4,9 +4,41 @@ In the following the expression `__experiment_name__` will be used as a placehol
 
 **Do not use underline in this name as it causes issues with the database name!**
 
+<details open>
+
+   <summary>After version v1.1.8</summary>
+
+   ### 1. Clone the latest release from GitLab 
+
+   ```
+   cd
+   git clone gh@tpf.fluido.as:SLP/SLP-sleep_coach.git __experiment_name__
+   cd __experiment_name__
+   ```
+
+   Checkout the latest relaese.
+   The expression `__latest_release__` is used as a placeholder for the latest version number.
+   To list all releases use the command `git tag`.
+
+   ```
+   git checkout v__latest_release__
+   ```
+
+   ### 2. Install SelfHelp 
+
+   ```
+
+   sudo ./install.sh -n __experiment_name__ -p __db_password__ -u __os_user__
+
+   ```
+
+</details>
+
 <details>
 
-<summary>Before version v1.1.8</summary>
+<summary>
+   Before version v1.1.8
+</summary>
 
 ### 1. Clone the latest release from GitLab 
 
@@ -163,4 +195,5 @@ The following list provides a short description of the columns in the table `pro
  - `url`: The part of the url that is appended to the host address which allows a user to reach the project (this will most likely be set to `__experiment_name__` which results in a full url `https:\\selfhelp.psy.unibe.ch/__experiment_name__`).
  - `has_reminder`: If set to '1' the reminder is activated for this project. If set to '0' the reminder is deactivated for this project.
  - `days`: Specifies the number of days a user must be inactive to receive a reminder email.
+
 </details>
