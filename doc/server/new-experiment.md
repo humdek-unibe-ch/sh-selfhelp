@@ -4,9 +4,8 @@ In the following the expression `__experiment_name__` will be used as a placehol
 
 **Do not use underline in this name as it causes issues with the database name!**
 
-<details open>
 
-   <summary>After version v1.1.8</summary>
+   # After version v1.1.8
 
    ### 1. Clone the latest release from GitLab 
 
@@ -32,13 +31,7 @@ In the following the expression `__experiment_name__` will be used as a placehol
 
    ```
 
-</details>
-
-<details>
-
-<summary>
-   Before version v1.1.8
-</summary>
+   # Before version v1.1.8
 
 ### 1. Clone the latest release from GitLab 
 
@@ -195,5 +188,3 @@ The following list provides a short description of the columns in the table `pro
  - `url`: The part of the url that is appended to the host address which allows a user to reach the project (this will most likely be set to `__experiment_name__` which results in a full url `https:\\selfhelp.psy.unibe.ch/__experiment_name__`).
  - `has_reminder`: If set to '1' the reminder is activated for this project. If set to '0' the reminder is deactivated for this project.
  - `days`: Specifies the number of days a user must be inactive to receive a reminder email.
-
-</details>
