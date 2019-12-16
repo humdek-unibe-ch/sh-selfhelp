@@ -1,35 +1,37 @@
 #!/bin/bash 
-# script should be used from version 1.1.8.1
-user=www
+# script should be used from version v1.1.8.2
 
 helpFunction()
 {
    echo ""
-   echo "Usage: $0 -n experiment_name -p password"
+   echo "Usage: $0 -u user_name -n experiment_name -p password"
    echo -e "\t-n Experiment name"
    echo -e "\t-p password"   
+   echo -e "\t-u OS user owner of the files"   
    exit 1 # Exit script after printing help
 }
 
-while getopts "n:p:" opt
+while getopts "n:p:u:" opt
 do
    case "$opt" in
       n ) name="$OPTARG" ;;
       p ) password="$OPTARG" ;;      
+	  u ) user="$OPTARG" ;; # user under the installation is done     
       ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
    esac
 done
 
 # Print helpFunction in case parameters are empty
-if [ -z "$name" ] || [ -z "$password" ]
+if [ -z "$name" ] || [ -z "$password" ] || [ -z "$user" ]
 then
    echo "Some or all of the parameters are empty";
    helpFunction
 fi
 
 # Begin script in case all parameters are correct
+echo "Start installation"
 
-# got to install script folder. Keep it as a basic path
+# got to install script folder. Keep it as a basic path 
 cd /home/$user/$name/server/utils
 
 sudo chmod 777 ../../assets
