@@ -26,7 +26,7 @@ git checkout v__latest_release__
 ### 2. Install SelfHelp 
 
 ```
-
+cd server/utils/
 sudo ./install.sh -n __experiment_name__ -p __db_password__ -u __os_user__
 
 ```
