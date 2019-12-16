@@ -225,6 +225,84 @@ class GroupView extends BaseView
         $card->output_content();
     }
 
+    /**
+     * Render the ACL list with edit mode.
+     */
+    private function output_group_acl_custom()
+    {
+        if($this->mode == "updateCustom")
+            $this->output_group_acl_custom_form();
+        else
+            $this->output_group_acl_custom_table();
+        if($this->model->can_delete_group())
+            $this->output_group_delete();
+    }
+
+    /**
+     * Render the ACL form.
+     */
+    private function output_group_acl_custom_form()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "type" => "warning",
+            "title" => "Modify Group" .  $this->selected_group['name'] . " ACL",
+            "children" => array(
+                new BaseStyleComponent("form", array(
+                    "label" => "Update Group",
+                    "url" => $this->model->get_link_url("groupUpdateCustom",
+                        array(
+                            "gid" => $this->selected_group['id'],
+                        )
+                    ),
+                    "type" => "warning",
+                    "url_cancel" => $this->model->get_link_url("groupSelect",
+                        array("gid" => $this->selected_group['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "hidden",
+                            "name" => "update_custom_acl",
+                            "value" => 1,
+                        )),
+                        new BaseStyleComponent("acl", array(
+                            "title" => "Function",
+                            "is_editable" => true,
+                            "items" => $this->model->get_acl_selected_group(),
+                            "items_granted" => $this->model->get_admin_group_rights(),
+                        ))
+                    ),
+                ))
+
+            )
+        ));
+        $card->output_content();
+    }
+
+    /**
+     * Render the ACL table.
+     */
+    private function output_group_acl_custom_table()
+    {
+        $url_edit = "";
+        if($this->model->can_modify_group_acl())
+            $url_edit = $this->model->get_link_url("groupUpdateCustom",
+                array('gid' => $this->selected_group['id']));
+        $table = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "url_edit" => $url_edit,
+            "title" => "Group " .  $this->selected_group['name'] . " ACL",
+            "children" => array(new BaseStyleComponent("acl", array(
+                "title" => "Function",
+                "items" => $this->model->get_acl_selected_group()
+            )))
+        ));
+        $table->output_content();
+    }
+
     /* Public Methods *********************************************************/
 
     /**

@@ -109,7 +109,7 @@ class ValidateModel extends StyleModel
             "password" => $pw,
             "id_genders" => $gender,
             "token" => null,
-            "id_status" => 3,
+            "id_status" => 3
         ), array(
             "id" => $this->uid,
         ));

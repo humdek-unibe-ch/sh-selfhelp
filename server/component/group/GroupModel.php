@@ -486,6 +486,16 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Get the ACL info for the Admin group and when someone want to change rights, this is the maximum what they can assign
+     *
+     * @retval array
+     *  See UserModel::fetch_acl_by_id.
+     */  
+    public function get_admin_group_rights(){
+       return $this->fetch_acl_by_id(ADMIN_GROUP_ID, true);
+    }
+
+    /**
      * Get the simplified ACL info of the selected group.
      *
      * @param array $acl
@@ -570,7 +580,7 @@ class GroupModel extends BaseModel
      */
     public function get_simple_acl_current_user()
     {
-        return $this->get_simple_acl($this->uacl);
+        return $this->get_simple_acl($this->uacl);        
     }
 
     /**
@@ -784,6 +794,18 @@ class GroupModel extends BaseModel
             $this->gacl["email"]["acl"]["select"] = true;
             $this->gacl["email"]["acl"][$lvl] = true;
         }
+    }
+
+    /**
+     * Set the access level for custom page
+     *
+     * @param string $page The page name 
+     * 
+     * @param string $lvl
+     *  The level of access to be set e.g. select, insert, update, or delete.
+     */
+    public function set_custom_access_for_group($page, $lvl){
+        $this->gacl[$page]["acl"][$lvl] = true;
     }
 }
 ?>

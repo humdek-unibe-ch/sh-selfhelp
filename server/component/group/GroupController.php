@@ -102,5 +102,34 @@ class GroupController extends BaseController
         }
         return $this->model->dump_acl_table($gid);
     }
+
+
+   /**
+     * This method updates the group acl entries in the db. To do this it first
+     * initialises the acl table of the model instance, then updates the entries
+     * in the table and finally, saves the acl entries to the database.
+     *
+     * @param int $gid
+     *  The group id where the acl will be updated. If no id is provided, the
+     *  current group id GroupModel::gid is used.
+     * @retval bool
+     *  True on success, false otherwise.
+     */
+    protected function update_group_acl_custom($gid = null)
+    {
+        $this->model->init_acl_table();
+        $lvls = array("select", "insert", "update", "delete");
+        foreach($lvls as $lvl)
+        {
+            $pages = array_keys($_POST);
+            foreach($pages as $page){
+               if(isset($_POST[$page][$lvl])){
+                  $this->model->set_custom_access_for_group($page, $lvl);
+               }
+            }
+        }
+        return $this->model->dump_acl_table($gid);
+    }
+
 }
 ?>

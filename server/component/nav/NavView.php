@@ -36,6 +36,7 @@ class NavView extends BaseView
             return;
         $active = ($this->model->is_link_active($key)) ? "active" : "";
         $url = $this->model->get_link_url($key);
+        $accessToChat = $this->model->has_access_to_chat($key) ? "" : "d-none";
         require __DIR__ .'/tpl_contact.php';
     }
 

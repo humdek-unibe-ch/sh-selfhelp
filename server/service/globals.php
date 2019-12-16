@@ -47,4 +47,9 @@ define('INTERNAL_PAGE_ID', 1);
 define('CORE_PAGE_ID', 2);
 define('EXPERIMENT_PAGE_ID', 3);
 define('OPEN_PAGE_ID', 4);
+
+/* Callback status */
+define('CALLBACK_NEW', 'callback_new');
+define('CALLBACK_ERROR', 'callback_error');
+define('CALLBACK_SUCCESS', 'callback_success');
 ?>
