@@ -1,4 +1,12 @@
-# v1.1.8.3 (latest)
+# v1.1.9 (latest)
+
+### Changes
+
+ - changeing group acl; nowa group can be customized with detailed rules
+ - adding callback functionality
+ - assing group to a code via acallback
+
+# v1.1.8.3
 
 ### Changes
 
