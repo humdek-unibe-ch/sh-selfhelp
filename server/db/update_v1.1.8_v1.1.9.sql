@@ -21,7 +21,6 @@ CREATE TABLE codes_groups (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- create table that keeps information about the requested callbacks
-drop table callbackLogs;
 CREATE TABLE `callbackLogs` (
   `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
   `callback_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
