@@ -1,4 +1,4 @@
-# v1.1.8.2 (latest)
+# v1.1.8 (latest)
 
 ### Changes
 
