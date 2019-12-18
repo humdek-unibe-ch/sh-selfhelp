@@ -18,6 +18,7 @@ define('STYLE_PATH', '/server/component/style');
 define('STYLE_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . STYLE_PATH);
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
 define('EMAIL_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/email');
+define('NAME_PATTERN', '[a-zA-Z0-9_-]+'); // pattern used for naming
 
 define('MAX_USER_COUNT', 100000);
 

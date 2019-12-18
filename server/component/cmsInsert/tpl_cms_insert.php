@@ -16,8 +16,8 @@
             <form action="<?php echo $action_url; ?>" method="post">
                 <div class="form-group">
                     <label>Keyword</label>
-                    <input type="text" class="form-control" name="keyword" placeholder="Enter keyword" required>
-                    <small class="form-text text-muted">The page keyword must be unique, otherwise the page creation will fail.</small>
+                    <input type="text" class="form-control" name="keyword" placeholder="Enter keyword" required pattern="<?php echo NAME_PATTERN ?>">
+                    <small class="form-text text-muted">The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b></small>                    
                 </div>
                 <div class="form-group">
                     <div>
