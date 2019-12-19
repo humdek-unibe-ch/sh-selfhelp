@@ -1,4 +1,11 @@
-# v1.1.9 (latest)
+# v1.1.10 (latest)
+
+### Changes
+
+ - create page - the page keyword can contain numbers, letters, - and _ characters (#215)
+ - added update script which remove all spaces and dots from already existing page names 
+
+# v1.1.9
 
 ### Changes
 
