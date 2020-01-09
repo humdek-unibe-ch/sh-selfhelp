@@ -27,3 +27,7 @@
     background-color: #e2e3e5;
     color: #383d41;
 }
+
+.chatMessage{
+    white-space: pre-line;
+}
