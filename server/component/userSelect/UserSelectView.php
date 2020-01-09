@@ -130,6 +130,16 @@ class UserSelectView extends BaseView
             $title = "Progress";
             $content = "A user progress metric: The percentage of vistited experimenter pages and navigation sections";
         }
+        else if($key === "groups")
+        {
+            $title = "Groups";
+            $content = "The groups in which the user is assigned";
+        }
+        else if($key === "chat_rooms_description")
+        {
+            $title = "Chat";
+            $content = "The chats rooms' descriptions in whcih the user is assigned";
+        }
         else
             $content = $title = "bad key";
         require __DIR__ . "/tpl_user_attr_title.php";
@@ -325,6 +335,8 @@ class UserSelectView extends BaseView
             $email = $user['title'];
             $state = $user['status'];
             $desc = $user['description'];
+            $groups = $user['groups'];
+            $chat_rooms_description = $user['chat_rooms_description'];
             $row_state = "";
             if(strpos($state, "blocked") !== false)
                 $row_state = "table-warning";
@@ -362,6 +374,8 @@ class UserSelectView extends BaseView
             $state = $this->selected_user['status'];
             $code = $this->selected_user['code'] ?? "-";
             $desc = $this->selected_user['description'];
+            $groups = $this->selected_user['groups'];
+            $chat_rooms_description = $this->selected_user['chat_rooms_description'];
             $last_login = $this->get_last_login($this->selected_user['last_login']);
             $activity = $this->model->get_user_activity($this->selected_user['id']);
             $progress = $this->model->get_user_progress($this->selected_user['id']);

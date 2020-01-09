@@ -72,11 +72,19 @@ class UserModel extends BaseModel
     private function fetch_user($uid)
     {
         $sql = "SELECT u.email, u.blocked, u.name, us.name AS status, us.description,
-            vc.code, u.last_login
+            vc.code, u.last_login,
+            GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+            GROUP_CONCAT(DISTINCT ch.description SEPARATOR '; ') AS chat_rooms_description
             FROM users AS u
             LEFT JOIN userStatus AS us ON us.id = u.id_status
             LEFT JOIN validation_codes AS vc ON vc.id_users = u.id
-            WHERE u.id = :uid and u.intern <> 1";
+            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            LEFT JOIN groups g ON g.id = ug.id_groups
+            LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+            LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+            WHERE u.id = :uid and u.intern <> 1
+            GROUP BY u.email, u.blocked, u.name, us.name, us.description,
+            vc.code, u.last_login";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
         if($res)
             $res['id'] = $uid;
@@ -95,15 +103,24 @@ class UserModel extends BaseModel
      *   'status':      Indicates the state of the user.
      *   'description': The state description of the user.
      *   'blocked':     Indicates whether the user is blocked or not.
+     *   'groups':      Groups assigned to the user
+     *   'chat_rooms_description' The chat rooms assigned to the user - their descriptions as some chat room names should be not so explinatory as they are shown to the subjects
      */
     private function fetch_users()
     {
         $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
-            us.description, u.blocked
-            FROM users AS u
-            LEFT JOIN userStatus AS us ON us.id = u.id_status
-            WHERE u.intern <> 1 AND u.id_status > 0
-            ORDER BY u.email";
+                us.description, u.blocked,
+                GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+                GROUP_CONCAT(DISTINCT ch.description SEPARATOR '; ') AS chat_rooms_description
+                FROM users AS u
+                LEFT JOIN userStatus AS us ON us.id = u.id_status
+                LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+                LEFT JOIN groups g ON g.id = ug.id_groups
+                LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+                LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+                WHERE u.intern <> 1 AND u.id_status > 0
+                GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked
+                ORDER BY u.email";
         return $this->db->query_db($sql);
     }
 
@@ -529,6 +546,8 @@ class UserModel extends BaseModel
             "status" => $state,
             "blocked" => ($user['blocked'] == '1') ? true : false,
             "description" => $desc,
+            "groups" => array_key_exists('groups', $user) ? $user['groups'] : '',
+            "chat_rooms_description" => array_key_exists('chat_rooms_description', $user) ? $user['chat_rooms_description'] : '',
             "url" => $this->get_link_url("userSelect", array("uid" => $id))
         );
     }
