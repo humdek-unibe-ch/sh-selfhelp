@@ -81,14 +81,50 @@ class ChatModelTherapist extends ChatModel
     }
 
     /**
-     * Get all subjects in a the selected room which have written a msg.
+     * Get all subjects based on selected chat room or loby
      *
      * @retval array
      *  The database result with the following keys:
      *   'id':      The user id of the subject.
      *   'name':    The name of the subject.
      */
-    public function get_subjects()
+
+    public function get_Subjects(){
+        if ($this->gid == GLOBAL_CHAT_ROOM_ID){
+            return $this->get_LobySubjects();
+        }else{
+            return $this->get_RoomSubjects();
+        }
+    }
+
+    /**
+     * Get all subjects in a the selected room.
+     *
+     * @retval array
+     *  The database result with the following keys:
+     *   'id':      The user id of the subject.
+     *   'name':    The name of the subject.
+     */
+    public function get_RoomSubjects()
+    {
+        $sql = "SELECT DISTINCT u.id, u.name FROM users AS u
+            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            WHERE ug.id_groups = :gid";
+        return $this->db->query_db($sql, array(
+            ":gid" => SUBJECT_GROUP_ID            
+        ));
+    }
+
+    /**
+     * Get all subjects in a the selected room which have written a msg.
+     * This is for the Loby
+     *
+     * @retval array
+     *  The database result with the following keys:
+     *   'id':      The user id of the subject.
+     *   'name':    The name of the subject.
+     */
+    public function get_LobySubjects()
     {
         $sql = "SELECT DISTINCT u.id, u.name FROM users AS u
             LEFT JOIN chat AS c ON c.id_snd = u.id
@@ -147,7 +183,8 @@ class ChatModelTherapist extends ChatModel
      */
     public function is_chat_ready()
     {
-        return ($this->gid !== null && $this->uid !== null);
+         return ($this->gid !== null && $this->uid !== null);
+        //return ($this->gid !== null);
     }
 
     /**
@@ -185,7 +222,8 @@ class ChatModelTherapist extends ChatModel
             if($this->gid === GLOBAL_CHAT_ROOM_ID)
             {
                 // send to all therapists but me and the user
-                $sql = "SELECT ug.id_users AS id_users, :cid AS id_chat
+                // added disitnct in the query otherwise a person with multiple groups send a few insert requests
+                $sql = "SELECT DISTINCT ug.id_users AS id_users, :cid AS id_chat
                     FROM users_groups AS ug
                     WHERE (ug.id_groups = :gid AND ug.id_users != :me)
                         OR ug.id_users = :uid";
@@ -199,7 +237,8 @@ class ChatModelTherapist extends ChatModel
             else
             {
                 // send to all therapists but me and the user in the room
-                $sql = "SELECT cru.id AS id_room_users, cru.id_users AS id_users,
+                // added disitnct in the query otherwise a person with multiple groups send a few insert requests
+                $sql = "SELECT DISTINCT cru.id AS id_room_users, cru.id_users AS id_users,
                     :cid AS id_chat FROM chatRoom_users AS cru
                     LEFT JOIN users_groups AS ug ON ug.id_users = cru.id_users
                     WHERE cru.id_chatRoom = :rid
