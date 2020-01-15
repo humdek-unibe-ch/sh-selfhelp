@@ -90,6 +90,7 @@ class ChatAdminSelectView extends BaseView
         if($this->model->get_active_room() !== null)
         {
             $name = $this->model->get_active_room_name();
+            $title = $this->model->get_active_room_title();
             $desc = $this->model->get_active_room_desc();
             require __DIR__ . "/tpl_room.php";
         }

@@ -15,7 +15,7 @@
                 <th scope="col"><?php $this->output_title("login"); ?></th>
                 <th scope="col"><?php $this->output_title("activity"); ?></th>
                 <th scope="col"><?php $this->output_title("progress"); ?></th>
-                <th scope="col"><?php $this->output_title("chat_rooms_description"); ?></th>
+                <th scope="col"><?php $this->output_title("chat_rooms_names"); ?></th>
             </tr>
         </thead>
         <tbody>

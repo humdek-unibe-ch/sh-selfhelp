@@ -68,13 +68,15 @@ class UserModel extends BaseModel
      *   'description': The description of status of the user.
      *   'blocked':     A boolean indication whether the user is blocked or not.
      *   'code':        The validation code of the user.
+     *   'groups':      The groups in which the user belongs.
+     *   'chat_rooms_names': The caht groups in which the user is.
      */
     private function fetch_user($uid)
     {
         $sql = "SELECT u.email, u.blocked, u.name, us.name AS status, us.description,
             vc.code, u.last_login,
             GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
-            GROUP_CONCAT(DISTINCT ch.description SEPARATOR '; ') AS chat_rooms_description
+            GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
             FROM users AS u
             LEFT JOIN userStatus AS us ON us.id = u.id_status
             LEFT JOIN validation_codes AS vc ON vc.id_users = u.id
@@ -104,14 +106,14 @@ class UserModel extends BaseModel
      *   'description': The state description of the user.
      *   'blocked':     Indicates whether the user is blocked or not.
      *   'groups':      Groups assigned to the user
-     *   'chat_rooms_description' The chat rooms assigned to the user - their descriptions as some chat room names should be not so explinatory as they are shown to the subjects
+     *   'chat_rooms_names' The chat rooms assigned to the user
      */
     private function fetch_users()
     {
         $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
                 us.description, u.blocked,
                 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
-                GROUP_CONCAT(DISTINCT ch.description SEPARATOR '; ') AS chat_rooms_description
+                GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
                 FROM users AS u
                 LEFT JOIN userStatus AS us ON us.id = u.id_status
                 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
@@ -547,7 +549,7 @@ class UserModel extends BaseModel
             "blocked" => ($user['blocked'] == '1') ? true : false,
             "description" => $desc,
             "groups" => array_key_exists('groups', $user) ? $user['groups'] : '',
-            "chat_rooms_description" => array_key_exists('chat_rooms_description', $user) ? $user['chat_rooms_description'] : '',
+            "chat_rooms_names" => array_key_exists('chat_rooms_names', $user) ? $user['chat_rooms_names'] : '',
             "url" => $this->get_link_url("userSelect", array("uid" => $id))
         );
     }

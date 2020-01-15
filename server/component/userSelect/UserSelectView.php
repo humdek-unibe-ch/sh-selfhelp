@@ -135,10 +135,10 @@ class UserSelectView extends BaseView
             $title = "Groups";
             $content = "The groups in which the user is assigned";
         }
-        else if($key === "chat_rooms_description")
+        else if($key === "chat_rooms_names")
         {
             $title = "Chat";
-            $content = "The chats rooms' descriptions in whcih the user is assigned";
+            $content = "The chats rooms names in whcih the user is assigned";
         }
         else
             $content = $title = "bad key";
@@ -336,7 +336,7 @@ class UserSelectView extends BaseView
             $state = $user['status'];
             $desc = $user['description'];
             $groups = $user['groups'];
-            $chat_rooms_description = $user['chat_rooms_description'];
+            $chat_rooms_names = $user['chat_rooms_names'];
             $row_state = "";
             if(strpos($state, "blocked") !== false)
                 $row_state = "table-warning";
@@ -375,7 +375,7 @@ class UserSelectView extends BaseView
             $code = $this->selected_user['code'] ?? "-";
             $desc = $this->selected_user['description'];
             $groups = $this->selected_user['groups'];
-            $chat_rooms_description = $this->selected_user['chat_rooms_description'];
+            $chat_rooms_names = $this->selected_user['chat_rooms_names'];
             $last_login = $this->get_last_login($this->selected_user['last_login']);
             $activity = $this->model->get_user_activity($this->selected_user['id']);
             $progress = $this->model->get_user_progress($this->selected_user['id']);
