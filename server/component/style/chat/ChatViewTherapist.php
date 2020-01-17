@@ -83,6 +83,17 @@ class ChatViewTherapist extends ChatView
         require __DIR__ . "/tpl_chat_item.php";
     }
 
+    /** 
+     * Render the list of available rooms and if therapist add groups
+     */
+    protected function output_room_list()
+    {
+        $rooms = $this->model->get_rooms();        
+        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
+            "name" => $this->label_global));
+        require __DIR__ . "/tpl_room_list.php";
+    } 
+
     /**
      * Render the new badge.
      */

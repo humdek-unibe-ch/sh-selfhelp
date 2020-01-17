@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php $this->output_alert(); ?>
-<div class=".flex-row">
+<div class=".flex-row">    
     <div class="btn mt-3 text-light category btn-warning">Chat rooms</div>
     <?php $this->output_room_list(); ?>
 </div>

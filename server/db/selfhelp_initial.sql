@@ -230,6 +230,7 @@ CREATE TABLE `chatRoom` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext NOT NULL,
+  `title` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -240,7 +241,7 @@ CREATE TABLE `chatRoom` (
 
 LOCK TABLES `chatRoom` WRITE;
 /*!40000 ALTER TABLE `chatRoom` DISABLE KEYS */;
-INSERT INTO `chatRoom` VALUES (0000000001,'root','The main room where every user is part of');
+INSERT INTO `chatRoom` VALUES (0000000001,'root','The main room where every user is part of',NULL);
 /*!40000 ALTER TABLE `chatRoom` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1023,4 +1024,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-01-17 13:36:46
+-- Dump completed on 2020-01-17 15:04:57

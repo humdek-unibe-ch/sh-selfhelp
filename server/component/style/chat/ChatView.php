@@ -134,20 +134,7 @@ abstract class ChatView extends StyleView
         else
             require __DIR__ . "/tpl_no_partner.php";
 
-    }
-
-    /** 
-     * Render the list of available rooms and if therapist add groups
-     */
-    protected function output_room_list()
-    {
-        $rooms = $this->model->get_rooms();        
-        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
-            "name" => $this->label_global));
-        if(count($rooms) === 1)
-            return;
-        require __DIR__ . "/tpl_room_list.php";
-    }    
+    }       
 
     /**
      * Render the room list.

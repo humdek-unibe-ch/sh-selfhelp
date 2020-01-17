@@ -35,3 +35,13 @@
 .category{
     width: 150px;
 }
+
+.category:hover{
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.category:active{
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+}
