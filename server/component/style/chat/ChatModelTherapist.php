@@ -5,7 +5,6 @@
 ?>
 <?php
 require_once __DIR__ . "/ChatModel.php";
-require_once __DIR__ . "/../../../Service/Utils.php";
 /**
  * This class is a specified chat model for the role therapist.
  */
@@ -58,6 +57,22 @@ class ChatModelTherapist extends ChatModel
                 WHERE g.id > 3 and acl.acl_select = 1 and p.keyword = 'contact'
                 ORDER BY g.name";
         return $this->db->query_db($sql);
+    }
+
+    /**
+     * Search for key value in a nested array
+     *
+     * @retval boolean
+     */
+    function find_key_value($array, $key, $val)
+    {
+        foreach ($array as $item) {
+            if (is_array($item) && $this->find_key_value($item, $key, $val)) return true;
+
+            if (isset($item[$key]) && $item[$key] == $val) return true;
+        }
+
+        return false;
     }
 
     /* Protected Methods ******************************************************/
@@ -123,13 +138,13 @@ class ChatModelTherapist extends ChatModel
             return $this->get_LobySubjects();
         } else if (($this->chrid == 0)) {
             // group is selected
-            if(find_key_value($this->groups, 'id', $this->gid)){
+            if ($this->find_key_value($this->groups, 'id', $this->gid)) {
                 //check if the group param in in groups
                 return $this->get_GroupSubjects();
-            }else{
+            } else {
                 // otherwise return emty array
                 return array();
-            }            
+            }
         } else {
             return $this->get_RoomSubjects();
         }
