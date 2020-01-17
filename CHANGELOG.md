@@ -8,7 +8,7 @@
  - #224; add chatRoom title; visualize chatGroup Name where it was the description
  - therapist can initialize communications with user in chat rooms and group tabs
  - add groups and chat group to the user list table for visualization
- - fix new lines in chat messages
+ - fix new lines in chat messages 
 
 # v1.1.10
 
