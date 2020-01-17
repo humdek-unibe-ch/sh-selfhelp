@@ -45,7 +45,8 @@ class ChatViewTherapist extends ChatView
      */
     private function output_subjects()
     {
-        foreach($this->model->get_subjects() as $subject)
+        $subjects = $this->model->get_subjects();
+        foreach($subjects as $subject)
         {
             $id = intval($subject['id']);
             $name = $subject['name'];
@@ -82,6 +83,17 @@ class ChatViewTherapist extends ChatView
         require __DIR__ . "/tpl_chat_item.php";
     }
 
+    /** 
+     * Render the list of available rooms and if therapist add groups
+     */
+    protected function output_room_list()
+    {
+        $rooms = $this->model->get_rooms();        
+        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
+            "name" => $this->label_global));
+        require __DIR__ . "/tpl_room_list.php";
+    } 
+
     /**
      * Render the new badge.
      */
@@ -102,6 +114,15 @@ class ChatViewTherapist extends ChatView
         $title = $this->title_prefix . " "
             . $this->model->get_selected_user_name();
         require __DIR__ . "/tpl_chat_experimenter.php";
+    }
+
+    /** 
+     * Render the list of available groups for the experamanter
+     */
+    protected function output_group_list()
+    {
+        $groups = $this->model->get_groups();
+        require __DIR__ . "/tpl_group_list.php";
     }
 }
 ?>

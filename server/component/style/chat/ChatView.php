@@ -134,20 +134,7 @@ abstract class ChatView extends StyleView
         else
             require __DIR__ . "/tpl_no_partner.php";
 
-    }
-
-    /**
-     * Render the list of available rooms.
-     */
-    protected function output_room_list()
-    {
-        $rooms = $this->model->get_rooms();
-        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
-            "name" => $this->label_global));
-        if(count($rooms) === 1)
-            return;
-        require __DIR__ . "/tpl_room_list.php";
-    }
+    }       
 
     /**
      * Render the room list.
@@ -163,11 +150,38 @@ abstract class ChatView extends StyleView
         {
             $id = intval($room['id']);
             $name = $room['name'];
-            $url = $this->model->get_link_url("contact", array("gid" => $id));
+            $url = $this->model->get_link_url("contact", array(
+                "chrid" => $id
+                ));
             $active = "";
             if($this->model->is_room_selected($id))
                 $active = "active";
             require __DIR__ . "/tpl_room.php";
+        }
+    }
+
+    /**
+     * Render the room list.
+     *
+     * @param array $rooms
+     *  A list of rooms with the following keys:
+     *   - 'id':    the id of the chat room
+     *   - 'name':  the name of the chat room
+     */
+    protected function output_groups($groups)
+    {
+        foreach($groups as $group)
+        {
+            $id = intval($group['id']);
+            $name = $group['name'];
+            $url = $this->model->get_link_url("contact", array(
+                "gid" => $id,
+                "chrid" => 0
+                ));
+            $active = "";
+            if($this->model->is_group_selected($id))
+                $active = "active";
+            require __DIR__ . "/tpl_group.php";
         }
     }
 
@@ -198,6 +212,16 @@ abstract class ChatView extends StyleView
     protected function output_new_badge_room($id)
     {
         $count = $this->model->get_room_message_count($id);
+        if($count > 0)
+            require __DIR__ . "/tpl_new_badge.php";
+    }
+
+    /**
+     * Render the new badge that is displayed next to the group name.
+     */
+    protected function output_new_badge_group($id)
+    {
+        $count = $this->model->get_group_message_count($id);
         if($count > 0)
             require __DIR__ . "/tpl_new_badge.php";
     }

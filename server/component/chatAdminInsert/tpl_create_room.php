@@ -19,6 +19,10 @@
                     <input type="text" class="form-control" name="name" placeholder="Enter chat room name" value="<?php echo $_POST['name'] ?? ""; ?>" required>
                 </div>
                 <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" class="form-control" name="title" placeholder="Enter chat title" value="<?php echo $_POST['title'] ?? ""; ?>" required>
+                </div>
+                <div class="form-group">
                     <label>Description</label>
                     <textarea class="form-control" name="desc" placeholder="Enter description" required><?php echo $_POST['desc'] ?? ""; ?></textarea>
                 </div>

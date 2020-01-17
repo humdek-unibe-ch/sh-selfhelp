@@ -4,7 +4,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php $this->output_alert(); ?>
-<?php $this->output_room_list(); ?>
+<div class=".flex-row">    
+    <div class="btn mt-3 text-light category btn-warning">Chat rooms</div>
+    <?php $this->output_room_list(); ?>
+</div>
+<div class=".flex-row">    
+    <?php  
+        if(!empty($this->model->get_groups())){
+            echo '<div class="btn mt-3 text-light category btn-warning">Groups</div>';
+        }
+    ?>    
+    <?php $this->output_group_list(); ?>
+</div>
 <div class="row my-3">
     <div class="col-sm-auto mb-2">
         <button class="collapse-toggle d-sm-none d-auto btn btn-secondary w-100" type="button" data-toggle="collapse" data-target="#side-menu-collapse" aria-controls="side-menu-collapse">

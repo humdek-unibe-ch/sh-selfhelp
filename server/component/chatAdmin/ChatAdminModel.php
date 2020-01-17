@@ -28,6 +28,11 @@ class ChatAdminModel extends BaseModel
      */
     private $room_desc = "";
 
+    /**
+     * The title of the currently selected chat room.
+     */
+    private $room_title = "";
+
     /* Constructors ***********************************************************/
 
     /**
@@ -39,7 +44,7 @@ class ChatAdminModel extends BaseModel
      * @param int $rid
      *  The id of the current selected chat room.
      */
-    public function __construct($services, $rid=null)
+    public function __construct($services, $rid = null)
     {
         parent::__construct($services);
         $this->rid = $rid;
@@ -54,12 +59,12 @@ class ChatAdminModel extends BaseModel
      */
     private function fetch_active_room_info()
     {
-        $sql = "SELECT name, description FROM chatRoom WHERE id = :id";
+        $sql = "SELECT name, description, title FROM chatRoom WHERE id = :id";
         $res = $this->db->query_db_first($sql, array(':id' => $this->rid));
-        if($res)
-        {
+        if ($res) {
             $this->room_name = $res['name'];
             $this->room_desc = $res['description'];
+            $this->room_title = $res['title'];
         }
     }
 
@@ -89,8 +94,10 @@ class ChatAdminModel extends BaseModel
      */
     public function can_create_new_room()
     {
-        return $this->acl->has_access_insert($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("chatAdminInsert"));
+        return $this->acl->has_access_insert(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("chatAdminInsert")
+        );
     }
 
     /**
@@ -101,8 +108,10 @@ class ChatAdminModel extends BaseModel
      */
     public function can_delete_room()
     {
-        return $this->acl->has_access_delete($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("chatAdminDelete"));
+        return $this->acl->has_access_delete(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("chatAdminDelete")
+        );
     }
 
     /**
@@ -114,8 +123,10 @@ class ChatAdminModel extends BaseModel
      */
     public function can_administrate_chat()
     {
-        return $this->acl->has_access_update($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("chatAdminUpdate"));
+        return $this->acl->has_access_update(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("chatAdminUpdate")
+        );
     }
 
     /**
@@ -128,10 +139,13 @@ class ChatAdminModel extends BaseModel
      * @retval int
      *  The id of the new chat room.
      */
-    public function create_new_room($name, $desc)
+    public function create_new_room($name, $desc, $title)
     {
-        return $this->db->insert('chatRoom', array('name' => $name,
-            'description' => $desc));
+        return $this->db->insert('chatRoom', array(
+            'name' => $name,
+            'description' => $desc,
+            'title' => $title
+        ));
     }
 
     /**
@@ -179,6 +193,17 @@ class ChatAdminModel extends BaseModel
     }
 
     /**
+     * Return the active room title.
+     *
+     * @retval string
+     *  The title of the active room.
+     */
+    public function get_active_room_title()
+    {
+        return $this->room_title;
+    }
+
+    /**
      * Fetch all users from the active room.
      *
      * @retval array
@@ -188,12 +213,17 @@ class ChatAdminModel extends BaseModel
      */
     public function get_active_room_users()
     {
-        $sql = "SELECT u.id, u.email AS title, (ug.id_groups = :gid) AS is_mod
-            FROM users AS u
-            LEFT JOIN chatRoom_users AS cru ON cru.id_users = u.id
-            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-            WHERE cru.id_chatRoom = :rid
-            ORDER BY ug.id_groups, u.email";
+        $sql = "SELECT u.id, u.email AS title, GROUP_CONCAT(ug.id_groups SEPARATOR ', ') AS group_ids, 
+        CASE 
+            WHEN (SELECT COUNT(*) FROM users_groups mods WHERE mods.id_users = u.id AND mods.id_groups = :gid) > 0 THEN 1
+            ELSE 0
+        END AS is_mod
+        FROM users AS u
+        LEFT JOIN chatRoom_users AS cru ON cru.id_users = u.id
+        LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+        WHERE cru.id_chatRoom = :rid
+        GROUP BY u.id, u.email
+        ORDER BY group_ids, u.email";
         return $this->db->query_db($sql, array(
             ':rid' => $this->rid,
             ':gid' => EXPERIMENTER_GROUP_ID,
@@ -214,7 +244,7 @@ class ChatAdminModel extends BaseModel
         $rooms = array();
         $sql = "SELECT id, name from chatRoom WHERE id != 1";
         $rooms_db = $this->db->query_db($sql);
-        foreach($rooms_db as $room)
+        foreach ($rooms_db as $room)
             $rooms[] = array(
                 'id' => intval($room['id']),
                 'title' => $room['name'],
@@ -237,7 +267,7 @@ class ChatAdminModel extends BaseModel
     {
         $sql = "SELECT email FROM users WHERE id = :id";
         $res = $this->db->query_db_first($sql, array(':id' => $id));
-        if($res)
+        if ($res)
             return $res['email'];
         return "";
     }
