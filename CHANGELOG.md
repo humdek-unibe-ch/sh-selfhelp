@@ -1,4 +1,16 @@
-# v1.1.10 (latest)
+# v1.2.0 (latest)
+
+### Changes
+
+ - bug fix #214 fixing: 'Chat add user to room with multiple groups - duplicate view'
+ - Visualize all aditional groups (different from admin, subject and therapist) which has acces to the chat in the chat - similar to how chat rooms are visualzied
+ - Add clalback set_group_for_user which assign a group to existiing user using the registration code
+ - #224; add chatRoom title; visualize chatGroup Name where it was the description
+ - therapist can initialize communications with user in chat rooms and group tabs
+ - add groups and chat group to the user list table for visualization
+ - fix new lines in chat messages
+
+# v1.1.10
 
 ### Changes
 
