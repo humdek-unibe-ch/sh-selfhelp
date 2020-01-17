@@ -27,6 +27,11 @@ class ChatAdminInsertController extends ChatAdminController
      */
     private $description = "";
 
+    /**
+     * The title of the new chat room.
+     */
+    private $title = "";
+
     /* Constructors ***********************************************************/
 
     /**
@@ -38,12 +43,13 @@ class ChatAdminInsertController extends ChatAdminController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(isset($_POST['name']) && isset($_POST['desc']))
+        if(isset($_POST['name']) && isset($_POST['desc']) && isset($_POST['title']))
         {
             $this->name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
             $this->description = filter_var($_POST['desc'], FILTER_SANITIZE_STRING);
+            $this->title = filter_var($_POST['title'], FILTER_SANITIZE_STRING);
             $this->rid = $this->model->create_new_room($this->name,
-                $this->description);
+                $this->description, $this->title);
             if($this->rid)
                 $this->success = true;
             else

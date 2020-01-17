@@ -17,6 +17,11 @@ abstract class ChatModel extends StyleModel
     /* Private Properties *****************************************************/
 
     /**
+     * The chatroom id to communicate with.
+     */
+    protected $chrid = null;
+
+    /**
      * The active group id to communicate with.
      */
     protected $gid = null;
@@ -29,7 +34,7 @@ abstract class ChatModel extends StyleModel
     /**
      * The list of rooms.
      */
-    protected $rooms;
+    protected $rooms;    
 
     /**
      * DB field 'email_user' (empty string)
@@ -60,17 +65,20 @@ abstract class ChatModel extends StyleModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
+     * @param int $chrid
+     *  The chato room id to communicate with
      * @param int $gid
-     *  The chat room id to communicate with
+     *  The group id to communicate with
      * @param int $uid
      *  The user id to communicate with
      */
-    public function __construct($services, $id, $gid, $uid=null)
+    public function __construct($services, $id, $chrid, $gid=null, $uid=null)
     {
         parent::__construct($services, $id);
-        $this->gid = $gid ?? GLOBAL_CHAT_ROOM_ID;
+        $this->gid = $gid;
         $this->uid = $uid;
-        $this->rooms = $this->fetch_rooms();
+        $this->chrid = $chrid ?? GLOBAL_CHAT_ROOM_ID;
+        $this->rooms = $this->fetch_rooms();        
         $this->email_user = $this->get_db_field("email_user");
         $this->subject_user = $this->get_db_field("subject_user");
         $this->is_html = $this->get_db_field("is_html", false);
@@ -88,11 +96,11 @@ abstract class ChatModel extends StyleModel
      */
     private function fetch_rooms()
     {
-        $sql = "SELECT r.id, r.name FROM chatRoom AS r
+        $sql = "SELECT r.id, r.title as name FROM chatRoom AS r
             LEFT JOIN chatRoom_users AS cu ON cu.id_chatRoom = r.id
             WHERE cu.id_users = :uid";
         return $this->db->query_db($sql, array(":uid" => $_SESSION['id_user']));
-    }
+    }    
 
     /* Abstract Protected Methodes ********************************************/
 
@@ -213,6 +221,32 @@ abstract class ChatModel extends StyleModel
         return 0;
     }
 
+    /**
+     * Get the number of new group messages.
+     *
+     * @param int $id
+     *  The id of the group the check for new messages.
+     * @retval int
+     *  The number of new messages in a chat room.
+     */
+    public function get_group_message_count($id)
+    {
+        $sql = "SELECT COUNT(cr.id_chat) AS count
+                FROM chatRecipiants AS cr
+                LEFT JOIN chat AS c ON c.id = cr.id_chat
+                left join users_groups ug on (ug.id_users = c.id_snd)
+                WHERE cr.is_new = '1' AND cr.id_users = :me
+                AND ug.id_groups = :gid and c.id_rcv_grp = :ggid";
+        $res = $this->db->query_db_first($sql, array(
+            ':gid' => $id,
+            ':me' => $_SESSION['id_user'],
+            ':ggid' => GLOBAL_CHAT_ROOM_ID,
+        ));
+        if($res)
+            return intval($res['count']);
+        return 0;
+    }
+
 
     /**
      * Get the list of rooms.
@@ -236,10 +270,10 @@ abstract class ChatModel extends StyleModel
         $sql = "SELECT * FROM chatRoom_users
             WHERE id_chatRoom = :rid AND id_users = :uid";
         $res = $this->db->query_db($sql, array(
-            ":rid" => $this->gid,
+            ":rid" => $this->chrid,
             ":uid" => $_SESSION['id_user'],
         ));
-        return ($res || $this->gid === GLOBAL_CHAT_ROOM_ID);
+        return ($res || $this->chrid === GLOBAL_CHAT_ROOM_ID || $this->chrid === 0);
     }
 
     /**
@@ -251,6 +285,19 @@ abstract class ChatModel extends StyleModel
      *  True if the given room is selected, false otherwise.
      */
     public function is_room_selected($id)
+    {
+        return ($id === $this->chrid);
+    }
+
+    /**
+     * Checks whether a given group is currently selected.
+     *
+     * @param int $id
+     *  The id of the group to check.
+     * @retval bool
+     *  True if the given group is selected, false otherwise.
+     */
+    public function is_group_selected($id)
     {
         return ($id === $this->gid);
     }

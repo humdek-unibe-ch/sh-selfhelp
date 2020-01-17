@@ -8,6 +8,7 @@
     <div class="col">
         <div class="jumbotron">
             <h1>Chat Room <code><?php echo $name; ?></code></h1>
+            <h2>Chat Title <code><?php echo $title; ?></code></h2>
             <p class="lead">&mdash; <?php echo $desc; ?> &mdash;</p>
             <?php $this->output_warnings(); ?>
             <?php $this->output_room_summary(); ?>
