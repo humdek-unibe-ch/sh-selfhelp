@@ -31,3 +31,7 @@
 .chatMessage{
     white-space: pre-line;
 }
+
+.category{
+    width: 150px;
+}

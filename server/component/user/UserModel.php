@@ -548,8 +548,8 @@ class UserModel extends BaseModel
             "status" => $state,
             "blocked" => ($user['blocked'] == '1') ? true : false,
             "description" => $desc,
-            "groups" => array_key_exists('groups', $user) ? $user['groups'] : '',
-            "chat_rooms_names" => array_key_exists('chat_rooms_names', $user) ? $user['chat_rooms_names'] : '',
+            "groups" => $user ? (array_key_exists('groups', $user) ? $user['groups'] : '') : '',
+            "chat_rooms_names" => $user ? (array_key_exists('chat_rooms_names', $user) ? $user['chat_rooms_names'] : '') : '',
             "url" => $this->get_link_url("userSelect", array("uid" => $id))
         );
     }

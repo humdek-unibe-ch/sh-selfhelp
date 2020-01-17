@@ -37,18 +37,20 @@ class ChatComponent extends BaseComponent
      * @param array $params
      *  The GET parameters of the contact page
      *   'uid': The id of the selected user to communicate with
-     *   'gid': The id of the selected char room to communicate with
+     *   'gid': The id of the selected group to communicate with
+     *   'chrid': The id of the selected chat group to communicate with
      */
     public function __construct($services, $id, $params)
     {
         $this->db = $services->get_db();
         $uid = isset($params['uid']) ? intval($params['uid']) : null;
-        $gid = isset($params['gid']) ? intval($params['gid']) : null;
+        $gid = isset($params['gid']) ? intval($params['gid']) : 0;
+        $chrid = isset($params['chrid']) ? intval($params['chrid']) : null;
         $is_therapist = $this->check_experimenter_relation($_SESSION['id_user']);
         if($is_therapist)
-            $model = new ChatModelTherapist($services, $id, $gid, $uid);
+            $model = new ChatModelTherapist($services, $id, $chrid, $gid, $uid);
         else
-            $model = new ChatModelSubject($services, $id, $gid);
+            $model = new ChatModelSubject($services, $id, $chrid);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ChatController($model);
@@ -92,7 +94,7 @@ class ChatComponent extends BaseComponent
     public function has_access()
     {
         return parent::has_access()
-            && $this->model->is_current_user_in_active_group();
+            && ($this->model->is_current_user_in_active_group());
     }
 }
 ?>

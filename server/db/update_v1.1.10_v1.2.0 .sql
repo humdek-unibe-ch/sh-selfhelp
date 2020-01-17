@@ -1,3 +1,4 @@
--- add title for char room; it will be used for the chat tab 
-ALTER TABLE chatRoom
-ADD COLUMN title VARCHAR(200)
+-- show groups in the chat
+update pages
+set url = '/kontakt/[i:chrid]?/[i:gid]?/[i:uid]?'
+where keyword = 'contact'

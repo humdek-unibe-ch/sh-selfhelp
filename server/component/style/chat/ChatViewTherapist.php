@@ -45,7 +45,8 @@ class ChatViewTherapist extends ChatView
      */
     private function output_subjects()
     {
-        foreach($this->model->get_subjects() as $subject)
+        $subjects = $this->model->get_subjects();
+        foreach($subjects as $subject)
         {
             $id = intval($subject['id']);
             $name = $subject['name'];
@@ -102,6 +103,15 @@ class ChatViewTherapist extends ChatView
         $title = $this->title_prefix . " "
             . $this->model->get_selected_user_name();
         require __DIR__ . "/tpl_chat_experimenter.php";
+    }
+
+    /** 
+     * Render the list of available groups for the experamanter
+     */
+    protected function output_group_list()
+    {
+        $groups = $this->model->get_groups();
+        require __DIR__ . "/tpl_group_list.php";
     }
 }
 ?>

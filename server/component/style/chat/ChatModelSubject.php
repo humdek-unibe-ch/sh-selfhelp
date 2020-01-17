@@ -22,12 +22,12 @@ class ChatModelSubject extends ChatModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
-     * @param int $gid
+     * @param int $chrid
      *  The chat room id to communicate with
      */
-    public function __construct($services, $id, $gid)
+    public function __construct($services, $id, $chrid)
     {
-        parent::__construct($services, $id, $gid);
+        parent::__construct($services, $id, $chrid);
     }
 
     /* Protected Methods ******************************************************/
@@ -51,7 +51,7 @@ class ChatModelSubject extends ChatModel
             ORDER BY c.timestamp";
         return $this->db->query_db($sql, array(
             ":me" => $_SESSION['id_user'],
-            ":rid" => $this->gid,
+            ":rid" => $this->chrid,
         ));
     }
 
@@ -65,7 +65,7 @@ class ChatModelSubject extends ChatModel
      */
     public function is_chat_ready()
     {
-        return ($this->gid !== null);
+        return ($this->chrid !== null);
     }
 
     /**
@@ -81,12 +81,12 @@ class ChatModelSubject extends ChatModel
     {
         $msg_id = $this->db->insert("chat", array(
             "id_snd" => $_SESSION['id_user'],
-            "id_rcv_grp" => $this->gid,
+            "id_rcv_grp" => $this->chrid,
             "content" => $msg,
         ));
         if($msg_id)
         {
-            if($this->gid === GLOBAL_CHAT_ROOM_ID)
+            if($this->chrid === GLOBAL_CHAT_ROOM_ID)
             {
                 // send to all therapists
                 $sql = "SELECT ug.id_users AS id_users, :cid AS id_chat
@@ -103,9 +103,9 @@ class ChatModelSubject extends ChatModel
                 $sql = "SELECT cru.id AS id_room_users, cru.id_users AS id_users,
                     :cid AS id_chat FROM chatRoom_users AS cru
                     LEFT JOIN users_groups AS ug ON ug.id_users = cru.id_users
-                    WHERE cru.id_chatRoom = :rid AND ug.id_groups = :gid";
+                    WHERE cru.id_chatRoom = :chrid AND ug.id_groups = :gid";
                 $users = $this->db->query_db($sql, array(
-                    ':rid' => $this->gid,
+                    ':chrid' => $this->chrid,
                     ':cid' => $msg_id,
                     ':gid' => EXPERIMENTER_GROUP_ID,
                 ));

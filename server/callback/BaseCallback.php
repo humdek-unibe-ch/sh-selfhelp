@@ -75,17 +75,16 @@ abstract class BaseCallback
         return $callback_id;
     }
 
-    public function update_callback_log($callback_id, $output, $status)
+    public function update_callback_log($callback_id, $output)
     {
-        $callback_id = $this->db->update_by_ids(
+        return $this->db->update_by_ids(
             "callbackLogs",
             array(
                 "callback_output" => json_encode($output),
-                "status" => $status
+                "status" => $output['callback_status']
             ),
             array("id" => $callback_id)
         );
-        return $callback_id;
     }
 }
 ?>
