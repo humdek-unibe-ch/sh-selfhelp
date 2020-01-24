@@ -111,7 +111,7 @@ class UserModel extends BaseModel
     private function fetch_users()
     {
         $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
-                us.description, u.blocked,
+                us.description, u.blocked, vc.code,
                 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
                 GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
                 FROM users AS u
@@ -120,8 +120,9 @@ class UserModel extends BaseModel
                 LEFT JOIN groups g ON g.id = ug.id_groups
                 LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
                 LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+                LEFT JOIN validation_codes vc ON u.id = vc.id_users
                 WHERE u.intern <> 1 AND u.id_status > 0
-                GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked
+                GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
                 ORDER BY u.email";
         return $this->db->query_db($sql);
     }
@@ -544,6 +545,7 @@ class UserModel extends BaseModel
             "title" => $user["email"],
             "email" => $user["email"],
             "name" => $user["name"],
+            "code" => $user["code"],
             "last_login" => $user["last_login"],
             "status" => $state,
             "blocked" => ($user['blocked'] == '1') ? true : false,
