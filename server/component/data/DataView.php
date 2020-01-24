@@ -48,37 +48,39 @@ class DataView extends UserSelectView
     {
         foreach ($this->forms as $form) {
             $formFields = $this->model->getFormFields($form['form_id']);
-            // loop over the rows, outputting them
-            $tableHead = '<thead><tr>';
-            $tableBody = '<tbody>';
-            if (count($formFields) > 0) {
-                foreach (array_keys($formFields[0]) as $key => $value) {
-                    $tableHead = $tableHead . '<th>' . $value . '</th>';
+            if (!empty($formFields)) {
+                // loop over the rows, outputting them
+                $tableHead = '<thead><tr>';
+                $tableBody = '<tbody>';
+                if (count($formFields) > 0) {
+                    foreach (array_keys($formFields[0]) as $key => $value) {
+                        $tableHead = $tableHead . '<th>' . $value . '</th>';
+                    }
                 }
-            }
-            foreach ($formFields as $field) {
-                $tableBody = $tableBody . '<tr>';
-                foreach (array_values($field) as $key => $value) {
-                    $tableBody = $tableBody . '<td>' . $value . '</td>';
+                foreach ($formFields as $field) {
+                    $tableBody = $tableBody . '<tr>';
+                    foreach (array_values($field) as $key => $value) {
+                        $tableBody = $tableBody . '<td>' . $value . '</td>';
+                    }
+                    $tableBody = $tableBody . '</tr>';
                 }
-                $tableBody = $tableBody . '</tr>';
-            }
-            $tableHead = $tableHead . '</tr></thead>';
-            $tableBody = $tableBody . '</tbody>';
-            $formName = $form['form_name'];
+                $tableHead = $tableHead . '</tr></thead>';
+                $tableBody = $tableBody . '</tbody>';
+                $formName = $form['form_name'];
 
-            $card = new BaseStyleComponent("card", array(
-                "css" => "mb-3 card card-success",
-                "is_expanded" => true,
-                "is_collapsible" => true,
-                "title" => $formName,
-                "children" => array(
-                    new BaseStyleComponent("markdown", array(
-                        "text_md" => '<table class="adminData w-100 table">' . $tableHead . $tableBody . '</table>'
-                    ))
-                )
-            ));
-            $card->output_content();
+                $card = new BaseStyleComponent("card", array(
+                    "css" => "mb-3 card card-success",
+                    "is_expanded" => true,
+                    "is_collapsible" => true,
+                    "title" => $formName,
+                    "children" => array(
+                        new BaseStyleComponent("markdown", array(
+                            "text_md" => '<table class="adminData w-100 table">' . $tableHead . $tableBody . '</table>'
+                        ))
+                    )
+                ));
+                $card->output_content();
+            }
         }
     }
 
@@ -89,15 +91,16 @@ class DataView extends UserSelectView
     {
         $this->output_user_activity();
     }
-    
+
     /**
      * Show info for the selected user
      */
-    public function get_selected_user(){
-        if($this->model->get_uid()){
+    public function get_selected_user()
+    {
+        if ($this->model->get_uid()) {
             $user = $this->model->get_selected_user();
             return $user['code'] . ' ' . $user['email'];
-        }else{
+        } else {
             return 'All';
         }
     }
@@ -121,7 +124,7 @@ class DataView extends UserSelectView
      * Render the cms view.
      */
     public function output_content()
-    {        
+    {
         require __DIR__ . "/tpl_data.php";
     }
 }
