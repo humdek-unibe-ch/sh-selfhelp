@@ -5,7 +5,7 @@
 ?>
 <?php
 //require_once __DIR__ . "/../BaseModel.php";
-require_once __DIR__ . "/../User/UserModel.php";
+require_once __DIR__ . "/../user/UserModel.php";
 /**
  * This class is used to prepare all data related to the data component such
  * that the data can easily be displayed in the view of the component.
@@ -49,12 +49,12 @@ class DataModel extends UserModel
      */
     public function get_forms()
     {
-        $sql = 'select cast(s.id as unsigned) as form_id, sft_if.content as form_name 
-               from sections s
-               inner join view_styles st on (s.id_styles = st.style_id)
-               LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = s.id AND sft_if.id_fields = 57
-               where style_group = "Form" and style_type = "component" and style_name <> "showUserInput"
-               order by sft_if.content';
+        $sql = 'select cast(s.id as unsigned) as form_id, ifnull(sft_if.content, s.name) as form_name 
+                from sections s
+                inner join view_styles st on (s.id_styles = st.style_id)
+                LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = s.id AND sft_if.id_fields = 57
+                where style_group = "Form" and style_type = "component" and style_name <> "showUserInput"
+                order by form_name';
         return $this->db->query_db($sql);
     }
 

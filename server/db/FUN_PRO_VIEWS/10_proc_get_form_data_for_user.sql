@@ -19,7 +19,7 @@ BEGIN
     where form_id = form_id_param;
 	
     IF (@sql is null) THEN
-		SELECT "";
+		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
 		SET @sql = CONCAT('select user_id, form_name, edit_time, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
