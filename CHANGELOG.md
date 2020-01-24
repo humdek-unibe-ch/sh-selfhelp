@@ -1,4 +1,19 @@
-# v1.2.0 (latest)
+# v1.3.0 (latest)
+
+### Changes
+
+ - showUserInput is a datatable now. By default all functionality is stripped. If you want to add configuration you have to use css classes in the showUserInput form
+    - dt-sortable - make all columsn sortable
+    - dt-searching - add the search field
+    - dt-bPaginate - add the page grouping
+    - dt-bInfo - add the info footer
+    - dt-order-0-asc dt-order-1-desc - order the desired column asc or desc
+    - dt-hide-0 - hide the desired column
+ - delete content and delete title load properly in the modal form when you delete showUserInput's entry;
+ - data page added under admin tab. It visualize all user input data
+
+
+# v1.2.0
 
 ### Changes
 

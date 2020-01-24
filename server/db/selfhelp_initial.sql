@@ -43,7 +43,7 @@ CREATE TABLE `acl_groups` (
 
 LOCK TABLES `acl_groups` WRITE;
 /*!40000 ALTER TABLE `acl_groups` DISABLE KEYS */;
-INSERT INTO `acl_groups` VALUES (0000000001,0000000001,1,1,1,1),(0000000001,0000000002,1,1,1,1),(0000000001,0000000003,1,0,1,0),(0000000001,0000000004,1,1,1,1),(0000000001,0000000005,1,0,1,0),(0000000001,0000000006,1,1,1,1),(0000000001,0000000007,1,1,1,1),(0000000001,0000000008,1,1,1,1),(0000000001,0000000009,1,0,0,0),(0000000001,0000000010,1,0,0,0),(0000000001,0000000011,1,1,0,0),(0000000001,0000000012,1,0,1,0),(0000000001,0000000013,1,0,0,1),(0000000001,0000000014,1,0,0,0),(0000000001,0000000015,1,1,0,0),(0000000001,0000000016,1,0,1,0),(0000000001,0000000017,1,0,0,1),(0000000001,0000000018,1,0,0,0),(0000000001,0000000019,1,1,0,0),(0000000001,0000000020,1,0,1,0),(0000000001,0000000021,1,0,0,1),(0000000001,0000000022,1,0,0,0),(0000000001,0000000023,1,0,0,0),(0000000001,0000000024,1,0,0,0),(0000000001,0000000025,1,1,0,0),(0000000001,0000000026,1,0,1,0),(0000000001,0000000027,1,0,0,1),(0000000001,0000000028,1,0,0,0),(0000000001,0000000029,1,1,1,1),(0000000001,0000000030,1,1,1,1),(0000000001,0000000031,1,1,1,1),(0000000001,0000000032,1,1,1,1),(0000000001,0000000033,1,1,1,1),(0000000001,0000000035,1,1,1,1),(0000000001,0000000036,1,1,0,0),(0000000001,0000000037,1,0,1,0),(0000000001,0000000038,1,0,0,0),(0000000001,0000000039,1,1,0,0),(0000000001,0000000040,1,0,0,1),(0000000001,0000000041,1,0,1,0),(0000000001,0000000042,1,0,0,1),(0000000001,0000000043,1,0,1,0),(0000000002,0000000001,1,0,0,0),(0000000002,0000000002,1,0,0,0),(0000000002,0000000003,1,0,0,0),(0000000002,0000000004,1,0,0,0),(0000000002,0000000005,1,0,0,0),(0000000002,0000000006,1,0,0,0),(0000000002,0000000007,1,0,0,0),(0000000002,0000000008,1,0,0,0),(0000000002,0000000009,1,0,0,0),(0000000002,0000000010,0,0,0,0),(0000000002,0000000011,0,0,0,0),(0000000002,0000000012,0,0,0,0),(0000000002,0000000013,0,0,0,0),(0000000002,0000000014,1,0,0,0),(0000000002,0000000015,1,1,0,0),(0000000002,0000000016,1,0,1,0),(0000000002,0000000017,0,0,0,0),(0000000002,0000000018,1,0,0,0),(0000000002,0000000019,1,1,0,0),(0000000002,0000000020,1,0,1,0),(0000000002,0000000021,0,0,0,0),(0000000002,0000000022,0,0,0,0),(0000000002,0000000023,0,0,0,0),(0000000002,0000000024,0,0,0,0),(0000000002,0000000025,0,0,0,0),(0000000002,0000000026,0,0,0,0),(0000000002,0000000027,0,0,0,0),(0000000002,0000000028,1,0,0,0),(0000000002,0000000029,1,0,0,0),(0000000002,0000000030,1,0,0,0),(0000000002,0000000031,1,0,0,0),(0000000002,0000000032,1,0,0,0),(0000000002,0000000033,1,0,0,0),(0000000002,0000000035,1,0,0,0),(0000000002,0000000036,1,1,0,0),(0000000002,0000000037,0,0,0,0),(0000000003,0000000001,1,0,0,0),(0000000003,0000000002,1,0,0,0),(0000000003,0000000003,1,0,0,0),(0000000003,0000000004,1,0,0,0),(0000000003,0000000005,1,0,0,0),(0000000003,0000000006,1,0,0,0),(0000000003,0000000007,1,0,0,0),(0000000003,0000000008,1,0,0,0),(0000000003,0000000009,0,0,0,0),(0000000003,0000000010,0,0,0,0),(0000000003,0000000011,0,0,0,0),(0000000003,0000000012,0,0,0,0),(0000000003,0000000013,0,0,0,0),(0000000003,0000000014,0,0,0,0),(0000000003,0000000015,0,0,0,0),(0000000003,0000000016,0,0,0,0),(0000000003,0000000017,0,0,0,0),(0000000003,0000000018,0,0,0,0),(0000000003,0000000019,0,0,0,0),(0000000003,0000000020,0,0,0,0),(0000000003,0000000021,0,0,0,0),(0000000003,0000000022,0,0,0,0),(0000000003,0000000023,0,0,0,0),(0000000003,0000000024,0,0,0,0),(0000000003,0000000025,0,0,0,0),(0000000003,0000000026,0,0,0,0),(0000000003,0000000027,0,0,0,0),(0000000003,0000000028,1,0,0,0),(0000000003,0000000029,1,0,0,0),(0000000003,0000000030,1,0,0,0),(0000000003,0000000031,1,0,0,0),(0000000003,0000000032,1,0,0,0),(0000000003,0000000033,1,0,0,0),(0000000003,0000000035,1,0,0,0),(0000000003,0000000036,0,0,0,0);
+INSERT INTO `acl_groups` VALUES (0000000001,0000000001,1,1,1,1),(0000000001,0000000002,1,1,1,1),(0000000001,0000000003,1,0,1,0),(0000000001,0000000004,1,1,1,1),(0000000001,0000000005,1,0,1,0),(0000000001,0000000006,1,1,1,1),(0000000001,0000000007,1,1,1,1),(0000000001,0000000008,1,1,1,1),(0000000001,0000000009,1,0,0,0),(0000000001,0000000010,1,0,0,0),(0000000001,0000000011,1,1,0,0),(0000000001,0000000012,1,0,1,0),(0000000001,0000000013,1,0,0,1),(0000000001,0000000014,1,0,0,0),(0000000001,0000000015,1,1,0,0),(0000000001,0000000016,1,0,1,0),(0000000001,0000000017,1,0,0,1),(0000000001,0000000018,1,0,0,0),(0000000001,0000000019,1,1,0,0),(0000000001,0000000020,1,0,1,0),(0000000001,0000000021,1,0,0,1),(0000000001,0000000022,1,0,0,0),(0000000001,0000000023,1,0,0,0),(0000000001,0000000024,1,0,0,0),(0000000001,0000000025,1,1,0,0),(0000000001,0000000026,1,0,1,0),(0000000001,0000000027,1,0,0,1),(0000000001,0000000028,1,0,0,0),(0000000001,0000000029,1,1,1,1),(0000000001,0000000030,1,1,1,1),(0000000001,0000000031,1,1,1,1),(0000000001,0000000032,1,1,1,1),(0000000001,0000000033,1,1,1,1),(0000000001,0000000035,1,1,1,1),(0000000001,0000000036,1,1,0,0),(0000000001,0000000037,1,0,1,0),(0000000001,0000000038,1,0,0,0),(0000000001,0000000039,1,1,0,0),(0000000001,0000000040,1,0,0,1),(0000000001,0000000041,1,0,1,0),(0000000001,0000000042,1,0,0,1),(0000000001,0000000043,1,0,1,0),(0000000001,0000000045,1,1,0,0),(0000000002,0000000001,1,0,0,0),(0000000002,0000000002,1,0,0,0),(0000000002,0000000003,1,0,0,0),(0000000002,0000000004,1,0,0,0),(0000000002,0000000005,1,0,0,0),(0000000002,0000000006,1,0,0,0),(0000000002,0000000007,1,0,0,0),(0000000002,0000000008,1,0,0,0),(0000000002,0000000009,1,0,0,0),(0000000002,0000000010,0,0,0,0),(0000000002,0000000011,0,0,0,0),(0000000002,0000000012,0,0,0,0),(0000000002,0000000013,0,0,0,0),(0000000002,0000000014,1,0,0,0),(0000000002,0000000015,1,1,0,0),(0000000002,0000000016,1,0,1,0),(0000000002,0000000017,0,0,0,0),(0000000002,0000000018,1,0,0,0),(0000000002,0000000019,1,1,0,0),(0000000002,0000000020,1,0,1,0),(0000000002,0000000021,0,0,0,0),(0000000002,0000000022,0,0,0,0),(0000000002,0000000023,0,0,0,0),(0000000002,0000000024,0,0,0,0),(0000000002,0000000025,0,0,0,0),(0000000002,0000000026,0,0,0,0),(0000000002,0000000027,0,0,0,0),(0000000002,0000000028,1,0,0,0),(0000000002,0000000029,1,0,0,0),(0000000002,0000000030,1,0,0,0),(0000000002,0000000031,1,0,0,0),(0000000002,0000000032,1,0,0,0),(0000000002,0000000033,1,0,0,0),(0000000002,0000000035,1,0,0,0),(0000000002,0000000036,1,1,0,0),(0000000002,0000000037,0,0,0,0),(0000000003,0000000001,1,0,0,0),(0000000003,0000000002,1,0,0,0),(0000000003,0000000003,1,0,0,0),(0000000003,0000000004,1,0,0,0),(0000000003,0000000005,1,0,0,0),(0000000003,0000000006,1,0,0,0),(0000000003,0000000007,1,0,0,0),(0000000003,0000000008,1,0,0,0),(0000000003,0000000009,0,0,0,0),(0000000003,0000000010,0,0,0,0),(0000000003,0000000011,0,0,0,0),(0000000003,0000000012,0,0,0,0),(0000000003,0000000013,0,0,0,0),(0000000003,0000000014,0,0,0,0),(0000000003,0000000015,0,0,0,0),(0000000003,0000000016,0,0,0,0),(0000000003,0000000017,0,0,0,0),(0000000003,0000000018,0,0,0,0),(0000000003,0000000019,0,0,0,0),(0000000003,0000000020,0,0,0,0),(0000000003,0000000021,0,0,0,0),(0000000003,0000000022,0,0,0,0),(0000000003,0000000023,0,0,0,0),(0000000003,0000000024,0,0,0,0),(0000000003,0000000025,0,0,0,0),(0000000003,0000000026,0,0,0,0),(0000000003,0000000027,0,0,0,0),(0000000003,0000000028,1,0,0,0),(0000000003,0000000029,1,0,0,0),(0000000003,0000000030,1,0,0,0),(0000000003,0000000031,1,0,0,0),(0000000003,0000000032,1,0,0,0),(0000000003,0000000033,1,0,0,0),(0000000003,0000000035,1,0,0,0),(0000000003,0000000036,0,0,0,0);
 /*!40000 ALTER TABLE `acl_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -482,7 +482,7 @@ CREATE TABLE `pages` (
   CONSTRAINT `pages_fk_id_navigation_section` FOREIGN KEY (`id_navigation_section`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -491,7 +491,7 @@ CREATE TABLE `pages` (
 
 LOCK TABLES `pages` WRITE;
 /*!40000 ALTER TABLE `pages` DISABLE KEYS */;
-INSERT INTO `pages` VALUES (0000000001,'login','/login','GET|POST',0000000003,NULL,NULL,1,NULL,NULL,0000000002),(0000000002,'home','/','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000003,'profile-link',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0000000002),(0000000004,'profile','/profile','GET|POST',0000000003,NULL,0000000003,0,10,NULL,0000000002),(0000000005,'logout','/login','GET',NULL,NULL,0000000003,0,20,NULL,0000000002),(0000000006,'missing',NULL,NULL,0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000007,'no_access',NULL,NULL,0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000008,'no_access_guest',NULL,NULL,0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000009,'admin-link',NULL,NULL,NULL,NULL,NULL,0,1000,NULL,0000000001),(0000000010,'cmsSelect','/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?','GET|POST',0000000002,NULL,0000000009,0,10,NULL,0000000001),(0000000011,'cmsInsert','/admin/cms_insert/[i:pid]?','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000012,'cmsUpdate','/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000013,'cmsDelete','/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000014,'userSelect','/admin/user/[i:uid]?','GET',0000000002,NULL,0000000009,0,20,NULL,0000000001),(0000000015,'userInsert','/admin/user_insert','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000016,'userUpdate','/admin/user_update/[i:uid]/[v:mode]/[i:did]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000017,'userDelete','/admin/user_delete/[i:uid]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000018,'groupSelect','/admin/group/[i:gid]?','GET',0000000002,NULL,0000000009,0,30,NULL,0000000001),(0000000019,'groupInsert','/admin/group_insert','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000020,'groupUpdate','/admin/group_update/[i:gid]','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000021,'groupDelete','/admin/group_delete/[i:gid]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000022,'export','/admin/export','GET|POST',0000000002,NULL,0000000009,0,40,NULL,0000000001),(0000000023,'exportData','/admin/export/[user_input|user_activity|validation_codes|user_input_form:selector]/[all|used|open:option]?/[i:id]?','GET',0000000001,NULL,0000000009,0,NULL,NULL,0000000001),(0000000024,'assetSelect','/admin/asset','GET',0000000002,NULL,0000000009,0,15,NULL,0000000001),(0000000025,'assetInsert','/admin/asset_insert/[css|asset:mode]','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000026,'assetUpdate','/admin/asset_update/[v:file]','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000027,'assetDelete','/admin/asset_delete/[css|asset:mode]/[*:file]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000028,'request','/request/[v:class]/[v:method]?','GET|POST',0000000001,NULL,NULL,0,NULL,NULL,0000000001),(0000000029,'contact','/kontakt/[i:chrid]?/[i:gid]?/[i:uid]?','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000030,'agb','/agb','GET',0000000003,NULL,NULL,0,NULL,300,0000000002),(0000000031,'impressum','/impressum','GET',0000000003,NULL,NULL,0,NULL,100,0000000002),(0000000032,'disclaimer','/disclaimer','GET',0000000003,NULL,NULL,0,NULL,200,0000000002),(0000000033,'validate','/validate/[i:uid]/[a:token]','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000035,'reset_password','/reset','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000036,'userGenCode','/admin/user_gen_code','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000037,'email','/admin/email/[i:id]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,11,NULL,0000000001),(0000000038,'chatAdminSelect','/admin/chat/[i:rid]?','GET',0000000002,NULL,0000000009,0,35,NULL,0000000001),(0000000039,'chatAdminInsert','/admin/chat_insert/','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000040,'chatAdminDelete','/admin/chat_delete/[i:rid]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000041,'chatAdminUpdate','/admin/chat_update/[i:rid]/[add_user|rm_user:mode]/[i:did]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000042,'exportDelete','/admin/exportDelete/[user_activity|user_input:selector]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000043,'groupUpdateCustom','/admin/group_update_custom/[i:gid]','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000044,'callback','/callback/[v:class]/[v:method]?','GET|POST',0000000001,NULL,NULL,0,NULL,NULL,0000000001);
+INSERT INTO `pages` VALUES (0000000001,'login','/login','GET|POST',0000000003,NULL,NULL,1,NULL,NULL,0000000002),(0000000002,'home','/','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000003,'profile-link',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0000000002),(0000000004,'profile','/profile','GET|POST',0000000003,NULL,0000000003,0,10,NULL,0000000002),(0000000005,'logout','/login','GET',NULL,NULL,0000000003,0,20,NULL,0000000002),(0000000006,'missing',NULL,NULL,0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000007,'no_access',NULL,NULL,0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000008,'no_access_guest',NULL,NULL,0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000009,'admin-link',NULL,NULL,NULL,NULL,NULL,0,1000,NULL,0000000001),(0000000010,'cmsSelect','/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?','GET|POST',0000000002,NULL,0000000009,0,10,NULL,0000000001),(0000000011,'cmsInsert','/admin/cms_insert/[i:pid]?','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000012,'cmsUpdate','/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000013,'cmsDelete','/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000014,'userSelect','/admin/user/[i:uid]?','GET',0000000002,NULL,0000000009,0,20,NULL,0000000001),(0000000015,'userInsert','/admin/user_insert','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000016,'userUpdate','/admin/user_update/[i:uid]/[v:mode]/[i:did]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000017,'userDelete','/admin/user_delete/[i:uid]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000018,'groupSelect','/admin/group/[i:gid]?','GET',0000000002,NULL,0000000009,0,30,NULL,0000000001),(0000000019,'groupInsert','/admin/group_insert','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000020,'groupUpdate','/admin/group_update/[i:gid]','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000021,'groupDelete','/admin/group_delete/[i:gid]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000022,'export','/admin/export','GET|POST',0000000002,NULL,0000000009,0,40,NULL,0000000001),(0000000023,'exportData','/admin/export/[user_input|user_activity|validation_codes|user_input_form:selector]/[all|used|open:option]?/[i:id]?','GET',0000000001,NULL,0000000009,0,NULL,NULL,0000000001),(0000000024,'assetSelect','/admin/asset','GET',0000000002,NULL,0000000009,0,15,NULL,0000000001),(0000000025,'assetInsert','/admin/asset_insert/[css|asset:mode]','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000026,'assetUpdate','/admin/asset_update/[v:file]','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000027,'assetDelete','/admin/asset_delete/[css|asset:mode]/[*:file]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000028,'request','/request/[v:class]/[v:method]?','GET|POST',0000000001,NULL,NULL,0,NULL,NULL,0000000001),(0000000029,'contact','/kontakt/[i:chrid]?/[i:gid]?/[i:uid]?','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000030,'agb','/agb','GET',0000000003,NULL,NULL,0,NULL,300,0000000002),(0000000031,'impressum','/impressum','GET',0000000003,NULL,NULL,0,NULL,100,0000000002),(0000000032,'disclaimer','/disclaimer','GET',0000000003,NULL,NULL,0,NULL,200,0000000002),(0000000033,'validate','/validate/[i:uid]/[a:token]','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000035,'reset_password','/reset','GET|POST',0000000003,NULL,NULL,0,NULL,NULL,0000000002),(0000000036,'userGenCode','/admin/user_gen_code','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000037,'email','/admin/email/[i:id]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,11,NULL,0000000001),(0000000038,'chatAdminSelect','/admin/chat/[i:rid]?','GET',0000000002,NULL,0000000009,0,35,NULL,0000000001),(0000000039,'chatAdminInsert','/admin/chat_insert/','GET|POST|PUT',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000040,'chatAdminDelete','/admin/chat_delete/[i:rid]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000041,'chatAdminUpdate','/admin/chat_update/[i:rid]/[add_user|rm_user:mode]/[i:did]?','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000042,'exportDelete','/admin/exportDelete/[user_activity|user_input:selector]','GET|POST|DELETE',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000043,'groupUpdateCustom','/admin/group_update_custom/[i:gid]','GET|POST|PATCH',0000000002,NULL,0000000009,0,NULL,NULL,0000000001),(0000000044,'callback','/callback/[v:class]/[v:method]?','GET|POST',0000000001,NULL,NULL,0,NULL,NULL,0000000001),(0000000045,'data','/admin/data/[i:uid]?','GET|POST',0000000002,NULL,0000000009,0,39,NULL,0000000001);
 /*!40000 ALTER TABLE `pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -553,7 +553,7 @@ CREATE TABLE `pages_fields_translation` (
 
 LOCK TABLES `pages_fields_translation` WRITE;
 /*!40000 ALTER TABLE `pages_fields_translation` DISABLE KEYS */;
-INSERT INTO `pages_fields_translation` VALUES (0000000001,0000000008,0000000002,'Login'),(0000000001,0000000008,0000000003,'Login'),(0000000002,0000000008,0000000002,'Projekt Name'),(0000000002,0000000008,0000000003,'Project Name'),(0000000002,0000000115,0000000002,'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldigung.'),(0000000002,0000000115,0000000003,'There will be a short service disruption on the @date at @time due to server maintenance. Please accept our apologies for the caused inconveniences.'),(0000000003,0000000008,0000000002,'Profil'),(0000000003,0000000008,0000000003,'Profile'),(0000000004,0000000008,0000000002,'Einstellungen'),(0000000004,0000000008,0000000003,'Settings'),(0000000005,0000000008,0000000002,'Logout'),(0000000005,0000000008,0000000003,'Logout'),(0000000006,0000000008,0000000002,'Seite nicht gefunden'),(0000000006,0000000008,0000000003,'Missing'),(0000000007,0000000008,0000000002,'Kein Zugriff'),(0000000007,0000000008,0000000003,'No Access'),(0000000008,0000000008,0000000002,'Kein Zugriff'),(0000000008,0000000008,0000000003,'No Access'),(0000000009,0000000008,0000000001,'Admin'),(0000000010,0000000008,0000000001,'CMS'),(0000000011,0000000008,0000000001,'Create Page'),(0000000012,0000000008,0000000001,'Update Content'),(0000000013,0000000008,0000000001,'Delete Page'),(0000000014,0000000008,0000000001,'Users'),(0000000015,0000000008,0000000001,'Create User'),(0000000016,0000000008,0000000001,'Modify User'),(0000000017,0000000008,0000000001,'Delete User'),(0000000018,0000000008,0000000001,'Groups'),(0000000019,0000000008,0000000001,'Create Group'),(0000000020,0000000008,0000000001,'Modify Group'),(0000000021,0000000008,0000000001,'Delete Group'),(0000000022,0000000008,0000000001,'Export'),(0000000023,0000000008,0000000001,'Export'),(0000000024,0000000008,0000000001,'Assets'),(0000000025,0000000008,0000000001,'Upload Asset'),(0000000026,0000000008,0000000001,'Rename Asset'),(0000000027,0000000008,0000000001,'Delete Asset'),(0000000029,0000000008,0000000002,'Kontakt'),(0000000029,0000000008,0000000003,'Contact'),(0000000030,0000000008,0000000002,'AGB'),(0000000030,0000000008,0000000003,'GTC'),(0000000031,0000000008,0000000002,'Impressum'),(0000000031,0000000008,0000000003,'Impressum'),(0000000032,0000000008,0000000002,'Disclaimer'),(0000000032,0000000008,0000000003,'Disclaimer'),(0000000033,0000000008,0000000002,'Benutzer Validierung'),(0000000033,0000000008,0000000003,'User Validation'),(0000000035,0000000008,0000000002,'Passwort zurücksetzen'),(0000000035,0000000008,0000000003,'Reset Password'),(0000000036,0000000008,0000000001,'Generate Validation Codes'),(0000000037,0000000008,0000000001,'Email CMS'),(0000000037,0000000092,0000000002,'Guten Tag\r\n\r\nUm Ihre Email Adresse zu verifizieren und Ihren @project Account zu aktivieren klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team'),(0000000037,0000000092,0000000003,'Hello\r\n\r\nTo verify you email address and to activate your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team'),(0000000037,0000000094,0000000002,'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),(0000000037,0000000094,0000000003,'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),(0000000038,0000000008,0000000001,'Chat Rooms'),(0000000039,0000000008,0000000001,'Create Chat Room'),(0000000040,0000000008,0000000001,'Delete Chat Room'),(0000000041,0000000008,0000000001,'Administrate Chat Room'),(0000000042,0000000008,0000000002,'Userdaten Löschen'),(0000000042,0000000008,0000000003,'Remove User Data'),(0000000043,0000000008,0000000001,'Custom Group Update');
+INSERT INTO `pages_fields_translation` VALUES (0000000001,0000000008,0000000002,'Login'),(0000000001,0000000008,0000000003,'Login'),(0000000002,0000000008,0000000002,'Projekt Name'),(0000000002,0000000008,0000000003,'Project Name'),(0000000002,0000000115,0000000002,'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldigung.'),(0000000002,0000000115,0000000003,'There will be a short service disruption on the @date at @time due to server maintenance. Please accept our apologies for the caused inconveniences.'),(0000000003,0000000008,0000000002,'Profil'),(0000000003,0000000008,0000000003,'Profile'),(0000000004,0000000008,0000000002,'Einstellungen'),(0000000004,0000000008,0000000003,'Settings'),(0000000005,0000000008,0000000002,'Logout'),(0000000005,0000000008,0000000003,'Logout'),(0000000006,0000000008,0000000002,'Seite nicht gefunden'),(0000000006,0000000008,0000000003,'Missing'),(0000000007,0000000008,0000000002,'Kein Zugriff'),(0000000007,0000000008,0000000003,'No Access'),(0000000008,0000000008,0000000002,'Kein Zugriff'),(0000000008,0000000008,0000000003,'No Access'),(0000000009,0000000008,0000000001,'Admin'),(0000000010,0000000008,0000000001,'CMS'),(0000000011,0000000008,0000000001,'Create Page'),(0000000012,0000000008,0000000001,'Update Content'),(0000000013,0000000008,0000000001,'Delete Page'),(0000000014,0000000008,0000000001,'Users'),(0000000015,0000000008,0000000001,'Create User'),(0000000016,0000000008,0000000001,'Modify User'),(0000000017,0000000008,0000000001,'Delete User'),(0000000018,0000000008,0000000001,'Groups'),(0000000019,0000000008,0000000001,'Create Group'),(0000000020,0000000008,0000000001,'Modify Group'),(0000000021,0000000008,0000000001,'Delete Group'),(0000000022,0000000008,0000000001,'Export'),(0000000023,0000000008,0000000001,'Export'),(0000000024,0000000008,0000000001,'Assets'),(0000000025,0000000008,0000000001,'Upload Asset'),(0000000026,0000000008,0000000001,'Rename Asset'),(0000000027,0000000008,0000000001,'Delete Asset'),(0000000029,0000000008,0000000002,'Kontakt'),(0000000029,0000000008,0000000003,'Contact'),(0000000030,0000000008,0000000002,'AGB'),(0000000030,0000000008,0000000003,'GTC'),(0000000031,0000000008,0000000002,'Impressum'),(0000000031,0000000008,0000000003,'Impressum'),(0000000032,0000000008,0000000002,'Disclaimer'),(0000000032,0000000008,0000000003,'Disclaimer'),(0000000033,0000000008,0000000002,'Benutzer Validierung'),(0000000033,0000000008,0000000003,'User Validation'),(0000000035,0000000008,0000000002,'Passwort zurücksetzen'),(0000000035,0000000008,0000000003,'Reset Password'),(0000000036,0000000008,0000000001,'Generate Validation Codes'),(0000000037,0000000008,0000000001,'Email CMS'),(0000000037,0000000092,0000000002,'Guten Tag\r\n\r\nUm Ihre Email Adresse zu verifizieren und Ihren @project Account zu aktivieren klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team'),(0000000037,0000000092,0000000003,'Hello\r\n\r\nTo verify you email address and to activate your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team'),(0000000037,0000000094,0000000002,'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),(0000000037,0000000094,0000000003,'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),(0000000038,0000000008,0000000001,'Chat Rooms'),(0000000039,0000000008,0000000001,'Create Chat Room'),(0000000040,0000000008,0000000001,'Delete Chat Room'),(0000000041,0000000008,0000000001,'Administrate Chat Room'),(0000000042,0000000008,0000000002,'Userdaten Löschen'),(0000000042,0000000008,0000000003,'Remove User Data'),(0000000043,0000000008,0000000001,'Custom Group Update'),(0000000045,0000000008,0000000001,'Data');
 /*!40000 ALTER TABLE `pages_fields_translation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -866,7 +866,7 @@ CREATE TABLE `user_activity` (
   KEY `id_type` (`id_type`),
   CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_user_activity_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -875,7 +875,7 @@ CREATE TABLE `user_activity` (
 
 LOCK TABLES `user_activity` WRITE;
 /*!40000 ALTER TABLE `user_activity` DISABLE KEYS */;
-INSERT INTO `user_activity` VALUES (0000000001,0000000002,'/selfhelp/admin/export/user_input_form/all/55','2019-11-28 16:49:46',0000000002);
+INSERT INTO `user_activity` VALUES (0000000001,0000000002,'/selfhelp/admin/export/user_input_form/all/55','2019-11-28 16:49:46',0000000002),(0000000002,0000000002,'/selfhelp/admin/export/user_input_form/all/55','2020-01-24 14:32:37',0000000002);
 /*!40000 ALTER TABLE `user_activity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1012,8 +1012,161 @@ LOCK TABLES `validation_codes` WRITE;
 UNLOCK TABLES;
 
 --
+-- Temporary table structure for view `view_fields`
+--
+
+DROP TABLE IF EXISTS `view_fields`;
+/*!50001 DROP VIEW IF EXISTS `view_fields`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_fields` AS SELECT 
+ 1 AS `field_id`,
+ 1 AS `field_name`,
+ 1 AS `display`,
+ 1 AS `field_type_id`,
+ 1 AS `field_type`,
+ 1 AS `position`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_style_fields`
+--
+
+DROP TABLE IF EXISTS `view_style_fields`;
+/*!50001 DROP VIEW IF EXISTS `view_style_fields`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_style_fields` AS SELECT 
+ 1 AS `style_id`,
+ 1 AS `style_name`,
+ 1 AS `style_type`,
+ 1 AS `style_group`,
+ 1 AS `field_id`,
+ 1 AS `field_name`,
+ 1 AS `field_type`,
+ 1 AS `display`,
+ 1 AS `position`,
+ 1 AS `default_value`,
+ 1 AS `help`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_styles`
+--
+
+DROP TABLE IF EXISTS `view_styles`;
+/*!50001 DROP VIEW IF EXISTS `view_styles`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_styles` AS SELECT 
+ 1 AS `style_id`,
+ 1 AS `style_name`,
+ 1 AS `style_description`,
+ 1 AS `style_type_id`,
+ 1 AS `style_type`,
+ 1 AS `style_group_id`,
+ 1 AS `style_group`,
+ 1 AS `style_group_description`,
+ 1 AS `style_group_position`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_user_input`
+--
+
+DROP TABLE IF EXISTS `view_user_input`;
+/*!50001 DROP VIEW IF EXISTS `view_user_input`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_user_input` AS SELECT 
+ 1 AS `id`,
+ 1 AS `user_id`,
+ 1 AS `user_name`,
+ 1 AS `user_code`,
+ 1 AS `form_id`,
+ 1 AS `form_name`,
+ 1 AS `field_id`,
+ 1 AS `field_name`,
+ 1 AS `value`,
+ 1 AS `edit_time`,
+ 1 AS `removed`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Dumping events for database 'selfhelp'
 --
+
+--
+-- Final view structure for view `view_fields`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_fields`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_fields` AS select cast(`f`.`id` as unsigned) AS `field_id`,`f`.`name` AS `field_name`,`f`.`display` AS `display`,cast(`ft`.`id` as unsigned) AS `field_type_id`,`ft`.`name` AS `field_type`,`ft`.`position` AS `position` from (`fields` `f` left join `fieldType` `ft` on((`f`.`id_type` = `ft`.`id`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_style_fields`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_style_fields`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_style_fields` AS select `s`.`style_id` AS `style_id`,`s`.`style_name` AS `style_name`,`s`.`style_type` AS `style_type`,`s`.`style_group` AS `style_group`,`f`.`field_id` AS `field_id`,`f`.`field_name` AS `field_name`,`f`.`field_type` AS `field_type`,`f`.`display` AS `display`,`f`.`position` AS `position`,`sf`.`default_value` AS `default_value`,`sf`.`help` AS `help` from ((`view_styles` `s` left join `styles_fields` `sf` on((`s`.`style_id` = `sf`.`id_styles`))) left join `view_fields` `f` on((`f`.`field_id` = `sf`.`id_fields`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_styles`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_styles`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_styles` AS select cast(`s`.`id` as unsigned) AS `style_id`,`s`.`name` AS `style_name`,`s`.`description` AS `style_description`,cast(`st`.`id` as unsigned) AS `style_type_id`,`st`.`name` AS `style_type`,cast(`sg`.`id` as unsigned) AS `style_group_id`,`sg`.`name` AS `style_group`,`sg`.`description` AS `style_group_description`,`sg`.`position` AS `style_group_position` from ((`styles` `s` left join `styleType` `st` on((`s`.`id_type` = `st`.`id`))) left join `styleGroup` `sg` on((`s`.`id_group` = `sg`.`id`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_user_input`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_user_input`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`bashev`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_user_input` AS select cast(`ui`.`id` as unsigned) AS `id`,cast(`u`.`id` as unsigned) AS `user_id`,`u`.`name` AS `user_name`,`vc`.`code` AS `user_code`,cast(`form`.`id` as unsigned) AS `form_id`,`sft_if`.`content` AS `form_name`,cast(`field`.`id` as unsigned) AS `field_id`,`sft_in`.`content` AS `field_name`,`ui`.`value` AS `value`,`ui`.`edit_time` AS `edit_time`,`ui`.`removed` AS `removed` from ((((((`user_input` `ui` left join `users` `u` on((`ui`.`id_users` = `u`.`id`))) left join `validation_codes` `vc` on((`ui`.`id_users` = `vc`.`id_users`))) left join `sections` `field` on((`ui`.`id_sections` = `field`.`id`))) left join `sections` `form` on((`ui`.`id_section_form` = `form`.`id`))) left join `sections_fields_translation` `sft_in` on(((`sft_in`.`id_sections` = `ui`.`id_sections`) and (`sft_in`.`id_fields` = 57)))) left join `sections_fields_translation` `sft_if` on(((`sft_if`.`id_sections` = `ui`.`id_section_form`) and (`sft_if`.`id_fields` = 57)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1024,4 +1177,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-01-17 15:04:57
+-- Dump completed on 2020-01-24 14:34:45
