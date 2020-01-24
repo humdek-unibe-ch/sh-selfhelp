@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS get_form_data //
+DROP PROCEDURE IF EXISTS get_form_data_for_user //
 
-CREATE PROCEDURE get_form_data( form_id_param INT )
+CREATE PROCEDURE get_form_data_for_user( form_id_param INT, user_id_param INT )
 BEGIN  
     SET @@group_concat_max_len = 32000;
 	SET @sql = NULL;
@@ -22,9 +22,9 @@ BEGIN
 		SELECT "";
     ELSE 
 		begin
-		SET @sql = CONCAT('select user_name, form_name, edit_time, ', @sql, ' from view_user_input
-		where form_id = ', form_id_param,
-		' group by form_name, user_name, edit_time');
+		SET @sql = CONCAT('select user_id, form_name, edit_time, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
+		where form_id = ', form_id_param, ' and user_id = ', user_id_param,
+		' group by user_id, form_name, user_name, edit_time, user_code, removed');
 
 		
 		PREPARE stmt FROM @sql;

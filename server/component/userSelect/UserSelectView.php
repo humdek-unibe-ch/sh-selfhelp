@@ -318,7 +318,7 @@ class UserSelectView extends BaseView
     /**
      * Render the list of users and their activity.
      */
-    private function output_user_activity()
+    protected function output_user_activity()
     {
         require __DIR__ . "/tpl_user_activity.php";
     }
@@ -428,8 +428,10 @@ class UserSelectView extends BaseView
      *  An array of js include files the component requires.
      */
     public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/js/users.js");
+    {   
+        if(empty($local)){
+            $local = array(__DIR__ . "/js/users.js");
+        }
         return parent::get_js_includes($local);
     }
 

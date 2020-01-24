@@ -1,26 +1,14 @@
-drop view if exists view_fields;
-create view view_fields
-as
-select cast(f.id as unsigned) as field_id, f.name as field_name, f.display, cast(ft.id as unsigned) as field_type_id, ft.name as field_type, ft.position
-from fields f
-left join fieldType ft on (f.id_type = ft.id);
-drop view if exists view_styles;
-create view view_styles
-as
-select cast(s.id as unsigned) as style_id, s.name as style_name, s.description as style_description,
-cast(st.id as unsigned) as style_type_id, st.name as style_type, cast(sg.id as unsigned) as style_group_id,
-sg.name as style_group, sg.description as style_group_description, sg.position as style_group_position
-from styles s
-left join styleType st on (s.id_type = st.id)
-left join styleGroup sg on (s.id_group = sg.id);
-drop view if exists view_style_fields;
-create view view_style_fields
-as
-select s.style_id, s.style_name, s.style_type, s.style_group, f.field_id, f.field_name, f.field_type, f.display, f.position, 
-sf.default_value, sf.help
-from view_styles s
-left join styles_fields sf on (s.style_id = sf.id_styles)
-left join view_fields f on (f.field_id = sf.id_fields);
+-- add page data;
+INSERT INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'data', '/admin/data/[i:uid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', 39, NULL, '0000000001');
+
+SET @id_page_data = LAST_INSERT_ID();
+
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES
+('0000000001', @id_page_data, '1', '1', '0', '0');
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_data, '0000000008', '0000000001', 'Data');
+
 drop view if exists view_user_input;
 create view view_user_input
 as
@@ -33,62 +21,7 @@ left join sections field on (ui.id_sections = field.id)
 left join sections form  on (ui.id_section_form = form.id)
 LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57;
-DELIMITER //
-DROP FUNCTION IF EXISTS get_field_type_id //
 
-CREATE FUNCTION get_field_type_id(field_type varchar(100)) RETURNS INT
-BEGIN 
-	DECLARE field_type_id INT;    
-	select id into field_type_id
-	from fieldType
-	where name = field_type;
-    return field_type_id;
-END
-//
-
-DELIMITER ;
-DELIMITER //
-DROP FUNCTION IF EXISTS get_field_id //
-
-CREATE FUNCTION get_field_id(field varchar(100)) RETURNS INT
-BEGIN 
-	DECLARE field_id INT;    
-	select id into field_id
-	from fields
-	where name = field;
-    return field_id;
-END
-//
-
-DELIMITER ;
-DELIMITER //
-DROP FUNCTION IF EXISTS get_style_id //
-
-CREATE FUNCTION get_style_id(style varchar(100)) RETURNS INT
-BEGIN 
-	DECLARE style_id INT;    
-	select id into style_id
-	from styles
-	where name = style;
-    return style_id;
-END
-//
-
-DELIMITER ;
-DELIMITER //
-DROP FUNCTION IF EXISTS get_style_group_id //
-
-CREATE FUNCTION get_style_group_id(style_group varchar(100)) RETURNS INT
-BEGIN 
-	DECLARE style_group_id INT;    
-	select id into style_group_id
-	from styleGroup
-	where name = style_group;
-    return style_group_id;
-END
-//
-
-DELIMITER ;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_form_data //
@@ -127,6 +60,7 @@ END
 //
 
 DELIMITER ;
+
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_form_data_for_user //
