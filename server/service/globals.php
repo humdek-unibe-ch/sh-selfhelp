@@ -49,6 +49,11 @@ define('CORE_PAGE_ID', 2);
 define('EXPERIMENT_PAGE_ID', 3);
 define('OPEN_PAGE_ID', 4);
 
+/* User Status code from table userStatus */
+define('USER_STATUS_INTERESTED', 1);
+define('USER_STATUS_INVITED', 2);
+define('USER_STATUS_ACTIVE', 3);
+
 /* Callback status */
 define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');

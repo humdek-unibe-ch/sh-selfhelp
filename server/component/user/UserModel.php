@@ -302,8 +302,15 @@ class UserModel extends BaseModel
      */
     public function create_new_user($email, $code=null)
     {
-        $token = $this->login->create_token();
-        $uid = $this->insert_new_user($email, $token, 2);
+        $token = $this->login->create_token();     
+        $uid = $this->is_user_interested($email); 
+        if($uid > 0){  
+            // user is in status interested; change it to invited and assign the token for activation    
+            $this->set_user_status($uid, $token, USER_STATUS_INVITED);
+        }else{
+            // if the user is not already interested (in database), create a new one
+            $uid = $this->insert_new_user($email, $token, 2);
+        }
         $code_res = true;
         if($code !== null)
             $code_res = $this->db->insert("validation_codes", array(
@@ -685,6 +692,33 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Check is a user already interested
+     *
+     * @param string $email
+     *  The email of the user.
+     * @param string $token
+     *  The validation token of the user.
+     * @param int $id_status
+     *  The initial status of the user.
+     * @retval int
+     *  The id of the new user.
+     */
+    public function is_user_interested($email)
+    {
+        $user_id = -1;
+        $sql = "SELECT id
+        from users 
+        where email = :email and id_status = :user_status";
+        $res = $this->db->query_db_first($sql, array(
+            ":email" => $email,
+            ":user_status" => USER_STATUS_INTERESTED));
+        if($res){
+            $user_id = $res['id'];
+        }
+        return $user_id;
+    }
+
+    /**
      * Checks whether a group can be added by the current user.
      *
      * @retval bool
@@ -721,6 +755,24 @@ class UserModel extends BaseModel
     public function reset_did()
     {
         $this->did = null;
+    }
+
+    /**
+     * Set the user status and token
+     *
+     * @param int $uid
+     *  The id of the user
+     * @param int $token
+     *  The token which will be used for account activation
+     * @param int $status
+     *  The new status
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function set_user_status($uid, $token, $status)
+    {
+        return $this->db->update_by_ids('users', array("token" => $token, "id_status" => $status),
+            array("id" => $uid));
     }
 
     /**
