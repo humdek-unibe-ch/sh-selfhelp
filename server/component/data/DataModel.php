@@ -49,6 +49,12 @@ class DataModel extends UserModel
      */
     public function get_forms()
     {
+        // log user activity on export pages
+        $this->services->get_db()->insert("user_activity", array(
+            "id_users" => $_SESSION['id_user'],
+            "url" => $_SERVER['REQUEST_URI'],
+            "id_type" => 2,
+        ));
         $sql = 'select cast(s.id as unsigned) as form_id, ifnull(sft_if.content, s.name) as form_name 
                 from sections s
                 inner join view_styles st on (s.id_styles = st.style_id)
@@ -84,6 +90,6 @@ class DataModel extends UserModel
             $sql = 'call get_form_data(' . $formId . ')';
             return $this->services->get_db()->query_db($sql);
         }
-    }    
+    }
 }
 ?>
