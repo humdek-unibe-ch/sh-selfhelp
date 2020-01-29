@@ -1,4 +1,11 @@
-# v1.3.0 (latest)
+# v1.3.1 (latest)
+
+### Changes
+
+ - fix - interested user now can register #223
+ - any data view request is logged into user activty
+
+# v1.3.0
 
 ### Changes
 
