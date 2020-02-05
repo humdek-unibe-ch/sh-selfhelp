@@ -1,4 +1,12 @@
-# v1.3.1 (latest)
+# v1.3.2 (latest)
+
+### Changes
+
+ - add conditional container based on user groups #229
+    - $ sign is used to define the group name - returns true/false
+    - example: { "==" : [true,"$subject"] }
+
+# v1.3.1
 
 ### Changes
 
