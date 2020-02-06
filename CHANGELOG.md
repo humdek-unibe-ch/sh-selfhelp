@@ -1,4 +1,10 @@
-# v1.3.2 (latest)
+# v1.3.3 (latest)
+
+### Changes
+
+ - add validation_code to the user name in all chats
+
+# v1.3.2
 
 ### Changes
 

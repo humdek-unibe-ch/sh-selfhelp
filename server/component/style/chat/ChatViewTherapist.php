@@ -50,6 +50,7 @@ class ChatViewTherapist extends ChatView
         {
             $id = intval($subject['id']);
             $name = $subject['name'];
+            $subject_code = $subject['code'];
             $url = $this->model->get_subject_url($id);
             $active = "";
             if($this->model->is_subject_selected($id))
