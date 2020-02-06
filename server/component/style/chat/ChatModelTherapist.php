@@ -160,9 +160,10 @@ class ChatModelTherapist extends ChatModel
      */
     public function get_GroupSubjects()
     {
-        $sql = "SELECT DISTINCT u.id, u.name 
+        $sql = "SELECT DISTINCT u.id, u.name, vc.code 
                 FROM users AS u
                 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+                LEFT JOIN validation_codes vc on vc.id_users = u.id
                 WHERE ug.id_groups = :gid and u.id <> :me";
         return $this->db->query_db($sql, array(
             ":gid" => $this->gid,
@@ -180,9 +181,10 @@ class ChatModelTherapist extends ChatModel
      */
     public function get_RoomSubjects()
     {
-        $sql = "SELECT DISTINCT u.id, u.name 
+        $sql = "SELECT DISTINCT u.id, u.name, vc.code 
                 FROM users AS u
                 LEFT JOIN chatRoom_users AS chru ON chru.id_users = u.id
+                LEFT JOIN validation_codes vc on vc.id_users = u.id
                 WHERE chru.id_chatRoom = :rid and u.id <> :me";
         return $this->db->query_db($sql, array(
             ":rid" => $this->chrid,
@@ -209,10 +211,11 @@ class ChatModelTherapist extends ChatModel
         //     ":gid" => SUBJECT_GROUP_ID,
         //     ":rid" => $this->gid,
         // ));
-        $sql = "SELECT DISTINCT u.id, u.name 
+        $sql = "SELECT DISTINCT u.id, u.name, vc.code
             FROM users AS u
             LEFT JOIN chat AS c ON c.id_snd = u.id
             LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            LEFT JOIN validation_codes vc on vc.id_users = u.id
             WHERE c.id_rcv_grp = :rid and u.id <> :uid";
         return $this->db->query_db($sql, array(
             ":rid" => $this->chrid,
