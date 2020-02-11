@@ -99,7 +99,7 @@ class ExportPage extends BasePage
 
          // output headers so that the file is downloaded rather than displayed
         header('Content-Type: text/csv; charset=utf-8');        
-        header('Content-Disposition: attachment; filename=' . ($fileName ? $fileName : $selector) . '[' . date('d-m-Y H:i:s') . '].csv');
+        header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . ($fileName ? $fileName : $selector) . '.csv');
     }
 
     /**
