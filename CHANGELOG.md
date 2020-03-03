@@ -1,8 +1,16 @@
-# v1.3.4 (latest)
+# v1.3.5 (latest)
+
+### Changes
+
+ - update to Bootstrap 4.4.1 to fix issues wit Internet Explorer (#230)
+
+
+---------
+# v1.3.4
 
 ### Bugfix
 
- - fix export data page
+ - fix export data page (#228)
 
 ### Changes
 
