@@ -73,6 +73,8 @@ class ExportPage extends BasePage
      *  An identifier indicating which data to export.
      * @param string $option
      *  An option to add specifics of what to export
+     * @param string $id
+     *  The id of a specific input form to export
      */
     private function export_data($selector, $option, $id)
     {
@@ -251,6 +253,8 @@ class ExportPage extends BasePage
      *  An identifier indicating which data to export.
      * @param string $option
      *  An option string which allows to specify how to export data.
+     * @param string $id
+     *  The id of a specific input form to export
      */
     public function output($selector = "", $option = null, $id=null)
     {

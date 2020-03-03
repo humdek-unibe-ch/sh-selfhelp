@@ -163,7 +163,7 @@ abstract class ChatView extends StyleView
     /**
      * Render the room list.
      *
-     * @param array $rooms
+     * @param array $groups
      *  A list of rooms with the following keys:
      *   - 'id':    the id of the chat room
      *   - 'name':  the name of the chat room

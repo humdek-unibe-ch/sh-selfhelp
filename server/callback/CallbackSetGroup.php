@@ -28,7 +28,11 @@ class CallbackSetGroup extends BaseCallback
      * Assign group to code in the table validation codes
      *
      * @param $group
+     *  The id of the group
      * @param $code
+     *  The code to be assigned to the group
+     * @retval boolean
+     *  true an success, false on failure
      */
     private function assignGroupToCode($group, $code)
     {
@@ -45,7 +49,11 @@ class CallbackSetGroup extends BaseCallback
      * Assign group to user in the table validation codes
      *
      * @param $group
-     * @param $code
+     *  The id of the group
+     * @param $userId
+     *  The id of the user to be assigned to the group
+     * @retval boolean
+     *  true an success, false on failure
      */
     private function assignUserToGroup($group, $userId)
     {
@@ -59,8 +67,10 @@ class CallbackSetGroup extends BaseCallback
     /**
      * Get the group id
      *
-     * @param $groupName
+     * @param $group
+     *  The name of a group
      * @return $groupId
+     *  the id of the group or -1 on failure
      */
     private function getGroupId($group)
     {
@@ -74,7 +84,9 @@ class CallbackSetGroup extends BaseCallback
      * Check is the code is in database and available
      *
      * @param $code
+     *  The code to check
      * @return $boolean
+     *  True if the code exists, false otherwise
      */
     private function doesCodeExists($code)
     {
@@ -86,10 +98,12 @@ class CallbackSetGroup extends BaseCallback
     }
 
     /**
-     * Check does a user with that code is registered
+     * Get the user id given a user code
      *
      * @param $code
-     * @return $boolean
+     *  The code for which a user is searched
+     * @retval $boolean
+     *  The user id on success, -1 on failure
      */
     private function getUserId($code)
     {
@@ -155,7 +169,12 @@ class CallbackSetGroup extends BaseCallback
      *
      * @param $data
      *  The POST data of the callback call:
-     * callbackKey is expected from where the callback is initialized
+     *   callbackKey is expected from where the callback is initialized
+     * @param $userExists
+     *  A flag indicating whether a check should be performed wether the user
+     *  exists
+     * @retval array
+     *  An array with the callback results
      */
     private function validate_callback($data, $userExists)
     {
