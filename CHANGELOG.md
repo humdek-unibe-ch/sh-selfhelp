@@ -1,5 +1,9 @@
 # v1.3.5 (in progress)
 
+### Bugfix
+
+ - catch exception in `conditionalContainer` (#233)
+
 ### Changes
 
  - update to Bootstrap 4.4.1 to fix issues wit Internet Explorer (#230)
