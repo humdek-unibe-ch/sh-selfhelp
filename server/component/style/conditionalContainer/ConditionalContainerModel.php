@@ -92,7 +92,16 @@ class ConditionalContainerModel extends StyleModel
             $j_condition = str_replace($match, '"' . $val . '"', $j_condition);
         }
         // compute the condition
-        $res['result'] = JsonLogic::apply(json_decode($j_condition, true));
+        try
+        {
+            $res['result'] = JsonLogic::apply(json_decode($j_condition, true));
+        }
+        catch(Exception $e)
+        {
+            $res['fields'] = "JsonLogic::apply() failed in section '"
+                . $this->get_db_field('id') . "': " . $e->getMessage();
+        }
+
         return $res;
     }
 }
