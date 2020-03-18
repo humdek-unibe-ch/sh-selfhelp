@@ -138,6 +138,8 @@ abstract class BasePage
      */
     private function collect_style_includes()
     {
+        $js_includes = array();
+        $css_includes = array();
         if($handle = opendir(STYLE_SERVER_PATH)) {
             $this->add_main_include_files(
                 STYLE_SERVER_PATH . '/css',
@@ -158,16 +160,20 @@ abstract class BasePage
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/css',
                     STYLE_PATH . '/' . $file . '/css/', 'css',
-                    $this->css_includes
+                    $css_includes
                 );
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/js',
                     STYLE_PATH . '/' . $file . '/js/', 'js',
-                    $this->js_includes
+                    $js_includes
                 );
             }
             closedir($handle);
         }
+        sort($js_includes);
+        sort($css_includes);
+        $this->js_includes = array_merge($this->js_includes, $js_includes);
+        $this->css_includes = array_merge($this->css_includes, $css_includes);
     }
 
     /**
@@ -269,6 +275,7 @@ abstract class BasePage
     {
         $this->js_includes = array_unique(array_merge($this->js_includes,
             $this->get_js_includes()));
+        /* sort($this->js_includes); */
         foreach($this->js_includes as $js_include)
         {
             $router = $this->services->get_router();
