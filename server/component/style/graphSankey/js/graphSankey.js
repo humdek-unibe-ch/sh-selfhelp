@@ -2,6 +2,7 @@ $(document).ready(() => {
 
     var raw = parseGraphData($('div.graph-sankey'));
     console.log(raw.node);
+    console.log(raw.annotations);
 
     data = {
         type: "sankey",
@@ -12,7 +13,7 @@ $(document).ready(() => {
 
     var layout = {
         title: 'Test Sankey',
-        showlegend: true
+        annotations: raw.annotations
     };
 
     var config = {responsive: true};
