@@ -47,6 +47,16 @@ class UserUpdateController extends UserController
                 $this->error_msgs[] = "Failed to unblock the user.";
             }
         }
+        else if($mode == "impersonate" && isset($_POST["impersonate"]))
+        {
+            if($this->model->impersonate_user($this->selected_user['id']))
+                $this->success = true;
+            else
+            {
+                $this->fail = true;
+                $this->error_msgs[] = "Failed to impersonate the user.";
+            }
+        }
         else if($mode == "clean" && isset($_POST["email"]))
         {
             if($_POST['email'] == $this->selected_user['email'])

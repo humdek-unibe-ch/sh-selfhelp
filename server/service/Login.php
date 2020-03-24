@@ -238,6 +238,31 @@ class Login
     }
 
     /**
+     * Impersonate a user.
+     *
+     * @param string $uid
+     *  The id of the user to impersonate.
+     * @retval bool
+     *  true if the check was successful, false otherwise.
+     */
+    public function impersonate_user($uid)
+    {
+        $sql = "SELECT u.id, g.name AS gender FROM users AS u
+            LEFT JOIN genders AS g ON g.id = u.id_genders
+            WHERE u.id = :uid AND password IS NOT NULL AND blocked <> '1'";
+        $user = $this->db->query_db_first($sql, array(':uid' => $uid));
+        if($user) {
+            $_SESSION['logged_in'] = true;
+            $_SESSION['id_user'] = $user['id'];
+            $_SESSION['gender'] = $user['gender'];
+            $_SESSION['user_gender'] = $user['gender'];
+            return true;
+        }
+        else
+            return false;
+    }
+
+    /**
      * Check whether the user is logged in by ckecking for a user id in the
      * session variable.
      *

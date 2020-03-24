@@ -183,6 +183,46 @@ class UserUpdateView extends BaseView
     }
 
     /**
+     * Render the form to impersonate a user.
+     */
+    private function output_form_impersonate()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Impersonate User",
+            "type" => "danger",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Impersonating a user allows to act on behlaf of the impersonated user. This is intended for debugging purposes in order to see what the impersonated user sees.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Impersonate User",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "impersonate",
+                        )
+                    ),
+                    "type" => "danger",
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "hidden",
+                            "name" => "impersonate",
+                            "value" => 1,
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
      * Render the from to remove a group from a user.
      */
     private function output_form_rm_group()
@@ -270,6 +310,8 @@ class UserUpdateView extends BaseView
             require __DIR__ . "/tpl_success_unblock.php";
         else if($type === "clean")
             require __DIR__ . "/tpl_success_clean.php";
+        else if($type === "impersonate")
+            require __DIR__ . "/tpl_success_impersonate.php";
         else if($type === "add_group")
             require __DIR__ . "/tpl_success_add_group.php";
         else if($type === "rm_group")
@@ -321,6 +363,13 @@ class UserUpdateView extends BaseView
                 require __DIR__ . "/tpl_success.php";
             else
                 require __DIR__ . "/tpl_clean.php";
+        }
+        else if($this->mode == "impersonate")
+        {
+            if($this->controller->has_succeeded())
+                require __DIR__ . "/tpl_success.php";
+            else
+                require __DIR__ . "/tpl_impersonate.php";
         }
         else if($this->mode == "add_group")
         {
