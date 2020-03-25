@@ -16,10 +16,22 @@ class GraphSankeyView extends GraphView
     /* Private Properties******************************************************/
 
     /**
-     * DB field 'type' ('primary').
-     * The style of the alert. E.g. 'warning', 'danger', etc.
+     * DB field 'title' (string).
+     * The title of the sanket graph.
      */
-    private $type;
+    private $title;
+    private $name;
+    private $data_cols;
+    private $data_types;
+    private $link_color;
+    private $link_alpha;
+    private $link_hovertemplate;
+    private $node_hovertemplate;
+    private $min;
+    private $has_node_labels;
+    private $has_col_labels;
+    private $is_grouped;
+    private $raw_data;
 
     /* Constructors ***********************************************************/
 
@@ -32,6 +44,23 @@ class GraphSankeyView extends GraphView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->title = $this->model->get_db_field("title");
+        $this->name = $this->model->get_db_field("name");
+        $this->data_types = $this->model->get_db_field("data_types");
+        $this->data_cols = $this->model->get_db_field("data_cols");
+        $this->link_color = $this->model->get_db_field("link_color", "source");
+        $this->link_alpha = $this->model->get_db_field("link_alpha", 128);
+        $this->link_hovertemplate = $this->model->get_db_field(
+            "link_hovertemplate", "%{source.label} &rarr; %{target.label}");
+        $this->node_hovertemplate = $this->model->get_db_field(
+            "node_hovertemplate", "%{label}");
+        $this->min = $this->model->get_db_field("min", 10);
+        $this->has_node_labels = $this->model->get_db_field("has_node_labels",
+            false);
+        $this->has_col_labels = $this->model->get_db_field("has_col_labels",
+            true);
+        $this->is_grouped = $this->model->get_db_field("is_grouped",
+            true);
     }
 
     /* Private  Methods *******************************************************/
@@ -79,7 +108,7 @@ class GraphSankeyView extends GraphView
             "idx" => $idx,
             "key" => $type['key'],
             "label" => $type['label'],
-            "color" => $type['color'],
+            "color" => isset($type['color']) ? $type['color'] : "",
         );
     }
 
@@ -98,12 +127,14 @@ class GraphSankeyView extends GraphView
 
         // prepare links based on transitions and a node reference table which
         // will be used to build the final node list
+        $max_sum = 1;
         $nodes_ref = array();
         $node_idx = 0;
         $links = array(
             "source" => array(),
             "target" => array(),
-            "value" => array()
+            "value" => array(),
+            "color" => array()
         );
         foreach($transitions as $transition) {
             foreach($types as $idx_src => $type_src) {
@@ -120,7 +151,8 @@ class GraphSankeyView extends GraphView
                     $target_key = $target['col']['key'].'-'.$target['type']['key'];
                     $sum = $this->compute_sankey_link_sum($body,
                         $source, $target);
-                    if($sum > 10) {
+                    if($sum >= $this->min) {
+                        if($sum > $max_sum) $max_sum = $sum;
                         array_push($links['value'], $sum);
 
                         if(!array_key_exists($source_key, $nodes_ref)) {
@@ -138,10 +170,35 @@ class GraphSankeyView extends GraphView
                         }
                         $target_idx = $nodes_ref[$target_key]['idx'];
                         array_push($links['target'], $target_idx);
+                        if($this->link_color === "source") {
+                            $color = $source['type']['color'];
+                        } else if($this->link_color === "target") {
+                            $color = $target['type']['color'];
+                        } else {
+                            $color = $this->link_color;
+                        }
+                        if($color !== "") {
+                            array_push($links['color'], $color);
+                        }
                     }
                 }
             }
         }
+        for($i = 0; $i < count($links['value']); $i++) {
+            if($this->link_alpha === "sum") {
+                $alpha = $links['value'][$i] / $max_sum * 255;
+                if( $alpha < 64 ) $alpha = 64;
+                else if( $alpha > 192 ) $alpha = 192;
+            } else {
+                $alpha = $this->link_alpha;
+                if($alpha < 0) $alpha = 0;
+                if($alpha > 255) $alpha = 255;
+            }
+            if(isset($links['color'][$i])) {
+                $links['color'][$i] .= dechex($alpha);
+            }
+        }
+        $links['hovertemplate'] = $this->link_hovertemplate;
 
         // Count the number of nodes per column which will be displayed.
         // This is used to compute the node position on the y axis.
@@ -167,18 +224,23 @@ class GraphSankeyView extends GraphView
         foreach($nodes_ref as $key => $node_ref) {
             $nodes["label"][$node_ref['idx']] = $node_ref['type']['label'];
             $nodes["color"][$node_ref['idx']] = $node_ref['type']['color'];
-            $nodes["x"][$node_ref['idx']] = $this->compute_position(
-                count($cols), $node_ref['col']['idx']);
-            $y_idx = array_search($node_ref['type']['idx'],
-                $col_counts[$node_ref['col']['key']]);
-            $nodes["y"][$node_ref['idx']] = $this->compute_position(
-                count($col_counts[$node_ref['col']['key']]), $y_idx);
+            if($this->is_grouped) {
+                $nodes["x"][$node_ref['idx']] = $this->compute_position(
+                    count($cols), $node_ref['col']['idx']);
+                $y_idx = array_search($node_ref['type']['idx'],
+                    $col_counts[$node_ref['col']['key']]);
+                $nodes["y"][$node_ref['idx']] = $this->compute_position(
+                    count($col_counts[$node_ref['col']['key']]), $y_idx);
+            }
         }
-
+        $nodes["hovertemplate"] = $this->node_hovertemplate;
         return array(
             "link" => $links,
             "node" => $nodes,
-            "annotations" => $this->prepare_sankey_annotations($cols)
+            "annotations" => $this->prepare_sankey_annotations($cols),
+            "title" => $this->title,
+            "name" => $this->name,
+            "has_node_labels" => $this->has_node_labels,
         );
     }
 
@@ -200,6 +262,8 @@ class GraphSankeyView extends GraphView
      *
      */
     private function prepare_sankey_annotations($cols) {
+        if(!$this->has_col_labels || !$this->is_grouped)
+            return array();
         $annotations = array();
         foreach($cols as $idx => $col) {
             array_push($annotations, array(
@@ -251,7 +315,7 @@ class GraphSankeyView extends GraphView
     public function output_content()
     {
         $data = $this->read_sample_csv();
-        $fields = json_encode($this->prepare_sankey_data($data['head'], $data['body'], array(
+        $this->raw_data = json_encode($this->prepare_sankey_data($data['head'], $data['body'], array(
             array( "key" => "grade7", "label" => "Grade 7" ),
             array( "key" => "grade8", "label" => "Grade 8" ),
             array( "key" => "grade9", "label" => "Grade 9" ),

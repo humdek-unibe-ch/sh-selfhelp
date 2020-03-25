@@ -1,25 +1,26 @@
 $(document).ready(() => {
 
-    var raw = parseGraphData($('div.graph-sankey'));
-    console.log(raw.node);
-    console.log(raw.annotations);
+    $('div.graph-sankey').each(function () {
+        var raw = parseGraphData($(this));
+        data = {
+            type: "sankey",
+            arrangement: "snap",
+            link: raw.link,
+            node: raw.node
+        }
 
-    data = {
-        type: "sankey",
-        arrangement: "snap",
-        link: raw.link,
-        node: raw.node
-    }
+        var layout = {
+            title: raw.title,
+            annotations: raw.annotations
+        };
 
-    var layout = {
-        title: 'Test Sankey',
-        annotations: raw.annotations
-    };
+        var config = {responsive: true};
 
-    var config = {responsive: true};
-
-    Plotly.newPlot('graph-sankey-plot', [data], layout, config);
-
+        Plotly.newPlot('graph-sankey-plot-' + raw.name, [data], layout, config);
+        if(!raw.has_node_labels) {
+            $(this).find('text.node-label').remove();
+        }
+    });
 });
 
 function parseGraphData($root) {

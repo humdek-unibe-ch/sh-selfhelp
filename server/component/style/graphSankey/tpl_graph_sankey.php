@@ -4,6 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="graph-sankey <?php echo $this->css; ?>">
-    <div class="graph-sankey-data d-none"><?php echo $fields; ?></div>
-    <div id="graph-sankey-plot"></div>
+    <div class="graph-sankey-data d-none"><?php echo $this->raw_data; ?></div>
+    <div id="graph-sankey-plot-<?php echo $this->name; ?>"></div>
 </div>
