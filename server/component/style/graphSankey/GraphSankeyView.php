@@ -46,24 +46,48 @@ class GraphSankeyView extends GraphView
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title");
         $this->name = $this->model->get_db_field("name");
-        $this->data_types = $this->model->get_db_field("data_types");
-        $this->data_cols = $this->model->get_db_field("data_cols");
-        $this->link_color = $this->model->get_db_field("link_color", "source");
-        $this->link_alpha = $this->model->get_db_field("link_alpha", 128);
+        $this->data_types = $this->model->get_db_field("value_types");
+        $this->data_cols = $this->model->get_db_field("form_field_names");
+        $this->link_color = $this->model->get_db_field("link_color");
+        $this->link_alpha = $this->model->get_db_field("link_alpha", 0.5);
         $this->link_hovertemplate = $this->model->get_db_field(
             "link_hovertemplate", "%{source.label} &rarr; %{target.label}");
         $this->node_hovertemplate = $this->model->get_db_field(
             "node_hovertemplate", "%{label}");
-        $this->min = $this->model->get_db_field("min", 10);
-        $this->has_node_labels = $this->model->get_db_field("has_node_labels",
+        $this->min = $this->model->get_db_field("min", 1);
+        $this->has_node_labels = $this->model->get_db_field("has_type_labels",
             false);
-        $this->has_col_labels = $this->model->get_db_field("has_col_labels",
+        $this->has_col_labels = $this->model->get_db_field("has_field_labels",
             true);
         $this->is_grouped = $this->model->get_db_field("is_grouped",
             true);
     }
 
     /* Private  Methods *******************************************************/
+
+    private function check_cols() {
+        if(!is_array($this->data_cols)) return false;
+        foreach($this->data_cols as $idx => $item)
+        {
+            if(!isset($item["key"]))
+                return false;
+            if(!isset($item["label"]))
+                $this->data_cols[$idx]["label"] = $item["key"];
+        }
+        return true;
+    }
+
+    private function check_types() {
+        if(!is_array($this->data_types)) return false;
+        foreach($this->data_types as $idx => $item)
+        {
+            if(!isset($item["key"]))
+                return false;
+            if(!isset($item["label"]))
+                return false;
+        }
+        return true;
+    }
 
     /**
      * Debug function to lead data samples. This function is obsolete for the
@@ -134,7 +158,7 @@ class GraphSankeyView extends GraphView
             "source" => array(),
             "target" => array(),
             "value" => array(),
-            "color" => array()
+            "color" => $this->link_color === "" ? null : array(),
         );
         foreach($transitions as $transition) {
             foreach($types as $idx_src => $type_src) {
@@ -170,9 +194,11 @@ class GraphSankeyView extends GraphView
                         }
                         $target_idx = $nodes_ref[$target_key]['idx'];
                         array_push($links['target'], $target_idx);
-                        if($this->link_color === "source") {
+                        if($this->link_color === "source"
+                                && $source['type']['color'] !== "") {
                             $color = $source['type']['color'];
-                        } else if($this->link_color === "target") {
+                        } else if($this->link_color === "target"
+                                && $target['type']['color'] !== "") {
                             $color = $target['type']['color'];
                         } else {
                             $color = $this->link_color;
@@ -190,12 +216,14 @@ class GraphSankeyView extends GraphView
                 if( $alpha < 64 ) $alpha = 64;
                 else if( $alpha > 192 ) $alpha = 192;
             } else {
-                $alpha = $this->link_alpha;
+                $alpha = (int)(255 * $this->link_alpha);
                 if($alpha < 0) $alpha = 0;
                 if($alpha > 255) $alpha = 255;
             }
+            $hex = dechex($alpha);
+            if(strlen($hex) === 1) $hex = "0". $hex;
             if(isset($links['color'][$i])) {
-                $links['color'][$i] .= dechex($alpha);
+                $links['color'][$i] .= $hex;
             }
         }
         $links['hovertemplate'] = $this->link_hovertemplate;
@@ -240,7 +268,7 @@ class GraphSankeyView extends GraphView
             "annotations" => $this->prepare_sankey_annotations($cols),
             "title" => $this->title,
             "name" => $this->name,
-            "has_node_labels" => $this->has_node_labels,
+            "has_node_labels" => $this->has_node_labels ? true : false,
         );
     }
 
@@ -315,31 +343,16 @@ class GraphSankeyView extends GraphView
     public function output_content()
     {
         $data = $this->read_sample_csv();
-        $this->raw_data = json_encode($this->prepare_sankey_data($data['head'], $data['body'], array(
-            array( "key" => "grade7", "label" => "Grade 7" ),
-            array( "key" => "grade8", "label" => "Grade 8" ),
-            array( "key" => "grade9", "label" => "Grade 9" ),
-            array( "key" => "t4_2014", "label" => "2014" ),
-            array( "key" => "t4_2015", "label" => "2015" ),
-            array( "key" => "t5_2016", "label" => "2016" ),
-            array( "key" => "t6_2017", "label" => "2017" ),
-            array( "key" => "t7_2018", "label" => "2018" )
-        ), array(
-            array( "color" => "#EA8571", "key" => 1, "label" => "Grundanforderungen" ),
-            array( "color" => "#DE7C89", "key" => 2, "label" => "erweiterte Anforderungen" ),
-            array( "color" => "#C27C9D", "key" => 3, "label" => "Gymnasium" ),
-            array( "color" => "#9C80A7", "key" => 4, "label" => "ohne Selektion, Werkschule, Rilz" ),
-            array( "color" => "#6F84A4", "key" => 5, "label" => "Berufsausbildung" ),
-            array( "color" => "#478394", "key" => 6, "label" => "Schulische Ausbildung" ),
-            array( "color" => "#31807A", "key" => 7, "label" => "Zwischenlösung" ),
-            array( "color" => "#38795D", "key" => 8, "label" => "bezahlte Arbeit" ),
-            array( "color" => "#496F42", "key" => 9, "label" => "vollzeitliche berufliche Weiterbildung" ),
-            array( "color" => "#59632E", "key" => 10, "label" => "Arbeitslos" ),
-            array( "color" => "#665624", "key" => 11, "label" => "Studium" ),
-            array( "color" => "#6D4926", "key" => 98, "label" => "anderes" ),
-            array( "color" => "#6E3D2E", "key" => 99, "label" => "fehlende Infromation" )
-        )));
-        require __DIR__ . "/tpl_graph_sankey.php";
+        if(!$this->check_cols()) {
+            echo "parse error in <code>form_field_names</code>";
+        } else if(!$this->check_types()) {
+            echo "parse error in <code>value_types</code>";
+        } else {
+            $this->raw_data = json_encode($this->prepare_sankey_data(
+                $data['head'], $data['body'], $this->data_cols,
+                $this->data_types ));
+            require __DIR__ . "/tpl_graph_sankey.php";
+        }
     }
 }
 ?>

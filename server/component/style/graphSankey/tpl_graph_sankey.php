@@ -5,5 +5,5 @@
 ?>
 <div class="graph-sankey <?php echo $this->css; ?>">
     <div class="graph-sankey-data d-none"><?php echo $this->raw_data; ?></div>
-    <div id="graph-sankey-plot-<?php echo $this->name; ?>"></div>
+    <div class="graph-sankey-plot-<?php echo $this->name; ?>"></div>
 </div>

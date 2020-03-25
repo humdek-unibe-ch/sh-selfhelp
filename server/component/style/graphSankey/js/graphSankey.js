@@ -16,9 +16,10 @@ $(document).ready(() => {
 
         var config = {responsive: true};
 
-        Plotly.newPlot('graph-sankey-plot-' + raw.name, [data], layout, config);
+        var $plot = $(this).children('div.graph-sankey-plot-' + raw.name);
+        Plotly.newPlot($plot[0], [data], layout, config);
         if(!raw.has_node_labels) {
-            $(this).find('text.node-label').remove();
+            $plot.find('text.node-label').remove();
         }
     });
 });
