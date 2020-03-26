@@ -34,6 +34,12 @@ class AssetDeleteController extends BaseController
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to delete the file from the server";
             }
+            $info = pathinfo($file);
+            $res = $model->pp_delete_asset_file($mode, $info['filename']);
+            if(!$res) {
+                $this->fail = true;
+                $this->error_msgs[] = "File was removed but data postprocessing failed";
+            }
         }
     }
 }

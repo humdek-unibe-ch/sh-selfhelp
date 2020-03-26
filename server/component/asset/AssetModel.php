@@ -226,6 +226,16 @@ class AssetModel extends BaseModel
     /**
      *
      */
+    public function pp_delete_asset_file($mode, $name)
+    {
+        if($mode === "static")
+            return $this->pp_delete_asset_file_static($name);
+        return true;
+    }
+
+    /**
+     *
+     */
     public function pp_insert_asset_file($mode, $path, $name, $overwrite)
     {
         if($mode === "static")
