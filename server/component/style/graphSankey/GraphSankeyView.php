@@ -7,19 +7,19 @@
 require_once __DIR__ . "/../graph/GraphView.php";
 
 /**
- * The view class of the graph style component.
+ * The view class of the graphSankey style component.
  * This style component is a visual container that allows to represent Sankey
- * graph boxes.
+ * diagrams.
  */
 class GraphSankeyView extends GraphView
 {
     /* Private Properties******************************************************/
 
     /**
-     * DB field 'title' (string).
-     * The title of the sanket graph.
+     * DB field 'raw' (string).
+     * A JSON string of precomputed sanky data which can be fed to plotly.
+     * The precomputation is done in the model by using the CMS update callback.
      */
-    private $name;
     private $raw_data;
 
     /* Constructors ***********************************************************/
@@ -33,11 +33,8 @@ class GraphSankeyView extends GraphView
     public function __construct($model)
     {
         parent::__construct($model);
-        /* $this->name = $this->model->get_db_field("name"); */
         $this->raw_data = $this->model->get_db_field("raw");
     }
-
-    /* Private  Methods *******************************************************/
 
     /* Public Methods *********************************************************/
 
@@ -51,7 +48,6 @@ class GraphSankeyView extends GraphView
         } else if(!$this->model->check_types()) {
             echo "parse error in <code>value_types</code>";
         } else {
-            $this->name = $this->model->name;
             require __DIR__ . "/tpl_graph_sankey.php";
         }
     }

@@ -17,7 +17,7 @@ $(document).ready(() => {
 
         var config = {responsive: true};
 
-        var $plot = $(this).children('div.graph-sankey-plot-' + raw.name);
+        var $plot = $(this).children('div.graph-sankey-plot');
         Plotly.newPlot($plot[0], [data], layout, config);
         if(!raw.has_node_labels) {
             $plot.find('text.node-label').remove();

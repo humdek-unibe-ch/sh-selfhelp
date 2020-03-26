@@ -9,9 +9,8 @@ require_once __DIR__ . "/GraphSankeyView.php";
 require_once __DIR__ . "/GraphSankeyModel.php";
 
 /**
- * A component class for a emailForm style component. This style is
- * intended to collect email addresses of interested users and send automated
- * emails to them.
+ * A component class for a graphSankey style component. This style is
+ * intended to display a Sankey diagram.
  */
 class GraphSankeyComponent extends BaseComponent
 {
