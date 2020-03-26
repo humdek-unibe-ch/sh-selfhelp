@@ -35,6 +35,11 @@ class AssetSelectView extends BaseView
      */
     private function output_assets($mode)
     {
+        $title = array(
+            "css" => "User-defined CSS Files",
+            "asset" => "Assets on the Server",
+            "upload" => "Satic Data Files"
+        );
         $del_target = "";
         if($this->model->can_delete_asset())
             $del_target = $this->model->get_link_url("assetDelete", array(
@@ -51,7 +56,15 @@ class AssetSelectView extends BaseView
             "url_delete" => $del_target,
             "url_add" => $add_target,
         ));
-        $list->output_content();
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "title" => $title[$mode],
+            "type" => "light",
+            "is_expanded" => false,
+            "is_collapsible" => true,
+            "children" => array($list)
+        ));
+        $card->output_content();
     }
 
     /* Public Methods *********************************************************/
