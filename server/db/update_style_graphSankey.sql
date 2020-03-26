@@ -38,6 +38,7 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'is_grou
 SET @id_field = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 1, 'If checked, the nodes are positioned as follows:\n - each node with the same form field name is aligned vertically (same x coordinate)\n - within one column nodes are sorted by value types (by their indices as defined in `value_types`');
 
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'raw', 1, 0);
 
 --
 -- Table structure for table `uploadCells`

@@ -2,6 +2,7 @@ $(document).ready(() => {
 
     $('div.graph-sankey').each(function () {
         var raw = parseGraphData($(this));
+        if(raw === null) return;
         data = {
             type: "sankey",
             arrangement: "snap",
@@ -30,7 +31,8 @@ function parseGraphData($root) {
         return JSON.parse(j_data);
     }
     catch (e) {
+        console.log("cannot parse raw data of sankey graph");
         console.log(e);
-        return {};
+        return null;
     }
 }
