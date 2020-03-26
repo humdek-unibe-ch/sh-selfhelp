@@ -25,6 +25,82 @@ class AssetModel extends BaseModel
         parent::__construct($services);
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     *
+     */
+    private function pp_delete_asset_file_static($name)
+    {
+        return $this->db->remove_by_fk("uploadTables", "name", $name);
+    }
+
+    /**
+     *
+     */
+    private function pp_insert_asset_file_static($path, $name, $overwrite)
+    {
+        $fh = fopen($path, 'r');
+        if(!$fh) return false;
+
+        if($overwrite) {
+            if(!$this->pp_delete_asset_file_static($name)) {
+                fclose($fh);
+                return false;
+            }
+        }
+
+        $id_table = $this->db->insert("uploadTables", array(
+            "name" => $name
+        ));
+        if(!$id_table) {
+            fclose($fh);
+            return false;
+        }
+
+        $col_ids = array();
+        $head = fgetcsv( $fh );
+        $db_data = array();
+        foreach($head as $col) {
+            $id_col = $this->db->insert("uploadCols", array(
+                "name" => $col,
+                "id_uploadTables" => $id_table
+            ));
+            if(!$id_col) {
+                fclose($fh);
+                return false;
+            }
+            array_push($col_ids, $id_col);
+        }
+
+        while(($data = fgetcsv( $fh )) !== false) {
+            $id_row = $this->db->insert("uploadRows", array(
+                "id_uploadTables" => $id_table
+            ));
+            if(!$id_row) {
+                fclose($fh);
+                return false;
+            }
+            $db_data = array();
+            foreach($data as $idx => $val) {
+                array_push($db_data, array($id_row, $col_ids[$idx], $val));
+            }
+            $res = $this->db->insert_mult("uploadCells",
+                array(
+                    "id_uploadRows",
+                    "id_uploadCols",
+                    "value"
+                ), $db_data
+            );
+            if(!$res) {
+                fclose($fh);
+                return false;
+            }
+        }
+        fclose($fh);
+        return true;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -145,6 +221,16 @@ class AssetModel extends BaseModel
             return ASSET_PATH;
         else if($mode === "static")
             return STATIC_PATH;
+    }
+
+    /**
+     *
+     */
+    public function pp_insert_asset_file($mode, $path, $name, $overwrite)
+    {
+        if($mode === "static")
+            return $this->pp_insert_asset_file_static($path, $name, $overwrite);
+        return true;
     }
 }
 ?>

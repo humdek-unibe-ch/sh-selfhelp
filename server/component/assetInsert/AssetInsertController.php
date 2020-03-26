@@ -53,8 +53,8 @@ class AssetInsertController extends BaseController
                 $this->error_msgs[] = $res['msg'];
                 return;
             }
-            $this->name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
-            $this->name = $this->name. '.' .$ext;
+            $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+            $this->name = $name. '.' .$ext;
             $target = $this->model->get_server_path($mode) . '/' . $this->name;
             if(!isset($_POST['overwrite']) && file_exists($target))
             {
@@ -68,6 +68,14 @@ class AssetInsertController extends BaseController
             {
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to store the file on the server";
+                return;
+            }
+            $res = $model->pp_insert_asset_file($mode, $target, $name,
+                isset($_POST['overwrite']));
+            if(!$res) {
+                $this->fail = true;
+                $this->error_msgs[] = "File was uploaded but data postprocessing failed";
+                return;
             }
         }
     }

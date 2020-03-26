@@ -4,6 +4,7 @@ server/service/globals_untracked.php
 server/db/privileges.sql
 server/db/reminder_db_script.sql
 assets/*
+static/*
 !assets/logo
 css/*
 !css/ext
