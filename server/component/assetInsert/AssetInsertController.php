@@ -25,7 +25,7 @@ class AssetInsertController extends BaseController
      * @param object $model
      *  The model instance of the component.
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', or 'static').
      */
     public function __construct($model, $mode)
     {
@@ -46,6 +46,13 @@ class AssetInsertController extends BaseController
         {
             $info = pathinfo($_FILES['file']['name']);
             $ext = $info['extension'];
+            $res = $model->check_extension($ext, $mode);
+            if($res['error'])
+            {
+                $this->fail = true;
+                $this->error_msgs[] = $res['msg'];
+                return;
+            }
             $this->name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
             $this->name = $this->name. '.' .$ext;
             $target = $this->model->get_server_path($mode) . '/' . $this->name;

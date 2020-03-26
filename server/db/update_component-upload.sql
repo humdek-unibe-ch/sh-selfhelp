@@ -1,3 +1,9 @@
+-- Alter asset page url
+SET @id_page = (SELECT `id` FROM `pages` WHERE `keyword` = 'assetInsert');
+UPDATE `pages` SET `url` = '/admin/asset_insert/[css|asset|static:mode]' WHERE `pages`.`id` = @id_page;
+SET @id_page = (SELECT `id` FROM `pages` WHERE `keyword` = 'assetDelete');
+UPDATE `pages` SET `url` = '/admin/asset_delete/[css|asset|static:mode]/[*:file]' WHERE `pages`.`id` = @id_page;
+
 --
 -- Table structure for table `uploadCells`
 --

@@ -10,5 +10,5 @@
     </div>
     <?php $this->output_assets("asset"); ?>
     <?php $this->output_assets("css"); ?>
-    <?php $this->output_assets("upload"); ?>
+    <?php $this->output_assets("static"); ?>
 </div>

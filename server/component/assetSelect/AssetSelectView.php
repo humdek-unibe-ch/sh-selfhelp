@@ -31,14 +31,14 @@ class AssetSelectView extends BaseView
      * Render the asset list.
      *
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', or 'static').
      */
     private function output_assets($mode)
     {
         $title = array(
             "css" => "User-defined CSS Files",
             "asset" => "Assets on the Server",
-            "upload" => "Satic Data Files"
+            "static" => "Satic Data Files"
         );
         $del_target = "";
         if($this->model->can_delete_asset())

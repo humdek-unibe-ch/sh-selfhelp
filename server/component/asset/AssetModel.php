@@ -52,10 +52,39 @@ class AssetModel extends BaseModel
     }
 
     /**
+     * Check the extension given a mode.
+     *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css', 'asset', 'static').
+     * @param string $ext
+     *  The file extension to check.
+     * @retval boolean
+     *  True on success, false on failure.
+     */
+    public function check_extension($ext, $mode)
+    {
+        $res = array(
+            "error" => false,
+            "msg" => ""
+        );
+        if($mode === "css")
+        {
+            $res['error'] = !(strtolower($ext) === "css");
+            $res['msg'] = "Bad file extension '".$ext."', expecting 'css'";
+        }
+        else if($mode === "static")
+        {
+            $res['error'] = !(strtolower($ext) === "csv");
+            $res['msg'] = "Bad file extension '".$ext."', expecting 'csv'";
+        }
+        return $res;
+    }
+
+    /**
      * Returns an array of asset files.
      *
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', 'static').
      * @retval array
      *  An array of asset files where each file has the following keys:
      *   'title':   The name of the file.
@@ -86,7 +115,7 @@ class AssetModel extends BaseModel
      * Return the server path depending on the asset mode.
      *
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', 'static').
      * @retval string
      *  The server path.
      */
@@ -96,13 +125,15 @@ class AssetModel extends BaseModel
             return CSS_SERVER_PATH;
         else if($mode === "asset")
             return ASSET_SERVER_PATH;
+        else if($mode === "static")
+            return STATIC_SERVER_PATH;
     }
 
     /**
      * Return the base url depending on the asset mode.
      *
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', 'static').
      * @retval string
      *  The base url.
      */
@@ -112,6 +143,8 @@ class AssetModel extends BaseModel
             return CSS_PATH;
         else if($mode === "asset")
             return ASSET_PATH;
+        else if($mode === "static")
+            return STATIC_PATH;
     }
 }
 ?>
