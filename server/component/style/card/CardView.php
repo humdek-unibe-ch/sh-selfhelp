@@ -91,6 +91,18 @@ class CardView extends StyleView
             require __DIR__ . "/tpl_edit_button.php";
     }
 
+    /**
+     * Render the expand icon.
+     */
+    private function output_expand_icon()
+    {
+        if($this->is_collapsible)
+        {
+            $direction = $this->is_expanded ? "up" : "down";
+            require __DIR__ . "/tpl_expand_icon.php";
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**
