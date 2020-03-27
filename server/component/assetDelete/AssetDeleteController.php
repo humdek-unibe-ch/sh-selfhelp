@@ -27,19 +27,26 @@ class AssetDeleteController extends BaseController
         {
             $file = filter_var($_POST['rm_file'], FILTER_SANITIZE_STRING);
             $path = $this->model->get_server_path($mode) . '/' . $file;
-            if(file_exists($path) && unlink($path))
-                $this->success = true;
-            else
+            if(!file_exists($path))
+            {
+                $this->fail = true;
+                $this->error_msgs[] = "Unable to delte file: No such file on the server";
+                return;
+            }
+            if(!unlink($path))
             {
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to delete the file from the server";
+                return;
             }
             $info = pathinfo($file);
             $res = $model->pp_delete_asset_file($mode, $info['filename']);
-            if(!$res) {
+            if($res !== true) {
                 $this->fail = true;
                 $this->error_msgs[] = "File was removed but data postprocessing failed";
+                return;
             }
+            $this->success = true;
         }
     }
 }

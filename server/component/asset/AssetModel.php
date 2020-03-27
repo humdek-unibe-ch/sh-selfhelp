@@ -28,25 +28,57 @@ class AssetModel extends BaseModel
     /* Private Methods ********************************************************/
 
     /**
+     * Postprocessing DB data after deleting a static data file. The
+     * corresponding DB-entries are removed.
      *
+     * @param string name
+     *  The name of the file (without extension)
+     * @retval mixed
+     *  True on success, an error message on failure.
      */
     private function pp_delete_asset_file_static($name)
     {
-        return $this->db->remove_by_fk("uploadTables", "name", $name);
+        $res = $this->db->remove_by_fk("uploadTables", "name", $name);
+        if(!$res) {
+            return "postprocess: failed to remove old data values";
+        }
+        return true;
     }
 
     /**
+     * Postprocessing data after uploading a static data file. The uploaded
+     * file is parsed and the content is stored to the database.
      *
+     * @param string $path
+     *  The path to the uploaded file
+     * @param string $name
+     *  The name of the file (without extension)
+     * @param boolean $overwrite
+     *  If set to true, a table with the same name should already exist and
+     *  will be removed bevore the new values will be added. If set to false
+     *  the new table must not yet exist.
+     * @retval mixed
+     *  True on success, an error message on failure.
      */
     private function pp_insert_asset_file_static($path, $name, $overwrite)
     {
         $fh = fopen($path, 'r');
-        if(!$fh) return false;
+        if(!$fh) {
+            return "postprocess: failed to open the uploaded file";
+        }
+        $sql = "SELECT * FROM uploadTables WHERE name = ':name'";
+        $has_table = $this->db->query_db_first($sql, array("name" => $name));
 
-        if($overwrite) {
-            if(!$this->pp_delete_asset_file_static($name)) {
+        if(!$overwrite && $has_table) {
+            fclose($fh);
+            return "postprocess: table with the same name already exists";
+        }
+
+        if($overwrite && $has_table) {
+            $res = $this->pp_delete_asset_file_static($name);
+            if($res !== true) {
                 fclose($fh);
-                return false;
+                return $res;
             }
         }
 
@@ -55,7 +87,7 @@ class AssetModel extends BaseModel
         ));
         if(!$id_table) {
             fclose($fh);
-            return false;
+            return "postprocess: failed to create new data table";
         }
 
         $col_ids = array();
@@ -68,7 +100,7 @@ class AssetModel extends BaseModel
             ));
             if(!$id_col) {
                 fclose($fh);
-                return false;
+                return "postprocess: failed to add table cols";
             }
             array_push($col_ids, $id_col);
         }
@@ -79,7 +111,7 @@ class AssetModel extends BaseModel
             ));
             if(!$id_row) {
                 fclose($fh);
-                return false;
+                return "postprocess: failed to add table rows";
             }
             $db_data = array();
             foreach($data as $idx => $val) {
@@ -94,7 +126,7 @@ class AssetModel extends BaseModel
             );
             if(!$res) {
                 fclose($fh);
-                return false;
+                return "postprocess: failed to add data values";
             }
         }
         fclose($fh);
@@ -224,7 +256,14 @@ class AssetModel extends BaseModel
     }
 
     /**
+     * Postprocessing data after asset deletion
      *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css', 'asset', 'static').
+     * @param string $name
+     *  The name of the file (without extension)
+     * @retval mixed
+     *  True on success, an error message on failure.
      */
     public function pp_delete_asset_file($mode, $name)
     {
@@ -235,6 +274,17 @@ class AssetModel extends BaseModel
 
     /**
      *
+     * @param string $mode
+     *  Specifies the insert mode (either 'css', 'asset', 'static').
+     * @param string $path
+     *  The path to the uploaded file
+     * @param string $name
+     *  The name of the file (without extension)
+     * @param boolean $overwrite
+     *  If set to true the upload file was set to be overwritten if it already
+     *  existsr. If set to false the new file must not yet exist.
+     * @retval mixed
+     *  True on success, an error message on failure.
      */
     public function pp_insert_asset_file($mode, $path, $name, $overwrite)
     {

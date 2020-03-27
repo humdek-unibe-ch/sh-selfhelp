@@ -62,19 +62,22 @@ class AssetInsertController extends BaseController
                 $this->error_msgs[] = "A file with the same name already exists";
                 return;
             }
+            $res = $model->pp_insert_asset_file($mode,
+                $_FILES['file']['tmp_name'], $name, isset($_POST['overwrite']));
+            if($res !== true) {
+                $this->fail = true;
+                $this->error_msgs[] = $res;
+                return;
+            }
             if(move_uploaded_file($_FILES['file']['tmp_name'], $target))
+            {
                 $this->success = true;
+            }
             else
             {
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to store the file on the server";
-                return;
-            }
-            $res = $model->pp_insert_asset_file($mode, $target, $name,
-                isset($_POST['overwrite']));
-            if(!$res) {
-                $this->fail = true;
-                $this->error_msgs[] = "File was uploaded but data postprocessing failed";
+                $res = $this->pp_delete_asset_file_static($name);
                 return;
             }
         }
