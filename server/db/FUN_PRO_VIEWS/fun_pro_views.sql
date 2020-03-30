@@ -165,3 +165,49 @@ END
 //
 
 DELIMITER ;
+drop view if exists view_uploadTables;
+create view view_uploadTables
+as
+select t.id as table_id, r.id as row_id, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, r.timestamp
+from uploadTables t
+left join uploadRows r on (t.id = r.id_uploadTables)
+left join uploadCells cell on (cell.id_uploadRows = r.id)
+left join uploadCols col on (col.id = cell.id_uploadCols)
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_uploadTable //
+
+CREATE PROCEDURE get_uploadTable( table_id_param INT )
+BEGIN  
+    SET @@group_concat_max_len = 32000;
+	SET @sql = NULL;
+	SELECT
+	  GROUP_CONCAT(DISTINCT
+		CONCAT(
+		  'max(case when col_name = "',
+		  col_name,
+		  '" then value end) as `',
+		  replace(col_name, ' ', ''), '`'
+		)
+	  ) INTO @sql
+	from view_uploadTables
+    where table_id = table_id_param;
+	
+    IF (@sql is null) THEN
+		select table_name from view_uploadTables where 1=2;
+    ELSE 
+		begin
+		SET @sql = CONCAT('select table_name, row_id, timestamp, ', @sql, ' from view_uploadTables t
+		where table_id = ', table_id_param,
+		' group by table_name, row_id, timestamp');
+
+		
+		PREPARE stmt FROM @sql;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+        end;
+    END IF;
+END 
+//
+
+DELIMITER ;
