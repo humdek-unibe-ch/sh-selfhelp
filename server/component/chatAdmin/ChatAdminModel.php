@@ -136,6 +136,8 @@ class ChatAdminModel extends BaseModel
      *  The name of the chat room.
      * @param string $desc
      *  The description of the new chat room.
+     * @param string $title
+     *  The title of the new chat room.
      * @retval int
      *  The id of the new chat room.
      */

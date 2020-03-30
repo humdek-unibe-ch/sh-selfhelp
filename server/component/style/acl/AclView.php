@@ -84,7 +84,7 @@ class AclView extends StyleView
      * @param array $checkboxes
      *  The array of access rights with the four keys 'select', 'insert',
      *  'update', and 'delete'.
-     * @param string $disabled
+     * @param boolean $is_disabled
      *  Holds either an empty string if the checkbox is enabled or the html
      *  disabled attribute if the checkbox is disabled.
      */

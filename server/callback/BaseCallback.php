@@ -64,6 +64,16 @@ abstract class BaseCallback
         $this->user_input = $services->get_user_input();
     }
 
+    /**
+     * Add a callback log entry to the database
+     *
+     * @param array $log
+     *  Holds necessary request information to be stored in the DB
+     * @param object $params
+     *  The callback parameters
+     * @retval int
+     *  The id of the log entry
+     */
     public function insert_callback_log($log, $params)
     {
         $callback_id = $this->db->insert("callbackLogs", array(
@@ -75,6 +85,14 @@ abstract class BaseCallback
         return $callback_id;
     }
 
+    /**
+     * Updat e an existing callback log entry.
+     *
+     * @param int $callback_id
+     *  The id of the log enry to update.
+     * @param object $output
+     *  The result of the callback operation.
+     */
     public function update_callback_log($callback_id, $output)
     {
         return $this->db->update_by_ids(

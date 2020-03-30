@@ -44,6 +44,9 @@ class ExportView extends BaseView
         require __DIR__ . "/tpl_export_item.php";
     }
 
+    /**
+     * Render the form selection menu.
+     */
    private function output_select_form()
    {
       $forms = $this->model->get_forms();

@@ -1,51 +1,108 @@
-# v1.3.3 (latest)
+# v1.3.5 (latest)
+
+### Bugfix
+
+ - catch exception in `conditionalContainer` (#233)
 
 ### Changes
 
- - add validation_code to the user name in all chats
+ - update to Bootstrap 4.4.1 to fix issues wit Internet Explorer (#230)
 
+
+---------
+# v1.3.4
+
+### Bugfix
+
+ - fix export data page (#228)
+
+### Changes
+
+ - add timestamp in front of the file name for the exported files
+
+
+---------
+# v1.3.3
+
+### Changes
+
+ - add `validation_code` to the user name in all chats
+
+
+---------
 # v1.3.2
 
-### Changes
 
- - add conditional container based on user groups #229
-    - $ sign is used to define the group name - returns true/false
-    - example: { "==" : [true,"$subject"] }
+### New Features
 
+ - add conditional container based on user groups (#229)
+    - `$` sign is used to define the group name - returns true/false
+    - example: `{ "==" : [true,"$subject"] }`
+
+
+---------
 # v1.3.1
 
-### Changes
+### Bugfix
 
- - fix - interested user now can register #223
- - any data view request is logged into user activty
+ - interested user now can register (#223)
 
+### New Features
+
+ - any data view request is logged into user activity
+
+
+---------
 # v1.3.0
 
+### Bugfix
+
+ - delete content and delete title load properly in the modal form when you
+   delete `showUserInput`'s entry
+
 ### Changes
 
- - showUserInput is a datatable now. By default all functionality is stripped. If you want to add configuration you have to use css classes in the showUserInput form
-    - dt-sortable - make all columsn sortable
-    - dt-searching - add the search field
-    - dt-bPaginate - add the page grouping
-    - dt-bInfo - add the info footer
-    - dt-order-0-asc dt-order-1-desc - order the desired column asc or desc
-    - dt-hide-0 - hide the desired column
- - delete content and delete title load properly in the modal form when you delete showUserInput's entry;
+ - `showUserInput` is a datatable now.
+
+### New Features
+
+ - `showUserInput` is a datatable now. By default all functionality is
+   stripped. If you want to add configuration you have to use css classes in
+   the `showUserInput` form
+    - `dt-sortable` - make all column sortable
+    - `dt-searching` - add the search field
+    - `dt-bPaginate` - add the page grouping
+    - `dt-bInfo` - add the info footer
+    - `dt-order-0-asc`, `dt-order-1-desc` - order the desired column asc or desc
+    - `dt-hide-0` - hide the desired column
  - data page added under admin tab. It visualize all user input data
 
 
+---------
 # v1.2.0
+
+### Bugfix
+
+ - Chat add user to room with multiple groups - duplicate view (#214)
+ - fix new lines in chat messages
 
 ### Changes
 
- - bug fix #214 fixing: 'Chat add user to room with multiple groups - duplicate view'
- - Visualize all aditional groups (different from admin, subject and therapist) which has acces to the chat in the chat - similar to how chat rooms are visualzied
- - Add clalback set_group_for_user which assign a group to existiing user using the registration code
- - #224; add chatRoom title; visualize chatGroup Name where it was the description
+ - Visualize all additional groups (different from admin, subject and
+   therapist) which has access to the chat in the chat - similar to how chat
+   rooms are visualized
+
+### New Features
+
  - therapist can initialize communications with user in chat rooms and group tabs
  - add groups and chat group to the user list table for visualization
- - fix new lines in chat messages 
+ - Add callback `set_group_for_user` which assign a group to existing user
+   using the registration code (#224).
+ - add chatRoom title
+ - visualize chatGroup Name where the description was
 
+
+---------
 # v1.1.10
 
 ### Changes
@@ -53,14 +110,22 @@
  - create page - the page keyword can contain numbers, letters, - and _ characters (#215)
  - added update script which remove all spaces and dots from already existing page names 
 
+
+---------
 # v1.1.9
 
-### Changes
+### New Features
 
- - changeing group acl; nowa group can be customized with detailed rules
+ - Improved group ACL:
+   - A group can now be customized with detailed rules per page.
+   - When creating a new group a more coarse ACL selection can be used.
  - adding callback functionality
- - assing group to a code via acallback
+ - allow to assign a group to a verification code via a callback. This will
+   then be used to assign the specified group to the user consuming the
+   verification code
 
+
+---------
 # v1.1.8.3
 
 ### Changes
@@ -69,6 +134,8 @@
  - database initial do not contain views, functions and procedure. There is another sql script.
  - removed the privileges sql file. Not needed anymore. The new user has grant access all.
 
+
+---------
 # v1.1.7.2
 
 ### Changes

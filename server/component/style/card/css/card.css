@@ -86,6 +86,11 @@
     border-color: #343a40;
 }
 
+
+.card-icon-collapse
+{
+    color: inherit
+}
 a.card-edit
 {
     color: inherit

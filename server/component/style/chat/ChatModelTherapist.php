@@ -29,6 +29,8 @@ class ChatModelTherapist extends ChatModel
      *  The id of the section id of the chat wrapper.
      * @param int $chrid
      *  The chat room id to communicate with
+     * @param int $gid
+     *  The group id identifying the chat room
      * @param int $uid
      *  The user id to communicate with
      */

@@ -192,7 +192,7 @@ class ExportModel extends BaseModel
     /**
      * Get the export link
      *
-     * @params post params
+     * @param post $params
      */
     public function get_user_export_form_url($params)
     {       

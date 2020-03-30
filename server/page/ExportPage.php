@@ -73,9 +73,17 @@ class ExportPage extends BasePage
      *  An identifier indicating which data to export.
      * @param string $option
      *  An option to add specifics of what to export
+     * @param string $id
+     *  The id of a specific input form to export
      */
     private function export_data($selector, $option, $id)
     {
+         // output headers so that the file is downloaded rather than displayed
+        header('Content-Type: text/csv; charset=utf-8');  
+        if($selector !== "user_input_form"){
+            // get and post difference - we cannot set header later in get request
+            header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . $selector . '.csv');
+        }
         // log user activity on export pages
         $this->services->get_db()->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
@@ -96,10 +104,11 @@ class ExportPage extends BasePage
             $this->export_user_activity($output);
         else if($selector === "validation_codes")
             $this->export_validation_codes($output, $option);
-
-         // output headers so that the file is downloaded rather than displayed
-        header('Content-Type: text/csv; charset=utf-8');        
-        header('Content-Disposition: attachment; filename=' . ($fileName ? $fileName : $selector) . '[' . date('d-m-Y H:i:s') . '].csv');
+              
+        if($selector === "user_input_form"){
+            // get and post difference - we cannot set header later in get request
+            header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . $fileName . '.csv');
+        }
     }
 
     /**
@@ -244,6 +253,8 @@ class ExportPage extends BasePage
      *  An identifier indicating which data to export.
      * @param string $option
      *  An option string which allows to specify how to export data.
+     * @param string $id
+     *  The id of a specific input form to export
      */
     public function output($selector = "", $option = null, $id=null)
     {

@@ -696,10 +696,6 @@ class UserModel extends BaseModel
      *
      * @param string $email
      *  The email of the user.
-     * @param string $token
-     *  The validation token of the user.
-     * @param int $id_status
-     *  The initial status of the user.
      * @retval int
      *  The id of the new user.
      */
