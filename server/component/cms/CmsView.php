@@ -711,10 +711,12 @@ class CmsView extends BaseView
             $this->output_local_component("new_child_page");
         if($this->model->can_delete_page())
         {
-            if($this->model->get_active_section_id() == null)
+            if($this->model->get_active_section_id() == null) {
                 $this->output_local_component("delete_page");
-            else
+            }
+            else if($this->model->can_delete_section()) {
                 $this->output_local_component("delete_section");
+            }
         }
     }
 
