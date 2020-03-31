@@ -22,9 +22,9 @@ BEGIN
 		select table_name from view_uploadTables where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select table_name, row_id, timestamp, ', @sql, ' from view_uploadTables t
+		SET @sql = CONCAT('select row_id, ', @sql, ' from view_uploadTables t
 		where table_id = ', table_id_param,
-		' group by table_name, row_id, timestamp');
+		' group by row_id');
 
 		
 		PREPARE stmt FROM @sql;
