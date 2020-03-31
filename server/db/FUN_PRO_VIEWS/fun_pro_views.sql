@@ -165,3 +165,67 @@ END
 //
 
 DELIMITER ;
+drop view if exists view_uploadTables;
+create view view_uploadTables
+as
+select t.id as table_id, r.id as row_id, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp
+from uploadTables t
+inner join uploadRows r on (t.id = r.id_uploadTables)
+inner join uploadCells cell on (cell.id_uploadRows = r.id)
+inner join uploadCols col on (col.id = cell.id_uploadCols)
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_uploadTable //
+
+CREATE PROCEDURE get_uploadTable( table_id_param INT )
+BEGIN  
+    SET @@group_concat_max_len = 32000;
+	SET @sql = NULL;
+	SELECT
+	  GROUP_CONCAT(DISTINCT
+		CONCAT(
+		  'max(case when col_name = "',
+		  col_name,
+		  '" then value end) as `',
+		  replace(col_name, ' ', ''), '`'
+		)
+	  ) INTO @sql
+	from view_uploadTables
+    where table_id = table_id_param;
+	
+    IF (@sql is null) THEN
+		select table_name from view_uploadTables where 1=2;
+    ELSE 
+		begin
+		SET @sql = CONCAT('select table_name, timestamp, row_id, ', @sql, ' from view_uploadTables t
+		where table_id = ', table_id_param,
+		' group by table_name, timestamp, row_id');
+
+		
+		PREPARE stmt FROM @sql;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+        end;
+    END IF;
+END 
+//
+
+DELIMITER ;
+drop view if exists view_form;
+create view view_form
+as
+select distinct cast(form.id as unsigned) form_id, sft_if.content as form_name
+from user_input ui
+left join sections form  on (ui.id_section_form = form.id)
+LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57;
+drop view if exists view_data_tables;
+create view view_data_tables
+as
+select 'dynamic' as type, form_id as id, form_name as orig_name, concat(form_name, '_dynamic') as table_name
+from view_form
+
+union
+
+select 'static' as type, id as id, name as orig_name, concat(name, '_static') as table_name
+from uploadTables
+

@@ -34,8 +34,7 @@ CREATE TABLE `uploadCols` (
 
 CREATE TABLE `uploadRows` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -46,7 +45,8 @@ CREATE TABLE `uploadRows` (
 
 CREATE TABLE `uploadTables` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
+  `name` varchar(100) NOT NULL,
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -111,3 +111,6 @@ ALTER TABLE `uploadCols`
 --
 ALTER TABLE `uploadRows`
   ADD CONSTRAINT `uploadRows_fk_id_uploadTables` FOREIGN KEY (`id_uploadTables`) REFERENCES `uploadTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- important index for faster performance  
+CREATE INDEX idx_uploadTables_name_timestamp ON uploadTables (name, timestamp);
