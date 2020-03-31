@@ -1,5 +1,0 @@
-Windows:
-copy /b *.sql fun_pro_views.sql
-
-Linux:
-cat *.sql  > .fun_pro_views.sql
