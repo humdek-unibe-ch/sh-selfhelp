@@ -63,5 +63,19 @@ abstract class BaseAjax
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
     }
+
+    /**
+     * Checks wheter the current user is authorised to perform AJAX requests.
+     * Redefine this function if a stricter form of authorisation check is
+     * required.
+     *
+     * @retval boolean
+     *  True if authorisation is granted, false otherwise.
+     */
+    public function has_access()
+    {
+        $page_id = $this->db->fetch_page_id_by_keyword('request');
+        return $this->acl->has_access($_SESSION['id_user'], $page_id, 'select');
+    }
 }
 ?>
