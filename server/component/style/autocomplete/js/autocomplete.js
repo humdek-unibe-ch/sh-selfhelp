@@ -1,6 +1,7 @@
 $(document).ready(function() {
     $('div.input-autocomplete').each(function() {
         var $target = $(this).children('div.input-autocomplete-search-target');
+        var $debug = $(this).children('div.input-autocomplete-debug');
         var $callback = $(this).children('div.input-autocomplete-callback');
         var $value = $(this).children('input.input-autocomplete-value');
         var $search = $(this).children('input.input-autocomplete-search');
@@ -75,7 +76,7 @@ $(document).ready(function() {
                 }
                 else {
                     console.log(data);
-                    $dbug.html(data.data);
+                    $debug.html(data.data);
                 }
             }, 'json');
         });
