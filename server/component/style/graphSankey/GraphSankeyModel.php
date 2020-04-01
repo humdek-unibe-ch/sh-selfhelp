@@ -100,8 +100,8 @@ class GraphSankeyModel extends GraphModel
     {
         parent::__construct($services, $id);
         $this->title = $this->get_db_field("title");
-        $this->data_types = $this->get_db_field("value_types");
-        $this->data_cols = $this->get_db_field("form_field_names");
+        $this->data_types = $this->get_db_field("value_types", array());
+        $this->data_cols = $this->get_db_field("form_field_names", array());
         $this->link_color = $this->get_db_field("link_color");
         $this->link_alpha = $this->get_db_field("link_alpha", 0.5);
         $this->link_hovertemplate = $this->get_db_field(
@@ -165,8 +165,6 @@ class GraphSankeyModel extends GraphModel
     /**
      * Prepare the data of the column part of a node.
      *
-     * @param array $head
-     *  The header information of the data table.
      * @param array $cols
      *  The data provided with the DB field `form_field_names`
      * @param number $idx
@@ -178,9 +176,9 @@ class GraphSankeyModel extends GraphModel
      *  - `key`: the field identifier
      *  - `label`: a human-readable text of the field identifier
      */
-    private function get_col_node($head, $cols, $idx) {
+    private function get_col_node($cols, $idx) {
         return array(
-            "head_idx" => array_search($cols[$idx]['key'], $head),
+            "head_idx" => $cols[$idx]['key'],
             "idx" => $idx,
             "key" => $cols[$idx]['key'],
             "label" => $cols[$idx]['label'],
@@ -214,8 +212,6 @@ class GraphSankeyModel extends GraphModel
      * Prepare the Sankey transitions. The transitions are used to generate
      * the links. Here, two consecutive column pairs are used.
      *
-     * @param array $head
-     *  The header information of the data table.
      * @param array $cols
      *  The data provided with the DB field `form_field_names`
      * @retval array
@@ -223,12 +219,12 @@ class GraphSankeyModel extends GraphModel
      *  - `source`: the source node
      *  - `target`: the target node
      */
-    private function prepare_sankey_transitions($head, $cols) {
+    private function prepare_sankey_transitions($cols) {
         $transitions = array();
         for($i = 1; $i < count($cols); $i++) {
             array_push($transitions, array(
-                "source" => $this->get_col_node($head, $cols, $i - 1),
-                "target" => $this->get_col_node($head, $cols, $i)
+                "source" => $this->get_col_node($cols, $i - 1),
+                "target" => $this->get_col_node($cols, $i)
             ));
         }
         return $transitions;
@@ -277,12 +273,13 @@ class GraphSankeyModel extends GraphModel
         $body = array();
         $head = fgetcsv( $fh );
         while(($data = fgetcsv( $fh )) !== false) {
-            array_push($body, $data);
+            $row = array();
+            foreach($head as $idx => $col) {
+                $row[$col] = $data[$idx];
+            }
+            array_push($body, $row);
         }
-        return array(
-            "head" => $head,
-            "body" => $body
-        );
+        return $body;
     }
 
     /* Public Methods *********************************************************/
@@ -295,7 +292,8 @@ class GraphSankeyModel extends GraphModel
      *  True on success, false on failure.
      */
     public function check_cols() {
-        if(!is_array($this->data_cols)) return false;
+        if(!is_array($this->data_cols) || count($this->data_cols) === 0)
+            return false;
         foreach($this->data_cols as $idx => $item)
         {
             if(!isset($item["key"]))
@@ -314,7 +312,8 @@ class GraphSankeyModel extends GraphModel
      *  True on success, false on failure.
      */
     public function check_types() {
-        if(!is_array($this->data_types)) return false;
+        if(!is_array($this->data_types) || count($this->data_types) === 0)
+            return false;
         foreach($this->data_types as $idx => $item)
         {
             if(!isset($item["key"]))
@@ -329,8 +328,6 @@ class GraphSankeyModel extends GraphModel
      * Prepare the sankey data such that it can easily be displayed with
      * plotly.js.
      *
-     * @param array $head
-     *  An array of strings describing the data column headings
      * @param array $body
      *  An array of rows where each row is an array of values.
      * @param array $cols
@@ -340,9 +337,9 @@ class GraphSankeyModel extends GraphModel
      * @retval array
      *  A raw data array with all the necessary keys to be passed to plotly.js
      */
-    public function prepare_sankey_data($head, $body, $cols, $types)
+    public function prepare_sankey_data($body, $cols, $types)
     {
-        $transitions = $this->prepare_sankey_transitions($head, $cols);
+        $transitions = $this->prepare_sankey_transitions($cols);
 
         // prepare links based on transitions and a node reference table which
         // will be used to build the final node list
@@ -478,12 +475,14 @@ class GraphSankeyModel extends GraphModel
      */
     public function cms_update_callback($cms_model)
     {
-        $data = $this->read_sample_csv();
-        $raw_data = json_encode($this->prepare_sankey_data(
-            $data['head'], $data['body'], $this->data_cols,
-            $this->data_types ));
-        $cms_model->update_db($this->db->fetch_field_id("raw"),
-            ALL_LANGUAGE_ID, MALE_GENDER_ID, $raw_data, "section_field");
+        /* $data = $this->read_sample_csv(); */
+        $data = $this->read_data_source();
+        if($data !== false) {
+            $raw_data = json_encode($this->prepare_sankey_data(
+                $data, $this->data_cols, $this->data_types ));
+            $cms_model->update_db($this->db->fetch_field_id("raw"),
+                ALL_LANGUAGE_ID, MALE_GENDER_ID, $raw_data, "section_field");
+        }
     }
 }
 ?>

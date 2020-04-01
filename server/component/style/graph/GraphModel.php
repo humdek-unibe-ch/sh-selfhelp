@@ -7,9 +7,8 @@
 require_once __DIR__ . "/../StyleModel.php";
 
 /**
- * This class is used to prepare all data related to the emailFormBase style
- * components such that the data can easily be displayed in the view of the
- * component.
+ * This class is used to prepare all data related to the grap style components
+ * such that the data can easily be displayed in the view of the component.
  */
 class GraphModel extends StyleModel
 {
@@ -50,18 +49,17 @@ class GraphModel extends StyleModel
     /* Private Methods ********************************************************/
 
     /**
+     * Read dynamic data form the database. This data is collected dynamically
+     * through online forms from subjects.
      *
+     * @param number $form_id
+     *  The id of the form to fetch.
+     * @retval array
+     *  Returns a list of assiciative arrays items. Each item corresponds to a
+     *  data set collected from one form submission. The keys of each item
+     *  correspond to the field names of the form.
      */
-    private function read_data_source_dynamic($table_id)
-    {
-        $sql = 'CALL get_uploadTable(' . $table_id . ')';
-        return $this->db->query_db($sql);
-    }
-
-    /**
-     *
-     */
-    private function read_data_source_static($form_id)
+    private function read_data_source_dynamic($form_id)
     {
         if($this->single_user) {
             $sql = 'CALL get_form_data_for_user(' . $form_id . ', '
@@ -73,6 +71,23 @@ class GraphModel extends StyleModel
         }
     }
 
+    /**
+     * Read static data from the database. This data is collected through a CSV
+     * file upload.
+     *
+     * @param number $table_id
+     *  The id of the uploaded CSV table.
+     * @retval array
+     *  Returns a list of assiciative arrays items. Each item corresponds to
+     *  a row of the data table. The keys of each item correspond to the column
+     *  names of the table.
+     */
+    private function read_data_source_static($table_id)
+    {
+        $sql = 'CALL get_uploadTable(' . $table_id . ')';
+        return $this->db->query_db($sql);
+    }
+
     /* Protected Methods ******************************************************/
 
     /**
@@ -80,24 +95,22 @@ class GraphModel extends StyleModel
      * dynamic data depending on what was selected.
      *
      * @retval array
-     *  An associative array with the following keys:
-     *   - `head`: An array of strings describing the csv head.
-     *   - `body`: An array of rows where each row is an array of values.
+     *  A list of data items fetched from the DB. Refer to
+     *  GraphModel::read_data_source_static() and
+     *  GraphModel::read_data_source_dynmaic() for more information.
+     *  If an error occurred, false is returned.
      */
     protected function read_data_source()
     {
-        $sql = "SELECT * FROM view_data_tables WHERE name = ':name'";
+        $sql = "SELECT * FROM view_data_tables WHERE table_name = :name";
         $source = $this->db->query_db_first($sql,
             array("name" => $this->data_source));
         if($source['type'] === "static") {
-            $data = $this->read_data_source_static($source['id']);
+            return $this->read_data_source_static($source['id']);
         } else if($source['type'] === "dynamic") {
-            $data = $this->read_data_source_dynamic($source['id']);
+            return $this->read_data_source_dynamic($source['id']);
         }
-        return array(
-            "head" => $head,
-            "body" => $body
-        );
+        return false;
     }
 
     /* Public Methods *********************************************************/
