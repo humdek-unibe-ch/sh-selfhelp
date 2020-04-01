@@ -27,3 +27,8 @@ SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'debug');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'If set to true, debug information is shown in an alert box.');
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The default value to be set in the hidden autocomplete value input field.');
+
+-- Add new field type and field
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'data-source', '15');
+SET @id_field_type = (SELECT `id` FROM `fieldType` WHERE `name` = 'data-source');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'data-source', @id_field_type, '0');
