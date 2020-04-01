@@ -85,8 +85,7 @@ class AutocompleteView extends FormFieldView
             "css" => "input-autocomplete-search",
             "type_input" => "text",
             "name" => $this->name_base,
-            "value" => $this->default_value,
-            "label" => $this->label,
+            "value" => "",
             "is_required" => $this->is_required,
             "placeholder" => $this->placeholder,
         ));

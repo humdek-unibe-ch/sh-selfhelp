@@ -10,6 +10,7 @@
     <input
         class="input-autocomplete-value"
         type="hidden"
+        value="<?php echo $this->default_value; ?>"
         name="<?php echo $this->name_value_field; ?>"
     />
     <div class="input-autocomplete-search-target mb-3"></div>

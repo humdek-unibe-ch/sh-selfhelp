@@ -69,6 +69,7 @@ class ChatAdminUpdateView extends BaseView
             "name_value_field" => "add_user",
             "is_required" => true,
             "value" => "",
+            "label" => "Test",
             "callback_class" => "AjaxSearch",
             "callback_method" => "search_user_chat"
         ));
