@@ -632,7 +632,7 @@ class CmsView extends BaseView
                 "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
-                "title" => "Settings",
+                "title" => "CMS Settings",
                 "children" => array(new BaseStyleComponent("form", array(
                     "url" => $this->model->get_link_url("cmsSelect",
                         $this->model->get_current_url_params()),
