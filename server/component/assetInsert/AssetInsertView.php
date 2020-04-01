@@ -29,7 +29,7 @@ class AssetInsertView extends BaseView
      * @param object $controller
      *  The controller instance of the component.
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', or 'static').
      */
     public function __construct($model, $controller, $mode)
     {
@@ -75,6 +75,11 @@ class AssetInsertView extends BaseView
         }
         else
         {
+            $title = array(
+                "css" => "Upload a CSS File",
+                "asset" => "Upload an Asset File",
+                "static" => "Upload a Static Data File",
+            );
             $cancel_url = $this->model->get_link_url("assetSelect");
             $action_url = $this->model->get_link_url("assetInsert",
                 array('mode' => $this->mode));

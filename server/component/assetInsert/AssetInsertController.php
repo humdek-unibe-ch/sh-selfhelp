@@ -25,7 +25,7 @@ class AssetInsertController extends BaseController
      * @param object $model
      *  The model instance of the component.
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', or 'static').
      */
     public function __construct($model, $mode)
     {
@@ -46,8 +46,15 @@ class AssetInsertController extends BaseController
         {
             $info = pathinfo($_FILES['file']['name']);
             $ext = $info['extension'];
-            $this->name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
-            $this->name = $this->name. '.' .$ext;
+            $res = $model->check_extension($ext, $mode);
+            if($res['error'])
+            {
+                $this->fail = true;
+                $this->error_msgs[] = $res['msg'];
+                return;
+            }
+            $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+            $this->name = $name. '.' .$ext;
             $target = $this->model->get_server_path($mode) . '/' . $this->name;
             if(!isset($_POST['overwrite']) && file_exists($target))
             {
@@ -55,12 +62,23 @@ class AssetInsertController extends BaseController
                 $this->error_msgs[] = "A file with the same name already exists";
                 return;
             }
+            $res = $model->pp_insert_asset_file($mode,
+                $_FILES['file']['tmp_name'], $name, isset($_POST['overwrite']));
+            if($res !== true) {
+                $this->fail = true;
+                $this->error_msgs[] = $res;
+                return;
+            }
             if(move_uploaded_file($_FILES['file']['tmp_name'], $target))
+            {
                 $this->success = true;
+            }
             else
             {
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to store the file on the server";
+                $res = $this->pp_delete_asset_file_static($name);
+                return;
             }
         }
     }
