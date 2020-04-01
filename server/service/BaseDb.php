@@ -428,22 +428,30 @@ class BaseDb {
      *  The name of the db table.
      * @param array $cols
      *  An array of db collumn names.
-     * @param array $entries
+     * @param array $data
      *  A matrix of values.
      * @retval int
      *  The last inserted id if succeded, false otherwise.
      */
-    public function insert_mult($table, $cols, $entries) {
+    public function insert_mult($table, $cols, $data) {
         try {
-            $data = array();
+            $db_data = array();
             $columnStr = "(" . implode(',', $cols) . ")";
-            $valueStr = implode(',', array_map(function($entry) {
-                      return "(" . implode(',', $entry) . ")";
-                }, $entries));
+            $valueStr = implode(',', array_map(
+                function($row, $row_idx) use ($data, &$db_data)
+                {
+                    return "(" . implode(',', array_map(
+                        function($value, $col_idx) use ($data, &$db_data, $row_idx)
+                        {
+                            $id = ":".($row_idx * count($data) + $col_idx);
+                            $db_data[$id] = $value;
+                            return $id;
+                        }, $row, array_keys($row))) . ")";
+                }, $data, array_keys($data)));
             $sql = "INSERT INTO ".$table
                 .$columnStr." VALUES ".$valueStr;
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute($data);
+            $stmt->execute($db_data);
             $new_id = $this->dbh->lastInsertId();
             if($new_id > 0) return $new_id; // might be zero if no id is available
             else return true;

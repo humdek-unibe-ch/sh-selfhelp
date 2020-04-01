@@ -59,6 +59,24 @@ class ChatAdminUpdateView extends BaseView
     }
 
     /**
+     * Render the autocomplete text field
+     */
+    private function output_autocomplete()
+    {
+        $ac = new BaseStyleComponent('autocomplete', array(
+            "placeholder" => "Search User Email",
+            "name" => "user_search",
+            "name_value_field" => "add_user",
+            "is_required" => true,
+            "value" => "",
+            "label" => "Test",
+            "callback_class" => "AjaxSearch",
+            "callback_method" => "search_user_chat"
+        ));
+        $ac->output_content();
+    }
+
+    /**
      * Render the form to add a new user to a chat room.
      */
     private function output_form_add_users()
