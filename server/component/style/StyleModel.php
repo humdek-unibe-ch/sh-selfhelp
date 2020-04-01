@@ -293,5 +293,11 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         return null;
     }
+
+    /**
+     * This function is called whenever the style component is updated via the
+     * CMS. Redefine within the style.
+     */
+    public function cms_update_callback($model) { }
 }
 ?>

@@ -79,10 +79,16 @@ class StyleComponent extends BaseComponent
         {
             $className = ucfirst($style['name']) . "Component";
             if(class_exists($className))
+            {
                 $this->style = new $className($services, $id, $params);
+                $model = $this->style->get_model();
+            }
             if($this->style === null || !$this->style->has_access())
+            {
+                $model = new StyleModel($services, $id, $params);
                 $this->style = new BaseStyleComponent("unknownStyle",
                     array("style_name" => $style['name']));
+            }
         }
         else
         {
@@ -129,6 +135,17 @@ class StyleComponent extends BaseComponent
     public function &get_child_section_by_name($name)
     {
         return $this->model->get_child_section_by_name($name);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback.
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     */
+    public function cms_update_callback($cms_model)
+    {
+        $this->model->cms_update_callback($cms_model);
     }
 }
 ?>

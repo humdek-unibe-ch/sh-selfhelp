@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseController.php";
+require_once __DIR__ . "/../style/StyleComponent.php";
 /**
  * The controller class of the cms update component.
  */
@@ -68,7 +69,14 @@ class CmsUpdateController extends BaseController
         $this->bad_fields = array();
         if(!isset($_POST['mode'])) return;
         else if($_POST['mode'] == "update" && isset($_POST["fields"]))
+        {
             $this->update($_POST["fields"]);
+            $style = new StyleComponent(
+                $this->model->get_services(),
+                $this->model->get_active_section_id()
+            );
+            $style->cms_update_callback($model);
+        }
         else if($_POST['mode'] == "insert"
                 && isset($_POST['relation']) && $_POST['relation'] != "")
             $this->insert();
