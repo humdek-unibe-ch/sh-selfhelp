@@ -39,6 +39,8 @@ define('NAME_FIELD_ID', 57);
 define('TYPE_INPUT_FIELD_ID', 54);
 define('EMAIL_TYPE_ID', 11);
 
+define('STYLE_GROUP_INTERN_ID', 1);
+
 define('MALE_GENDER_ID', 1);
 define('ALL_LANGUAGE_ID', 1);
 

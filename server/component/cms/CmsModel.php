@@ -1018,6 +1018,18 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to delete sections.
+     *
+     * @retval bool
+     *  True if the current user can delete sections, false otherwise.
+     */
+    public function can_delete_section()
+    {
+        $style_group = $this->get_style_group($this->get_active_section_id());
+        return $style_group['id'] != STYLE_GROUP_INTERN_ID;
+    }
+
+    /**
      * Checks whether the current user is allowed to create new child pages.
      *
      * @retval bool
@@ -1554,6 +1566,27 @@ class CmsModel extends BaseModel
                 ""
             );
         return $res;
+    }
+
+    /**
+     * Fetch and return the style group given a section id.
+     *
+     * @param number $id
+     *  The id of the section
+     * @retval array
+     *  An array of style group items where each item has the following keys:
+     *   - id:          The id of the style group.
+     *   - name:        The name of the style group.
+     *   - description: The description of the style group.
+     */
+    public function get_style_group($id)
+    {
+        $sql = "SELECT sg.* FROM styleGroup AS sg
+            LEFT JOIN styles AS s ON s.id_group = sg.id
+            LEFT JOIN sections AS sct ON sct.id_styles = s.id
+            WHERE sct.id = :id";
+        return $this->db->query_db_first($sql,
+            array("id" => $id));
     }
 
     /**
