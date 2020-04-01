@@ -544,12 +544,13 @@ class CmsView extends BaseView
         else if($field['type'] == "data-source")
         {
             $children[] = new BaseStyleComponent("autocomplete", array(
-                "value" => ($field['content'] != '0') ? $field['content'] : "",
+                "value" => $field['content'],
                 "name_value_field" => $field_name_content,
                 "placeholder" => "Search for a stored Data Source",
                 "name" => "data_source_search",
                 "callback_class" => "AjaxSearch",
-                "callback_method" => "search_data_source"
+                "callback_method" => "search_data_source",
+                "show_value" => true
             ));
         }
         return new BaseStyleComponent("descriptionItem", array(
