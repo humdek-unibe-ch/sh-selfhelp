@@ -7,24 +7,44 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the slider form style component.
+ * The view class of the autocomplete form input style component.
  */
-class SliderView extends FromFieldView
+class AutocompleteView extends FormFieldView
 {
     /* Private Properties******************************************************/
 
     /**
-     * DB field 'callback' (emty string).
-     * The name of the callback method. This method must be implemented in the
-     * class AjaxSearch.
+     * DB field 'callback_class' (emty string).
+     * The name of the callback class. This class must implement the
+     * method specified in 'callback-method'.
      */
-    private $callback;
+    private $callback_class;
+
+    /**
+     * DB field 'callback_method' (emty string).
+     * The name of the callback method. This method must be implemented in the
+     * class specified in 'callback-class'.
+     */
+    private $callback_method;
 
     /**
      * DB field 'placeholder' (empty string).
      * The text to be displayed inside the input field.
      */
     private $placeholder;
+
+    /**
+     * DB field 'debug' (false).
+     * If set to true, debug info is displayed, if set to false no such
+     * information is shown.
+     */
+    private $debug;
+
+    /**
+     * DB field 'name_value_field' (empty string).
+     * The name of the hidden input field holding the selected ID.
+     */
+    private $name_value_field;
 
     /* Constructors ***********************************************************/
 
@@ -38,40 +58,51 @@ class SliderView extends FromFieldView
     {
         parent::__construct($model);
         $this->placeholder = $this->model->get_db_field("placeholder");
-        $this->callback = $this->model->get_db_field("callback");
+        $this->callback_method = $this->model->get_db_field("callback_method");
+        $this->callback_class = $this->model->get_db_field("callback_class");
+        $this->debug = $this->model->get_db_field("debug", false);
+        $this->name_value_field = $this->model->get_db_field("name_value_field");
     }
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Render the debug alert
+     */
+    private function output_autocomplete_debug()
+    {
+        if($this->debug) {
+            require __DIR__ . "/tpl_debug.php";
+        }
+    }
+
+    /**
+     * Render the autocomplete text field
+     */
+    private function output_autocomplete_field()
+    {
+        $field = new BaseStyleComponent("input", array(
+            "css" => "input-autocomplete-search",
+            "type_input" => "text",
+            "name" => $this->name_base,
+            "value" => $this->default_value,
+            "label" => $this->label,
+            "is_required" => $this->is_required,
+            "placeholder" => $this->placeholder,
+        ));
+        $field->output_content();
+
+    }
+
     /* Protected Methods ********************************************************/
 
     /**
-     * Render the Atocomplete field.
+     * Render the atocomplete style.
      */
     protected function output_form_field()
     {
-        $div = new BaseStyleComponent("div", array(
-            "css" => "input-autocomplete " . $this->css,
-            "children" => array(
-                new BaseStyleComponent("input", array(
-                    "type_input" => "text",
-                    "name" => $this->name_base,
-                    "value" => $this->default_value,
-                    "label" => $this->label,
-                    "is_required" => $this-is_required,
-                    "placeholder" => $this->placeholder,
-                )),
-                new BaseStyleComponent("input", array(
-                    "type_input" => "hidden",
-                    "name" => "atutocomplete_value",
-                )),
-                new BaseStyleComponent("div",
-                    array('css' => 'search-target mb-3')),
-            )
-        ));
-        $div->output_content();
+        $callback = $this->callback_class . "/" . $this->callback_method;
+        require __DIR__ . "/tpl_autocomplete.php";
     }
-
-    /* Public Methods *********************************************************/
 }
 ?>

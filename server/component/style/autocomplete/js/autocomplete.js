@@ -1,8 +1,9 @@
 $(document).ready(function() {
     $('div.input-autocomplete').each(function() {
-        var $target = $(this).children('div.search-target');
-        var $value = $(this).children('input[name="autocomplete_value"]');
-        var $search = $(this).children('input[name="autocomplete_search"]');
+        var $target = $(this).children('div.input-autocomplete-search-target');
+        var $callback = $(this).children('div.input-autocomplete-callback');
+        var $value = $(this).children('input.input-autocomplete-value');
+        var $search = $(this).children('input.input-autocomplete-search');
 
         function select_item(id, email)
         {
@@ -48,7 +49,7 @@ $(document).ready(function() {
             if(e.key === "ArrowDown" || e.key === "ArrowUp"
                 || e.key === "Enter" || e.key === "Escape")
                 return;
-            $.post(BASE_PATH + '/request/AjaxSearch/search_user_chat',
+            $.post(BASE_PATH + '/request/' + $callback.text(),
                     {search: val}, function(data) {
                 var $cont = $("<div/>", {class:"list-group"});
                 if(data.success)
@@ -71,6 +72,10 @@ $(document).ready(function() {
                         );
                     });
                     $target.html($cont);
+                }
+                else {
+                    console.log(data);
+                    $dbug.html(data.data);
                 }
             }, 'json');
         });
