@@ -46,6 +46,13 @@ class AutocompleteView extends FormFieldView
      */
     private $name_value_field;
 
+    /**
+     * DB field 'show_value' (false)
+     * If set to true the selected value will be shown in a readonly input
+     * field. If set to false the selected value will be hidden.
+     */
+    private $show_value;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -62,6 +69,7 @@ class AutocompleteView extends FormFieldView
         $this->callback_class = $this->model->get_db_field("callback_class");
         $this->debug = $this->model->get_db_field("debug", false);
         $this->name_value_field = $this->model->get_db_field("name_value_field");
+        $this->show_value = $this->model->get_db_field("show_value", false);
     }
 
     /* Private Methods ********************************************************/
@@ -81,6 +89,18 @@ class AutocompleteView extends FormFieldView
      */
     private function output_autocomplete_field()
     {
+        if($this->show_value) {
+            require __DIR__ . "/tpl_autocomplete_input.php";
+        } else {
+            require __DIR__ . "/tpl_autocomplete_input_hidden.php";
+        }
+    }
+
+    /**
+     * Render the autocomplete text field
+     */
+    private function output_autocomplete_field_search()
+    {
         $field = new BaseStyleComponent("input", array(
             "css" => "input-autocomplete-search",
             "type_input" => "text",
@@ -90,7 +110,6 @@ class AutocompleteView extends FormFieldView
             "placeholder" => $this->placeholder,
         ));
         $field->output_content();
-
     }
 
     /* Protected Methods ********************************************************/

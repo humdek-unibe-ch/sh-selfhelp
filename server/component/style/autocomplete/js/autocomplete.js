@@ -1,15 +1,15 @@
 $(document).ready(function() {
+    var prefix = "autocomplete";
     $('div.input-autocomplete').each(function() {
         var $target = $(this).children('div.input-autocomplete-search-target');
         var $debug = $(this).children('div.input-autocomplete-debug');
         var $callback = $(this).children('div.input-autocomplete-callback');
-        var $value = $(this).children('input.input-autocomplete-value');
-        var $search = $(this).children('input.input-autocomplete-search');
+        var $value = $(this).find('input.input-autocomplete-value');
+        var $search = $(this).find('input.input-autocomplete-search');
 
         function select_item(id, email)
         {
-            var ids = id.split('-');
-            $value.val(ids[1]);
+            $value.val(id.substr(prefix.length + 1));
             $search.val(email);
             $target.empty();
         }
@@ -24,7 +24,7 @@ $(document).ready(function() {
             else if(e.key === "ArrowDown" || e.key === "ArrowUp")
             {
                 e.preventDefault();
-                var $active = $('.list-group-item-action.active[id|="user_search"]');
+                var $active = $(`.list-group-item-action.active[id|="${prefix}"]`);
                 var $next;
                 if(e.key === "ArrowDown")
                     $next = $active.next();
@@ -39,7 +39,7 @@ $(document).ready(function() {
             else if(e.key === "Enter")
             {
                 e.preventDefault();
-                var $active = $('.list-group-item-action.active[id|="user_search"]');
+                var $active = $(`.list-group-item-action.active[id|="${prefix}"]`);
                 if($active.length !== 0)
                     select_item($active.attr('id'), $active.text());
             }
@@ -60,13 +60,13 @@ $(document).ready(function() {
                         if(index === 0)
                         {
                             active = " active";
-                            $value.val(parseInt(item.id));
+                            $value.val(item.id);
                         }
                         $cont.append(
                             $("<div/>", {
-                                class:"list-group-item list-group-item-action" + active,
-                                id:"user_search-" + parseInt(item.id)
-                            }).append(item.email)
+                                class: "list-group-item list-group-item-action" + active,
+                                id: prefix + '-' + item.id
+                            }).append(item.value)
                             .on('click', function() {
                                 select_item($(this).attr('id'), $(this).text());
                             })
