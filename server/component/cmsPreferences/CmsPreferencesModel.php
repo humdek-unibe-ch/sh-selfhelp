@@ -26,4 +26,62 @@ class CmsPreferencesModel extends BaseModel
         parent::__construct($services);
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     * Fetch the list of languages
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    private function fetch_languages()
+    {
+        $sql = "SELECT * FROM languages where id > 1;";
+        return $this->db->query_db($sql);
+    }
+
+    /* Public Methods *********************************************************/
+
+    /**
+     * Checks whether the current user is allowed to create new language.
+     *
+     * @retval bool
+     *  True if the current user can create new language, false otherwise.
+     */
+    public function can_create_new_language()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsInsert"));
+    }
+
+    /**
+     * Get a list of languages and prepares the list such that it can be passed to a
+     * list component.
+     *
+     * @retval array
+     *  An array of items where each item has the following keys:
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function get_languages()
+    {
+        $res = array();
+        foreach($this->fetch_languages() as $language)
+        {
+            $id = intval($language["id"]);
+            $res[] = array(
+                "id" => $id,
+                "title" => $language["language"],
+                "url" => $this->get_link_url("language", array("lid" => $id))
+            );
+        }
+        return $res;
+    }    
+
 }

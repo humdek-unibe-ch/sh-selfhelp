@@ -55,7 +55,7 @@ class GroupView extends BaseView
     }
 
     /**
-     * Render the button to create a new user.
+     * Render the button to create a new group.
      */
     private function output_button()
     {

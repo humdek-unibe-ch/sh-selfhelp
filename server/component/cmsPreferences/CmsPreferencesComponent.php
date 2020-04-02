@@ -11,7 +11,7 @@ require_once __DIR__ . "/CmsPreferencesModel.php";
 /**
  * The class to define the asset select component.
  */
-class CmsPreferancesComponent extends BaseComponent
+class CmsPreferencesComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
