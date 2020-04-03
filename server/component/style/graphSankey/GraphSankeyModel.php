@@ -239,7 +239,7 @@ class GraphSankeyModel extends GraphModel
      *  The annotation array with all the necessary keys to be passed to the
      *  plotly function.
      */
-    private function prepare_sankey_annotations($cols) {
+    public function prepare_sankey_annotations($cols) {
         if(!$this->has_col_labels || !$this->is_grouped)
             return array();
         $annotations = array();

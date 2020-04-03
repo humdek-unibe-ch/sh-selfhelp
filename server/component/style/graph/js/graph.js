@@ -8,7 +8,7 @@ $(document).ready(() => {
     });
 });
 
-function drawGraph($div, traces, layout, config) {
+function drawGraph($div, traces, layout, config, post_process = () => {}) {
     Plotly.newPlot($div[0], [], layout, config);
 
     traces.forEach(function(trace) {
@@ -22,7 +22,7 @@ function drawGraph($div, traces, layout, config) {
                     {
                         let keys = {};
                         if('cb' in data_source)
-                            keys = data_source.cb(data.data, data_source);
+                            keys = data_source.cb(data.data);
                         else
                             keys = trace_cb(data.data, data_source);
 
@@ -30,6 +30,8 @@ function drawGraph($div, traces, layout, config) {
                             ...trace_options,
                             ...keys
                         });
+
+                        post_process();
                     }
                     else {
                         console.log(data);

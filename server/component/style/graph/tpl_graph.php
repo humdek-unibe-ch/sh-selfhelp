@@ -5,5 +5,6 @@
 ?>
 <div class="graph-<?php echo $this->graph_type; ?> <?php echo $this->css; ?>">
     <div class="graph-data d-none"><?php echo $this->output_graph_data(); ?></div>
+    <div class="graph-opts d-none"><?php echo $this->output_graph_opts(); ?></div>
     <div class="graph-plot"></div>
 </div>

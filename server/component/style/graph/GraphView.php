@@ -32,7 +32,7 @@ class GraphView extends StyleView
      * DB field 'layout' (empty string)
      * The layout definition of the graph.
      */
-    private $layout;
+    protected $layout;
 
     /**
      * DB field 'config' (empty string)
@@ -111,9 +111,9 @@ class GraphView extends StyleView
                 if(isset($trace["data_source"])) {
                     if(!isset($trace["data_source"]["name"]))
                         return false;
-                    if(!isset($trace["data_source"]["map"])
-                            && !is_array($trace["data_source"]["map"]))
-                        return false;
+                    /* if(!isset($trace["data_source"]["map"]) */
+                    /*         && !is_array($trace["data_source"]["map"])) */
+                    /*     return false; */
                     if(!isset($trace["data_source"]["single_user"]))
                         $trace["data_source"]["single_user"] = true;
                 }
@@ -127,6 +127,10 @@ class GraphView extends StyleView
     protected function set_graph_type($name)
     {
         $this->graph_type = $name;
+    }
+
+    protected function output_graph_opts() {
+        echo "{}";
     }
 
     /* Public Methods *********************************************************/
