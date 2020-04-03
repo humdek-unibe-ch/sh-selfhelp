@@ -4,35 +4,57 @@ $(document).ready(() => {
         var raw = parseGraphData($(this).children('div.graph-data:first'));
         if(raw === null) return;
 
-        Plotly.newPlot($plot[0], raw.data, raw.layout, raw.config);
+        drawGraph($plot, raw.traces, raw.layout, raw.config);
     });
 });
 
-function drawGraph($div, data, layout, config) {
+function drawGraph($div, traces, layout, config) {
     Plotly.newPlot($div[0], [], layout, config);
 
-    data_in.forEach(function(trace) {
-        let { data_source, ...trace_options } = trace;
-        $.post(
-            BASE_PATH + '/request/AjaxDataSource/get_data',
-            { name: data_source.name, single_user: data_soutce.single_user },
-            function(data) {
-                if(data.success)
-                {
-                    Plotly.addTraces($div[0], {
-                        ...trace_options,
-                        ...data_source.cb(data.data)
-                    });
-                }
-                else {
-                    console.log(data);
-                }
-            },
-            'json'
-        );
+    traces.forEach(function(trace) {
+        if('data_source' in trace) {
+            let { data_source, ...trace_options } = trace;
+            $.post(
+                BASE_PATH + '/request/AjaxDataSource/get_data_table',
+                { name: data_source.name, single_user: data_source.single_user },
+                function(data) {
+                    if(data.success)
+                    {
+                        let keys = {};
+                        if('cb' in data_source)
+                            keys = data_source.cb(data.data, data_source);
+                        else
+                            keys = trace_cb(data.data, data_source);
+
+                        Plotly.addTraces($div[0], {
+                            ...trace_options,
+                            ...keys
+                        });
+                    }
+                    else {
+                        console.log(data);
+                    }
+                },
+                'json'
+            );
+        } else {
+            Plotly.addTraces($div[0], trace);
+        }
     });
 
 }
+
+function trace_cb(data, data_source) {
+    let trace = {};
+    for(let key in data_source.map) {
+        trace[key] = [];
+        data.forEach(function(item) {
+            trace[key].push(item[data_source.map[key]])
+        });
+    }
+    return trace;
+}
+
 
 function parseGraphData($data) {
     var j_data = $data.text();

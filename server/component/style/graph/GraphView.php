@@ -83,7 +83,7 @@ class GraphView extends StyleView
             "graph_type" => $this->graph_type,
             "layout" => $this->layout ? $this->layout : new stdClass,
             "config" => $this->config ? $this->config : new stdClass,
-            "data" => $this->traces ? $this->traces : array()
+            "traces" => $this->traces ? $this->traces : array()
         ));
     }
 
@@ -105,6 +105,20 @@ class GraphView extends StyleView
     {
         if(!is_array($this->traces) && $this->traces != NULL)
             return false;
+        if(is_array($this->traces)) {
+            foreach($this->traces as $idx => $trace)
+            {
+                if(isset($trace["data_source"])) {
+                    if(!isset($trace["data_source"]["name"]))
+                        return false;
+                    if(!isset($trace["data_source"]["map"])
+                            && !is_array($trace["data_source"]["map"]))
+                        return false;
+                    if(!isset($trace["data_source"]["single_user"]))
+                        $trace["data_source"]["single_user"] = true;
+                }
+            }
+        }
         return true;
     }
 
