@@ -16,16 +16,35 @@ class GraphView extends StyleView
     /* Private Properties******************************************************/
 
     /**
-     * DB field 'is_dismissable' (false).
-     * If set to true, the alert can be dismissed by clicking on a close button.
+     * DB field 'title' (empty string)
+     * The title of the graph. If set this will be added to the layout
+     * definition.
      */
-    private $is_dismissable;
+    private $title;
 
     /**
-     * DB field 'type' ('primary').
-     * The style of the alert. E.g. 'warning', 'danger', etc.
+     * DB field 'traces' (empty string)
+     * A JSON array holding trace definitions.
      */
-    private $type;
+    protected $traces;
+
+    /**
+     * DB field 'layout' (empty string)
+     * The layout definition of the graph.
+     */
+    protected $layout;
+
+    /**
+     * DB field 'config' (empty string)
+     * The configuration definition of the graph.
+     */
+    private $config;
+
+    /**
+     * The graph type name name is appended to the css class name of the root
+     * graph element.
+     */
+    private $graph_type = "base";
 
     /* Constructors ***********************************************************/
 
@@ -38,12 +57,82 @@ class GraphView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->is_dismissable = $this->model->get_db_field("is_dismissable",
-            false);
-        $this->type = $this->model->get_db_field("type", "primary");
+        $this->title = $this->model->get_db_field("title");
+        $this->traces = $this->model->get_db_field("traces");
+        $this->layout = $this->model->get_db_field("layout");
+        $this->config = $this->model->get_db_field("config");
     }
 
     /* Private  Methods *******************************************************/
+
+    private function output_graph_data()
+    {
+        if($this->title !== "") {
+            if($this->layout === "") {
+                $this->layout = array();
+            }
+            $this->layout["title"] = $this->title;
+        }
+        if(!isset($this->config["responsive"])) {
+            if($this->config === "") {
+                $this->config = array();
+            }
+            $this->config["responsive"] = true;
+        }
+
+        echo json_encode(array(
+            "graph_type" => $this->graph_type,
+            "layout" => $this->layout ? $this->layout : new stdClass,
+            "config" => $this->config ? $this->config : new stdClass,
+            "traces" => $this->traces ? $this->traces : array()
+        ));
+    }
+
+    private function check_config()
+    {
+        if(!is_array($this->config) && $this->config != NULL)
+            return false;
+        return true;
+    }
+
+    private function check_layout()
+    {
+        if(!is_array($this->layout) && $this->layout != NULL)
+            return false;
+        return true;
+    }
+
+    private function check_traces()
+    {
+        if(!is_array($this->traces) && $this->traces != NULL)
+            return false;
+        if(is_array($this->traces)) {
+            foreach($this->traces as $idx => $trace)
+            {
+                if(isset($trace["data_source"])) {
+                    if(!isset($trace["data_source"]["name"]))
+                        return false;
+                    /* if(!isset($trace["data_source"]["map"]) */
+                    /*         && !is_array($trace["data_source"]["map"])) */
+                    /*     return false; */
+                    if(!isset($trace["data_source"]["single_user"]))
+                        $trace["data_source"]["single_user"] = true;
+                }
+            }
+        }
+        return true;
+    }
+
+    /* Protected  Methods *****************************************************/
+
+    protected function set_graph_type($name)
+    {
+        $this->graph_type = $name;
+    }
+
+    protected function output_graph_opts() {
+        echo "{}";
+    }
 
     /* Public Methods *********************************************************/
 
@@ -52,6 +141,15 @@ class GraphView extends StyleView
      */
     public function output_content()
     {
+        if(!$this->check_traces()) {
+            echo "parse error in <code>traces</code>";
+        } else if(!$this->check_layout()) {
+            echo "parse error in <code>layout</code>";
+        } else if(!$this->check_config()) {
+            echo "parse error in <code>layout</code>";
+        } else {
+            require __DIR__ . "/tpl_graph.php";
+        }
     }
 }
 ?>

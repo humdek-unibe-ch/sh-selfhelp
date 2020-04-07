@@ -114,5 +114,14 @@ class GraphModel extends StyleModel
     }
 
     /* Public Methods *********************************************************/
+
+    public function get_data_source()
+    {
+        return $this->data_source;
+    }
+    public function get_single_user()
+    {
+        return $this->single_user;
+    }
 }
 ?>

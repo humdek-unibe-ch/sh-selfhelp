@@ -150,8 +150,30 @@ ALTER TABLE `uploadRows`
 -- important index for faster performance  
 CREATE INDEX idx_uploadTables_name_timestamp ON uploadTables (name, timestamp);
 
+-- add style graph and all its fields
+INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES (NULL, 'Graph', 'Graph styles allow to draw graps and diagrams based on static (uploaded assets) or dynamic (user input) data.', 55);
+SET @id_group = LAST_INSERT_ID();
+
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graph', '0000000002', @id_group, 'The most general graph style which allows to render a vast variety of graphs but requires extensive configuration. All other graph styles are based on this style.');
+SET @id_style = LAST_INSERT_ID();
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'traces', 8, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the data traces to be rendered. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'layout', 8, 1);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'config', 8, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'title');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The title to be rendered on top of teh graph. This field is here purely for convenience as the title of a graph can also be defined in the field `layout`');
+
 -- add style graphSankey and all its fields
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graphSankey', '0000000002', '0000000007', 'Create a [Sankey diagram](https://en.wikipedia.org/wiki/Sankey_diagram) from user input data or imported static data.');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graphSankey', '0000000002', @id_group, 'Create a Sankey diagram from user input data or imported static data.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'title');
