@@ -14,6 +14,10 @@ function drawGraph($div, traces, layout, config, post_process = () => {}) {
     traces.forEach(function(trace) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
+            window.addEventListener(`data-filter-${data_source.name}`, function(e) {
+                console.log("received filter-event");
+                drawGraph($div, traces, layout, post_process);
+            });
             $.post(
                 BASE_PATH + '/request/AjaxDataSource/get_data_table',
                 { name: data_source.name, single_user: data_source.single_user },
