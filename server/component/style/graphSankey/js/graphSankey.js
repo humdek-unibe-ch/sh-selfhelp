@@ -5,15 +5,19 @@ $(document).ready(() => {
         var opts = parseGraphData($(this).children('div.graph-opts:first'));
         if(raw === null) return;
 
+        // draw precomputation
+        Plotly.newPlot($plot[0], [opts.pre_computation], raw.layout, raw.config);
+        graph_sankey_postprocess_graph(opts, $plot);
+
+        // recompute dynamically
         raw.traces[0].data_source.cb = function(data) {
             let res = graph_sankey_cb(data, opts);
             return res;
         };
 
+        // draw dynamic data
         drawGraph($plot, raw.traces, raw.layout, raw.config, () => {
-            if(!opts.has_node_labels) {
-                $plot.find('text.node-label').remove();
-            }
+            graph_sankey_postprocess_graph(opts, $plot);
         });
     });
 });
@@ -62,6 +66,12 @@ function graph_sankey_prepare_transitions(cols) {
         });
     }
     return transitions;
+}
+
+function graph_sankey_postprocess_graph(opts, $plot) {
+    if(!opts.has_node_labels) {
+        $plot.find('text.node-label').remove();
+    }
 }
 
 function graph_sankey_cb(data, opts) {

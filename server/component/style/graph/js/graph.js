@@ -9,7 +9,7 @@ $(document).ready(() => {
 });
 
 function drawGraph($div, traces, layout, config, post_process = () => {}) {
-    Plotly.newPlot($div[0], [], layout, config);
+    let first = true;
 
     traces.forEach(function(trace) {
         if('data_source' in trace) {
@@ -26,6 +26,10 @@ function drawGraph($div, traces, layout, config, post_process = () => {}) {
                         else
                             keys = trace_cb(data.data, data_source);
 
+                        if(first) {
+                            first = false;
+                            Plotly.newPlot($div[0], [], layout, config);
+                        }
                         Plotly.addTraces($div[0], {
                             ...trace_options,
                             ...keys
@@ -40,6 +44,10 @@ function drawGraph($div, traces, layout, config, post_process = () => {}) {
                 'json'
             );
         } else {
+            if(first) {
+                first = false;
+                Plotly.newPlot($div[0], [], layout, config);
+            }
             Plotly.addTraces($div[0], trace);
         }
     });

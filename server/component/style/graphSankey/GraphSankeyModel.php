@@ -16,12 +16,6 @@ class GraphSankeyModel extends GraphModel
     /* Private Properties *****************************************************/
 
     /**
-     * DB field 'title' (string).
-     * The title of the sankey graph.
-     */
-    private $title;
-
-    /**
      * DB field 'form_field_names' (json).
      * Defines the which form fields or data colomns to use.
      */
@@ -51,13 +45,6 @@ class GraphSankeyModel extends GraphModel
      * The minimal required link sum for a link to be drawn.
      */
     private $min;
-
-    /**
-     * DB field 'has_type_labels' (boolean).
-     * If set to true the node labels will be rendered, if set to false the
-     * node labels will be hidden.
-     */
-    private $has_node_labels;
 
     /**
      * DB field 'has_field_labels' (boolean).
@@ -99,7 +86,6 @@ class GraphSankeyModel extends GraphModel
     public function __construct($services, $id)
     {
         parent::__construct($services, $id);
-        $this->title = $this->get_db_field("title");
         $this->data_types = $this->get_db_field("value_types", array());
         $this->data_cols = $this->get_db_field("form_field_names", array());
         $this->link_color = $this->get_db_field("link_color");
@@ -109,8 +95,6 @@ class GraphSankeyModel extends GraphModel
         $this->node_hovertemplate = $this->get_db_field(
             "node_hovertemplate", "%{label}");
         $this->min = $this->get_db_field("min", 1);
-        $this->has_node_labels = $this->get_db_field("has_type_labels",
-            false);
         $this->has_col_labels = $this->get_db_field("has_field_labels",
             true);
         $this->is_grouped = $this->get_db_field("is_grouped",
@@ -231,34 +215,6 @@ class GraphSankeyModel extends GraphModel
     }
 
     /**
-     * Prepare the annotations which will form the column labels.
-     *
-     * @param array $cols
-     *  The data provided with the DB field `form_field_names`
-     * @retval array
-     *  The annotation array with all the necessary keys to be passed to the
-     *  plotly function.
-     */
-    public function prepare_sankey_annotations($cols) {
-        if(!$this->has_col_labels || !$this->is_grouped)
-            return array();
-        $annotations = array();
-        foreach($cols as $idx => $col) {
-            array_push($annotations, array(
-                "text" => $col['label'],
-                "x" => $this->compute_position(count($cols), $idx),
-                "y" => 1,
-                "yshift" => 5,
-                "font" => array( "size" => 15 ),
-                "showarrow" => false,
-                "xanchor" => "center",
-                "yanchor" => "bottom",
-            ));
-        }
-        return $annotations;
-    }
-
-    /**
      * Debug function to lead data samples. This function is obsolete for the
      * release version.
      *
@@ -301,7 +257,7 @@ class GraphSankeyModel extends GraphModel
             if(!isset($item["label"]))
                 $this->data_cols[$idx]["label"] = $item["key"];
         }
-        return true;
+            return true;
     }
 
     /**
@@ -325,6 +281,104 @@ class GraphSankeyModel extends GraphModel
     }
 
     /**
+     *
+     */
+    public function get_data_cols()
+    {
+        return $this->data_cols;
+    }
+
+    /**
+     *
+     */
+    public function get_data_types()
+    {
+        return $this->data_types;
+    }
+
+    /**
+     *
+     */
+    public function get_is_grouped()
+    {
+        return $this->is_grouped ? true : false;
+    }
+
+    /**
+     *
+     */
+    public function get_has_col_labels()
+    {
+        return $this->has_col_labels;
+    }
+
+    /**
+     *
+     */
+    public function get_link_alpha()
+    {
+        return $this->link_alpha;
+    }
+
+    /**
+     *
+     */
+    public function get_link_color()
+    {
+        return $this->link_color;
+    }
+
+    /**
+     *
+     */
+    public function get_link_hovertemplate()
+    {
+        return $this->link_hovertemplate;
+    }
+
+    /**
+     *
+     */
+    public function get_min()
+    {
+        return $this->min;
+    }
+
+    /**
+     *
+     */
+    public function get_node_hovertemplate()
+    {
+        return $this->node_hovertemplate;
+    }
+
+    /**
+     * Prepare the annotations which will form the column labels.
+     *
+     * @retval array
+     *  The annotation array with all the necessary keys to be passed to the
+     *  plotly function.
+     */
+    public function prepare_sankey_annotations() {
+        if(!$this->has_col_labels || !$this->is_grouped)
+            return array();
+        $annotations = array();
+        foreach($this->data_cols as $idx => $col) {
+            array_push($annotations, array(
+                "text" => $col['label'],
+                "x" => $this->compute_position(count($this->data_cols), $idx),
+                "y" => 1,
+                "yshift" => 5,
+                "font" => array( "size" => 15 ),
+                "showarrow" => false,
+                "xanchor" => "center",
+                "yanchor" => "bottom",
+            ));
+        }
+        return $annotations;
+    }
+
+    /**
      * Prepare the sankey data such that it can easily be displayed with
      * plotly.js.
      *
@@ -343,7 +397,6 @@ class GraphSankeyModel extends GraphModel
 
         // prepare links based on transitions and a node reference table which
         // will be used to build the final node list
-        $max_sum = 1;
         $nodes_ref = array();
         $node_idx = 0;
         $links = array(
@@ -368,7 +421,6 @@ class GraphSankeyModel extends GraphModel
                     $sum = $this->compute_sankey_link_sum($body,
                         $source, $target);
                     if($sum >= $this->min) {
-                        if($sum > $max_sum) $max_sum = $sum;
                         array_push($links['value'], $sum);
 
                         if(!array_key_exists($source_key, $nodes_ref)) {
@@ -403,15 +455,9 @@ class GraphSankeyModel extends GraphModel
             }
         }
         for($i = 0; $i < count($links['value']); $i++) {
-            if($this->link_alpha === "sum") {
-                $alpha = $links['value'][$i] / $max_sum * 255;
-                if( $alpha < 64 ) $alpha = 64;
-                else if( $alpha > 192 ) $alpha = 192;
-            } else {
-                $alpha = (int)(255 * $this->link_alpha);
-                if($alpha < 0) $alpha = 0;
-                if($alpha > 255) $alpha = 255;
-            }
+            $alpha = (int)(255 * $this->link_alpha);
+            if($alpha < 0) $alpha = 0;
+            if($alpha > 255) $alpha = 255;
             $hex = dechex($alpha);
             if(strlen($hex) === 1) $hex = "0". $hex;
             if(isset($links['color'][$i])) {
@@ -455,11 +501,10 @@ class GraphSankeyModel extends GraphModel
         }
         $nodes["hovertemplate"] = $this->node_hovertemplate;
         return array(
+            "type" => "sankey",
+            "arrangement" => "snap",
             "link" => $links,
             "node" => $nodes,
-            "annotations" => $this->prepare_sankey_annotations($cols),
-            "title" => $this->title,
-            "has_node_labels" => $this->has_node_labels ? true : false,
         );
     }
 
@@ -479,7 +524,7 @@ class GraphSankeyModel extends GraphModel
         $data = $this->read_data_source();
         if($data !== false) {
             $raw_data = json_encode($this->prepare_sankey_data(
-                $data, $this->data_cols, $this->data_types ));
+                $data, $this->data_cols, $this->data_types));
             $cms_model->update_db($this->db->fetch_field_id("raw"),
                 ALL_LANGUAGE_ID, MALE_GENDER_ID, $raw_data, "section_field");
         }
