@@ -16,3 +16,17 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 -- local and language should be unique
 ALTER TABLE languages ADD UNIQUE (locale);
 ALTER TABLE languages ADD UNIQUE (language);
+
+-- add table cms_preferences
+CREATE TABLE `cmsPreferences` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `callback_api_key` varchar(500),
+  `default_language_id` int(10) UNSIGNED ZEROFILL,
+  CONSTRAINT fk_cmsPreferences_language FOREIGN KEY (default_language_id) REFERENCES languages(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- add default row for cms_preferences
+-- set default language German
+INSERT INTO cmsPreferences(callback_api_key, default_language_id)
+VALUES (NULL, 2); 
+
