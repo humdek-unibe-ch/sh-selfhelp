@@ -218,3 +218,23 @@ SET @id_field = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 1, 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.');
 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'raw', 1, 0);
+
+-- add filter style
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000002', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data..');
+SET @id_style = LAST_INSERT_ID();
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The source of the data to be filtered.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'label');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name to be rendered on the filter button.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'name');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name of the table column or form field to filter on.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The value of the filter. All data sets of the data source (as specified by `data-source`) where the field (as specified by `name`) holds a value equal to the one indicated here will be selected.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the button as predefined by bootstrap.');
+
