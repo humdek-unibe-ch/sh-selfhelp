@@ -8,16 +8,18 @@ $(document).ready(() => {
     });
 });
 
-function drawGraph($div, traces, layout, config, post_process = () => {}) {
-    let first = true;
+function drawGraph($div, traces, layout, config, post_process = () => {}, register_event = false) {
 
-    traces.forEach(function(trace) {
+    traces.forEach(function(trace, idx) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
-            window.addEventListener(`data-filter-${data_source.name}`, function(e) {
-                console.log("received filter-event");
-                drawGraph($div, traces, layout, post_process);
-            });
+            let event_name = `data-filter-${data_source.name}`;
+            if(register_event) {
+                window.addEventListener(event_name, function(e) {
+                    console.log("received event: " + event_name);
+                    drawGraph($div, traces, layout, config, post_process);
+                });
+            }
             $.post(
                 BASE_PATH + '/request/AjaxDataSource/get_data_table',
                 { name: data_source.name, single_user: data_source.single_user },
@@ -30,8 +32,7 @@ function drawGraph($div, traces, layout, config, post_process = () => {}) {
                         else
                             keys = trace_cb(data.data, data_source);
 
-                        if(first) {
-                            first = false;
+                        if(idx === 0) {
                             Plotly.newPlot($div[0], [], layout, config);
                         }
                         Plotly.addTraces($div[0], {
@@ -48,8 +49,7 @@ function drawGraph($div, traces, layout, config, post_process = () => {}) {
                 'json'
             );
         } else {
-            if(first) {
-                first = false;
+            if(idx === 0) {
                 Plotly.newPlot($div[0], [], layout, config);
             }
             Plotly.addTraces($div[0], trace);

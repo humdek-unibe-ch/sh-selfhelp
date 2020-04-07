@@ -79,7 +79,7 @@ class AjaxRequest
             $data = "Unknown request class '".$this->class_name."'";
         echo json_encode(array(
             "success" => $success,
-            "data" => $data,
+            "data" => $data
         ));
     }
 }

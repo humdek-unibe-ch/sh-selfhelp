@@ -18,7 +18,7 @@ $(document).ready(() => {
         // draw dynamic data
         drawGraph($plot, raw.traces, raw.layout, raw.config, () => {
             graph_sankey_postprocess_graph(opts, $plot);
-        });
+        }, true);
     });
 });
 

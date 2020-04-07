@@ -7,5 +7,4 @@ from view_form
 union
 
 select 'static' as type, id as id, name as orig_name, concat(name, '_static') as table_name
-from uploadTables
-
+from uploadTables;

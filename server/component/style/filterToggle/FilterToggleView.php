@@ -59,7 +59,7 @@ class FilterToggleView extends StyleView
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type", "primary");
         $this->name = $this->model->get_db_field("name");
-        $this->value = $this->model->get_db_field("value");
+        $this->value = $this->name . "='" . $this->model->get_db_field("value") . "'";
         $this->label = $this->model->get_db_field("label");
         $this->data_source = $this->model->get_db_field("data-source");
     }
@@ -85,6 +85,8 @@ class FilterToggleView extends StyleView
      */
     public function output_content()
     {
+        $is_active = isset($_SESSION['data_filter'][$this->data_source][$this->name]) &&
+            $_SESSION['data_filter'][$this->data_source][$this->name] === $this->value;
         if($this->name === "") {
             echo "field <code>name</code> cannot be empty";
             return;

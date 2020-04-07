@@ -62,9 +62,9 @@ class AjaxDataSource extends BaseAjax
      *  a row of the data table. The keys of each item correspond to the column
      *  names of the table.
      */
-    private function fetch_data_table_static($table_id)
+    private function fetch_data_table_static($table_id, $filter)
     {
-        $sql = 'CALL get_uploadTable(:id)';
+        $sql = 'CALL get_uploadTable_with_filter(:id, "'.$filter.'" )';
         return $this->db->query_db($sql, array(
             "id" => $table_id
         ));
@@ -90,12 +90,36 @@ class AjaxDataSource extends BaseAjax
         $sql = "SELECT * FROM view_data_tables WHERE table_name = :name";
         $source = $this->db->query_db_first($sql,
             array("name" => $data['name']));
+        $filter = "";
+        if(isset($_SESSION['data_filter'][$data['name']])
+                && count($_SESSION['data_filter'][$data['name']]) > 0) {
+            $filter = "AND " . implode(" AND ", $_SESSION['data_filter'][$data['name']]);
+        }
         if($source['type'] === "static") {
-            return $this->fetch_data_table_static($source['id']);
+            return $this->fetch_data_table_static($source['id'], $filter);
         } else if($source['type'] === "dynamic") {
             return $this->fetch_data_table_dynamic($source['id'], $data['single_user']);
         }
         return false;
+    }
+
+    /**
+     *
+     */
+    public function set_data_filter($data)
+    {
+        if($data['action'] === "add") {
+            if(!isset($_SESSION['data_filter']))
+                $_SESSION['data_filter'] = array();
+            if(!isset($_SESSION['data_filter'][$data['data_source']]))
+                $_SESSION['data_filter'][$data['data_source']] = array();
+            $_SESSION['data_filter'][$data['data_source']][$data['name']] = $data['value'];
+        } else if($data['action'] === "rm") {
+            if(isset($_SESSION['data_filter'][$data['data_source']][$data['name']])) {
+                unset($_SESSION['data_filter'][$data['data_source']][$data['name']]);
+            }
+        }
+        return true;
     }
 }
 ?>
