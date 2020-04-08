@@ -71,11 +71,14 @@ class CmsUpdateController extends BaseController
         else if($_POST['mode'] == "update" && isset($_POST["fields"]))
         {
             $this->update($_POST["fields"]);
-            $style = new StyleComponent(
-                $this->model->get_services(),
-                $this->model->get_active_section_id()
-            );
-            $style->cms_update_callback($model);
+            $section_id = $this->model->get_active_section_id();
+            if($section_id != null) {
+                $style = new StyleComponent(
+                    $this->model->get_services(),
+                    $section_id
+                );
+                $style->cms_update_callback($model);
+            }
         }
         else if($_POST['mode'] == "insert"
                 && isset($_POST['relation']) && $_POST['relation'] != "")
