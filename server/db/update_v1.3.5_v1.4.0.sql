@@ -219,8 +219,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'raw', 1, 0);
 
--- add filter style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000002', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data..');
+-- add filterToggle style
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000001', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
@@ -238,3 +238,26 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the button as predefined by bootstrap.');
 
+-- add filterToggleGroup style
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000001', '0000000007', 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
+SET @id_style = LAST_INSERT_ID();
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The source of the data to be filtered.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'name');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name of the table column or form field to filter on.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'labels');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The names to be rendered on the filter buttons. Use a JSON array to specify all labels. The labels must correspond to the values as specified in `values`');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'values', 8, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The value of each filter button. All data sets of the data source (as specified by `data-source`) where the field (as specified by `name`) holds a value equal to the one indicated here will be selected. Use a JSON array to specify all values. The values must correspond to the labels as specified in `labels`.');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'is_vertical', 3, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 0, 'If checked, the button group is rendered as a vertical stack. If unchecked, the button group is rendered as a vertical list.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the buttons as predefined by bootstrap.');
