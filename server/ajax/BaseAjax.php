@@ -75,7 +75,8 @@ abstract class BaseAjax
     public function has_access()
     {
         $page_id = $this->db->fetch_page_id_by_keyword('request');
-        return $this->acl->has_access($_SESSION['id_user'], $page_id, 'select');
+        return $this->acl->has_access($_SESSION['id_user'], $page_id, 'select')
+            && $this->acl->has_access($_SESSION['id_user'], $_SESSION['current_page'], 'select');
     }
 }
 ?>

@@ -146,5 +146,19 @@ class AjaxDataSource extends BaseAjax
         }
         return $_SESSION['data_filter'];
     }
+
+    /**
+     * Checks wheter the current user is authorised to perform AJAX requests.
+     * This function overwrites the default access check and ignores the general
+     * ACL settings for AJAX requests
+     *
+     * @retval boolean
+     *  True if authorisation is granted, false otherwise.
+     */
+    public function has_access()
+    {
+        return $this->acl->has_access($_SESSION['id_user'],
+            $_SESSION['current_page'], 'select');
+    }
 }
 ?>

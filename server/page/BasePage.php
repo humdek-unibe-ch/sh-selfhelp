@@ -130,6 +130,7 @@ abstract class BasePage
             new NavComponent($this->services));
         $this->add_component("footer",
             new FooterComponent($this->services));
+        $_SESSION['current_page'] = $this->id_page;
     }
 
     /* Private Metods *********************************************************/
