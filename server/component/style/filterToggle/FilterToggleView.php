@@ -47,6 +47,7 @@ class FilterToggleView extends FilterView
         $this->value = $this->name . "='" . $this->model->get_db_field("value") . "'";
         $this->label = $this->model->get_db_field("label");
         $this->set_filter_value(array($this->value));
+        $this->set_filter_type("toggle");
     }
 
     /* Private  Methods *******************************************************/

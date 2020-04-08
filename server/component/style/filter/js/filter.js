@@ -1,15 +1,11 @@
-$(document).ready(() => {
-    $('div.selfhelp-filter').each(function(idx) {
+function filterInit(type, cb) {
+    $('div.filter-' + type).each(function(idx) {
         let $filter = $(this);
         let filter_data = parseFilterData(
             $filter.children('div.filter-data'));
         let event = new Event("data-filter-" + filter_data.data_source);
-        filterActionHandler($filter, filter_data, event);
+        cb($filter, filter_data, event);
     });
-});
-
-function filterActionHandler($filter, filter_data, event) {
-    console.log("style-specific filter action not implemented");
 }
 
 function filterEventHandler($spinner, $filter_switch, idx, filter_data, event) {

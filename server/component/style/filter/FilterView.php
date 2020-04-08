@@ -18,6 +18,11 @@ abstract class FilterView extends StyleView
      */
     private $filter_value = null;
 
+    /**
+     *
+     */
+    private $filter_type = null;
+
     /* Protected Properties ***************************************************/
 
     /**
@@ -74,6 +79,13 @@ abstract class FilterView extends StyleView
         $this->filter_value = $value;
     }
 
+    /**
+     *
+     */
+    protected function set_filter_type($value) {
+        $this->filter_type = $value;
+    }
+
 
     /* Public Methods *********************************************************/
 
@@ -84,6 +96,10 @@ abstract class FilterView extends StyleView
     {
         if($this->filter_value === null) {
             echo "filter value is not set";
+            return;
+        }
+        if($this->filter_type === null) {
+            echo "filter type is not set";
             return;
         }
         if($this->data_source === "") {

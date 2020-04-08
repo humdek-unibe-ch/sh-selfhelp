@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="selfhelp-filter <?php echo $this->css; ?>">
+<div class="filter-<?php echo $this->filter_type; ?> <?php echo $this->css; ?>">
     <?php $this->output_filter(); ?>
     <div class="filter-data d-none"><?php $this->output_filter_data(); ?></div>
 </div>
