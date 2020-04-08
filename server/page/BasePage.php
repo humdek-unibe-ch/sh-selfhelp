@@ -107,6 +107,7 @@ abstract class BasePage
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
             "/js/ext/mermaid.min.js",
+            "/js/ext/plotly.min.js",
         );
         if(DEBUG == 0)
         {
