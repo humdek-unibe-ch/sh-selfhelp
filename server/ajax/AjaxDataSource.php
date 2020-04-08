@@ -100,13 +100,35 @@ class AjaxDataSource extends BaseAjax
         foreach($filters as $name => $filter) {
             $res_or = false;
             foreach($filter as $val) {
-                if($item[$name] === $val) {
-                    $res_or = true;
-                    break;
+                if($val['op'] === "=") {
+                    if($item[$name] == $val['val']) {
+                        $res_or = true;
+                        break;
+                    }
+                } else if($val['op'] === "<") {
+                    if($item[$name] < $val['val']) {
+                        $res_or = true;
+                        break;
+                    }
+                } else if($val['op'] === "<=") {
+                    if($item[$name] <= $val['val']) {
+                        $res_or = true;
+                        break;
+                    }
+                } else if($val['op'] === ">") {
+                    if($item[$name] > $val['val']) {
+                        $res_or = true;
+                        break;
+                    }
+                } else if($val['op'] === ">=") {
+                    if($item[$name] >= $val['val']) {
+                        $res_or = true;
+                        break;
+                    }
                 }
             }
             if($res_or === false) {
-                /* return false; */
+                return false;
             }
         }
         return true;
@@ -159,7 +181,7 @@ class AjaxDataSource extends BaseAjax
         $sql = "SELECT * FROM view_data_tables WHERE table_name = :name";
         $source = $this->db->query_db_first($sql,
             array("name" => $data['name']));
-        $filter = "";
+        $filter = array();
         if(isset($_SESSION['data_filter'][$data['name']])
                 && count($_SESSION['data_filter'][$data['name']]) > 0) {
                 /* $filter = "AND " . implode(" AND ", array_map(function($val) { */
