@@ -141,7 +141,7 @@ function graph_sankey_cb(data, opts) {
             let hex = alpha.toString(16);
             if(hex.length === 1) hex = `0${hex}`;
             if(links.color[i]) {
-                links.color[i] + hex;
+                links.color[i] += hex;
             }
         }
     }
