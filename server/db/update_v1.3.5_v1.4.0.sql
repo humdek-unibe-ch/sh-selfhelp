@@ -211,7 +211,7 @@ SET @id_field = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 1, 'If checked, the nodes are positioned as follows:\n - each node with the same form field name is aligned vertically (same x coordinate)\n - within one column nodes are sorted by value types (by their indices as defined in `value_types`');
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 1, 'The source of the data to be used to draw the Sankey diagram.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The source of the data to be used to draw the Sankey diagram.');
 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'single_user', 3, 0);
 SET @id_field = LAST_INSERT_ID();
