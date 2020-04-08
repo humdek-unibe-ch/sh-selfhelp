@@ -55,7 +55,7 @@ class AssetInsertController extends BaseController
             }
             $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
             $this->name = $name. '.' .$ext;
-            $target = $this->model->get_server_path($mode) . '/' . $this->name;
+            $target = $model->get_server_path($mode) . '/' . $this->name;
             if(!isset($_POST['overwrite']) && file_exists($target))
             {
                 $this->fail = true;
@@ -77,7 +77,7 @@ class AssetInsertController extends BaseController
             {
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to store the file on the server";
-                $res = $this->pp_delete_asset_file_static($name);
+                $res = $model->pp_delete_asset_file_static($name);
                 return;
             }
         }
