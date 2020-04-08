@@ -11,10 +11,13 @@ $(document).ready(() => {
 function drawGraph($div, traces, layout, config, post_process = () => {}, register_event = false) {
     let $pending = $div.prev();
     let busy_count = 0;
+    let date = new Date();
+    let now = date.getTime();
     traces.forEach(function(trace, idx) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
             let event_name = `data-filter-${data_source.name}`;
+
             $pending.removeClass('d-none');
             busy_count++;
             if(register_event) {
@@ -47,6 +50,8 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                         busy_count--;
                         if(busy_count === 0) {
                             $pending.addClass('d-none');
+                            let date = new Date();
+                            console.log(date.getTime() - now);
                         }
                     }
                     else {

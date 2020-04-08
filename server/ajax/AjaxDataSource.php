@@ -62,12 +62,54 @@ class AjaxDataSource extends BaseAjax
      *  a row of the data table. The keys of each item correspond to the column
      *  names of the table.
      */
-    private function fetch_data_table_static($table_id, $filter)
+    private function _fetch_data_table_static($table_id, $filter)
     {
         $sql = 'CALL get_uploadTable_with_filter(:id, "'.$filter.'" )';
         return $this->db->query_db($sql, array(
             "id" => $table_id
         ));
+    }
+    private function fetch_data_table_static($table_id, $filters)
+    {
+        $res = array();
+        $sql = "SELECT * FROM view_uploadTables
+            WHERE table_id = :id
+            ORDER BY row_id";
+        $res_db = $this->db->query_db($sql, array(
+            "id" => $table_id
+        ));
+        $last_row_id = $res_db[0]['row_id'];
+        $item = array();
+        foreach($res_db as $item_db) {
+            if($item_db['row_id'] !== $last_row_id) {
+                if($this->check_data_table_static($filters, $item)) {
+                    array_push($res, $item);
+                }
+                $item = array();
+                $last_row_id = $item_db['row_id'];
+            }
+            $item[$item_db['col_name']] = $item_db['value'];
+        }
+        if($this->check_data_table_static($filters, $item)) {
+            array_push($res, $item);
+        }
+        return $res;
+    }
+
+    private function check_data_table_static($filters, $item) {
+        foreach($filters as $name => $filter) {
+            $res_or = false;
+            foreach($filter as $val) {
+                if($item[$name] === $val) {
+                    $res_or = true;
+                    break;
+                }
+            }
+            if($res_or === false) {
+                /* return false; */
+            }
+        }
+        return true;
     }
 
     /**
@@ -120,9 +162,10 @@ class AjaxDataSource extends BaseAjax
         $filter = "";
         if(isset($_SESSION['data_filter'][$data['name']])
                 && count($_SESSION['data_filter'][$data['name']]) > 0) {
-                $filter = "AND " . implode(" AND ", array_map(function($val) {
-                    return implode(" OR ", $val );
-                }, $_SESSION['data_filter'][$data['name']]));
+                /* $filter = "AND " . implode(" AND ", array_map(function($val) { */
+                /*     return implode(" OR ", $val ); */
+                /* }, $_SESSION['data_filter'][$data['name']])); */
+                $filter = $_SESSION['data_filter'][$data['name']];
         }
         if($source['type'] === "static") {
             return $this->fetch_data_table_static($source['id'], $filter);
