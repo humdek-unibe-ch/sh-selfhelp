@@ -34,6 +34,8 @@ echo "Start installation"
 # got to install script folder. Keep it as a basic path 
 cd /home/$user/$name/server/utils
 
+sudo -u $user mkdir ../../static
+sudo chmod 777 ../../static
 sudo chmod 777 ../../assets
 sudo chmod 777 ../../css
 echo "Prepare the asset and css folder"
