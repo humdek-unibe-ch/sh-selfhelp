@@ -57,7 +57,8 @@ class FilterToggleGroupView extends FilterView
         foreach($this->values as $value) {
             array_push($values, $this->name . "='" . $value . "'");
         }
-        $this->set_filter_value($values);
+        $this->values = $values;
+        $this->set_filter_value($this->values);
         $this->set_filter_type("toggle-group");
     }
 
