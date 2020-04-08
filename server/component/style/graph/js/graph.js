@@ -9,11 +9,14 @@ $(document).ready(() => {
 });
 
 function drawGraph($div, traces, layout, config, post_process = () => {}, register_event = false) {
-
+    let $pending = $div.prev();
+    let busy_count = 0;
     traces.forEach(function(trace, idx) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
             let event_name = `data-filter-${data_source.name}`;
+            $pending.removeClass('d-none');
+            busy_count++;
             if(register_event) {
                 window.addEventListener(event_name, function(e) {
                     console.log("received event: " + event_name);
@@ -41,6 +44,10 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                         });
 
                         post_process();
+                        busy_count--;
+                        if(busy_count === 0) {
+                            $pending.addClass('d-none');
+                        }
                     }
                     else {
                         console.log(data);
