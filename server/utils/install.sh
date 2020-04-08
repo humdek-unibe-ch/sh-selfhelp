@@ -51,7 +51,7 @@ echo "Creating database $name"
 
 sudo mysql -D $name < ../db/selfhelp_initial.sql
 echo "Databse $name initialized!"
-sudo mysql -u $name -p$password -D $name < $(cat ../db/FUN_PRO_VIEWS/*.sql)
+cat ../db/FUN_PRO_VIEWS/*.sql | sudo mysql -u $name -p$password -D $name
 echo "Functions, views and proceuderes are created!"
 
 echo "Setting up appache"
