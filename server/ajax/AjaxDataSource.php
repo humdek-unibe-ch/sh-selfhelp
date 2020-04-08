@@ -70,6 +70,33 @@ class AjaxDataSource extends BaseAjax
         ));
     }
 
+    /**
+     *
+     */
+    private function set_data_filter_value($data_source, $filter_name,
+            $filter_idx, $filter_value) {
+        if(!isset($_SESSION['data_filter']))
+            $_SESSION['data_filter'] = array();
+        if(!isset($_SESSION['data_filter'][$data_source]))
+            $_SESSION['data_filter'][$data_source] = array();
+        if(!isset($_SESSION['data_filter'][$data_source][$filter_name]))
+            $_SESSION['data_filter'][$data_source][$filter_name] = array();
+        $_SESSION['data_filter'][$data_source][$filter_name][$filter_idx] = $filter_value;
+    }
+
+    /**
+     *
+     */
+    private function unset_data_filter_value($data_source, $filter_name,
+            $filter_idx) {
+        if(isset($_SESSION['data_filter'][$data_source][$filter_name][$filter_idx])) {
+            unset($_SESSION['data_filter'][$data_source][$filter_name][$filter_idx]);
+            if(count($_SESSION['data_filter'][$data_source][$filter_name]) === 0) {
+                unset($_SESSION['data_filter'][$data_source][$filter_name]);
+            }
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -93,7 +120,9 @@ class AjaxDataSource extends BaseAjax
         $filter = "";
         if(isset($_SESSION['data_filter'][$data['name']])
                 && count($_SESSION['data_filter'][$data['name']]) > 0) {
-            $filter = "AND " . implode(" AND ", $_SESSION['data_filter'][$data['name']]);
+                $filter = "AND " . implode(" AND ", array_map(function($val) {
+                    return implode(" OR ", $val );
+                }, $_SESSION['data_filter'][$data['name']]));
         }
         if($source['type'] === "static") {
             return $this->fetch_data_table_static($source['id'], $filter);
@@ -109,17 +138,13 @@ class AjaxDataSource extends BaseAjax
     public function set_data_filter($data)
     {
         if($data['action'] === "add") {
-            if(!isset($_SESSION['data_filter']))
-                $_SESSION['data_filter'] = array();
-            if(!isset($_SESSION['data_filter'][$data['data_source']]))
-                $_SESSION['data_filter'][$data['data_source']] = array();
-            $_SESSION['data_filter'][$data['data_source']][$data['name']] = $data['value'];
+            $this->set_data_filter_value($data['data_source'], $data['name'],
+                $data['value_idx'], $data['value']);
         } else if($data['action'] === "rm") {
-            if(isset($_SESSION['data_filter'][$data['data_source']][$data['name']])) {
-                unset($_SESSION['data_filter'][$data['data_source']][$data['name']]);
-            }
+            $this->unset_data_filter_value($data['data_source'], $data['name'],
+                $data['value_idx']);
         }
-        return true;
+        return $_SESSION['data_filter'];
     }
 }
 ?>

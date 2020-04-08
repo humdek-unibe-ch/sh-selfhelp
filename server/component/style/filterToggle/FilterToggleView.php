@@ -4,34 +4,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../StyleView.php";
+require_once __DIR__ . "/../filter/FilterView.php";
 
 /**
  * The view class of the filterToggle style component.
  */
-class FilterToggleView extends StyleView
+class FilterToggleView extends FilterView
 {
     /* Private Properties******************************************************/
-
-    /**
-     * DB field 'data_source' (empty string).
-     * The data source is either a static table which was uploaded as asset or
-     * dynamic data collected from user input.
-     */
-    private $data_source;
 
     /**
      * DB field 'lable' (empty string).
      * The label to be rendered on the filter button.
      */
     private $label;
-
-    /**
-     * DB field 'name' (empty string).
-     * The name of a filter links the filter to the data source column or field
-     * name.
-     */
-    private $name;
 
     /**
      * DB field 'value' (empty string).
@@ -58,43 +44,22 @@ class FilterToggleView extends StyleView
     {
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type", "primary");
-        $this->name = $this->model->get_db_field("name");
         $this->value = $this->name . "='" . $this->model->get_db_field("value") . "'";
         $this->label = $this->model->get_db_field("label");
-        $this->data_source = $this->model->get_db_field("data-source");
+        $this->set_filter_value(array($this->value));
     }
 
     /* Private  Methods *******************************************************/
 
-    /**
-     * Render the JSON object, holding the filter data.
-     */
-    private function output_filter_data() {
-        echo json_encode(array(
-            "value" => $this->value,
-            "name" => $this->name,
-            "data_source" => $this->data_source
-        ));
-    }
-
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Render the style view.
-     */
-    public function output_content()
-    {
-        $is_active = isset($_SESSION['data_filter'][$this->data_source][$this->name]) &&
-            $_SESSION['data_filter'][$this->data_source][$this->name] === $this->value;
-        if($this->name === "") {
-            echo "field <code>name</code> cannot be empty";
-            return;
-        }
+    protected function output_filter() {
+        $is_active = isset($_SESSION['data_filter'][$this->data_source][$this->name][0]) &&
+            $_SESSION['data_filter'][$this->data_source][$this->name][0] === $this->value;
         if($this->label === "") {
             $this->label = $this->name;
         }
         require __DIR__ . "/tpl_filter_toggle.php";
     }
+
+    /* Public Methods *********************************************************/
 }
 ?>
