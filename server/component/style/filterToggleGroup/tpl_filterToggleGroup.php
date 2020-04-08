@@ -3,6 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="btn-group<?php echo $this->is_vertical ? "-vertical" : ""; ?>" role="group">
+<div class="btn-group<?php echo $this->is_vertical ? "-vertical" : ""; ?><?php echo $this->is_fluid ? " d-flex" : ""; ?>" role="group">
     <?php $this->output_buttons(); ?>
 </div>

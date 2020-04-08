@@ -38,6 +38,12 @@ class FilterToggleGroupView extends FilterView
      */
     private $is_vertical;
 
+    /**
+     * DB field 'is_fluid' (false).
+     * If true, the button group stretches to fill 100% of the width.
+     */
+    private $is_fluid;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -53,6 +59,7 @@ class FilterToggleGroupView extends FilterView
         $this->values = $this->model->get_db_field("values", array());
         $this->labels = $this->model->get_db_field("labels", array());
         $this->is_vertical = $this->model->get_db_field("is_vertical", false);
+        $this->is_fluid = $this->model->get_db_field("is_fluid", false);
         $values = array();
         foreach($this->values as $value) {
             array_push($values, array(

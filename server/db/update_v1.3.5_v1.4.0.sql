@@ -259,5 +259,8 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'is_vert
 SET @id_field = LAST_INSERT_ID();
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 0, 'If checked, the button group is rendered as a vertical stack. If unchecked, the button group is rendered as a vertical list.');
 
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'is_fluid');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 0, 'If checked, the button group is streched to fill 100% of the available width. If unchecked, the button group is stretched to fit all text within each button but never more than available space.');
+
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the buttons as predefined by bootstrap.');
