@@ -57,18 +57,14 @@ class AjaxDataSource extends BaseAjax
      *
      * @param number $table_id
      *  The id of the uploaded CSV table.
+     * @param array $filters
+     *  An assoziative array of filters. Refer to
+     *  AjaxDataSource::check_data_table_static() for more information.
      * @retval array
      *  Returns a list of assiciative arrays items. Each item corresponds to
      *  a row of the data table. The keys of each item correspond to the column
      *  names of the table.
      */
-    private function _fetch_data_table_static($table_id, $filter)
-    {
-        $sql = 'CALL get_uploadTable_with_filter(:id, "'.$filter.'" )';
-        return $this->db->query_db($sql, array(
-            "id" => $table_id
-        ));
-    }
     private function fetch_data_table_static($table_id, $filters)
     {
         $res = array();
@@ -96,6 +92,23 @@ class AjaxDataSource extends BaseAjax
         return $res;
     }
 
+    /**
+     * Check wether a row of data passes the filter or not.
+     *
+     * @param array $filters
+     *  An assoziative array of filters where the key corresponds to the name
+     *  of the column to be filtered and the value is an array of value items.
+     *  One value item has two keys:
+     *   - `op` which defines teh comparing operation (`=`, `<`, `<=`, `>`,
+     *     `>=`)
+     *   - `val` is the value to compare to
+     *  Filter names are combined with a logical AND while items within a filter
+     *  name are combined with a logical OR.
+     * @param $item
+     *  A row of data where each key corresponds to the column name.
+     * @retval boolean
+     *  True if the item passed the filter, false otherwise.
+     */
     private function check_data_table_static($filters, $item) {
         foreach($filters as $name => $filter) {
             $res_or = false;
@@ -135,7 +148,16 @@ class AjaxDataSource extends BaseAjax
     }
 
     /**
+     * Store a data filter value to the session.
      *
+     * @param string $data_source
+     *  The name of the data source table
+     * @param string $filter_name
+     *  The name of the column to be filtered
+     * @param number $filter_idx
+     *  The index of the filter value
+     * @param string $filter_value
+     *  The filter value
      */
     private function set_data_filter_value($data_source, $filter_name,
             $filter_idx, $filter_value) {
@@ -149,7 +171,14 @@ class AjaxDataSource extends BaseAjax
     }
 
     /**
+     * Remove a data filter value from the session.
      *
+     * @param string $data_source
+     *  The name of the data source table
+     * @param string $filter_name
+     *  The name of the column to be filtered
+     * @param number $filter_idx
+     *  The index of the filter value
      */
     private function unset_data_filter_value($data_source, $filter_name,
             $filter_idx) {
@@ -184,9 +213,6 @@ class AjaxDataSource extends BaseAjax
         $filter = array();
         if(isset($_SESSION['data_filter'][$data['name']])
                 && count($_SESSION['data_filter'][$data['name']]) > 0) {
-                /* $filter = "AND " . implode(" AND ", array_map(function($val) { */
-                /*     return implode(" OR ", $val ); */
-                /* }, $_SESSION['data_filter'][$data['name']])); */
                 $filter = $_SESSION['data_filter'][$data['name']];
         }
         if($source['type'] === "static") {
@@ -198,7 +224,17 @@ class AjaxDataSource extends BaseAjax
     }
 
     /**
+     * Update the active data filter in the session
      *
+     * @param $data
+     *  The POST data of the ajax call:
+     *   - `action`:      `add` to add a filter, `rm` to remove a filter.
+     *   - `name`:        the name of the filter to be added or removed.
+     *   - `data_source`: the name of the data to fetch.
+     *   - `value_idx`:   the index of the filter value.
+     *   - `value`:       teh filter value.
+     * @retval array
+     *  The currently set filters in the session
      */
     public function set_data_filter($data)
     {
