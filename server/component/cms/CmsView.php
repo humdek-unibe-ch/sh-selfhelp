@@ -614,7 +614,7 @@ class CmsView extends BaseView
      */
     private function create_settings_card()
     {
-        $languages = $this->model->get_languages();
+        $languages = $this->model->get_db()->fetch_languages();
         $options = array(array("value" => "all", "text" => "All Languages"));
         foreach($languages as $language)
             $options[] = array(

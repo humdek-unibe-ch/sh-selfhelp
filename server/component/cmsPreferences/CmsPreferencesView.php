@@ -12,6 +12,15 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
  */
 class CmsPreferencesView extends BaseView
 {
+
+    /* Private Properties *****************************************************/
+
+    /**
+     *  The router instance is used to generate valid links.
+     */
+    private $mode;
+
+
     /* Constructors ***********************************************************/
 
     /**
@@ -20,31 +29,20 @@ class CmsPreferencesView extends BaseView
      * @param object $model
      *  The model instance of the component.
      */
-    public function __construct($model)
+    public function __construct($model, $controller, $mode)
     {
-        parent::__construct($model);
+        parent::__construct($model, $controller);
+        $this->mode = $mode;
     }
 
     /* Private Methods ********************************************************/
-
-    /**
-     * Render the asset list.
-     *
-     * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
-     */
-    private function output($mode)
-    {
-        echo $mode;
-    }
 
     /**
      * Render the button to create a new language.
      */
     private function output_button()
     {
-        if($this->model->can_create_new_language())
-        {
+        if ($this->model->can_create_new_language()) {
             $button = new BaseStyleComponent("button", array(
                 "label" => "Create New Language",
                 "url" => $this->model->get_link_url("language"),
@@ -74,6 +72,117 @@ class CmsPreferencesView extends BaseView
         $card->output_content();
     }
 
+    /**
+     * Render preferences wrapper.
+     */
+    private function output_cms_preferences_form()
+    {
+        if ($this->mode == "edit") {
+            $this->output_cms_preferences_form_edit();
+        } else {
+            $this->output_cms_preferences_form_view();
+        }
+    }
+
+    /**
+     * Render preferences in edit mdoe.
+     */
+    private function output_cms_preferences_form_edit()
+    {
+        $languages = $this->model->get_languages();
+        $options = [];
+        foreach ($languages as $language)
+            array_push($options, array(
+                "value" => $language['id'],
+                "text" => $language['title']
+            ));
+        // $options[] = array(
+        //     "value" => $language['locale'],
+        //     "text" => $language['language']
+        // );
+        // $children = array();        
+        // $children[] = new BaseStyleComponent("template", array(
+        //     "path" => __DIR__ . "/tpl_cmsPreferencesForm.php",
+        //     "items" => array(
+        //         "keyword_title" => "Name:",
+        //         "url_title" => "Url:",
+        //         "protocol_title" => "Protocol:",
+        //     ),
+        // ));
+        // $children[] = new BaseStyleComponent("form", array(
+        //     "url" => $_SERVER['REQUEST_URI'],
+        //     "label" => "Submit Changes",
+        //     "type" => "warning",
+        //     "children" => $form_items,
+        //     "url_cancel" => $this->model->get_link_url("cmsPreferences"),
+        // ));
+        $cmsPreferences = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Edit CMS Preferences",
+            "type" => "warning",
+            "children" => array(new BaseStyleComponent("form", array(
+                "url" => $this->model->get_link_url("cmsPreferences"),
+                "url_cancel" => $this->model->get_link_url("cmsPreferences"),
+                "type" => "warning",
+                "children" => array(
+                    new BaseStyleComponent("select", array(
+                        "label" => "CMS Content Language",
+                        "value" => $this->model->get_cmsPreferences()['default_language_id'],
+                        "name" => "default_language_id",
+                        "items" => $options,
+                    )),
+                     new BaseStyleComponent("input", array(
+                        "label" => "Callback API Key",
+                        "value" => $this->model->get_cmsPreferences()['callback_api_key'],
+                        "name" => "callback_api_key"
+                    ))
+                )
+            ))),
+            "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
+        ));
+        $cmsPreferences->output_content();
+    }
+
+    /**
+     * Render preferences in view mdoe.
+     */
+    private function output_cms_preferences_form_view()
+    {
+        $languages = $this->model->get_languages();
+        $options = [];
+        foreach ($languages as $language)
+            array_push($options, array(
+                "value" => $language['id'],
+                "text" => $language['title']
+            ));
+        $cmsPreferences = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "CMS Preferences",
+            "children" => array(
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "CMS Content Language",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->model->get_cmsPreferences()['default_language']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Callback API Key",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->model->get_cmsPreferences()['callback_api_key']
+                    ))),
+                ))
+            ),
+            "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
+        ));
+        $cmsPreferences->output_content();
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -82,6 +191,15 @@ class CmsPreferencesView extends BaseView
     public function output_content()
     {
         require __DIR__ . "/tpl_cmsPreferences.php";
+    }
+
+    /**
+     * Render the alert message.
+     */
+    private function output_alert()
+    {
+        $this->output_controller_alerts_fail();        
+        $this->output_controller_alerts_success();    
     }
 }
 ?>

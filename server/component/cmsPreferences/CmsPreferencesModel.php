@@ -12,6 +12,10 @@ require_once __DIR__ . "/../BaseModel.php";
 class CmsPreferencesModel extends BaseModel
 {
 
+    /* Private Properties *****************************************************/
+
+    private $cmsPreferences;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -24,27 +28,21 @@ class CmsPreferencesModel extends BaseModel
     public function __construct($services)
     {
         parent::__construct($services);
+        $this->pull_cmsPreferences();
     }
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Fetch the list of languages
-     *
-     * @retval array
-     *  A list of db items where each item has the keys
-     *   'id':      The id of the language.
-     *   'locale':   
-     *   'language':   
-     *   'csv_separator':
-     */
-    private function fetch_languages()
+    /* Public Methods *********************************************************/
+
+    public function get_cmsPreferences()
     {
-        $sql = "SELECT * FROM languages where id > 1;";
-        return $this->db->query_db($sql);
+        return $this->cmsPreferences;
     }
 
-    /* Public Methods *********************************************************/
+    public function pull_cmsPreferences(){
+        $this->cmsPreferences = $this->db->fetch_cmsPreferences()[0];
+    }
 
     /**
      * Checks whether the current user is allowed to create new language.
@@ -54,8 +52,10 @@ class CmsPreferencesModel extends BaseModel
      */
     public function can_create_new_language()
     {
-        return $this->acl->has_access_insert($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("cmsInsert"));
+        return $this->acl->has_access_insert(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsInsert")
+        );
     }
 
     /**
@@ -72,8 +72,7 @@ class CmsPreferencesModel extends BaseModel
     public function get_languages()
     {
         $res = array();
-        foreach($this->fetch_languages() as $language)
-        {
+        foreach ($this->db->fetch_languages() as $language) {
             $id = intval($language["id"]);
             $res[] = array(
                 "id" => $id,
@@ -82,6 +81,14 @@ class CmsPreferencesModel extends BaseModel
             );
         }
         return $res;
-    }    
+    }
 
+    public function update_cmsPreferences($arr)
+    {
+        return $this->db->update_by_ids(
+            "cmsPreferences",
+            $arr,
+            array("id" => 1)
+        );
+    }
 }

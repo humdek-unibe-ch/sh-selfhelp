@@ -10,26 +10,8 @@
             <?php $this->output_languages(); ?>
         </div>
         <div class="col">
-            <div class="jumbotron">
-                <h1>CMS Preferences</h1>
-                <p>Manage all global setting for the CMS.</p>
-            </div>
-            <div class="card mb-3">
-                <div class="card-header">
-                    Assets on the Server
-                </div>
-                <div class="card-body">
-                    <?php $this->output("asset"); ?>
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-header">
-                    User-defined CSS Files
-                </div>
-                <div class="card-body">
-                    <?php $this->output("css"); ?>
-                </div>
-            </div>
+            <?php $this->output_alert(); ?>
+            <?php $this->output_cms_preferences_form(); ?>
         </div>
     </div>
 </div>

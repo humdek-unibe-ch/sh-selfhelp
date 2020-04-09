@@ -1246,21 +1246,7 @@ class CmsModel extends BaseModel
     public function get_language($id)
     {
         return $this->db->select_by_uid("languages", $id);
-    }
-
-    /**
-     * Fetch all languages from the database.
-     *
-     * @retval array
-     *  As array of items where each item has the following keys:
-     *   - 'locale':    The short notation of the language.
-     *   - 'language':  The langaige name.
-     */
-    public function get_languages()
-    {
-        $sql = "SELECT locale, language FROM languages WHERE id > 1";
-        return $this->db->query_db($sql);
-    }
+    }    
 
     /**
      * Fetch the css string of the current section from the db.
@@ -1946,6 +1932,10 @@ class CmsModel extends BaseModel
     {
         $this->update_page_sections();
         $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
+    }
+
+    public function get_db(){
+        return $this->db;
     }
 }
 ?>

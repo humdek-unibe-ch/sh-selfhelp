@@ -367,5 +367,36 @@ class PageDb extends BaseDb
         if($res['name'] != "") return $res['name'];
         else return $res['email'];
     }
+
+    /**
+     * Fetch the list of languages
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function fetch_languages()
+    {
+        $sql = "SELECT * FROM languages where id > 1;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch cmsPreferences
+     *
+     * @retval array
+     *  All preferences     
+     *   'callback_api_key':   
+     *   'default_lanhuage_id':   
+     *   'default_lanhuage':
+     */
+    public function fetch_cmsPreferences()
+    {
+        $sql = "SELECT * FROM view_cmsPreferences;";
+        return $this->query_db($sql);
+    }
 }
 ?>

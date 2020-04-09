@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/CmsPreferencesView.php";
-require_once __DIR__ . "/CmsPreferencesModel.php";
-require_once __DIR__ . "/CmsPreferencesController.php";
+require_once __DIR__ . "/../cmsPreferences/CmsPreferencesView.php";
+require_once __DIR__ . "/../cmsPreferences/CmsPreferencesModel.php";
+require_once __DIR__ . "/../cmsPreferences/CmsPreferencesController.php";
 
 /**
  * The class to define the asset select component.
  */
-class CmsPreferencesComponent extends BaseComponent
+class CmsPreferencesUpdateComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -28,8 +28,8 @@ class CmsPreferencesComponent extends BaseComponent
     {
         $model = new CmsPreferencesModel($services);
         $controller = new CmsPreferencesController($model);
-        $view = new CmsPreferencesView($model, $controller, 'view');        
-        parent::__construct($model, $view);
+        $view = new CmsPreferencesView($model, $controller, "edit");        
+        parent::__construct($model, $view, $controller);
     }
 }
 ?>
