@@ -41,10 +41,9 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                         if(idx === 0) {
                             Plotly.newPlot($div[0], [], layout, config);
                         }
-                        Plotly.addTraces($div[0], {
-                            ...trace_options,
-                            ...keys
-                        });
+                        console.log(trace_options);
+                        console.log(keys);
+                        Plotly.addTraces($div[0], deepmerge(trace_options, keys));
 
                         post_process();
                         busy_count--;
@@ -67,7 +66,6 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
             Plotly.addTraces($div[0], trace);
         }
     });
-
 }
 
 /**
@@ -101,6 +99,8 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
  *       - `op<string>`: one of the following operations to produce grouping
  *         values:
  *         - `count`: count the occurences of each individual value
+ *         - `percent`: count the occurences of each individual value and
+ *           divide the result by the rouw count
  *         - `sum`: accumulate distinct values (i.e. count * value)
  *       - `labels<object>`: allows to assign labels to each value. The
  *         following keys are expected:
@@ -108,6 +108,11 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
  *           element inside the trace object accordingly.
  *         - `map<object>`: a list of key-value pairs where the key corresponds
  *           to the data value to be labelled and the value is a label string.
+ *       - `factor<number>`: If defined, this number will be multiplied to each
+ *         value computed with the function defined above.
+ *       - `offset<number>`: If defined, this number will be added to each
+ *         value computed with the function defined above (after multiplying by
+ *         `factor`).
  * @return
  *  A partial plotly trace objects with keys set as defined in param
  *  `data_source`.
@@ -117,6 +122,7 @@ function graphTraceCb(data, data_source) {
     for(let key in data_source.map) {
         graphExpandDotString(trace, key, []);
         let source = data_source.map[key];
+        let trace_key = key.split('.').reduce((o, i) => o[i], trace);
         if(Array.isArray(source)) {
             // column operations
             source.forEach(function(item) {
@@ -137,7 +143,7 @@ function graphTraceCb(data, data_source) {
                     }, 0);
                     val /= data.length;
                 }
-                trace[key].push(val);
+                trace_key.push(val);
             });
         } else if(typeof source === 'object' && source !== null) {
             let vals = {};
@@ -145,23 +151,38 @@ function graphTraceCb(data, data_source) {
             data.forEach(function(item) {
                 let val = item[source.name];
                 if(!(val in vals)) {
-                    vals[val] = trace[key].length;
-                    trace[key].push(0);
-                    trace[source.labels.key].push(source.labels.map[val]);
+                    let trace_l_key = source.labels.key.split('.').reduce((o, i) => o[i], trace);
+                    vals[val] = trace_key.length;
+                    trace_key.push(0);
+                    trace_l_key.push(source.labels.map[val]);
                 }
-                if(source.op === "count") {
-                    trace[key][vals[val]]++;
+                if(source.op === "count" || source.op === "percent") {
+                    trace_key[vals[val]]++;
                 } else if(source.op === "sum") {
-                    trace[key][vals[val]] += val;
+                    trace_key[vals[val]] += val;
                 }
             });
+            if(source.op === "percent") {
+                for(let idx = 0; idx < trace_key.length; idx++) {
+                    trace_key[idx] /= data.length;
+                }
+            }
+            if('factor' in source) {
+                for(let idx = 0; idx < trace_key.length; idx++) {
+                    trace_key[idx] *= source.factor;
+                }
+            }
+            if('offset' in source) {
+                for(let idx = 0; idx < trace_key.length; idx++) {
+                    trace_key[idx] += source.offset;
+                }
+            }
         } else {
             data.forEach(function(item) {
-                trace[key].push(item[source])
+                trace_key.push(item[source])
             });
         }
     }
-    console.log(trace);
     return trace;
 }
 
