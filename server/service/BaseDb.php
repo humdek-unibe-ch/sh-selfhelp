@@ -114,12 +114,13 @@ class BaseDb {
      * @retval array
      *  An array with all row entries or false if no entry was selected.
      */
-    public function query_db($sql, $arguments=array())
+    public function query_db($sql, $arguments=array(),
+        $fetch_style=PDO::FETCH_ASSOC)
     {
         try {
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($arguments);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $stmt->fetchAll($fetch_style);
         }
         catch(PDOException $e)
         {
@@ -142,12 +143,13 @@ class BaseDb {
      * @retval array
      *  All row entries or false if no entry was selected.
      */
-    public function query_db_first($sql, $arguments=array())
+    public function query_db_first($sql, $arguments=array(),
+        $fetch_style=PDO::FETCH_ASSOC)
     {
         try {
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($arguments);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            return $stmt->fetch($fetch_style);
         }
         catch(PDOException $e)
         {

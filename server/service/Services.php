@@ -100,6 +100,7 @@ class Services
     private function does_redirect($keyword)
     {
         return !$this->is_login_page($keyword)
+            && !$this->is_script_page($keyword)
             && !$this->is_open_page($keyword);
     }
 
@@ -133,6 +134,21 @@ class Services
         $res = $this->db->query_db_first($sql, array(':kw' => $keyword,
             ':type' => OPEN_PAGE_ID));
         if($res)
+            return true;
+        return false;
+    }
+
+    /**
+     * Checks wether the current page is a page executing a script.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is a script page, false otherwise.
+     */
+    private function is_script_page($keyword)
+    {
+        if($keyword === "request" || $keyword === "callback")
             return true;
         return false;
     }
@@ -256,6 +272,23 @@ class Services
     public function get_user_input()
     {
         return $this->user_input;
+    }
+
+    /**
+     * Checks whether the current page is a page redirected base page.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is a script page, false otherwise.
+     */
+    public function is_redirected_page($keyword)
+    {
+        if($keyword === "missing"
+                || $keyword === "no_access"
+                || $keyword === "no_access_guest")
+            return true;
+        return false;
     }
 
     /**

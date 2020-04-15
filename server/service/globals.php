@@ -14,6 +14,9 @@ define('JS_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . JS_FOLDER);
 define('ASSET_FOLDER', 'assets');
 define('ASSET_PATH', BASE_PATH . '/' . ASSET_FOLDER);
 define('ASSET_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . ASSET_FOLDER);
+define('STATIC_FOLDER', 'static');
+define('STATIC_PATH', BASE_PATH . '/' . STATIC_FOLDER);
+define('STATIC_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . STATIC_FOLDER);
 define('STYLE_PATH', '/server/component/style');
 define('STYLE_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . STYLE_PATH);
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
@@ -35,6 +38,8 @@ define('LABEL_FIELD_ID', 8);
 define('NAME_FIELD_ID', 57);
 define('TYPE_INPUT_FIELD_ID', 54);
 define('EMAIL_TYPE_ID', 11);
+
+define('STYLE_GROUP_INTERN_ID', 1);
 
 define('MALE_GENDER_ID', 1);
 define('ALL_LANGUAGE_ID', 1);
