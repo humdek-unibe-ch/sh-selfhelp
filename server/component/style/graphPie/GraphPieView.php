@@ -27,6 +27,25 @@ class GraphPieView extends GraphView
      */
     private $lables;
 
+    /**
+     * DB field 'hole' (0)
+     * The size of the hole in a donut chart. 0 means no hole and 1 means a
+     * hole as big as the chart.
+     */
+    private $hole;
+
+    /**
+     * DB field 'hoverinfo' (empty string)
+     * The information to be rendered when hovering on a slice.
+     */
+    private $hoverinfo;
+
+    /**
+     * DB field 'textinfo' (empty string)
+     * The information to be rendered on a slice.
+     */
+    private $textinfo;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -38,13 +57,19 @@ class GraphPieView extends GraphView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->set_graph_type("pie");
+        $this->set_graph_type("base");
 
         $this->name = $this->model->get_db_field("name");
+        $this->hole = $this->model->get_db_field("hole", 0);
         $this->labels = $this->model->get_db_field("labels");
+        $this->hoverinfo = $this->model->get_db_field("hoverinfo");
+        $this->textinfo = $this->model->get_db_field("textinfo");
 
         $this->traces = array(array(
             "type" => "pie",
+            "hole" => $this->hole / 100,
+            "hoverinfo" => $this->hoverinfo,
+            "textinfo" => $this->textinfo,
             "data_source" => array(
                 "name" => $this->model->get_data_source(),
                 "map" => array(
