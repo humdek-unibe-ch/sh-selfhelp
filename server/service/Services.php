@@ -275,6 +275,23 @@ class Services
     }
 
     /**
+     * Checks whether the current page is a page redirected base page.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is a script page, false otherwise.
+     */
+    public function is_redirected_page($keyword)
+    {
+        if($keyword === "missing"
+                || $keyword === "no_access"
+                || $keyword === "no_access_guest")
+            return true;
+        return false;
+    }
+
+    /**
      * Set the service class Navigation.
      *
      * @param object $nav
