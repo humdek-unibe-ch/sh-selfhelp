@@ -25,7 +25,7 @@ class CmsSelectController extends BaseController
         if(isset($_POST['cms_language']))
         {
             $is_data_ok = false;
-            foreach($this->model->get_languages() as $language)
+            foreach($this->model->get_db()->fetch_languages() as $language)
                 if($_POST['cms_language'] === $language['locale'])
                 {
                     $is_data_ok = true;

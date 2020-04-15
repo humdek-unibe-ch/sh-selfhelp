@@ -96,26 +96,6 @@ class CmsPreferencesView extends BaseView
                 "value" => $language['id'],
                 "text" => $language['title']
             ));
-        // $options[] = array(
-        //     "value" => $language['locale'],
-        //     "text" => $language['language']
-        // );
-        // $children = array();        
-        // $children[] = new BaseStyleComponent("template", array(
-        //     "path" => __DIR__ . "/tpl_cmsPreferencesForm.php",
-        //     "items" => array(
-        //         "keyword_title" => "Name:",
-        //         "url_title" => "Url:",
-        //         "protocol_title" => "Protocol:",
-        //     ),
-        // ));
-        // $children[] = new BaseStyleComponent("form", array(
-        //     "url" => $_SERVER['REQUEST_URI'],
-        //     "label" => "Submit Changes",
-        //     "type" => "warning",
-        //     "children" => $form_items,
-        //     "url_cancel" => $this->model->get_link_url("cmsPreferences"),
-        // ));
         $cmsPreferences = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,

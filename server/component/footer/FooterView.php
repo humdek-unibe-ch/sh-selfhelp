@@ -42,6 +42,28 @@ class FooterView extends BaseView
     }
 
     /**
+     * Render all footer languages.
+     */
+    private function output_footer_languages()
+    {
+        $languages = $this->model->get_languages();
+        $options = [];
+        foreach ($languages as $language)
+            array_push($options, array(
+                "value" => $language['locale'],
+                "text" => $language['title']
+            ));
+        $langOptions = new BaseStyleComponent("select", array(
+                        //"label" => "CMS Content Language",
+                        "css"=> "text-dark smallOverwitten",
+                        "value" => $_SESSION['user_language'],
+                        "name" => "default_language_locale",
+                        "items" => $options,
+                    ));
+        $langOptions->output_content();
+    }
+
+    /**
      * Render all footer links.
      */
     private function output_footer_links()
@@ -69,6 +91,21 @@ class FooterView extends BaseView
     {
         $local = array(__DIR__ . "/footer.css");
         return parent::get_css_includes($local);
+    }
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {   
+        if(empty($local)){
+            $local = array(__DIR__ . "/footer.js");
+        }
+        return parent::get_js_includes($local);
     }
 
     /**
