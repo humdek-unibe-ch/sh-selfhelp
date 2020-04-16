@@ -25,26 +25,7 @@ class GraphBarView extends GraphView
      * DB field 'labels' (empty string)
      * A JSON string to define provide a lable for each distinct data value.
      */
-    private $lables;
-
-    /**
-     * DB field 'hole' (0)
-     * The size of the hole in a donut chart. 0 means no hole and 1 means a
-     * hole as big as the chart.
-     */
-    private $hole;
-
-    /**
-     * DB field 'hoverinfo' (empty string)
-     * The information to be rendered when hovering on a slice.
-     */
-    private $hoverinfo;
-
-    /**
-     * DB field 'textinfo' (empty string)
-     * The information to be rendered on a slice.
-     */
-    private $textinfo;
+    private $labels;
 
     /* Constructors ***********************************************************/
 
@@ -60,24 +41,18 @@ class GraphBarView extends GraphView
         $this->set_graph_type("base");
 
         $this->name = $this->model->get_db_field("name");
-        $this->hole = $this->model->get_db_field("hole", 0);
         $this->labels = $this->model->get_db_field("labels");
-        $this->hoverinfo = $this->model->get_db_field("hoverinfo");
-        $this->textinfo = $this->model->get_db_field("textinfo");
 
         $this->traces = array(array(
-            "type" => "pie",
-            "hole" => $this->hole / 100,
-            "hoverinfo" => $this->hoverinfo,
-            "textinfo" => $this->textinfo,
+            "type" => "bar",
             "data_source" => array(
                 "name" => $this->model->get_data_source(),
                 "map" => array(
-                    "values" => array(
+                    "y" => array(
                         "name" => $this->name,
                         "op" => "count",
                         "labels" => array(
-                            "key" => "labels",
+                            "key" => "x",
                             "map" => $this->labels
                         )
                     )
