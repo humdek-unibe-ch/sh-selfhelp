@@ -43,8 +43,10 @@ class ChatAdminUpdateComponent extends ChatAdminComponent
      *   'rid':     The room id to modify
      *   'did':     See ChatAdminUpdateComponent::did
      *   'model':   See ChatAdminUpdateComponent::mode
+     * @param number $id_page
+     *  The parent page id
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_page)
     {
         $rid = isset($params['rid']) ? intval($params['rid']) : null;
         $this->did = isset($params['did']) ? intval($params['did']) : null;
@@ -55,6 +57,7 @@ class ChatAdminUpdateComponent extends ChatAdminComponent
         $view = new ChatAdminUpdateView($model, $controller, $this->mode,
             $this->did);
         parent::__construct($model, $view, $controller);
+        $this->set_request_access($id_page, "AjaxSearch", "search_user_chat");
     }
 
     /**
