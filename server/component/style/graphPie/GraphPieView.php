@@ -25,7 +25,7 @@ class GraphPieView extends GraphView
      * DB field 'labels' (empty string)
      * A JSON string to define provide a lable for each distinct data value.
      */
-    private $lables;
+    private $labels;
 
     /**
      * DB field 'hole' (0)

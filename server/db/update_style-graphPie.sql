@@ -10,7 +10,7 @@ SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'name');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name of the table column or form field to use to render a pie diagram.');
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'labels');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines a label for each disting data value. Use a JSON object where the key corresponds to the data value and the value to the label, e.g.\n\n```\n{\n  "value_1": "Label 1",\n  "value_2": "Label 2"\n}\n```');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines a label for each distinct data value. Use a JSON object where the key corresponds to the data value and the value to the label, e.g.\n\n```\n{\n  "value_1": "Label 1",\n  "value_2": "Label 2"\n}\n```');
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'layout');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
