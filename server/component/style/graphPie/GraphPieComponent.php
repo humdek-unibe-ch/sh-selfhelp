@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../graph/GraphBaseComponent.php";
 require_once __DIR__ . "/GraphPieView.php";
 require_once __DIR__ . "/GraphPieModel.php";
 
@@ -12,7 +12,7 @@ require_once __DIR__ . "/GraphPieModel.php";
  * A component class for a graphPie style component. This style is intended to
  * display a Pie diagram.
  */
-class GraphPieComponent extends BaseComponent
+class GraphPieComponent extends GraphBaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -26,13 +26,17 @@ class GraphPieComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this component.
+     * @param array $params
+     *  An array of get parameters.
+     * @param int $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page)
     {
         $model = new GraphPieModel($services, $id);
         $view = new GraphPieView($model);
 
-        parent::__construct($model, $view);
+        parent::__construct($model, $view, $id_page);
     }
 }
 ?>
