@@ -57,6 +57,18 @@ abstract class BaseComponent
         $this->model = $model;
     }
 
+    /* Protected Methods ******************************************************/
+
+    /**
+     *
+     */
+    protected function set_request_access($id, $class, $method) {
+        if(!isset($_SESSION['requests'][$class])) {
+            $_SESSION['requests'][$class] = array();
+        }
+        $_SESSION['requests'][$class][$method] = $id;
+    }
+
     /* Public Methods *********************************************************/
 
     /**

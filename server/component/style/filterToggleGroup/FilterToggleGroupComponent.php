@@ -4,16 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../graph/GraphBaseComponent.php";
-require_once __DIR__ . "/GraphView.php";
-require_once __DIR__ . "/GraphModel.php";
+require_once __DIR__ . "/../filter/FilterComponent.php";
+require_once __DIR__ . "/FilterToggleGroupView.php";
+require_once __DIR__ . "/../StyleModel.php";
 
 /**
- * A component class for a emailForm style component. This style is
- * intended to collect email addresses of interested users and send automated
- * emails to them.
+ * A component class for a filterToggleGroup style component. This style is
+ * intended to filter user input data or statically uploaded data.
  */
-class GraphComponent extends GraphBaseComponent
+class FilterToggleGroupComponent extends FilterComponent
 {
     /* Constructors ***********************************************************/
 
@@ -34,8 +33,8 @@ class GraphComponent extends GraphBaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new GraphModel($services, $id);
-        $view = new GraphView($model);
+        $model = new StyleModel($services, $id);
+        $view = new FilterToggleGroupView($model);
 
         parent::__construct($model, $view, $id_page);
     }

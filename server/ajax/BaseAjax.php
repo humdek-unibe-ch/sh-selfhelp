@@ -72,11 +72,14 @@ abstract class BaseAjax
      * @retval boolean
      *  True if authorisation is granted, false otherwise.
      */
-    public function has_access()
+    public function has_access($class="", $method="")
     {
+        if(!isset($_SESSION['requests'][$class][$method]))
+            return false;
         $page_id = $this->db->fetch_page_id_by_keyword('request');
         return $this->acl->has_access($_SESSION['id_user'], $page_id, 'select')
-            && $this->acl->has_access($_SESSION['id_user'], $_SESSION['current_page'], 'select');
+            && $this->acl->has_access($_SESSION['id_user'],
+                $_SESSION['requests'][$class][$method], 'select');
     }
 }
 ?>
