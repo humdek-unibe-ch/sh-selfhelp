@@ -49,8 +49,10 @@ class CmsUpdateComponent extends CmsComponent
      *                 - update: update the propertiy fields of a section or page.
      *                 - insert: add a new section to a section or a page.
      *                 - delete: remove a section from a section or a page.
+     * @param number $id_page
+     *  The parent page id
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_page)
     {
         $this->acl = $services->get_acl();
         $model = new CmsModel($services, $params, "update");
@@ -67,6 +69,7 @@ class CmsUpdateComponent extends CmsComponent
             $view = new CmsUpdateView($model, $controller, $params["mode"]);
         }
         parent::__construct($model, $view, $controller);
+        $this->set_request_access($id_page, "AjaxSearch", "search_data_source");
     }
 
     /* Public Methods *********************************************************/
