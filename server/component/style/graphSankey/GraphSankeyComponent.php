@@ -26,6 +26,10 @@ class GraphSankeyComponent extends GraphBaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this component.
+     * @param array $params
+     *  An array of get parameters.
+     * @param int $id_page
+     *  The id of the parent page
      */
     public function __construct($services, $id, $params, $id_page)
     {
