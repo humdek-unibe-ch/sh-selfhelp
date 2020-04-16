@@ -48,8 +48,10 @@ class StyleModel extends BaseModel implements IStyleModel
      *  The id of the database section item to be rendered.
      * @param array $params
      *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id, $params=array())
+    public function __construct($services, $id, $params=array(), $id_page=-1)
     {
         parent::__construct($services);
         if($this->is_cms_page())
@@ -90,7 +92,7 @@ class StyleModel extends BaseModel implements IStyleModel
         foreach($db_children as $child)
         {
             $this->children[$child['name']] = new StyleComponent(
-                $services, intval($child['id']), $params);
+                $services, intval($child['id']), $params, $id_page);
         }
     }
 

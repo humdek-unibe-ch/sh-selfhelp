@@ -72,7 +72,7 @@ class StyleComponent extends BaseComponent
 
         if($style['type'] == "view")
         {
-            $model = new StyleModel($services, $id, $params);
+            $model = new StyleModel($services, $id, $params, $id_page);
             $this->style = new BaseStyleComponent($model->get_style_name(),
                 array( "children" => $model->get_children()),
                 $model->get_db_fields());
@@ -86,7 +86,7 @@ class StyleComponent extends BaseComponent
             }
             if($this->style === null || !$this->style->has_access())
             {
-                $model = new StyleModel($services, $id, $params);
+                $model = new StyleModel($services, $id, $params, $id_page);
                 $this->style = new BaseStyleComponent("unknownStyle",
                     array("style_name" => $style['name']));
             }

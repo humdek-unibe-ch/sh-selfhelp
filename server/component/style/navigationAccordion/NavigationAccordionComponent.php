@@ -28,12 +28,14 @@ class NavigationAccordionComponent extends BaseComponent
      * @param array $params
      *  An array of parameters. This component requires the following keys:
      *   'nav': The id of the curently selected navigation section.
+     * @param number $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_page)
     {
         $id_active = null;
         if(isset($params['nav'])) $id_active = intval($params['nav']);
-        $model = new NavigationModel($services, $id, $id_active);
+        $model = new NavigationModel($services, $id, $id_active, $id_page);
         $view = new NavigationAccordionView($model);
         parent::__construct($model, $view);
     }

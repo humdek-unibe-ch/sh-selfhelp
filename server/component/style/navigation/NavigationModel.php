@@ -32,13 +32,16 @@ class NavigationModel extends StyleModel
      * @param int $id_active
      *  The section id of the navigation section to be rendered inside the
      *  navigation wrapper.
+     * @param number $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id, $id_active)
+    public function __construct($services, $id, $id_active, $id_page)
     {
         parent::__construct($services, $id);
         $this->id_active = $id_active;
         if($this->id_active != null)
-            $this->children[] = new StyleComponent($services, $id_active);
+            $this->children[] = new StyleComponent($services, $id_active,
+                array(), $id_page);
     }
 
     /**

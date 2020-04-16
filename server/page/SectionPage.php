@@ -47,7 +47,6 @@ class SectionPage extends BasePage
     public function __construct($services, $keyword, $params=array())
     {
         parent::__construct($services, $keyword);
-        $params['pid'] = $this->id_page;
         $this->nav_section_id = isset($params['nav']) ? $params['nav'] : null;
 
         $db = $services->get_db();
