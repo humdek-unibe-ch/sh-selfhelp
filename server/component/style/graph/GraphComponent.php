@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../graph/GraphBaseComponent.php";
 require_once __DIR__ . "/GraphView.php";
 require_once __DIR__ . "/GraphModel.php";
 
@@ -13,7 +13,7 @@ require_once __DIR__ . "/GraphModel.php";
  * intended to collect email addresses of interested users and send automated
  * emails to them.
  */
-class GraphComponent extends BaseComponent
+class GraphComponent extends GraphBaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -37,8 +37,7 @@ class GraphComponent extends BaseComponent
         $model = new GraphModel($services, $id);
         $view = new GraphView($model);
 
-        parent::__construct($model, $view);
-        $this->set_request_access($id_page, "AjaxDataSource", "get_data_table");
+        parent::__construct($model, $view, $id_page);
     }
 }
 ?>

@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../graph/GraphBaseComponent.php";
 require_once __DIR__ . "/GraphSankeyView.php";
 require_once __DIR__ . "/GraphSankeyModel.php";
 
@@ -12,7 +12,7 @@ require_once __DIR__ . "/GraphSankeyModel.php";
  * A component class for a graphSankey style component. This style is
  * intended to display a Sankey diagram.
  */
-class GraphSankeyComponent extends BaseComponent
+class GraphSankeyComponent extends GraphBaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -27,12 +27,12 @@ class GraphSankeyComponent extends BaseComponent
      * @param int $id
      *  The section id of this component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page)
     {
         $model = new GraphSankeyModel($services, $id);
         $view = new GraphSankeyView($model);
 
-        parent::__construct($model, $view);
+        parent::__construct($model, $view, $id_page);
     }
 }
 ?>
