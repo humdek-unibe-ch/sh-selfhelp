@@ -119,6 +119,7 @@ class GraphModel extends StyleModel
     {
         return $this->data_source;
     }
+
     public function get_single_user()
     {
         return $this->single_user;

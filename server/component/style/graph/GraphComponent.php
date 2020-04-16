@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../graph/GraphBaseComponent.php";
 require_once __DIR__ . "/GraphView.php";
 require_once __DIR__ . "/GraphModel.php";
 
@@ -13,7 +13,7 @@ require_once __DIR__ . "/GraphModel.php";
  * intended to collect email addresses of interested users and send automated
  * emails to them.
  */
-class GraphComponent extends BaseComponent
+class GraphComponent extends GraphBaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -27,13 +27,17 @@ class GraphComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this component.
+     * @param array $params
+     *  An array of get parameters.
+     * @param int $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page)
     {
         $model = new GraphModel($services, $id);
         $view = new GraphView($model);
 
-        parent::__construct($model, $view);
+        parent::__construct($model, $view, $id_page);
     }
 }
 ?>

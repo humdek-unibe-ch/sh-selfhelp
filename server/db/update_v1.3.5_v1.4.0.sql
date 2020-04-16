@@ -220,7 +220,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'raw', 1, 0);
 
 -- add filterToggle style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000001', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data.');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000002', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
@@ -239,7 +239,7 @@ SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the button as predefined by bootstrap.');
 
 -- add filterToggleGroup style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000001', '0000000007', 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000002', '0000000007', 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');

@@ -42,7 +42,7 @@ class ComponentPage extends BasePage
         if(class_exists($componentClass))
         {
             $this->componentInstance = new $componentClass($this->services,
-                $params);
+                $params, $this->id_page);
             $this->add_component("comp", $this->componentInstance);
         }
     }
