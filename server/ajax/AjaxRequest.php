@@ -64,7 +64,7 @@ class AjaxRequest
         if(class_exists($this->class_name))
         {
             $instance = new $this->class_name($this->services);
-            if(!$instance->has_access())
+            if(!$instance->has_access($this->class_name, $this->method_name))
                 $data = "Access denied'";
             else if(!method_exists($instance, $this->method_name))
                 $data = "Request '$this->class_name' has no method '$this->method_name'";
