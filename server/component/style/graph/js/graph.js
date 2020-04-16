@@ -4,7 +4,7 @@ $(document).ready(() => {
         var raw = parseGraphData($(this).children('div.graph-data:first'));
         if(raw === null) return;
 
-        drawGraph($plot, raw.traces, raw.layout, raw.config);
+        drawGraph($plot, raw.traces, raw.layout, raw.config, () => {}, true);
     });
 });
 
