@@ -316,3 +316,11 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
+
+-- add graphLegend style
+SET @id_group = (SELECT `id` FROM `styleGroup` WHERE `name` = 'Graph');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graphLegend', '0000000001', @id_group, 'Render colored list of items. This can be used to show one global legend for multiple graphs.');
+SET @id_style = LAST_INSERT_ID();
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
