@@ -124,5 +124,44 @@ class GraphModel extends StyleModel
     {
         return $this->single_user;
     }
+
+    /**
+     * Checks wether the types array provided through the CMS contains all
+     * required fields.
+     *
+     * @param array $value_types
+     *  The array to be checked.
+     * @retval boolean
+     *  True on success, false on failure.
+     */
+    public function check_value_types($value_types) {
+        if(!is_array($value_types) || count($value_types) === 0)
+            return false;
+        foreach($value_types as $idx => $item)
+        {
+            if(!isset($item["key"]))
+                return false;
+            if(!isset($item["label"]))
+                return false;
+        }
+        return true;
+    }
+
+    public function extract_labels($value_types) {
+        $labels = array();
+        foreach($value_types as $type) {
+            $labels[$type['key']] = $type['label'];
+        }
+        return $labels;
+    }
+
+    public function extract_colors($value_types) {
+        $colors = array();
+        foreach($value_types as $type) {
+            if(isset($type['color']))
+                $colors[$type['key']] = $type['color'];
+        }
+        return $colors;
+    }
 }
 ?>

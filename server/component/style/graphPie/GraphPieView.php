@@ -22,10 +22,10 @@ class GraphPieView extends GraphView
     private $name;
 
     /**
-     * DB field 'labels' (empty string)
-     * A JSON string to define provide a lable for each distinct data value.
+     * DB field 'value_types' (empty string)
+     * A JSON string to define a label and a color for each distinct data value.
      */
-    private $labels;
+    private $value_types;
 
     /**
      * DB field 'hole' (0)
@@ -61,29 +61,9 @@ class GraphPieView extends GraphView
 
         $this->name = $this->model->get_db_field("name");
         $this->hole = $this->model->get_db_field("hole", 0);
-        $this->labels = $this->model->get_db_field("labels");
+        $this->value_types = $this->model->get_db_field("value_types", array());
         $this->hoverinfo = $this->model->get_db_field("hoverinfo");
         $this->textinfo = $this->model->get_db_field("textinfo");
-
-        $this->traces = array(array(
-            "type" => "pie",
-            "hole" => $this->hole / 100,
-            "hoverinfo" => $this->hoverinfo,
-            "textinfo" => $this->textinfo,
-            "data_source" => array(
-                "name" => $this->model->get_data_source(),
-                "map" => array(
-                    "values" => array(
-                        "name" => $this->name,
-                        "op" => "count",
-                        "labels" => array(
-                            "key" => "labels",
-                            "map" => $this->labels
-                        )
-                    )
-                )
-            )
-        ));
     }
 
     /* Protected Methods ******************************************************/
@@ -95,9 +75,31 @@ class GraphPieView extends GraphView
      */
     public function output_content()
     {
-        if(!$this->model->check_label_map($this->labels)) {
-            echo "parse error in <code>label_map</code>";
+        if(!$this->model->check_value_types($this->value_types)) {
+            echo "parse error in <code>value_types</code>";
         } else {
+            $labels = $this->model->extract_labels($this->value_types);
+            $colors = $this->model->extract_colors($this->value_types);
+
+            $this->traces = array(array(
+                "type" => "pie",
+                "hole" => $this->hole / 100,
+                "hoverinfo" => $this->hoverinfo,
+                "textinfo" => $this->textinfo,
+                "data_source" => array(
+                    "name" => $this->model->get_data_source(),
+                    "map" => array(
+                        "values" => array(
+                            "name" => $this->name,
+                            "op" => "count",
+                            "options" => array(
+                                "labels" => $labels,
+                                "marker.colors" => $colors
+                            )
+                        )
+                    )
+                )
+            ));
             parent::output_content();
         }
     }

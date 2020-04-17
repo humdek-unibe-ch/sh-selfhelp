@@ -268,16 +268,7 @@ class GraphSankeyModel extends GraphModel
      *  True on success, false on failure.
      */
     public function check_types() {
-        if(!is_array($this->data_types) || count($this->data_types) === 0)
-            return false;
-        foreach($this->data_types as $idx => $item)
-        {
-            if(!isset($item["key"]))
-                return false;
-            if(!isset($item["label"]))
-                return false;
-        }
-        return true;
+        return $this->check_value_types($this->data_types);
     }
 
     /**

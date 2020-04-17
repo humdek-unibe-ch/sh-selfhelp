@@ -147,14 +147,19 @@ function graphTraceCb(data, data_source) {
             });
         } else if(typeof source === 'object' && source !== null) {
             let vals = {};
-            graphExpandDotString(trace, source.labels.key, []);
+            let trace_opt_keys = {};
+            for(let key in source.options) {
+                trace_opt_keys[key] = graphExpandDotString(trace, key, []);
+                // trace_opt_keys[key] = key.split('.').reduce((o, i) => o[i], trace);
+            }
             data.forEach(function(item) {
                 let val = item[source.name];
                 if(!(val in vals)) {
-                    let trace_l_key = source.labels.key.split('.').reduce((o, i) => o[i], trace);
                     vals[val] = trace_key.length;
                     trace_key.push(0);
-                    trace_l_key.push(source.labels.map[val]);
+                    for(let key in source.options) {
+                        trace_opt_keys[key].push(source.options[key][val]);
+                    }
                 }
                 if(source.op === "count" || source.op === "percent") {
                     trace_key[vals[val]]++;
@@ -197,7 +202,8 @@ function graphExpandDotString(obj, str, value) {
         ref = ref[items[i]]; // shift the reference to the newly created object
     }
 
-    ref[items[items.length - 1]] = value; // apply the final value
+    ref = ref[items[items.length - 1]] = value; // apply the final value
+    return ref;
 }
 
 

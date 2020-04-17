@@ -276,8 +276,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'name');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name of the table column or form field to use to render a pie diagram.');
 
-SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'labels');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines a label for each distinct data value. Use a JSON object where the key corresponds to the data value and the value to the label, e.g.\n\n```\n{\n  "value_1": "Label 1",\n  "value_2": "Label 2"\n}\n```');
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'layout');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
@@ -314,5 +314,5 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'config');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
 
-SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'labels');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines a label for each distinct data value. Use a JSON object where the key corresponds to the data value and the value to the label, e.g.\n\n```\n{\n  "value_1": "Label 1",\n  "value_2": "Label 2"\n}\n```');
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');

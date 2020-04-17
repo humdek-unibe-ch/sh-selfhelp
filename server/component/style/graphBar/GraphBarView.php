@@ -22,10 +22,10 @@ class GraphBarView extends GraphView
     private $name;
 
     /**
-     * DB field 'labels' (empty string)
-     * A JSON string to define provide a lable for each distinct data value.
+     * DB field 'value_types' (empty string)
+     * A JSON string to define a label and a color for each distinct data value.
      */
-    private $labels;
+    private $value_types;
 
     /* Constructors ***********************************************************/
 
@@ -41,24 +41,7 @@ class GraphBarView extends GraphView
         $this->set_graph_type("base");
 
         $this->name = $this->model->get_db_field("name");
-        $this->labels = $this->model->get_db_field("labels");
-
-        $this->traces = array(array(
-            "type" => "bar",
-            "data_source" => array(
-                "name" => $this->model->get_data_source(),
-                "map" => array(
-                    "y" => array(
-                        "name" => $this->name,
-                        "op" => "count",
-                        "labels" => array(
-                            "key" => "x",
-                            "map" => $this->labels
-                        )
-                    )
-                )
-            )
-        ));
+        $this->value_types = $this->model->get_db_field("value_types");
     }
 
     /* Protected Methods ******************************************************/
@@ -70,9 +53,27 @@ class GraphBarView extends GraphView
      */
     public function output_content()
     {
-        if(!$this->model->check_label_map($this->labels)) {
-            echo "parse error in <code>label_map</code>";
+        if(!$this->model->check_value_types($this->value_types)) {
+            echo "parse error in <code>value_types</code>";
         } else {
+            $labels = $this->model->extract_labels($this->value_types);
+            $colors = $this->model->extract_colors($this->value_types);
+            $this->traces = array(array(
+                "type" => "bar",
+                "data_source" => array(
+                    "name" => $this->model->get_data_source(),
+                    "map" => array(
+                        "y" => array(
+                            "name" => $this->name,
+                            "op" => "count",
+                            "options" => array(
+                                "x" => $labels,
+                                "marker.color" => $colors
+                            )
+                        )
+                    )
+                )
+            ));
             parent::output_content();
         }
     }
