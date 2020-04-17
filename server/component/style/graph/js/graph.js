@@ -233,6 +233,7 @@ function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, 
                 + Number.EPSILON) * digit) / digit;
         }
     }
+    sort_indices = null;
     if(Array.isArray(order)) {
         if(options.op !== "idx") {
             // order by indices but not if its the idx operation
@@ -242,7 +243,6 @@ function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, 
             }
         }
     } else if (order) {
-        sort_indices = null;
         if(order === "asc") {
             sort_indices = sortWithIndices(trace_key);
         } else if(order === "desc") {
