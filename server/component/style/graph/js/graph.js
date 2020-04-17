@@ -19,6 +19,7 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
     // let date = new Date();
     // let now = date.getTime();
     let traces_cache = [];
+    let events = [];
     traces.forEach(function(trace, idx) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
@@ -26,7 +27,8 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
 
             $pending.removeClass('d-none');
             busy_count++;
-            if(register_event) {
+            if(register_event && !events.includes(event_name)) {
+                events.push(event_name);
                 window.addEventListener(event_name, function(e) {
                     console.log("received event: " + event_name);
                     drawGraph($div, traces, layout, config, post_process);
