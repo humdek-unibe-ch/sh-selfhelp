@@ -73,12 +73,6 @@ class GraphView extends StyleView
             }
             $this->layout["title"] = $this->title;
         }
-        if(!isset($this->config["responsive"])) {
-            if($this->config === "") {
-                $this->config = array();
-            }
-            $this->config["responsive"] = true;
-        }
 
         echo json_encode(array(
             "graph_type" => $this->graph_type,

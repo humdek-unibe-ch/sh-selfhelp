@@ -1,18 +1,22 @@
 $(document).ready(() => {
     $('div.graph-base').each(function () {
-        let $plot = $(this).children('div.graph-plot');
+        let $plot = $(this).children('div.graph-plot:first');
         var raw = parseGraphData($(this).children('div.graph-data:first'));
         if(raw === null) return;
 
-        drawGraph($plot, raw.traces, raw.layout, raw.config, () => {}, true);
+        let traces = drawGraph($plot, raw.traces, raw.layout, raw.config, () => {}, true);
+        new ResizeSensor($plot, function() {
+            Plotly.newPlot($plot[0], traces, raw.layout, raw.config);
+        });
     });
 });
 
 function drawGraph($div, traces, layout, config, post_process = () => {}, register_event = false) {
     let $pending = $div.prev();
     let busy_count = 0;
-    let date = new Date();
-    let now = date.getTime();
+    // let date = new Date();
+    // let now = date.getTime();
+    let traces_cache = [];
     traces.forEach(function(trace, idx) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
@@ -41,16 +45,15 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                         if(idx === 0) {
                             Plotly.newPlot($div[0], [], layout, config);
                         }
-                        console.log(trace_options);
-                        console.log(keys);
-                        Plotly.addTraces($div[0], deepmerge(trace_options, keys));
+                        traces_cache.push(deepmerge(trace_options, keys));
+                        Plotly.addTraces($div[0], traces_cache[idx]);
 
                         post_process();
                         busy_count--;
                         if(busy_count === 0) {
                             $pending.addClass('d-none');
-                            let date = new Date();
-                            console.log(date.getTime() - now);
+                            // let date = new Date();
+                            // console.log(date.getTime() - now);
                         }
                     }
                     else {
@@ -63,9 +66,11 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
             if(idx === 0) {
                 Plotly.newPlot($div[0], [], layout, config);
             }
+            traces_cache.push(trace);
             Plotly.addTraces($div[0], trace);
         }
     });
+    return traces_cache;
 }
 
 /**
