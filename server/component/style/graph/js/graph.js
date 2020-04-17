@@ -248,10 +248,12 @@ function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, 
         } else if(order === "desc") {
             sort_indices = sortWithIndices(trace_key, false);
         }
-        for(let key in trace_opt_keys) {
-            let tmp = trace_opt_keys[key].slice();
-            for(let i = 0; i < tmp.length; i++) {
-                trace_opt_keys[key][i] = tmp[sort_indices[i]];
+        if(sort_indices) {
+            for(let key in trace_opt_keys) {
+                let tmp = trace_opt_keys[key].slice();
+                for(let i = 0; i < tmp.length; i++) {
+                    trace_opt_keys[key][i] = tmp[sort_indices[i]];
+                }
             }
         }
     }
@@ -267,6 +269,7 @@ function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, 
 }
 
 function sortWithIndices(toSort, asc = true) {
+    let sortIndices = [];
     let sign = asc ? 1 : -1;
     for (var i = 0; i < toSort.length; i++) {
         toSort[i] = [toSort[i], i];
@@ -274,7 +277,6 @@ function sortWithIndices(toSort, asc = true) {
     toSort.sort(function(left, right) {
         return left[0] < right[0] ? sign * -1 : sign * 1;
     });
-    sortIndices = [];
     for (var j = 0; j < toSort.length; j++) {
         sortIndices.push(toSort[j][1]);
         toSort[j] = toSort[j][0];
