@@ -262,7 +262,7 @@ function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, 
             trace_key[idx] = `${trace_key[idx]}${options.suffix}`
         }
     }
-    for(child_key in children) {
+    for(let child_key in children) {
         let trace_key_child = graphExpandDotString(trace, child_key, []);
         graphTraceCbData(data, trace, trace_key_child, name, ignore, children[child_key], sort_indices);
     }
