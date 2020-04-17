@@ -91,8 +91,10 @@ class GraphPieView extends GraphView
                     "map" => array(
                         "values" => array(
                             "name" => $this->name,
-                            "op" => "count",
                             "options" => array(
+                                "op" => "count",
+                            ),
+                            "maps" => array(
                                 "labels" => $labels,
                                 "marker.colors" => $colors
                             )

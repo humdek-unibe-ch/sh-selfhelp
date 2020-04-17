@@ -65,8 +65,10 @@ class GraphBarView extends GraphView
                     "map" => array(
                         "y" => array(
                             "name" => $this->name,
-                            "op" => "count",
                             "options" => array(
+                                "op" => "count",
+                            ),
+                            "maps" => array(
                                 "x" => $labels,
                                 "marker.color" => $colors
                             )
