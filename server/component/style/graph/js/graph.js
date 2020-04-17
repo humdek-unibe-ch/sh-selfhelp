@@ -6,7 +6,9 @@ $(document).ready(() => {
 
         let traces = drawGraph($plot, raw.traces, raw.layout, raw.config, () => {}, true);
         new ResizeSensor($plot, function() {
-            Plotly.newPlot($plot[0], traces, raw.layout, raw.config);
+            if(traces.length === raw.traces.length) {
+                Plotly.newPlot($plot[0], traces, raw.layout, raw.config);
+            }
         });
     });
 });
@@ -46,7 +48,7 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                             Plotly.newPlot($div[0], [], layout, config);
                         }
                         traces_cache.push(deepmerge(trace_options, keys));
-                        console.log(traces_cache[idx]);
+                        // console.log(traces_cache[idx]);
                         Plotly.addTraces($div[0], traces_cache[idx]);
 
                         post_process();
