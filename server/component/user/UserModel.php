@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/../export/ExportModel.php";
 /**
@@ -63,15 +68,25 @@ class UserModel extends BaseModel
      *   'description': The description of status of the user.
      *   'blocked':     A boolean indication whether the user is blocked or not.
      *   'code':        The validation code of the user.
+     *   'groups':      The groups in which the user belongs.
+     *   'chat_rooms_names': The caht groups in which the user is.
      */
     private function fetch_user($uid)
     {
         $sql = "SELECT u.email, u.blocked, u.name, us.name AS status, us.description,
-            vc.code, u.last_login
+            vc.code, u.last_login,
+            GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+            GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
             FROM users AS u
             LEFT JOIN userStatus AS us ON us.id = u.id_status
             LEFT JOIN validation_codes AS vc ON vc.id_users = u.id
-            WHERE u.id = :uid and u.intern <> 1";
+            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+            LEFT JOIN groups g ON g.id = ug.id_groups
+            LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+            LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+            WHERE u.id = :uid and u.intern <> 1
+            GROUP BY u.email, u.blocked, u.name, us.name, us.description,
+            vc.code, u.last_login";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
         if($res)
             $res['id'] = $uid;
@@ -90,15 +105,25 @@ class UserModel extends BaseModel
      *   'status':      Indicates the state of the user.
      *   'description': The state description of the user.
      *   'blocked':     Indicates whether the user is blocked or not.
+     *   'groups':      Groups assigned to the user
+     *   'chat_rooms_names' The chat rooms assigned to the user
      */
     private function fetch_users()
     {
         $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
-            us.description, u.blocked
-            FROM users AS u
-            LEFT JOIN userStatus AS us ON us.id = u.id_status
-            WHERE u.intern <> 1 AND u.id_status > 1
-            ORDER BY u.email";
+                us.description, u.blocked, vc.code,
+                GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+                GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
+                FROM users AS u
+                LEFT JOIN userStatus AS us ON us.id = u.id_status
+                LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+                LEFT JOIN groups g ON g.id = ug.id_groups
+                LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+                LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+                LEFT JOIN validation_codes vc ON u.id = vc.id_users
+                WHERE u.intern <> 1 AND u.id_status > 0
+                GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
+                ORDER BY u.email";
         return $this->db->query_db($sql);
     }
 
@@ -277,8 +302,15 @@ class UserModel extends BaseModel
      */
     public function create_new_user($email, $code=null)
     {
-        $token = $this->login->create_token();
-        $uid = $this->insert_new_user($email, $token, 2);
+        $token = $this->login->create_token();     
+        $uid = $this->is_user_interested($email); 
+        if($uid > 0){  
+            // user is in status interested; change it to invited and assign the token for activation    
+            $this->set_user_status($uid, $token, USER_STATUS_INVITED);
+        }else{
+            // if the user is not already interested (in database), create a new one
+            $uid = $this->insert_new_user($email, $token, 2);
+        }
         $code_res = true;
         if($code !== null)
             $code_res = $this->db->insert("validation_codes", array(
@@ -520,10 +552,13 @@ class UserModel extends BaseModel
             "title" => $user["email"],
             "email" => $user["email"],
             "name" => $user["name"],
+            "code" => $user["code"],
             "last_login" => $user["last_login"],
             "status" => $state,
             "blocked" => ($user['blocked'] == '1') ? true : false,
             "description" => $desc,
+            "groups" => $user ? (array_key_exists('groups', $user) ? $user['groups'] : '') : '',
+            "chat_rooms_names" => $user ? (array_key_exists('chat_rooms_names', $user) ? $user['chat_rooms_names'] : '') : '',
             "url" => $this->get_link_url("userSelect", array("uid" => $id))
         );
     }
@@ -657,6 +692,29 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Check is a user already interested
+     *
+     * @param string $email
+     *  The email of the user.
+     * @retval int
+     *  The id of the new user.
+     */
+    public function is_user_interested($email)
+    {
+        $user_id = -1;
+        $sql = "SELECT id
+        from users 
+        where email = :email and id_status = :user_status";
+        $res = $this->db->query_db_first($sql, array(
+            ":email" => $email,
+            ":user_status" => USER_STATUS_INTERESTED));
+        if($res){
+            $user_id = $res['id'];
+        }
+        return $user_id;
+    }
+
+    /**
      * Checks whether a group can be added by the current user.
      *
      * @retval bool
@@ -693,6 +751,24 @@ class UserModel extends BaseModel
     public function reset_did()
     {
         $this->did = null;
+    }
+
+    /**
+     * Set the user status and token
+     *
+     * @param int $uid
+     *  The id of the user
+     * @param int $token
+     *  The token which will be used for account activation
+     * @param int $status
+     *  The new status
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function set_user_status($uid, $token, $status)
+    {
+        return $this->db->update_by_ids('users', array("token" => $token, "id_status" => $status),
+            array("id" => $uid));
     }
 
     /**

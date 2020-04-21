@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 
 /**
  * The base class for ajax requests.
@@ -57,6 +62,24 @@ abstract class BaseAjax
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
+    }
+
+    /**
+     * Checks wheter the current user is authorised to perform AJAX requests.
+     * Redefine this function if a stricter form of authorisation check is
+     * required.
+     *
+     * @retval boolean
+     *  True if authorisation is granted, false otherwise.
+     */
+    public function has_access($class="", $method="")
+    {
+        if(!isset($_SESSION['requests'][$class][$method]))
+            return false;
+        $page_id = $this->db->fetch_page_id_by_keyword('request');
+        return $this->acl->has_access($_SESSION['id_user'], $page_id, 'select')
+            && $this->acl->has_access($_SESSION['id_user'],
+                $_SESSION['requests'][$class][$method], 'select');
     }
 }
 ?>

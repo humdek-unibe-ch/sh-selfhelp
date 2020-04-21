@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseView.php";
 
 /**
@@ -34,9 +39,39 @@ class ExportView extends BaseView
         $fields = $this->model->get_export_view_fields($selector);
         $title = $fields["title"];
         $text = $fields["text"];
+        $form = isset($fields['form']);
         $options = $fields["options"];
         require __DIR__ . "/tpl_export_item.php";
     }
+
+    /**
+     * Render the form selection menu.
+     */
+   private function output_select_form()
+   {
+      $forms = $this->model->get_forms();
+      $options = array();
+      foreach ($forms as $form)
+         $options[] = array(
+            "value" => $form['form_id'],
+            "text" => $form['form_name']
+         );
+      $form_export = new BaseStyleComponent("form", array(         
+         "name" => "export_form_name",
+         "label" => "Export selected form",
+         "url" => $_SERVER['REQUEST_URI'],
+         "children" => array(new BaseStyleComponent("select", array(
+            "label" => "Select form:",
+            "value" => sizeof($options) > 0 ? array_values($options)[0]['value'] :'',
+            "name" => "export_form_name_select",
+            "css" => 'mb-3',
+            "items" => $options,
+         )))
+      ));
+
+      $form_export->output_content();
+   }
+    
 
     /* Public Methods *********************************************************/
 

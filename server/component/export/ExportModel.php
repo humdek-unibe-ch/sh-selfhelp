@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the export component such
@@ -87,6 +92,13 @@ class ExportModel extends BaseModel
                     "type" => "danger",
                 );
         }
+        if($selector === "user_input_form")
+        {
+            $fields["title"] = "User Input Form";
+            $fields["text"] = "Export data for a signle form";
+            $fields["form"] = true;
+            $fields["options"] = [];
+        }
         if($selector === "user_activity")
         {
             $fields["title"] = "User Activity";
@@ -136,6 +148,24 @@ class ExportModel extends BaseModel
     }
 
     /**
+     * Get the all generated forms from the users in the cms
+     *
+     * @retval array
+     *  As array of items where each item has the following keys:
+     *   - 'form_id':    form_id used as combobox value and used as a paramter for the databse function to retrieve the data.
+     *   - 'form_name':  form name shown in the combo box
+     */
+    public function get_forms()
+    {
+        $sql = 'select cast(s.id as unsigned) as form_id, sft_if.content as form_name 
+               from sections s
+               inner join view_styles st on (s.id_styles = st.style_id)
+               LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = s.id AND sft_if.id_fields = 57
+               where style_group = "Form" and style_type = "component"';
+        return $this->db->query_db($sql);
+    }
+
+    /**
      * Get the header of the export page.
      *
      * @retval string
@@ -157,6 +187,16 @@ class ExportModel extends BaseModel
         $txt = "Export experiment related data from the data base as CSV file. ";
         $txt .= "Note that the user id is obfuscated with a hash function to assure annonimity";
         return $txt;
+    }
+
+    /**
+     * Get the export link
+     *
+     * @param post $params
+     */
+    public function get_user_export_form_url($params)
+    {       
+        return $this->router->generate('exportData', $params);
     }
 }
 ?>

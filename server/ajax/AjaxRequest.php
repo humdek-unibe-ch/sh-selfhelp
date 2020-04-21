@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 spl_autoload_register(function ($class_name) {
     if(strpos($class_name, "Ajax") === 0)
         require_once __DIR__ . '/' . $class_name . ".php";
@@ -59,7 +64,9 @@ class AjaxRequest
         if(class_exists($this->class_name))
         {
             $instance = new $this->class_name($this->services);
-            if(!method_exists($instance, $this->method_name))
+            if(!$instance->has_access($this->class_name, $this->method_name))
+                $data = "Access denied'";
+            else if(!method_exists($instance, $this->method_name))
                 $data = "Request '$this->class_name' has no method '$this->method_name'";
             else
             {
@@ -72,7 +79,7 @@ class AjaxRequest
             $data = "Unknown request class '".$this->class_name."'";
         echo json_encode(array(
             "success" => $success,
-            "data" => $data,
+            "data" => $data
         ));
     }
 }

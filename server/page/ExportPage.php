@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/BasePage.php";
 require_once __DIR__ . "/../service/UserInput.php";
 
@@ -68,30 +73,42 @@ class ExportPage extends BasePage
      *  An identifier indicating which data to export.
      * @param string $option
      *  An option to add specifics of what to export
+     * @param string $id
+     *  The id of a specific input form to export
      */
-    private function export_data($selector, $option)
+    private function export_data($selector, $option, $id)
     {
+         // output headers so that the file is downloaded rather than displayed
+        header('Content-Type: text/csv; charset=utf-8');  
+        if($selector !== "user_input_form"){
+            // get and post difference - we cannot set header later in get request
+            header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . $selector . '.csv');
+        }
         // log user activity on export pages
         $this->services->get_db()->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
-        ));
-
-        // output headers so that the file is downloaded rather than displayed
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename='.$selector.'.csv');
+        ));        
 
         // create a file pointer connected to the output stream
         $output = fopen('php://output', 'w');
 
         // write data
+        $fileName = null;
         if($selector === "user_input")
             $this->export_user_input($output);
+        else if($selector === "user_input_form")
+            $fileName = $this->export_user_input_form($output, $id); 
         else if($selector === "user_activity")
             $this->export_user_activity($output);
         else if($selector === "validation_codes")
             $this->export_validation_codes($output, $option);
+              
+        if($selector === "user_input_form"){
+            // get and post difference - we cannot set header later in get request
+            header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . $fileName . '.csv');
+        }
     }
 
     /**
@@ -130,6 +147,34 @@ class ExportPage extends BasePage
         // loop over the rows, outputting them
         foreach($fields as $field)
             $this->fputcsv_wrap($output, $field);
+    }
+
+    /**
+     * Writes the user inputs in SCV format to the output stream.
+     *
+     * @param pointer $output
+     *  The file pointer to the output stream.
+     * @param int $form_id 
+     * the form that we want to export
+     */
+    private function export_user_input_form($output, $form_id)
+    {
+        $fileName = null;  
+        $sql = 'call get_form_data(' . $form_id . ')';
+        $fields = $this->services->get_db()->query_db($sql);
+
+        // output the column headings
+        if(count($fields) > 0)
+            $this->fputcsv_wrap($output, array_keys($fields[0]));
+
+        // loop over the rows, outputting them
+        foreach($fields as $field){
+            $this->fputcsv_wrap($output, $field);
+            if(!$fileName && array_key_exists("form_name", $field)){
+               $fileName = $field['form_name'];
+            }
+        }
+        return $fileName;
     }
 
     /**
@@ -208,8 +253,10 @@ class ExportPage extends BasePage
      *  An identifier indicating which data to export.
      * @param string $option
      *  An option string which allows to specify how to export data.
+     * @param string $id
+     *  The id of a specific input form to export
      */
-    public function output($selector = "", $option = null)
+    public function output($selector = "", $option = null, $id=null)
     {
         if(!$this->can_export_codes() && $selector === "validation_codes")
         {
@@ -218,7 +265,7 @@ class ExportPage extends BasePage
         }
         if($this->services->get_acl()->has_access($_SESSION['id_user'],
                 $this->id_page, $this->required_access_level))
-            $this->export_data($selector, $option);
+            $this->export_data($selector, $option, $id);
         else
             parent::output();
     }

@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseView.php";
 require_once __DIR__ . "/../style/BaseStyleComponent.php";
 
@@ -51,6 +56,24 @@ class ChatAdminUpdateView extends BaseView
     private function output_alert()
     {
         $this->output_controller_alerts_fail();
+    }
+
+    /**
+     * Render the autocomplete text field
+     */
+    private function output_autocomplete()
+    {
+        $ac = new BaseStyleComponent('autocomplete', array(
+            "placeholder" => "Search User Email",
+            "name" => "user_search",
+            "name_value_field" => "add_user",
+            "is_required" => true,
+            "value" => "",
+            "label" => "Test",
+            "callback_class" => "AjaxSearch",
+            "callback_method" => "search_user_chat"
+        ));
+        $ac->output_content();
     }
 
     /**
@@ -148,19 +171,6 @@ class ChatAdminUpdateView extends BaseView
     }
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/search.js");
-        return parent::get_js_includes($local);
-    }
 
     /**
      * Render the cms view.

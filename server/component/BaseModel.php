@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 /**
  * The class to define the basic functionality of a model.
  */
@@ -114,7 +119,10 @@ abstract class BaseModel
      */
     public function get_link_url($key, $params=array())
     {
-        return $this->router->generate($key, $params);
+        if($this->router->has_route($key))
+            return $this->router->generate($key, $params);
+        else
+            return "";
     }
 
     /**

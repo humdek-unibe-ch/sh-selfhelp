@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/NavigationAccordionView.php";
 require_once __DIR__ . "/../navigation/NavigationModel.php";
@@ -23,12 +28,14 @@ class NavigationAccordionComponent extends BaseComponent
      * @param array $params
      *  An array of parameters. This component requires the following keys:
      *   'nav': The id of the curently selected navigation section.
+     * @param number $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_page)
     {
         $id_active = null;
         if(isset($params['nav'])) $id_active = intval($params['nav']);
-        $model = new NavigationModel($services, $id, $id_active);
+        $model = new NavigationModel($services, $id, $id_active, $id_page);
         $view = new NavigationAccordionView($model);
         parent::__construct($model, $view);
     }

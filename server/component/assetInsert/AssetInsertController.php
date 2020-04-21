@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the asset insert component.
@@ -20,7 +25,7 @@ class AssetInsertController extends BaseController
      * @param object $model
      *  The model instance of the component.
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', or 'static').
      */
     public function __construct($model, $mode)
     {
@@ -41,21 +46,39 @@ class AssetInsertController extends BaseController
         {
             $info = pathinfo($_FILES['file']['name']);
             $ext = $info['extension'];
-            $this->name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
-            $this->name = $this->name. '.' .$ext;
-            $target = $this->model->get_server_path($mode) . '/' . $this->name;
+            $res = $model->check_extension($ext, $mode);
+            if($res['error'])
+            {
+                $this->fail = true;
+                $this->error_msgs[] = $res['msg'];
+                return;
+            }
+            $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+            $this->name = $name. '.' .$ext;
+            $target = $model->get_server_path($mode) . '/' . $this->name;
             if(!isset($_POST['overwrite']) && file_exists($target))
             {
                 $this->fail = true;
                 $this->error_msgs[] = "A file with the same name already exists";
                 return;
             }
+            $res = $model->pp_insert_asset_file($mode,
+                $_FILES['file']['tmp_name'], $name, isset($_POST['overwrite']));
+            if($res !== true) {
+                $this->fail = true;
+                $this->error_msgs[] = $res;
+                return;
+            }
             if(move_uploaded_file($_FILES['file']['tmp_name'], $target))
+            {
                 $this->success = true;
+            }
             else
             {
                 $this->fail = true;
                 $this->error_msgs[] = "Unable to store the file on the server";
+                $res = $model->pp_delete_asset_file_static($name);
+                return;
             }
         }
     }

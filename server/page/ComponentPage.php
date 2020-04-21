@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/BasePage.php";
 
@@ -37,7 +42,7 @@ class ComponentPage extends BasePage
         if(class_exists($componentClass))
         {
             $this->componentInstance = new $componentClass($this->services,
-                $params);
+                $params, $this->id_page);
             $this->add_component("comp", $this->componentInstance);
         }
     }

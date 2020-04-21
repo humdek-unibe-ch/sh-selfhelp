@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../StyleModel.php";
 /**
  * This class is used to prepare all data related to the validate component such
@@ -104,7 +109,7 @@ class ValidateModel extends StyleModel
             "password" => $pw,
             "id_genders" => $gender,
             "token" => null,
-            "id_status" => 3,
+            "id_status" => 3
         ), array(
             "id" => $this->uid,
         ));

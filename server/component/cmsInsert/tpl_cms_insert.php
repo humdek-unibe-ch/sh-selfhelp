@@ -1,3 +1,8 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
     <div class="jumbotron">
@@ -11,8 +16,8 @@
             <form action="<?php echo $action_url; ?>" method="post">
                 <div class="form-group">
                     <label>Keyword</label>
-                    <input type="text" class="form-control" name="keyword" placeholder="Enter keyword" required>
-                    <small class="form-text text-muted">The page keyword must be unique, otherwise the page creation will fail.</small>
+                    <input type="text" class="form-control" name="keyword" placeholder="Enter keyword" required pattern="<?php echo NAME_PATTERN ?>">
+                    <small class="form-text text-muted">The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b></small>                    
                 </div>
                 <div class="form-group">
                     <div>

@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../StyleView.php";
 
 /**
@@ -84,6 +89,18 @@ class CardView extends StyleView
     {
         if($this->url_edit != "")
             require __DIR__ . "/tpl_edit_button.php";
+    }
+
+    /**
+     * Render the expand icon.
+     */
+    private function output_expand_icon()
+    {
+        if($this->is_collapsible)
+        {
+            $direction = $this->is_expanded ? "up" : "down";
+            require __DIR__ . "/tpl_expand_icon.php";
+        }
     }
 
     /* Public Methods *********************************************************/

@@ -1,3 +1,8 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
     <div class="jumbotron">
@@ -12,6 +17,10 @@
                 <div class="form-group">
                     <label>Name</label>
                     <input type="text" class="form-control" name="name" placeholder="Enter chat room name" value="<?php echo $_POST['name'] ?? ""; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" class="form-control" name="title" placeholder="Enter chat title" value="<?php echo $_POST['title'] ?? ""; ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Description</label>

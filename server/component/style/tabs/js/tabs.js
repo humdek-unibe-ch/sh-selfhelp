@@ -5,6 +5,7 @@ $(document).ready(function() {
     $('button.tab-button').click(function() {
         var selector = '.tab-content-index-' + $(this).attr('data-context');
         var $tab_container = $(this).closest('.tabs-container').children(selector);
+        var $buttons = $(this).closest('.tabs-container').children('button.tab-button');
         if($(this).hasClass("active"))
         {
             $(this).removeClass("active");
@@ -15,7 +16,7 @@ $(document).ready(function() {
             $(this).addClass("active");
             $tab_container.slideDown("fast");
         }
-        $('button.tab-button').not($(this)).removeClass("active");
+        $buttons.not($(this)).removeClass("active");
         $(this).closest('.tabs-container').children('.tab-content').not(selector).hide();
     });
 });

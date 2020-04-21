@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . '/BaseDb.php';
 
 /**
@@ -68,6 +73,21 @@ class PageDb extends BaseDb
             WHERE p.id_type != :type
             ORDER BY p.keyword";
         return $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
+    }
+
+    /**
+     * Fetch the id of a field given the nam eof the field
+     *
+     * @param string $name
+     * @retval mixed
+     *  The id of the filed or false on failure
+     */
+    public function fetch_field_id($name)
+    {
+        $sql = "SELECT id FROM fields WHERE name = :name";
+        $res = $this->query_db_first($sql, array('name' => $name));
+        if(!$res) return false;
+        return $res['id'];
     }
 
     /**

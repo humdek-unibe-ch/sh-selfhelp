@@ -3,9 +3,12 @@ server/apache.conf
 server/service/globals_untracked.php
 server/db/privileges.sql
 server/db/reminder_db_script.sql
+server/db/create_db.sql
 assets/*
 !assets/logo
+static/*
 css/*
 !css/ext
 js/*
 !js/ext
+.vscode/launch.json

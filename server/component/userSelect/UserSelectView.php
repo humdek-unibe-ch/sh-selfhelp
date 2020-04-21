@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseView.php";
 require_once __DIR__ . "/../style/BaseStyleComponent.php";
 
@@ -124,6 +129,16 @@ class UserSelectView extends BaseView
         {
             $title = "Progress";
             $content = "A user progress metric: The percentage of vistited experimenter pages and navigation sections";
+        }
+        else if($key === "groups")
+        {
+            $title = "Groups";
+            $content = "The groups in which the user is assigned";
+        }
+        else if($key === "chat_rooms_names")
+        {
+            $title = "Chat";
+            $content = "The chats rooms names in whcih the user is assigned";
         }
         else
             $content = $title = "bad key";
@@ -303,7 +318,7 @@ class UserSelectView extends BaseView
     /**
      * Render the list of users and their activity.
      */
-    private function output_user_activity()
+    protected function output_user_activity()
     {
         require __DIR__ . "/tpl_user_activity.php";
     }
@@ -320,6 +335,8 @@ class UserSelectView extends BaseView
             $email = $user['title'];
             $state = $user['status'];
             $desc = $user['description'];
+            $groups = $user['groups'];
+            $chat_rooms_names = $user['chat_rooms_names'];
             $row_state = "";
             if(strpos($state, "blocked") !== false)
                 $row_state = "table-warning";
@@ -357,6 +374,8 @@ class UserSelectView extends BaseView
             $state = $this->selected_user['status'];
             $code = $this->selected_user['code'] ?? "-";
             $desc = $this->selected_user['description'];
+            $groups = $this->selected_user['groups'];
+            $chat_rooms_names = $this->selected_user['chat_rooms_names'];
             $last_login = $this->get_last_login($this->selected_user['last_login']);
             $activity = $this->model->get_user_activity($this->selected_user['id']);
             $progress = $this->model->get_user_progress($this->selected_user['id']);
@@ -379,7 +398,7 @@ class UserSelectView extends BaseView
             "is_collapsible" => true,
             "title" => "ACL",
             "children" => array(new BaseStyleComponent("acl", array(
-                "title" => "Page",
+                "title" => "Page",                
                 "items" => $this->model->get_acl_selected_user()
             )))
         ));
@@ -409,8 +428,10 @@ class UserSelectView extends BaseView
      *  An array of js include files the component requires.
      */
     public function get_js_includes($local = array())
-    {
-        $local = array(__DIR__ . "/js/users.js");
+    {   
+        if(empty($local)){
+            $local = array(__DIR__ . "/js/users.js");
+        }
         return parent::get_js_includes($local);
     }
 

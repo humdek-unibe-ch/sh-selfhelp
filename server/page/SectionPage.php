@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/BasePage.php";
 require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
@@ -49,14 +54,15 @@ class SectionPage extends BasePage
         foreach($this->sections as $section)
             $this->add_component("section-" . $section['id'],
                 new StyleComponent($this->services, intval($section['id']),
-                    $params));
+                    $params, $this->id_page));
 
         if($this->nav_section_id != null)
         {
             $nav = $this->services->get_nav();
             $nav->set_current_index($this->nav_section_id);
             $this->add_component("navigation", new StyleComponent(
-                $this->services, $this->id_navigation_section, $params));
+                $this->services, $this->id_navigation_section, $params,
+                $this->id_page));
         }
     }
 

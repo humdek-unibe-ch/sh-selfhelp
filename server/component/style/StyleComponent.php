@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
 require_once __DIR__ . "/StyleModel.php";
@@ -45,8 +50,10 @@ class StyleComponent extends BaseComponent
      *  The id of the database section item to be rendered.
      * @param array $params
      *  An array of parameter that will be passed to the style component.
+     * @param int $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id, $params=array())
+    public function __construct($services, $id, $params=array(), $id_page=-1)
     {
         $model = null;
         $this->is_style_known = true;
@@ -65,7 +72,7 @@ class StyleComponent extends BaseComponent
 
         if($style['type'] == "view")
         {
-            $model = new StyleModel($services, $id, $params);
+            $model = new StyleModel($services, $id, $params, $id_page);
             $this->style = new BaseStyleComponent($model->get_style_name(),
                 array( "children" => $model->get_children()),
                 $model->get_db_fields());
@@ -74,10 +81,19 @@ class StyleComponent extends BaseComponent
         {
             $className = ucfirst($style['name']) . "Component";
             if(class_exists($className))
-                $this->style = new $className($services, $id, $params);
+            {
+                $this->style = new $className($services, $id, $params, $id_page);
+            }
             if($this->style === null || !$this->style->has_access())
+            {
+                $model = new StyleModel($services, $id, $params, $id_page);
                 $this->style = new BaseStyleComponent("unknownStyle",
                     array("style_name" => $style['name']));
+            }
+            else
+            {
+                $model = $this->style->get_model();
+            }
         }
         else
         {
@@ -124,6 +140,17 @@ class StyleComponent extends BaseComponent
     public function &get_child_section_by_name($name)
     {
         return $this->model->get_child_section_by_name($name);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback.
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     */
+    public function cms_update_callback($cms_model)
+    {
+        $this->model->cms_update_callback($cms_model);
     }
 }
 ?>

@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
@@ -71,8 +76,8 @@ class ShowUserInputView extends StyleView
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Date");
         $this->label_delete = $this->model->get_db_field("label_delete", "Remove");
-        $this->delete_content = $this->model->get_db_field("text", "Do you want to remove the entry?");
-        $this->delete_title = $this->model->get_db_field("text", "Remove Entry");
+        $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
+        $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
         $this->can_delete = $this->label_delete != "";
     }
 

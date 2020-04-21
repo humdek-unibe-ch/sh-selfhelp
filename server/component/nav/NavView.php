@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseView.php";
 
 /**
@@ -31,6 +36,7 @@ class NavView extends BaseView
             return;
         $active = ($this->model->is_link_active($key)) ? "active" : "";
         $url = $this->model->get_link_url($key);
+        $accessToChat = $this->model->has_access_to_chat($key) ? "" : "d-none";
         require __DIR__ .'/tpl_contact.php';
     }
 

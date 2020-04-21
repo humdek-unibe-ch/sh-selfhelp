@@ -4,6 +4,35 @@ In the following the expression `__experiment_name__` will be used as a placehol
 
 **Do not use underline in this name as it causes issues with the database name!**
 
+
+# After version v1.1.8
+
+### 1. Clone the latest release from GitLab 
+
+```
+cd
+git clone gh@tpf.fluido.as:SLP/SLP-sleep_coach.git __experiment_name__
+cd __experiment_name__
+```
+
+Checkout the latest relaese.
+The expression `__latest_release__` is used as a placeholder for the latest version number.
+To list all releases use the command `git tag`.
+
+```
+git checkout v__latest_release__
+```
+
+### 2. Install SelfHelp 
+
+```
+cd server/utils/
+sudo ./install.sh -n __experiment_name__ -p __db_password__ -u __os_user__
+
+```
+
+# Before version v1.1.8
+
 ### 1. Clone the latest release from GitLab 
 
 ```

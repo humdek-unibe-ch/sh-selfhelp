@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseView.php";
 require_once __DIR__ . "/../style/BaseStyleComponent.php";
 require_once __DIR__ . "/../style/StyleComponent.php";
@@ -536,6 +541,18 @@ class CmsView extends BaseView
                 "items" => $field['content'],
             ));
         }
+        else if($field['type'] == "data-source")
+        {
+            $children[] = new BaseStyleComponent("autocomplete", array(
+                "value" => $field['content'],
+                "name_value_field" => $field_name_content,
+                "placeholder" => "Search for a stored Data Source",
+                "name" => "data_source_search",
+                "callback_class" => "AjaxSearch",
+                "callback_method" => "search_data_source",
+                "show_value" => true
+            ));
+        }
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
@@ -706,10 +723,12 @@ class CmsView extends BaseView
             $this->output_local_component("new_child_page");
         if($this->model->can_delete_page())
         {
-            if($this->model->get_active_section_id() == null)
+            if($this->model->get_active_section_id() == null) {
                 $this->output_local_component("delete_page");
-            else
+            }
+            else if($this->model->can_delete_section()) {
                 $this->output_local_component("delete_section");
+            }
         }
     }
 
@@ -742,6 +761,8 @@ class CmsView extends BaseView
     {
         $url = $this->model->get_link_url($this->page_info['keyword'],
                 array("nav" => $this->model->get_active_root_section_id()));
+        if($url === "")
+            return;
         if($this->model->get_active_section_id())
             $url .= '#section-' . $this->model->get_active_section_id();
         $_SESSION['cms_edit_url'] = $this->model->get_current_url_params();

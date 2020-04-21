@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
@@ -102,6 +107,7 @@ abstract class BasePage
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
             "/js/ext/mermaid.min.js",
+            "/js/ext/plotly.min.js",
         );
         if(DEBUG == 0)
         {
@@ -124,6 +130,7 @@ abstract class BasePage
             new NavComponent($this->services));
         $this->add_component("footer",
             new FooterComponent($this->services));
+        $_SESSION['requests'] = array();
     }
 
     /* Private Metods *********************************************************/
@@ -133,6 +140,8 @@ abstract class BasePage
      */
     private function collect_style_includes()
     {
+        $js_includes = array();
+        $css_includes = array();
         if($handle = opendir(STYLE_SERVER_PATH)) {
             $this->add_main_include_files(
                 STYLE_SERVER_PATH . '/css',
@@ -153,16 +162,20 @@ abstract class BasePage
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/css',
                     STYLE_PATH . '/' . $file . '/css/', 'css',
-                    $this->css_includes
+                    $css_includes
                 );
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/js',
                     STYLE_PATH . '/' . $file . '/js/', 'js',
-                    $this->js_includes
+                    $js_includes
                 );
             }
             closedir($handle);
         }
+        sort($js_includes);
+        sort($css_includes);
+        $this->js_includes = array_merge($this->js_includes, $js_includes);
+        $this->css_includes = array_merge($this->css_includes, $css_includes);
     }
 
     /**
@@ -218,7 +231,7 @@ abstract class BasePage
      */
     private function get_csp_rules()
     {
-        return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-"
+        return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
             . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' data: https://via.placeholder.com/";
     }
 
@@ -264,6 +277,7 @@ abstract class BasePage
     {
         $this->js_includes = array_unique(array_merge($this->js_includes,
             $this->get_js_includes()));
+        /* sort($this->js_includes); */
         foreach($this->js_includes as $js_include)
         {
             $router = $this->services->get_router();

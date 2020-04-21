@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/ChatView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
 
@@ -40,10 +45,12 @@ class ChatViewTherapist extends ChatView
      */
     private function output_subjects()
     {
-        foreach($this->model->get_subjects() as $subject)
+        $subjects = $this->model->get_subjects();
+        foreach($subjects as $subject)
         {
             $id = intval($subject['id']);
             $name = $subject['name'];
+            $subject_code = $subject['code'];
             $url = $this->model->get_subject_url($id);
             $active = "";
             if($this->model->is_subject_selected($id))
@@ -77,6 +84,17 @@ class ChatViewTherapist extends ChatView
         require __DIR__ . "/tpl_chat_item.php";
     }
 
+    /** 
+     * Render the list of available rooms and if therapist add groups
+     */
+    protected function output_room_list()
+    {
+        $rooms = $this->model->get_rooms();        
+        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
+            "name" => $this->label_global));
+        require __DIR__ . "/tpl_room_list.php";
+    } 
+
     /**
      * Render the new badge.
      */
@@ -97,6 +115,15 @@ class ChatViewTherapist extends ChatView
         $title = $this->title_prefix . " "
             . $this->model->get_selected_user_name();
         require __DIR__ . "/tpl_chat_experimenter.php";
+    }
+
+    /** 
+     * Render the list of available groups for the experamanter
+     */
+    protected function output_group_list()
+    {
+        $groups = $this->model->get_groups();
+        require __DIR__ . "/tpl_group_list.php";
     }
 }
 ?>

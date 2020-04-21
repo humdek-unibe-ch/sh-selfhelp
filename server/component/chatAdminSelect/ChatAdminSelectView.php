@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseView.php";
 require_once __DIR__ . "/../style/BaseStyleComponent.php";
 
@@ -85,6 +90,7 @@ class ChatAdminSelectView extends BaseView
         if($this->model->get_active_room() !== null)
         {
             $name = $this->model->get_active_room_name();
+            $title = $this->model->get_active_room_title();
             $desc = $this->model->get_active_room_desc();
             require __DIR__ . "/tpl_room.php";
         }

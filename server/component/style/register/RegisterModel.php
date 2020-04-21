@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../StyleModel.php";
 require_once __DIR__ . "/../../user/UserModel.php";
 /**
@@ -72,11 +77,30 @@ class RegisterModel extends StyleModel
         );
     }
 
+    /* Private Methods ********************************************************/
+
+    /**
+     * Get the group it there is one assigned to that validation code
+     *
+     * @param string $code
+     *  The validation code.
+     * @retval bool
+     *  True if the check was successful, false otherwise.
+     */
+    private function get_group_from_code($code)
+    {
+        $sql = "SELECT id_groups FROM codes_groups
+            WHERE code = :code";
+        return $this->db->query_db($sql, array(':code' => $code));
+    }
+
     /* Public Methods *********************************************************/
 
     /**
      * Register a user by inserting a new user entry into the database. This is
      * only possible if a valid validation_code is provided.
+     * 
+     * Assing group to the user based on the validation code. If there is no grroup for the code assing to the default one: SUBJECT_GROUP_ID
      *
      * @param string $email
      *  The email address of the user.
@@ -90,11 +114,17 @@ class RegisterModel extends StyleModel
     {
         if($this->check_validation_code($code))
         {
+            $group = $this->get_group_from_code($code);            
+            $groupId = array(SUBJECT_GROUP_ID); // asign default group
+            if(!empty($group)){  
+                              
+                $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
+            }
             $uid = $this->user_model->create_new_user($email);
             if($uid && $this->claim_validation_code($code, $uid))
             {
                 $this->user_model->add_groups_to_user($uid,
-                    array(SUBJECT_GROUP_ID));
+                    $groupId);
                 return $uid;
             }
         }

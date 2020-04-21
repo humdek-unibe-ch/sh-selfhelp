@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/StyleComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
@@ -43,8 +48,10 @@ class StyleModel extends BaseModel implements IStyleModel
      *  The id of the database section item to be rendered.
      * @param array $params
      *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
      */
-    public function __construct($services, $id, $params=array())
+    public function __construct($services, $id, $params=array(), $id_page=-1)
     {
         parent::__construct($services);
         if($this->is_cms_page())
@@ -85,7 +92,7 @@ class StyleModel extends BaseModel implements IStyleModel
         foreach($db_children as $child)
         {
             $this->children[$child['name']] = new StyleComponent(
-                $services, intval($child['id']), $params);
+                $services, intval($child['id']), $params, $id_page);
         }
     }
 
@@ -288,5 +295,11 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         return null;
     }
+
+    /**
+     * This function is called whenever the style component is updated via the
+     * CMS. Redefine within the style.
+     */
+    public function cms_update_callback($model) { }
 }
 ?>

@@ -1,7 +1,13 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/ExportView.php";
 require_once __DIR__ . "/ExportModel.php";
+require_once __DIR__ . "/ExportController.php";
 
 /**
  * The class to define the export component.
@@ -21,8 +27,9 @@ class ExportComponent extends BaseComponent
     public function __construct($services)
     {
         $model = new ExportModel($services);
+        $controller = new ExportController($model);
         $view = new ExportView($model);
-        parent::__construct($model, $view);
+        parent::__construct($model, $view, $controller);        
     }
 }
 ?>

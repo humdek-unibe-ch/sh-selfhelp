@@ -1,7 +1,12 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
     <div class="jumbotron">
-        <h1>Upload <code><?php echo $this->mode; ?></code> File</h1>
+        <h1><?php echo $title[$this->mode]; ?></h1>
         <p>Browse for the file you want to upload and provide a name under which the file will be stored on the server.</p>
     </div>
     <div class="card mb-3">

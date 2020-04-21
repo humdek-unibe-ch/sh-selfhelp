@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 /**
  * This class allows to check wheter a login is valid.
  */
@@ -42,7 +47,9 @@ class Login
      */
     private function init_session()
     {
-        session_name(PROJECT_NAME);
+        if(PROJECT_NAME !== "") {
+            session_name(PROJECT_NAME);
+        }
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = "male";

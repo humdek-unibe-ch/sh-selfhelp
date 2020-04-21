@@ -9,6 +9,7 @@ require_once "./server/page/ExportPage.php";
 require_once "./server/page/SectionPage.php";
 require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
+require_once "./server/callback/CallbackRequest.php";
 
 /**
  * Helper function to show stacktrace also of wranings.
@@ -31,10 +32,17 @@ function create_request_page($services, $class_name, $method_name)
     $ajax = new AjaxRequest($services, $class_name, $method_name);
     $ajax->print_json();
 }
-function create_exportData_page($services, $select, $option=null)
+function create_exportData_page($services, $select, $option=null, $id=null)
 {
     $page = new ExportPage($services);
-    $page->output($select, $option);
+    $page->output($select, $option, $id);
+}
+
+// create callback request
+function create_callback_page($services, $class_name, $method_name)
+{
+    $callback = new CallbackRequest($services, $class_name, $method_name);
+    $callback->print_json();
 }
 
 $router = $services->get_router();

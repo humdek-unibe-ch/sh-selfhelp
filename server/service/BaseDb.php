@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 /**
  * Class to handle the global communication with the DB
  *
@@ -109,12 +114,13 @@ class BaseDb {
      * @retval array
      *  An array with all row entries or false if no entry was selected.
      */
-    public function query_db($sql, $arguments=array())
+    public function query_db($sql, $arguments=array(),
+        $fetch_style=PDO::FETCH_ASSOC)
     {
         try {
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($arguments);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $stmt->fetchAll($fetch_style);
         }
         catch(PDOException $e)
         {
@@ -137,12 +143,13 @@ class BaseDb {
      * @retval array
      *  All row entries or false if no entry was selected.
      */
-    public function query_db_first($sql, $arguments=array())
+    public function query_db_first($sql, $arguments=array(),
+        $fetch_style=PDO::FETCH_ASSOC)
     {
         try {
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($arguments);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            return $stmt->fetch($fetch_style);
         }
         catch(PDOException $e)
         {
@@ -423,22 +430,30 @@ class BaseDb {
      *  The name of the db table.
      * @param array $cols
      *  An array of db collumn names.
-     * @param array $entries
+     * @param array $data
      *  A matrix of values.
      * @retval int
      *  The last inserted id if succeded, false otherwise.
      */
-    public function insert_mult($table, $cols, $entries) {
+    public function insert_mult($table, $cols, $data) {
         try {
-            $data = array();
+            $db_data = array();
             $columnStr = "(" . implode(',', $cols) . ")";
-            $valueStr = implode(',', array_map(function($entry) {
-                      return "(" . implode(',', $entry) . ")";
-                }, $entries));
+            $valueStr = implode(',', array_map(
+                function($row, $row_idx) use ($data, &$db_data)
+                {
+                    return "(" . implode(',', array_map(
+                        function($value, $col_idx) use ($data, &$db_data, $row_idx)
+                        {
+                            $id = ":".($row_idx * count($data) + $col_idx);
+                            $db_data[$id] = $value;
+                            return $id;
+                        }, $row, array_keys($row))) . ")";
+                }, $data, array_keys($data)));
             $sql = "INSERT INTO ".$table
                 .$columnStr." VALUES ".$valueStr;
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute($data);
+            $stmt->execute($db_data);
             $new_id = $this->dbh->lastInsertId();
             if($new_id > 0) return $new_id; // might be zero if no id is available
             else return true;

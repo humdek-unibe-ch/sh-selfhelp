@@ -1,4 +1,9 @@
 <?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the cms insert component.
@@ -36,6 +41,11 @@ class CmsInsertController extends BaseController
             && isset($_POST['protocol']) && isset($_POST['type']))
         {
             $this->name = filter_var($_POST["keyword"], FILTER_SANITIZE_STRING);
+            if (!preg_match_all('/^' . NAME_PATTERN . '$/', $this->name, $res)) {
+                $this->fail = true;
+                $this->error_msgs[] = "The name is not in the correct format!";
+                return;
+            }
             foreach($_POST['protocol'] as $protocol)
                 if($protocol != "GET" && $protocol != "POST"
                     && $protocol != "PATCH" && $protocol != "PUT"
