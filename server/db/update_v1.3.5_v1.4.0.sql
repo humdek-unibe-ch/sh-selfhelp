@@ -324,3 +324,37 @@ SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
+
+--
+-- Table structure for table `user_input_record`
+--
+
+CREATE TABLE `user_input_record` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `user_input_record`
+--
+ALTER TABLE `user_input_record`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `user_input_record`
+--
+ALTER TABLE `user_input_record`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
+
+-- change user_input table to support a record id
+ALTER TABLE `user_input` ADD `id_user_input_record` INT UNSIGNED ZEROFILL NULL DEFAULT NULL AFTER `id_section_form`, ADD INDEX (`id_user_input_record`);
+ALTER TABLE `user_input` ADD CONSTRAINT `user_input_fk_id_user_input_record` FOREIGN KEY (`id_user_input_record`) REFERENCES `user_input_record`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
