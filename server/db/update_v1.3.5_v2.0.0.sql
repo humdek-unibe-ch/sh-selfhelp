@@ -220,7 +220,9 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'raw', 1, 0);
 
 -- add filterToggle style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000002', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data.');
+INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES (NULL, 'Filter', 'Filter styles allow to filter data sets and store the filter state in the session. This allows to filter all styles using the same data source with only one filter', 56);
+SET @id_group = LAST_INSERT_ID();
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000002', @id_group, 'Create a toggle button which will enable or disable a filter on a set of data.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
@@ -239,7 +241,8 @@ SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the button as predefined by bootstrap.');
 
 -- add filterToggleGroup style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000002', '0000000007', 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
+SET @id_group = (SELECT `id` FROM `styleGroup` WHERE `name` = 'Filter');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000002', @id_group, 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
