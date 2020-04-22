@@ -38,3 +38,6 @@ CREATE TABLE `cmsPreferences` (
 INSERT INTO cmsPreferences(callback_api_key, default_language_id)
 VALUES (NULL, 2); 
 
+-- add pages eb=nabled column used for modules
+ALTER TABLE pages
+ADD COLUMN enabled INT DEFAULT 1

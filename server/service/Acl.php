@@ -66,8 +66,9 @@ class Acl
      */
     private function get_access_levels_db_group($id_group, $id_page)
     {
-        $sql = "SELECT * FROM acl_groups
-            WHERE id_groups = :gid AND id_pages = :pid";
+        $sql = "SELECT * FROM acl_groups acl
+            INNER JOIN pages p on (acl.id_pages = p.id)
+            WHERE p.enabled = 1 AND id_groups = :gid AND id_pages = :pid";
         $arguments = array(
             ":gid" => $id_group,
             ":pid" => $id_page
@@ -88,8 +89,9 @@ class Acl
      */
     private function get_access_levels_db_user($id_user, $id_page)
     {
-        $sql = "SELECT * FROM acl_users
-            WHERE id_users = :uid AND id_pages = :pid";
+        $sql = "SELECT * FROM acl_users acl
+            INNER JOIN pages p on (acl.id_pages = p.id)
+            WHERE p.enabled = 1 AND id_users = :uid AND id_pages = :pid";
         $arguments = array(
             ":uid" => $id_user,
             ":pid" => $id_page
@@ -113,7 +115,8 @@ class Acl
         $sql = "SELECT ag.acl_select, ag.acl_insert, ag.acl_update,
             ag.acl_delete FROM acl_groups AS ag
             LEFT JOIN users_groups AS ug ON ag.id_groups = ug.id_groups
-            WHERE ug.id_users = :uid AND ag.id_pages = :pid";
+            INNER JOIN pages p on (ag.id_pages = p.id)
+            WHERE p.enabled = 1 AND ug.id_users = :uid AND ag.id_pages = :pid";
         $arguments = array(
             ":uid" => $id_user,
             ":pid" => $id_page
@@ -422,8 +425,8 @@ class Acl
      */
     public function has_access($id, $id_page, $mode, $is_group = false)
     {
-        if(!$is_group && $id == ADMIN_USER_ID)
-            return true;
+        //if(!$is_group && $id == ADMIN_USER_ID) // why?
+        //    return true;
         $acl = $this->get_access_levels($id, $id_page, $is_group);
         if(isset($acl[$mode]))
             return $acl[$mode];
