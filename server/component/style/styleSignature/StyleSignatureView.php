@@ -29,7 +29,9 @@ class StyleSignatureView extends StyleView
 
     /* Private  Methods *******************************************************/
 
-    private function output_style_fields($fields)
+    /* Public Methods *********************************************************/
+
+    public function output_style_fields($fields)
     {
         foreach($fields as $field) {
             $name = $field['name'];
@@ -39,8 +41,6 @@ class StyleSignatureView extends StyleView
         }
     }
 
-    /* Public Methods *********************************************************/
-
     /**
      * Render the style view.
      */
@@ -49,11 +49,36 @@ class StyleSignatureView extends StyleView
         $info = $this->model->get_style_info();
         if($info) {
             $fields = $this->model->get_style_fields($info['id']);
-            $name = $info['name'];
-            $description = $info['description'];
-            $group = $info['style_group'];
-            $type = $info['type'];
-            require __DIR__ . "/tpl_styleSignature.php";
+            $tabs = new BaseStyleComponent("tabs", array(
+                "css" => $this->css,
+                "children" => array(
+                    new BaseStyleComponent("tab", array(
+                        "id" => $this->id_section . "-0",
+                        "label" => "Style Signature",
+                        "is_expanded" => true,
+                        "children" => array(
+                            new BaseStyleComponent("template", array(
+                                "path" => __DIR__ . "/tpl_styleSignature.php",
+                                "items" => $info
+                            ))
+                        )
+                    )),
+                    new BaseStyleComponent("tab", array(
+                        "id" => $this->id_section . "-1",
+                        "label" => "Style Fields",
+                        "children" => array(
+                            new BaseStyleComponent("template", array(
+                                "path" => __DIR__ . "/tpl_styleSignature_fields.php",
+                                "items" => array(
+                                    "fields" => $fields,
+                                    "parent" => $this
+                                )
+                            ))
+                        )
+                    ))
+                )
+            ));
+            $tabs->output_content();
         }
     }
 }
