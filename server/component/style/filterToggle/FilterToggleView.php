@@ -55,6 +55,10 @@ class FilterToggleView extends FilterView
 
     /* Private  Methods *******************************************************/
 
+    /**
+     * The function to render the filter. This is the redefinition of the
+     * abstract parent method.
+     */
     protected function output_filter() {
         $is_active = isset($_SESSION['data_filter'][$this->data_source][$this->name][0]) &&
             $_SESSION['data_filter'][$this->data_source][$this->name][0] === $this->value;

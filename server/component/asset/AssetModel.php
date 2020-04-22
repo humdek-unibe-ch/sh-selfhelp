@@ -31,7 +31,7 @@ class AssetModel extends BaseModel
      * Postprocessing DB data after deleting a static data file. The
      * corresponding DB-entries are removed.
      *
-     * @param string name
+     * @param string $name
      *  The name of the file (without extension)
      * @retval mixed
      *  True on success, an error message on failure.

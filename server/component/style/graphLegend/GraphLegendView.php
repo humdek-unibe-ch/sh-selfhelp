@@ -36,6 +36,13 @@ class GraphLegendView extends StyleView
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Checks wether the types array provided through the CMS contains all
+     * required fields.
+     *
+     * @retval boolean
+     *  True on success, false on failure.
+     */
     private function check_value_types() {
         if(!is_array($this->value_types) || count($this->value_types) === 0)
             return false;
@@ -49,8 +56,11 @@ class GraphLegendView extends StyleView
         return true;
     }
 
-    private function output_list_items($items) {
-        foreach($items as $item) {
+    /**
+     * Render the list of legend items.
+     */
+    private function output_list_items() {
+        foreach($this->value_types as $item) {
             $key = $item['key'];
             $color = $item['color'];
             $label = $item['label'];

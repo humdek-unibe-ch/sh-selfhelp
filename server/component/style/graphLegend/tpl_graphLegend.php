@@ -4,5 +4,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="graphLegend">
-    <?php $this->output_list_items($this->value_types); ?>
+    <?php $this->output_list_items(); ?>
 </div>
