@@ -110,7 +110,10 @@ class BaseDb {
      *  An associative array with value key pairs where the keys are variable
      *  identifiers used in the query (e.g ':id') which will be replaced with
      *  the associated value on query execution.
-     *
+     * @param enum $fetch_style
+     *  Controls how the next row will be returned to the caller. Refer to the
+     *  [official documentation](https://www.php.net/manual/en/pdostatement.fetch.php)
+     *  for more information.
      * @retval array
      *  An array with all row entries or false if no entry was selected.
      */
@@ -139,7 +142,10 @@ class BaseDb {
      *  An associative array with value key pairs where the keys are variable
      *  identifiers used in the query (e.g ':id') which will be replaced with
      *  the associated value on query execution.
-     *
+     * @param enum $fetch_style
+     *  Controls how the next row will be returned to the caller. Refer to the
+     *  [official documentation](https://www.php.net/manual/en/pdostatement.fetch.php)
+     *  for more information.
      * @retval array
      *  All row entries or false if no entry was selected.
      */

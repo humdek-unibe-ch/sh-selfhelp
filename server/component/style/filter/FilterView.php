@@ -14,12 +14,12 @@ abstract class FilterView extends StyleView
     /* Private Properties *****************************************************/
 
     /**
-     *
+     * The value to be filtered against
      */
     private $filter_value = null;
 
     /**
-     *
+     * The type of filter
      */
     private $filter_type = null;
 
@@ -68,19 +68,29 @@ abstract class FilterView extends StyleView
     }
 
     /**
-     *
+     * The function to render the filter. This will be overwritten by the
+     * class extensions.
      */
     abstract protected function output_filter();
 
     /**
+     * Setter for FilterView::filter_value.
      *
+     * @param array $value
+     *  A list of filter value items where each items has the following keys:
+     *   - `op` which defines teh comparing operation (`=`, `<`, `<=`, `>`,
+     *     `>=`)
+     *   - `val` is the value to compare to
      */
     protected function set_filter_value($value) {
         $this->filter_value = $value;
     }
 
     /**
+     * Setter for FilterView::filter_type.
      *
+     * @param string $value
+     *  The filter type.
      */
     protected function set_filter_type($value) {
         $this->filter_type = $value;

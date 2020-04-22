@@ -115,11 +115,17 @@ class GraphModel extends StyleModel
 
     /* Public Methods *********************************************************/
 
+    /**
+     * Getter function of GraphModel::data_source
+     */
     public function get_data_source()
     {
         return $this->data_source;
     }
 
+    /**
+     * Getter function of GraphModel::single_user
+     */
     public function get_single_user()
     {
         return $this->single_user;
@@ -147,6 +153,15 @@ class GraphModel extends StyleModel
         return true;
     }
 
+    /**
+     * Extracts all labels from a list of associative arrays where each item as
+     * the key `label`.
+     *
+     * @param array $value_types
+     *  A list of items where each item is expected to have a key `label`.
+     * @retval array
+     *  A list of labels.
+     */
     public function extract_labels($value_types) {
         $labels = array();
         foreach($value_types as $type) {
@@ -155,6 +170,15 @@ class GraphModel extends StyleModel
         return $labels;
     }
 
+    /**
+     * Extracts all colors from a list of associative arrays where each item as
+     * the key `color`.
+     *
+     * @param array $value_types
+     *  A list of items where each item is expected to have a key `color`.
+     * @retval array
+     *  A list of colors.
+     */
     public function extract_colors($value_types) {
         $colors = array();
         foreach($value_types as $type) {

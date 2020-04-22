@@ -880,7 +880,8 @@ EXCLUDE                =    css \
                             doc \
                             server/service/ext \
                             server/component/style/conditionalContainer/JsonLogic.php \
-                            gulp
+                            gulp \
+                            server/db/FUN_PRO_VIEWS/README.md
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

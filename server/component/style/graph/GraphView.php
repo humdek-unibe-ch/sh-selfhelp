@@ -65,6 +65,9 @@ class GraphView extends StyleView
 
     /* Private  Methods *******************************************************/
 
+    /**
+     * Render the graph data to be used by the js library to draw the graph.
+     */
     private function output_graph_data()
     {
         if($this->title !== "") {
@@ -88,6 +91,12 @@ class GraphView extends StyleView
         ));
     }
 
+    /**
+     * Check whether the config field entered through the CMS is valid.
+     *
+     * @retval boolean
+     *  True if the config field is valid, False otherwise.
+     */
     private function check_config()
     {
         if(!is_array($this->config) && $this->config != NULL)
@@ -95,6 +104,12 @@ class GraphView extends StyleView
         return true;
     }
 
+    /**
+     * Check whether the layout field entered through the CMS is valid.
+     *
+     * @retval boolean
+     *  True if the layout field is valid, False otherwise.
+     */
     private function check_layout()
     {
         if(!is_array($this->layout) && $this->layout != NULL)
@@ -102,6 +117,12 @@ class GraphView extends StyleView
         return true;
     }
 
+    /**
+     * Check whether the traces field entered through the CMS is valid.
+     *
+     * @retval boolean
+     *  True if the traces field is valid, False otherwise.
+     */
     private function check_traces()
     {
         if(!is_array($this->traces) && $this->traces != NULL)
@@ -125,11 +146,26 @@ class GraphView extends StyleView
 
     /* Protected  Methods *****************************************************/
 
+    /**
+     * Allows to set the type of the graph.
+     * This type is used to distinguish between different JS implementations
+     * of the data source callback.
+     *
+     * @param string $name
+     *  The name of the type. This can either of the following strings
+     *   - 'sankey'
+     *   - 'base'
+     */
     protected function set_graph_type($name)
     {
         $this->graph_type = $name;
     }
 
+    /**
+     * Render the graph options. Graph options are used to communicate
+     * additional options to JS which cannot be included in the traces. Refer
+     * to GraphSankeyView::output_graph_opts() for an example.
+     */
     protected function output_graph_opts() {
         echo "{}";
     }

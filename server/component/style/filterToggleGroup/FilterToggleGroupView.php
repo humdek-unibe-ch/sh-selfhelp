@@ -87,7 +87,8 @@ class FilterToggleGroupView extends FilterView
     }
 
     /**
-     *
+     * The function to render the filter. This is the redefinition of the
+     * abstract parent method.
      */
     protected function output_filter() {
         if(count($this->labels) !== count($this->values)) {
