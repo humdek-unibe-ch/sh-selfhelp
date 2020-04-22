@@ -1,18 +1,48 @@
-# v1.4.0 (latest)
+# v2.0.0 (latest)
 
 ### Bugfix
 
- - ...
+ - Fix ACL-checks on AJAX requests. It is now possible to use AJAX request in
+   any style. The AJAX requests inherit the ACL of the page from which they are
+   called.
+ - Fix bug when multiple tab styles are used on the same page.
 
 ### Changes
 
- - alter the table `user_input` to allow fields to be grouped by row with a
+ - Alter the table `user_input` to allow fields to be grouped by row with a
    record id instead of the timestamp.
+ - Open AJAX requests for everyone by default.
+ - Use new style `autocomplete` in `ChatAdminUpdate` component.
 
 
 ### New Features
 
- - ...
+ - New style `graph` (#254). This style allows to render all kind of graphs
+   using the library [Plotly.js](https://plotly.com/javascript/). The data used
+   to draw the graphs can either be
+    - manually entered numbers
+    - from an uploaded CSV file
+    - from dynamic user input data
+ - New style `graphBar` (#259). This style is based on style `graph` but
+   provides a more convenient interface to render bar graphs than the rather
+   complex style `graph`. However, it is lacking in terms of flexibility.
+ - New style `graphPie` (#258). This style is based on style `graph` but
+   provides a more convenient interface to render pie graphs than the rather
+   complex style `graph`. However, it is lacking in terms of flexibility.
+ - New style `graphSankey` (#253). This style is based on style `graph` but
+   is specialised to render Sankey diagrams. This style offers more flexibility
+   with respect to Sankey diagrams than the style `graph` is capable of
+   offering.
+ - New style `graphLegend` (#260). This style allows to render a static legend
+   which can be used as a global legend for multiple graphs.
+ - New styles `filterToggle` and `filterToggleGroup` (#257). These styles
+   allow to filter graph data and store the active filters in the session.
+ - New style `autocomple` (#256). This style allows to use AJAX calls in a
+   convenient way to search for items in the database.
+ - Extension of the `AssetComponent` to allow uploading CSV files which can
+   then be used to render graphs (#255).
+ - Add a symbol to the header of a collapsible card to indicate that the card
+   is collapsible.
 
 
 ---------
