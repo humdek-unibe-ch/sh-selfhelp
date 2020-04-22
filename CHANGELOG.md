@@ -1,4 +1,23 @@
-# v1.3.5 (latest)
+# v1.4.0 (latest)
+
+### Bugfix
+
+ - ...
+
+### Changes
+
+ - alter the table `user_input` to allow fields to be grouped by row with a
+   record id instead of the timestamp.
+
+
+### New Features
+
+ - ...
+
+
+---------
+
+# v1.3.5
 
 ### Bugfix
 
