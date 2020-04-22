@@ -63,4 +63,9 @@ define('USER_STATUS_ACTIVE', 3);
 define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');
 define('CALLBACK_SUCCESS', 'callback_success');
+
+/* Module names */
+define('MODULE_QUALTRICS', 'moduleQualtrics');
+define('MODULE_MAIL', 'moduleMail');
+define('ALL_MODULES', [MODULE_QUALTRICS, MODULE_MAIL]);
 ?>

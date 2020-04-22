@@ -413,5 +413,25 @@ class PageDb extends BaseDb
         $sql = "SELECT * FROM view_cmsPreferences;";
         return $this->query_db($sql);
     }
+
+    /**
+     * Fetch module status
+     * 
+     * @param string $module_name the keyword for the page module
+     *
+     * @retval array
+     * enabled; 0 = false; 1 = true 
+     * module_name     
+     * module_name_id as string
+     */
+    public function fetch_module_status($module_name)
+    {
+        $sql = "SELECT p.enabled, t.content as module_name, keyword as module_name_id
+                FROM pages p
+                INNER JOIN pages_fields_translation t ON (p.id = t.id_pages)
+                WHERE id_languages = 1 AND keyword = :module_name;";
+        return $this->query_db($sql, array('module_name' => $module_name));
+    }
+
 }
 ?>

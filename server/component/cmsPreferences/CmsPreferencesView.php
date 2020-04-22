@@ -38,6 +38,37 @@ class CmsPreferencesView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
+     * Render all modules
+     * @param string $mode 'update', 'view'
+     * @retval array with Template Stlye objects for each module
+     */
+    private function get_all_modules($mode)
+    {
+        $modules_arr = [];
+        foreach (ALL_MODULES as $module) {
+            $module_info = $this->model->get_db()->fetch_module_status($module)[0];
+            $mod = new BaseStyleComponent("template", array(
+                "path" => __DIR__ . "/tpl_checkboxModule.php",
+                "items" => array(
+                    "is_checked" => $module_info['enabled'],
+                    "label" => $module_info['module_name'],
+                    "id" => $module_info['module_name_id'],
+                    "disabled" => $mode == 'view' ? "disabled" : ""
+                )
+            ));
+            array_push($modules_arr, $mod);
+        }
+        $cardModules = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => true,
+            "title" => "Modules",
+            "children" => $modules_arr,
+        ));
+        return count($modules_arr) > 0 ? $cardModules : [];
+    }
+
+    /**
      * Render the button to create a new language.
      */
     private function output_button()
@@ -96,6 +127,20 @@ class CmsPreferencesView extends BaseView
                 "value" => $language['id'],
                 "text" => $language['title']
             ));
+        $cmsPreferencesChildren = array(
+            new BaseStyleComponent("select", array(
+                "label" => "CMS Content Language",
+                "value" => $this->model->get_cmsPreferences()['default_language_id'],
+                "name" => "default_language_id",
+                "items" => $options,
+            )),
+            new BaseStyleComponent("input", array(
+                "label" => "Callback API Key",
+                "value" => $this->model->get_cmsPreferences()['callback_api_key'],
+                "name" => "callback_api_key"
+            )),
+            $this->get_all_modules('update')
+        );
         $cmsPreferences = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
@@ -106,19 +151,7 @@ class CmsPreferencesView extends BaseView
                 "url" => $this->model->get_link_url("cmsPreferences"),
                 "url_cancel" => $this->model->get_link_url("cmsPreferences"),
                 "type" => "warning",
-                "children" => array(
-                    new BaseStyleComponent("select", array(
-                        "label" => "CMS Content Language",
-                        "value" => $this->model->get_cmsPreferences()['default_language_id'],
-                        "name" => "default_language_id",
-                        "items" => $options,
-                    )),
-                     new BaseStyleComponent("input", array(
-                        "label" => "Callback API Key",
-                        "value" => $this->model->get_cmsPreferences()['callback_api_key'],
-                        "name" => "callback_api_key"
-                    ))
-                )
+                "children" => $cmsPreferencesChildren
             ))),
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
         ));
@@ -156,7 +189,8 @@ class CmsPreferencesView extends BaseView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->model->get_cmsPreferences()['callback_api_key']
                     ))),
-                ))
+                )),
+                $this->get_all_modules('view')
             ),
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
         ));
@@ -178,8 +212,8 @@ class CmsPreferencesView extends BaseView
      */
     private function output_alert()
     {
-        $this->output_controller_alerts_fail();        
-        $this->output_controller_alerts_success();    
+        $this->output_controller_alerts_fail();
+        $this->output_controller_alerts_success();
     }
 }
 ?>
