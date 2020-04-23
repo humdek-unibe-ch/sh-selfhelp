@@ -38,10 +38,6 @@ CREATE TABLE `cmsPreferences` (
 INSERT INTO cmsPreferences(callback_api_key, default_language_id)
 VALUES (NULL, 2); 
 
--- add pages eb=nabled column used for modules
-ALTER TABLE pages
-ADD COLUMN enabled INT DEFAULT 1;
-
 -- add Qualtrics module page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
 VALUES (NULL, 'moduleQualtrics', '/admin/module_qualtrics', 'GET|POST|PATCH', '0000000002', NULL, '0000000009', '0', '90', NULL, '0000000001');
@@ -57,3 +53,115 @@ SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Module Mail');
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '1', '0');
+
+-- add table modules
+CREATE TABLE `modules` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `module_name` varchar(500),
+  `enabled` int default 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- add table modules_pages
+CREATE TABLE `modules_pages` (
+  `id_modules` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `modules_pages`
+  ADD PRIMARY KEY (`id_modules`,`id_pages`),
+  ADD KEY `id_modules` (`id_modules`),
+  ADD KEY `id_pages` (`id_pages`);
+  
+--
+-- Constraints for table `uploadCells`
+--
+ALTER TABLE `modules_pages`
+  ADD CONSTRAINT `modules_pages_fk_id_modules` FOREIGN KEY (`id_modules`) REFERENCES `modules` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `modules_pages_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+-- procedure for registering modules and pages
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS proc_register_module //
+
+CREATE PROCEDURE proc_register_module( 
+	p_module_name VARCHAR(500), 
+    p_page_name VARCHAR(100), 
+    p_enabled INT )
+-- send module name, page name and enabled disabled;
+-- if module does not exists, it will be created, then the page will be added to the module if it exists. First we check if the page exist, if it doesnt exist we throw error. 
+-- enabled is assigned to the module.
+BEGIN
+	SET @page_id = NULL;
+    SET @module_id = NULL;
+    SET @result = '';
+	SELECT id INTO @page_id FROM pages WHERE keyword = p_page_name COLLATE utf8_unicode_ci;
+    
+    IF (@page_id IS NULL) THEN
+		SET @result = CONCAT('Page name ', p_page_name, ' does not exist;');
+	ELSE
+
+		SELECT id INTO @module_id FROM modules WHERE module_name = p_module_name COLLATE utf8_unicode_ci;
+		IF (@module_id IS NULL) THEN
+			INSERT INTO modules (module_name, enabled) VALUES (p_module_name, p_enabled); 
+			SET @module_id = LAST_INSERT_ID();
+            SET @result = CONCAT(@result, 'Module ', p_module_name, ' was created!;');            
+		ELSE
+			UPDATE modules SET enabled = p_enabled WHERE id = @module_id;
+            SET @result = CONCAT(@result, 'The status enabled of Module ', p_module_name, ' was was changed to ', p_enabled, ';');
+            
+		END IF;
+        INSERT INTO modules_pages (id_modules, id_pages) VALUES (@module_id, @page_id); 
+		SET @result = CONCAT(@result, 'Page ', p_page_name, ' was added to module ', p_module_name);
+        
+	END IF;
+    
+    SELECT @result AS result;
+
+END
+//
+
+DELIMITER ;
+
+-- register moduleQualtrics with page
+call proc_register_module('moduleQualtrics', 'moduleQualtrics', 1);
+
+-- register moduleMail with page
+call proc_register_module('moduleMail', 'moduleMail', 1);
+
+-- register chatModule
+call proc_register_module('moduleChat', 'contact', 1);
+call proc_register_module('moduleChat', 'chatAdminDelete', 1);
+call proc_register_module('moduleChat', 'chatAdminInsert', 1);
+call proc_register_module('moduleChat', 'chatAdminSelect', 1);
+call proc_register_module('moduleChat', 'chatAdminUpdate', 1);
+
+DROP VIEW IF EXISTS view_acl_groups_pages_modules;
+CREATE VIEW view_acl_groups_pages_modules
+AS
+SELECT acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+FROM acl_groups acl
+INNER JOIN pages p ON (acl.id_pages = p.id)
+LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+LEFT JOIN modules m ON (m.id = mp.id_modules)
+GROUP BY acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
+p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
+
+DROP VIEW IF EXISTS view_acl_users_pages_modules;
+CREATE VIEW view_acl_users_pages_modules
+AS
+SELECT acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+FROM acl_users acl
+INNER JOIN pages p ON (acl.id_pages = p.id)
+LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+LEFT JOIN modules m ON (m.id = mp.id_modules)
+GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
+p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
+
+
+

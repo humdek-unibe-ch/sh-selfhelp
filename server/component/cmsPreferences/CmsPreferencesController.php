@@ -25,8 +25,8 @@ class CmsPreferencesController extends BaseController
         parent::__construct($model);
         if (isset($_POST['default_language_id']) && isset($_POST['callback_api_key'])) {    
             $res = true;       
-            foreach(ALL_MODULES as $module){
-                $res = $res && $this->model->update_module_status($module, isset($_POST[$module]) ? 1 : 0) !== false;
+            foreach($this->model->get_db()->fetch_all_modules() as $module){
+                $res = $res && $this->model->update_module_status($module['id'], isset($_POST[$module['module_name']]) ? 1 : 0) !== false;
             }
             if ($res && $this->model->update_cmsPreferences(array(
                 'default_language_id' => $_POST['default_language_id'],

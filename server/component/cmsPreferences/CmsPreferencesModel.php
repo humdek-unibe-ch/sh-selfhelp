@@ -99,13 +99,13 @@ class CmsPreferencesModel extends BaseModel
      * @param int $enabled 1 true, 0 false 
      *      
      */
-    public function update_module_status($module_name, $enabled)
+    public function update_module_status($module_id, $enabled)
     {
-        $sql = "UPDATE pages SET enabled = :enabled
-            WHERE keyword = :module_name";
+        $sql = "UPDATE modules SET `enabled` = :enabled
+            WHERE id = :module_id";
         return $this->db->execute_update_db($sql, array(
             ':enabled' => $enabled,
-            ':module_name' => $module_name,
+            ':module_id' => $module_id,
         ));
     }
 
