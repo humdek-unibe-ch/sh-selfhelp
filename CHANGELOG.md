@@ -1,4 +1,12 @@
-# v2.0.0 (latest)
+# v2.0.1 (latest)
+
+### Bugfix
+
+ - Fix resizing problem with style `graphSankey`
+
+---------
+
+# v2.0.0
 
 ### Bugfix
 
