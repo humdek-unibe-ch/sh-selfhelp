@@ -16,13 +16,15 @@ $(document).ready(() => {
         };
 
         // draw dynamic data
-        let traces = drawGraph($plot, raw.traces, raw.layout, raw.config, () => {
+        let {traces, count} = drawGraph($plot, raw.traces, raw.layout, raw.config, () => {
             graph_sankey_postprocess_graph(opts, $plot);
         }, true);
 
         new ResizeSensor($plot, function() {
-            Plotly.newPlot($plot[0], traces, raw.layout, raw.config);
-            graph_sankey_postprocess_graph(opts, $plot);
+            if(count === raw.traces.length) {
+                Plotly.newPlot($plot[0], traces, raw.layout, raw.config);
+                graph_sankey_postprocess_graph(opts, $plot);
+            }
         });
     });
 });
