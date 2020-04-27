@@ -64,8 +64,9 @@ define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');
 define('CALLBACK_SUCCESS', 'callback_success');
 
-/* Module names */
-define('MODULE_QUALTRICS', 'moduleQualtrics');
-define('MODULE_MAIL', 'moduleMail');
-define('ALL_MODULES', [MODULE_QUALTRICS, MODULE_MAIL]);
+/* Emtry modes */
+define('INSERT', 'insert');
+define('UPDATE', 'update');
+define('DELETE', 'delete');
+define('SELECT', 'select');
 ?>

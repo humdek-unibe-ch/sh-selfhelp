@@ -98,7 +98,7 @@ class LanguageView extends BaseView
      */
     private function output_alert()
     {
-        $this->output_controller_alerts_fail();        
+        $this->output_controller_alerts_fail();
     }
 }
 ?>

@@ -20,6 +20,7 @@ VALUES (NULL, 'language', '/admin/language/[i:lid]?', 'GET|POST|PATCH', '0000000
 SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Create Language');
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
 
 -- local and language should be unique
 ALTER TABLE languages ADD UNIQUE (locale);
@@ -40,7 +41,7 @@ VALUES (NULL, 2);
 
 -- add Qualtrics module page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtrics', '/admin/module_qualtrics', 'GET|POST|PATCH', '0000000002', NULL, '0000000009', '0', '90', NULL, '0000000001');
+VALUES (NULL, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST|PATCH', '0000000002', NULL, '0000000009', '0', '90', NULL, '0000000001');
 SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Module Qualtrics');
@@ -164,4 +165,41 @@ GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_upd
 p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
 
 
+-- add insert qualtrics projects page
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'moduleQualtricsProject', '/admin/qualtrics/project/[i:pid]?', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+SET @id_page = LAST_INSERT_ID();
 
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Projects');
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
+
+-- register page qualtrics projects to moduleQualtrics
+call proc_register_module('moduleQualtrics', 'moduleQualtricsProject', 1);
+
+-- add insert qualtrics survey page
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[i:sid]?', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+SET @id_page = LAST_INSERT_ID();
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Survey');
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
+
+-- register page qualtrics projects to moduleQualtrics
+call proc_register_module('moduleQualtrics', 'moduleQualtricsSurvey', 1);
+
+
+-- Add internal style navigationBar
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'navigationBar', '0000000001', '0000000001', 'Provides a navigation bar style');
+SET @id_style = LAST_INSERT_ID();
+-- Assign fields to style navigationBar
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'items');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'JSON structure for the navigation bar');
+
+
+-- add table qualtricsProjects
+CREATE TABLE `qualtricsProjects` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `name` varchar(200),
+  `description` varchar(1000),
+  `api_mailing_group_id` varchar(100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
