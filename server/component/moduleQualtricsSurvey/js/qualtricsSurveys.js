@@ -4,7 +4,7 @@ $(document).ready(function () {
     });
     table.on('click', 'tr[id|="survey-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
-        document.location = 'survey/' + parseInt(ids[2]);
+        document.location = 'survey/select/' + parseInt(ids[2]);
     });
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });

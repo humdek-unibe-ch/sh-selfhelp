@@ -38,10 +38,11 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
      * @param object $model
      *  The model instance of the component.
      */
-    public function __construct($model, $controller, $sid)
+    public function __construct($model, $controller, $sid, $mode)
     {
         parent::__construct($model, $controller);
         $this->sid = $sid;
+        $this->mode = $mode;
         $this->survey = $this->model->get_db()->select_by_uid("qualtricsSurveys", $this->sid);
     }
 
@@ -101,12 +102,13 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
+            "type" => "warning",
             "title" => $this->mode === INSERT ? 'New Qualtrics Survey' : 'Qualtrics Survey ID: ' . $this->survey['id'],
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "label" => $this->mode === INSERT ? 'Create' : 'Update',
                     "url" => $this->model->get_link_url("moduleQualtricsSurvey"),
-                    "url_cancel" => $this->model->get_link_url("moduleQualtricsSurvey"),
+                    "url_cancel" => $this->mode === INSERT ?  $this->model->get_link_url("moduleQualtricsSurvey") : $this->model->get_link_url("moduleQualtricsSurvey", array("sid" => $this->sid, "mode" => SELECT)),
                     "label_cancel" => 'Cancel',
                     "type" => $this->mode === INSERT ? 'primary' : 'warning',
                     "children" => array(
@@ -161,6 +163,51 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
         $form->output_content();
     }
 
+    /**
+     * Render the entry form view
+     */
+    private function output_entry_form_view()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "url_edit" => $this->model->get_link_url("moduleQualtricsSurvey", array("sid" => $this->sid, "mode" => UPDATE)),
+            "title" => 'Qualtrics Survey ID: ' . $this->survey['id'],
+            "children" => array(
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Survey name",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['name']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Qualtrics survey id",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['qualtrics_survey_id']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Survey description",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['description']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Subject variable name",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['subject_variable']
+                    ))),
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -184,22 +231,9 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
      */
     public function output_page_content()
     {
-        $cancel_url = $this->model->get_link_url("moduleQualtricsSurvey");
-        $survey = array(
-            "id" => $this->sid,
-            "name" => "",
-            "api_mailing_group_id" => "",
-            "description" => ""
-        );
-        $action_url = $this->model->get_link_url("moduleQualtricsSurvey");
-        if ($this->sid === null) {
-            $this->mode = SELECT;
+        if ($this->mode === null) {
             require __DIR__ . "/tpl_qualtricsSurveys.php";
-        } else if ($this->sid === 0) {
-            $this->mode = INSERT;
-            require __DIR__ . "/tpl_qulatricsSurvey_entry.php";
-        } else if ($this->sid > 0) {
-            $this->mode = UPDATE;            
+        } else {
             require __DIR__ . "/tpl_qulatricsSurvey_entry.php";
         }
     }
@@ -211,7 +245,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     {
         $button = new BaseStyleComponent("button", array(
             "label" => "Create New Survey",
-            "url" => $this->model->get_link_url("moduleQualtricsSurvey", array("sid" => 0)),
+            "url" => $this->model->get_link_url("moduleQualtricsSurvey", array("mode" => INSERT)),
             "type" => "secondary",
             "css" => "d-block mb-3",
         ));

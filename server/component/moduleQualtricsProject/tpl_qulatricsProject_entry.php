@@ -5,7 +5,9 @@
 ?>
 <div class="container">
     <?php
-    if (!$this->project) {
+    if ($this->mode === INSERT) {
+        $this->output_entry_form();
+    } else if (!$this->project) {
         echo "Missing entry!";
     } else if ($this->mode === SELECT) {
         $this->output_entry_form_view();

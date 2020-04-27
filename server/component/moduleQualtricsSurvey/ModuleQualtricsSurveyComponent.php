@@ -27,9 +27,10 @@ class ModuleQualtricsSurveyComponent extends BaseComponent
     public function __construct($services, $params)
     {
         $sid = isset($params['sid']) ? intval($params['sid']) : null;
+        $mode = isset($params['mode']) ? $params['mode'] : null;
         $model = new ModuleQualtricsSurveyModel($services);
         $controller = new ModuleQualtricsSurveyController($model);
-        $view = new ModuleQualtricsSurveyView($model, $controller, $sid);        
+        $view = new ModuleQualtricsSurveyView($model, $controller, $sid, $mode);        
         parent::__construct($model, $view, $controller);
     }
 }

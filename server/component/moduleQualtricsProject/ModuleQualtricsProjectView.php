@@ -108,7 +108,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                 new BaseStyleComponent("form", array(
                     "label" => $this->mode === INSERT ? 'Create' : 'Update',
                     "url" => $this->model->get_link_url("moduleQualtricsProject"),
-                    "url_cancel" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => SELECT)),
+                    "url_cancel" => $this->mode === INSERT ?  $this->model->get_link_url("moduleQualtricsProject") : $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => SELECT)),
                     "label_cancel" => 'Cancel',
                     "type" => $this->mode === INSERT ? 'primary' : 'warning',
                     "children" => array(
@@ -155,7 +155,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     }
 
     /**
-     * Render the entry form
+     * Render the entry form view
      */
     private function output_entry_form_view()
     {
@@ -215,25 +215,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
      * render the page content
      */
     public function output_page_content()
-    {
-        $cancel_url = $this->model->get_link_url("moduleQualtricsProject");
-        $project = array(
-            "id" => $this->pid,
-            "name" => "",
-            "api_mailing_group_id" => "",
-            "description" => ""
-        );
-        $action_url = $this->model->get_link_url("moduleQualtricsProject");
-        // if ($this->pid === null) {
-        //     $this->mode = SELECT;
-        //     require __DIR__ . "/tpl_qualtricsProjects.php";
-        // } else if ($this->pid === 0) {
-        //     $this->mode = INSERT;
-        //     require __DIR__ . "/tpl_qulatricsProject_entry.php";
-        // } else if ($this->pid > 0) {
-        //     $this->mode = UPDATE;            
-        //     require __DIR__ . "/tpl_qulatricsProject_entry.php";
-        // }
+    {        
         if ($this->mode === null) {
             require __DIR__ . "/tpl_qualtricsProjects.php";
         } else {
@@ -248,7 +230,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     {
         $button = new BaseStyleComponent("button", array(
             "label" => "Create New Project",
-            "url" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => 0)),
+            "url" => $this->model->get_link_url("moduleQualtricsProject", array("mode"=> INSERT)),
             "type" => "secondary",
             "css" => "d-block mb-3",
         ));
