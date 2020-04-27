@@ -27,9 +27,10 @@ class ModuleQualtricsProjectComponent extends BaseComponent
     public function __construct($services, $params)
     {
         $pid = isset($params['pid']) ? intval($params['pid']) : null;
+        $mode = isset($params['mode']) ? $params['mode'] : null;
         $model = new ModuleQualtricsProjectModel($services);
         $controller = new ModuleQualtricsProjectController($model);
-        $view = new ModuleQualtricsProjectView($model, $controller, $pid);        
+        $view = new ModuleQualtricsProjectView($model, $controller, $pid, $mode);        
         parent::__construct($model, $view, $controller);
     }
 }

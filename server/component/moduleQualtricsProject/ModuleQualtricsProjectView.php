@@ -38,10 +38,11 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
      * @param object $model
      *  The model instance of the component.
      */
-    public function __construct($model, $controller, $pid)
+    public function __construct($model, $controller, $pid, $mode)
     {
         parent::__construct($model, $controller);
         $this->pid = $pid;
+        $this->mode = $mode;
         $this->project = $this->model->get_db()->select_by_uid("qualtricsProjects", $this->pid);
     }
 
@@ -101,12 +102,13 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
+            "type" => "warning",
             "title" => $this->mode === INSERT ? 'New Qualtrics Project' : 'Qualtrics Project ID: ' . $this->project['id'],
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "label" => $this->mode === INSERT ? 'Create' : 'Update',
                     "url" => $this->model->get_link_url("moduleQualtricsProject"),
-                    "url_cancel" => $this->model->get_link_url("moduleQualtricsProject"),
+                    "url_cancel" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => SELECT)),
                     "label_cancel" => 'Cancel',
                     "type" => $this->mode === INSERT ? 'primary' : 'warning',
                     "children" => array(
@@ -152,6 +154,45 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         $form->output_content();
     }
 
+    /**
+     * Render the entry form
+     */
+    private function output_entry_form_view()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "url_edit" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => UPDATE)),
+            "title" => 'Qualtrics Project ID: ' . $this->project['id'],
+            "children" => array(
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Project name",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['name']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "API mailing group",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['api_mailing_group_id']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Project description",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['description']
+                    ))),
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+
     /* Public Methods *********************************************************/
 
     /**
@@ -183,14 +224,19 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             "description" => ""
         );
         $action_url = $this->model->get_link_url("moduleQualtricsProject");
-        if ($this->pid === null) {
-            $this->mode = SELECT;
+        // if ($this->pid === null) {
+        //     $this->mode = SELECT;
+        //     require __DIR__ . "/tpl_qualtricsProjects.php";
+        // } else if ($this->pid === 0) {
+        //     $this->mode = INSERT;
+        //     require __DIR__ . "/tpl_qulatricsProject_entry.php";
+        // } else if ($this->pid > 0) {
+        //     $this->mode = UPDATE;            
+        //     require __DIR__ . "/tpl_qulatricsProject_entry.php";
+        // }
+        if ($this->mode === null) {
             require __DIR__ . "/tpl_qualtricsProjects.php";
-        } else if ($this->pid === 0) {
-            $this->mode = INSERT;
-            require __DIR__ . "/tpl_qulatricsProject_entry.php";
-        } else if ($this->pid > 0) {
-            $this->mode = UPDATE;            
+        } else {
             require __DIR__ . "/tpl_qulatricsProject_entry.php";
         }
     }

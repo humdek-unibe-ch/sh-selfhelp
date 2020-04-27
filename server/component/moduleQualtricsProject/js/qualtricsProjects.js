@@ -4,7 +4,7 @@ $(document).ready(function () {
     });
     table.on('click', 'tr[id|="project-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
-        document.location = 'project/' + parseInt(ids[2]);
+        document.location = 'project/select/' + parseInt(ids[2]);
     });
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
