@@ -5,7 +5,7 @@
 ?>
 <div class="container">    
     <?php 
-        if($this->mode === UPDATE && !$this->project){
+        if($this->mode === UPDATE && !$this->survey){
             echo "Missing entry!";
         }else{
             $this->output_entry_form();

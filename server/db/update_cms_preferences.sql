@@ -199,7 +199,20 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 -- add table qualtricsProjects
 CREATE TABLE `qualtricsProjects` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
-  `name` varchar(200),
+  `name` varchar(200) NOT NULL,
   `description` varchar(1000),
-  `api_mailing_group_id` varchar(100)
+  `api_mailing_group_id` varchar(100),
+  `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- add table qualtricsSurveys
+CREATE TABLE `qualtricsSurveys` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `description` VARCHAR(1000),
+  `qualtrics_survey_id` VARCHAR(100),
+  `subject_variable` VARCHAR(100),
+  `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

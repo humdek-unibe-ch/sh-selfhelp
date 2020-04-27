@@ -24,12 +24,13 @@ class ModuleQualtricsSurveyComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $params)
     {
+        $sid = isset($params['sid']) ? intval($params['sid']) : null;
         $model = new ModuleQualtricsSurveyModel($services);
         $controller = new ModuleQualtricsSurveyController($model);
-        $view = new ModuleQualtricsSurveyView($model, $controller);
-        parent::__construct($model, $view);
+        $view = new ModuleQualtricsSurveyView($model, $controller, $sid);        
+        parent::__construct($model, $view, $controller);
     }
 }
 ?>

@@ -111,6 +111,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     "type" => $this->mode === INSERT ? 'primary' : 'warning',
                     "children" => array(
                         new BaseStyleComponent("input", array(
+                            "label" => "Project name:",
                             "type_input" => "text",
                             "name" => "name",
                             "value" => $this->project['name'],
@@ -119,16 +120,18 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "placeholder" => "Enter project name",
                         )),
                         new BaseStyleComponent("input", array(
+                            "label" => "API mailing group:",
                             "type_input" => "text",
                             "name" => "api_mailing_group_id",
                             "value" => $this->project['api_mailing_group_id'],
                             "css" => "mb-3",
                             "placeholder" => "Enter API mailing group id",
                         )),
-                        new BaseStyleComponent("input", array(
+                        new BaseStyleComponent("textarea", array(
+                            "label" => "Project description:",
                             "type_input" => "text",
                             "name" => "description",
-                            "value" => $this->project['name'],
+                            "value" => $this->project['description'],
                             "css" => "mb-3",
                             "placeholder" => "Enter project description",
                         )),

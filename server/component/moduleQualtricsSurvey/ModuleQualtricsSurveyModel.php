@@ -26,4 +26,63 @@ class ModuleQualtricsSurveyModel extends BaseModel
         parent::__construct($services);
     }
 
+    /**
+     * Insert a new qualtrics survey to the DB.
+     *
+     * @param array $data
+     *  name, description, qualtrics_survey_id, subject_variable
+     * @retval int
+     *  The id of the new survey or false if the process failed.
+     */
+    public function insert_new_survey($data){
+        return $this->db->insert("qualtricsSurveys", array(
+            "name" => $data['name'],
+            "description" => $data['description'],
+            "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+            "subject_variable" => $data['subject_variable']
+        ));
+    }
+
+    /**
+     * Update qualtrics survey.
+     *
+     * @param array $data
+     *  id, name, description, qualtrics_survey_id, subject_variable
+     * @retval int
+     *  The number of the updated rows
+     */
+    public function update_survey($data){
+        return $this->db->update_by_ids(
+            "qualtricsSurveys",
+            array(
+                "name" => $data['name'],
+                "description" => $data['description'],
+                "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+                "subject_variable" => $data['subject_variable']
+            ),
+            array('id' => $data['id'])
+        );
+    }
+
+    /**
+     * Fetch all qualtrics surveys from the database
+     *
+     * @retval array $survey
+     * id
+     * name
+     * description
+     * api_mailing_group_id
+     */
+    public function get_surveys(){
+        return $this->db->select_table('qualtricsSurveys');
+    }
+
+    /**
+     * get db
+     */
+    public function get_db(){
+        return $this->db;
+    }
+
+
 }
