@@ -38,6 +38,8 @@ class ComponentPage extends BasePage
     public function __construct($services, $keyword, $params)
     {
         parent::__construct($services, $keyword);
+        if(!$this->acl_pass)
+            return;
         $componentClass = ucfirst($keyword) . "Component";
         if(class_exists($componentClass))
         {
