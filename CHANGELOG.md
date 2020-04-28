@@ -1,8 +1,21 @@
+# v2.0.2 (latest)
+
+### Bugfix
+
+ - Fix a security issue
+
+### Changes
+
+ - Don't show login button if login Title name is empty
+ - Order dynamic data fetched with AJAX call by user ID first
+
+---------
 # v2.0.1 (latest)
 
 ### Bugfix
 
  - Fix resizing problem with style `graphSankey`
+
 
 ---------
 
