@@ -167,7 +167,7 @@ p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.na
 
 -- add insert qualtrics projects page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsProject', '/admin/qualtrics/project/[v:mode]?/[i:pid]?', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+VALUES (NULL, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
 SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Projects');
@@ -178,7 +178,7 @@ call proc_register_module('moduleQualtrics', 'moduleQualtricsProject', 1);
 
 -- add insert qualtrics survey page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[v:mode]?/[i:sid]?', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+VALUES (NULL, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST|DELETE', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
 SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Survey');
