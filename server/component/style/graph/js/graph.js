@@ -1,18 +1,28 @@
 $(document).ready(() => {
     $('div.graph-base').each(function () {
-        let $plot = $(this).children('div.graph-plot');
+        let $plot = $(this).children('div.graph-plot:first');
         var raw = parseGraphData($(this).children('div.graph-data:first'));
         if(raw === null) return;
 
-        drawGraph($plot, raw.traces, raw.layout, raw.config);
+        let {traces, count} = drawGraph($plot, raw.traces, raw.layout, raw.config, () => {}, true);
+        new ResizeSensor($plot, function() {
+            if(count === raw.traces.length) {
+                Plotly.newPlot($plot[0], traces, raw.layout, raw.config);
+            }
+        });
     });
 });
 
 function drawGraph($div, traces, layout, config, post_process = () => {}, register_event = false) {
     let $pending = $div.prev();
     let busy_count = 0;
-    let date = new Date();
-    let now = date.getTime();
+    // let date = new Date();
+    // let now = date.getTime();
+    let traces_cache = [];
+    let count = 0;
+    let events = [];
+
+    Plotly.newPlot($div[0], [], layout, config);
     traces.forEach(function(trace, idx) {
         if('data_source' in trace) {
             let { data_source, ...trace_options } = trace;
@@ -20,7 +30,8 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
 
             $pending.removeClass('d-none');
             busy_count++;
-            if(register_event) {
+            if(register_event && !events.includes(event_name)) {
+                events.push(event_name);
                 window.addEventListener(event_name, function(e) {
                     console.log("received event: " + event_name);
                     drawGraph($div, traces, layout, config, post_process);
@@ -28,7 +39,10 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
             }
             $.post(
                 BASE_PATH + '/request/AjaxDataSource/get_data_table',
-                { name: data_source.name, single_user: data_source.single_user },
+                {
+                    name: data_source.name,
+                    single_user: data_source.single_user ? data_source.single_user : false
+                },
                 function(data) {
                     if(data.success)
                     {
@@ -36,21 +50,22 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                         if('cb' in data_source)
                             keys = data_source.cb(data.data);
                         else
-                            keys = graphTraceCb(data.data, data_source);
+                            keys = graphTraceCb(data.data, data_source, idx);
 
-                        if(idx === 0) {
-                            Plotly.newPlot($div[0], [], layout, config);
+                        traces_cache[idx] = deepmerge(trace_options, keys);
+                        Plotly.addTraces($div[0], traces_cache[idx]);
+                        if(count > idx) {
+                            // data did not arrive in order, reordering traces
+                            Plotly.moveTraces($div[0], count, idx);
                         }
-                        console.log(trace_options);
-                        console.log(keys);
-                        Plotly.addTraces($div[0], deepmerge(trace_options, keys));
+                        count++;
 
                         post_process();
                         busy_count--;
                         if(busy_count === 0) {
                             $pending.addClass('d-none');
-                            let date = new Date();
-                            console.log(date.getTime() - now);
+                            // let date = new Date();
+                            // console.log(date.getTime() - now);
                         }
                     }
                     else {
@@ -60,12 +75,15 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                 'json'
             );
         } else {
-            if(idx === 0) {
-                Plotly.newPlot($div[0], [], layout, config);
-            }
-            Plotly.addTraces($div[0], trace);
+            traces_cache[idx] = trace;
+            count++;
+            Plotly.addTraces($div[0], trace, idx);
         }
     });
+    return {
+        count: count,
+        traces: traces_cache
+    };
 }
 
 /**
@@ -122,7 +140,7 @@ function graphTraceCb(data, data_source) {
     for(let key in data_source.map) {
         graphExpandDotString(trace, key, []);
         let source = data_source.map[key];
-        let trace_key = key.split('.').reduce((o, i) => o[i], trace);
+        let trace_key = graphExpandDotString(trace, key, []);
         if(Array.isArray(source)) {
             // column operations
             source.forEach(function(item) {
@@ -146,37 +164,7 @@ function graphTraceCb(data, data_source) {
                 trace_key.push(val);
             });
         } else if(typeof source === 'object' && source !== null) {
-            let vals = {};
-            graphExpandDotString(trace, source.labels.key, []);
-            data.forEach(function(item) {
-                let val = item[source.name];
-                if(!(val in vals)) {
-                    let trace_l_key = source.labels.key.split('.').reduce((o, i) => o[i], trace);
-                    vals[val] = trace_key.length;
-                    trace_key.push(0);
-                    trace_l_key.push(source.labels.map[val]);
-                }
-                if(source.op === "count" || source.op === "percent") {
-                    trace_key[vals[val]]++;
-                } else if(source.op === "sum") {
-                    trace_key[vals[val]] += val;
-                }
-            });
-            if(source.op === "percent") {
-                for(let idx = 0; idx < trace_key.length; idx++) {
-                    trace_key[idx] /= data.length;
-                }
-            }
-            if('factor' in source) {
-                for(let idx = 0; idx < trace_key.length; idx++) {
-                    trace_key[idx] *= source.factor;
-                }
-            }
-            if('offset' in source) {
-                for(let idx = 0; idx < trace_key.length; idx++) {
-                    trace_key[idx] += source.offset;
-                }
-            }
+            graphTraceCbData(data, trace, trace_key, source.name, source.ignore, source.options, source.order, source.maps, source.children);
         } else {
             data.forEach(function(item) {
                 trace_key.push(item[source])
@@ -186,6 +174,124 @@ function graphTraceCb(data, data_source) {
     return trace;
 }
 
+function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, maps = {}, children = {}) {
+    let vals = {};
+    let trace_opt_keys = {};
+    for(let key in maps) {
+        trace_opt_keys[key] = graphExpandDotString(trace, key, []);
+        // trace_opt_keys[key] = key.split('.').reduce((o, i) => o[i], trace);
+    }
+    let new_val = false;
+    let idx = 0;
+    data.forEach(function(item) {
+        let val = item[name];
+        if(ignore && ignore.includes(val)) {
+            return;
+        }
+        if(!(val in vals)) {
+            new_val = true;
+            vals[val] = trace_key.length;
+            trace_key.push(0);
+            for(let key in maps) {
+                trace_opt_keys[key].push(maps[key][val]);
+            }
+        }
+        if(options.op === "count" || options.op === "percent") {
+            trace_key[vals[val]]++;
+        } else if(options.op === "sum") {
+            trace_key[vals[val]] += val;
+        } else if(options.op === "val") {
+            trace_key[vals[val]] = Number(val);
+        } else if(options.op === "idx") {
+            if(new_val) {
+                trace_key[vals[val]] = idx++;
+                new_val = false;
+            }
+        }
+    });
+    if(options.op === "percent") {
+        for(let idx = 0; idx < trace_key.length; idx++) {
+            trace_key[idx] /= data.length;
+        }
+    }
+    if('range' in options && 'min' in options.range
+            && 'max' in options.range) {
+        let max = Math.max(...trace_key);
+        let min = Math.min(...trace_key);
+        for(let idx = 0; idx < trace_key.length; idx++) {
+            trace_key[idx] = (trace_key[idx] - min)
+                * (options.range.max - options.range.min)
+                / (max - min) + options.range.min;
+        }
+    }
+    if('factor' in options) {
+        for(let idx = 0; idx < trace_key.length; idx++) {
+            trace_key[idx] *= options.factor;
+        }
+    }
+    if('offset' in options) {
+        for(let idx = 0; idx < trace_key.length; idx++) {
+            trace_key[idx] += options.offset;
+        }
+    }
+    if('round' in options) {
+        for(let idx = 0; idx < trace_key.length; idx++) {
+            let digit = Math.pow(10, options.round)
+            trace_key[idx] = Math.round((trace_key[idx]
+                + Number.EPSILON) * digit) / digit;
+        }
+    }
+    let sort_indices = null;
+    if(Array.isArray(order)) {
+        if(options.op !== "idx") {
+            // order by indices but not if its the idx operation
+            let tmp = trace_key.slice();
+            for(let i = 0; i < tmp.length; i++) {
+                trace_key[i] = tmp[order[i]];
+            }
+        }
+    } else if (order) {
+        if(order === "asc") {
+            sort_indices = sortWithIndices(trace_key);
+        } else if(order === "desc") {
+            sort_indices = sortWithIndices(trace_key, false);
+        }
+        if(sort_indices) {
+            for(let key in trace_opt_keys) {
+                let tmp = trace_opt_keys[key].slice();
+                for(let i = 0; i < tmp.length; i++) {
+                    trace_opt_keys[key][i] = tmp[sort_indices[i]];
+                }
+            }
+        }
+    }
+    if('suffix' in options) {
+        for(let idx = 0; idx < trace_key.length; idx++) {
+            trace_key[idx] = `${trace_key[idx]}${options.suffix}`
+        }
+    }
+    for(let child_key in children) {
+        let trace_key_child = graphExpandDotString(trace, child_key, []);
+        graphTraceCbData(data, trace, trace_key_child, name, ignore, children[child_key], sort_indices);
+    }
+}
+
+function sortWithIndices(toSort, asc = true) {
+    let sortIndices = [];
+    let sign = asc ? 1 : -1;
+    for (var i = 0; i < toSort.length; i++) {
+        toSort[i] = [toSort[i], i];
+    }
+    toSort.sort(function(left, right) {
+        return left[0] < right[0] ? sign * -1 : sign * 1;
+    });
+    for (var j = 0; j < toSort.length; j++) {
+        sortIndices.push(toSort[j][1]);
+        toSort[j] = toSort[j][0];
+    }
+    return sortIndices;
+}
+
 function graphExpandDotString(obj, str, value) {
     var items = str.split('.');
     var ref = obj;
@@ -193,11 +299,14 @@ function graphExpandDotString(obj, str, value) {
     //  loop through all nodes, except the last one
     for(var i = 0; i < items.length - 1; i ++)
     {
-        ref[items[i]] = {};
+        if(!(items[i] in ref)) {
+            ref[items[i]] = {};
+        }
         ref = ref[items[i]]; // shift the reference to the newly created object
     }
 
-    ref[items[items.length - 1]] = value; // apply the final value
+    ref = ref[items[items.length - 1]] = value; // apply the final value
+    return ref;
 }
 
 

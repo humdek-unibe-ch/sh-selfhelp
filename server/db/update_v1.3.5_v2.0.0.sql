@@ -220,7 +220,9 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'raw', 1, 0);
 
 -- add filterToggle style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000001', '0000000007', 'Create a toggle button which will enable or disable a filter on a set of data.');
+INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES (NULL, 'Filter', 'Filter styles allow to filter data sets and store the filter state in the session. This allows to filter all styles using the same data source with only one filter', 56);
+SET @id_group = LAST_INSERT_ID();
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggle', '0000000002', @id_group, 'Create a toggle button which will enable or disable a filter on a set of data.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
@@ -239,7 +241,8 @@ SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the button as predefined by bootstrap.');
 
 -- add filterToggleGroup style
-INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000001', '0000000007', 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
+SET @id_group = (SELECT `id` FROM `styleGroup` WHERE `name` = 'Filter');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'filterToggleGroup', '0000000002', @id_group, 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.');
 SET @id_style = LAST_INSERT_ID();
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
@@ -264,3 +267,97 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'type');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The visual apperance of the buttons as predefined by bootstrap.');
+
+-- add graphPie style
+SET @id_group = (SELECT `id` FROM `styleGroup` WHERE `name` = 'Graph');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graphPie', '0000000002', @id_group, 'Create a pie diagram from user input data or imported static data.');
+SET @id_style = LAST_INSERT_ID();
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The source of the data to be used to render a pie diagram.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'name');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name of the table column or form field to use to render a pie diagram.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'layout');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'config');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'hole', 5, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, 0, 'Use this to render a donut chart. Use a percentage from 0 to 100 where 0% means no hole and 100% a hole as big as the chart.');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'hoverinfo', 1, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Allows to define the information to be rendered in the hover box. Use "none" to disable the hover box. Refer to the [Plotly.js documentation](!https://plotly.com/javascript/reference/#pie-hoverinfo) for more information.');
+
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'textinfo', 1, 0);
+SET @id_field = LAST_INSERT_ID();
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Allows to define the information to be rendered on each pie slice. Use "none" to show no text. Refer to the [Plotly.js documentation](!https://plotly.com/javascript/reference/#pie-textinfo) for more information.');
+
+-- add graphBar style
+SET @id_group = (SELECT `id` FROM `styleGroup` WHERE `name` = 'Graph');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graphBar', '0000000002', @id_group, 'Create a bar diagram from user input data or imported static data.');
+SET @id_style = LAST_INSERT_ID();
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'data-source');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The source of the data to be used to render a pie diagram.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'name');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'The name of the table column or form field to use to render a pie diagram.');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'layout');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'config');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information');
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
+
+-- add graphLegend style
+SET @id_group = (SELECT `id` FROM `styleGroup` WHERE `name` = 'Graph');
+INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'graphLegend', '0000000001', @id_group, 'Render colored list of items. This can be used to show one global legend for multiple graphs.');
+SET @id_style = LAST_INSERT_ID();
+
+SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'value_types');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { "key": "value_1", "label", "Label 1", "color": "#ff0000" },\n  { "key": "value_2", "label", "Label 2", "color": "#00ff00" }\n}\n```');
+
+--
+-- Table structure for table `user_input_record`
+--
+
+CREATE TABLE `user_input_record` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `user_input_record`
+--
+ALTER TABLE `user_input_record`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `user_input_record`
+--
+ALTER TABLE `user_input_record`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
+
+-- change user_input table to support a record id
+ALTER TABLE `user_input` ADD `id_user_input_record` INT UNSIGNED ZEROFILL NULL DEFAULT NULL AFTER `id_section_form`, ADD INDEX (`id_user_input_record`);
+ALTER TABLE `user_input` ADD CONSTRAINT `user_input_fk_id_user_input_record` FOREIGN KEY (`id_user_input_record`) REFERENCES `user_input_record`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

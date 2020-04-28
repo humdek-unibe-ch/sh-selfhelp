@@ -65,6 +65,20 @@ class GraphSankeyView extends GraphView
 
     /* Protected Methods ******************************************************/
 
+    /**
+     * Communicate additional options the JS. This function overwrite the
+     * parent function. The following options are rendered:
+     *  - `cols`: see GraphSankeyModel::get_data_cols()
+     *  - `types`: see GraphSankeyModel::get_data_types()
+     *  - `link_color`: see GraphSankeyModel::get_link_color()
+     *  - `link_alpha`: see GraphSankeyModel::get_link_alpha()
+     *  - `link_hovertemplate`: see GraphSankeyModel::get_link_hovertemplate()
+     *  - `node_hovertemplate`: see GraphSankeyModel::get_node_hovertemplate()
+     *  - `has_node_labels`: see GraphSankeyModel::has_node_labels()
+     *  - `is_grouped`: see GraphSankeyModel::get_is_grouped()
+     *  - `min`: see GraphSankeyModel::get_min()
+     *  - `pre_computation`: the pre-computed sankey diagram data
+     */
     protected function output_graph_opts() {
         echo json_encode(array(
             "cols" => $this->model->get_data_cols(),

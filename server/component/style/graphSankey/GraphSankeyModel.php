@@ -268,20 +268,11 @@ class GraphSankeyModel extends GraphModel
      *  True on success, false on failure.
      */
     public function check_types() {
-        if(!is_array($this->data_types) || count($this->data_types) === 0)
-            return false;
-        foreach($this->data_types as $idx => $item)
-        {
-            if(!isset($item["key"]))
-                return false;
-            if(!isset($item["label"]))
-                return false;
-        }
-        return true;
+        return $this->check_value_types($this->data_types);
     }
 
     /**
-     *
+     * Getter for GraphSankeyModel::data_cols
      */
     public function get_data_cols()
     {
@@ -290,6 +281,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::data_types
      */
     public function get_data_types()
     {
@@ -298,6 +290,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::is_grouped
      */
     public function get_is_grouped()
     {
@@ -306,6 +299,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::has_col_labels
      */
     public function get_has_col_labels()
     {
@@ -314,6 +308,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::link_alpha
      */
     public function get_link_alpha()
     {
@@ -322,6 +317,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::link_color
      */
     public function get_link_color()
     {
@@ -330,6 +326,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::link_hovertemplate
      */
     public function get_link_hovertemplate()
     {
@@ -338,6 +335,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::min
      */
     public function get_min()
     {
@@ -346,6 +344,7 @@ class GraphSankeyModel extends GraphModel
 
     /**
      *
+     * Getter for GraphSankeyModel::node_hovertemplate
      */
     public function get_node_hovertemplate()
     {

@@ -25,7 +25,7 @@
                         $this->output_nav_contact();
                         $this->output_nav_menu('profile', $profile_title, $profile_children, true);
                     }
-                    else
+                    else if($login)
                         $this->output_nav_item('login', $login);
                 ?>
             </ul>

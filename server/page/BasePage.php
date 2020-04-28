@@ -80,6 +80,11 @@ abstract class BasePage
      */
     protected $services;
 
+    /**
+     * A flag to indicate whether the acl check was successful or not.
+     */
+    protected $acl_pass = false;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -130,8 +135,10 @@ abstract class BasePage
             new NavComponent($this->services));
         $this->add_component("footer",
             new FooterComponent($this->services));
-        if(!$services->is_redirected_page($keyword))
-            $_SESSION['current_page'] = $this->id_page;
+        $acl = $this->services->get_acl();
+        $this->acl_pass = $acl->has_access($_SESSION['id_user'],
+                $this->id_page, $this->required_access_level);
+        $_SESSION['requests'] = array();
     }
 
     /* Private Metods *********************************************************/
@@ -363,11 +370,9 @@ abstract class BasePage
      */
     protected function output_base_content()
     {
-        $acl = $this->services->get_acl();
         $login= $this->services->get_login();
         if($this->render_nav) $this->output_component("nav");
-        if($acl->has_access($_SESSION['id_user'],
-                $this->id_page, $this->required_access_level))
+        if($this->acl_pass)
             $this->output_content();
         else if($login->is_logged_in())
         {

@@ -4,15 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../graph/GraphBaseComponent.php";
-require_once __DIR__ . "/GraphSankeyView.php";
-require_once __DIR__ . "/GraphSankeyModel.php";
+require_once __DIR__ . "/../filter/FilterComponent.php";
+require_once __DIR__ . "/FilterToggleGroupView.php";
+require_once __DIR__ . "/../StyleModel.php";
 
 /**
- * A component class for a graphSankey style component. This style is
- * intended to display a Sankey diagram.
+ * A component class for a filterToggleGroup style component. This style is
+ * intended to filter user input data or statically uploaded data.
  */
-class GraphSankeyComponent extends GraphBaseComponent
+class FilterToggleGroupComponent extends FilterComponent
 {
     /* Constructors ***********************************************************/
 
@@ -33,8 +33,8 @@ class GraphSankeyComponent extends GraphBaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new GraphSankeyModel($services, $id);
-        $view = new GraphSankeyView($model);
+        $model = new StyleModel($services, $id, $id_page);
+        $view = new FilterToggleGroupView($model);
 
         parent::__construct($model, $view, $id_page);
     }

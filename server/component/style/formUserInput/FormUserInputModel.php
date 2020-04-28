@@ -41,16 +41,20 @@ class FormUserInputModel extends StyleModel
      *  The id of the form field.
      * @param string $value
      *  The value of the form field.
+     * @param string $id_record
+     *  The id of user input record. This serves to group a set of input data
+     *  fields.
      * @retval int
      *  The number of affected rows or false if an error ocurred.
      */
-    private function insert_new_entry($id, $value)
+    private function insert_new_entry($id, $value, $id_record)
     {
         return $this->db->insert("user_input", array(
             "id_users" => intval($_SESSION['id_user']),
             "id_sections" => $id,
             "id_section_form" => $this->get_db_field("id"),
             "value" => $value,
+            "id_user_input_record" => $id_record,
         ));
     }
 
@@ -205,11 +209,16 @@ class FormUserInputModel extends StyleModel
      */
     public function save_user_input($user_input)
     {
+        $is_new = $this->is_log() || !$this->has_field_data($id);
         $count = 0;
+        $id_record = null;
+        if($is_new) {
+            $id_record = $this->db->insert("user_input_record", array());
+        }
         foreach($user_input as $id => $value)
         {
-            if($this->is_log() || !$this->has_field_data($id))
-                $res = $this->insert_new_entry($id, $value);
+            if($is_new)
+                $res = $this->insert_new_entry($id, $value, $id_record);
             else
                 $res = $this->update_entry($id, $value);
 

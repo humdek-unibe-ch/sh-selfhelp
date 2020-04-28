@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../graph/GraphBaseComponent.php";
-require_once __DIR__ . "/GraphSankeyView.php";
-require_once __DIR__ . "/GraphSankeyModel.php";
+require_once __DIR__ . "/GraphPieView.php";
+require_once __DIR__ . "/GraphPieModel.php";
 
 /**
- * A component class for a graphSankey style component. This style is
- * intended to display a Sankey diagram.
+ * A component class for a graphPie style component. This style is intended to
+ * display a Pie diagram.
  */
-class GraphSankeyComponent extends GraphBaseComponent
+class GraphPieComponent extends GraphBaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -33,8 +33,8 @@ class GraphSankeyComponent extends GraphBaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new GraphSankeyModel($services, $id);
-        $view = new GraphSankeyView($model);
+        $model = new GraphPieModel($services, $id);
+        $view = new GraphPieView($model);
 
         parent::__construct($model, $view, $id_page);
     }

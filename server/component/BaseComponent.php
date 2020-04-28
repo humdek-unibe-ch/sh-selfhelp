@@ -57,6 +57,27 @@ abstract class BaseComponent
         $this->model = $model;
     }
 
+    /* Protected Methods ******************************************************/
+
+    /**
+     * Enable AJAX requests for all class::method calls on the page specified
+     * by ID.
+     *
+     * @param number $id
+     *  The ID of the page to allow AJAX requests
+     * @param string $class
+     *  The name of the class instanciated during the AJAC call.
+     * @param string $method
+     *  The name of the method called on the class instance during the AJAX
+     *  call.
+     */
+    protected function set_request_access($id, $class, $method) {
+        if(!isset($_SESSION['requests'][$class])) {
+            $_SESSION['requests'][$class] = array();
+        }
+        $_SESSION['requests'][$class][$method] = $id;
+    }
+
     /* Public Methods *********************************************************/
 
     /**

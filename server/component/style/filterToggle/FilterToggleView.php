@@ -44,14 +44,21 @@ class FilterToggleView extends FilterView
     {
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type", "primary");
-        $this->value = $this->name . "='" . $this->model->get_db_field("value") . "'";
+        $this->value = $this->model->get_db_field("value");
         $this->label = $this->model->get_db_field("label");
-        $this->set_filter_value(array($this->value));
+        $this->set_filter_value(array(array(
+            "op" => "=",
+            "val" => $this->value
+        )));
         $this->set_filter_type("toggle");
     }
 
     /* Private  Methods *******************************************************/
 
+    /**
+     * The function to render the filter. This is the redefinition of the
+     * abstract parent method.
+     */
     protected function output_filter() {
         $is_active = isset($_SESSION['data_filter'][$this->data_source][$this->name][0]) &&
             $_SESSION['data_filter'][$this->data_source][$this->name][0] === $this->value;

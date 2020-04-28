@@ -27,3 +27,20 @@ sudo ln -s /home/www/__experiment_name__/server/apache.conf __experiment_name__.
 cd ../sites-enabled
 sudo ln -s ../sites-available/__experiment_name__.conf .
 ```
+
+##### PHP Settings
+
+In order to allow to upload large media files the file `/etc/php/7.2/apache2/php.ini` must be modified:
+
+```
+; Maximum allowed size for uploaded files.
+upload_max_filesize = 1G
+
+; Must be greater than or equal to upload_max_filesize
+post_max_size = 1G
+```
+
+For the changes to take effect the server must be restarted:
+```
+sudo service apache2 restart
+```
