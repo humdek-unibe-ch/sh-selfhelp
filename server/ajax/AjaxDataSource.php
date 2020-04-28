@@ -108,12 +108,12 @@ class AjaxDataSource extends BaseAjax
         }
         $sql = "SELECT * FROM view_user_input
             WHERE form_id = :id" . $cond . "
-            ORDER BY
+            ORDER BY user_id,
                 CASE
                     WHEN record_id IS NULL
                     THEN edit_time
                     ELSE record_id
-            END";
+                END";
         $res_db = $this->db->query_db($sql, $params);
         if(!isset($res_db[0]['record_id']))
             return array();
