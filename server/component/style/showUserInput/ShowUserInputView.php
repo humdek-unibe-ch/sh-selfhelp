@@ -24,6 +24,11 @@ class ShowUserInputView extends StyleView
     private $source;
 
     /**
+     * The source string transformed into a alphanumeric string.
+     */
+    private $source_an;
+
+    /**
      * DB field 'is_log' (false).
      * If set to true the data will be listed as time-stamped elements per each
      * field.
@@ -73,6 +78,7 @@ class ShowUserInputView extends StyleView
     {
         parent::__construct($model, $controller);
         $this->source = $this->model->get_db_field("source");
+        $this->source_an = $this->model->convert_to_alphanumeric($this->source);
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Date");
         $this->label_delete = $this->model->get_db_field("label_delete", "Remove");
@@ -113,7 +119,7 @@ class ShowUserInputView extends StyleView
         }
         if($this->can_delete)
         {
-            $target = "modal-" . $this->source;
+            $target = "modal-" . $this->source_an;
             require __DIR__ . "/tpl_delete.php";
         }
     }
@@ -205,7 +211,7 @@ class ShowUserInputView extends StyleView
     private function output_modal()
     {
         $modal = new BaseStyleComponent('modal', array(
-            'id' => "modal-" . $this->source,
+            'id' => "modal-" . $this->source_an,
             'title' => $this->delete_title,
             'children' => array(
                 new BaseStyleComponent('markdown', array(
