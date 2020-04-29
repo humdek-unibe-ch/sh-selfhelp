@@ -54,8 +54,8 @@ class AjaxSearch extends BaseAjax
      *   - 'search':    the search pattern
      * @retval array
      *  An array of user items where each item has the following keys:
-     *   - 'value':     The email of the user.
-     *   - 'id':        The id of the user.
+     *   - 'value':     The table name.
+     *   - 'id':        The table name.
      */
     public function search_data_source($data)
     {
@@ -68,7 +68,15 @@ class AjaxSearch extends BaseAjax
     }
 
     /**
+     * Search for section names with a anchor-style given a search pattern.
      *
+     * @param $data
+     *  The POST data of the ajax call:
+     *   - 'search':    the search pattern
+     * @retval array
+     *  An array of user items where each item has the following keys:
+     *   - 'value':     The name of the section.
+     *   - 'id':        The id of the section.
      */
     public function search_anchor_section($data)
     {
