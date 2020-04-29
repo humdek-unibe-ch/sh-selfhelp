@@ -70,6 +70,7 @@ class CmsUpdateComponent extends CmsComponent
         }
         parent::__construct($model, $view, $controller);
         $this->set_request_access($id_page, "AjaxSearch", "search_data_source");
+        $this->set_request_access($id_page, "AjaxSearch", "search_anchor_section");
     }
 
     /* Public Methods *********************************************************/

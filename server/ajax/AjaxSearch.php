@@ -66,5 +66,20 @@ class AjaxSearch extends BaseAjax
             'search' => "%".$data['search']."%"
         ));
     }
+
+    /**
+     *
+     */
+    public function search_anchor_section($data)
+    {
+        $sql = "SELECT s.name AS value, CAST(s.id AS unsigned) AS id FROM sections AS s
+            LEFT JOIN styles AS st ON s.id_styles = st.id
+            WHERE (s.id_styles = 14 OR s.id_styles = 12 OR s.id_styles = 11
+                    OR s.id_styles = 3 OR s.id_styles = 39)
+                AND s.name LIKE :search ORDER BY value";
+        return $this->db->query_db($sql, array(
+            'search' => "%".$data['search']."%"
+        ));
+    }
 }
 ?>
