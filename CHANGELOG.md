@@ -1,4 +1,32 @@
-# v2.0.1 (latest)
+# v2.0.3 (latest)
+
+### Bugfix
+
+ - Fix a problem with form names and the style `showUserInput` where deleting
+   entries was not possible.
+
+### New Features
+
+ - Allow to order graphs by providing an array of value types
+ - Allow to define a custom anchor in style `formUserInput` (#197)
+ - Allow to define a custom anchor in style `showUserInput`
+
+
+---------
+# v2.0.2
+
+### Bugfix
+
+ - Fix a security issue
+
+### Changes
+
+ - Don't show login button if login Title name is empty
+ - Order dynamic data fetched with AJAX call by user ID first
+
+
+---------
+# v2.0.1
 
 ### Bugfix
 

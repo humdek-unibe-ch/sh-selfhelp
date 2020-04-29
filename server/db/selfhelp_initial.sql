@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 22, 2020 at 05:52 PM
+-- Generation Time: Apr 29, 2020 at 05:07 PM
 -- Server version: 5.7.29-0ubuntu0.18.04.1
 -- PHP Version: 7.2.24-0ubuntu0.18.04.3
 
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpv200`
+-- Database: `selfhelpv203`
 --
 
 -- --------------------------------------------------------
@@ -458,7 +458,8 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000135, 'is_vertical', 0000000003, 0),
 (0000000136, 'hole', 0000000005, 0),
 (0000000137, 'hoverinfo', 0000000001, 0),
-(0000000138, 'textinfo', 0000000001, 0);
+(0000000138, 'textinfo', 0000000001, 0),
+(0000000139, 'anchor', 0000000016, 0);
 
 -- --------------------------------------------------------
 
@@ -491,7 +492,8 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 (0000000012, 'code', 42),
 (0000000013, 'date', 25),
 (0000000014, 'time', 24),
-(0000000015, 'data-source', 15);
+(0000000015, 'data-source', 15),
+(0000000016, 'anchor-section', 14);
 
 -- --------------------------------------------------------
 
@@ -1017,8 +1019,9 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000033, 0000000028, 0000000001, 0000000001, 'light'),
 (0000000033, 0000000046, 0000000001, 0000000001, '0'),
 (0000000033, 0000000047, 0000000001, 0000000001, '0'),
-(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0   | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)          | 1.1.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.4.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.4/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.4/about/license/) |\r\n| [Datatables](https://datatables.net/)                      | 1.10.18 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](https://datatables.net/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0   | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)   | 1.3.10  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [mermaid](https://mermaidjs.github.io/)                    | 8.2.3   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [PHPMailer](https://github.com/PHPMailer/PHPMailer)        | 6.0.7   | [LGPL](https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)) | [License Details](https://github.com/PHPMailer/PHPMailer#license) |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0   | [MIT](https://tldrlegal.com/license/mit-license) | |'),
-(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                    | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                       | 1.2.0   | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)          | 1.1.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                     | 4.4.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.4/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.4/about/license/) |\r\n| [Datatables](https://datatables.net/)                      | 1.10.18 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](https://datatables.net/license/) |\r\n| [Font Awesome](https://fontawesome.com/)                   | 5.2.0   | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                  | 1.5.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                              | 3.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)   | 1.3.10  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [mermaid](https://mermaidjs.github.io/)                    | 8.2.3   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)           | 1.7.1   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [PHPMailer](https://github.com/PHPMailer/PHPMailer)        | 6.0.7   | [LGPL](https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)) | [License Details](https://github.com/PHPMailer/PHPMailer#license) |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)             | 1.7.0   | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000034, 0000000023, 0000000001, 0000000001, ''),
+(0000000034, 0000000025, 0000000002, 0000000001, '| Frameworks & Bibliotheken                                    | Version | Lizenz | Bemerkungen |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                         | 1.2.0   | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)            | 1.1.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                       | 4.4.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.4/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.4/about/license/) |\r\n| [Datatables](https://datatables.net/)                        | 1.10.18 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](https://datatables.net/license/) |\r\n| [Deepmerge](https://github.com/TehShrike/deepmerge)          | 4.2.2   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Font Awesome](https://fontawesome.com/)                     | 5.2.0   | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                    | 1.5.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                                | 3.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)     | 1.3.10  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [mermaid](https://mermaidjs.github.io/)                      | 8.2.3   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)             | 1.7.1   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [PHPMailer](https://github.com/PHPMailer/PHPMailer)          | 6.0.7   | [LGPL](https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)) | [License Details](https://github.com/PHPMailer/PHPMailer#license) |\r\n| [Plotly.js](https://plotly.com/javascript)                   | 1.52.3  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [ResizeSensor](https://github.com/marcj/css-element-queries) | 1.2.2   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)               | 1.7.0   | [MIT](https://tldrlegal.com/license/mit-license) | |'),
+(0000000034, 0000000025, 0000000003, 0000000001, '| Frameworks & Libararies                                      | Version | License | Comments |\r\n|-|-|-|-|\r\n| [Altorouter](http://altorouter.com/)                         | 1.2.0   | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](http://altorouter.com/license.html) |\r\n| [Autosize](https://github.com/jackmoore/autosize)            | 1.1.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Bootstrap](https://getbootstrap.com/)                       | 4.4.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://getbootstrap.com/docs/4.4/getting-started/browsers-devices/), [License Details](https://getbootstrap.com/docs/4.4/about/license/) |\r\n| [Datatables](https://datatables.net/)                        | 1.10.18 | [MIT](https://tldrlegal.com/license/mit-license) | [License Details](https://datatables.net/license/) |\r\n| [Deepmerge](https://github.com/TehShrike/deepmerge)          | 4.2.2   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Font Awesome](https://fontawesome.com/)                     | 5.2.0   | Code: [MIT](https://tldrlegal.com/license/mit-license), Icons: [CC](https://creativecommons.org/licenses/by/4.0/), Fonts: [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL) | [Browser Support](https://fontawesome.com/how-to-use/on-the-web/other-topics/browser-support), [License Details](https://fontawesome.com/license/free) |\r\n| [GUMP](https://github.com/Wixel/GUMP.git)                    | 1.5.6   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [jQuery](https://jquery.com/)                                | 3.3.1   | [MIT](https://tldrlegal.com/license/mit-license) | [Browser Support](https://jquery.com/browser-support/), [License Details](https://jquery.org/license/) |\r\n| [JsonLogic](https://github.com/jwadhams/json-logic-php/)     | 1.3.10  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [mermaid](https://mermaidjs.github.io/)                      | 8.2.3   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Parsedown](https://github.com/erusev/parsedown)             | 1.7.1   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [PHPMailer](https://github.com/PHPMailer/PHPMailer)          | 6.0.7   | [LGPL](https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)) | [License Details](https://github.com/PHPMailer/PHPMailer#license) |\r\n| [Plotly.js](https://plotly.com/javascript)                   | 1.52.3  | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [ResizeSensor](https://github.com/marcj/css-element-queries) | 1.2.2   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n| [Sortable](https://rubaxa.github.io/Sortable/)               | 1.7.0   | [MIT](https://tldrlegal.com/license/mit-license) | |\r\n'),
 (0000000035, 0000000001, 0000000002, 0000000001, 'Email'),
 (0000000035, 0000000001, 0000000003, 0000000001, 'Email'),
 (0000000035, 0000000002, 0000000002, 0000000001, 'Validierungs-Code'),
@@ -1547,6 +1550,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000036, 0000000035, NULL, NULL),
 (0000000036, 0000000057, NULL, NULL),
 (0000000036, 0000000087, '0', NULL),
+(0000000036, 0000000139, NULL, 'Search for the name of the anchor section to jump to after submitting the form. The ID of the section will be used as anchor. If this field is not set the section ID of the form itself will be used as anchor. This is useful if the form is placed within a collapsable card and the form anchor is hidden. In this case it makes sense to use the parent card as anchor here.'),
 (0000000038, 0000000008, NULL, NULL),
 (0000000038, 0000000056, '0', NULL),
 (0000000038, 0000000057, NULL, NULL),
@@ -1559,6 +1563,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000039, 0000000053, NULL, 'The name of the source form (i.e. the field `name` of the target form style).'),
 (0000000039, 0000000087, '0', 'If *checked*, the style will render a table where each row represents all fields of the source form at the time instant of data submission.\n\nIf left *unchecked*, a table is rendered where each row represents one field of the source form.\n\nNote the following important points:\n- Check this only if the source form also has `is_log` checked.\n- The fields, `delete_title`, `label_date_time`, `label_delete`, and `delete_content` only have an effect if `is_log` is *checked*.'),
 (0000000039, 0000000088, NULL, 'The column title of the timestamp column.\n\nNote the following important point:\n- this field only has an effect if `is_log` is enabled.'),
+(0000000039, 0000000139, NULL, 'Search for the name of the anchor section to jump to after submitting the delete form. The ID of the section will be used as anchor. If this field is not set the page will jump to the top after submission.'),
 (0000000040, 0000000006, NULL, NULL),
 (0000000041, 0000000001, NULL, NULL),
 (0000000041, 0000000002, NULL, NULL),
@@ -1745,7 +1750,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `id_status`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`, `last_url`) VALUES
 (0000000001, 'guest', '', NULL, NULL, 0, NULL, 1, NULL, NULL, 0, NULL, NULL),
-(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, '2020-01-17', NULL),
+(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, '2020-04-29', NULL),
 (0000000003, 'tpf', 'TPF', '$2y$10$VxLANpP09THlDIDDfvL7PurilxKZ8vU8WzdGdfCYkdeBgy7hUkiUu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL),
 (0000000004, 'sysadmin', 'sysadmin', '$2y$10$H5MhmUF3cLLMNayuIQ4g.OXikV528bDOkConwtVBjdpj4rqrUtAXu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL);
 
@@ -1862,115 +1867,6 @@ CREATE TABLE `validation_codes` (
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `consumed` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `view_fields`
--- (See below for the actual view)
---
-CREATE TABLE `view_fields` (
-`field_id` int(1)
-,`field_name` int(1)
-,`display` int(1)
-,`field_type_id` int(1)
-,`field_type` int(1)
-,`position` int(1)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `view_styles`
--- (See below for the actual view)
---
-CREATE TABLE `view_styles` (
-`style_id` int(1)
-,`style_name` int(1)
-,`style_description` int(1)
-,`style_type_id` int(1)
-,`style_type` int(1)
-,`style_group_id` int(1)
-,`style_group` int(1)
-,`style_group_description` int(1)
-,`style_group_position` int(1)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `view_style_fields`
--- (See below for the actual view)
---
-CREATE TABLE `view_style_fields` (
-`style_id` int(1)
-,`style_name` int(1)
-,`style_type` int(1)
-,`style_group` int(1)
-,`field_id` int(1)
-,`field_name` int(1)
-,`field_type` int(1)
-,`display` int(1)
-,`position` int(1)
-,`default_value` int(1)
-,`help` int(1)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `view_user_input`
--- (See below for the actual view)
---
-CREATE TABLE `view_user_input` (
-`id` int(1)
-,`user_id` int(1)
-,`user_name` int(1)
-,`user_code` int(1)
-,`form_id` int(1)
-,`form_name` int(1)
-,`field_id` int(1)
-,`field_name` int(1)
-,`value` int(1)
-,`edit_time` int(1)
-,`removed` int(1)
-);
-
--- --------------------------------------------------------
-
---
--- Structure for view `view_fields`
---
-DROP TABLE IF EXISTS `view_fields`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`hesinde`@`localhost` SQL SECURITY DEFINER VIEW `view_fields`  AS  select 1 AS `field_id`,1 AS `field_name`,1 AS `display`,1 AS `field_type_id`,1 AS `field_type`,1 AS `position` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `view_styles`
---
-DROP TABLE IF EXISTS `view_styles`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`hesinde`@`localhost` SQL SECURITY DEFINER VIEW `view_styles`  AS  select 1 AS `style_id`,1 AS `style_name`,1 AS `style_description`,1 AS `style_type_id`,1 AS `style_type`,1 AS `style_group_id`,1 AS `style_group`,1 AS `style_group_description`,1 AS `style_group_position` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `view_style_fields`
---
-DROP TABLE IF EXISTS `view_style_fields`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`hesinde`@`localhost` SQL SECURITY DEFINER VIEW `view_style_fields`  AS  select 1 AS `style_id`,1 AS `style_name`,1 AS `style_type`,1 AS `style_group`,1 AS `field_id`,1 AS `field_name`,1 AS `field_type`,1 AS `display`,1 AS `position`,1 AS `default_value`,1 AS `help` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `view_user_input`
---
-DROP TABLE IF EXISTS `view_user_input`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`hesinde`@`localhost` SQL SECURITY DEFINER VIEW `view_user_input`  AS  select 1 AS `id`,1 AS `user_id`,1 AS `user_name`,1 AS `user_code`,1 AS `form_id`,1 AS `form_name`,1 AS `field_id`,1 AS `field_name`,1 AS `value`,1 AS `edit_time`,1 AS `removed` ;
 
 --
 -- Indexes for dumped tables
@@ -2310,12 +2206,12 @@ ALTER TABLE `chatRoom_users`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
 ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 --
 -- AUTO_INCREMENT for table `genders`
 --

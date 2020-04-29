@@ -187,5 +187,23 @@ class GraphModel extends StyleModel
         }
         return $colors;
     }
+
+    /**
+     * Extracts all keys from a list of associative arrays where each item as
+     * the key `key`.
+     *
+     * @param array $value_types
+     *  A list of items where each item is expected to have a key `key`.
+     * @retval array
+     *  A list of keys.
+     */
+    public function extract_keys($value_types) {
+        $keys = array();
+        foreach($value_types as $type) {
+            if(isset($type['key']))
+                array_push($keys, $type['key']);
+        }
+        return $keys;
+    }
 }
 ?>

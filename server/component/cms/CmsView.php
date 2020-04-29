@@ -553,6 +553,18 @@ class CmsView extends BaseView
                 "show_value" => true
             ));
         }
+        else if($field['type'] == "anchor-section")
+        {
+            $children[] = new BaseStyleComponent("autocomplete", array(
+                "value" => $field['content'],
+                "name_value_field" => $field_name_content,
+                "placeholder" => "Search for an Anchor Section Name",
+                "name" => "anchor_section_search",
+                "callback_class" => "AjaxSearch",
+                "callback_method" => "search_anchor_section",
+                "show_value" => true
+            ));
+        }
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],

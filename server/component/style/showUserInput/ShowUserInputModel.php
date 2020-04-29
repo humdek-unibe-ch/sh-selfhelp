@@ -61,5 +61,18 @@ class ShowUserInputModel extends StyleModel
         $this->db->update_by_ids('user_input', array('removed' => 1),
             array('id' => $id));
     }
+
+    /**
+     * Wrapper function to convert a string to alphanumeric values.
+     *
+     * @param string $str
+     *  The string to convert
+     * @retval
+     *  The converted string
+     */
+    public function convert_to_alphanumeric($str)
+    {
+        return $this->user_input->convert_to_valid_html_id($str);
+    }
 }
 ?>
