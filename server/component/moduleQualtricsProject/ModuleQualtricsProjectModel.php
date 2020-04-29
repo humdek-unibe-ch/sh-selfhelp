@@ -38,7 +38,8 @@ class ModuleQualtricsProjectModel extends BaseModel
         return $this->db->insert("qualtricsProjects", array(
             "name" => $data['name'],
             "description" => $data['description'],
-            "api_mailing_group_id" => $data['api_mailing_group_id']
+            "api_mailing_group_id" => $data['api_mailing_group_id'],
+            "subject_variable" => $data['subject_variable']
         ));
     }
 
@@ -56,7 +57,8 @@ class ModuleQualtricsProjectModel extends BaseModel
             array(
                 "name" => $data['name'],
                 "description" => $data['description'],
-                "api_mailing_group_id" => $data['api_mailing_group_id']
+                "api_mailing_group_id" => $data['api_mailing_group_id'],
+                "subject_variable" => $data['subject_variable']
             ),
             array('id' => $data['id'])
         );

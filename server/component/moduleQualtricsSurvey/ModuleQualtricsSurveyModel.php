@@ -38,8 +38,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
         return $this->db->insert("qualtricsSurveys", array(
             "name" => $data['name'],
             "description" => $data['description'],
-            "qualtrics_survey_id" => $data['qualtrics_survey_id'],
-            "subject_variable" => $data['subject_variable']
+            "qualtrics_survey_id" => $data['qualtrics_survey_id']            
         ));
     }
 
@@ -57,8 +56,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
             array(
                 "name" => $data['name'],
                 "description" => $data['description'],
-                "qualtrics_survey_id" => $data['qualtrics_survey_id'],
-                "subject_variable" => $data['subject_variable']
+                "qualtrics_survey_id" => $data['qualtrics_survey_id']
             ),
             array('id' => $data['id'])
         );

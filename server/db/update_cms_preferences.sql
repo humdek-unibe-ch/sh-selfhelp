@@ -202,6 +202,7 @@ CREATE TABLE `qualtricsProjects` (
   `name` varchar(200) NOT NULL,
   `description` varchar(1000),
   `api_mailing_group_id` varchar(100),
+  `subject_variable` VARCHAR(100),
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -211,8 +212,15 @@ CREATE TABLE `qualtricsSurveys` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` VARCHAR(1000),
-  `qualtrics_survey_id` VARCHAR(100),
-  `subject_variable` VARCHAR(100),
+  `qualtrics_survey_id` VARCHAR(100),  
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- add stage to project
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'moduleQualtricsProjectStage', '/admin/qualtrics/stage/[i:pid]/[select|update|insert|delete:mode]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+SET @id_page = LAST_INSERT_ID();
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Project Stage');
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');

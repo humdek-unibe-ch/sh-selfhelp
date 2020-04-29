@@ -121,14 +121,6 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter project name",
                         )),
-                        new BaseStyleComponent("input", array(
-                            "label" => "API mailing group:",
-                            "type_input" => "text",
-                            "name" => "api_mailing_group_id",
-                            "value" => $this->project['api_mailing_group_id'],
-                            "css" => "mb-3",
-                            "placeholder" => "Enter API mailing group id",
-                        )),
                         new BaseStyleComponent("textarea", array(
                             "label" => "Project description:",
                             "type_input" => "text",
@@ -137,6 +129,22 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter project description",
                         )),
+                        new BaseStyleComponent("input", array(
+                            "label" => "API mailing group:",
+                            "type_input" => "text",
+                            "name" => "api_mailing_group_id",
+                            "value" => $this->project['api_mailing_group_id'],
+                            "css" => "mb-3",
+                            "placeholder" => "Enter API mailing group id",
+                        )),
+                        new BaseStyleComponent("input", array(
+                            "label" => "Subject variable name:",
+                            "type_input" => "text",
+                            "name" => "subject_variable",
+                            "value" => $this->project['subject_variable'],
+                            "css" => "mb-3",
+                            "placeholder" => "Enter subject variable name",
+                        )),                        
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -174,19 +182,26 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
-                    "title" => "API mailing group",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->project['api_mailing_group_id']
-                    ))),
-                )),
-                new BaseStyleComponent("descriptionItem", array(
                     "title" => "Project description",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->project['description']
                     ))),
                 )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "API mailing group",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['api_mailing_group_id']
+                    ))),
+                )),  
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Subject variable name",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['subject_variable']
+                    ))),
+                )),                    
             )
         ));
         $form->output_content();
@@ -215,7 +230,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
      * render the page content
      */
     public function output_page_content()
-    {        
+    {
         if ($this->mode === null) {
             require __DIR__ . "/tpl_qualtricsProjects.php";
         } else {
@@ -228,13 +243,26 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
      */
     public function output_side_buttons()
     {
-        $button = new BaseStyleComponent("button", array(
-            "label" => "Create New Project",
-            "url" => $this->model->get_link_url("moduleQualtricsProject", array("mode"=> INSERT)),
-            "type" => "secondary",
-            "css" => "d-block mb-3",
-        ));
-        $button->output_content();
+        if ($this->mode !== INSERT && $this->mode !== UPDATE) {
+            //show create button
+            $createButton = new BaseStyleComponent("button", array(
+                "label" => "Create New Project",
+                "url" => $this->model->get_link_url("moduleQualtricsProject", array("mode" => INSERT)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $createButton->output_content();
+        }
+        if ($this->project && $this->mode === SELECT) {
+            // show add stage button
+            $buttonAddStage = new BaseStyleComponent("button", array(
+                "label" => "Add Stage",
+                "url" => $this->model->get_link_url("moduleQualtricsProjectStage", array("mode" => INSERT, "pid"=>$this->pid)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $buttonAddStage->output_content();
+        }
     }
 
     /**

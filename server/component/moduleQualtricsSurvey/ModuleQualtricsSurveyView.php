@@ -137,15 +137,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "value" => $this->survey['description'],
                             "css" => "mb-3",
                             "placeholder" => "Enter survey description",
-                        )),
-                        new BaseStyleComponent("input", array(
-                            "label" => "Subject variable name:",
-                            "type_input" => "text",
-                            "name" => "subject_variable",
-                            "value" => $this->survey['subject_variable'],
-                            "css" => "mb-3",
-                            "placeholder" => "Enter subject variable name",
-                        )),
+                        )),                        
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -195,14 +187,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->survey['description']
                     ))),
-                )),
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Subject variable name",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->survey['subject_variable']
-                    ))),
-                )),
+                ))
             )
         ));
         $form->output_content();

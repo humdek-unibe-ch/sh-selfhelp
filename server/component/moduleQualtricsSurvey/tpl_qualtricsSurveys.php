@@ -11,7 +11,6 @@
                 <th scope="col">Survey Name</th>
                 <th scope="col">Qualtrics Survey ID</th>
                 <th scope="col">Survey Description</th>
-                <th scope="col">Subject Variable</th>
             </tr>
         </thead>
         <tbody>
