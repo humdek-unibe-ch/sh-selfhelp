@@ -209,15 +209,14 @@ class FormUserInputModel extends StyleModel
      */
     public function save_user_input($user_input)
     {
-        $is_new = $this->is_log() || !$this->has_field_data($id);
         $count = 0;
         $id_record = null;
-        if($is_new) {
+        if($this->is_log()) {
             $id_record = $this->db->insert("user_input_record", array());
         }
         foreach($user_input as $id => $value)
         {
-            if($is_new)
+            if($this->is_log() || !$this->has_field_data($id))
                 $res = $this->insert_new_entry($id, $value, $id_record);
             else
                 $res = $this->update_entry($id, $value);
