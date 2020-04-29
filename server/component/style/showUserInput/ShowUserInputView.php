@@ -16,6 +16,12 @@ class ShowUserInputView extends StyleView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'anchor' (empty string).
+     * The id of a anchor section to jump to on delete submit.
+     */
+    protected $anchor;
+
+    /**
      * DB field 'source' (empty string).
      * The name of the form from which the data will be fetched for the current
      * user. If this field is left empty, the userData style will not be
@@ -78,6 +84,7 @@ class ShowUserInputView extends StyleView
     {
         parent::__construct($model, $controller);
         $this->source = $this->model->get_db_field("source");
+        $this->anchor = $this->model->get_db_field("anchor");
         $this->source_an = $this->model->convert_to_alphanumeric($this->source);
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Date");
@@ -210,6 +217,7 @@ class ShowUserInputView extends StyleView
      */
     private function output_modal()
     {
+        $anchor = $this->anchor ? "#section-" . $this->anchor : "";
         $modal = new BaseStyleComponent('modal', array(
             'id' => "modal-" . $this->source_an,
             'title' => $this->delete_title,
@@ -218,8 +226,9 @@ class ShowUserInputView extends StyleView
                     "text_md" => $this->delete_content,
                 )),
                 new BaseStyleComponent('form', array(
+                    "id" => $this->id_section,
                     "type" =>'danger',
-                    'url' => $_SERVER['REQUEST_URI'],
+                    'url' => $_SERVER['REQUEST_URI'] . $anchor,
                     'label' => $this->label_delete,
                     'children' => array(
                         new BaseStyleComponent('input', array(
