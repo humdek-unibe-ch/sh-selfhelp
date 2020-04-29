@@ -1,7 +1,7 @@
 $(document).ready(function() {
     toggle_collapsible_card($('.style-'
         + window.location.hash.substring(1)
-        + ".card > .card-header.collapsible.collapsed"));
+        + ".card:not(.no-anchor-expand) > .card-header.collapsible.collapsed"));
     $('div.card-header.collapsible').on('click', function() {
         toggle_collapsible_card($(this));
     });
