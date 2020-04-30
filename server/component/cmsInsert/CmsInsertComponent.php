@@ -42,11 +42,13 @@ class CmsInsertComponent extends CmsComponent
      *              mode).
      *   'type':    This describes the database relation in order to know wheter
      *              to access pages, sections, navigations.
+     * @param number $id_cms_page
+     *  The id of the current cms page being loaded
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_cms_page)
     {
         $this->acl = $services->get_acl();
-        $model = new CmsModel($services, $params, "insert");
+        $model = new CmsModel($services, $params, "insert", $id_cms_page);
         $controller = new CmsInsertController($model);
         $view = new CmsInsertView($model, $controller);
         parent::__construct($model, $view, $controller);
