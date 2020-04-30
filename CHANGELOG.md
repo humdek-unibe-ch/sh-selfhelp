@@ -1,4 +1,17 @@
-# v2.0.3 (latest)
+# v2.0.4 (latest)
+
+### Bugfix
+
+ - Fix problem when AJAX calls were denied for CMS preview page.
+
+### Changes
+
+ - Remove graph debug logs
+ - Add missing style field documentation
+
+
+---------
+# v2.0.3
 
 ### Bugfix
 
