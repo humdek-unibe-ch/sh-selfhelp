@@ -128,7 +128,7 @@ class GraphModel extends StyleModel
      */
     public function get_single_user()
     {
-        return $this->single_user;
+        return $this->single_user == 0 ? false : true;
     }
 
     /**
