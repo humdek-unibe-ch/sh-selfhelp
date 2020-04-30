@@ -94,6 +94,11 @@ class CmsModel extends BaseModel
      */
     private $section_path;
 
+    /**
+     * The ID of the cms page
+     */
+    private $id_cms_page;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -115,10 +120,13 @@ class CmsModel extends BaseModel
      *                wheter to access pages, sections, navigations.
      * @param string $mode
      *  The mode of the page: 'select', 'update', 'insert', or 'delete'
+     * @param number $id_cms_page
+     *  The id of the current cms page being loaded
      */
-    public function __construct($services, $params, $mode)
+    public function __construct($services, $params, $mode, $id_cms_page)
     {
         parent::__construct($services);
+        $this->id_cms_page = $id_cms_page;
         $this->mode = $mode;
         $this->id_page = isset($params["pid"]) ? intval($params["pid"]) : null;
         $this->id_root_section = (isset($params["sid"]) && $params["sid"] != 0)
@@ -1191,6 +1199,17 @@ class CmsModel extends BaseModel
             return $this->id_root_section;
         else
             return null;
+    }
+
+    /**
+     * Getter function for the cms page id.
+     *
+     * @retval number
+     *  The ID of the cms page
+     */
+    public function get_cms_page_id()
+    {
+        return $this->id_cms_page;
     }
 
     /**

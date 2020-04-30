@@ -182,11 +182,13 @@ class CmsView extends BaseView
             foreach($page_sections as $section)
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
-                    intval($section['id']));
+                    intval($section['id']), array(),
+                    $this->model->get_cms_page_id());
         else
             $page_components[] = new StyleComponent(
                 $this->model->get_services(),
-                $this->model->get_active_root_section_id());
+                $this->model->get_active_root_section_id(), array(),
+                $this->model->get_cms_page_id());
         if(count($page_components) == 0)
         {
             $text = new BaseStyleComponent("plaintext", array(
@@ -213,7 +215,9 @@ class CmsView extends BaseView
                     "id" => "section-view",
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
-                        $this->model->get_active_section_id()
+                        $this->model->get_active_section_id(),
+                        array(),
+                        $this->model->get_cms_page_id()
                     ))
                 ))
             );
