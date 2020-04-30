@@ -9,6 +9,11 @@
  - Remove graph debug logs
  - Add missing style field documentation
 
+### New Features
+
+ - Add field `single_user` to style `graphBar`
+ - Add field `single_user` to style `graphPie`
+
 
 ---------
 # v2.0.3
