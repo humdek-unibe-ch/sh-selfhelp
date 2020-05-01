@@ -3,6 +3,7 @@
 ### Bugfix
 
  - Fix problem when AJAX calls were denied for CMS preview page.
+ - For graphs, only use dynamic data which is not marked as removed.
 
 ### Changes
 
