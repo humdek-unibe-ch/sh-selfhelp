@@ -39,7 +39,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             "name" => $data['name'],
             "description" => $data['description'],
             "api_mailing_group_id" => $data['api_mailing_group_id'],
-            "subject_variable" => $data['subject_variable']
+            "participent_variable" => $data['participent_variable']
         ));
     }
 
@@ -58,7 +58,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 "name" => $data['name'],
                 "description" => $data['description'],
                 "api_mailing_group_id" => $data['api_mailing_group_id'],
-                "subject_variable" => $data['subject_variable']
+                "participent_variable" => $data['participent_variable']
             ),
             array('id' => $data['id'])
         );
@@ -82,6 +82,19 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     public function get_db(){
         return $this->db;
+    }
+
+    /**
+     * Get all the stages for the project
+     * @param int $pid
+     * project id
+     * @retval array $stages
+     */
+    public function get_stages($pid){
+        $sql = "SELECT *
+                FROM view_qualtricsStages
+                WHERE project_id = :pid";
+        return $this->db->query_db($sql, array(":pid" => $pid));
     }
 
 

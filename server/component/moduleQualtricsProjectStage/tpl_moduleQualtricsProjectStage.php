@@ -7,6 +7,13 @@
     <?php 
         if($this->mode === INSERT){
             $this->output_add_stage();
+        }else if(!$this->stage){
+            echo 'Missing entry';
+        }else if($this->mode === SELECT){
+            $this->output_add_stage_view();
+        }else if($this->mode === UPDATE){
+            $this->output_add_stage();
+            $this->output_delete_stage();
         }
     ?>
 </div>

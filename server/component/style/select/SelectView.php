@@ -59,10 +59,25 @@ class SelectView extends FormFieldView
         if(!is_array($this->items)) return;
         foreach($this->items as $field)
         {
+            if($this->is_multiple){
+                //set selected values for multi select
+                if (is_array($this->value)) {
+                    foreach ($this->value as $val) {
+                        $selected = (htmlspecialchars($field['value']) == $val) ? 'selected="selected"' : "";
+                        if (htmlspecialchars($field['value']) == $val) {
+                            break;
+                        }
+                    }
+                } else {
+                    $selected = "";
+                }
+            }
             if(!isset($field['value']) || !isset($field['text'])) continue;
             $value = htmlspecialchars($field['value']);
             $text = htmlspecialchars($field['text']);
-            $selected = ($value == $this->value) ? 'selected="selected"' : "";
+            if(!$this->is_multiple){
+                $selected = ($value == $this->value) ? 'selected="selected"' : "";
+            }
             require __DIR__ . "/tpl_select_item.php";
         }
     }

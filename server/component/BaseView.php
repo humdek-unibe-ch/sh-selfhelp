@@ -170,5 +170,22 @@ abstract class BaseView
     {
         return $local;
     }
+
+    /**
+     *  get lookups by types.
+     *  @param string $lookupType
+     *  The type of the lookup
+     *
+     *  @retval array
+     *  value int,
+     *  text string
+     */
+    public function get_lookups($type){
+        $arr = array();
+        foreach ($this->model->get_services()->get_db()->get_lookups($type) as $val) {
+            array_push($arr, array("value" => intval($val['id']), "text" => $val['lookup_value']));
+        }
+        return $arr;
+    }
 }
 ?>

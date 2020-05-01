@@ -27,10 +27,11 @@ class ModuleQualtricsProjectStageComponent extends BaseComponent
     public function __construct($services, $params)
     {
         $pid = isset($params['pid']) ? intval($params['pid']) : null;
+        $sid = isset($params['sid']) ? intval($params['sid']) : null;
         $mode = isset($params['mode']) ? $params['mode'] : null;
         $model = new ModuleQualtricsProjectStageModel($services);
-        $controller = new ModuleQualtricsProjectStageController($model);
-        $view = new ModuleQualtricsProjectStageView($model, $controller, $pid, $mode);
+        $controller = new ModuleQualtricsProjectStageController($model, $pid);
+        $view = new ModuleQualtricsProjectStageView($model, $controller, $pid, $mode, $sid);
         parent::__construct($model, $view, $controller);
     }
 }

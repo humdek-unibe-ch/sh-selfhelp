@@ -30,7 +30,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
      * Insert a new qualtrics survey to the DB.
      *
      * @param array $data
-     *  name, description, qualtrics_survey_id, subject_variable
+     *  name, description, qualtrics_survey_id, participent_variable
      * @retval int
      *  The id of the new survey or false if the process failed.
      */
@@ -46,7 +46,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
      * Update qualtrics survey.
      *
      * @param array $data
-     *  id, name, description, qualtrics_survey_id, subject_variable
+     *  id, name, description, qualtrics_survey_id, participent_variable
      * @retval int
      *  The number of the updated rows
      */

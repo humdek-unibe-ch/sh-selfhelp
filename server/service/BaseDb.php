@@ -511,5 +511,45 @@ class BaseDb {
             return false;
         }
     }
+
+    /**
+     * Get lookups for given type.
+     *
+     * @param string $lookupType
+     *  The type of the lookup
+     * @retval array
+     *  An array with all row entries for the given lookuptype
+     */
+    public function get_lookups($lookupType) {
+        try {
+            $stmt = $this->dbh->prepare("SELECT * FROM lookups WHERE type_code = :code");
+            $stmt->execute(array(':code' => $lookupType));
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::select_table: ".$e->getMessage();
+        }
+    }
+
+    /**
+     * Begin PDO DB transanction
+     */
+    public function begin_transaction(){
+        $this->dbh->beginTransaction();;
+    }
+
+    /**
+     * commit PDO DB transanction
+     */
+    public function commit(){
+        $this->dbh->commit();;
+    }
+
+    /**
+     * rollback PDO DB transanction
+     */
+    public function rollback(){
+        $this->dbh->rollback();;
+    }
 }
 ?>

@@ -17,5 +17,8 @@
     } else {
         echo "Missing entry!";
     }
+    if($this->stages && $this->mode === SELECT){
+        $this->output_project_stages();
+    }
     ?>
 </div>

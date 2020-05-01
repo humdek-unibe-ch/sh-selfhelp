@@ -26,9 +26,14 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     private $mode;
 
     /**
-     * the current selct project
+     * the current select project
      */
     private $project;
+
+    /**
+     * the stages for the current select project
+     */
+    private $stages;
 
     /* Constructors ***********************************************************/
 
@@ -44,6 +49,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         $this->pid = $pid;
         $this->mode = $mode;
         $this->project = $this->model->get_db()->select_by_uid("qualtricsProjects", $this->pid);
+        $this->stages = $this->model->get_stages($this->pid);
     }
 
     /* Private Methods ********************************************************/
@@ -138,13 +144,13 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "placeholder" => "Enter API mailing group id",
                         )),
                         new BaseStyleComponent("input", array(
-                            "label" => "Subject variable name:",
+                            "label" => "Participent variable name:",
                             "type_input" => "text",
-                            "name" => "subject_variable",
-                            "value" => $this->project['subject_variable'],
+                            "name" => "participent_variable",
+                            "value" => $this->project['participent_variable'],
                             "css" => "mb-3",
-                            "placeholder" => "Enter subject variable name",
-                        )),                        
+                            "placeholder" => "Enter participent variable name",
+                        )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -165,7 +171,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     /**
      * Render the entry form view
      */
-    private function output_entry_form_view()
+    protected function output_entry_form_view()
     {
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
@@ -194,14 +200,14 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->project['api_mailing_group_id']
                     ))),
-                )),  
+                )),
                 new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Subject variable name",
+                    "title" => "Participent variable name",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->project['subject_variable']
+                        "text" => $this->project['participent_variable']
                     ))),
-                )),                    
+                )),
             )
         ));
         $form->output_content();
@@ -257,7 +263,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             // show add stage button
             $buttonAddStage = new BaseStyleComponent("button", array(
                 "label" => "Add Stage",
-                "url" => $this->model->get_link_url("moduleQualtricsProjectStage", array("mode" => INSERT, "pid"=>$this->pid)),
+                "url" => $this->model->get_link_url("moduleQualtricsProjectStage", array("mode" => INSERT, "pid" => $this->pid)),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
@@ -268,10 +274,20 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     /**
      * Render the qualtrics projects table content.
      */
-    private function output_projects_rows()
+    protected function output_projects_rows()
     {
         foreach ($this->model->get_projects() as $project) {
             require __DIR__ . "/tpl_qualtricsProject_row.php";
+        }
+    }
+
+    /**
+     * Render the qualtrics stages table content for the selected project.
+     */
+    protected function output_project_stages_rows()
+    {
+        foreach ($this->model->get_stages($this->pid) as $stage) {
+            require __DIR__ . "/tpl_qualtricsProjectStagesRow.php";
         }
     }
 
@@ -288,6 +304,14 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             $local = array(__DIR__ . "/js/qualtricsProjects.js");
         }
         return parent::get_js_includes($local);
+    }
+
+    /**
+     * Render stages table for a project
+     */
+    public function output_project_stages()
+    {        
+        require __DIR__ . "/tpl_qualtricsProjectStagesTable.php";
     }
 }
 ?>

@@ -198,19 +198,19 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 
 -- add table qualtricsProjects
 CREATE TABLE `qualtricsProjects` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
-  `description` varchar(1000),
-  `api_mailing_group_id` varchar(100),
-  `subject_variable` VARCHAR(100),
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `name` VARCHAR(200) NOT NULL,
+  `description` VARCHAR(1000),
+  `api_mailing_group_id` VARCHAR(100),
+  `participent_variable` VARCHAR(100),
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- add table qualtricsSurveys
 CREATE TABLE `qualtricsSurveys` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `name` VARCHAR(200) NOT NULL,
   `description` VARCHAR(1000),
   `qualtrics_survey_id` VARCHAR(100),  
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -219,8 +219,113 @@ CREATE TABLE `qualtricsSurveys` (
 
 -- add stage to project
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsProjectStage', '/admin/qualtrics/stage/[i:pid]/[select|update|insert|delete:mode]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+VALUES (NULL, 'moduleQualtricsProjectStage', '/admin/qualtrics/stage/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
 SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Project Stage');
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
+
+-- add table lookups
+CREATE TABLE `lookups` (
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `type_code` VARCHAR(100) NOT NULL,
+  `lookup_code` VARCHAR(100),
+  `lookup_value` VARCHAR(200)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- add notificationTypes
+INSERT INTO lookups (type_code, lookup_value) values ('notificationTypes', 'All options');
+INSERT INTO lookups (type_code, lookup_value) values ('notificationTypes', 'Email');
+INSERT INTO lookups (type_code, lookup_value) values ('notificationTypes', 'SMS');
+
+-- add qualtricsProjectStageTypes
+INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTypes', 'Baseline');
+INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTypes', 'Follow-up');
+
+-- add qualtricsProjectStageTriggerType
+INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTriggerTypes', 'Started');
+INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTriggerTypes', 'Finished');
+
+-- add qualtricsProjectStageAdditionalFunction
+INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageAdditionalFunction', 'Evaluate personal strengths');
+
+-- add timePeriod
+INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'seconds');
+INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'minutes');
+INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'hours');
+INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'days');
+INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'weeks');
+INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'months');
+
+-- add table lookups
+CREATE TABLE `qualtricsStages` (
+	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+	`id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
+	`id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL, 
+	`name` varchar(200) NOT NULL,
+    `id_qualtricsProjectStageTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
+    `id_qualtricsProjectStageTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
+    `notification` text,
+	`reminder` text    
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `qualtricsStages`
+ADD CONSTRAINT `qualtricsStages_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsStages_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsStages_fk_id_qualtricsProjectStageTypese` FOREIGN KEY (`id_qualtricsProjectStageTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsStages_fk_id_lookups_qualtricsProjectStageTriggerType` FOREIGN KEY (`id_qualtricsProjectStageTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- add table qualtricsStages_groups
+CREATE TABLE `qualtricsStages_groups` (	
+	`id_qualtricsStages` int(10) UNSIGNED ZEROFILL NOT NULL,
+	`id_groups` int(10) UNSIGNED ZEROFILL NOT NULL	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `qualtricsStages_groups`
+ADD PRIMARY KEY (`id_qualtricsStages`,`id_groups`),
+ADD KEY `id_qualtricsStages` (`id_qualtricsStages`),
+ADD KEY `id_groups` (`id_groups`);
+
+ALTER TABLE `qualtricsStages_groups`
+ADD CONSTRAINT `qualtricsStages_groups_fk_id_qualtricsStages` FOREIGN KEY (`id_qualtricsStages`) REFERENCES `qualtricsStages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsStages_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- add table qualtricsStages_functions
+CREATE TABLE `qualtricsStages_functions` (	
+	`id_qualtricsStages` int(10) UNSIGNED ZEROFILL NOT NULL,
+	`id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `qualtricsStages_functions`
+ADD PRIMARY KEY (`id_qualtricsStages`,`id_lookups`),
+ADD KEY `id_qualtricsStages` (`id_qualtricsStages`),
+ADD KEY `id_lookups` (`id_lookups`);
+
+ALTER TABLE `qualtricsStages_functions`
+ADD CONSTRAINT `qualtricsStages_functions_fk_id_qualtricsStages` FOREIGN KEY (`id_qualtricsStages`) REFERENCES `qualtricsStages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsStages_functions_fk_id_lookups` FOREIGN KEY (`id_lookups`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- view view_qualtricsStages
+DROP VIEW IF EXISTS view_qualtricsStages;
+CREATE VIEW view_qualtricsStages
+AS
+SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name,
+st.id_qualtricsSurveys as survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, typ.lookup_value as stage_type, 
+id_qualtricsProjectStageTriggerTypes, trig.lookup_value as trigger_type,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
+GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
+GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
+notification, reminder 
+FROM qualtricsStages st 
+INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
+INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
+INNER JOIN lookups typ ON (typ.id = st.id_qualtricsProjectStageTypes)
+INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectStageTriggerTypes)
+LEFT JOIN qualtricsStages_groups sg on (sg.id_qualtricsStages = st.id)
+LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN qualtricsStages_functions f on (f.id_qualtricsStages = st.id)
+LEFT JOIN lookups l on (f.id_lookups = l.id)
+GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
+st.id_qualtricsSurveys, s.name, id_qualtricsProjectStageTypes, typ.lookup_value, 
+id_qualtricsProjectStageTriggerTypes, trig.lookup_value;
