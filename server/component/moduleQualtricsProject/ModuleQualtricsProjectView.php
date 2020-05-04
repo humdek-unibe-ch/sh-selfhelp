@@ -48,7 +48,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         parent::__construct($model, $controller);
         $this->pid = $pid;
         $this->mode = $mode;
-        $this->project = $this->model->get_db()->select_by_uid("qualtricsProjects", $this->pid);
+        $this->project = $this->model->get_project();
         $this->stages = $this->model->get_stages($this->pid);
     }
 
@@ -112,6 +112,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             "title" => $this->mode === INSERT ? 'New Qualtrics Project' : 'Qualtrics Project ID: ' . $this->project['id'],
             "children" => array(
                 new BaseStyleComponent("form", array(
+                    "id" => "project_entry",
                     "label" => $this->mode === INSERT ? 'Create' : 'Update',
                     "url" => $this->model->get_link_url("moduleQualtricsProject"),
                     "url_cancel" => $this->mode === INSERT ?  $this->model->get_link_url("moduleQualtricsProject") : $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => SELECT)),
@@ -134,6 +135,14 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "value" => $this->project['description'],
                             "css" => "mb-3",
                             "placeholder" => "Enter project description",
+                        )),
+                        new BaseStyleComponent("input", array(
+                            "label" => "Qualtrics API",
+                            "type_input" => "text",
+                            "name" => "qualtrics_api",
+                            "value" => $this->project['qualtrics_api'],
+                            "css" => "mb-3",
+                            "placeholder" => "Enter Qualtrics API token",
                         )),
                         new BaseStyleComponent("input", array(
                             "label" => "API mailing group:",
@@ -174,7 +183,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     protected function output_entry_form_view()
     {
         $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
+            "css" => "mb-3",            
             "is_expanded" => true,
             "is_collapsible" => false,
             "url_edit" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => UPDATE)),
@@ -192,6 +201,13 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->project['description']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Qualtrics API",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['qualtrics_api']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
@@ -269,6 +285,17 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             ));
             $buttonAddStage->output_content();
         }
+        if ($this->project && $this->mode === SELECT && $this->stages) {
+            // show sync qualtrics surveys
+            $buttonAddStage = new BaseStyleComponent("button", array(
+                "id" => "syncQualtricsSurveys",
+                "label" => "Sync Qualtrics Surveys",
+                "url" => $this->model->get_link_url("moduleQualtricsSync", array("pid" => $this->pid)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $buttonAddStage->output_content();
+        }
     }
 
     /**
@@ -310,7 +337,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
      * Render stages table for a project
      */
     public function output_project_stages()
-    {        
+    {
         require __DIR__ . "/tpl_qualtricsProjectStagesTable.php";
     }
 }

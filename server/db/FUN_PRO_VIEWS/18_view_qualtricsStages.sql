@@ -2,7 +2,7 @@ DROP VIEW IF EXISTS view_qualtricsStages;
 CREATE VIEW view_qualtricsStages
 AS
 SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name,
-st.id_qualtricsSurveys as survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, typ.lookup_value as stage_type, 
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, typ.lookup_value as stage_type, 
 id_qualtricsProjectStageTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 

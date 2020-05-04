@@ -9,7 +9,8 @@
             <tr>
                 <th scope="col">Project ID</th>
                 <th scope="col">Project Name</th>
-                <th scope="col">API</th>
+                <th scope="col">Qualtrics API</th>
+                <th scope="col">API Mailing Group</th>
                 <th scope="col">Project Description</th>
             </tr>
         </thead>

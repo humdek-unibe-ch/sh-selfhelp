@@ -21,9 +21,9 @@ class ModuleQualtricsProjectStageModel extends ModuleQualtricsProjectModel
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $pid)
     {
-        parent::__construct($services);
+        parent::__construct($services, $pid);
     }
 
     /**

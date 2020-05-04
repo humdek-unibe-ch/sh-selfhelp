@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/ModuleQualtricsProjectView.php";
-require_once __DIR__ . "/ModuleQualtricsProjectModel.php";
-require_once __DIR__ . "/ModuleQualtricsProjectController.php";
+require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectView.php";
+require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectModel.php";
+require_once __DIR__ . "/ModuleQualtricsSyncController.php";
 
 /**
  * The class to define the asset select component.
  */
-class ModuleQualtricsProjectComponent extends BaseComponent
+class ModuleQualtricsSyncComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -27,10 +27,10 @@ class ModuleQualtricsProjectComponent extends BaseComponent
     public function __construct($services, $params)
     {
         $pid = isset($params['pid']) ? intval($params['pid']) : null;
-        $mode = isset($params['mode']) ? $params['mode'] : null;
+        $mode = SELECT;
         $model = new ModuleQualtricsProjectModel($services, $pid);
-        $controller = new ModuleQualtricsProjectController($model);
-        $view = new ModuleQualtricsProjectView($model, $controller, $pid, $mode);        
+        $controller = new ModuleQualtricsSyncController($model, $pid);
+        $view = new ModuleQualtricsProjectView($model, $controller, $pid, $mode);
         parent::__construct($model, $view, $controller);
     }
 }

@@ -6,6 +6,7 @@
 <tr class="cursor-pointer" id="project-url-<?php echo $project['id']; ?>">
     <td><?php echo $project['id']; ?></td>
     <td><?php echo $project['name']; ?></td>
+    <td><?php echo $project['qualtrics_api']; ?></td>
     <td><?php echo $project['api_mailing_group_id']; ?></td>
     <td><?php echo $project['description']; ?></td>
 </tr>

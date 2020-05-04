@@ -1,4 +1,19 @@
+// jquery extend function
+$.extend(
+{
+    redirectPost: function(location, args)
+    {
+        var form = '';
+        $.each( args, function( key, value ) {
+            value = value.split('"').join('\"')
+            form += '<input type="hidden" name="'+key+'" value="'+value+'">';
+        });
+        $('<form action="' + location + '" method="POST">' + form + '</form>').appendTo($(document.body)).submit();
+    }
+});
+
 $(document).ready(function () {
+    //datatable projects
     var table = $('#qualtrics-projects').DataTable({
         "order": [[0, "asc"]]
     });
@@ -10,6 +25,7 @@ $(document).ready(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
 
+    //datatable stages
     var table = $('#qualtrics-project-stages').DataTable({
         "order": [[1, "asc"]]
     });
@@ -20,4 +36,16 @@ $(document).ready(function () {
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
+
+    //confirmation for Qualtrics sync
+    var qualtricsSycnButton = $('.style-section-syncQualtricsSurveys').first();
+    qualtricsSycnButton.click(function () {
+        if (confirm("Are you sure that you want to synchonize all surveys added to this project in your Qualtrics account?")) {
+            var href = $(qualtricsSycnButton).attr('href');
+            $(qualtricsSycnButton).attr('href', '#');
+            event.stopPropagation();
+            $.redirectPost(href, {mode: 'select', type: 'qualtricsSync'});
+        }
+    });
+
 });
