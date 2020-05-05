@@ -1,4 +1,24 @@
-# v2.0.3 (latest)
+# v2.0.4 (latest)
+
+### Bugfix
+
+ - Fix problem when AJAX calls were denied for CMS preview page.
+ - For graphs, only use dynamic data which is not marked as removed.
+
+### Changes
+
+ - Remove graph debug logs.
+ - Add missing style field documentation.
+ - Open style field description on hover and focus.
+
+### New Features
+
+ - Add field `single_user` to style `graphBar`.
+ - Add field `single_user` to style `graphPie`.
+
+
+---------
+# v2.0.3
 
 ### Bugfix
 

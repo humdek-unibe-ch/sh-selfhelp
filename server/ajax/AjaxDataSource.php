@@ -107,7 +107,7 @@ class AjaxDataSource extends BaseAjax
             $params["uid"] = $_SESSION['id_user'];
         }
         $sql = "SELECT * FROM view_user_input
-            WHERE form_id = :id" . $cond . "
+            WHERE removed = 0 AND form_id = :id" . $cond . "
             ORDER BY user_id,
                 CASE
                     WHEN record_id IS NULL

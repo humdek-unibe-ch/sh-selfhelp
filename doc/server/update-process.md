@@ -60,7 +60,24 @@ To do this perform the following steps:
  4. Export the updated content of the database and save it as `server/db/selfhelp_initial.sql`
  5. (If required) adapt the file `server/db/privileges_default.sql`
 
-### 6. Add and Commit the Changed Files
+### 6. Generate the initial DB file `fun_pro_wiews.sql`
+
+If no view, function or process was changed or created for this release, skip this step.
+
+In order to allow to easily deploy the latest function, processes, and views in the DB the corresponding install script needs to be generated.
+To do this use the following command:
+
+#### Windows:
+```bash
+copy /b server\db\FUN_PRO_VIEW\*.sql server\db\FUN_PRO_VIEWS\fun_pro_views.sql
+```
+
+#### Linux:
+```sh
+cat server/db/FUN_PRO_VIEWS/*.sql > server/db/FUN_PRO_VIEWS/fun_pro_views.sql
+```
+
+### 7. Add and Commit the Changed Files
 
 Add the changed files to git
 ```
@@ -69,7 +86,7 @@ git ct -m "new version __new_version__"
 git push
 ```
 
-### 7. Create a new Tag
+### 8. Create a new Tag
 
 To create and push a new tag
 
@@ -78,7 +95,7 @@ git tag __new_version__
 git push --tags
 ```
 
-### 8. Deploy the Source Code
+### 9. Deploy the Source Code
 
 In order to deploy the new version, `ssh` to the SelfHelp server where the project to update is hosted and perform the following operations:
 
@@ -95,7 +112,7 @@ cd __experiment_name__
 git checkout __new_version__
 ```
 
-### 9. Deploy the DB Update
+### 10. Deploy the DB Update
 
 If no DB update script was necessary for this release, skip this step.
 

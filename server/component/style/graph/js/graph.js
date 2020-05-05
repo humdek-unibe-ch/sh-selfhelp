@@ -240,11 +240,7 @@ function graphTraceCbData(data, trace, trace_key, name, ignore, options, order, 
     let idx = 0;
     let has_order = false;
     let sort_indices = null;
-    console.log(name);
-    console.log(order);
     if(typeof order === 'object' && order !== null && 'vals' in order) {
-        console.log(true);
-        console.log(order);
         has_order = true;
     }
     data.forEach(function(item) {

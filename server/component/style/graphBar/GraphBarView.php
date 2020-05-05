@@ -62,6 +62,7 @@ class GraphBarView extends GraphView
             $this->traces = array(array(
                 "type" => "bar",
                 "data_source" => array(
+                    "single_user" => $this->model->get_single_user(),
                     "name" => $this->model->get_data_source(),
                     "map" => array(
                         "y" => array(
