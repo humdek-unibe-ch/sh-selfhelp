@@ -13,7 +13,7 @@
 			exports: {}
 		};
 		factory(mod, mod.exports);
-		global.autosize = mod.exports;
+		(global = global || self, global.autosize = mod.exports);
 	}
 })(this, function (module, exports) {
 	'use strict';
