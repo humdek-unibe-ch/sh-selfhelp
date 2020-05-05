@@ -5,6 +5,7 @@ var gulp = require('gulp');
 var htmlmin = require('gulp-htmlmin');
 var runSequence = require('run-sequence');
 var terser = require('gulp-terser');
+var babel = require('gulp-babel');
 
 // Gulp task to minify CSS files
 gulp.task('styles', function () {
@@ -22,6 +23,9 @@ gulp.task('styles', function () {
 gulp.task('scripts', function() {
     return gulp.src(['../server/component/style/js/*.js',
         '../server/component/style/**/js/*.js'])
+        .pipe(babel({
+            presets: ['@babel/preset-env']
+        }))
     // Minify the file
     .pipe(terser())
     // Concat

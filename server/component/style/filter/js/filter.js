@@ -3,7 +3,7 @@ function filterInit(type, cb) {
         let $filter = $(this);
         let filter_data = parseFilterData(
             $filter.children('div.filter-data'));
-        let event = new Event("data-filter-" + filter_data.data_source);
+        let event = new CustomEvent("data-filter-" + filter_data.data_source, {});
         cb($filter, filter_data, event);
     });
 }

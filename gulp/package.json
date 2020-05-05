@@ -9,8 +9,11 @@
     "url": "https://github.com/amardeeprai/local-minifier"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
     "del": "^2.0.2",
     "gulp-autoprefixer": "latest",
+    "gulp-babel": "^8.0.0",
     "gulp-concat": "latest",
     "gulp-csso": "^2.0.0",
     "gulp-htmlmin": "^3.0.0",
