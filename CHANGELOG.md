@@ -1,4 +1,16 @@
-# v2.0.4 (latest)
+# v2.0.5 (latest)
+
+### Bugfix
+
+ - Add support for igraphs and filters in IE11 and Edge.
+
+### Changes
+
+ - Use gulp-babel to transpile ES6 to ES5 (and thus enable support for IE11)
+
+
+---------
+# v2.0.4
 
 ### Bugfix
 
