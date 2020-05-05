@@ -7,13 +7,14 @@
 
 ### Changes
 
- - Remove graph debug logs
- - Add missing style field documentation
+ - Remove graph debug logs.
+ - Add missing style field documentation.
+ - Open style field description on hover and focus.
 
 ### New Features
 
- - Add field `single_user` to style `graphBar`
- - Add field `single_user` to style `graphPie`
+ - Add field `single_user` to style `graphBar`.
+ - Add field `single_user` to style `graphPie`.
 
 
 ---------
