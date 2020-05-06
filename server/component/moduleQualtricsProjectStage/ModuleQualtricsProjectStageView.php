@@ -320,7 +320,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                     "children" => array(
                         new BaseStyleComponent("select", array(
                             "label" => "Stage type",
-                            "value" => $this->stage['stage_type'],
+                            "value" => $this->stage['id_qualtricsProjectStageTypes'],
                             "is_required" => true,
                             "name" => "id_qualtricsProjectStageTypes",
                             "items" => $this->get_lookups('qualtricsProjectStageTypes'),

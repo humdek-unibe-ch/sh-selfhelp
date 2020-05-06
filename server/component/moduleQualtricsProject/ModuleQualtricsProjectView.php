@@ -155,8 +155,8 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                         new BaseStyleComponent("input", array(
                             "label" => "Participent variable name:",
                             "type_input" => "text",
-                            "name" => "participent_variable",
-                            "value" => $this->project['participent_variable'],
+                            "name" => "participant_variable",
+                            "value" => $this->project['participant_variable'],
                             "css" => "mb-3",
                             "placeholder" => "Enter participent variable name",
                         )),
@@ -221,7 +221,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     "title" => "Participent variable name",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->project['participent_variable']
+                        "text" => $this->project['participant_variable']
                     ))),
                 )),
             )

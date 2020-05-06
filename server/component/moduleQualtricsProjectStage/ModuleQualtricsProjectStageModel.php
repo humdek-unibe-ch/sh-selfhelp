@@ -150,7 +150,7 @@ class ModuleQualtricsProjectStageModel extends ModuleQualtricsProjectModel
                 "name" => $data['name'],
                 "description" => $data['description'],
                 "api_mailing_group_id" => $data['api_mailing_group_id'],
-                "participent_variable" => $data['participent_variable']
+                "participant_variable" => $data['participant_variable']
             ),
             array('id' => $data['id'])
         );

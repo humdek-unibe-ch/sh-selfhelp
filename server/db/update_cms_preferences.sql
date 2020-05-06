@@ -203,7 +203,7 @@ CREATE TABLE `qualtricsProjects` (
   `description` VARCHAR(1000),
   `qualtrics_api` VARCHAR(100),
   `api_mailing_group_id` VARCHAR(100),
-  `participent_variable` VARCHAR(100),
+  `participant_variable` VARCHAR(100),
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
