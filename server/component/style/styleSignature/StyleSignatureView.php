@@ -31,6 +31,14 @@ class StyleSignatureView extends StyleView
 
     /* Public Methods *********************************************************/
 
+    /**
+     * Render the style fields.
+     *
+     * @param array $fields
+     *  The fields of the style. Refer to
+     *  StyleSignatureModel::get_styke_fields() for more information on the
+     *  available keys.
+     */
     public function output_style_fields($fields)
     {
         foreach($fields as $field) {
