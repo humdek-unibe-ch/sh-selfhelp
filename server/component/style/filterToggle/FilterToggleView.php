@@ -61,7 +61,7 @@ class FilterToggleView extends FilterView
      */
     protected function output_filter() {
         $is_active = isset($_SESSION['data_filter'][$this->data_source][$this->name][0]) &&
-            $_SESSION['data_filter'][$this->data_source][$this->name][0] === $this->value;
+            in_array($this->value, $_SESSION['data_filter'][$this->data_source][$this->name][0]);
         if($this->label === "") {
             $this->label = $this->name;
         }
