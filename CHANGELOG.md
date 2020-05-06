@@ -1,4 +1,26 @@
-# v2.0.5 (latest)
+# v2.0.6 (latest)
+
+### Bugfix
+
+ - Fix style `filterToggle` to persist filter state after page reload (view
+   only).
+ - In filter styles, ignore invalid filter names instead of always returning
+   false.
+
+
+### Changes
+
+ - In style `autocomplete` disable browser input autocomplete.
+ - Change style `filterToggle` to an inline-block element.
+
+### New Features
+
+ - In style `input` provide an internal field to allow disabling browser input
+   autocomplete.
+
+
+---------
+# v2.0.5
 
 ### Bugfix
 
