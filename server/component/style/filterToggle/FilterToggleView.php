@@ -51,6 +51,7 @@ class FilterToggleView extends FilterView
             "val" => $this->value
         )));
         $this->set_filter_type("toggle");
+        $this->css .= " d-inline-block";
     }
 
     /* Private  Methods *******************************************************/
