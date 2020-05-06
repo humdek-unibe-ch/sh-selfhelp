@@ -108,6 +108,7 @@ class AutocompleteView extends FormFieldView
             "value" => "",
             "is_required" => $this->is_required,
             "placeholder" => $this->placeholder,
+            "disable_autocomplete" => true
         ));
         $field->output_content();
     }

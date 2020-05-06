@@ -25,6 +25,12 @@ class InputView extends FormFieldView
      */
     private $placeholder;
 
+    /**
+     * DB field 'disable_autocomplete' (false).
+     * Flag to enable or disable browser autocomplete.
+     */
+    private $disable_autocomplete;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -38,6 +44,8 @@ class InputView extends FormFieldView
         parent::__construct($model);
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
+        $this->disable_autocomplete = $this->model->get_db_field(
+            "disable_autocomplete", false);
         if($this->type == "checkbox")
         {
             $this->css_group = "form-check";
@@ -53,6 +61,10 @@ class InputView extends FormFieldView
      */
     protected function output_form_field()
     {
+        $autocomplete = '';
+        if($this->disable_autocomplete) {
+            $autocomplete = 'autocomplete="off"';
+        }
         $css_input = "form-control";
         if($this->label == "") $css_input .= " " . $this->css;
         $checked = "";
