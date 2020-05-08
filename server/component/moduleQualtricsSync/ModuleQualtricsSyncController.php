@@ -18,7 +18,7 @@ class ModuleQualtricsSyncController extends BaseController
     /**
      * The constructor.
      *
-     * @param object $model
+     * @param object $model 
      *  The model instance of the component.
      */
     public function __construct($model, $pid)
@@ -31,10 +31,6 @@ class ModuleQualtricsSyncController extends BaseController
                 return;
             }
             $this->syncProjectSurveys($pid);
-            if (true) {
-                $this->fail = true;
-                $this->error_msgs[] = "Failed to sycnhornize this project with Qualtrics.";
-            }
         }
     }
 
@@ -61,7 +57,14 @@ class ModuleQualtricsSyncController extends BaseController
     private function syncProjectSurveys($pid)
     {
         foreach ($this->model->get_stages($pid) as $stage) {
-            $this->model->syncSurvey($stage);
+            $res = $this->model->syncSurvey($stage);
+            if($res['result']){
+                $this->success = true;
+                $this->success_msgs[] = 'Survey ' .$stage['survey_name'] . ': ' . $res['description'];
+            }else{
+                $this->fail = true;
+                $this->error_msgs[] = $res['description'];
+            }
         }
     }
 

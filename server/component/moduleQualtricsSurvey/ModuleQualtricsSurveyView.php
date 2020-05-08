@@ -130,6 +130,15 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter qualtrics survey id",
                         )),
+                        new BaseStyleComponent("input", array(
+                            "label" => "Group variable:",
+                            "type_input" => "text",
+                            "name" => "group_variable",
+                            "is_required" => true,
+                            "value" => $this->survey['group_variable'],
+                            "css" => "mb-3",
+                            "placeholder" => "Set group variable name if you have randomizaion in the survey",
+                        )),
                         new BaseStyleComponent("textarea", array(
                             "label" => "Survey description:",
                             "type_input" => "text",
@@ -179,6 +188,13 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->survey['qualtrics_survey_id']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Group variable",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['group_variable']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(

@@ -202,6 +202,7 @@ CREATE TABLE `qualtricsProjects` (
   `name` VARCHAR(200) NOT NULL,
   `description` VARCHAR(1000),
   `qualtrics_api` VARCHAR(100),
+  `api_library_id` VARCHAR(100),
   `api_mailing_group_id` VARCHAR(100),
   `participant_variable` VARCHAR(100),
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -214,6 +215,7 @@ CREATE TABLE `qualtricsSurveys` (
   `name` VARCHAR(200) NOT NULL,
   `description` VARCHAR(1000),
   `qualtrics_survey_id` VARCHAR(100),  
+  `group_variable` VARCHAR(100),
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -310,8 +312,8 @@ ADD CONSTRAINT `qualtricsStages_functions_fk_id_lookups` FOREIGN KEY (`id_lookup
 DROP VIEW IF EXISTS view_qualtricsStages;
 CREATE VIEW view_qualtricsStages
 AS
-SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, typ.lookup_value as stage_type, 
+SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, p.participant_variable, p.api_mailing_group_id,
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, group_variable, typ.lookup_value as stage_type, 
 id_qualtricsProjectStageTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 

@@ -551,5 +551,14 @@ class BaseDb {
     public function rollback(){
         $this->dbh->rollback();;
     }
+
+    /**
+     * Get the callback key from the preferences table
+     * @retval string 
+     */
+    public function get_callback_key(){
+        $sql = "SELECT callback_api_key FROM cmsPreferences;";
+        return $this->query_db_first($sql)['callback_api_key'];
+    }
 }
 ?>

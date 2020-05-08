@@ -145,6 +145,14 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "placeholder" => "Enter Qualtrics API token",
                         )),
                         new BaseStyleComponent("input", array(
+                            "label" => "API library ID:",
+                            "type_input" => "text",
+                            "name" => "api_library_id",
+                            "value" => $this->project['api_library_id'],
+                            "css" => "mb-3",
+                            "placeholder" => "Enter API library id",
+                        )),
+                        new BaseStyleComponent("input", array(
                             "label" => "API mailing group:",
                             "type_input" => "text",
                             "name" => "api_mailing_group_id",
@@ -208,6 +216,13 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->project['qualtrics_api']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "API librarry ID",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->project['api_library_id']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(

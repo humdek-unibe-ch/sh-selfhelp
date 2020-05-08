@@ -30,7 +30,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
      * Insert a new qualtrics survey to the DB.
      *
      * @param array $data
-     *  name, description, qualtrics_survey_id, participant_variable
+     *  name, description, qualtrics_survey_id, group_variable
      * @retval int
      *  The id of the new survey or false if the process failed.
      */
@@ -38,7 +38,8 @@ class ModuleQualtricsSurveyModel extends BaseModel
         return $this->db->insert("qualtricsSurveys", array(
             "name" => $data['name'],
             "description" => $data['description'],
-            "qualtrics_survey_id" => $data['qualtrics_survey_id']            
+            "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+            "group_variable" => $data['group_variable']
         ));
     }
 
@@ -46,7 +47,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
      * Update qualtrics survey.
      *
      * @param array $data
-     *  id, name, description, qualtrics_survey_id, participant_variable
+     *  id, name, description, qualtrics_survey_id, group_variable
      * @retval int
      *  The number of the updated rows
      */
@@ -56,7 +57,8 @@ class ModuleQualtricsSurveyModel extends BaseModel
             array(
                 "name" => $data['name'],
                 "description" => $data['description'],
-                "qualtrics_survey_id" => $data['qualtrics_survey_id']
+                "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+                "group_variable" => $data['group_variable']
             ),
             array('id' => $data['id'])
         );
