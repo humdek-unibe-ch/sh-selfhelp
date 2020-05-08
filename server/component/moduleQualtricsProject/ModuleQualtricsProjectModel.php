@@ -206,12 +206,12 @@ class ModuleQualtricsProjectModel extends BaseModel
             "AnalyzeText" => false,
             "DataVisibility" => array()
         );
-        if (isset($survey['group_variable'])) {
+        if ($survey['group_variable'] == 1) {
             //there is a randomization in the survey, prepare the group variable
             $embeddedData[] = array(
-                "Description" => $survey['group_variable'],
+                "Description" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
                 "Type" => "Recipient",
-                "Field" => $survey['group_variable'],
+                "Field" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
                 "VariableType" => "String",
                 "AnalyzeText" => false,
                 "DataVisibility" => array()
@@ -309,7 +309,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                     ModuleQualtricsProjectModel::QUALTRICS_API_CREATE_CONTACT
                 )
             );
-            if (isset($survey['group_variable'])) {
+            if ($survey['group_variable'] == 1) {
                 // web service for setting group
                 $baseline_webService_group = $this->get_webService_flow(
                     array(
@@ -332,7 +332,13 @@ class ModuleQualtricsProjectModel extends BaseModel
                     $baseline_webService_contacts = false; //not needed anymore later when we check is it assign
                 } else if ($flow['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP) {
                     //already exist; overwirite
-                    $surveyFlow['Flow'][$key] = $baseline_webService_group;
+                    if(!isset($baseline_webService_group)){
+                        //should not exist; remove it
+                        unset($surveyFlow['Flow'][$key]);
+                    }else{
+                        // add it
+                        $surveyFlow['Flow'][$key] = $baseline_webService_group;
+                    }                    
                     $baseline_webService_group = false; //not needed anymore later when we check is it assign
                 }
             }
@@ -346,7 +352,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 // add baseline embeded data
                 array_unshift($surveyFlow['Flow'], $baseline_embedded_flow);
             }
-            if ($baseline_webService_group) {
+            if (isset($baseline_webService_group) && $baseline_webService_group) {
                 // add baseline group web service
                 array_push($surveyFlow['Flow'], $baseline_webService_group);
             }

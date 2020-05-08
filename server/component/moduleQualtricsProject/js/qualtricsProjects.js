@@ -12,9 +12,9 @@ $.extend(
     });
 
 $(document).ready(function () {
-    if ( window.history.replaceState ) {
+    if (window.history.replaceState) {
         //prevent resned of the post ************ IMPORTANT *****************************
-        window.history.replaceState( null, null, window.location.href );
+        window.history.replaceState(null, null, window.location.href);
     }
 
     //datatable projects
@@ -46,10 +46,13 @@ $(document).ready(function () {
     qualtricsSycnButton.click(function () {
         if (confirm("Are you sure that you want to synchonize all surveys added to this project in your Qualtrics account?")) {
             var href = $(qualtricsSycnButton).attr('href');
-            $(qualtricsSycnButton).attr('href', '#');      
-            event.stopPropagation();               
-            $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });                        
+            $(qualtricsSycnButton).attr('href', '#');
+            event.stopPropagation();
+            $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
         }
     });
 
 });
+
+
+

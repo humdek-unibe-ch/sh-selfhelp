@@ -130,14 +130,14 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter qualtrics survey id",
                         )),
-                        new BaseStyleComponent("input", array(
-                            "label" => "Group variable:",
-                            "type_input" => "text",
-                            "name" => "group_variable",
-                            "is_required" => true,
-                            "value" => $this->survey['group_variable'],
-                            "css" => "mb-3",
-                            "placeholder" => "Set group variable name if you have randomizaion in the survey",
+                        new BaseStyleComponent("template", array(
+                            "path" => __DIR__ . "/tpl_checkBox.php",
+                            "items" => array(
+                                "is_checked" => $this->survey['group_variable'],
+                                "id_HTML" => 'group_variable',
+                                "label" => 'Group variable',
+                                "disabled" => ""
+                            )
                         )),
                         new BaseStyleComponent("textarea", array(
                             "label" => "Survey description:",
@@ -146,7 +146,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "value" => $this->survey['description'],
                             "css" => "mb-3",
                             "placeholder" => "Enter survey description",
-                        )),                        
+                        )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -190,12 +190,14 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                         "text" => $this->survey['qualtrics_survey_id']
                     ))),
                 )),
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Group variable",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->survey['group_variable']
-                    ))),
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_checkBox.php",
+                    "items" => array(
+                        "is_checked" => $this->survey['group_variable'],
+                        "id_HTML" => 'group_variable',
+                        "label" => 'Group variable',
+                        "disabled" => "disabled"
+                    )
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Survey description",
