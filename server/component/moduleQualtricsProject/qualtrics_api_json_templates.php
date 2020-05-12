@@ -83,5 +83,48 @@ class QulatricsAPIJsonTemplates extends BaseModel
                     "reauthenticateSession": false
                 }
             }';
+
+    const authenticator_contact_embedded_data = '{
+                        "Type": "EmbeddedData",
+                        "FlowID": "",
+                        "EmbeddedData": [
+                            {
+                                "Description": "user_registered",
+                                "Type": "Custom",
+                                "Field": "user_registered",
+                                "VariableType": "String",
+                                "DataVisibility": [],
+                                "AnalyzeText": false,
+                                "Value": "true"
+                            }
+                        ]
+                    }';
+
+    const branch_contact_exist = '{
+                "Type": "Branch",
+                "FlowID": "",
+                "Description": "New Branch",
+                "BranchLogic": {
+                    "0": {
+                        "0": {
+                            "LogicType": "EmbeddedField",
+                            "LeftOperand": "user_registered",
+                            "Operator": "EqualTo",
+                            "RightOperand": "false",
+                            "_HiddenExpression": false,
+                            "Type": "Expression",
+                            "Description": "<span class=\"ConjDesc\">If</span>  <span class=\"LeftOpDesc\">user_registered</span> <span class=\"OpDesc\">Is Equal to</span> <span class=\"RightOpDesc\"> false </span>"
+                        },
+                        "Type": "If"
+                    },
+                    "Type": "BooleanExpression"
+                }
+            }';
+
+    const embedded_data = '{
+                "Type": "EmbeddedData",
+                "FlowID": "",
+                "EmbeddedData": []
+            }';
 }
 ?>
