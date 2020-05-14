@@ -341,13 +341,23 @@ SET @id_page = LAST_INSERT_ID();
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Synchronization');
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '0', '0');
 
--- add table qualtricsSurveysStatus
-CREATE TABLE `qualtricsSurveysStatus` (
+-- add table qualtricsSurveysResponses
+CREATE TABLE `qualtricsSurveysResponses` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `id_users` INT(10) UNSIGNED ZEROFILL NOT NULL,
   `id_surveys` INT(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsProjectStageTriggerType` int(10 ) UNSIGNED ZEROFILL NOT NULL,
-  `survey_session_id` VARCHAR(100),  
+  `survey_response_id` VARCHAR(100) UNIQUE,  
   `started_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `qualtricsSurveysResponses`
+ADD CONSTRAINT `qualtricsSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_qualtricsProjectStageTriggerType` FOREIGN KEY (`id_qualtricsProjectStageTriggerType`) REFERENCES `lookups` (`id`);
+
+-- auto created user status
+INSERT INTO userStatus (name, description)
+VALUES ('auto_created', 'This user was auto created. The user has only code and cannot login. If the real user register later with the code the user will be activated to normal user.');
+

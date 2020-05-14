@@ -297,19 +297,29 @@ class UserModel extends BaseModel
      *  The email address of the user to be added.
      * @param string $code
      *  A unique user code.
+     * @param boolean $code_exist
+     * does the code exist already in validation_codes, if exist dont insert it again
      * @retval int
      *  The id of the new user or false if the process failed.
      */
-    public function create_new_user($email, $code=null)
+    public function create_new_user($email, $code=null, $code_exists = false)
     {
         $token = $this->login->create_token();     
         $uid = $this->is_user_interested($email); 
+        if(!($uid > 0)){
+            //check if the user is autocreated
+            $uid = $this->is_user_auto_created($code); 
+        }
         if($uid > 0){  
-            // user is in status interested; change it to invited and assign the token for activation    
-            $this->set_user_status($uid, $token, USER_STATUS_INVITED);
+            // user is in status interested  or auto_created; change it to invited and assign the token for activation    
+            $this->set_user_status($uid, $token, USER_STATUS_INVITED, $email);
         }else{
             // if the user is not already interested (in database), create a new one
             $uid = $this->insert_new_user($email, $token, 2);
+        }
+        if($code_exists){
+            //this option is used for auto_created users
+            $code = null;            
         }
         $code_res = true;
         if($code !== null)
@@ -692,7 +702,7 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Check is a user already interested
+     * Check is a user already interested 
      *
      * @param string $email
      *  The email of the user.
@@ -704,10 +714,35 @@ class UserModel extends BaseModel
         $user_id = -1;
         $sql = "SELECT id
         from users 
-        where email = :email and id_status = :user_status";
+        where email = :email and id_status = :user_status_interested";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
-            ":user_status" => USER_STATUS_INTERESTED));
+            ":user_status_interested" => USER_STATUS_INTERESTED,
+        ));
+        if ($res) {
+            $user_id = $res['id'];
+        }
+        return $user_id;
+    }
+
+    /**
+     * Check is a user already auto_created
+     *
+     * @param string $email
+     *  The email of the user.
+     * @retval int
+     *  The id of the new user.
+     */
+    public function is_user_auto_created($code)
+    {
+        $user_id = -1;
+        $sql = "SELECT id
+        from users u
+        inner join validation_codes vc on (vc.id_users = u.id)
+        where vc.code = :code and id_status = :user_status_auto_created";
+        $res = $this->db->query_db_first($sql, array(
+            ":code" => $code,
+            ":user_status_auto_created" => $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id']));
         if($res){
             $user_id = $res['id'];
         }
@@ -762,12 +797,19 @@ class UserModel extends BaseModel
      *  The token which will be used for account activation
      * @param int $status
      *  The new status
+     * @param string $email
+     * email to be updated if the user was auto_created
      * @retval bool
      *  True on success, false on failure.
      */
-    public function set_user_status($uid, $token, $status)
+    public function set_user_status($uid, $token, $status, $email)
     {
-        return $this->db->update_by_ids('users', array("token" => $token, "id_status" => $status),
+        return $this->db->update_by_ids('users', 
+            array(
+                "token" => $token, 
+                "id_status" => $status, 
+                "email" => $email, 
+                ),
             array("id" => $uid));
     }
 

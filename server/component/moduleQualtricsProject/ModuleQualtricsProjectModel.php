@@ -47,8 +47,14 @@ class ModuleQualtricsProjectModel extends BaseModel
     const QUALTRICS_PARTICIPANT_VARIABLE = 'code';
     const QUALTRICS_GROUP_VARIABLE = 'group';
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';
+    const QUALTRICS_SURVEY_ID_VARIABLE = 'SurveyID';
     const QUALTRICS_CALLBACK_KEY_VARIABLE = 'callback_key';
+    const QUALTRICS_TRIGGER_TYPE_VARIABLE = 'trigger_type';
+    const QUALTRICS_TRIGGER_TYPE_START = 'Started';
+    const QUALTRICS_TRIGGER_TYPE_END = 'Finished';
     const QUALTRICS_EMBEDED_SESSION_ID_VAR = '${e://Field/ResponseID}';
+    const QUALTRICS_EMBEDED_SURVEY_ID_VAR = '${e://Field/SurveyID}';
+    const QUALTRICS_CALLBACK_STATUS = 'callback_status';
 
     /* Constructors ***********************************************************/
 
@@ -250,8 +256,8 @@ class ModuleQualtricsProjectModel extends BaseModel
             $webService['ContentType'] = ModuleQualtricsProjectModel::CONTENT_TYPE_FORM;
             //$webService['ResponseMap'] = array();
             $webService['ResponseMap'][] = array(
-                "key" => "callback_status",
-                "value" => "callback_status_" . $flowId,
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS,
+                "value" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS. "_" . $flowId,
             );
         }
         return $webService;
@@ -341,6 +347,10 @@ class ModuleQualtricsProjectModel extends BaseModel
                 "value" => '${e://Field/' . $this->project['participant_variable'] . '}'
             );
             $editBodyParamsStart[] = array(
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
+                "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
+            );
+            $editBodyParamsStart[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
                 "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SESSION_ID_VAR
             );
@@ -348,10 +358,14 @@ class ModuleQualtricsProjectModel extends BaseModel
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_KEY_VARIABLE,
                 "value" => $this->db->get_callback_key()
             );
+            $editBodyParamsStart[] = array(
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE,
+                "value" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_START
+            );
             $baseline_webService_start = $this->get_webService_flow(
                 $editBodyParamsStart,
                 ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START,
-                'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackSetGroup", "method" => "set_group")),
+                'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
                 true
             );
 
@@ -361,6 +375,10 @@ class ModuleQualtricsProjectModel extends BaseModel
                 "value" => '${e://Field/' . $this->project['participant_variable'] . '}'
             );
             $editBodyParamsEnd[] = array(
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
+                "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
+            );
+            $editBodyParamsEnd[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
                 "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SESSION_ID_VAR
             );
@@ -368,10 +386,14 @@ class ModuleQualtricsProjectModel extends BaseModel
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_KEY_VARIABLE,
                 "value" => $this->db->get_callback_key()
             );
+            $editBodyParamsEnd[] = array(
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE,
+                "value" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_END
+            );
             $baseline_webService_end = $this->get_webService_flow(
                 $editBodyParamsEnd,
                 ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END,
-                'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackSetGroup", "method" => "set_group")),
+                'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
                 true
             );
 
@@ -393,7 +415,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 $baseline_webService_group = $this->get_webService_flow(
                     $editBodyParamsGroup,
                     ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
-                    'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackSetGroup", "method" => "set_group")),
+                    'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
                     true
                 );
             }

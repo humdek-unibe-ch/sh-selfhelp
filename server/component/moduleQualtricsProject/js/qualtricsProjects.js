@@ -53,6 +53,3 @@ $(document).ready(function () {
     });
 
 });
-
-
-

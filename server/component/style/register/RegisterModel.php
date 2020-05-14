@@ -51,8 +51,11 @@ class RegisterModel extends StyleModel
      */
     private function check_validation_code($code)
     {
-        $sql = "SELECT * FROM validation_codes
-            WHERE id_users is NULL AND code = :code";
+        $sql = "SELECT vc.* 
+                FROM validation_codes vc
+                LEFT JOIN users u ON (vc.id_users = u.id)
+                LEFT JOIN userStatus us ON (u.id_status = us.id)
+                WHERE (id_users is NULL || us.name = 'auto_created') AND code = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         if($res) return true;
         else return false;
@@ -71,7 +74,7 @@ class RegisterModel extends StyleModel
      */
     private function claim_validation_code($code, $uid)
     {
-        return (bool)$this->db->update_by_ids('validation_codes',
+        return $this->db->update_by_ids('validation_codes',
             array('id_users' => $uid),
             array('code' => $code)
         );
@@ -120,8 +123,8 @@ class RegisterModel extends StyleModel
                               
                 $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }
-            $uid = $this->user_model->create_new_user($email);
-            if($uid && $this->claim_validation_code($code, $uid))
+            $uid = $this->user_model->create_new_user($email, $code, true);
+            if($uid && $this->claim_validation_code($code, $uid) !== false)
             {
                 $this->user_model->add_groups_to_user($uid,
                     $groupId);
