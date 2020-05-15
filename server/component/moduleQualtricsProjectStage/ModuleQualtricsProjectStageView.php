@@ -151,6 +151,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                 )),
                 new BaseStyleComponent("textarea", array(
                     "label" => "Body",
+                    "id" => 'asd',
                     "type_input" => "text",
                     "name" => $isNotification ? "notification[body]" : "reminder[body]",
                     "value" => isset($this->stage[$type]) ? $this->stage[$type]['body'] : '',
@@ -455,9 +456,26 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
-            $local = array(__DIR__ . "/js/qualtricsStage.js", __DIR__ . "/../moduleQualtricsProject/js/qualtricsProjects.js");
+            $local = array(
+                __DIR__ . "/js/qualtricsStage.js",
+                __DIR__ . "/../moduleQualtricsProject/js/qualtricsProjects.js",
+                __DIR__ . "/../js/simplemde.min.js"
+            );
         }
         return parent::get_js_includes($local);
+    }
+
+    /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(__DIR__ . "/../css/simplemde.min.css");
+        return parent::get_css_includes($local);
     }
 }
 ?>
