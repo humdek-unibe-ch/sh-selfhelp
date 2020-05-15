@@ -70,7 +70,7 @@ class ModuleQualtricsView extends BaseView
      * render the page content
      */
     public function output_page_content(){
-        echo "Qualtrics";
+        echo '<iframe src="http://psyunibe.qualtrics.com/jfe/form/SV_6QlctPPGm89IIHr?code=sdadsasdasd" height="800px" width="600px" ></iframe>';
     }
 
     /**

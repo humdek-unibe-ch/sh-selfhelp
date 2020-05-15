@@ -57,6 +57,23 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Check if the code exist in validation_codes table
+     *
+     * @param $code
+     *  The code for which a user is searched
+     * @retval $boolean
+     *  
+     */
+    private function code_exist($code)
+    {
+        $sql = "select code
+                from validation_codes
+                where code  = :code";
+        $res = $this->db->query_db_first($sql, array(':code' => $code));
+        return  isset($res['code']);
+    }
+
+    /**
      * Add a new user to the DB.
      *
      * @param string $code
@@ -84,10 +101,11 @@ class CallbackQualtrics extends BaseCallback
 
             if (!$code_updated) {
                 //if code does not exist, create the code
-                $this->db->insert("validation_codes", array(
-                    "code" => $code,
-                    "id_users" => $uid,
-                ));
+                //disabled. If in the future we need to create users without already generated codes in the DB
+                // $this->db->insert("validation_codes", array(
+                //     "code" => $code,
+                //     "id_users" => $uid,
+                // ));
             }
             $this->db->commit();
             return $uid;
@@ -176,6 +194,10 @@ class CallbackQualtrics extends BaseCallback
             } else if (preg_match('/[^A-Za-z0-9]/', $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
                 array_push($result['selfhelpCallback'], 'wrong participant value (only numbers and laters are possible)');
                 $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+            } else if (!$this->code_exist($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+                //check if the code is in the table validation_codes
+                array_push($result['selfhelpCallback'], 'validation code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' does not exist');
+                $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
             }
             if (!isset($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE])) {
                 array_push($result['selfhelpCallback'], 'misisng response id');
@@ -197,6 +219,10 @@ class CallbackQualtrics extends BaseCallback
                 $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
             } else if (preg_match('/[^A-Za-z0-9]/', $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
                 array_push($result['selfhelpCallback'], 'wrong participant value (only numbers and laters are possible)');
+                $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+            } else if (!$this->code_exist($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+                //check if the code is in the table validation_codes
+                array_push($result['selfhelpCallback'], 'validation code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' does not exist');
                 $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
             }
             if (!isset($data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE])) {
