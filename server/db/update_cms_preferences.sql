@@ -233,32 +233,33 @@ CREATE TABLE `lookups` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `type_code` VARCHAR(100) NOT NULL,
   `lookup_code` VARCHAR(100),
-  `lookup_value` VARCHAR(200)
+  `lookup_value` VARCHAR(200),
+  `lookup_description` VARCHAR(500)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- add notificationTypes
-INSERT INTO lookups (type_code, lookup_value) values ('notificationTypes', 'All options');
-INSERT INTO lookups (type_code, lookup_value) values ('notificationTypes', 'Email');
-INSERT INTO lookups (type_code, lookup_value) values ('notificationTypes', 'SMS');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'All options', 'Notification will be sent by all availale options');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'Email', 'The notification will be sent by email');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'SMS', 'The notification will be sent by SMS');
 
 -- add qualtricsProjectStageTypes
-INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTypes', 'Baseline');
-INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTypes', 'Follow-up');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTypes', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTypes', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
 
 -- add qualtricsProjectStageTriggerType
-INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTriggerTypes', 'Started');
-INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageTriggerTypes', 'Finished');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTriggerTypes', 'Started', 'When the user start the survey');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTriggerTypes', 'Finished', 'When the user finish the survey');
 
 -- add qualtricsProjectStageAdditionalFunction
-INSERT INTO lookups (type_code, lookup_value) values ('qualtricsProjectStageAdditionalFunction', 'Evaluate personal strengths');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageAdditionalFunction', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
 
 -- add timePeriod
-INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'seconds');
-INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'minutes');
-INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'hours');
-INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'days');
-INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'weeks');
-INSERT INTO lookups (type_code, lookup_value) values ('timePeriod', 'months');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'seconds', 'seconds');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'minutes', 'minutes');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'hours', 'hours');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'days', 'days');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'weeks', 'weeks');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'months', 'months');
 
 -- add table lookups
 CREATE TABLE `qualtricsStages` (
@@ -361,3 +362,29 @@ ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_qualtricsProjectStageTriggerType`
 INSERT INTO userStatus (name, description)
 VALUES ('auto_created', 'This user was auto created. The user has only code and cannot login. If the real user register later with the code the user will be activated to normal user.');
 
+-- add table mailQueue
+CREATE TABLE `mailQueue` (
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `id_mailQueueStatus` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `date_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
+  `date_to_be_sent` TIMESTAMP NOT NUll,
+  `date_sent` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `from_email` VARCHAR(100) NOT NUll,
+  `from_name` VARCHAR(100) NOT NUll,
+  `reply_to` VARCHAR(100) NOT NUll,
+  `recipient_emails` VARCHAR(1000) NOT NUll,
+  `cc_emails` VARCHAR(1000),
+  `bcc_emails` VARCHAR(1000),
+  `subject` VARCHAR(1000) NOT NUll,
+  `body` LONGTEXT NOT NUll,
+  `is_html` INT DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `mailQueue`
+ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- add mailQueueStatus
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'queued', 'Status for initialization. When the mail is queued it goes in this status');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'deleted', 'When the queue is deleted');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'sent', 'When the mail is sent');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'failed', 'When something happened and the mail sending failed');
