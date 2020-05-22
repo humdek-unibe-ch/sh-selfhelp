@@ -185,15 +185,15 @@ class CallbackQualtrics extends BaseCallback
             unset($result);
             $mail = array(
                 "id_mailQueueStatus" => 17,
-                "date_to_be_sent" => date('Y-m-d H:i:s', time() + (1 * 60)),
-                "from_email" => "stefan.kodzhabashev@gmail.com",
+                "date_to_be_sent" => date('Y-m-d H:i:s', time() + (10 * 60)),
+                "from_email" => "tpf.unibe@gmail.com",
                 "from_name" => "stefan",
-                "reply_to" => "stefan.kodzhabashev@gmail.com",
+                "reply_to" => "tpf.unibe@gmail.com",
                 "recipient_emails" => "redwater@abv.bg",
                 "subject" => "test",
                 "body" => "test body"
             );
-            if ($this->queue_mail($mail) > 0) {
+            if ($this->mail->add_mail_to_queue($mail) > 0) {
                 $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                     ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                     ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
@@ -205,17 +205,6 @@ class CallbackQualtrics extends BaseCallback
         }
 
         return $result;
-    }
-
-    /**
-     * Insert mail record in the mailQueue table
-     * @param array $data
-     * @retval boolean
-     *  return if the insert is successful
-     */
-    private function queue_mail($data)
-    {
-        return $this->db->insert('mailQueue', $data);
     }
 
     /**

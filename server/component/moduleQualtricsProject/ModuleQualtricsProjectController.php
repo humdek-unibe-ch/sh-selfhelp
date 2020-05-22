@@ -24,6 +24,7 @@ class ModuleQualtricsProjectController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->model->send_mail();
         if (isset($_POST['mode']) && !$this->check_acl($_POST['mode'])){
             return false;
         }

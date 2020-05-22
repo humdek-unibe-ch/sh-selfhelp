@@ -69,4 +69,7 @@ define('INSERT', 'insert');
 define('UPDATE', 'update');
 define('DELETE', 'delete');
 define('SELECT', 'select');
+
+/* mail separator */
+define('MAIL_SEPARATOR', ';');
 ?>

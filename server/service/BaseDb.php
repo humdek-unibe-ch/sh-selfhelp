@@ -532,6 +532,22 @@ class BaseDb {
     }
 
     /**
+     * Get the id of a lookup value
+     *
+     * @param string $value
+     *  The lookup value
+     * @retval int
+     *  the id of the value
+     */
+    public function get_lookup_id_by_value($value)
+    {
+        $val = $this->query_db_first('SELECT id FROM lookups WHERE lookup_value = :value', array(
+            ':value' => $value
+        ));
+        return $val['id'];
+    }
+
+    /**
      * Begin PDO DB transanction
      */
     public function begin_transaction(){

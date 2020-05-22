@@ -48,6 +48,11 @@ abstract class BaseCallback
     protected $user_input;
 
     /**
+     * Mail handler.
+     */
+    protected $mail;
+
+    /**
      * The constructor.
      *
      * @param object $services
@@ -62,6 +67,7 @@ abstract class BaseCallback
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
+        $this->mail = $services->get_mail();
     }
 
     /**

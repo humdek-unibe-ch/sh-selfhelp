@@ -17,6 +17,20 @@ use PHPMailer\PHPMailer\Exception;
  */
 class Mailer extends PHPMailer
 {
+
+    /* Constants ************************************************/
+
+    /* Status */
+    const STATUS_QUEUED = 'queued';
+    const STATUS_DELETED = 'deleted';
+    const STATUS_SENT = 'sent';
+    const STATUS_FAILED = 'failed';
+
+    /* Sent by */
+    const SENT_BY_CRON = 'by_cron';
+    const SENT_BY_USER = 'by_user';
+    const SENT_BY_QUALTRICS_CALLBACK = 'by_qualtrics_callback';
+
     /**
      * The db instance which grants access to the DB.
      */
@@ -50,8 +64,10 @@ class Mailer extends PHPMailer
      */
     public function create_single_to($address, $name = '')
     {
-        return array('to' => array(
-            array('address' => $address, 'name' => $name))
+        return array(
+            'to' => array(
+                array('address' => $address, 'name' => $name)
+            )
         );
     }
 
@@ -78,8 +94,7 @@ class Mailer extends PHPMailer
             ':lang' => $_SESSION['language'],
             ':field' => $email_type,
         ));
-        if($res)
-        {
+        if ($res) {
             $content = $res['content'];
             $content = str_replace('@project', $_SESSION['project'], $content);
             $content = str_replace('@link', $url, $content);
@@ -109,41 +124,106 @@ class Mailer extends PHPMailer
      * @return bool
      *  True on success, false on failure.
      */
-    public function send_mail($from, $to, $subject, $content, $content_html = null,
-        $attachments = array(), $replyto = null)
-    {
+    public function send_mail(
+        $from,
+        $to,
+        $subject,
+        $content,
+        $content_html = null,
+        $attachments = array(),
+        $replyto = null
+    ) {
         $this->setFrom($from['address'], $from['name'] ?? '');
-        foreach($to as $key => $recepients)
-        {
-            if($key === 'to')
-                foreach($recepients as $to)
+        foreach ($to as $key => $recepients) {
+            if ($key === 'to')
+                foreach ($recepients as $to)
                     $this->addAddress($to['address'], $to['name'] ?? '');
-            else if($key === 'cc')
-                foreach($recepients as $to)
+            else if ($key === 'cc')
+                foreach ($recepients as $to)
                     $this->addCC($to['address'], $to['name'] ?? '');
-            else if($key === 'bcc')
-                foreach($recepients as $to)
+            else if ($key === 'bcc')
+                foreach ($recepients as $to)
                     $this->addBCC($to['address'], $to['name'] ?? '');
         }
         $this->Subject = $subject;
-        if($content_html)
-        {
+        if ($content_html) {
             $this->msgHTML($content_html);
             $this->AltBody = $content;
-        }
-        else
+        } else
             $this->Body = $content;
 
-        foreach($attachments as $attachment)
+        foreach ($attachments as $attachment)
             $this->addAttachment($attachment);
 
-        if($replyto)
+        if ($replyto)
             $this->addReplyTo($replyto['address'], $replyto['name'] ?? '');
 
         $res = $this->send();
         $this->ClearAllRecipients();
         $this->ClearAttachments();
         return $res;
+    }
+
+    /**
+     * Insert mail record in the mailQueue table
+     * @param array $data
+     * @retval boolean
+     *  return if the insert is successful
+     */
+    public function add_mail_to_queue($data)
+    {
+        return $this->db->insert('mailQueue', $data);
+    }
+
+    /**
+     * Send mail from the queue
+     * @param int $mail_queue_id the mail queeue id from where we will take the information for the fields that we will send
+     * @param string  $sent_by  the type which the email queue sent was triggered
+     * @param int $user_id  the user who sent the email, null if it was automated
+     * @retval boolean
+     *  return if mail was sent successfully
+     */
+    public function send_mail_from_queue($mail_queue_id, $sent_by, $user_id = null)
+    {        
+        $mail_info = $this->db->select_by_uid('mailQueue', $mail_queue_id);
+        if ($mail_info) {
+            $from = array(
+                'address' => $mail_info['from_email'],
+                'name' => $mail_info['from_name'],
+                );
+            $to = array();
+            $mail_info_recipients = explode(MAIL_SEPARATOR, $mail_info['recipient_emails']);
+            $mails = array();
+            foreach ($mail_info_recipients as $mail) {
+
+                $mails[] = array('address' => $mail, 'name' => $mail);
+            }
+            $to['to'] = $mails;
+            //$to = $this->create_single_to($mail_info['recipient_emails']);
+            $subject = $mail_info['subject'];
+            $msg = $mail_info['body'];
+            $msg_html = $mail_info['is_html'] === 2 ? $this->parsedown->text($msg) : $msg;
+            $replyTo = array('address' => $mail_info['reply_to']);
+
+            $res = $this->send_mail($from, $to, $subject, $msg);
+            if ($res) {
+                return $this->db->update_by_ids(
+                    'mailQueue',
+                    array(
+                        "id_users" => $user_id,
+                        "id_mailSentBy" => $this->db->get_lookup_id_by_value($sent_by),
+                        "id_mailQueueStatus" => $this->db->get_lookup_id_by_value($res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
+                    ),
+                    array(
+                        "id" => $mail_queue_id
+                    )
+                );
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }  
     }
 }
 ?>

@@ -232,8 +232,8 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 CREATE TABLE `lookups` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `type_code` VARCHAR(100) NOT NULL,
-  `lookup_code` VARCHAR(100),
-  `lookup_value` VARCHAR(200),
+  `lookup_code` VARCHAR(100) UNIQUE,
+  `lookup_value` VARCHAR(200) UNIQUE,
   `lookup_description` VARCHAR(500)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -366,6 +366,8 @@ VALUES ('auto_created', 'This user was auto created. The user has only code and 
 CREATE TABLE `mailQueue` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `id_mailQueueStatus` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_mailSentBy` INT(10) UNSIGNED,
+  `id_users` INT(10) UNSIGNED,
   `date_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
   `date_to_be_sent` TIMESTAMP NOT NUll,
   `date_sent` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -381,10 +383,17 @@ CREATE TABLE `mailQueue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `mailQueue`
-ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `mailQueue_fk_id_mailSentBy` FOREIGN KEY (`id_mailSentBy`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `mailQueue_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add mailQueueStatus
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'queued', 'Status for initialization. When the mail is queued it goes in this status');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'deleted', 'When the queue is deleted');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'sent', 'When the mail is sent');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'failed', 'When something happened and the mail sending failed');
+
+-- add mailSentBy
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailSentBy', 'by_cron', 'Email was sent by the cron job');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailSentBy', 'by_user', 'Email was sent by an user manually');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailSentBy', 'by_qualtrics_callback', 'Email was sent by qualtrics callback');

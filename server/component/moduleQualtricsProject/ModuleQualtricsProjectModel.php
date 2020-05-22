@@ -6,6 +6,7 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/qualtrics_api_json_templates.php";
+require_once __DIR__ . "/../../cronjobs/MailQueue.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
@@ -257,7 +258,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             //$webService['ResponseMap'] = array();
             $webService['ResponseMap'][] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS,
-                "value" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS. "_" . $flowId,
+                "value" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS . "_" . $flowId,
             );
         }
         return $webService;
@@ -622,5 +623,10 @@ class ModuleQualtricsProjectModel extends BaseModel
     public function get_project()
     {
         return $this->project;
+    }
+
+    public function send_mail()
+    {
+        $m = new MailQueue();
     }
 }
