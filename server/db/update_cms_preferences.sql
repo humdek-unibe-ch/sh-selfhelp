@@ -49,7 +49,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 
 -- add Qualtrics module page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleMail', '/admin/module_mail', 'GET|POST', '0000000002', NULL, '0000000009', '0', '80', NULL, '0000000001');
+VALUES (NULL, 'moduleMail', '/admin/mailQueue/[i:mqid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', '80', NULL, '0000000001');
 SET @id_page = LAST_INSERT_ID();
 
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Module Mail');
