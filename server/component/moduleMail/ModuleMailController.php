@@ -24,13 +24,15 @@ class ModuleMailController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(isset($_POST['dateFrom']) && isset($_POST['dateTo']))
+        if(isset($_POST['dateFrom']) && isset($_POST['dateTo']) && isset($_POST['dateType']))
         {
             $this->model->set_date_from($_POST['dateFrom']);
             $this->model->set_date_to($_POST['dateTo']);
+            $this->model->set_date_type($_POST['dateType']);
         }else{
             $this->model->set_date_from(date('d-m-Y'));
             $this->model->set_date_to(date('d-m-Y'));
+            $this->model->set_date_type('date_create');
         }
     }
 

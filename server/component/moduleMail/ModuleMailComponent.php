@@ -24,9 +24,10 @@ class ModuleMailComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $params)
     {
-        $model = new ModuleMailModel($services);
+        $mqid = isset($params['mqid']) ? intval($params['mqid']) : null;
+        $model = new ModuleMailModel($services, $mqid);
         $controller = new ModuleMailController($model);
         $view = new ModuleMailView($model, $controller);
         parent::__construct($model, $view, $controller);

@@ -15,6 +15,12 @@
         <div class="card-header">Search Panel</div>
         <form class="input-group form-group m-3" action="<?php echo $this->model->get_link_url("moduleMail"); ?>" method="POST">
             <div class="searchPanel">
+                <div class="input-group mr-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Date Type</span>
+                    </div>
+                    <?php echo $this->get_date_types(); ?>
+                </div>
                 <div class="input-group ">
                     <div class="input-group-prepend">
                         <span class="input-group-text">From</span>

@@ -35,7 +35,11 @@ class ModuleMailView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_moduleMail.php";
+        if ($this->model->get_mqid() > 0) {
+            require __DIR__ . "/tpl_mailQueue_entry.php";
+        } else {
+            require __DIR__ . "/tpl_moduleMail.php";
+        }
     }
 
     protected function output_alert()
@@ -65,8 +69,8 @@ class ModuleMailView extends BaseView
      *  An array of js include files the component requires.
      */
     public function get_js_includes($local = array())
-    {   
-        if(empty($local)){
+    {
+        if (empty($local)) {
             $local = array(__DIR__ . "/js/moduleMail.js");
         }
         return parent::get_js_includes($local);
@@ -83,6 +87,16 @@ class ModuleMailView extends BaseView
     {
         $local = array(__DIR__ . "/css/moduleMail.css");
         return parent::get_css_includes($local);
+    }
+
+    public function get_date_types()
+    {
+        $select_date_types = new BaseStyleComponent("select", array(
+            "value" => $this->model->get_date_type(),
+            "name" => "dateType",
+            "items" => $this->get_lookups_with_code("mailQueueSearchDateTypes"),
+        ));
+        $select_date_types->output_content();
     }
 }
 ?>

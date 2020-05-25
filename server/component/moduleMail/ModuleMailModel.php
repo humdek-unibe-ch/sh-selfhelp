@@ -14,7 +14,12 @@ class ModuleMailModel extends BaseModel
 
     /* Constructors ***********************************************************/
 
-     /* Private Properties *****************************************************/
+    /* Private Properties *****************************************************/
+    /**
+     * mail queue id,
+     */
+    private $mqid;
+
     /**
      * date from,
      */
@@ -26,41 +31,66 @@ class ModuleMailModel extends BaseModel
     private $date_to;
 
     /**
+     * date type,
+     */
+    private $date_type;
+
+    /**
      * The constructor.
      *
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $mqid)
     {
         parent::__construct($services);
+        $this->mqid = $mqid;
     }
 
-    public function get_mail_queue(){
+    public function get_mail_queue()
+    {
         $sql = "SELECT *
                 FROM view_mailQueue 
-                WHERE CAST(date_create AS DATE) BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y') AND STR_TO_DATE(:date_to,'%d-%m-%Y');";
-        return $this->db->query_db($sql,array(
+                WHERE CAST(" . $this->date_type . " AS DATE) BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y') AND STR_TO_DATE(:date_to,'%d-%m-%Y');";
+        return $this->db->query_db($sql, array(
             ":date_from" => $this->date_from,
             ":date_to" => $this->date_to
         ));
     }
 
-    public function set_date_from($date_from){
+    public function set_date_from($date_from)
+    {
         $this->date_from = $date_from;
     }
 
-    public function set_date_to($date_to){
+    public function set_date_to($date_to)
+    {
         $this->date_to = $date_to;
     }
 
-    public function get_date_from(){
+    public function set_date_type($date_type)
+    {
+        $this->date_type = $date_type;
+    }
+
+    public function get_date_from()
+    {
         return $this->date_from;
     }
 
-    public function get_date_to(){
+    public function get_date_to()
+    {
         return $this->date_to;
     }
 
+    public function get_date_type()
+    {
+        return $this->date_type;
+    }
+
+    public function get_mqid()
+    {
+        return $this->mqid;
+    }
 }

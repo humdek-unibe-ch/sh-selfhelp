@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    $('select').selectpicker();
+
     var table = $('#mailQueue').DataTable({
         "order": [[0, "asc"]]
     });

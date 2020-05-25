@@ -7,3 +7,7 @@
     display: flex;
     align-items: center;
 }
+
+.searchPanel .input-group .dropdown {
+    border: 1px solid #ced4da;
+}

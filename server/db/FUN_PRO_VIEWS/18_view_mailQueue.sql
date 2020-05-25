@@ -6,4 +6,4 @@ reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html, u.nam
 FROM mailQueue mq
 LEFT JOIN users u ON (u.id = mq.id_users)
 INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus)
-LEFT JOIN lookups l_sent_by ON (l_sent_by.id = mq.id_mailSentBy)
+LEFT JOIN lookups l_sent_by ON (l_sent_by.id = mq.id_mailSentBy);

@@ -407,4 +407,9 @@ reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html, u.nam
 FROM mailQueue mq
 LEFT JOIN users u ON (u.id = mq.id_users)
 INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus)
-LEFT JOIN lookups l_sent_by ON (l_sent_by.id = mq.id_mailSentBy)
+LEFT JOIN lookups l_sent_by ON (l_sent_by.id = mq.id_mailSentBy);
+
+-- add mailQueueSearchDateTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_create', 'Entry date', 'The date that the queue record was created');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_to_be_sent', 'Date to be send', 'The date when the queue record should be sent');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_sent', 'Sent date', 'The date when the queue record was sent');
