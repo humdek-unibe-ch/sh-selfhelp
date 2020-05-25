@@ -14,6 +14,17 @@ class ModuleMailModel extends BaseModel
 
     /* Constructors ***********************************************************/
 
+     /* Private Properties *****************************************************/
+    /**
+     * date from,
+     */
+    private $date_from;
+
+    /**
+     * date to,
+     */
+    private $date_to;
+
     /**
      * The constructor.
      *
@@ -27,9 +38,29 @@ class ModuleMailModel extends BaseModel
     }
 
     public function get_mail_queue(){
-        $sql = 'SELECT *
-                FROM view_mailQueue';
-        return $this->db->query_db($sql);
+        $sql = "SELECT *
+                FROM view_mailQueue 
+                WHERE CAST(date_create AS DATE) BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y') AND STR_TO_DATE(:date_to,'%d-%m-%Y');";
+        return $this->db->query_db($sql,array(
+            ":date_from" => $this->date_from,
+            ":date_to" => $this->date_to
+        ));
+    }
+
+    public function set_date_from($date_from){
+        $this->date_from = $date_from;
+    }
+
+    public function set_date_to($date_to){
+        $this->date_to = $date_to;
+    }
+
+    public function get_date_from(){
+        return $this->date_from;
+    }
+
+    public function get_date_to(){
+        return $this->date_to;
     }
 
 }

@@ -24,25 +24,14 @@ class ModuleMailController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        // if(isset($_POST['name']) && isset($_POST['desc']))
-        // {
-        //     $this->name = $_POST['name'];
-        //     if(!$this->check_posted_acl())
-        //     {
-        //         $this->fail = true;
-        //         $this->error_msgs[] = "Cannot assign the selected rights: Permission denied.";
-        //         return;
-        //     }
-        //     $this->gid = $this->model->insert_new_group($_POST['name'],
-        //         $_POST['desc']);
-        //     if($this->gid && $this->update_group_acl($this->gid))
-        //         $this->success = true;
-        //     else
-        //     {
-        //         $this->fail = true;
-        //         $this->error_msgs[] = "Failed to create a new group.";
-        //     }
-        // }
+        if(isset($_POST['dateFrom']) && isset($_POST['dateTo']))
+        {
+            $this->model->set_date_from($_POST['dateFrom']);
+            $this->model->set_date_to($_POST['dateTo']);
+        }else{
+            $this->model->set_date_from(date('d-m-Y'));
+            $this->model->set_date_to(date('d-m-Y'));
+        }
     }
 
     /* Public Methods *********************************************************/

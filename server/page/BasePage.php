@@ -107,6 +107,7 @@ abstract class BasePage
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
             "/css/ext/bootstrap-select.min.css",
+            "/css/ext/bootstrap-datepicker.min.css",
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -115,6 +116,7 @@ abstract class BasePage
             "/js/ext/mermaid.min.js",
             "/js/ext/plotly.min.js",
             "/js/ext/bootstrap-select.min.js",
+            "/js/ext/bootstrap-datepicker.min.js",
         );
         if(DEBUG == 0)
         {

@@ -12,21 +12,35 @@
         </p>
     </div>
     <div class="card">
-        <div class="card-header text-white bg-primary">Search Panel</div>
-        <div class="card card-primary m-3">
-            <div class="card-header">Global filter</div>
-            <div class="card-body">
-                <input type="text" id="dataFilter" class="form-control" placeholder="type to filter all forms' data simultaneously">
+        <div class="card-header">Search Panel</div>
+        <form class="input-group form-group m-3" action="<?php echo $this->model->get_link_url("moduleMail"); ?>" method="POST">
+            <div class="searchPanel">
+                <div class="input-group ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">From</span>
+                    </div>
+                    <input type="text" class="form-control" id="dateFrom" name="dateFrom" value="<?php echo $this->model->get_date_from() ?>"><span class="add-on"></span>
+                    <div class="input-group-append mr-3">
+                        <div class="btn btn-primary" id="btnFrom"><i class="far fa-calendar-alt"></i></div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">To</span>
+                    </div>
+                    <input type="text" class="form-control" id="dateTo" name="dateTo" value="<?php echo $this->model->get_date_to() ?>"><span class="add-on"></span>
+                    <div class="input-group-append mr-3">
+                        <div class="btn btn-primary" id="btnTo"><i class="far fa-calendar-alt"></i></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
             </div>
-        </div>
-        <div>
-            <button id="btnReset" type="button" class="btn btn-primary float-right mb-3 mr-3">Reset</button>
-        </div>
+        </form>
     </div>
     <div class="card mt-3">
         <div class="card-header">Mail Queue</div>
         <div class="card-body">
             <?php $this->output_mail_queue(); ?>
         </div>
-    </div>    
+    </div>
 </div>
