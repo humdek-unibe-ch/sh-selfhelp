@@ -534,16 +534,22 @@ class BaseDb {
     /**
      * Get the id of a lookup value
      *
+     * @param string $type
+     *  The lookup type
      * @param string $value
      *  The lookup value
      * @retval int
      *  the id of the value
      */
-    public function get_lookup_id_by_value($value)
+    public function get_lookup_id_by_value($type, $value)
     {
-        $val = $this->query_db_first('SELECT id FROM lookups WHERE lookup_value = :value', array(
-            ':value' => $value
-        ));
+        $val = $this->query_db_first(
+            'SELECT id FROM lookups WHERE lookup_value = :value AND type_code = :type_code;',
+            array(
+                ':value' => $value,
+                ":type_code" => $type
+            )
+        );
         return $val['id'];
     }
 

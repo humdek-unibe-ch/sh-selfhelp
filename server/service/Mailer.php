@@ -25,11 +25,13 @@ class Mailer extends PHPMailer
     const STATUS_DELETED = 'deleted';
     const STATUS_SENT = 'sent';
     const STATUS_FAILED = 'failed';
+    const STATUS_LOOKUP_TYPE = 'mailQueueStatus';
 
     /* Sent by */
     const SENT_BY_CRON = 'by_cron';
     const SENT_BY_USER = 'by_user';
     const SENT_BY_QUALTRICS_CALLBACK = 'by_qualtrics_callback';
+    const SENT_BY_LOOKUP_TYPE = 'mailSentBy';
 
     /**
      * The db instance which grants access to the DB.
@@ -211,8 +213,8 @@ class Mailer extends PHPMailer
                     'mailQueue',
                     array(
                         "id_users" => $user_id,
-                        "id_mailSentBy" => $this->db->get_lookup_id_by_value($sent_by),
-                        "id_mailQueueStatus" => $this->db->get_lookup_id_by_value($res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
+                        "id_mailSentBy" => $this->db->get_lookup_id_by_value(Mailer::SENT_BY_LOOKUP_TYPE, $sent_by),
+                        "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
                     ),
                     array(
                         "id" => $mail_queue_id

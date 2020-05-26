@@ -84,7 +84,7 @@ class MailQueue
                 FROM mailQueue
                 WHERE date_to_be_sent <= NOW() AND id_mailQueueStatus = :status';
         $queue = $this->db->query_db($sql, array(
-            "status" => $this->db->get_lookup_id_by_value(Mailer::STATUS_QUEUED)
+            "status" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED)
         ));
         foreach ($queue as $mail_queue_id) {
             $this->printTime($mail_queue_id);

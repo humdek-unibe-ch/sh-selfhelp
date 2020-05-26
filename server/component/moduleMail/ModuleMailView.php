@@ -14,6 +14,12 @@ class ModuleMailView extends BaseView
 {
     /* Constructors ***********************************************************/
 
+    /* Private Properties *****************************************************/
+    /**
+     * mail queue entry,
+     */
+    private $mail_queue_entry;
+
     /**
      * The constructor.
      *
@@ -23,6 +29,10 @@ class ModuleMailView extends BaseView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
+        $mqid = $this->model->get_mqid();
+        if ($mqid > 0) {
+            $this->mail_queue_entry = $this->model->get_services()->get_db()->query_db_first('SELECT * FROM view_mailQueue WHERE id = :mqid;', array(":mqid" => $mqid));
+        }
     }
 
     /* Private Methods ********************************************************/
@@ -97,6 +107,151 @@ class ModuleMailView extends BaseView
             "items" => $this->get_lookups_with_code("mailQueueSearchDateTypes"),
         ));
         $select_date_types->output_content();
+    }
+
+    /**
+     * Render the entry form view
+     */
+    protected function output_entry_form_view()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => 'Mail Queue ID: ' . $this->mail_queue_entry['id'],
+            "children" => array(
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Status",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['status'],
+                        "css" => $this->mail_queue_entry['status'] === 'deleted' ? 'text-danger' : ''
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Date Created",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['date_create']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Date To Be Sent",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['date_to_be_sent']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Date Sent",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['date_sent']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "From Email",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['from_email']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "From Name",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['from_name']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Reply To",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['reply_to']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Recipient Emails",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['recipient_emails']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "CC Emails",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['cc_emails']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "BCC Emails",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['bcc_emails']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Subject",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['subject']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Body",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['body']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Is HTML",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->mail_queue_entry['is_html'] === 1 ? 'True' : 'False'
+                    ))),
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
+     * Render the sidebar buttons
+     */
+    public function output_side_buttons()
+    {
+        // maoduel queue back button
+        $mailQueueuButton = new BaseStyleComponent("button", array(
+            "label" => "Mail Queueu",
+            "url" => $this->model->get_link_url("moduleMail"),
+            "type" => "secondary",
+            "css" => "d-block mb-3",
+        ));
+        $mailQueueuButton->output_content();
+
+        //send/resend button
+        $sendButton = new BaseStyleComponent("button", array(
+            "label" => ($this->mail_queue_entry['status'] == 'sent' ? 'Resend' : 'Send') . " Queue Entry",
+            "id" => "send",
+            "url" => $this->model->get_link_url("moduleMail", array("mqid" => intval($this->mail_queue_entry['id']))),
+            "type" => "secondary",
+            "css" => "d-block mb-3",
+        ));
+        $sendButton->output_content();
+
+        if (!($this->mail_queue_entry['status'] === 'deleted')) {
+            // delete button visible only if not deleted
+            $deleteButton = new BaseStyleComponent("button", array(
+                "label" => "Delete Queue Entry",
+                "id" => "delete",
+                "url" => $this->model->get_link_url("moduleMail", array("mqid" => intval($this->mail_queue_entry['id']))),
+                "type" => "danger",
+                "css" => "d-block mb-3",
+            ));
+            $deleteButton->output_content();
+        }
     }
 }
 ?>

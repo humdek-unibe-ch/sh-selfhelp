@@ -50,6 +50,7 @@ class ModuleQualtricsProjectModel extends BaseModel
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';
     const QUALTRICS_SURVEY_ID_VARIABLE = 'SurveyID';
     const QUALTRICS_CALLBACK_KEY_VARIABLE = 'callback_key';
+    const QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE = 'qualtricsProjectStageTriggerTypes';
     const QUALTRICS_TRIGGER_TYPE_VARIABLE = 'trigger_type';
     const QUALTRICS_TRIGGER_TYPE_START = 'Started';
     const QUALTRICS_TRIGGER_TYPE_END = 'Finished';

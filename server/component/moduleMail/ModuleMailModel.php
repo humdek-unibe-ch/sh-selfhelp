@@ -93,4 +93,17 @@ class ModuleMailModel extends BaseModel
     {
         return $this->mqid;
     }
+
+    public function delete_selected_queue_entry()
+    {
+        return $this->db->update_by_ids(
+            'mailQueue',
+            array(
+                "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_DELETED)
+            ),
+            array(
+                "id" => $this->mqid
+            )
+        );
+    }
 }
