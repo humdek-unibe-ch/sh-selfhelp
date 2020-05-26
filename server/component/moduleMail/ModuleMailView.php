@@ -241,17 +241,18 @@ class ModuleMailView extends BaseView
         ));
         $sendButton->output_content();
 
-        if (!($this->mail_queue_entry['status'] === 'deleted')) {
+        // if (!($this->mail_queue_entry['status'] === 'deleted')) {
             // delete button visible only if not deleted
             $deleteButton = new BaseStyleComponent("button", array(
                 "label" => "Delete Queue Entry",
                 "id" => "delete",
                 "url" => $this->model->get_link_url("moduleMail", array("mqid" => intval($this->mail_queue_entry['id']))),
+               // "url" => "#",
                 "type" => "danger",
                 "css" => "d-block mb-3",
             ));
             $deleteButton->output_content();
-        }
+        // }
     }
 }
 ?>

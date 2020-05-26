@@ -58,12 +58,30 @@ $(document).ready(function () {
 
     //confirmation for delete mail queueu
     var qualtricsSycnButton = $('.style-section-delete').first();
-    qualtricsSycnButton.click(function () {
-        if (confirm("Are you sure that you want to delete this mail queue?")) {
-            var href = $(qualtricsSycnButton).attr('href');
-            $(qualtricsSycnButton).attr('href', '#');
-            event.stopPropagation();
-            $.redirectPost(href, { mode: 'delete' });
+    qualtricsSycnButton.click(function (e) {
+    
+        e.preventDefault();
+        //$(this).css('pointer-events', 'none').css('cursor', 'default');
+
+        function deleteMailQueue() {
+
         }
+
+        console.log('sadsas');
+        $.confirm({
+            title: 'Delete Mail Queueu!',
+            content: 'Are you sure that you want to delete this mail queue?',
+            buttons: {
+                confirm: function () {
+                    var href = $(qualtricsSycnButton).attr('href');
+                    $(qualtricsSycnButton).attr('href', '#');
+                    e.stopPropagation();
+                    $.redirectPost(href, { mode: 'delete' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
     });
 });
