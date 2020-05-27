@@ -46,35 +46,41 @@ $(document).ready(function () {
     })
 
     //confirmation for send/resend mail queueu
-    var qualtricsSycnButton = $('.style-section-send').first();
-    qualtricsSycnButton.click(function () {
-        if (confirm("Are you sure that you want to send this mail right now?")) {
-            var href = $(qualtricsSycnButton).attr('href');
-            $(qualtricsSycnButton).attr('href', '#');
-            event.stopPropagation();
-            $.redirectPost(href, { mode: 'send' });
-        }
+    var sendMailQueueButton = $('.style-section-send').first();
+    sendMailQueueButton.click(function (e) {
+    
+        e.preventDefault();
+
+        $.confirm({
+            title: 'Send Mail Queueu!',
+            content: 'Are you sure that you want to send this mail right now?',
+            buttons: {
+                confirm: function () {
+                    var href = $(sendMailQueueButton).attr('href');
+                    $(sendMailQueueButton).attr('href', '#');
+                    e.stopPropagation();
+                    $.redirectPost(href, { mode: 'send' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
     });
 
     //confirmation for delete mail queueu
-    var qualtricsSycnButton = $('.style-section-delete').first();
-    qualtricsSycnButton.click(function (e) {
+    var deleteMailQueueButton = $('.style-section-delete').first();
+    deleteMailQueueButton.click(function (e) {
     
         e.preventDefault();
-        //$(this).css('pointer-events', 'none').css('cursor', 'default');
 
-        function deleteMailQueue() {
-
-        }
-
-        console.log('sadsas');
         $.confirm({
             title: 'Delete Mail Queueu!',
             content: 'Are you sure that you want to delete this mail queue?',
             buttons: {
                 confirm: function () {
-                    var href = $(qualtricsSycnButton).attr('href');
-                    $(qualtricsSycnButton).attr('href', '#');
+                    var href = $(deleteMailQueueButton).attr('href');
+                    $(deleteMailQueueButton).attr('href', '#');
                     e.stopPropagation();
                     $.redirectPost(href, { mode: 'delete' });
                 },

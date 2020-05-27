@@ -625,9 +625,4 @@ class ModuleQualtricsProjectModel extends BaseModel
     {
         return $this->project;
     }
-
-    public function send_mail()
-    {
-        $m = new MailQueue();
-    }
 }

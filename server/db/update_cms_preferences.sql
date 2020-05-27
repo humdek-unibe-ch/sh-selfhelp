@@ -347,7 +347,7 @@ CREATE TABLE `qualtricsSurveysResponses` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `id_users` INT(10) UNSIGNED ZEROFILL NOT NULL,
   `id_surveys` INT(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_qualtricsProjectStageTriggerType` int(10 ) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsProjectStageTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
   `survey_response_id` VARCHAR(100) UNIQUE,  
   `started_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -356,7 +356,7 @@ CREATE TABLE `qualtricsSurveysResponses` (
 ALTER TABLE `qualtricsSurveysResponses`
 ADD CONSTRAINT `qualtricsSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_qualtricsProjectStageTriggerType` FOREIGN KEY (`id_qualtricsProjectStageTriggerType`) REFERENCES `lookups` (`id`);
+ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_qualtricsProjectStageTriggerTypes` FOREIGN KEY (`id_qualtricsProjectStageTriggerTypes`) REFERENCES `lookups` (`id`);
 
 -- auto created user status
 INSERT INTO userStatus (name, description)

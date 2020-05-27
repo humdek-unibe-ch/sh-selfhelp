@@ -133,7 +133,7 @@ class CallbackQualtrics extends BaseCallback
                 'SELECT id FROM qualtricsSurveys',
                 array("qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE])
             )['id'],
-            "id_qualtricsProjectStageTriggerType" => $this->db->get_lookup_id_by_value(ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE, ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE),
+            "id_qualtricsProjectStageTriggerTypes" => $this->db->get_lookup_id_by_value(ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE, $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]),
             "survey_response_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]
         ));
     }
@@ -219,7 +219,7 @@ class CallbackQualtrics extends BaseCallback
         return $this->db->update_by_ids(
             "qualtricsSurveysResponses",
             array(
-                "id_qualtricsProjectStageTriggerType" => $this->db->get_lookup_id_by_value(
+                "id_qualtricsProjectStageTriggerTypes" => $this->db->get_lookup_id_by_value(
                     ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE,
                     $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]
                 )
