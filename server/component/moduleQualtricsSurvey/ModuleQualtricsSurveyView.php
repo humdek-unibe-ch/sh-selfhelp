@@ -54,7 +54,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     private function output_delete_form()
     {
         $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
+            "css" => "mb-3",            
             "is_expanded" => false,
             "is_collapsible" => true,
             "title" => "Delete Survey",
@@ -65,6 +65,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "is_paragraph" => true,
                 )),
                 new BaseStyleComponent("form", array(
+                    "id" => "delete-survey",
                     "label" => "Delete Survey",
                     "url" => $this->model->get_link_url("moduleQualtricsSurvey"),
                     "type" => "danger",
@@ -99,13 +100,14 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     private function output_entry_form()
     {
         $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
+            "css" => "mb-3",            
             "is_expanded" => true,
             "is_collapsible" => false,
             "type" => "warning",
             "title" => $this->mode === INSERT ? 'New Qualtrics Survey' : 'Qualtrics Survey ID: ' . $this->survey['id'],
             "children" => array(
                 new BaseStyleComponent("form", array(
+                    "id" => "entry-survey",
                     "label" => $this->mode === INSERT ? 'Create' : 'Update',
                     "url" => $this->model->get_link_url("moduleQualtricsSurvey"),
                     "url_cancel" => $this->mode === INSERT ?  $this->model->get_link_url("moduleQualtricsSurvey") : $this->model->get_link_url("moduleQualtricsSurvey", array("sid" => $this->sid, "mode" => SELECT)),

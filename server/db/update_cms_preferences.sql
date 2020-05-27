@@ -413,3 +413,25 @@ LEFT JOIN lookups l_sent_by ON (l_sent_by.id = mq.id_mailSentBy);
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_create', 'Entry date', 'The date that the queue record was created');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_to_be_sent', 'Date to be send', 'The date when the queue record should be sent');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_sent', 'Sent date', 'The date when the queue record was sent');
+
+
+-- add table transactions
+CREATE TABLE `transactions` (
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,      
+  `transaction_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
+  `id_transactionTypes` INT(10) UNSIGNED,
+  `id_users` INT(10) UNSIGNED, -- the user who did the transaction, null if it was automated
+  `table_name` varchar(100), -- the name of the table that we want to store. Later using the id we can make joins to retrieve some information
+  `id_table_name` INT(10) UNSIGNED, -- the id of the record which is related to this transaction
+  `transaction_log` VARCHAR(1000)  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `transactions`
+ADD CONSTRAINT `transactions_fk_id_transactionTypes` FOREIGN KEY (`id_transactionTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- add transactionTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'INSERT', 'Add new entry', 'Add new entry to a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'SELECT', 'View entry', 'View entry from a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'UPDATE', 'Edit entry', 'Edit entry from a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'DELETE', 'Delete entry', 'Delete entry from a table');
