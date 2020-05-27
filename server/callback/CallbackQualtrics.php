@@ -182,7 +182,7 @@ class CallbackQualtrics extends BaseCallback
             unset($result);
             $mail = array(
                 "id_mailQueueStatus" => 17,
-                "date_to_be_sent" => date('Y-m-d H:i:s', time() + (10 * 60)),
+                "date_to_be_sent" => date('Y-m-d H:i:s', time() + 5),
                 "from_email" => "tpf.unibe@gmail.com",
                 "from_name" => "stefan",
                 "reply_to" => "tpf.unibe@gmail.com",

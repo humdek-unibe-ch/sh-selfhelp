@@ -241,7 +241,7 @@ class ModuleMailView extends BaseView
         ));
         $sendButton->output_content();
 
-        // if (!($this->mail_queue_entry['status'] === 'deleted')) {
+        if (!($this->mail_queue_entry['status'] === 'deleted')) {
             // delete button visible only if not deleted
             $deleteButton = new BaseStyleComponent("button", array(
                 "label" => "Delete Queue Entry",
@@ -252,7 +252,7 @@ class ModuleMailView extends BaseView
                 "css" => "d-block mb-3",
             ));
             $deleteButton->output_content();
-        // }
+        }
     }
 }
 ?>

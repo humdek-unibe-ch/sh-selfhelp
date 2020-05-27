@@ -370,7 +370,7 @@ CREATE TABLE `mailQueue` (
   `id_users` INT(10) UNSIGNED,
   `date_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
   `date_to_be_sent` TIMESTAMP NOT NUll,
-  `date_sent` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `date_sent` TIMESTAMP,
   `from_email` VARCHAR(100) NOT NUll,
   `from_name` VARCHAR(100) NOT NUll,
   `reply_to` VARCHAR(100) NOT NUll,

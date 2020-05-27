@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseController.php";
+require_once __DIR__ . "/../../cronjobs/MailQueue.php";
 /**
  * The controller class of the group insert component.
  */
@@ -28,6 +29,8 @@ class ModuleMailController extends BaseController
             $this->model->set_date_from($_POST['dateFrom']);
             $this->model->set_date_to($_POST['dateTo']);
             $this->model->set_date_type($_POST['dateType']);
+            $mailQueue = new MailQueue();
+            $mailQueue->check_queue();
         } else {
             $this->model->set_date_from(date('d-m-Y'));
             $this->model->set_date_to(date('d-m-Y'));

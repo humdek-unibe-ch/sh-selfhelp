@@ -12,6 +12,11 @@ $.extend(
     });
 
 $(document).ready(function () {
+    if (window.history.replaceState) {
+        //prevent resned of the post ************ IMPORTANT *****************************
+        window.history.replaceState(null, null, window.location.href);
+    }
+
     $('select').selectpicker();
 
     var table = $('#mailQueue').DataTable({
@@ -48,7 +53,7 @@ $(document).ready(function () {
     //confirmation for send/resend mail queueu
     var sendMailQueueButton = $('.style-section-send').first();
     sendMailQueueButton.click(function (e) {
-    
+
         e.preventDefault();
 
         $.confirm({
@@ -71,7 +76,7 @@ $(document).ready(function () {
     //confirmation for delete mail queueu
     var deleteMailQueueButton = $('.style-section-delete').first();
     deleteMailQueueButton.click(function (e) {
-    
+
         e.preventDefault();
 
         $.confirm({

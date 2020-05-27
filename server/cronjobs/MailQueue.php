@@ -43,8 +43,7 @@ class MailQueue
 
         $this->parsedown = new ParsedownExtension();
         $this->parsedown->setSafeMode(false);
-
-        $this->check_queue();
+        
     }
 
     /**
@@ -78,7 +77,7 @@ class MailQueue
     /**
      * Check the mailing queue and send the mails if there are mails in the queue which should be sent
      */
-    private function check_queue()
+    public function check_queue()
     {
         $sql = 'SELECT id
                 FROM mailQueue
@@ -94,5 +93,6 @@ class MailQueue
 }
 
 $mailQueue = new MailQueue();
+$mailQueue->check_queue();
 
 ?>

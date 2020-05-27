@@ -213,6 +213,7 @@ class Mailer extends PHPMailer
                     'mailQueue',
                     array(
                         "id_users" => $user_id,
+                        "date_sent" => date('Y-m-d H:i:s', time()),
                         "id_mailSentBy" => $this->db->get_lookup_id_by_value(Mailer::SENT_BY_LOOKUP_TYPE, $sent_by),
                         "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
                     ),
