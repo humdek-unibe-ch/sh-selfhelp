@@ -1,4 +1,12 @@
-# v1.3.5 (latest)
+# v1.3.5.1 (latest)
+
+### Bugfix
+
+ - security fix: (!22)
+
+
+---------
+# v1.3.5
 
 ### Bugfix
 
