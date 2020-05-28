@@ -554,6 +554,28 @@ class BaseDb {
     }
 
     /**
+     * Get the id of a lookup value
+     *
+     * @param string $type
+     *  The lookup type
+     * @param string $code
+     *  The lookup code
+     * @retval int
+     *  the id of the lookpu code
+     */
+    public function get_lookup_id_by_code($type, $code)
+    {
+        $val = $this->query_db_first(
+            'SELECT id FROM lookups WHERE lookup_code = :code AND type_code = :type_code;',
+            array(
+                ':code' => $code,
+                ":type_code" => $type
+            )
+        );
+        return $val['id'];
+    }
+
+    /**
      * Begin PDO DB transanction
      */
     public function begin_transaction(){

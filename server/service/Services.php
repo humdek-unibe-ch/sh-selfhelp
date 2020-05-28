@@ -13,6 +13,7 @@ require_once __DIR__ . "/Navigation.php";
 require_once __DIR__ . "/ParsedownExtension.php";
 require_once __DIR__ . "/Router.php";
 require_once __DIR__ . "/UserInput.php";
+require_once __DIR__ . "/Transaction.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -40,6 +41,11 @@ class Services
      * An instance of the PHPMailer service to handle outgoing emails.
      */
     private $mail = null;
+
+    /**
+     * An instance of the transaction class used for loging.
+     */
+    private $transaction = null;
 
     /**
      * The instance to the navigation service which allows to switch between
@@ -81,6 +87,8 @@ class Services
             $this->does_redirect($this->router->route['name']));
 
         $this->mail = new Mailer($this->db);
+
+        $this->transaction = new Transaction($this->db);
 
         $this->user_input = new UserInput($this->db);
 
@@ -206,6 +214,17 @@ class Services
     public function get_db()
     {
         return $this->db;
+    }
+
+    /**
+     * Get the service class Transaction.
+     *
+     * @retval object
+     *  The Transaction service class.
+     */
+    public function get_transaction()
+    {
+        return $this->transaction;
     }
 
     /**

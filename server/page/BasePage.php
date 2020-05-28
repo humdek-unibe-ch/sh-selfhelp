@@ -250,7 +250,7 @@ abstract class BasePage
     }
 
     /**
-     * Fetch the main page information from the database.
+     * Fetch the main page information from the database and add transaction to the logs
      *
      * @param string $keyword
      *  The keyword identifying the page.
@@ -259,6 +259,7 @@ abstract class BasePage
     {
         $db = $this->services->get_db();
         $info = $db->fetch_page_info($keyword);
+        $this->services->get_transaction()->add_page_view_transaction($info);
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);

@@ -48,6 +48,11 @@ class ModuleMailModel extends BaseModel
         $this->mqid = $mqid;
     }
 
+    /**
+     * Return the mail queue records for the selected period over the selcted date type
+     * @retval array
+     * The list of the mail queue entries that should be returned
+     */
     public function get_mail_queue()
     {
         $sql = "SELECT *
@@ -94,6 +99,11 @@ class ModuleMailModel extends BaseModel
         return $this->mqid;
     }
 
+    /**
+     * Delete the selcted queue entry
+     * @retval boolean 
+     * return the result
+     */
     public function delete_selected_queue_entry()
     {
         return $this->db->update_by_ids(
@@ -107,6 +117,11 @@ class ModuleMailModel extends BaseModel
         );
     }
 
+    /**
+     * send the selected queue entry
+     * @retval boolean
+     * return the result
+     */
     public function send_selected_queue_entry(){
         return $this->mail->send_mail_from_queue($this->mqid, Mailer::SENT_BY_USER) !== false;
     }

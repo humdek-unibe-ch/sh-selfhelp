@@ -423,7 +423,7 @@ CREATE TABLE `transactions` (
   `id_users` INT(10) UNSIGNED, -- the user who did the transaction, null if it was automated
   `table_name` varchar(100), -- the name of the table that we want to store. Later using the id we can make joins to retrieve some information
   `id_table_name` INT(10) UNSIGNED, -- the id of the record which is related to this transaction
-  `transaction_log` VARCHAR(1000)  
+  `transaction_log` TEXT  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `transactions`
@@ -431,7 +431,7 @@ ADD CONSTRAINT `transactions_fk_id_transactionTypes` FOREIGN KEY (`id_transactio
 ADD CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add transactionTypes
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'INSERT', 'Add new entry', 'Add new entry to a table');
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'SELECT', 'View entry', 'View entry from a table');
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'UPDATE', 'Edit entry', 'Edit entry from a table');
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'DELETE', 'Delete entry', 'Delete entry from a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'insert', 'Add new entry', 'Add new entry to a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'select', 'View entry', 'View entry from a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'update', 'Edit entry', 'Edit entry from a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'delete', 'Delete entry', 'Delete entry from a table');
