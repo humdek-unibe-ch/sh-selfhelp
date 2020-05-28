@@ -6,7 +6,6 @@
 <?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/qualtrics_api_json_templates.php";
-require_once __DIR__ . "/../../cronjobs/MailQueue.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such

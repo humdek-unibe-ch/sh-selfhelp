@@ -259,7 +259,14 @@ abstract class BasePage
     {
         $db = $this->services->get_db();
         $info = $db->fetch_page_info($keyword);
-        $this->services->get_transaction()->add_page_view_transaction($info);
+        $transaction = $this->services->get_transaction();
+        $transaction->add_transaction(            
+            $transaction::TRAN_TYPE_SELECT,
+            $transaction::TRAN_BY_USER,
+            $_SESSION['id_user'],
+            $transaction::TABLE_PAGES,
+            $info['id']
+        );
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);

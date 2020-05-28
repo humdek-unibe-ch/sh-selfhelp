@@ -84,11 +84,11 @@ class Services
 
         $this->login = new Login($this->db,
             $this->is_experimenter_page($this->router->route['name']),
-            $this->does_redirect($this->router->route['name']));
-
-        $this->mail = new Mailer($this->db);
+            $this->does_redirect($this->router->route['name']));        
 
         $this->transaction = new Transaction($this->db);
+
+        $this->mail = new Mailer($this->db, $this->transaction);
 
         $this->user_input = new UserInput($this->db);
 

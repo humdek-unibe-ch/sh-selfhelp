@@ -21,6 +21,11 @@ abstract class BaseCallback
     protected $db;
 
     /**
+     * The transaction instance which logs to the DB.
+     */
+    protected $transaction = null;
+
+    /**
      * The instance to the navigation service which allows to switch between
      * sections, associated to a specific page.
      */
@@ -68,6 +73,7 @@ abstract class BaseCallback
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
         $this->mail = $services->get_mail();
+        $this->transaction = $services->get_transaction();
     }
 
     /**

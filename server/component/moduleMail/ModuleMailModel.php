@@ -106,15 +106,33 @@ class ModuleMailModel extends BaseModel
      */
     public function delete_selected_queue_entry()
     {
-        return $this->db->update_by_ids(
-            'mailQueue',
-            array(
-                "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_DELETED)
-            ),
-            array(
-                "id" => $this->mqid
-            )
-        );
+
+        try {
+            $this->db->begin_transaction();
+            $del_result = $this->db->update_by_ids(
+                'mailQueue',
+                array(
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_DELETED)
+                ),
+                array(
+                    "id" => $this->mqid
+                )
+            );
+            if ($del_result === false) {
+                $this->db->rollback();
+                return false;
+            } else {
+                if ($this->transaction->add_mailQueue_transaction($this->mqid) === false) {
+                    $this->db->rollback();
+                    return false;
+                }
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
     }
 
     /**
@@ -122,7 +140,8 @@ class ModuleMailModel extends BaseModel
      * @retval boolean
      * return the result
      */
-    public function send_selected_queue_entry(){
+    public function send_selected_queue_entry()
+    {
         return $this->mail->send_mail_from_queue($this->mqid, Mailer::SENT_BY_USER) !== false;
     }
 }

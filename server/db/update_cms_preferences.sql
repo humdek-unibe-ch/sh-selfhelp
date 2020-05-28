@@ -365,9 +365,7 @@ VALUES ('auto_created', 'This user was auto created. The user has only code and 
 -- add table mailQueue
 CREATE TABLE `mailQueue` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
-  `id_mailQueueStatus` INT(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_mailSentBy` INT(10) UNSIGNED,
-  `id_users` INT(10) UNSIGNED,
+  `id_mailQueueStatus` INT(10) UNSIGNED ZEROFILL NOT NULL,  
   `date_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
   `date_to_be_sent` TIMESTAMP NOT NUll,
   `date_sent` TIMESTAMP,
@@ -383,9 +381,7 @@ CREATE TABLE `mailQueue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `mailQueue`
-ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `mailQueue_fk_id_mailSentBy` FOREIGN KEY (`id_mailSentBy`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `mailQueue_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add mailQueueStatus
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'queued', 'Status for initialization. When the mail is queued it goes in this status');
@@ -393,21 +389,14 @@ INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQ
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'sent', 'When the mail is sent');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'failed', 'When something happened and the mail sending failed');
 
--- add mailSentBy
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailSentBy', 'by_cron', 'Email was sent by the cron job');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailSentBy', 'by_user', 'Email was sent by an user manually');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailSentBy', 'by_qualtrics_callback', 'Email was sent by qualtrics callback');
-
 -- view_mailQueu
 DROP VIEW IF EXISTS view_mailQueue;
 CREATE VIEW view_mailQueue
 AS
-SELECT mq.id AS id, l_status.lookup_value AS status, l_sent_by.lookup_value AS sent_by, date_create, date_to_be_sent, date_sent, from_email, from_name,
-reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html, u.name AS sent_by_user
+SELECT mq.id AS id, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
+reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
 FROM mailQueue mq
-LEFT JOIN users u ON (u.id = mq.id_users)
-INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus)
-LEFT JOIN lookups l_sent_by ON (l_sent_by.id = mq.id_mailSentBy);
+INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);
 
 -- add mailQueueSearchDateTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueSearchDateTypes', 'date_create', 'Entry date', 'The date that the queue record was created');
@@ -420,6 +409,7 @@ CREATE TABLE `transactions` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,      
   `transaction_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
   `id_transactionTypes` INT(10) UNSIGNED,
+  `id_transactionBy` INT(10) UNSIGNED,
   `id_users` INT(10) UNSIGNED, -- the user who did the transaction, null if it was automated
   `table_name` varchar(100), -- the name of the table that we want to store. Later using the id we can make joins to retrieve some information
   `id_table_name` INT(10) UNSIGNED, -- the id of the record which is related to this transaction
@@ -428,6 +418,7 @@ CREATE TABLE `transactions` (
 
 ALTER TABLE `transactions`
 ADD CONSTRAINT `transactions_fk_id_transactionTypes` FOREIGN KEY (`id_transactionTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `transactions_fk_id_transactionBy` FOREIGN KEY (`id_transactionBy`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add transactionTypes
@@ -435,3 +426,10 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'select', 'View entry', 'View entry from a table');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'update', 'Edit entry', 'Edit entry from a table');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'delete', 'Delete entry', 'Delete entry from a table');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'send_mailQueue', 'Send mail queue', 'Send mail queue entry');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'check_mailQueue', 'Check mail queue', 'Check mail queue and send mails if needed');
+
+-- add transactionBy
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_mail_cron', 'By mail cronjob', 'The action was done by a mail cronjob');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_user', 'By user', 'The action was done by an user');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_qualtrics_callback', 'By qualtrics callback', 'The action was done by a qualtrics callback');

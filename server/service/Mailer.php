@@ -39,14 +39,20 @@ class Mailer extends PHPMailer
     private $db;
 
     /**
+     * The transaction instance that log to DB.
+     */
+    private $transaction;
+
+    /**
      * Creating a PHPMailer Instance.
      *
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db)
+    public function __construct($db, $transaction)
     {
         $this->db = $db;
+        $this->transaction = $transaction;
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';
         parent::__construct(false);
@@ -186,13 +192,13 @@ class Mailer extends PHPMailer
      *  return if mail was sent successfully
      */
     public function send_mail_from_queue($mail_queue_id, $sent_by, $user_id = null)
-    {        
+    {
         $mail_info = $this->db->select_by_uid('mailQueue', $mail_queue_id);
         if ($mail_info) {
             $from = array(
                 'address' => $mail_info['from_email'],
                 'name' => $mail_info['from_name'],
-                );
+            );
             $to = array();
             $mail_info_recipients = explode(MAIL_SEPARATOR, $mail_info['recipient_emails']);
             $mails = array();
@@ -201,32 +207,41 @@ class Mailer extends PHPMailer
                 $mails[] = array('address' => $mail, 'name' => $mail);
             }
             $to['to'] = $mails;
-            //$to = $this->create_single_to($mail_info['recipient_emails']);
             $subject = $mail_info['subject'];
             $msg = $mail_info['body'];
-            $msg_html = $mail_info['is_html'] === 2 ? $this->parsedown->text($msg) : $msg;
+            $msg_html = $mail_info['is_html'] === 1 ? $this->parsedown->text($msg) : $msg;
             $replyTo = array('address' => $mail_info['reply_to']);
 
-            $res = $this->send_mail($from, $to, $subject, $msg);
+            $res = $this->send_mail($from, $to, $subject, $msg, $msg_html, array(), $replyTo);
             if ($res) {
-                return $this->db->update_by_ids(
-                    'mailQueue',
-                    array(
-                        "id_users" => $user_id,
-                        "date_sent" => date('Y-m-d H:i:s', time()),
-                        "id_mailSentBy" => $this->db->get_lookup_id_by_value(Mailer::SENT_BY_LOOKUP_TYPE, $sent_by),
-                        "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
-                    ),
-                    array(
-                        "id" => $mail_queue_id
-                    )
-                );
+                try {
+                    $this->db->begin_transaction();
+                    $db_send_res = $this->db->update_by_ids(
+                        'mailQueue',
+                        array(
+                            "date_sent" => date('Y-m-d H:i:s', time()),
+                            "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
+                        ),
+                        array(
+                            "id" => $mail_queue_id
+                        )
+                    );
+                    if ($db_send_res === false) {
+                        $this->db->rollback();
+                        return false;
+                    }else{
+                        $this->transaction->add_mailQueue_send_transaction($this->db->query_db_first('SELECT * FROM mailQueue WHERE id = :id', array(":id"=>$mail_queue_id)), $user_id, $sent_by);
+                    }
+                } catch (Exception $e) {
+                    $this->db->rollback();
+                    return false;
+                }
             } else {
                 return false;
             }
         } else {
             return false;
-        }  
+        }
     }
 }
 ?>

@@ -44,6 +44,11 @@ abstract class BaseModel
     protected $parsedown;
 
     /**
+     * The instance instance that is used to log transactions in the database.
+     */
+    protected $transaction;
+
+    /**
      * User input handler.
      */
     protected $user_input;
@@ -81,6 +86,7 @@ abstract class BaseModel
         $this->acl = $services->get_acl();
         $this->login = $services->get_login();
         $this->mail = $services->get_mail();
+        $this->transaction = $services->get_transaction();
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();

@@ -23,6 +23,11 @@ class MailQueue
     private $db = null;
 
     /**
+     * The transaction instance which logs to the DB.
+     */
+    private $transaction = null;
+
+    /**
      * An instance of the PHPMailer service to handle outgoing emails.
      */
     private $mail = null;
@@ -38,8 +43,9 @@ class MailQueue
     public function __construct()
     {
         $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->transaction = new Transaction($this->db);
 
-        $this->mail = new Mailer($this->db);
+        $this->mail = new Mailer($this->db, $this->transaction);
 
         $this->parsedown = new ParsedownExtension();
         $this->parsedown->setSafeMode(false);
@@ -79,6 +85,10 @@ class MailQueue
      */
     public function check_queue()
     {
+        $this->transaction->add_transaction(
+             $this->transaction::TRAN_TYPE_CHECK_MAILQUEUE,
+             $this->transaction::TRAN_BY_MAIL_CRON
+        );
         $sql = 'SELECT id
                 FROM mailQueue
                 WHERE date_to_be_sent <= NOW() AND id_mailQueueStatus = :status';

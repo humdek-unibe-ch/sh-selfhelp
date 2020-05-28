@@ -190,7 +190,15 @@ class CallbackQualtrics extends BaseCallback
                 "subject" => "test",
                 "body" => "test body"
             );
-            if ($this->mail->add_mail_to_queue($mail) > 0) {
+            $mq_id = $this->mail->add_mail_to_queue($mail);
+            if ($mq_id > 0) {
+                $this->transaction->add_transaction(
+                    $this->transaction::TRAN_TYPE_INSERT,
+                    $this->transaction::TRAN_BY_QUALTRICS_CALLBACK,
+                    null,
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mq_id
+                );
                 $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                     ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                     ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
