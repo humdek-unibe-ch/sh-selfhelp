@@ -1,6 +1,10 @@
 $(document).ready(function() {
     var table = $('#user-activity').DataTable({
-        "order": [[1, "asc"]]
+        "order": [[1, "asc"]],
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf'
+        ]
     });
     table.on('click', 'tr[id|="user-url"]', function(e) {
         var ids = $(this).attr('id').split('-');

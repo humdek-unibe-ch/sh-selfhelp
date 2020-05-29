@@ -20,7 +20,11 @@ $(document).ready(function () {
     $('select').selectpicker();
 
     var table = $('#mailQueue').DataTable({
-        "order": [[0, "asc"]]
+        "order": [[1, "asc"]],
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf'
+        ]
     });
     table.on('click', 'tr[id|="mailQueue-url"]', function (e) {
         var ids = $(this).attr('id').split('-');

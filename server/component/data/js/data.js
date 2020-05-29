@@ -3,6 +3,10 @@ $(document).ready(function () {
     $('.adminData').each(function () {
         $(this).DataTable({
             "scrollX": true,
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf'
+            ],
             "columnDefs": [
                 { "visible": false, "targets": 0 },
                 { "visible": false, "targets": 1 }
