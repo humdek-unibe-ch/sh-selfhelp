@@ -9,7 +9,6 @@
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Status</th>
-                <th scope="col">Sent By</th>
                 <th scope="col">Entry date</th>
                 <th scope="col">Date to be sent</th>
                 <th scope="col">Sent date</th>
@@ -21,7 +20,6 @@
                 <th scope="col">BCC</th>
                 <th scope="col">Subject</th>
                 <th scope="col">Is HTML</th>
-                <th scope="col">Sent by user</th>
             </tr>
         </thead>
         <tbody>

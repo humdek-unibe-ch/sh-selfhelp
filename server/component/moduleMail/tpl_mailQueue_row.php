@@ -6,7 +6,6 @@
 <tr class="mailQueue-row" id="mailQueue-url-<?php echo $url; ?>">
     <td><?php echo $queue['id']; ?></td>
     <td><?php echo $queue['status']; ?></td>
-    <td><?php echo $queue['sent_by']; ?></td>
     <td><?php echo $queue['date_create']; ?></td>
     <td><?php echo $queue['date_to_be_sent']; ?></td>
     <td><?php echo $queue['date_sent']; ?></td>
@@ -18,5 +17,4 @@
     <td><?php echo $queue['bcc_emails']; ?></td>
     <td><?php echo $queue['subject']; ?></td>
     <td><?php echo $queue['is_html']; ?></td>
-    <td><?php echo $queue['sent_by_user']; ?></td>
 </tr>

@@ -53,21 +53,6 @@ class MailQueue
     }
 
     /**
-     * Test function that print the time
-     */
-    private function printTime($val = null)
-    {
-        $fh = fopen('C:\Users\Stefan\Desktop\test.txt', 'a');
-        echo $fh;
-        if ($val) {
-            echo fwrite($fh, '[' . date('Y-m-d H:i:s') . ']' . json_encode($val) . "\r\n");
-        } else {
-            echo fwrite($fh, date('Y-m-d H:i:s') . "\r\n");
-        }
-        fclose($fh);
-    }
-
-    /**
      * Check if any mail should be queued
      *
      * @param array $mail_info
@@ -96,8 +81,7 @@ class MailQueue
             "status" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED)
         ));
         foreach ($queue as $mail_queue_id) {
-            $this->printTime($mail_queue_id);
-            $this->mail->send_mail_from_queue($mail_queue_id['id'], Mailer::SENT_BY_CRON);
+            $this->mail->send_mail_from_queue($mail_queue_id['id'], $this->transaction::TRAN_BY_MAIL_CRON);
         }
     }
 }

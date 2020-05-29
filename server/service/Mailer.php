@@ -27,12 +27,6 @@ class Mailer extends PHPMailer
     const STATUS_FAILED = 'failed';
     const STATUS_LOOKUP_TYPE = 'mailQueueStatus';
 
-    /* Sent by */
-    const SENT_BY_CRON = 'by_cron';
-    const SENT_BY_USER = 'by_user';
-    const SENT_BY_QUALTRICS_CALLBACK = 'by_qualtrics_callback';
-    const SENT_BY_LOOKUP_TYPE = 'mailSentBy';
-
     /**
      * The db instance which grants access to the DB.
      */
@@ -230,7 +224,9 @@ class Mailer extends PHPMailer
                         $this->db->rollback();
                         return false;
                     }else{
-                        $this->transaction->add_mailQueue_send_transaction($this->db->query_db_first('SELECT * FROM mailQueue WHERE id = :id', array(":id"=>$mail_queue_id)), $user_id, $sent_by);
+                        $this->transaction->add_transaction($this->transaction::TRAN_TYPE_SEND_MAILQUEUE, $sent_by, $user_id, $this->transaction::TABLE_MAILQUEUE, $mail_queue_id);
+                        $this->db->commit();
+                        return true;
                     }
                 } catch (Exception $e) {
                     $this->db->rollback();

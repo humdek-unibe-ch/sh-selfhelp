@@ -142,6 +142,6 @@ class ModuleMailModel extends BaseModel
      */
     public function send_selected_queue_entry()
     {
-        return $this->mail->send_mail_from_queue($this->mqid, Mailer::SENT_BY_USER) !== false;
+        return $this->mail->send_mail_from_queue($this->mqid, $this->transaction::TRAN_BY_USER, $_SESSION['id_user']) !== false;
     }
 }
