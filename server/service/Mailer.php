@@ -239,5 +239,25 @@ class Mailer extends PHPMailer
             return false;
         }
     }
+
+    /**
+     * Check the mailing queue and send the mails if there are mails in the queue which should be sent
+     */
+    public function check_queue_and_send()
+    {
+        $this->transaction->add_transaction(
+             $this->transaction::TRAN_TYPE_CHECK_MAILQUEUE,
+             $this->transaction::TRAN_BY_MAIL_CRON
+        );
+        $sql = 'SELECT id
+                FROM mailQueue
+                WHERE date_to_be_sent <= NOW() AND id_mailQueueStatus = :status';
+        $queue = $this->db->query_db($sql, array(
+            "status" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED)
+        ));
+        foreach ($queue as $mail_queue_id) {
+            $this->send_mail_from_queue($mail_queue_id['id'], $this->transaction::TRAN_BY_MAIL_CRON);
+        }
+    }
 }
 ?>

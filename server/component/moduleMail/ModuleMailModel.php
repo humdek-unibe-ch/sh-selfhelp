@@ -64,6 +64,22 @@ class ModuleMailModel extends BaseModel
         ));
     }
 
+    /**
+     * Return the mail queue transaction records for the selected period over the selcted date type
+     * @retval array
+     * The list of the mail queue transaction entries that should be returned
+     */
+    public function get_mail_queue_transactions()
+    {
+        $sql = "SELECT *
+                FROM view_mailQueue_transactions 
+                WHERE CAST(" . $this->date_type . " AS DATE) BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y') AND STR_TO_DATE(:date_to,'%d-%m-%Y');";
+        return $this->db->query_db($sql, array(
+            ":date_from" => $this->date_from,
+            ":date_to" => $this->date_to
+        ));
+    }
+
     public function set_date_from($date_from)
     {
         $this->date_from = $date_from;
@@ -122,7 +138,14 @@ class ModuleMailModel extends BaseModel
                 $this->db->rollback();
                 return false;
             } else {
-                if ($this->transaction->add_mailQueue_transaction($this->mqid) === false) {
+                if (!$this->transaction->add_transaction(
+                    $this->transaction::TRAN_TYPE_DELETE,
+                    $this->transaction::TRAN_BY_USER,
+                    $_SESSION['id_user'],
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $this->mqid,
+                    true
+                )) {
                     $this->db->rollback();
                     return false;
                 }
@@ -143,5 +166,14 @@ class ModuleMailModel extends BaseModel
     public function send_selected_queue_entry()
     {
         return $this->mail->send_mail_from_queue($this->mqid, $this->transaction::TRAN_BY_USER, $_SESSION['id_user']) !== false;
+    }
+
+    /**
+     * Check the queue and send the mails which should be sent
+     * @retval array
+     * return result array
+     */
+    public function check_queue_and_send(){
+        return $this->mail->check_queue_and_send();
     }
 }

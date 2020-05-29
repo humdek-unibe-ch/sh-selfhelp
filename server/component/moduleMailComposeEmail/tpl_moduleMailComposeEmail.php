@@ -6,11 +6,10 @@
 <div class="container-fluid mt-3">
     <div class="row">
         <div class="col-auto">
-            <?php $this->output_side_buttons_mailQueue_entry(); ?>
+            <?php $this->output_side_buttons(); ?>
         </div>
         <div class="col">
-            <?php $this->output_alert(); ?>            
-            <?php $this->output_entry_form_view(); ?>            
+            <?php $this->output_entry_form(); ?>
         </div>
     </div>
 </div>

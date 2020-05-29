@@ -8,7 +8,6 @@
 require_once __DIR__ . "/../service/globals.php";
 require_once __DIR__ . "/../service/PageDb.php";
 require_once __DIR__ . "/../service/Mailer.php";
-require_once __DIR__ . "/../service/ParsedownExtension.php";
 
 /**
  * MailQueue class. It is scheduled on a cronjob and it is executed on given time. It checks for mails
@@ -33,11 +32,6 @@ class MailQueue
     private $mail = null;
 
     /**
-     * A markdown parser with custom extensions.
-     */
-    private $parsedown = null;
-
-    /**
      * The constructor.
      */
     public function __construct()
@@ -46,23 +40,6 @@ class MailQueue
         $this->transaction = new Transaction($this->db);
 
         $this->mail = new Mailer($this->db, $this->transaction);
-
-        $this->parsedown = new ParsedownExtension();
-        $this->parsedown->setSafeMode(false);
-        
-    }
-
-    /**
-     * Check if any mail should be queued
-     *
-     * @param array $mail_info
-     *  a row from mailQueue table that contains all the information that we need to send the mail
-     * @retval string
-     *  log text what actions was done;
-     */
-    private function send_mail($mail_queue_id)
-    {
-        //$res = $this->mail->send_mail_from_queue($mail_queue_id);
     }
 
     /**
@@ -70,19 +47,7 @@ class MailQueue
      */
     public function check_queue()
     {
-        $this->transaction->add_transaction(
-             $this->transaction::TRAN_TYPE_CHECK_MAILQUEUE,
-             $this->transaction::TRAN_BY_MAIL_CRON
-        );
-        $sql = 'SELECT id
-                FROM mailQueue
-                WHERE date_to_be_sent <= NOW() AND id_mailQueueStatus = :status';
-        $queue = $this->db->query_db($sql, array(
-            "status" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED)
-        ));
-        foreach ($queue as $mail_queue_id) {
-            $this->mail->send_mail_from_queue($mail_queue_id['id'], $this->transaction::TRAN_BY_MAIL_CRON);
-        }
+        $this->mail->check_queue_and_send();
     }
 }
 

@@ -4,9 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="mb-3">
-    <table id="mailQueue" class="table table-sm table-hover">
+    <table id="mailQueue" class="table table-sm table-hover" data-transactions = '<?php echo $this->output_mail_queue_transactions(); ?>'>
         <thead>
             <tr>
+                <th scope="col"></th>
                 <th scope="col">ID</th>
                 <th scope="col">Status</th>
                 <th scope="col">Entry date</th>

@@ -3,7 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<tr class="mailQueue-row" id="mailQueue-url-<?php echo $url; ?>">
+<tr class="mailQueue-row" data-row-id='<?php echo $queue['id']; ?>' id="mailQueue-url-<?php echo $url; ?>">
+    <td class="details-control"></td>
     <td><?php echo $queue['id']; ?></td>
     <td><?php echo $queue['status']; ?></td>
     <td><?php echo $queue['date_create']; ?></td>

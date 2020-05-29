@@ -151,7 +151,6 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                 )),
                 new BaseStyleComponent("textarea", array(
                     "label" => "Body",
-                    "id" => 'asd',
                     "type_input" => "text",
                     "name" => $isNotification ? "notification[body]" : "reminder[body]",
                     "value" => isset($this->stage[$type]) ? $this->stage[$type]['body'] : '',

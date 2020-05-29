@@ -372,7 +372,7 @@ CREATE TABLE `mailQueue` (
   `from_email` VARCHAR(100) NOT NUll,
   `from_name` VARCHAR(100) NOT NUll,
   `reply_to` VARCHAR(100) NOT NUll,
-  `recipient_emails` VARCHAR(1000) NOT NUll,
+  `recipient_emails` TEXT NOT NUll,
   `cc_emails` VARCHAR(1000),
   `bcc_emails` VARCHAR(1000),
   `subject` VARCHAR(1000) NOT NUll,
@@ -433,3 +433,36 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_mail_cron', 'By mail cronjob', 'The action was done by a mail cronjob');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_user', 'By user', 'The action was done by an user');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_qualtrics_callback', 'By qualtrics callback', 'The action was done by a qualtrics callback');
+
+-- view view_transactions
+DROP VIEW IF EXISTS view_transactions;
+CREATE VIEW view_transactions
+AS
+SELECT t.id, t.transaction_time, t.id_transactionTypes, tran_type.lookup_value AS transaction_type,
+id_transactionBy, tran_by.lookup_value AS transaction_by, id_users, u.name AS user_name,
+table_name, id_table_name, REPLACE(JSON_EXTRACT(transaction_log, '$.verbal_log'), '"', '') AS transaction_verbal_log
+FROM transactions t
+INNER JOIN lookups tran_type ON (tran_type.id = t.id_transactionTypes)
+INNER JOIN lookups tran_by ON (tran_by.id = t.id_transactionBy)
+LEFT JOIN users u ON (u.id = t.id_users);
+
+-- view view_mailQueue_transactions
+DROP VIEW IF EXISTS view_mailQueue_transactions;
+CREATE VIEW view_mailQueue_transactions
+AS
+SELECT mq.id, date_create, date_to_be_sent, date_sent, t.id AS transaction_id, transaction_time, 
+transaction_type, transaction_by, user_name, transaction_verbal_log
+FROM mailQueue mq
+INNER JOIN view_transactions t ON (t.table_name = 'mailQueue' AND t.id_table_name = mq.id)
+ORDER BY mq.id ASC, t.id ASC;
+
+-- add moduleMailComposeMail
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+SET @id_page = LAST_INSERT_ID();
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Compose Mail');
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '1', '0');
+
+-- register moduleMailComposeEmail with page
+call proc_register_module('moduleMail', 'moduleMailComposeEmail', 1);

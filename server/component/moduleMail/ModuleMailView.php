@@ -71,6 +71,12 @@ class ModuleMailView extends BaseView
         }
     }
 
+    public function output_mail_queue_transactions()
+    {
+        $mailQueue_transactions = (json_encode($this->model->get_mail_queue_transactions(), JSON_OBJECT_AS_ARRAY));
+        return $mailQueue_transactions;
+    }
+
     /**
      * Get js include files required for this component. This overrides the
      * parent implementation.
@@ -218,9 +224,9 @@ class ModuleMailView extends BaseView
     }
 
     /**
-     * Render the sidebar buttons
+     * Render the sidebar buttons for mailQueue entry
      */
-    public function output_side_buttons()
+    public function output_side_buttons_mailQueue_entry()
     {
         // maoduel queue back button
         $mailQueueuButton = new BaseStyleComponent("button", array(
@@ -247,12 +253,37 @@ class ModuleMailView extends BaseView
                 "label" => "Delete Queue Entry",
                 "id" => "delete",
                 "url" => $this->model->get_link_url("moduleMail", array("mqid" => intval($this->mail_queue_entry['id']))),
-               // "url" => "#",
                 "type" => "danger",
                 "css" => "d-block mb-3",
             ));
             $deleteButton->output_content();
         }
+    }
+
+    /**
+     * Render the sidebar buttons for mailQueue
+     */
+    public function output_side_buttons()
+    {
+        // run cron job manually
+        $mailQueueuRunCron = new BaseStyleComponent("button", array(
+            "id" => "run_cron",
+            "label" => "Run now",
+            "url" => $this->model->get_link_url("moduleMail"),
+            "type" => "secondary",
+            "css" => "d-block mb-3",
+        ));
+        $mailQueueuRunCron->output_content();
+
+        // compose email
+        $composeEmail = new BaseStyleComponent("button", array(
+            "label" => "Compose email",
+            "id" => "compose_email",
+            "url" => $this->model->get_link_url("moduleMailComposeEmail"),
+            "type" => "secondary",
+            "css" => "d-block mb-3",
+        ));
+        $composeEmail->output_content();
     }
 }
 ?>

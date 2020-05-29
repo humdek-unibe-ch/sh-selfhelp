@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseController.php";
+
 /**
  * The controller class of the group insert component.
  */
@@ -31,7 +32,7 @@ class ModuleMailController extends BaseController
         } else {
             $this->model->set_date_from(date('d-m-Y'));
             $this->model->set_date_to(date('d-m-Y'));
-            $this->model->set_date_type('date_create');
+            $this->model->set_date_type('date_to_be_sent');
         }
         if (isset($_POST['mode']) && $this->model->get_mqid() > 0) {
             if (!$this->check_acl(UPDATE)) {
@@ -56,6 +57,8 @@ class ModuleMailController extends BaseController
                     $this->error_msgs[] = "The mail queue entry was not send";
                 }
             }
+        }else if(isset($_POST['mode']) && $_POST['mode'] === "run_cron"){
+            $this->model->check_queue_and_send();
         }
     }
 

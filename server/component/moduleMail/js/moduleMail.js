@@ -11,6 +11,29 @@ $.extend(
         }
     });
 
+/* Formatting function for row details - modify as you need */
+function format(mqid) {
+    var columnNames = ['transaction_id', 'transaction_time', 'transaction_type', 'transaction_by', 'user_name', 'transaction_verbal_log']
+    var transactions = JSON.parse($('#mailQueue').attr("data-transactions"));
+    var html = '<table class = "ml-5 table-bordered"> <thead class="table-info"><tr>';
+    for (var j = 0; j < columnNames.length; j++) {
+        html = html + '<th scope="col">' + columnNames[j] + '</th>';
+    }
+    html = html + '</tr></thead> <tbody> ';
+    for (var i = 0; i < transactions.length; i++) {
+        if (transactions[i].id === mqid) {
+            //this transaction belongs to this row;
+            html = html + '<tr>'; //define row
+            for (var j = 0; j < columnNames.length; j++) {
+                //add cell values to the row
+                html = html + '<td>' + transactions[i][columnNames[j]] + '</td>';
+            }
+            html = html + '</tr>'; //close row
+        }
+    }
+    return html + '</tbody> </table>';
+}
+
 $(document).ready(function () {
     if (window.history.replaceState) {
         //prevent resned of the post ************ IMPORTANT *****************************
@@ -20,12 +43,31 @@ $(document).ready(function () {
     $('select').selectpicker();
 
     var table = $('#mailQueue').DataTable({
-        "order": [[1, "asc"]],
+        "order": [[0, "asc"]],
         dom: 'Bfrtip',
         buttons: [
-            'copy', 'csv', 'excel', 'pdf'
-        ]
+            'copy', 'csv', 'excel'
+        ],
     });
+
+    // Add event listener for opening and closing details
+    $('#mailQueue tbody').on('click', 'td.details-control', function (e) {
+        e.stopPropagation();
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child(format($(tr).attr("data-row-id"))).show();
+            tr.addClass('shown');
+        }
+    });
+
     table.on('click', 'tr[id|="mailQueue-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
         document.location = ids[2];
@@ -57,9 +99,7 @@ $(document).ready(function () {
     //confirmation for send/resend mail queueu
     var sendMailQueueButton = $('.style-section-send').first();
     sendMailQueueButton.click(function (e) {
-
         e.preventDefault();
-
         $.confirm({
             title: 'Send Mail Queueu!',
             content: 'Are you sure that you want to send this mail right now?',
@@ -70,8 +110,8 @@ $(document).ready(function () {
                     e.stopPropagation();
                     $.redirectPost(href, { mode: 'send' });
                 },
-                cancel: function () {
-
+                cancel: function(){
+                    
                 }
             }
         });
@@ -80,9 +120,7 @@ $(document).ready(function () {
     //confirmation for delete mail queueu
     var deleteMailQueueButton = $('.style-section-delete').first();
     deleteMailQueueButton.click(function (e) {
-
         e.preventDefault();
-
         $.confirm({
             title: 'Delete Mail Queueu!',
             content: 'Are you sure that you want to delete this mail queue?',
@@ -93,7 +131,28 @@ $(document).ready(function () {
                     e.stopPropagation();
                     $.redirectPost(href, { mode: 'delete' });
                 },
-                cancel: function () {
+                cancel: function(){
+                    
+                }
+            }
+        });
+    });
+
+    //confirmation for run cronjob manually
+    var runCronJobButton = $('.style-section-run_cron').first();
+    runCronJobButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Check mail queue and send!',
+            content: 'Are you sure that you want to manually run the cronjob? It will chekc for mails that should be sent and if there are some they will be sent.',
+            buttons: {
+                confirm: function () {
+                    var href = $(runCronJobButton).attr('href');
+                    $(runCronJobButton).attr('href', '#');
+                    e.stopPropagation();
+                    $.redirectPost(href, { mode: 'run_cron' });
+                },
+                cancel: function(){
 
                 }
             }

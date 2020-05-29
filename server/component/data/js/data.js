@@ -5,7 +5,7 @@ $(document).ready(function () {
             "scrollX": true,
             dom: 'Bfrtip',
             buttons: [
-                'copy', 'csv', 'excel', 'pdf'
+                'copy', 'csv', 'excel'
             ],
             "columnDefs": [
                 { "visible": false, "targets": 0 },

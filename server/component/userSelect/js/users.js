@@ -3,7 +3,7 @@ $(document).ready(function() {
         "order": [[1, "asc"]],
         dom: 'Bfrtip',
         buttons: [
-            'copy', 'csv', 'excel', 'pdf'
+            'copy', 'csv', 'excel'
         ]
     });
     table.on('click', 'tr[id|="user-url"]', function(e) {
