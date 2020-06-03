@@ -76,21 +76,17 @@ $(document).ready(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
 
-    $('#dateFrom').datepicker({
-        calendarWeeks: true,
-        autoclose: true,
-        todayHighlight: true,
-        format: 'dd-mm-yyyy',
+    $('#dateFrom').flatpickr({
+        dateFormat: 'd-m-Y',
+        weekNumbers: true,
     });
     $('#btnFrom').on("click", function (e) {
         $('#dateFrom').focus();
     })
 
-    $('#dateTo').datepicker({
-        calendarWeeks: true,
-        autoclose: true,
-        todayHighlight: true,
-        format: 'dd-mm-yyyy',
+    $('#dateTo').flatpickr({
+        dateFormat: 'd-m-Y',
+        weekNumbers: true,
     });
     $('#btnTo').on("click", function (e) {
         $('#dateTo').focus();

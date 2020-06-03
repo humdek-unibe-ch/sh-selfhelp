@@ -7,12 +7,13 @@ $(document).ready(function () {
         spellChecker: false
     });
 
-    $('#time_to_be_sent').datepicker({
-        calendarWeeks: true,
-        autoclose: true,
-        todayHighlight: true,
-        format: 'dd-mm-yyyy HH:MM',
+    $('#time_to_be_sent').flatpickr({
+        enableTime: true,
+        dateFormat: 'd-m-Y H:i',
+        time_24hr: true,
+        weekNumbers: true,
     });
+
     $('#btntime_to_be_sent').on("click", function (e) {
         $('#time_to_be_sent').focus();
     })
