@@ -8,6 +8,8 @@
 require_once __DIR__ . "/../service/globals.php";
 require_once __DIR__ . "/../service/PageDb.php";
 require_once __DIR__ . "/../service/Mailer.php";
+require_once __DIR__ . "/../service/Router.php";
+require_once __DIR__ . "/../service/UserInput.php";
 
 /**
  * MailQueue class. It is scheduled on a cronjob and it is executed on given time. It checks for mails
@@ -38,8 +40,10 @@ class MailQueue
     {
         $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->transaction = new Transaction($this->db);
-
-        $this->mail = new Mailer($this->db, $this->transaction);
+        $router = new Router($this->db, BASE_PATH);
+        $router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
+        $user_input = new UserInput($this->db);
+        $this->mail = new Mailer($this->db, $this->transaction, $user_input, $router);
     }
 
     /**

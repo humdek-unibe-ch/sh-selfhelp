@@ -13,7 +13,7 @@
     <td><?php echo $queue['from_email']; ?></td>
     <td><?php echo $queue['from_name']; ?></td>
     <td><?php echo $queue['reply_to']; ?></td>
-    <td><?php echo $queue['recipient_emails']; ?></td>
+    <td><div class="recipients"><?php echo $queue['recipient_emails']; ?></div></td>
     <td><?php echo $queue['cc_emails']; ?></td>
     <td><?php echo $queue['bcc_emails']; ?></td>
     <td><?php echo $queue['subject']; ?></td>

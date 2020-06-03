@@ -349,7 +349,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                             "items" => $this->get_lookups('qualtricsProjectStageTriggerTypes'),
                         )),
                         new BaseStyleComponent("select", array(
-                            "label" => "For groups (condition, selct if needed)",
+                            "label" => "For groups (condition, selcet if needed)",
                             "name" => "id_groups[]",
                             "is_multiple" => true,
                             "value" => explode(';', $this->stage['id_groups']),

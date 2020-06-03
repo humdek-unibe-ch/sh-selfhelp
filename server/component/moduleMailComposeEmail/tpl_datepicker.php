@@ -6,8 +6,8 @@
 <div class="form-group">
     <label for="<?php echo $fields['id'] ?>"><?php echo $fields['label'] ?></label>
     <div class="input-group">
-        <input name="<?php echo $fields['name'] ?>" id="<?php echo $fields['id'] ?>" type="text" class="form-control" id="<?php echo $fields['id'] ?>">
-        <div class="input-group-append mr-3">
+        <input required name="<?php echo $fields['name'] ?>" id="<?php echo $fields['id'] ?>" type="text" class="form-control" id="<?php echo $fields['id'] ?>">
+        <div class="input-group-append">
             <div class="btn btn-primary" id="btn<?php echo $fields['id'] ?>"><i class="far fa-calendar-alt"></i></div>
         </div>        
     </div>

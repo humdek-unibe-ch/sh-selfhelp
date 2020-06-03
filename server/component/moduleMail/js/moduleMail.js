@@ -42,6 +42,15 @@ $(document).ready(function () {
 
     $('select').selectpicker();
 
+    if ($('textarea[name="body"]')[0]) {
+        var simplemde = new SimpleMDE({
+            autoDownloadFontAwesome: false,
+            spellChecker: false
+        });
+
+        $('.style-section-body code').first().html(simplemde.options.previewRender($('.style-section-body code').first().html()));
+    }
+
     var table = $('#mailQueue').DataTable({
         "order": [[0, "asc"]],
         dom: 'Bfrtip',
@@ -106,8 +115,8 @@ $(document).ready(function () {
                     e.stopPropagation();
                     $.redirectPost(href, { mode: 'send' });
                 },
-                cancel: function(){
-                    
+                cancel: function () {
+
                 }
             }
         });
@@ -127,8 +136,8 @@ $(document).ready(function () {
                     e.stopPropagation();
                     $.redirectPost(href, { mode: 'delete' });
                 },
-                cancel: function(){
-                    
+                cancel: function () {
+
                 }
             }
         });
@@ -148,7 +157,7 @@ $(document).ready(function () {
                     e.stopPropagation();
                     $.redirectPost(href, { mode: 'run_cron' });
                 },
-                cancel: function(){
+                cancel: function () {
 
                 }
             }

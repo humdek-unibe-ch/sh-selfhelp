@@ -88,7 +88,7 @@ class Services
 
         $this->transaction = new Transaction($this->db);
 
-        $this->mail = new Mailer($this->db, $this->transaction);
+        $this->mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router);
 
         $this->user_input = new UserInput($this->db);
 

@@ -40,25 +40,33 @@ class ModuleMailController extends BaseController
             }
             if ($_POST['mode'] === 'delete') {
                 //delte logic
-                if($this->model->delete_selected_queue_entry()){
+                if ($this->model->delete_selected_queue_entry()) {
                     $this->success = true;
                     $this->success_msgs[] = "The mail queue entry was deleted";
-                }else{
+                } else {
                     $this->fail = true;
                     $this->error_msgs[] = "The mail queue entry was not deleted";
                 }
             } else if ($_POST['mode'] === 'send') {
                 //send logic
-                if($this->model->send_selected_queue_entry()){
+                if ($this->model->send_selected_queue_entry()) {
                     $this->success = true;
                     $this->success_msgs[] = "The mail queue entry was send";
-                }else{
+                } else {
                     $this->fail = true;
                     $this->error_msgs[] = "The mail queue entry was not send";
                 }
             }
-        }else if(isset($_POST['mode']) && $_POST['mode'] === "run_cron"){
+        } else if (isset($_POST['mode']) && $_POST['mode'] === "run_cron") {
             $this->model->check_queue_and_send();
+        } else if (isset($_POST['mode']) && $_POST['mode'] === "composeEmail") {
+            if ($this->model->compose_email($_POST)) {
+                $this->success = true;
+                $this->success_msgs[] = "The mail was scheduled";
+            } else {
+                $this->fail = true;
+                $this->error_msgs[] = "Error! The mail scheduling failed.";
+            };
         }
     }
 

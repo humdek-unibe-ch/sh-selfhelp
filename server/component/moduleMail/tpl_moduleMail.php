@@ -9,6 +9,7 @@
             <?php $this->output_side_buttons(); ?>
         </div>
         <div class="col">
+            <?php $this->output_alert(); ?>     
             <div class="jumbotron">
                 <h1>Mail Queue</h1>
                 <p>

@@ -52,20 +52,25 @@ class ModuleMailComposeEmailView extends BaseView
                 new BaseStyleComponent("form", array(
                     "id" => 'composeEmailForm',
                     "label" => "Compose Email",
-                    "url" => $this->model->get_link_url("moduleQualtricsProjectStage"),
+                    "url" => $this->model->get_link_url("moduleMail"),
                     "url_cancel" => $this->model->get_link_url("moduleMail"),
                     "label_cancel" => 'Cancel',
                     "url_type" => 'warning',
                     "type" => 'warning',
                     "children" => array(
-                        new BaseStyleComponent("select", array(
-                            "label" => "To",
-                            "name" => "recipients",
-                            "items" => $this->get_lookups('notificationTypes'),
+                        new BaseStyleComponent("template", array(
+                            "path" => __DIR__ . "/tpl_selectRecipients.php",
+                            "items" => array(
+                                "name" => 'recipients[]',
+                                "label" => "To",
+                                "id" => "recipients",
+                                "users" => $this->model->get_users(),
+                                "groups" => $this->model->get_groups()
+                            )
                         )),
                         new BaseStyleComponent("input", array(
                             "label" => "From email",
-                            "type_input" => "text",
+                            "type_input" => "email",
                             "name" => "from_email",
                             "is_required" => true,
                             "placeholder" => "From email",
@@ -79,7 +84,7 @@ class ModuleMailComposeEmailView extends BaseView
                         )),
                         new BaseStyleComponent("input", array(
                             "label" => "Reply To",
-                            "type_input" => "text",
+                            "type_input" => "email",
                             "name" => "reply_to",
                             "is_required" => true,
                             "placeholder" => "reply to email",
@@ -104,6 +109,11 @@ class ModuleMailComposeEmailView extends BaseView
                             "type_input" => "text",
                             "name" => "body",
                             "placeholder" => "@user_name can be used for showing the user",
+                        )),
+                        new BaseStyleComponent("input", array(
+                            "value" => "composeEmail",
+                            "name" => "mode",
+                            "type_input" => "hidden",
                         ))
                     )
                 ))

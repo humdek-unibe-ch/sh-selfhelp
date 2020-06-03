@@ -426,7 +426,8 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'select', 'View entry', 'View entry from a table');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'update', 'Edit entry', 'Edit entry from a table');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'delete', 'Delete entry', 'Delete entry from a table');
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'send_mailQueue', 'Send mail queue', 'Send mail queue entry');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'send_mail_ok', 'Send mail successfully', 'Send mail successfully');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'send_mail_fail', 'Send mail failed', 'Send mail failed');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'check_mailQueue', 'Check mail queue', 'Check mail queue and send mails if needed');
 
 -- add transactionBy

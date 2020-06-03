@@ -38,15 +38,22 @@ class Mailer extends PHPMailer
     private $transaction;
 
     /**
+     * A markdown parser with custom extensions.
+     */
+    private $parsedown = null;
+
+    /**
      * Creating a PHPMailer Instance.
      *
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction)
+    public function __construct($db, $transaction, $user_input, $router)
     {
         $this->db = $db;
-        $this->transaction = $transaction;
+        $this->transaction = $transaction;        
+        $this->parsedown = new ParsedownExtension($user_input, $router);
+        $this->parsedown->setSafeMode(false);
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';
         parent::__construct(false);
@@ -195,46 +202,35 @@ class Mailer extends PHPMailer
             );
             $to = array();
             $mail_info_recipients = explode(MAIL_SEPARATOR, $mail_info['recipient_emails']);
-            $mails = array();
-            foreach ($mail_info_recipients as $mail) {
-
-                $mails[] = array('address' => $mail, 'name' => $mail);
-            }
-            $to['to'] = $mails;
             $subject = $mail_info['subject'];
             $msg = $mail_info['body'];
-            $msg_html = $mail_info['is_html'] === 1 ? $this->parsedown->text($msg) : $msg;
+            $msg_html = $mail_info['is_html'] == 1 ? $this->parsedown->text($msg) : $msg;
             $replyTo = array('address' => $mail_info['reply_to']);
-
-            $res = $this->send_mail($from, $to, $subject, $msg, $msg_html, array(), $replyTo);
-            if ($res) {
-                try {
-                    $this->db->begin_transaction();
-                    $db_send_res = $this->db->update_by_ids(
-                        'mailQueue',
-                        array(
-                            "date_sent" => date('Y-m-d H:i:s', time()),
-                            "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
-                        ),
-                        array(
-                            "id" => $mail_queue_id
-                        )
-                    );
-                    if ($db_send_res === false) {
-                        $this->db->rollback();
-                        return false;
-                    }else{
-                        $this->transaction->add_transaction($this->transaction::TRAN_TYPE_SEND_MAILQUEUE, $sent_by, $user_id, $this->transaction::TABLE_MAILQUEUE, $mail_queue_id);
-                        $this->db->commit();
-                        return true;
-                    }
-                } catch (Exception $e) {
-                    $this->db->rollback();
-                    return false;
-                }
-            } else {
-                return false;
+            $res = true;
+            foreach ($mail_info_recipients as $mail) {
+                $to['to'][] = array('address' => $mail, 'name' => $mail);
+                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, array(), $replyTo);
+                $this->transaction->add_transaction(
+                    $res ? $this->transaction::TRAN_TYPE_SEND_MAIL_OK : $this->transaction::TRAN_TYPE_SEND_MAIL_FAIL,
+                    $sent_by,
+                    $user_id,
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mail_queue_id,
+                    false,
+                    'Sending mail to ' . $mail
+                );
             }
+            $db_send_res = $this->db->update_by_ids(
+                'mailQueue',
+                array(
+                    "date_sent" => date('Y-m-d H:i:s', time()),
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
+                ),
+                array(
+                    "id" => $mail_queue_id
+                )
+            );
+            return $res && ($db_send_res !== false);
         } else {
             return false;
         }
@@ -246,8 +242,8 @@ class Mailer extends PHPMailer
     public function check_queue_and_send()
     {
         $this->transaction->add_transaction(
-             $this->transaction::TRAN_TYPE_CHECK_MAILQUEUE,
-             $this->transaction::TRAN_BY_MAIL_CRON
+            $this->transaction::TRAN_TYPE_CHECK_MAILQUEUE,
+            $this->transaction::TRAN_BY_MAIL_CRON
         );
         $sql = 'SELECT id
                 FROM mailQueue

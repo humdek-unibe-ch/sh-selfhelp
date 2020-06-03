@@ -18,7 +18,8 @@ class Transaction
     const TRAN_TYPE_UPDATE = 'update';
     const TRAN_TYPE_DELETE = 'delete';
     const TRAN_TYPE_SELECT = 'select';
-    const TRAN_TYPE_SEND_MAILQUEUE = 'send_mailQueue';
+    const TRAN_TYPE_SEND_MAIL_OK = 'send_mail_ok';
+    const TRAN_TYPE_SEND_MAIL_FAIL = 'send_mail_fail';
     const TRAN_TYPE_CHECK_MAILQUEUE = 'check_mailQueue';
 
     /* Transaction By */
@@ -72,10 +73,10 @@ class Transaction
      * @retval int
      *  The inserted id if succeded, false otherwise.
      */
-    public function add_transaction($tran_type, $tran_by, $user_id = null, $table_name = null, $entry_id = null, $log_row = false)
+    public function add_transaction($tran_type, $tran_by, $user_id = null, $table_name = null, $entry_id = null, $log_row = false, $verbal_log = null)
     {
         $log = array(
-            "verbal_log" => 'Transaction type: `' . $tran_type . '` from table: `' . $table_name . '` triggered ' . $tran_by,
+            "verbal_log" => $verbal_log ? $verbal_log : ('Transaction type: `' . $tran_type . '` from table: `' . $table_name . '` triggered ' . $tran_by),
             "url" => $user_id > 0 ? $_SERVER['REQUEST_URI'] : "",
             "session" => $user_id > 0 ? $_SESSION : ""
         );

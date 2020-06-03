@@ -173,7 +173,106 @@ class ModuleMailModel extends BaseModel
      * @retval array
      * return result array
      */
-    public function check_queue_and_send(){
+    public function check_queue_and_send()
+    {
         return $this->mail->check_queue_and_send();
+    }
+
+    /**
+     * Get all active users;
+     * @retval array
+     * array used for select dropdown
+     */
+    public function get_users()
+    {
+        $arr = array();
+        $sql = "SELECT id, email, code, name 
+                FROM users u 
+                LEFT JOIN validation_codes c on (c.id_users = u.id)
+                WHERE id_status = :active_status";
+        $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
+        foreach ($users as $val) {
+            array_push($arr, array("value" => ('user_' . intval($val['id'])), "text" => ("[" . $val['code'] . '] ' . $val['email']) . ' - ' . $val['name']));
+        }
+        return $arr;
+    }
+
+    /**
+     * Get all groups;
+     * @retval array
+     * array used for select dropdown
+     */
+    public function get_groups()
+    {
+        $arr = array();
+        $sql = "SELECT id, name 
+                FROM groups;";
+        $users = $this->db->query_db($sql);
+        foreach ($users as $val) {
+            array_push($arr, array("value" => ('group_' . intval($val['id'])), "text" => $val['name']));
+        }
+        return $arr;
+    }
+
+    public function compose_email($data)
+    {
+        $recipients = [];
+        $uids = [];
+        $gids = [];
+        $emails = [];
+        foreach ($data['recipients'] as $key => $value) {
+            if (substr($value, 0, strlen('user_')) === 'user_') {
+                $uids[] = str_replace('user_', '', $value);
+            } else if (substr($value, 0, strlen('group_')) === 'group_') {
+                $gids[] = str_replace('group_', '', $value);
+            }
+        }
+        if (count($gids) > 0) {
+            $sql = "SELECT email
+                    FROM users u
+                    INNER JOIN users_groups g on (u.id = g.id_users)
+                    WHERE g.id_groups IN (" . implode(",", $gids) . ") AND email NOT IN ('admin','sysadmin','tpf');";
+            $emails = $this->db->query_db($sql);
+        }
+        if (count($uids) > 0) {
+            $sql = "SELECT email
+                    FROM users u
+                    WHERE id IN (" . implode(",", $uids) . ") AND email NOT IN ('admin','sysadmin','tpf');";
+            $emails = array_merge($emails, $this->db->query_db($sql));
+        }
+        foreach ($emails as $key => $email) {
+            $recipients[] = $email['email'];
+        }
+        $recipients = array_unique($recipients);
+        try {
+            $this->db->begin_transaction();
+            $mail = array(
+                "id_mailQueueStatus" => $this->db->get_lookup_id_by_value($this->mail::STATUS_LOOKUP_TYPE, $this->mail::STATUS_QUEUED),
+                "date_to_be_sent" => date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $data['time_to_be_sent'])->getTimestamp()),
+                "from_email" => $data['from_email'],
+                "from_name" => $data['from_name'],
+                "reply_to" => $data['reply_to'],
+                "recipient_emails" => implode(MAIL_SEPARATOR . ' ', $recipients),
+                "subject" => $data['subject'],
+                "body" => $data['body']
+            );
+            $mq_id = $this->mail->add_mail_to_queue($mail);
+            if ($this->transaction->add_transaction(
+                $this->transaction::TRAN_TYPE_INSERT,
+                $this->transaction::TRAN_BY_USER,
+                $_SESSION['id_user'],
+                $this->transaction::TABLE_MAILQUEUE,
+                $mq_id
+            )) {
+                $this->db->commit();
+                return true;
+            } else {
+                $this->db->rollback();
+                return false;
+            }
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
     }
 }

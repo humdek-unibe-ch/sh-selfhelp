@@ -87,7 +87,10 @@ class ModuleMailView extends BaseView
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
-            $local = array(__DIR__ . "/js/moduleMail.js");
+            $local = array(
+                __DIR__ . "/../js/simplemde.min.js",
+                __DIR__ . "/js/moduleMail.js"
+            );
         }
         return parent::get_js_includes($local);
     }
@@ -101,7 +104,10 @@ class ModuleMailView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        $local = array(__DIR__ . "/css/moduleMail.css");
+        $local = array(
+            __DIR__ . "/../css/simplemde.min.css",
+            __DIR__ . "/css/moduleMail.css"
+        );
         return parent::get_css_includes($local);
     }
 
@@ -207,15 +213,24 @@ class ModuleMailView extends BaseView
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Body",
                     "locale" => "",
+                    "id" => "body",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->mail_queue_entry['body']
                     ))),
+                )),
+                new BaseStyleComponent("textarea", array(
+                    "label" => "Message",
+                    "type_input" => "text",
+                    "name" => "body",
+                    "css" => "d-none",
+                    "value" => $this->mail_queue_entry['body'],
+                    "placeholder" => "@user_name can be used for showing the user",
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Is HTML",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->mail_queue_entry['is_html'] === 1 ? 'True' : 'False'
+                        "text" => $this->mail_queue_entry['is_html'] == 1 ? 'True' : 'False'
                     ))),
                 )),
             )
