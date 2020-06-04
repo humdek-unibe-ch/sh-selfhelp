@@ -1,3 +1,65 @@
+-- function readjust with collate
+DELIMITER //
+DROP FUNCTION IF EXISTS get_field_type_id //
+
+CREATE FUNCTION get_field_type_id(field_type varchar(100)) RETURNS INT
+BEGIN 
+	DECLARE field_type_id INT;    
+	SELECT id INTO field_type_id
+	FROM fieldType
+	WHERE name = field_type COLLATE utf8_unicode_ci;
+    RETURN field_type_id;
+END
+//
+
+DELIMITER ;
+
+DELIMITER //
+DROP FUNCTION IF EXISTS get_field_id //
+
+CREATE FUNCTION get_field_id(field varchar(100)) RETURNS INT
+BEGIN 
+	DECLARE field_id INT;    
+	SELECT id INTO field_id
+	FROM fields
+	WHERE name = field COLLATE utf8_unicode_ci;
+    RETURN field_id;
+END
+//
+
+DELIMITER ;
+
+DELIMITER //
+DROP FUNCTION IF EXISTS get_style_id //
+
+CREATE FUNCTION get_style_id(style varchar(100)) RETURNS INT
+BEGIN 
+	DECLARE style_id INT;    
+	SELECT id INTO style_id
+	FROM styles
+	WHERE name = style COLLATE utf8_unicode_ci;
+    RETURN style_id;
+END
+//
+
+DELIMITER ;
+
+DELIMITER //
+DROP FUNCTION IF EXISTS get_style_group_id //
+
+CREATE FUNCTION get_style_group_id(style_group varchar(100)) RETURNS INT
+BEGIN 
+	DECLARE style_group_id INT;    
+	SELECT id INTO style_group_id
+	FROM styleGroup
+	WHERE name = style_group COLLATE utf8_unicode_ci;
+    RETURN style_group_id;
+END
+//
+
+DELIMITER ;
+
+
 -- add cms prefeences page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
 VALUES (NULL, 'cmsPreferences', '/admin/cms_preferences', 'GET|POST', '0000000002', NULL, '0000000009', '0', '1000', NULL, '0000000001');
@@ -467,3 +529,14 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 
 -- register moduleMailComposeEmail with page
 call proc_register_module('moduleMail', 'moduleMailComposeEmail', 1);
+
+-- add field open_registration to style register
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'open_registration', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('register'), get_field_id('open_registration'), 0, 'If checked any user can register without a registration code. The code will be automatically generated upon registration');
+
+-- add field live_search to style select
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'live_search', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('live_search'), 0, 'If checked the select component will have a live search text box which can filter the values');
+
+-- add field max to style select
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('max'), 5, 'Set the maximum elements that can be shown in the drop down list before the scroller appears');

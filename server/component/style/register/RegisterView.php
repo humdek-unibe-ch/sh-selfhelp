@@ -41,6 +41,13 @@ class RegisterView extends StyleView
     private $code_label;
 
     /**
+     * DB field 'open_registration' (false).
+     * If set to true, users can register without a vlaidation code. 
+     * Upon registration the code will be automatically generated
+     */
+    private $open_registration;
+
+    /**
      * DB field 'label_submit' (empty string).
      * The label of the submit button.
      */
@@ -86,6 +93,7 @@ class RegisterView extends StyleView
         $this->title = $this->model->get_db_field('title');
         $this->success = $this->model->get_db_field("success");
         $this->type = $this->model->get_db_field("type", "success");
+        $this->open_registration = $this->model->get_db_field("open_registration",false);
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(

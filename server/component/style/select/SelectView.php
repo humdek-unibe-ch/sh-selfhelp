@@ -42,6 +42,8 @@ class SelectView extends FormFieldView
         parent::__construct($model);
         $this->items = $this->model->get_db_field("items", array());
         $this->is_multiple = $this->model->get_db_field("is_multiple", false);
+        $this->live_search = $this->model->get_db_field("live_search", false);
+        $this->max = $this->model->get_db_field("max", 5);
     }
 
     /* Private Methods ********************************************************/
@@ -51,7 +53,7 @@ class SelectView extends FormFieldView
      */
     private function output_fields()
     {
-        if($this->value == "")
+        if($this->value == "" && !$this->is_multiple)
         {
             $empty = $this->model->get_db_field("alt");
             require __DIR__ . "/tpl_select_empty.php";
