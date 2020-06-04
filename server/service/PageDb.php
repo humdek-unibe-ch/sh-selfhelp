@@ -429,5 +429,40 @@ class PageDb extends BaseDb
         return $this->query_db($sql);
     }
 
+    /**
+     * Get values from table and retrun them in array text values for select options
+     * Example call fetch_table_as_select_values('groups', 'id', array('name'),'WHERE id=:gid', array(":gid"=>3))
+     * @param string $table_name
+     * the name of the table that we want to fetch
+     * @param string $value_column 
+     * the name of the column which will be the value
+     * @param array $text_columns_array
+     * array with the columns that we want in the text; they are separated with ` - `
+     * @param string $where_clause
+     * where clause if we want to have some filtering
+     * @param array $arguments
+     * the arguments of the parameters in the wehere cluase
+     * @retval array
+     *  The array which can be used in the select style as items
+     */
+    public function fetch_table_as_select_values($table_name, $value_column, $text_columns_array, $where_clause = '', $arguments = array())
+    {
+        $sql = "SELECT " . $value_column . ',' . implode(',', $text_columns_array) . ' FROM ' . $table_name . ' ' . $where_clause;
+        $res = $this->query_db($sql, $arguments);
+        $arr = array();
+        foreach ($res as $val) {
+            $text = '';
+            foreach ($text_columns_array as $key => $column) {
+                if($text == ''){
+                    $text = $text . $val[$column];
+                }else{
+                    $text = $text . ' - ' . $val[$column];
+                }
+            }
+            array_push($arr, array("value" => intval($val[$value_column]), "text" => $text));
+        }
+        return $arr;
+    }
+
 }
 ?>

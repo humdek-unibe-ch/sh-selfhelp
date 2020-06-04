@@ -553,6 +553,14 @@ class CmsView extends BaseView
                 "show_value" => true
             ));
         }
+        else if($field['type'] == "select-group")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+            ));
+        }
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
@@ -606,10 +614,19 @@ class CmsView extends BaseView
                 "path" => __DIR__ . "/tpl_checkbox_field.php",
                 "items" => array("is_checked" => ($field['content'] != "0")),
             ));
+        else if ($field['type'] == "select-group") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+            ));
+        }
         else if($field['content'] != null)
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content']
             ));
+        
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],

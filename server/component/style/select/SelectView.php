@@ -44,6 +44,7 @@ class SelectView extends FormFieldView
         $this->is_multiple = $this->model->get_db_field("is_multiple", false);
         $this->live_search = $this->model->get_db_field("live_search", false);
         $this->max = $this->model->get_db_field("max", 5);
+        $this->disabled = $this->model->get_db_field("disabled", 0);
     }
 
     /* Private Methods ********************************************************/

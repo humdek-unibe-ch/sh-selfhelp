@@ -538,5 +538,17 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'live_search', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('live_search'), 0, 'If checked the select component will have a live search text box which can filter the values');
 
+-- add field disabled to style select
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'disabled', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('disabled'), 0, 'If checked the select component is disabled');
+
+
 -- add field max to style select
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('max'), 5, 'Set the maximum elements that can be shown in the drop down list before the scroller appears');
+
+-- Add new field type `select-group` and field `group` in style register
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-group', '7');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'group', get_field_type_id('select-group'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('register'), get_field_id('group'), (SELECT id FROM groups WHERE name = 'subject' LIMIT 1), 'Select the default group in which evey new user is assigned.');
+
