@@ -30,6 +30,13 @@ class RegisterController extends BaseController
                 $this->success = true;
             else
                 $this->fail = true;
+        } else if (isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) !== false && $model->get_db_field("open_registration", false)) {
+            $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+            if($model->register_user_without_code($email)){
+                $this->success = true;
+            }else{
+                $this->fail = true;
+            }
         }
     }
 

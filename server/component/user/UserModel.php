@@ -184,6 +184,16 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Check if the code exist already in the database
+     * @param string $code
+     * 
+     * @retval bool
+     */
+    private function code_exists($code){
+        return count($this->db->select_by_fk('validation_codes', 'code', $code)) > 0;
+    }
+
+    /**
      * Generate random validation codes and store them to the database.
      *
      * @retval string
@@ -827,6 +837,23 @@ class UserModel extends BaseModel
             return false;
         return $this->db->update_by_ids("users", array("blocked" => 0),
             array("id" => $uid));
+    }
+
+    /**
+     * Generate validation code and insert it in the dabase
+     * @retval string $code
+     * return the code or false if it fails;
+     */
+    public function generate_and_add_code(){
+        $code = $this->generate_code();
+        while ($this->code_exists($code)){
+            $code = $this->generate_code();
+        }
+        $sql = "INSERT IGNORE INTO validation_codes (code) VALUES('$code')";
+        $dbh = $this->db->get_dbh();
+        $insert = $dbh->prepare($sql);
+        $insert->execute();
+        return $insert->rowCount() > 0 ? $code : false;
     }
 }
 ?>

@@ -109,29 +109,39 @@ class RegisterModel extends StyleModel
      *  The email address of the user.
      * @param string $code
      *  The code string entered by the user.
+     * @param bool #skip_group
+     * if true no default group is assign to the user
      * @retval mixed
      *  The user id the new user if the registration was successful,
      *  false otherwise.
      */
-    public function register_user($email, $code)
+    public function register_user($email, $code, $skip_group = false)
     {
         if($this->check_validation_code($code))
         {
             $group = $this->get_group_from_code($code);            
-            $groupId = array(SUBJECT_GROUP_ID); // asign default group
+            $groupId = array($this->get_db_field("group", SUBJECT_GROUP_ID)); // asign predefined group in the controler if not set the default group `subject`
             if(!empty($group)){  
-                              
                 $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }
             $uid = $this->user_model->create_new_user($email, $code, true);
             if($uid && $this->claim_validation_code($code, $uid) !== false)
             {
-                $this->user_model->add_groups_to_user($uid,
-                    $groupId);
+                if(!$skip_group){
+                    $this->user_model->add_groups_to_user($uid, $groupId);
+                }
                 return $uid;
             }
         }
         return false;
+    }
+
+    public function register_user_without_code($email){
+        $code = $this->user_model->generate_and_add_code();        
+        if ($code === false){
+            return false;
+        }
+        return $this->register_user($email, $code);
     }
 }
 ?>

@@ -6,6 +6,7 @@
 <?php
 require_once __DIR__ . "/BaseCallback.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProjectModel.php";
+require_once __DIR__ . "/../component/style/register/RegisterModel.php";
 
 /**
  * A small class that handles callbak and set the group number for validation code
@@ -28,6 +29,11 @@ class CallbackQualtrics extends BaseCallback
     private $auto_created_user_status;
 
     /**
+     * The instance of the user model from the user component.
+     */
+    private $register_user_model = null;
+
+    /**
      * The constructor.
      *
      * @param object $services
@@ -37,6 +43,7 @@ class CallbackQualtrics extends BaseCallback
     {
         parent::__construct($services);
         $this->auto_created_user_status = $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id'];
+        $this->register_user_model = new RegisterModel($services, GUEST_USER_ID);
     }
 
     /**
@@ -85,27 +92,15 @@ class CallbackQualtrics extends BaseCallback
     {
         try {
             $this->db->begin_transaction();
-            $uid =  $this->db->insert("users", array(
-                "email" => $code . '@selfhelp.psy.unibe.ch',
-                "id_status" => $this->auto_created_user_status,
-            ));
-
-            //try to update if the code exist
-            $code_updated = (bool) $this->db->update_by_ids(
-                'validation_codes',
-                array(
-                    "id_users" => $uid,
-                ),
-                array("code" => $code)
-            );
-
-            if (!$code_updated) {
-                //if code does not exist, create the code
-                //disabled. If in the future we need to create users without already generated codes in the DB
-                // $this->db->insert("validation_codes", array(
-                //     "code" => $code,
-                //     "id_users" => $uid,
-                // ));
+            $uid = $this->register_user_model->register_user($code . '@selfhelp.psy.unibe.ch', $code, true);
+            if ($uid === false) {
+                $this->db->rollback();
+                return false;
+            } else {
+                if ($this->transaction->add_transaction($this->transaction::TRAN_TYPE_INSERT, $this->transaction::TRAN_BY_QUALTRICS_CALLBACK, null, $this->transaction::TABLE_USERS, $uid) === false) {
+                    $this->db->rollback();
+                    return false;
+                }
             }
             $this->db->commit();
             return $uid;

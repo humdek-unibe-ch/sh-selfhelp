@@ -30,6 +30,7 @@ class Transaction
     /* Table names */
     const TABLE_PAGES = 'pages';
     const TABLE_MAILQUEUE = 'mailQueue';
+    const TABLE_USERS = 'users';
 
     const TRANSACTIONS_TABLE = 'transactions';
     const LOOKUP_TRANSACTION_TYPE = 'transactionTypes';
