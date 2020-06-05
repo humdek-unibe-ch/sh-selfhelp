@@ -353,6 +353,20 @@ class UserModel extends BaseModel
     }
 
     /**
+     * insert user in the database with status auto_created and the email is code@selfhelp.psy.unibe.ch
+     * @param string $email
+     * @retval int
+     * the user id
+     */
+    public function auto_create_user($email)
+    {
+        return $this->db->insert("users", array(
+            "email" => $email,
+            "id_status" => $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id'],
+        ));
+    }
+
+    /**
      * Delete a user from the database.
      *
      * @param int $uid

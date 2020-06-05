@@ -23,10 +23,6 @@ class CallbackQualtrics extends BaseCallback
     const CALLBACK_SUCCESS = 'callback_success';
 
     /* Private Properties *****************************************************/
-    /**
-     * status id for auto created new users
-     */
-    private $auto_created_user_status;
 
     /**
      * The instance of the user model from the user component.
@@ -42,7 +38,6 @@ class CallbackQualtrics extends BaseCallback
     public function __construct($services)
     {
         parent::__construct($services);
-        $this->auto_created_user_status = $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id'];
         $this->register_user_model = new RegisterModel($services, GUEST_USER_ID);
     }
 
@@ -92,7 +87,7 @@ class CallbackQualtrics extends BaseCallback
     {
         try {
             $this->db->begin_transaction();
-            $uid = $this->register_user_model->register_user($code . '@selfhelp.psy.unibe.ch', $code, true);
+            $uid = $this->register_user_model->register_user_from_qualtrics_callback($code . '@selfhelp.psy.unibe.ch', $code);
             if ($uid === false) {
                 $this->db->rollback();
                 return false;

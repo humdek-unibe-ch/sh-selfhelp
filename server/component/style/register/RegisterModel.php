@@ -136,6 +136,26 @@ class RegisterModel extends StyleModel
         return false;
     }
 
+    /**
+     * Register auto created user from qualtrics callback
+     * @param string $email 
+     * email adress
+     * @param string $code
+     * the vlaidation code
+     */
+    public function register_user_from_qualtrics_callback($email, $code)
+    {
+        if($this->check_validation_code($code))
+        {
+            $uid = $this->user_model->auto_create_user($email);
+            if($uid && $this->claim_validation_code($code, $uid) !== false)
+            {
+                return $uid;
+            }
+        }
+        return false;
+    }
+
     public function register_user_without_code($email){
         $code = $this->user_model->generate_and_add_code();        
         if ($code === false){
