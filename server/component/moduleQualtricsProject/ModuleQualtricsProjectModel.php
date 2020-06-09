@@ -15,9 +15,9 @@ class ModuleQualtricsProjectModel extends BaseModel
 {
 
     /* Constants ************************************************/
-
+    
     /* API calls */
-    const QUALTRICS_API_GET_SET_SURVEY_FLOW = 'https://psyunibe.eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/flow';
+    const QUALTRICS_API_GET_SET_SURVEY_FLOW = 'https://env.qualtrics.com/API/v3/survey-definitions/:survey_api_id/flow';
     const QUALTRICS_API_CREATE_CONTACT = 'https://env.qualtrics.com/API/v3/mailinglists/:api_mailing_group_id/contacts';
 
     /* Qualtrics flow types */
