@@ -559,4 +559,4 @@ INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtri
 INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-qualtrics-survey', '7');
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'qualtricsSurvey', get_field_type_id('select-qualtrics-survey'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
-VALUES (get_style_id('qualtricsSurvey'), get_field_id('qualtricsSurvey'), NULL, 'Select a survey. TIP: A Survey should be assigned to a project (added as a stage)');
+VALUES (get_style_id('qualtricsSurvey'), get_field_id('qualtricsSurvey'), '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a stage)');
