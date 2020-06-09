@@ -161,12 +161,12 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "placeholder" => "Enter API mailing group id",
                         )),
                         new BaseStyleComponent("input", array(
-                            "label" => "Participent variable name:",
+                            "label" => "Participant variable name:",
                             "type_input" => "text",
                             "name" => "participant_variable",
                             "value" => $this->project['participant_variable'],
                             "css" => "mb-3",
-                            "placeholder" => "Enter participent variable name",
+                            "placeholder" => "Enter participant variable name",
                         )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
@@ -233,7 +233,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Participent variable name",
+                    "title" => "Participant variable name",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->project['participant_variable']
