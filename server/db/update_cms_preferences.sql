@@ -552,3 +552,11 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'group',
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('register'), get_field_id('group'), (SELECT id FROM groups WHERE name = 'subject' LIMIT 1), 'Select the default group in which evey new user is assigned.');
 
+-- Add new style QualtricsSurvey
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtricsSurvey', '2', (select id from styleGroup where `name` = 'Form' limit 1), 'Visualize a qualtrics survey. It is shown in iFrame.');
+
+-- Add new field type `select-qualtrics-survey` and field `survey` in style qualtricsSurvey
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-qualtrics-survey', '7');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'qualtricsSurvey', get_field_type_id('select-qualtrics-survey'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('qualtricsSurvey'), get_field_id('qualtricsSurvey'), NULL, 'Select a survey. TIP: A Survey should be assigned to a project (added as a stage)');
