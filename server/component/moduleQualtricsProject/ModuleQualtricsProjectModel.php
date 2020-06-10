@@ -632,8 +632,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             "description" => $data['description'],
             "qualtrics_api" => $data['qualtrics_api'],
             "api_library_id" => $data['api_library_id'],
-            "api_mailing_group_id" => $data['api_mailing_group_id'],
-            "participant_variable" => $data['participant_variable']
+            "api_mailing_group_id" => $data['api_mailing_group_id']
         ));
     }
 
@@ -654,8 +653,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 "description" => $data['description'],
                 "qualtrics_api" => $data['qualtrics_api'],
                 "api_library_id" => $data['api_library_id'],
-                "api_mailing_group_id" => $data['api_mailing_group_id'],
-                "participant_variable" => $data['participant_variable']
+                "api_mailing_group_id" => $data['api_mailing_group_id']
             ),
             array('id' => $data['id'])
         );

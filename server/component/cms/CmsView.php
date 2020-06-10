@@ -585,7 +585,7 @@ class CmsView extends BaseView
                 "max" => 10,
                 "live_search" => 1,
                 "is_required" => 1, 
-                "items" => $this->model->get_db()->fetch_table_as_select_values('view_qualtricsStages', 'id', array('stage_name', 'survey_name', 'qualtrics_survey_id'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
             ));
         }
 
@@ -655,7 +655,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('view_qualtricsStages', 'id', array('stage_name', 'survey_name', 'qualtrics_survey_id'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
             ));
         }
         else if($field['content'] != null)

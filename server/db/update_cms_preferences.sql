@@ -265,8 +265,7 @@ CREATE TABLE `qualtricsProjects` (
   `description` VARCHAR(1000),
   `qualtrics_api` VARCHAR(100),
   `api_library_id` VARCHAR(100),
-  `api_mailing_group_id` VARCHAR(100),
-  `participant_variable` VARCHAR(100),
+  `api_mailing_group_id` VARCHAR(100),  
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -277,6 +276,7 @@ CREATE TABLE `qualtricsSurveys` (
   `name` VARCHAR(200) NOT NULL,
   `description` VARCHAR(1000),
   `qualtrics_survey_id` VARCHAR(100) UNIQUE,  
+  `participant_variable` VARCHAR(100),
   `group_variable` INT DEFAULT 0,
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -379,7 +379,7 @@ ADD CONSTRAINT `qualtricsStages_functions_fk_id_lookups` FOREIGN KEY (`id_lookup
 DROP VIEW IF EXISTS view_qualtricsStages;
 CREATE VIEW view_qualtricsStages
 AS
-SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, p.participant_variable, p.api_mailing_group_id,
+SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, group_variable, typ.lookup_value as stage_type, 
 id_qualtricsProjectStageTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
@@ -564,3 +564,6 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-qualtri
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'qualtricsSurvey', get_field_type_id('select-qualtrics-survey'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('qualtricsSurvey'), get_field_id('qualtricsSurvey'), '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a stage)');
+
+
+make stages actions, move baselin folowup into survey

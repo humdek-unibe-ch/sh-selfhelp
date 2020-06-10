@@ -39,6 +39,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
             "name" => $data['name'],
             "description" => $data['description'],
             "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+            "participant_variable" => $data['participant_variable'],
             "group_variable" => isset($data['group_variable']) ? 1 : 0
         ));
     }
@@ -57,7 +58,8 @@ class ModuleQualtricsSurveyModel extends BaseModel
             array(
                 "name" => $data['name'],
                 "description" => $data['description'],
-                "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+                "qualtrics_survey_id" => $data['qualtrics_survey_id'],                
+                "participant_variable" => $data['participant_variable'],
                 "group_variable" => isset($data['group_variable']) ? 1 : 0
             ),
             array('id' => $data['id'])

@@ -14,9 +14,9 @@ class QualtricsSurveyModel extends StyleModel
     /* Private Properties *****************************************************/
 
     /**
-     * The id of the selected stage which contains a survey.
+     * The id of the selected survey.
      */
-    private $stage_id;
+    private $survey_id;
 
 
     /* Constructors ***********************************************************/
@@ -33,7 +33,7 @@ class QualtricsSurveyModel extends StyleModel
     public function __construct($services, $id)
     {
         parent::__construct($services, $id);
-        $this->stage_id = $this->get_db_field("qualtricsSurvey");
+        $this->survey_id = $this->get_db_field("qualtricsSurvey");
     }
 
     /**
@@ -43,7 +43,7 @@ class QualtricsSurveyModel extends StyleModel
      */
     public function get_survey_link()
     {
-        $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id, participant_variable FROM view_qualtricsStages WHERE id = :id', array(':id' => $this->stage_id));
+        $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id, participant_variable FROM qualtricsSurveys WHERE id = :id', array(':id' => $this->survey_id));
         $survey_link = '';
         if ($survey_info) {
             $survey_link =  'https://eu.qualtrics.com/jfe/form/' . $survey_info['qualtrics_survey_id'];
