@@ -131,7 +131,14 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                     "items" => $this->get_lookups('notificationTypes'),
                 )),
                 new BaseStyleComponent("select", array(
+                    "label" => ($isNotification ? "Notification" : "Reminder") . " schedule type",
+                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['type'] : '',
+                    "name" => $isNotification ? "notification[schedule_type]" : "reminder[schedule_type]",
+                    "items" => $this->get_lookups('qualtricScheduleTypes'),
+                )),
+                new BaseStyleComponent("select", array(
                     "label" => "Send After",
+                    "css" => 'send_after',
                     "value" => isset($this->stage[$type]) ? $this->stage[$type]['delay_value'] : '',
                     "name" => $isNotification ? "notification[delay_value]" : "reminder[delay_value]",
                     "items" => $this->get_time_intervals(),

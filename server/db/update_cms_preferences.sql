@@ -304,6 +304,10 @@ INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notif
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'Email', 'The notification will be sent by email');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'SMS', 'The notification will be sent by SMS');
 
+-- add qualtricScheduleTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'time', 'Time', 'Shcedule by time');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'date', 'Date', 'Schedu;e by date');
+
 -- add qualtricsProjectStageTypes
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTypes', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTypes', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
