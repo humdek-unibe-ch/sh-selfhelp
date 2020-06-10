@@ -182,11 +182,13 @@ class CmsView extends BaseView
             foreach($page_sections as $section)
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
-                    intval($section['id']));
+                    intval($section['id']), array(),
+                    $this->model->get_cms_page_id());
         else
             $page_components[] = new StyleComponent(
                 $this->model->get_services(),
-                $this->model->get_active_root_section_id());
+                $this->model->get_active_root_section_id(), array(),
+                $this->model->get_cms_page_id());
         if(count($page_components) == 0)
         {
             $text = new BaseStyleComponent("plaintext", array(
@@ -213,7 +215,9 @@ class CmsView extends BaseView
                     "id" => "section-view",
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
-                        $this->model->get_active_section_id()
+                        $this->model->get_active_section_id(),
+                        array(),
+                        $this->model->get_cms_page_id()
                     ))
                 ))
             );
@@ -553,6 +557,18 @@ class CmsView extends BaseView
                 "show_value" => true
             ));
         }
+        else if($field['type'] == "anchor-section")
+        {
+            $children[] = new BaseStyleComponent("autocomplete", array(
+                "value" => $field['content'],
+                "name_value_field" => $field_name_content,
+                "placeholder" => "Search for an Anchor Section Name",
+                "name" => "anchor_section_search",
+                "callback_class" => "AjaxSearch",
+                "callback_method" => "search_anchor_section",
+                "show_value" => true
+            ));
+        }
         else if($field['type'] == "select-group")
         {
             $children[] = new BaseStyleComponent("select", array(
@@ -572,6 +588,7 @@ class CmsView extends BaseView
                 "items" => $this->model->get_db()->fetch_table_as_select_values('view_qualtricsStages', 'id', array('stage_name', 'survey_name', 'qualtrics_survey_id'))
             ));
         }
+
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],

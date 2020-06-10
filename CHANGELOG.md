@@ -1,8 +1,91 @@
-# v2.0.1 (latest)
+# v2.0.6 (latest)
+
+### Bugfix
+
+ - Fix style `filterToggle` to persist filter state after page reload (view
+   only).
+ - In filter styles, ignore invalid filter names instead of always returning
+   false.
+
+
+### Changes
+
+ - In style `autocomplete` disable browser input autocomplete.
+ - Change style `filterToggle` to an inline-block element.
+
+### New Features
+
+ - In style `input` provide an internal field to allow disabling browser input
+   autocomplete.
+
+
+---------
+# v2.0.5
+
+### Bugfix
+
+ - Add support for igraphs and filters in IE11 and Edge.
+
+### Changes
+
+ - Use gulp-babel to transpile ES6 to ES5 (and thus enable support for IE11)
+
+
+---------
+# v2.0.4
+
+### Bugfix
+
+ - Fix problem when AJAX calls were denied for CMS preview page.
+ - For graphs, only use dynamic data which is not marked as removed.
+
+### Changes
+
+ - Remove graph debug logs.
+ - Add missing style field documentation.
+ - Open style field description on hover and focus.
+
+### New Features
+
+ - Add field `single_user` to style `graphBar`.
+ - Add field `single_user` to style `graphPie`.
+
+
+---------
+# v2.0.3
+
+### Bugfix
+
+ - Fix a problem with form names and the style `showUserInput` where deleting
+   entries was not possible.
+
+### New Features
+
+ - Allow to order graphs by providing an array of value types
+ - Allow to define a custom anchor in style `formUserInput` (#197)
+ - Allow to define a custom anchor in style `showUserInput`
+
+
+---------
+# v2.0.2
+
+### Bugfix
+
+ - Fix a security issue
+
+### Changes
+
+ - Don't show login button if login Title name is empty
+ - Order dynamic data fetched with AJAX call by user ID first
+
+
+---------
+# v2.0.1
 
 ### Bugfix
 
  - Fix resizing problem with style `graphSankey`
+
 
 ---------
 

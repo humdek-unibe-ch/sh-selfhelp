@@ -87,6 +87,7 @@ class GraphPieView extends GraphView
                 "hoverinfo" => $this->hoverinfo,
                 "textinfo" => $this->textinfo,
                 "data_source" => array(
+                    "single_user" => $this->model->get_single_user(),
                     "name" => $this->model->get_data_source(),
                     "map" => array(
                         "values" => array(

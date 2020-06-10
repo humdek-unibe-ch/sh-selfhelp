@@ -15,6 +15,12 @@ class FormUserInputView extends StyleView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'anchor' (empty string).
+     * The id of a anchor section to jump to on submit instead of the form.
+     */
+    protected $anchor;
+
+    /**
      * DB field 'name' (empty string).
      * The name of the form. This will help to group all input data to
      * a specific set. If this field is not set, the style will not be rendered.
@@ -58,6 +64,7 @@ class FormUserInputView extends StyleView
         $this->label = $this->model->get_db_field("label", "Submit");
         $this->type = $this->model->get_db_field("type", "primary");
         $this->is_log = $this->model->get_db_field("is_log", false);
+        $this->anchor = $this->model->get_db_field("anchor");
     }
 
     /**
@@ -100,10 +107,12 @@ class FormUserInputView extends StyleView
             "name" => "__form_name",
             "value" => htmlentities($this->name),
         ));
+        $url = $_SERVER['REQUEST_URI'] . '#section-'
+                . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
             "type" => $this->type,
-            "url" => $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section,
+            "url" => $url,
             "children" => $children,
             "css" => $this->css,
             "id" => $this->id_section,

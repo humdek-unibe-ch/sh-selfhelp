@@ -58,13 +58,19 @@ class GraphBarView extends GraphView
         } else {
             $labels = $this->model->extract_labels($this->value_types);
             $colors = $this->model->extract_colors($this->value_types);
+            $keys = $this->model->extract_keys($this->value_types);
             $this->traces = array(array(
                 "type" => "bar",
                 "data_source" => array(
+                    "single_user" => $this->model->get_single_user(),
                     "name" => $this->model->get_data_source(),
                     "map" => array(
                         "y" => array(
                             "name" => $this->name,
+                            "order" => array(
+                                "vals" => $keys
+                            ),
+                            /* "order" => "asc", */
                             "options" => array(
                                 "op" => "count",
                             ),

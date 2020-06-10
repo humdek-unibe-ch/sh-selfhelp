@@ -26,7 +26,8 @@ class AjaxDataSource extends BaseAjax
     /* Private Methods ********************************************************/
 
     /**
-     * Check wether a row of data passes the filter or not.
+     * Check wether a row of data passes the filter or not. If a filter name is
+     * not recognised in a data item, the filter is ignored.
      *
      * @param array $filters
      *  An assoziative array of filters where the key corresponds to the name
@@ -44,6 +45,8 @@ class AjaxDataSource extends BaseAjax
      */
     private function check_filter_data($filters, $item) {
         foreach($filters as $name => $filter) {
+            if(!isset($item[$name]))
+                continue;
             $res_or = false;
             foreach($filter as $val) {
                 if($val['op'] === "=") {
@@ -107,13 +110,13 @@ class AjaxDataSource extends BaseAjax
             $params["uid"] = $_SESSION['id_user'];
         }
         $sql = "SELECT * FROM view_user_input
-            WHERE form_id = :id" . $cond . "
-            ORDER BY
+            WHERE removed = 0 AND form_id = :id" . $cond . "
+            ORDER BY user_id,
                 CASE
                     WHEN record_id IS NULL
                     THEN edit_time
                     ELSE record_id
-            END";
+                END";
         $res_db = $this->db->query_db($sql, $params);
         if(!isset($res_db[0]['record_id']))
             return array();
