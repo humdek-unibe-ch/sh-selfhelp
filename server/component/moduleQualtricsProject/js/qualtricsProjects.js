@@ -43,13 +43,23 @@ $(document).ready(function () {
 
     //confirmation for Qualtrics sync
     var qualtricsSycnButton = $('.style-section-syncQualtricsSurveys').first();
-    qualtricsSycnButton.click(function () {
-        if (confirm("Are you sure that you want to synchonize all surveys added to this project in your Qualtrics account?")) {
-            var href = $(qualtricsSycnButton).attr('href');
-            $(qualtricsSycnButton).attr('href', '#');
-            event.stopPropagation();
-            $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
-        }
+    qualtricsSycnButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Synchronization',
+            content: 'Are you sure that you want to synchonize all surveys added to this project in your Qualtrics account?',
+            buttons: {
+                confirm: function () {
+                    var href = $(qualtricsSycnButton).attr('href');
+                    $(qualtricsSycnButton).attr('href', '#');
+                    event.stopPropagation();
+                    $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
     });
 
 });

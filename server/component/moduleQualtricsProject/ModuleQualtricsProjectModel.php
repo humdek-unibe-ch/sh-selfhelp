@@ -5,7 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseModel.php";
-require_once __DIR__ . "/qualtrics_api_json_templates.php";
+require_once __DIR__ . "/qualtrics_api_templates.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
@@ -15,10 +15,11 @@ class ModuleQualtricsProjectModel extends BaseModel
 {
 
     /* Constants ************************************************/
-    
+
     /* API calls */
-    const QUALTRICS_API_GET_SET_SURVEY_FLOW = 'https://env.qualtrics.com/API/v3/survey-definitions/:survey_api_id/flow';
-    const QUALTRICS_API_CREATE_CONTACT = 'https://env.qualtrics.com/API/v3/mailinglists/:api_mailing_group_id/contacts';
+    const QUALTRICS_API_GET_SET_SURVEY_FLOW = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/flow';
+    const QUALTRICS_API_GET_SET_SURVEY_OPTIONS = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/options';
+    const QUALTRICS_API_CREATE_CONTACT = 'https://eu.qualtrics.com/API/v3/mailinglists/:api_mailing_group_id/contacts';
 
     /* Qualtrics flow types */
     const FLOW_TYPE_EMBEDDED_DATA = 'EmbeddedData';
@@ -56,6 +57,8 @@ class ModuleQualtricsProjectModel extends BaseModel
     const QUALTRICS_EMBEDED_SESSION_ID_VAR = '${e://Field/ResponseID}';
     const QUALTRICS_EMBEDED_SURVEY_ID_VAR = '${e://Field/SurveyID}';
     const QUALTRICS_CALLBACK_STATUS = 'callback_status';
+    const SELFEHLP_HEADER_HIDE_QUALTRIC_LOGO = 'selfhelp_hideQualtricsLogo';
+    const SELFEHLP_HEADER_IFRAME_RESIZER = 'selfhelp_iFrameResizer';
 
     /* Constructors ***********************************************************/
 
@@ -168,6 +171,48 @@ class ModuleQualtricsProjectModel extends BaseModel
     }
 
     /**
+     * Synchronize survey header; Get the header and check if the selfhelp is appended; if it is not we add it.
+     * It adds hideQualtrics logo and iFrame resizer
+     * @param string $survey_api_id qualtrics survey id
+     * @retval array with result
+     */
+    private function sync_survey_header($survey_api_id)
+    {
+        //get survey options; they contain the survey header
+        $data = array(
+            "request_type" => "GET",
+            "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsProjectModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS)
+        );
+        $survey_options = $this->execute_curl($data);
+        if ($survey_options !== false) {
+            $survey_header = $survey_options['result']['Header'];
+            $html = ''; //init no header we still need emty string
+            if ($survey_header != '') {
+                $dom = new DOMDocument();
+                $dom->validateOnParse = true;
+                $dom->loadHTML($survey_header);
+                $dom->preserveWhiteSpace = false;
+                /* Remove hideQualtrticsLogo if exists*/
+                $hideQualtricsLogo = $dom->getElementById(ModuleQualtricsProjectModel::SELFEHLP_HEADER_HIDE_QUALTRIC_LOGO);
+                if($hideQualtricsLogo){
+                    $hideQualtricsLogo->parentNode->removeChild($hideQualtricsLogo);
+                }
+                /* Remove iFramreResizer if exists */
+                $iFrameResizer = $dom->getElementById(ModuleQualtricsProjectModel::SELFEHLP_HEADER_IFRAME_RESIZER);
+                if($iFrameResizer){
+                    $iFrameResizer->parentNode->removeChild($iFrameResizer);
+                }
+                $html = $dom->saveHTML(); //save the html value of the header
+            }
+            $html = $html . QulatricsAPITemplates::hideQualtricsLogo . QulatricsAPITemplates::iFrameResizer;
+            $survey_options['result']['Header'] = $html;
+            return $this->set_survey_options($survey_api_id, $survey_options['result']);
+        } else {
+            return $this->return_info(false, 'Get survey options failed');
+        }
+    }
+
+    /**
      * helper function to show the info from the requests
      * @param bool result
      * @param string text decription
@@ -179,6 +224,28 @@ class ModuleQualtricsProjectModel extends BaseModel
             "result" => $result,
             "description" => $text
         );
+    }
+
+    /**
+     * helper function to show the info from the requests which combine multiple results
+     * @param array resultsArray
+     * @retval array
+     */
+    private function multi_return_info($resultsArray)
+    {
+        $res = array(
+            "result" => true,
+            "description" => ''
+        );
+        foreach ($resultsArray as $key => $arr) {
+            $res['result'] = $res['result'] && $arr['result'];
+            if($res['description'] == ''){
+                $res['description'] = $arr['description'];
+            }else{
+                $res['description'] = $res['description'] . '; ' . $arr['description'];
+            }            
+        }
+        return $res;
     }
 
     /**
@@ -196,10 +263,35 @@ class ModuleQualtricsProjectModel extends BaseModel
         );
         $result = $this->execute_curl($data);
         if (!$result) {
-            return $this->return_info(false, "Something went wrong");
+            return $this->return_info(false, "Something went wrong assinging the survey flow");
         } else {
             if ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) {
-                return $this->return_info(true, "The survey was synchronized");
+                return $this->return_info(true, "The survey flow was synchronized");
+            } else {
+                return $this->return_info(false, json_encode($result));
+            }
+        }
+    }
+
+    /**
+     * Set survey options via qualtrics api
+     * @param string $survey_api_id qualtrics survey id
+     * @param array $options the options structure
+     * @retval array
+     */
+    private function set_survey_options($survey_api_id, $options)
+    {
+        $data = array(
+            "request_type" => "PUT",
+            "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsProjectModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS),
+            "post_params" => json_encode($options)
+        );
+        $result = $this->execute_curl($data);
+        if (!$result) {
+            return $this->return_info(false, "Something went wrong with assigning survey options");
+        } else {
+            if ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) {
+                return $this->return_info(true, "The survey options were synchronized");
             } else {
                 return $this->return_info(false, json_encode($result));
             }
@@ -213,7 +305,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private function get_authenticator($participant_variable, $flow_id = ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR, $max_attempts = 100)
     {
-        $authenticator = json_decode(QulatricsAPIJsonTemplates::authenticator, true);
+        $authenticator = json_decode(QulatricsAPITemplates::authenticator, true);
         $authenticator['FlowID'] = $flow_id;
         $authenticator['PanelData']['LibraryID'] = $this->project['api_library_id'];
         $authenticator['PanelData']['PanelID'] = $this->project['api_mailing_group_id'];
@@ -267,7 +359,7 @@ class ModuleQualtricsProjectModel extends BaseModel
     /**
      * Synchronize baseline survey to qualtrics via the API
      * @param array @survey
-     * @param @surveyFlow object
+     * @param object @surveyFlow
      * @retval array
      */
     private function sync_baseline_survey($survey, $surveyFlow)
@@ -275,7 +367,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         if ($surveyFlow) {
 
             /** EMBEDED DATA variables *************************************************************************************************************************************/
-            $baseline_embedded_flow = json_decode(QulatricsAPIJsonTemplates::embedded_data, true);
+            $baseline_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
             $baseline_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
             $baseline_embedded_flow['EmbeddedData'][] = array(
                 "Description" => $survey['participant_variable'],
@@ -308,7 +400,7 @@ class ModuleQualtricsProjectModel extends BaseModel
 
             /** AUTHENTICATOR is the user registered *************************************************************************************************************************************/
             $baseline_authenticator = $this->get_authenticator($survey['participant_variable'], ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR_CONTACT, '1');
-            $embeded_data_authenticator_contact = json_decode(QulatricsAPIJsonTemplates::embedded_data, true);
+            $embeded_data_authenticator_contact = json_decode(QulatricsAPITemplates::embedded_data, true);
             $embeded_data_authenticator_contact['EmbeddedData'][] = array(
                 "Description" => 'user_registered',
                 "Type" => "Custom",
@@ -338,7 +430,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 ),
                 false
             );
-            $branch_contact_exists = json_decode(QulatricsAPIJsonTemplates::branch_contact_exist, true);
+            $branch_contact_exists = json_decode(QulatricsAPITemplates::branch_contact_exist, true);
             $branch_contact_exists['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_BRANCH_CONTACT_EXIST;
             $branch_contact_exists['Flow'][] = $baseline_webService_contacts;
 
@@ -495,8 +587,8 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * Synchronize followup survey to qualtrics via the API
-     * @param @survey array
-     * @param @surveyFlow object
+     * @param array @survey
+     * @param object @surveyFlow
      * @retval array
      */
     private function sync_followup_survey($survey, $surveyFlow)
@@ -612,12 +704,14 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     public function syncSurvey($survey)
     {
+        $res1 = $this->sync_survey_header($survey['qualtrics_survey_id']);
         $surveyFlow = $this->get_survey_flow($survey['qualtrics_survey_id']);
         if ($survey['stage_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_BASELINE) {
-            return $this->sync_baseline_survey($survey, $surveyFlow);
+            $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
         } else if ($survey['stage_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_FOLLOWUP) {
-            return $this->sync_followup_survey($survey, $surveyFlow);
+            $res2 = $this->sync_followup_survey($survey, $surveyFlow);
         }
+        return $this->multi_return_info(array($res1, $res2));
     }
 
     public function get_project()

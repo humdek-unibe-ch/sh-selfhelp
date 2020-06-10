@@ -46,7 +46,7 @@ class QualtricsSurveyModel extends StyleModel
         $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id, participant_variable FROM view_qualtricsStages WHERE id = :id', array(':id' => $this->stage_id));
         $survey_link = '';
         if ($survey_info) {
-            $survey_link =  'https://env.qualtrics.com/jfe/form/' . $survey_info['qualtrics_survey_id'];
+            $survey_link =  'https://eu.qualtrics.com/jfe/form/' . $survey_info['qualtrics_survey_id'];
             if (isset($survey_info['participant_variable']) && $survey_info['participant_variable'] != '') {
                 $user_code = $this->db->query_db_first('SELECT code
                                         FROM validation_codes vc
