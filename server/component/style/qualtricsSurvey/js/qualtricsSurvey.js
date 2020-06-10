@@ -1,6 +1,8 @@
 $(document).ready(function () {
-    iFrameResize({
-        log: false,
-        heightCalculationMethod: 'lowestElement'
+    $("iframe").on('load', function () {
+        iFrameResize({
+            log: false,
+            heightCalculationMethod: 'lowestElement'
+        });
     });
 });
