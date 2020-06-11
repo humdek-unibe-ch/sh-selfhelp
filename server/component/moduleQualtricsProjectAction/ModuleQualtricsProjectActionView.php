@@ -325,7 +325,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "url_type" => 'warning',
                     "type" => $this->mode === INSERT ? 'warning' : 'primary',
                     "children" => array(
-                        
+
                         new BaseStyleComponent("input", array(
                             "label" => "Action name",
                             "type_input" => "text",
@@ -396,7 +396,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
             "is_collapsible" => false,
             "url_edit" => $this->model->get_link_url("moduleQualtricsProjectAction", array("pid" => $this->pid, "mode" => UPDATE, "sid" => $this->sid)),
             "title" => 'Action &nbsp;<code>' . $this->action['action_name'] . '</code>&nbsp; for project &nbsp;<code>' . $this->action['project_name'] . '</code>',
-            "children" => array(                
+            "children" => array(
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Survey name",
                     "locale" => "",
@@ -469,6 +469,20 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     {
         $local = array(__DIR__ . "/../css/simplemde.min.css");
         return parent::get_css_includes($local);
+    }
+
+    /**
+     * Render the sidebar buttons
+     */
+    public function output_side_buttons()
+    {
+        $backToProject = new BaseStyleComponent("button", array(
+            "label" => "Back to project",
+            "url" => $this->model->get_link_url("moduleQualtricsProject", array("mode" => SELECT, "pid"=>$this->pid)),
+            "type" => "secondary",
+            "css" => "d-block mb-3",
+        ));
+        $backToProject->output_content();
     }
 }
 ?>

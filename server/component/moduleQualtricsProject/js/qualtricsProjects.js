@@ -35,7 +35,11 @@ $(document).ready(function () {
     });
     table.on('click', 'tr[id|="action-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
-        document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+        if (document.location.href.includes('sync')) {
+            document.location = '../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+        } else {
+            document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+        }
     });
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });

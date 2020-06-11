@@ -5,7 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectView.php";
+require_once __DIR__ . "/../moduleQualtricsProjectAction/ModuleQualtricsProjectActionView.php";
 require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectModel.php";
 require_once __DIR__ . "/ModuleQualtricsSyncController.php";
 
@@ -30,7 +30,7 @@ class ModuleQualtricsSyncComponent extends BaseComponent
         $mode = SELECT;
         $model = new ModuleQualtricsProjectModel($services, $pid);
         $controller = new ModuleQualtricsSyncController($model, $pid);
-        $view = new ModuleQualtricsProjectView($model, $controller, $pid, $mode);
+        $view = new ModuleQualtricsProjectActionView($model, $controller, $pid, $mode, null);
         parent::__construct($model, $view, $controller);
     }
 }
