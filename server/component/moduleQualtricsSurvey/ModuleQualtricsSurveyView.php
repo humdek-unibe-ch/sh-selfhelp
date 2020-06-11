@@ -43,7 +43,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
         parent::__construct($model, $controller);
         $this->sid = $sid;
         $this->mode = $mode;
-        $this->survey = $this->model->get_db()->select_by_uid("qualtricsSurveys", $this->sid);
+        $this->survey = $this->model->get_db()->select_by_uid("view_qualtricsSurveys", $this->sid);
     }
 
     /* Private Methods ********************************************************/
@@ -54,7 +54,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     private function output_delete_form()
     {
         $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",            
+            "css" => "mb-3",
             "is_expanded" => false,
             "is_collapsible" => true,
             "title" => "Delete Survey",
@@ -100,7 +100,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     private function output_entry_form()
     {
         $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",            
+            "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
             "type" => "warning",
@@ -131,6 +131,13 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "value" => $this->survey['qualtrics_survey_id'],
                             "css" => "mb-3",
                             "placeholder" => "Enter qualtrics survey id",
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Survey type",
+                            "value" => $this->survey['id_qualtricsSurveyTypes'],
+                            "is_required" => true,
+                            "name" => "id_qualtricsSurveyTypes",
+                            "items" => $this->get_lookups('qualtricsSurveyTypes'),
                         )),
                         new BaseStyleComponent("template", array(
                             "path" => __DIR__ . "/tpl_checkBox.php",
@@ -198,6 +205,13 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->survey['qualtrics_survey_id']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Survey type",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['survey_type']
                     ))),
                 )),
                 new BaseStyleComponent("template", array(

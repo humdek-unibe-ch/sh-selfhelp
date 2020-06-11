@@ -40,6 +40,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
             "description" => $data['description'],
             "qualtrics_survey_id" => $data['qualtrics_survey_id'],
             "participant_variable" => $data['participant_variable'],
+            "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
             "group_variable" => isset($data['group_variable']) ? 1 : 0
         ));
     }
@@ -60,6 +61,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
                 "description" => $data['description'],
                 "qualtrics_survey_id" => $data['qualtrics_survey_id'],                
                 "participant_variable" => $data['participant_variable'],
+                "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
                 "group_variable" => isset($data['group_variable']) ? 1 : 0
             ),
             array('id' => $data['id'])
@@ -76,7 +78,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
      * api_mailing_group_id
      */
     public function get_surveys(){
-        return $this->db->select_table('qualtricsSurveys');
+        return $this->db->select_table('view_qualtricsSurveys');
     }
 
     /**

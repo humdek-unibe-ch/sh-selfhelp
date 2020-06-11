@@ -9,7 +9,7 @@ require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectModel.p
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class ModuleQualtricsProjectStageModel extends ModuleQualtricsProjectModel
+class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
 {
 
     /* Constructors ***********************************************************/
@@ -27,55 +27,54 @@ class ModuleQualtricsProjectStageModel extends ModuleQualtricsProjectModel
     }
 
     /**
-     * Insert a new stage for project adn session to the DB.
+     * Insert a new action for project adn session to the DB.
      *
      * @param int $pid
      * project id
      * @param array $data
-     * id_qualtricsProjectStageTypes,
+     * id_qualtricsProjectActionTypes,
      * name,
      * id_qualtricsSurveys,
-     * id_qualtricsProjectStageTriggerTypes,
+     * id_qualtricsProjectActionTriggerTypes,
      * id_groups array,
      * notification array,
      * reminder array,
      * id_functions array
      * @retval int
-     *  The id of the new stage or false if the process failed.
+     *  The id of the new action or false if the process failed.
      */
-    public function insert_new_stage($pid, $data)
+    public function insert_new_action($pid, $data)
     {
         try {
             $this->db->begin_transaction();
-            $stageId = $this->db->insert("qualtricsStages", array(
+            $actionId = $this->db->insert("qualtricsActions", array(
                 "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
-                "id_qualtricsProjectStageTypes" => $data['id_qualtricsProjectStageTypes'],
-                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
-                "id_qualtricsProjectStageTriggerTypes" => $data['id_qualtricsProjectStageTriggerTypes'],
+                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],                
+                "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
                 "notification" => isset($data['notification']) ? json_encode($data['notification']) : null,
                 "reminder" => isset($data['reminder']) ? json_encode($data['reminder']) : null
             ));
             if (isset($data['id_groups']) && is_array($data['id_groups'])) {
-                //insert related groups to the stage if some are set
+                //insert related groups to the action if some are set
                 foreach ($data['id_groups'] as $group) {
-                    $this->db->insert("qualtricsStages_groups", array(
-                        "id_qualtricsStages" => $stageId,
+                    $this->db->insert("qualtricsActions_groups", array(
+                        "id_qualtricsActions" => $actionId,
                         "id_groups" => intval($group)
                     ));
                 }
             }
             if (isset($data['id_functions']) && is_array($data['id_functions'])) {
-                //insert related functions to the stage if some are set
+                //insert related functions to the action if some are set
                 foreach ($data['id_functions'] as $func) {
-                    $this->db->insert("qualtricsStages_functions", array(
-                        "id_qualtricsStages" => $stageId,
+                    $this->db->insert("qualtricsActions_functions", array(
+                        "id_qualtricsActions" => $actionId,
                         "id_lookups" => intval($func)
                     ));
                 }
             }
             $this->db->commit();
-            return $stageId;
+            return $actionId;
         } catch (Exception $e) {
             $this->db->rollback();
             return false;
@@ -86,52 +85,51 @@ class ModuleQualtricsProjectStageModel extends ModuleQualtricsProjectModel
      * Update qualtrics project.
      *
      * @param array $data
-     *  id_qualtricsProjectStageTypes,
+     *  id_qualtricsProjectActionTypes,
      * name,
      * id_qualtricsSurveys,
-     * id_qualtricsProjectStageTriggerTypes,
+     * id_qualtricsProjectActionTriggerTypes,
      * id_groups array,
      * notification array,
      * reminder array,
      * id_functions array
      * @retval int
-     *  The id of the new stage or false if the process failed.
+     *  The id of the new action or false if the process failed.
      */
-    public function update_stage($pid, $data)
+    public function update_action($pid, $data)
     {
         try {
             $this->db->begin_transaction();
-            $this->db->update_by_ids("qualtricsStages", array(
+            $this->db->update_by_ids("qualtricsActions", array(
                 "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
-                "id_qualtricsProjectStageTypes" => $data['id_qualtricsProjectStageTypes'],
-                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
-                "id_qualtricsProjectStageTriggerTypes" => $data['id_qualtricsProjectStageTriggerTypes'],
+                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],                
+                "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
                 "notification" => isset($data['notification']) ? json_encode($data['notification']) : null,
                 "reminder" => isset($data['reminder']) ? json_encode($data['reminder']) : null
             ), array('id' => $data['id']));
 
             //delete all group relations
-            $this->db->remove_by_fk("qualtricsStages_groups", "id_qualtricsStages", $data['id']);
+            $this->db->remove_by_fk("qualtricsActions_groups", "id_qualtricsActions", $data['id']);
 
             if (isset($data['id_groups']) && is_array($data['id_groups'])) {
-                //insert related groups to the stage if some are set
+                //insert related groups to the action if some are set
                 foreach ($data['id_groups'] as $group) {
-                    $this->db->insert("qualtricsStages_groups", array(
-                        "id_qualtricsStages" => $data['id'],
+                    $this->db->insert("qualtricsActions_groups", array(
+                        "id_qualtricsActions" => $data['id'],
                         "id_groups" => intval($group)
                     ));
                 }
             }
 
             //delete all functions relations
-            $this->db->remove_by_fk("qualtricsStages_functions", "id_qualtricsStages", $data['id']);
+            $this->db->remove_by_fk("qualtricsActions_functions", "id_qualtricsActions", $data['id']);
 
             if (isset($data['id_functions']) && is_array($data['id_functions'])) {
-                //insert related functions to the stage if some are set
+                //insert related functions to the action if some are set
                 foreach ($data['id_functions'] as $func) {
-                    $this->db->insert("qualtricsStages_functions", array(
-                        "id_qualtricsStages" => $data['id'],
+                    $this->db->insert("qualtricsActions_functions", array(
+                        "id_qualtricsActions" => $data['id'],
                         "id_lookups" => intval($func)
                     ));
                 }

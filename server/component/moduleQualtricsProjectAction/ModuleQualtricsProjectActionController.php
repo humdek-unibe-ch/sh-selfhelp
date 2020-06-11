@@ -8,7 +8,7 @@ require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the group insert component.
  */
-class ModuleQualtricsProjectStageController extends BaseController
+class ModuleQualtricsProjectActionController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -37,27 +37,25 @@ class ModuleQualtricsProjectStageController extends BaseController
         }
         if (
             isset($_POST['mode']) && $_POST['mode'] === INSERT &&
-            isset($_POST['id_qualtricsProjectStageTypes']) &&
             isset($_POST['name']) &&
             isset($_POST['id_qualtricsSurveys']) &&
-            isset($_POST['id_qualtricsProjectStageTriggerTypes']) &&
+            isset($_POST['id_qualtricsProjectActionTriggerTypes']) &&
             isset($pid)
         ) {
             //insert mode
-            $this->insert_stage($pid, $_POST);
+            $this->insert_action($pid, $_POST);
         } else if (
             isset($_POST['mode']) && $_POST['mode'] === UPDATE &&
-            isset($_POST['id_qualtricsProjectStageTypes']) &&
             isset($_POST['name']) &&
             isset($_POST['id_qualtricsSurveys']) &&
-            isset($_POST['id_qualtricsProjectStageTriggerTypes']) &&
+            isset($_POST['id_qualtricsProjectActionTriggerTypes']) &&
             isset($pid)
         ) {
             //edit mode
-            $this->update_stage($pid, $_POST);
-        } else if (isset($_POST['mode']) && $_POST['mode'] === DELETE && isset($_POST['deleteStageName']) && isset($_POST['deleteStageId'])) {
+            $this->update_action($pid, $_POST);
+        } else if (isset($_POST['mode']) && $_POST['mode'] === DELETE && isset($_POST['deleteActionName']) && isset($_POST['deleteActionId'])) {
             //delete mode
-            $this->delete_stage($_POST);
+            $this->delete_action($_POST);
         }
     }
 
@@ -70,9 +68,9 @@ class ModuleQualtricsProjectStageController extends BaseController
      */
     private function check_acl($mode)
     {
-        if (!$this->model->get_services()->get_acl()->has_access($_SESSION['id_user'], $this->model->get_services()->get_db()->fetch_page_id_by_keyword("moduleQualtricsProjectStage"), $mode)) {
+        if (!$this->model->get_services()->get_acl()->has_access($_SESSION['id_user'], $this->model->get_services()->get_db()->fetch_page_id_by_keyword("moduleQualtricsProjectAction"), $mode)) {
             $this->fail = true;
-            $this->error_msgs[] = "You dont have rights to " . $mode . " this stage";
+            $this->error_msgs[] = "You dont have rights to " . $mode . " this action";
             return false;
         } else {
             return true;
@@ -80,78 +78,78 @@ class ModuleQualtricsProjectStageController extends BaseController
     }
 
     /**
-     * Create new stage for project and survey
+     * Create new action for project and survey
      * @param int $pid
      * project id
      * @param array $data
-     * id_qualtricsProjectStageTypes,
+     * id_qualtricsProjectActionTypes,
      * name,
      * id_qualtricsSurveys,
-     * id_qualtricsProjectStageTriggerTypes,
+     * id_qualtricsProjectActionTriggerTypes,
      * id_groups array,
      * notification array,
      * reminder array,
      * id_functions array
      */
-    private function insert_stage($pid, $data)
+    private function insert_action($pid, $data)
     {
-        $this->pid = $this->model->insert_new_stage($pid, $data);
+        $this->pid = $this->model->insert_new_action($pid, $data);
         if ($this->pid > 0) {
             $this->success = true;
-            $this->success_msgs[] = "Stage " . $data['name'] . " was successfully added";
+            $this->success_msgs[] = "Action " . $data['name'] . " was successfully added";
         } else {
             $this->fail = true;
-            $this->error_msgs[] = "Failed to add a new stage to the project.";
+            $this->error_msgs[] = "Failed to add a new action to the project.";
         }
     }
 
     /**
-     * Delete qualtrics stage
+     * Delete qualtrics action
      * @param array $data
-     * deleteStageId,
-     * deleteStageName
+     * deleteActionId,
+     * deleteActionName
      */
-    private function delete_stage($data)
+    private function delete_action($data)
     {
-        $selectedStage = $this->model->get_db()->select_by_uid("view_qualtricsStages", $data['deleteStageId']);
-        if ($selectedStage['stage_name'] === $data['deleteStageName']) {
-            $res = $this->model->get_db()->remove_by_fk("qualtricsStages", "id", $selectedStage['id']);
+        $selectedAction = $this->model->get_db()->select_by_uid("view_qualtricsActions", $data['deleteActionId']);
+        if ($selectedAction['action_name'] === $data['deleteActionName']) {
+            $res = $this->model->get_db()->remove_by_fk("qualtricsActions", "id", $selectedAction['id']);
             if ($res) {
                 $this->mode = "deleted";
                 $this->success = true;
-                $this->success_msgs[] = "Stage " . $selectedStage['stage_name'] . " was successfully deleted";
+                $this->success_msgs[] = "Action " . $selectedAction['action_name'] . " was successfully deleted";
             } else {
                 $this->fail = true;
-                $this->error_msgs[] = "Failed to delete the stage.";
+                $this->error_msgs[] = "Failed to delete the action.";
             }
         } else {
             $this->fail = true;
-            $this->error_msgs[] = "Failed to delete the stage: The verification text does not match with the stage name.";
+            $this->error_msgs[] = "Failed to delete the action: The verification text does not match with the action name.";
         }
     }
 
     /**
-     * Update qualtrics stage
+     * Update qualtrics action
      * @param int $pid
      * project id
      * @param array $data
-     *  id_qualtricsProjectStageTypes,
+     *  id_qualtricsProjectActionTypes,
      * name,
      * id_qualtricsSurveys,
-     * id_qualtricsProjectStageTriggerTypes,
+     * id_qualtricsProjectActionTriggerTypes,
      * id_groups array,
      * notification array,
      * reminder array,
      * id_functions array
      */
-    private function update_stage($pid, $data)
+    private function update_action($pid, $data)
     {
-        if ($this->model->update_stage($pid, $data) !== false) {
+        if ($this->model->update_action($pid, $data) !== false) {
             $this->success = true;
-            $this->success_msgs[] = "Stage " . $data['name'] . " was successfully updated";
+            $this->success_msgs[] = "Action " . $data['name'] . " was successfully updated";
         } else {
             $this->fail = true;
-            $this->error_msgs[] = "Failed to update the stage";
+            $this->error_msgs[] = "Failed to update the action";
         }
     }
 

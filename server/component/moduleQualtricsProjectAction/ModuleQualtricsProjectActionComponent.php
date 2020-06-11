@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/ModuleQualtricsProjectStageView.php";
-require_once __DIR__ . "/ModuleQualtricsProjectStageModel.php";
-require_once __DIR__ . "/ModuleQualtricsProjectStageController.php";
+require_once __DIR__ . "/ModuleQualtricsProjectActionView.php";
+require_once __DIR__ . "/ModuleQualtricsProjectActionModel.php";
+require_once __DIR__ . "/ModuleQualtricsProjectActionController.php";
 
 /**
  * The class to define the asset select component.
  */
-class ModuleQualtricsProjectStageComponent extends BaseComponent
+class ModuleQualtricsProjectActionComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -29,9 +29,9 @@ class ModuleQualtricsProjectStageComponent extends BaseComponent
         $pid = isset($params['pid']) ? intval($params['pid']) : null;
         $sid = isset($params['sid']) ? intval($params['sid']) : null;
         $mode = isset($params['mode']) ? $params['mode'] : null;
-        $model = new ModuleQualtricsProjectStageModel($services, $pid);
-        $controller = new ModuleQualtricsProjectStageController($model, $pid);
-        $view = new ModuleQualtricsProjectStageView($model, $controller, $pid, $mode, $sid);
+        $model = new ModuleQualtricsProjectActionModel($services, $pid);
+        $controller = new ModuleQualtricsProjectActionController($model, $pid);
+        $view = new ModuleQualtricsProjectActionView($model, $controller, $pid, $mode, $sid);
         parent::__construct($model, $view, $controller);
     }
 }

@@ -31,9 +31,9 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     private $project;
 
     /**
-     * the stages for the current select project
+     * the actions for the current select project
      */
-    private $stages;
+    private $actions;
 
     /* Constructors ***********************************************************/
 
@@ -49,7 +49,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         $this->pid = $pid;
         $this->mode = $mode;
         $this->project = $this->model->get_project();
-        $this->stages = $this->model->get_stages($this->pid);
+        $this->actions = $this->model->get_actions($this->pid);
     }
 
     /* Private Methods ********************************************************/
@@ -276,25 +276,25 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             $createButton->output_content();
         }
         if ($this->project && $this->mode === SELECT) {
-            // show add stage button
-            $buttonAddStage = new BaseStyleComponent("button", array(
-                "label" => "Add Stage",
-                "url" => $this->model->get_link_url("moduleQualtricsProjectStage", array("mode" => INSERT, "pid" => $this->pid)),
+            // show add action button
+            $buttonAddAction = new BaseStyleComponent("button", array(
+                "label" => "Add Action",
+                "url" => $this->model->get_link_url("moduleQualtricsProjectAction", array("mode" => INSERT, "pid" => $this->pid)),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
-            $buttonAddStage->output_content();
+            $buttonAddAction->output_content();
         }
-        if ($this->project && $this->mode === SELECT && $this->stages) {
+        if ($this->project && $this->mode === SELECT && $this->actions) {
             // show sync qualtrics surveys
-            $buttonAddStage = new BaseStyleComponent("button", array(
+            $buttonAddAction = new BaseStyleComponent("button", array(
                 "id" => "syncQualtricsSurveys",
                 "label" => "Sync Qualtrics Surveys",
                 "url" => $this->model->get_link_url("moduleQualtricsSync", array("pid" => $this->pid)),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
-            $buttonAddStage->output_content();
+            $buttonAddAction->output_content();
         }
     }
 
@@ -309,12 +309,12 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     }
 
     /**
-     * Render the qualtrics stages table content for the selected project.
+     * Render the qualtrics actions table content for the selected project.
      */
-    protected function output_project_stages_rows()
+    protected function output_project_actions_rows()
     {
-        foreach ($this->model->get_stages($this->pid) as $stage) {
-            require __DIR__ . "/tpl_qualtricsProjectStagesRow.php";
+        foreach ($this->model->get_actions($this->pid) as $action) {
+            require __DIR__ . "/tpl_qualtricsProjectActionsRow.php";
         }
     }
 
@@ -334,11 +334,11 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     }
 
     /**
-     * Render stages table for a project
+     * Render actions table for a project
      */
-    public function output_project_stages()
+    public function output_project_actions()
     {
-        require __DIR__ . "/tpl_qualtricsProjectStagesTable.php";
+        require __DIR__ . "/tpl_qualtricsProjectActionsTable.php";
     }
 }
 ?>

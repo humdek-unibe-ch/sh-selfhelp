@@ -289,7 +289,12 @@ END
 //
 
 DELIMITER ;
-DROP VIEW IF EXISTS view_acl_groups_pages_modules;
+DROP VIEW IF EXISTS view_qualtricsSurveys;
+CREATE VIEW view_qualtricsSurveys
+AS
+SELECT s.*, typ.lookup_value as survey_type
+FROM qualtricsSurveys s 
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);DROP VIEW IF EXISTS view_acl_groups_pages_modules;
 CREATE VIEW view_acl_groups_pages_modules
 AS
 SELECT acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
@@ -319,29 +324,29 @@ AS
 SELECT mq.id AS id, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
 reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
 FROM mailQueue mq
-INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);DROP VIEW IF EXISTS view_qualtricsStages;
-CREATE VIEW view_qualtricsStages
+INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);DROP VIEW IF EXISTS view_qualtricsActions;
+CREATE VIEW view_qualtricsActions
 AS
-SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, p.participant_variable, p.api_mailing_group_id,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, group_variable, typ.lookup_value as stage_type, 
-id_qualtricsProjectStageTriggerTypes, trig.lookup_value as trigger_type,
+SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsSurveyTypes, group_variable, typ.lookup_value as survey_type, 
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 notification, reminder 
-FROM qualtricsStages st 
+FROM qualtricsActions st 
 INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
 INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
-INNER JOIN lookups typ ON (typ.id = st.id_qualtricsProjectStageTypes)
-INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectStageTriggerTypes)
-LEFT JOIN qualtricsStages_groups sg on (sg.id_qualtricsStages = st.id)
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes)
+INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
+LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
 LEFT JOIN groups g on (sg.id_groups = g.id)
-LEFT JOIN qualtricsStages_functions f on (f.id_qualtricsStages = st.id)
+LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
-st.id_qualtricsSurveys, s.name, id_qualtricsProjectStageTypes, typ.lookup_value, 
-id_qualtricsProjectStageTriggerTypes, trig.lookup_value;DROP VIEW IF EXISTS view_transactions;
+st.id_qualtricsSurveys, s.name, id_qualtricsSurveyTypes, typ.lookup_value, 
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value;DROP VIEW IF EXISTS view_transactions;
 CREATE VIEW view_transactions
 AS
 SELECT t.id, t.transaction_time, t.id_transactionTypes, tran_type.lookup_value AS transaction_type,

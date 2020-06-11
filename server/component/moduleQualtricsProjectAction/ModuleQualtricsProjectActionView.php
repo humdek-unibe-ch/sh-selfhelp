@@ -10,7 +10,7 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
 /**
  * The view class of the asset select component.
  */
-class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
+class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
 {
 
     /* Private Properties *****************************************************/
@@ -21,7 +21,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
     private $pid;
 
     /**
-     * stage id, 
+     * action id, 
      * if it is > 0  edit/delete project page     
      */
     private $sid;
@@ -32,9 +32,9 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
     private $mode;
 
     /**
-     * the current selcted stage
+     * the current selcted action
      */
-    private $stage;
+    private $action;
 
     /**
      * the current selected project
@@ -56,11 +56,11 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
         $this->sid = $sid;
         $this->mode = $mode;
         $this->project = $this->model->get_services()->get_db()->select_by_uid("qualtricsProjects", $this->pid);
-        $this->stage = $this->model->get_services()->get_db()->select_by_uid("view_qualtricsStages", $this->sid);
-        $this->stages = $this->model->get_stages($this->pid);
-        if ($this->stage) {
-            $this->stage['notification'] = json_decode($this->stage['notification'], true);
-            $this->stage['reminder'] = json_decode($this->stage['reminder'], true);
+        $this->action = $this->model->get_services()->get_db()->select_by_uid("view_qualtricsActions", $this->sid);
+        $this->actions = $this->model->get_actions($this->pid);
+        if ($this->action) {
+            $this->action['notification'] = json_decode($this->action['notification'], true);
+            $this->action['reminder'] = json_decode($this->action['reminder'], true);
         }
     }
 
@@ -126,25 +126,25 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
             "children" => array(
                 new BaseStyleComponent("select", array(
                     "label" => ($isNotification ? "Notification" : "Reminder") . " type",
-                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['type'] : '',
+                    "value" => isset($this->action[$type]) ? $this->action[$type]['type'] : '',
                     "name" => $isNotification ? "notification[type]" : "reminder[type]",
                     "items" => $this->get_lookups('notificationTypes'),
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => ($isNotification ? "Notification" : "Reminder") . " schedule type",
-                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['type'] : '',
+                    "value" => isset($this->action[$type]) ? $this->action[$type]['type'] : '',
                     "name" => $isNotification ? "notification[schedule_type]" : "reminder[schedule_type]",
                     "items" => $this->get_lookups('qualtricScheduleTypes'),
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "Send After",
                     "css" => 'send_after',
-                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['delay_value'] : '',
+                    "value" => isset($this->action[$type]) ? $this->action[$type]['delay_value'] : '',
                     "name" => $isNotification ? "notification[delay_value]" : "reminder[delay_value]",
                     "items" => $this->get_time_intervals(),
                 )),
                 new BaseStyleComponent("select", array(
-                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['delay_value_type'] : '',
+                    "value" => isset($this->action[$type]) ? $this->action[$type]['delay_value_type'] : '',
                     "name" => $isNotification ? "notification[delay_value_type]" : "reminder[delay_value_type]",
                     "items" => $this->get_lookups("timePeriod"),
                 )),
@@ -152,7 +152,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                     "label" => "Subject",
                     "type_input" => "text",
                     "name" => $isNotification ? "notification[subject]" : "reminder[subject]",
-                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['subject'] : '',
+                    "value" => isset($this->action[$type]) ? $this->action[$type]['subject'] : '',
                     "css" => "mt-3",
                     "placeholder" => "Please enter the subject",
                 )),
@@ -160,7 +160,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                     "label" => "Body",
                     "type_input" => "text",
                     "name" => $isNotification ? "notification[body]" : "reminder[body]",
-                    "value" => isset($this->stage[$type]) ? $this->stage[$type]['body'] : '',
+                    "value" => isset($this->action[$type]) ? $this->action[$type]['body'] : '',
                     "css" => "mb-3",
                     "placeholder" => "@user_name can be used for showing the user \n@survey_(type qualtrics survey id) can be used to automatically generate the link",
                 )),
@@ -187,28 +187,28 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                     "title" => ($isNotification ? "Notification" : "Reminder") . " type",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->stage[$type]) ? $this->get_lookup($this->stage[$type]['type']) : ''
+                        "text" => isset($this->action[$type]) ? $this->get_lookup($this->action[$type]['type']) : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Send After",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->stage[$type]) ? $this->stage[$type]['delay_value'] . ' ' . (isset($this->stage[$type]) ? $this->get_lookup($this->stage[$type]['delay_value_type']) : '') : ''
+                        "text" => isset($this->action[$type]) ? $this->action[$type]['delay_value'] . ' ' . (isset($this->action[$type]) ? $this->get_lookup($this->action[$type]['delay_value_type']) : '') : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Subject",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->stage[$type]) ? $this->stage[$type]['subject'] : ''
+                        "text" => isset($this->action[$type]) ? $this->action[$type]['subject'] : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Body",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->stage[$type]) ? $this->stage[$type]['body'] : ''
+                        "text" => isset($this->action[$type]) ? $this->action[$type]['body'] : ''
                     ))),
                 ))
             )
@@ -218,13 +218,13 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
     /**
      * Render the delete form
      */
-    private function output_delete_stage()
+    private function output_delete_action()
     {
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => false,
             "is_collapsible" => true,
-            "title" => "Delete Stage",
+            "title" => "Delete Action",
             "type" => "danger",
             "children" => array(
                 new BaseStyleComponent("plaintext", array(
@@ -233,20 +233,20 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                 )),
                 new BaseStyleComponent("form", array(
                     "id" => 'deleteForm',
-                    "label" => "Delete Stage",
-                    "url" => $this->model->get_link_url("moduleQualtricsProjectStage", array("pid" => $this->pid, "mode" => SELECT)),
+                    "label" => "Delete Action",
+                    "url" => $this->model->get_link_url("moduleQualtricsProjectAction", array("pid" => $this->pid, "mode" => SELECT)),
                     "type" => "danger",
                     "children" => array(
                         new BaseStyleComponent("input", array(
                             "type_input" => "text",
-                            "name" => "deleteStageName",
+                            "name" => "deleteActionName",
                             "is_required" => true,
                             "css" => "mb-3",
-                            "placeholder" => "Enter stage name",
+                            "placeholder" => "Enter action name",
                         )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
-                            "name" => "deleteStageId",
+                            "name" => "deleteActionId",
                             "value" => $this->sid,
                         )),
                         new BaseStyleComponent("input", array(
@@ -300,66 +300,60 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
         if ($this->mode === SELECT && $this->sid === null) {
             require __DIR__ . "/../moduleQualtricsProject/tpl_qulatricsProject_entry.php";
         } else {
-            require __DIR__ . "/tpl_moduleQualtricsProjectStage.php";
+            require __DIR__ . "/tpl_moduleQualtricsProjectAction.php";
         }
     }
 
     /**
-     * Render the add stage entry form.
+     * Render the add action entry form.
      */
-    public function output_add_stage()
+    public function output_add_action()
     {
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
             "type" => "warning",
-            "title" => $this->mode === INSERT ? 'Add stage ' : ('Update stage ' . $this->stage['id']) . (' for project: ' . $this->project['name']),
+            "title" => $this->mode === INSERT ? 'Add action ' : ('Update action ' . $this->action['id']) . (' for project: ' . $this->project['name']),
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "id" => 'entryForm',
                     "label" => $this->mode === INSERT ? 'Add' : 'Update',
-                    "url" => $this->model->get_link_url("moduleQualtricsProjectStage", array("pid" => $this->pid, "mode" => SELECT)),
+                    "url" => $this->model->get_link_url("moduleQualtricsProjectAction", array("pid" => $this->pid, "mode" => SELECT)),
                     "url_cancel" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => SELECT)),
                     "label_cancel" => 'Cancel',
                     "url_type" => 'warning',
                     "type" => $this->mode === INSERT ? 'warning' : 'primary',
                     "children" => array(
-                        new BaseStyleComponent("select", array(
-                            "label" => "Stage type",
-                            "value" => $this->stage['id_qualtricsProjectStageTypes'],
-                            "is_required" => true,
-                            "name" => "id_qualtricsProjectStageTypes",
-                            "items" => $this->get_lookups('qualtricsProjectStageTypes'),
-                        )),
+                        
                         new BaseStyleComponent("input", array(
-                            "label" => "Stage name",
+                            "label" => "Action name",
                             "type_input" => "text",
                             "name" => "name",
-                            "value" => $this->stage['stage_name'],
+                            "value" => $this->action['action_name'],
                             "is_required" => true,
                             "css" => "mb-3",
-                            "placeholder" => "Enter stage name",
+                            "placeholder" => "Enter action name",
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "When survey",
-                            "value" => $this->stage['survey_id'],
+                            "value" => $this->action['survey_id'],
                             "is_required" => true,
                             "name" => "id_qualtricsSurveys",
                             "items" => $this->get_surveys(),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "Is (trigger type)",
-                            "value" => $this->stage['trigger_type'],
+                            "value" => $this->action['trigger_type'],
                             "is_required" => true,
-                            "name" => "id_qualtricsProjectStageTriggerTypes",
-                            "items" => $this->get_lookups('qualtricsProjectStageTriggerTypes'),
+                            "name" => "id_qualtricsProjectActionTriggerTypes",
+                            "items" => $this->get_lookups('qualtricsProjectActionTriggerTypes'),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "For groups (condition, selcet if needed)",
                             "name" => "id_groups[]",
                             "is_multiple" => true,
-                            "value" => explode(';', $this->stage['id_groups']),
+                            "value" => explode(';', $this->action['id_groups']),
                             "items" => $this->get_groups(),
                             "css" => "mb-3",
                         )),
@@ -367,12 +361,12 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                         $this->get_notification_card(false),
                         new BaseStyleComponent("select", array(
                             "label" => "Additional functions",
-                            //"value" => $this->projectStage['stage'],
+                            //"value" => $this->projectAction['action'],
                             "is_required" => false,
                             "name" => "id_functions[]",
                             "is_multiple" => true,
-                            "value" => explode(';', $this->stage['id_functions']),
-                            "items" => $this->get_lookups('qualtricsProjectStageAdditionalFunction'),
+                            "value" => explode(';', $this->action['id_functions']),
+                            "items" => $this->get_lookups('qualtricsProjectActionAdditionalFunction'),
                         )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
@@ -392,50 +386,43 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
     }
 
     /**
-     * Render the add stage entry form view.
+     * Render the add action entry form view.
      */
-    public function output_add_stage_view()
+    public function output_add_action_view()
     {
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
-            "url_edit" => $this->model->get_link_url("moduleQualtricsProjectStage", array("pid" => $this->pid, "mode" => UPDATE, "sid" => $this->sid)),
-            "title" => 'Stage &nbsp;<code>' . $this->stage['stage_name'] . '</code>&nbsp; for project &nbsp;<code>' . $this->stage['project_name'] . '</code>',
-            "children" => array(
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Stage type",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->stage['stage_type']
-                    ))),
-                )),
+            "url_edit" => $this->model->get_link_url("moduleQualtricsProjectAction", array("pid" => $this->pid, "mode" => UPDATE, "sid" => $this->sid)),
+            "title" => 'Action &nbsp;<code>' . $this->action['action_name'] . '</code>&nbsp; for project &nbsp;<code>' . $this->action['project_name'] . '</code>',
+            "children" => array(                
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Survey name",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->stage['stage_name']
+                        "text" => $this->action['action_name']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "When survey",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->stage['survey_name']
+                        "text" => $this->action['survey_name']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Is (trigger type)",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->stage['trigger_type']
+                        "text" => $this->action['trigger_type']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "For groups",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->stage['groups']
+                        "text" => $this->action['groups']
                     ))),
                 )),
                 $this->get_notification_card_view(true),
@@ -444,7 +431,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
                     "title" => "Additional functions",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->stage['functions']
+                        "text" => $this->action['functions']
                     ))),
                 ))
             )
@@ -463,7 +450,7 @@ class ModuleQualtricsProjectStageView extends ModuleQualtricsProjectView
     {
         if (empty($local)) {
             $local = array(
-                __DIR__ . "/js/qualtricsStage.js",
+                __DIR__ . "/js/qualtricsAction.js",
                 __DIR__ . "/../moduleQualtricsProject/js/qualtricsProjects.js",
                 __DIR__ . "/../js/simplemde.min.js"
             );

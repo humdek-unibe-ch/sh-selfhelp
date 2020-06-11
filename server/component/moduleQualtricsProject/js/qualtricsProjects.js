@@ -29,13 +29,13 @@ $(document).ready(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
 
-    //datatable stages
-    var table = $('#qualtrics-project-stages').DataTable({
+    //datatable actions
+    var table = $('#qualtrics-project-actions').DataTable({
         "order": [[1, "asc"]]
     });
-    table.on('click', 'tr[id|="stage-url"]', function (e) {
+    table.on('click', 'tr[id|="action-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
-        document.location = '../../stage/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+        document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
     });
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });

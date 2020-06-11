@@ -50,7 +50,7 @@ class ModuleQualtricsProjectModel extends BaseModel
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';
     const QUALTRICS_SURVEY_ID_VARIABLE = 'SurveyID';
     const QUALTRICS_CALLBACK_KEY_VARIABLE = 'callback_key';
-    const QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE = 'qualtricsProjectStageTriggerTypes';
+    const QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE = 'qualtricsProjectActionTriggerTypes';
     const QUALTRICS_TRIGGER_TYPE_VARIABLE = 'trigger_type';
     const QUALTRICS_TRIGGER_TYPE_START = 'Started';
     const QUALTRICS_TRIGGER_TYPE_END = 'Finished';
@@ -319,13 +319,14 @@ class ModuleQualtricsProjectModel extends BaseModel
      * @param array $embedded_vars
      * @param string $flowId
      * @param string $url
-     * @param string $callback_key null if not set
+     * @param string $participant_varaible
+     * @param string $callback_key null if not set     
      * @retval array
      */
-    private function get_webService_flow($embedded_vars, $flowId, $url, $is_callback)
+    private function get_webService_flow($embedded_vars, $flowId, $url, $participant_variable, $is_callback)
     {
         $body = array();
-        $body = array_merge(array("externalDataRef" => '${e://Field/' . $this->project['participant_variable'] . '}'));
+        $body = array_merge(array("externalDataRef" => '${e://Field/' . $participant_variable . '}'));
         if ($is_callback) {
             //for callbacks different structure
             $body = $embedded_vars;
@@ -417,7 +418,7 @@ class ModuleQualtricsProjectModel extends BaseModel
 
             $editBodyParams[] = array(
                 "key" => 'externalDataRef',
-                "value" => '${e://Field/' . $this->project['participant_variable'] . '}'
+                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
             );
 
             $baseline_webService_contacts = $this->get_webService_flow(
@@ -428,6 +429,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                     $survey['api_mailing_group_id'],
                     ModuleQualtricsProjectModel::QUALTRICS_API_CREATE_CONTACT
                 ),
+                $survey['participant_variable'], 
                 false
             );
             $branch_contact_exists = json_decode(QulatricsAPITemplates::branch_contact_exist, true);
@@ -437,7 +439,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             /** START SURVEY WEB SERVICE *******************************************************************************************************************************/
             $editBodyParamsStart[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-                "value" => '${e://Field/' . $this->project['participant_variable'] . '}'
+                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
             );
             $editBodyParamsStart[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
@@ -459,13 +461,14 @@ class ModuleQualtricsProjectModel extends BaseModel
                 $editBodyParamsStart,
                 ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START,
                 'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
+                $survey['participant_variable'],
                 true
             );
 
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
             $editBodyParamsEnd[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-                "value" => '${e://Field/' . $this->project['participant_variable'] . '}'
+                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
             );
             $editBodyParamsEnd[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
@@ -487,6 +490,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 $editBodyParamsEnd,
                 ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END,
                 'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
+                $survey['participant_variable'],
                 true
             );
 
@@ -495,7 +499,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 // web service for setting group
                 $editBodyParamsGroup[] = array(
                     "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-                    "value" => '${e://Field/' . $this->project['participant_variable'] . '}'
+                    "value" => '${e://Field/' . $survey['participant_variable'] . '}'
                 );
                 $editBodyParamsGroup[] = array(
                     "key" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
@@ -509,6 +513,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                     $editBodyParamsGroup,
                     ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
                     'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
+                    $survey['participant_variable'],
                     true
                 );
             }
@@ -682,15 +687,15 @@ class ModuleQualtricsProjectModel extends BaseModel
     }
 
     /**
-     * Get all the stages for the project
+     * Get all the actions for the project
      * @param int $pid
      * project id
-     * @retval array $stages
+     * @retval array $actions
      */
-    public function get_stages($pid)
+    public function get_actions($pid)
     {
         $sql = "SELECT *
-                FROM view_qualtricsStages
+                FROM view_qualtricsActions
                 WHERE project_id = :pid";
         return $this->db->query_db($sql, array(":pid" => $pid));
     }
@@ -704,9 +709,9 @@ class ModuleQualtricsProjectModel extends BaseModel
     {
         $res1 = $this->sync_survey_header($survey['qualtrics_survey_id']);
         $surveyFlow = $this->get_survey_flow($survey['qualtrics_survey_id']);
-        if ($survey['stage_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_BASELINE) {
+        if ($survey['survey_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_BASELINE) {
             $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
-        } else if ($survey['stage_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_FOLLOWUP) {
+        } else if ($survey['survey_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_FOLLOWUP) {
             $res2 = $this->sync_followup_survey($survey, $surveyFlow);
         }
         return $this->multi_return_info(array($res1, $res2));

@@ -257,6 +257,14 @@ SET @id_style = LAST_INSERT_ID();
 SET @id_field = (SELECT `id` FROM `fields` WHERE `name` = 'items');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (@id_style, @id_field, NULL, 'JSON structure for the navigation bar');
 
+-- add table lookups
+CREATE TABLE `lookups` (
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `type_code` VARCHAR(100) NOT NULL,
+  `lookup_code` VARCHAR(100) UNIQUE,
+  `lookup_value` VARCHAR(200) UNIQUE,
+  `lookup_description` VARCHAR(500)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- add table qualtricsProjects
 CREATE TABLE `qualtricsProjects` (
@@ -276,28 +284,22 @@ CREATE TABLE `qualtricsSurveys` (
   `name` VARCHAR(200) NOT NULL,
   `description` VARCHAR(1000),
   `qualtrics_survey_id` VARCHAR(100) UNIQUE,  
+  `id_qualtricsSurveyTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
   `participant_variable` VARCHAR(100),
   `group_variable` INT DEFAULT 0,
   `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `qualtricsSurveys`
+ADD CONSTRAINT `qualtricsSurveys_fk_id_qualtricsSurveyTypes` FOREIGN KEY (`id_qualtricsSurveyTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- add stage to project
+-- add action to project
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsProjectStage', '/admin/qualtrics/stage/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
+VALUES (NULL, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
 SET @id_page = LAST_INSERT_ID();
 
-INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Project Stage');
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Qualtrics Project Action');
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
-
--- add table lookups
-CREATE TABLE `lookups` (
-  `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
-  `type_code` VARCHAR(100) NOT NULL,
-  `lookup_code` VARCHAR(100) UNIQUE,
-  `lookup_value` VARCHAR(200) UNIQUE,
-  `lookup_description` VARCHAR(500)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- add notificationTypes
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'All options', 'Notification will be sent by all availale options');
@@ -305,19 +307,21 @@ INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notif
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'SMS', 'The notification will be sent by SMS');
 
 -- add qualtricScheduleTypes
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'time', 'Time', 'Shcedule by time');
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'date', 'Date', 'Schedu;e by date');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'immediately', 'Immediately', 'Shcedule and send the mail immediately');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'on_fixed_datetime', 'On specific fixed datetime', 'Shcedule and send the mail on specific fixed datetime');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'after_period', 'After time period', 'Schedule the mail after specific time period');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'after_period_on_day_at_time', 'After time period on a weekday at given time', 'Schedule the mail after specific time on specific day from the week at specific time');
 
--- add qualtricsProjectStageTypes
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTypes', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTypes', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
+-- add qualtricsProjectActionTypes
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
 
--- add qualtricsProjectStageTriggerType
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTriggerTypes', 'Started', 'When the user start the survey');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageTriggerTypes', 'Finished', 'When the user finish the survey');
+-- add qualtricsProjectActionTriggerType
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'Started', 'When the user start the survey');
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'Finished', 'When the user finish the survey');
 
--- add qualtricsProjectStageAdditionalFunction
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectStageAdditionalFunction', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
+-- add qualtricsProjectActionAdditionalFunction
+INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
 
 -- add timePeriod
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'seconds', 'seconds');
@@ -328,77 +332,75 @@ INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timeP
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'months', 'months');
 
 -- add table lookups
-CREATE TABLE `qualtricsStages` (
+CREATE TABLE `qualtricsActions` (
 	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
 	`id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
 	`id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL, 
-	`name` varchar(200) NOT NULL,
-    `id_qualtricsProjectStageTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
-    `id_qualtricsProjectStageTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
+	`name` varchar(200) NOT NULL,    
+    `id_qualtricsProjectActionTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
     `notification` text,
 	`reminder` text    
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `qualtricsStages`
-ADD CONSTRAINT `qualtricsStages_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsStages_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsStages_fk_id_qualtricsProjectStageTypese` FOREIGN KEY (`id_qualtricsProjectStageTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsStages_fk_id_lookups_qualtricsProjectStageTriggerType` FOREIGN KEY (`id_qualtricsProjectStageTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `qualtricsActions`
+ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- add table qualtricsStages_groups
-CREATE TABLE `qualtricsStages_groups` (	
-	`id_qualtricsStages` int(10) UNSIGNED ZEROFILL NOT NULL,
+-- add table qualtricsActions_groups
+CREATE TABLE `qualtricsActions_groups` (	
+	`id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
 	`id_groups` int(10) UNSIGNED ZEROFILL NOT NULL	
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `qualtricsStages_groups`
-ADD PRIMARY KEY (`id_qualtricsStages`,`id_groups`),
-ADD KEY `id_qualtricsStages` (`id_qualtricsStages`),
+ALTER TABLE `qualtricsActions_groups`
+ADD PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
+ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
 ADD KEY `id_groups` (`id_groups`);
 
-ALTER TABLE `qualtricsStages_groups`
-ADD CONSTRAINT `qualtricsStages_groups_fk_id_qualtricsStages` FOREIGN KEY (`id_qualtricsStages`) REFERENCES `qualtricsStages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsStages_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `qualtricsActions_groups`
+ADD CONSTRAINT `qualtricsActions_groups_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsActions_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- add table qualtricsStages_functions
-CREATE TABLE `qualtricsStages_functions` (	
-	`id_qualtricsStages` int(10) UNSIGNED ZEROFILL NOT NULL,
+-- add table qualtricsActions_functions
+CREATE TABLE `qualtricsActions_functions` (	
+	`id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
 	`id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL	
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `qualtricsStages_functions`
-ADD PRIMARY KEY (`id_qualtricsStages`,`id_lookups`),
-ADD KEY `id_qualtricsStages` (`id_qualtricsStages`),
+ALTER TABLE `qualtricsActions_functions`
+ADD PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
+ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
 ADD KEY `id_lookups` (`id_lookups`);
 
-ALTER TABLE `qualtricsStages_functions`
-ADD CONSTRAINT `qualtricsStages_functions_fk_id_qualtricsStages` FOREIGN KEY (`id_qualtricsStages`) REFERENCES `qualtricsStages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsStages_functions_fk_id_lookups` FOREIGN KEY (`id_lookups`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `qualtricsActions_functions`
+ADD CONSTRAINT `qualtricsActions_functions_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsActions_functions_fk_id_lookups` FOREIGN KEY (`id_lookups`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- view view_qualtricsStages
-DROP VIEW IF EXISTS view_qualtricsStages;
-CREATE VIEW view_qualtricsStages
+-- view view_qualtricsActions
+DROP VIEW IF EXISTS view_qualtricsActions;
+CREATE VIEW view_qualtricsActions
 AS
-SELECT st.id as id, st.name as stage_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsProjectStageTypes, group_variable, typ.lookup_value as stage_type, 
-id_qualtricsProjectStageTriggerTypes, trig.lookup_value as trigger_type,
+SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsSurveyTypes, group_variable, typ.lookup_value as survey_type, 
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 notification, reminder 
-FROM qualtricsStages st 
+FROM qualtricsActions st 
 INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
 INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
-INNER JOIN lookups typ ON (typ.id = st.id_qualtricsProjectStageTypes)
-INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectStageTriggerTypes)
-LEFT JOIN qualtricsStages_groups sg on (sg.id_qualtricsStages = st.id)
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes)
+INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
+LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
 LEFT JOIN groups g on (sg.id_groups = g.id)
-LEFT JOIN qualtricsStages_functions f on (f.id_qualtricsStages = st.id)
+LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
-st.id_qualtricsSurveys, s.name, id_qualtricsProjectStageTypes, typ.lookup_value, 
-id_qualtricsProjectStageTriggerTypes, trig.lookup_value;
+st.id_qualtricsSurveys, s.name, id_qualtricsSurveyTypes, typ.lookup_value, 
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
 
 -- add qualtricsSync page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
@@ -413,16 +415,16 @@ CREATE TABLE `qualtricsSurveysResponses` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `id_users` INT(10) UNSIGNED ZEROFILL NOT NULL,
   `id_surveys` INT(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_qualtricsProjectStageTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsProjectActionTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
   `survey_response_id` VARCHAR(100) UNIQUE,  
   `started_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `qualtricsSurveysResponses`
-ADD CONSTRAINT `qualtricsSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsSurveysResponsesfk_id_qualtricsProjectStageTriggerTypes` FOREIGN KEY (`id_qualtricsProjectStageTriggerTypes`) REFERENCES `lookups` (`id`);
+ADD CONSTRAINT `qSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qSurveysResponses_fk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`);
 
 -- auto created user status
 INSERT INTO userStatus (name, description)
@@ -563,7 +565,13 @@ INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtri
 INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-qualtrics-survey', '7');
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'qualtricsSurvey', get_field_type_id('select-qualtrics-survey'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
-VALUES (get_style_id('qualtricsSurvey'), get_field_id('qualtricsSurvey'), '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a stage)');
+VALUES (get_style_id('qualtricsSurvey'), get_field_id('qualtricsSurvey'), '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a action)');
 
 
-make stages actions, move baselin folowup into survey
+-- view qualtricsSurveys
+DROP VIEW IF EXISTS view_qualtricsSurveys;
+CREATE VIEW view_qualtricsSurveys
+AS
+SELECT s.*, typ.lookup_value as survey_type
+FROM qualtricsSurveys s 
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
