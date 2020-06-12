@@ -59,8 +59,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
         $this->action = $this->model->get_services()->get_db()->select_by_uid("view_qualtricsActions", $this->sid);
         $this->actions = $this->model->get_actions($this->pid);
         if ($this->action) {
-            $this->action['notification'] = json_decode($this->action['notification'], true);
-            $this->action['reminder'] = json_decode($this->action['reminder'], true);
+            $this->action['schedule_info'] = json_decode($this->action['schedule_info'], true);
         }
     }
 
@@ -103,8 +102,27 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     private function get_time_intervals()
     {
         $arr = array();
-        foreach (range(0, 60) as $range) {
+        foreach (range(1, 60) as $range) {
             array_push($arr, array("value" => $range, "text" => $range));
+        }
+        return $arr;
+    }
+
+    /**
+     * get time intervals from first to tenth
+     *
+     *  @retval array
+     *  value int,
+     *  text string
+     */
+    private function get_time_intervals_text()
+    {
+        $arr = array();
+        array_push($arr, array("value" => 1, "text" => '1st'));
+        array_push($arr, array("value" => 2, "text" => '2nd'));
+        array_push($arr, array("value" => 3, "text" => '3rd'));
+        foreach (range(4, 20) as $range) {
+            array_push($arr, array("value" => $range, "text" => $range . 'th'));
         }
         return $arr;
     }
@@ -115,52 +133,112 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
      *
      *  @retval card
      */
-    private function get_notification_card($isNotification)
+    private function get_schedule_info_card()
     {
-        $type =  $isNotification ? 'notification' : 'reminder';
         return new BaseStyleComponent("card", array(
-            "css" => "mb-3",
-            "is_expanded" => $isNotification,
+            "css" => "mb-3 d-none",
+            "is_expanded" => true,
             "is_collapsible" => true,
-            "title" => $isNotification ? 'Notification' : 'Reminder',
+            "id" => "schedule_info",
+            "title" => 'Schedule info',
             "children" => array(
                 new BaseStyleComponent("select", array(
-                    "label" => ($isNotification ? "Notification" : "Reminder") . " type",
-                    "value" => isset($this->action[$type]) ? $this->action[$type]['type'] : '',
-                    "name" => $isNotification ? "notification[type]" : "reminder[type]",
+                    "label" => "Reminder for survey",
+                    "value" => isset($this->action['id_qualtricsSurveys_reminder']) ? $this->action['id_qualtricsSurveys_reminder'] : "",
+                    "is_required" => true,
+                    "name" => "id_qualtricsSurveys_reminder",
+                    "id" => "id_qualtricsSurveys_reminder",
+                    "css" => "d-none",
+                    "items" => $this->get_surveys(),
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Type",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['notificationTypes']) ? $this->action["schedule_info"]['notificationTypes'] : '',
+                    "name" => "schedule_info[notificationTypes]",
                     "items" => $this->get_lookups('notificationTypes'),
                 )),
                 new BaseStyleComponent("select", array(
-                    "label" => ($isNotification ? "Notification" : "Reminder") . " schedule type",
-                    "value" => isset($this->action[$type]) ? $this->action[$type]['type'] : '',
-                    "name" => $isNotification ? "notification[schedule_type]" : "reminder[schedule_type]",
+                    "label" => "When",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['qualtricScheduleTypes']) ? $this->action["schedule_info"]['qualtricScheduleTypes'] : '',
+                    "name" => "schedule_info[qualtricScheduleTypes]",
                     "items" => $this->get_lookups('qualtricScheduleTypes'),
+                )),
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_datepicker.php",
+                    "items" => array(
+                        "name" => 'schedule_info[custom_time]',
+                        "value" => isset($this->action["schedule_info"]['custom_time']) ? $this->action["schedule_info"]['custom_time'] : '',
+                        "id" => "custom_time"
+                    )
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "Send After",
-                    "css" => 'send_after',
-                    "value" => isset($this->action[$type]) ? $this->action[$type]['delay_value'] : '',
-                    "name" => $isNotification ? "notification[delay_value]" : "reminder[delay_value]",
+                    "css" => 'send_after d-none',
+                    "id" => "send_after",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value']) ? $this->action["schedule_info"]['delay_value'] : '',
+                    "name" => "schedule_info[delay_value]",
                     "items" => $this->get_time_intervals(),
                 )),
                 new BaseStyleComponent("select", array(
-                    "value" => isset($this->action[$type]) ? $this->action[$type]['delay_value_type'] : '',
-                    "name" => $isNotification ? "notification[delay_value_type]" : "reminder[delay_value_type]",
+                    "id" => "send_after_type",
+                    "css" => 'd-none',
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value_type']) ? $this->action["schedule_info"]['delay_value_type'] : '',
+                    "name" => "schedule_info[delay_value_type]",
                     "items" => $this->get_lookups("timePeriod"),
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Send on",
+                    "css" => 'd-none',
+                    "id" => "send_on",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value']) ? $this->action["schedule_info"]['delay_value'] : '',
+                    "name" => "schedule_info[delay_value]",
+                    "items" => $this->get_time_intervals_text(),
+                )),
+                new BaseStyleComponent("select", array(
+                    "id" => "send_on_day",
+                    "css" => 'd-none mb-3',
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value_type']) ? $this->action["schedule_info"]['delay_value_type'] : '',
+                    "name" => "schedule_info[delay_value_type]",
+                    "items" => $this->get_lookups("weekdays"),
+                )),
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_timepicker.php",
+                    "items" => array(
+                        "name" => 'schedule_info[delay_value_at_time]',
+                        "label" => "At",
+                        "value" => isset($this->action["schedule_info"]['delay_value_at_time']) ? $this->action["schedule_info"]['delay_value_at_time'] : '',
+                        "id" => "send_on_day_at"
+                    )
+                )),
+                new BaseStyleComponent("input", array(
+                    "label" => "To",
+                    "type_input" => "text",
+                    "name" => "schedule_info[recipient]",
+                    "value" => isset($this->action["schedule_info"]['recipient'] ) ? $this->action["schedule_info"]['recipient'] : '',
+                    "css" => "mt-3",
+                    "is_required" => true,
+                    "placeholder" => "Please enter the recipient(s). Use @user to retrive automaticaly phone or email. Use " . MAIL_SEPARATOR . " as separator",
                 )),
                 new BaseStyleComponent("input", array(
                     "label" => "Subject",
                     "type_input" => "text",
-                    "name" => $isNotification ? "notification[subject]" : "reminder[subject]",
-                    "value" => isset($this->action[$type]) ? $this->action[$type]['subject'] : '',
+                    "name" => "schedule_info[subject]",
+                    "value" => isset($this->action["schedule_info"]['subject'] ) ? $this->action["schedule_info"]['subject'] : '',
                     "css" => "mt-3",
+                    "is_required" => true,
                     "placeholder" => "Please enter the subject",
                 )),
                 new BaseStyleComponent("textarea", array(
                     "label" => "Body",
                     "type_input" => "text",
-                    "name" => $isNotification ? "notification[body]" : "reminder[body]",
-                    "value" => isset($this->action[$type]) ? $this->action[$type]['body'] : '',
+                    "name" => "schedule_info[body]",
+                    "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
                     "css" => "mb-3",
                     "placeholder" => "@user_name can be used for showing the user \n@survey_(type qualtrics survey id) can be used to automatically generate the link",
                 )),
@@ -174,42 +252,127 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
      *
      *  @retval card
      */
-    private function get_notification_card_view($isNotification)
+    private function get_schedule_info_card_view()
     {
-        $type =  $isNotification ? 'notification' : 'reminder';
         return new BaseStyleComponent("card", array(
             "css" => "mb-3",
-            "is_expanded" => $isNotification,
+            "is_expanded" => true,
             "is_collapsible" => true,
-            "title" => $isNotification ? 'Notification' : 'Reminder',
+            "title" => 'Schedule info',
             "children" => array(
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => ($isNotification ? "Notification" : "Reminder") . " type",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->action[$type]) ? $this->get_lookup($this->action[$type]['type']) : ''
-                    ))),
+                new BaseStyleComponent("select", array(
+                    "label" => "Reminder for survey",
+                    "value" => isset($this->action['id_qualtricsSurveys_reminder']) ? $this->action['id_qualtricsSurveys_reminder'] : "",
+                    "is_required" => true,
+                    "name" => "id_qualtricsSurveys_reminder",
+                    "id" => "id_qualtricsSurveys_reminder",
+                    "css" => "d-none",
+                    "items" => $this->get_surveys(),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Type",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['notificationTypes']) ? $this->action["schedule_info"]['notificationTypes'] : '',
+                    "name" => "schedule_info[notificationTypes]",
+                    "items" => $this->get_lookups('notificationTypes'),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "When",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['qualtricScheduleTypes']) ? $this->action["schedule_info"]['qualtricScheduleTypes'] : '',
+                    "name" => "schedule_info[qualtricScheduleTypes]",
+                    "items" => $this->get_lookups('qualtricScheduleTypes'),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_datepicker.php",
+                    "items" => array(
+                        "name" => 'schedule_info[custom_time]',
+                        "value" => isset($this->action["schedule_info"]['custom_time']) ? $this->action["schedule_info"]['custom_time'] : '',
+                        "disabled" => "disabled",
+                        "id" => "custom_time"
+                    )
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Send After",
+                    "css" => 'send_after d-none',
+                    "id" => "send_after",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value']) ? $this->action["schedule_info"]['delay_value'] : '',
+                    "name" => "schedule_info[delay_value]",
+                    "items" => $this->get_time_intervals(),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "id" => "send_after_type",
+                    "css" => 'd-none',
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value_type'] ) ? $this->action["schedule_info"]['delay_value_type'] : '',
+                    "name" => "schedule_info[delay_value_type]",
+                    "items" => $this->get_lookups("timePeriod"),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Send on",
+                    "css" => 'd-none',
+                    "id" => "send_on",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value']) ? $this->action["schedule_info"]['delay_value'] : '',
+                    "name" => "schedule_info[delay_value]",
+                    "items" => $this->get_time_intervals_text(),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "id" => "send_on_day",
+                    "css" => 'd-none mb-3',
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['delay_value_type']) ? $this->action["schedule_info"]['delay_value_type'] : '',
+                    "name" => "schedule_info[delay_value_type]",
+                    "items" => $this->get_lookups("weekdays"),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_timepicker.php",
+                    "items" => array(
+                        "name" => 'schedule_info[delay_value_at_time]',
+                        "label" => "At",
+                        "id" => "send_on_day_at",
+                        "value" => isset($this->action["schedule_info"]['delay_value_at_time']) ? $this->action["schedule_info"]['delay_value_at_time'] : '',
+                        "disabled" => "disabled",
+                    )
                 )),
                 new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Send After",
+                    "title" => "To",
                     "locale" => "",
+                    "css" => "mt-3",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->action[$type]) ? $this->action[$type]['delay_value'] . ' ' . (isset($this->action[$type]) ? $this->get_lookup($this->action[$type]['delay_value_type']) : '') : ''
+                        "text" => isset($this->action["schedule_info"]['recipient']) ? $this->action["schedule_info"]['recipient'] : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Subject",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->action[$type]) ? $this->action[$type]['subject'] : ''
+                        "text" => isset($this->action["schedule_info"]['subject']) ? $this->action["schedule_info"]['subject'] : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Body",
                     "locale" => "",
+                    "id" => "body",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => isset($this->action[$type]) ? $this->action[$type]['body'] : ''
+                        "text" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : ''
                     ))),
+                )),
+                new BaseStyleComponent("textarea", array(
+                    "label" => "Body",
+                    "type_input" => "text",
+                    "name" => "schedule_info[body]",
+                    "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
+                    "css" => "d-none",
+                    "placeholder" => "@user_name can be used for showing the user \n@survey_(type qualtrics survey id) can be used to automatically generate the link",
                 ))
             )
         ));
@@ -350,18 +513,25 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "items" => $this->get_lookups('qualtricsProjectActionTriggerTypes'),
                         )),
                         new BaseStyleComponent("select", array(
-                            "label" => "For groups (condition, selcet if needed)",
+                            "label" => "For group(s)",
                             "name" => "id_groups[]",
                             "is_multiple" => true,
+                            "is_required" => true,
                             "value" => explode(';', $this->action['id_groups']),
                             "items" => $this->get_groups(),
                             "css" => "mb-3",
                         )),
-                        $this->get_notification_card(true),
-                        $this->get_notification_card(false),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Send",
+                            "name" => "id_qualtricsActionScheduleTypes",
+                            "id" => "id_qualtricsActionScheduleTypes",
+                            "value" => isset($this->action['id_qualtricsActionScheduleTypes']) ? $this->action['id_qualtricsActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value('qualtricsActionScheduleTypes', 'nothing'),
+                            "items" => $this->get_lookups('qualtricsActionScheduleTypes'),
+                            "css" => "mb-3",
+                        )),
+                        $this->get_schedule_info_card(),
                         new BaseStyleComponent("select", array(
                             "label" => "Additional functions",
-                            //"value" => $this->projectAction['action'],
                             "is_required" => false,
                             "name" => "id_functions[]",
                             "is_multiple" => true,
@@ -398,7 +568,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
             "title" => 'Action &nbsp;<code>' . $this->action['action_name'] . '</code>&nbsp; for project &nbsp;<code>' . $this->action['project_name'] . '</code>',
             "children" => array(
                 new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Survey name",
+                    "title" => "Action name",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->action['action_name']
@@ -425,8 +595,14 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "text" => $this->action['groups']
                     ))),
                 )),
-                $this->get_notification_card_view(true),
-                $this->get_notification_card_view(false),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Send",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->action['action_schedule_type']
+                    ))),
+                )),
+                $this->get_schedule_info_card_view(),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Additional functions",
                     "locale" => "",
@@ -478,7 +654,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     {
         $backToProject = new BaseStyleComponent("button", array(
             "label" => "Back to project",
-            "url" => $this->model->get_link_url("moduleQualtricsProject", array("mode" => SELECT, "pid"=>$this->pid)),
+            "url" => $this->model->get_link_url("moduleQualtricsProject", array("mode" => SELECT, "pid" => $this->pid)),
             "type" => "secondary",
             "css" => "d-block mb-3",
         ));

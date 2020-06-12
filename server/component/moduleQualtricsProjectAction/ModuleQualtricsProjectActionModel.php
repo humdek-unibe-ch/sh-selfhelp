@@ -52,8 +52,9 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 "name" => $data['name'],
                 "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],                
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
-                "notification" => isset($data['notification']) ? json_encode($data['notification']) : null,
-                "reminder" => isset($data['reminder']) ? json_encode($data['reminder']) : null
+                "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
+                "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
+                "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info']) : null
             ));
             if (isset($data['id_groups']) && is_array($data['id_groups'])) {
                 //insert related groups to the action if some are set
@@ -105,8 +106,9 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 "name" => $data['name'],
                 "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],                
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
-                "notification" => isset($data['notification']) ? json_encode($data['notification']) : null,
-                "reminder" => isset($data['reminder']) ? json_encode($data['reminder']) : null
+                "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
+                "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
+                "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info']) : null
             ), array('id' => $data['id']));
 
             //delete all group relations

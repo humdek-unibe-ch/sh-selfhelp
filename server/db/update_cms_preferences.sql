@@ -302,7 +302,6 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
 
 -- add notificationTypes
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'All options', 'Notification will be sent by all availale options');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'Email', 'The notification will be sent by email');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'SMS', 'The notification will be sent by SMS');
 
@@ -323,6 +322,11 @@ INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualt
 -- add qualtricsProjectActionAdditionalFunction
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
 
+-- add qualtricsActionScheduleTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'nothing', 'Nothing', 'Nothing to be scheduled');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'notification', 'Notification', 'Shcedule a notification eamil');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'reminder', 'Reminder', 'Schedule a reminder email. If the survey was done the remider is canceled');
+
 -- add timePeriod
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'seconds', 'seconds');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'minutes', 'minutes');
@@ -331,6 +335,15 @@ INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timeP
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'weeks', 'weeks');
 INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'months', 'months');
 
+-- add weekdays
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'monday', 'Monday', 'Monday');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'tuesday', 'Tuesday', 'Tuesday');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'wednesday', 'Wednesday', 'Wednesday');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'thursday', 'Thursday', 'Thursday');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'friday', 'Friday', 'Friday');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'saturday', 'Saturday', 'Saturday');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'sunday', 'Sunday', 'Sunday');
+
 -- add table lookups
 CREATE TABLE `qualtricsActions` (
 	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
@@ -338,13 +351,16 @@ CREATE TABLE `qualtricsActions` (
 	`id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL, 
 	`name` varchar(200) NOT NULL,    
     `id_qualtricsProjectActionTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
-    `notification` text,
-	`reminder` text    
+    `id_qualtricsActionScheduleTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,
+    `id_qualtricsSurveys_reminder` int(10) UNSIGNED ZEROFILL, 
+    `schedule_info` text	
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `qualtricsActions`
 ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys_reminder` FOREIGN KEY (`id_qualtricsSurveys_reminder`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsActionScheduleTypes` FOREIGN KEY (`id_qualtricsActionScheduleTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add table qualtricsActions_groups
@@ -382,24 +398,26 @@ DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsSurveyTypes, group_variable, typ.lookup_value as survey_type, 
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
-notification, reminder 
+schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, s_reminder.name as survey_reminder_name
 FROM qualtricsActions st 
 INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
 INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
 INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes)
 INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
+INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
+LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
 LEFT JOIN groups g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
-st.id_qualtricsSurveys, s.name, id_qualtricsSurveyTypes, typ.lookup_value, 
+st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
 
 -- add qualtricsSync page

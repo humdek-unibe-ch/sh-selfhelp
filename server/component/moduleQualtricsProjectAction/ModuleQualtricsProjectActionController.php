@@ -27,19 +27,13 @@ class ModuleQualtricsProjectActionController extends BaseController
         if (isset($_POST['mode']) && !$this->check_acl($_POST['mode'])) {
             return false;
         }
-        if (isset($_POST['notification']) && $_POST['notification']['body'] == '' && $_POST['notification']['subject'] == '') {
-            //notification not set
-            $_POST['notification'] = null;
-        }
-        if (isset($_POST['reminder']) && $_POST['reminder']['body'] == '' && $_POST['reminder']['subject'] == '') {
-            //reminder not set
-            $_POST['reminder'] = null;
-        }
         if (
             isset($_POST['mode']) && $_POST['mode'] === INSERT &&
             isset($_POST['name']) &&
             isset($_POST['id_qualtricsSurveys']) &&
             isset($_POST['id_qualtricsProjectActionTriggerTypes']) &&
+            isset($_POST['id_qualtricsActionScheduleTypes']) &&
+            isset($_POST['schedule_info']) &&
             isset($pid)
         ) {
             //insert mode
@@ -49,6 +43,8 @@ class ModuleQualtricsProjectActionController extends BaseController
             isset($_POST['name']) &&
             isset($_POST['id_qualtricsSurveys']) &&
             isset($_POST['id_qualtricsProjectActionTriggerTypes']) &&
+            isset($_POST['id_qualtricsActionScheduleTypes']) &&
+            isset($_POST['schedule_info']) &&
             isset($pid)
         ) {
             //edit mode
