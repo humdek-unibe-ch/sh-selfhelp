@@ -401,7 +401,7 @@ SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_i
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
-GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
@@ -474,10 +474,10 @@ ALTER TABLE `mailQueue`
 ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add mailQueueStatus
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'queued', 'Status for initialization. When the mail is queued it goes in this status');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'deleted', 'When the queue is deleted');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'sent', 'When the mail is sent');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('mailQueueStatus', 'failed', 'When something happened and the mail sending failed');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueStatus', 'queued', 'Queued', 'Status for initialization. When the mail is queued it goes in this status');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueStatus', 'deleted', 'Deleted', 'When the queue is deleted');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueStatus', 'sent', 'Sent', 'When the mail is sent');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('mailQueueStatus', 'failed', 'Failed', 'When something happened and the mail sending failed');
 
 -- view_mailQueu
 DROP VIEW IF EXISTS view_mailQueue;
@@ -597,3 +597,23 @@ AS
 SELECT s.*, typ.lookup_value as survey_type
 FROM qualtricsSurveys s 
 INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
+
+-- view users
+DROP VIEW IF EXISTS view_users;
+CREATE VIEW view_users
+AS
+SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
+us.description, u.blocked, vc.code,
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
+FROM users AS u
+LEFT JOIN userStatus AS us ON us.id = u.id_status
+LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+LEFT JOIN validation_codes vc ON u.id = vc.id_users
+WHERE u.intern <> 1 AND u.id_status > 0
+GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
+ORDER BY u.email;

@@ -517,7 +517,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "name" => "id_groups[]",
                             "is_multiple" => true,
                             "is_required" => true,
-                            "value" => explode(';', $this->action['id_groups']),
+                            "value" => explode(',', $this->action['id_groups']),
                             "items" => $this->get_groups(),
                             "css" => "mb-3",
                         )),

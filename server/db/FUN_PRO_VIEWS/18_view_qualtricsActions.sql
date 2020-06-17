@@ -5,7 +5,7 @@ SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_i
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
-GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 

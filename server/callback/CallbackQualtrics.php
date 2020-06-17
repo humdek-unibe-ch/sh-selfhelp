@@ -7,6 +7,7 @@
 require_once __DIR__ . "/BaseCallback.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProjectModel.php";
 require_once __DIR__ . "/../component/style/register/RegisterModel.php";
+require_once __DIR__ . "/../service/Mailer.php";
 
 /**
  * A small class that handles callbak and set the group number for validation code
@@ -142,7 +143,7 @@ class CallbackQualtrics extends BaseCallback
     {
         $sqlGetActions = "SELECT *
                 FROM view_qualtricsActions
-                WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type";
+                WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type AND action_schedule_type <> 'Nothing'";
         return $this->db->query_db(
             $sqlGetActions,
             array(
@@ -152,15 +153,33 @@ class CallbackQualtrics extends BaseCallback
         );
     }
 
+    private function is_user_in_group($user_id, $id_groups)
+    {
+        $sql = 'SELECT DISTINCT u.id
+                FROM users AS u
+                INNER JOIN users_groups AS ug ON ug.id_users = u.id
+                INNER JOIN groups g ON g.id = ug.id_groups
+                WHERE u.id = :uid and g.id in (' . $id_groups . ');';
+        $user = $this->db->query_db_first(
+            $sql,
+            array(
+                ":uid" => $user_id
+            )
+        );
+        return isset($user['id']);
+    }
+
     /**
-     * Check if any mail should be queued
+     * Check if any mail should be queued based on the actions
      *
      * @param array $data
      *  the data from the callback.     
+     * @param in user_id
+     * user id
      * @retval string
      *  log text what actions was done;
      */
-    private function check_queue_mail($data)
+    private function check_queue_mail_from_actions($data, $user_id)
     {
         $result[] = 'no mail queue';
         $mail = array();
@@ -168,34 +187,37 @@ class CallbackQualtrics extends BaseCallback
         $actions = $this->get_actions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         foreach ($actions as $action) {
             //clear the mail generation data
-            unset($mail);
-            unset($result);
-            $mail = array(
-                "id_mailQueueStatus" => 17,
-                "date_to_be_sent" => date('Y-m-d H:i:s', time() + 5),
-                "from_email" => "tpf.unibe@gmail.com",
-                "from_name" => "stefan",
-                "reply_to" => "tpf.unibe@gmail.com",
-                "recipient_emails" => "redwater@abv.bg",
-                "subject" => "test",
-                "body" => "test body"
-            );
-            $mq_id = $this->mail->add_mail_to_queue($mail);
-            if ($mq_id > 0) {
-                $this->transaction->add_transaction(
-                    $this->transaction::TRAN_TYPE_INSERT,
-                    $this->transaction::TRAN_BY_QUALTRICS_CALLBACK,
-                    null,
-                    $this->transaction::TABLE_MAILQUEUE,
-                    $mq_id
+            if ($this->is_user_in_group($user_id, $action['id_groups'])) {
+                $schedule_info = json_decode($action['schedule_info'], true);
+                unset($mail);
+                unset($result);
+                $mail = array(
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED),
+                    "date_to_be_sent" => date('Y-m-d H:i:s', time() + 5),
+                    "from_email" => "tpf.unibe@gmail.com",
+                    "from_name" => "stefan",
+                    "reply_to" => "tpf.unibe@gmail.com",
+                    "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
+                    "subject" => $schedule_info['subject'],
+                    "body" => $schedule_info['body']
                 );
-                $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
-                    ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
-                    ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
-            } else {
-                $result[] = 'ERROR! Mail was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
-                    ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
-                    ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                $mq_id = $this->mail->add_mail_to_queue($mail);
+                if ($mq_id > 0) {
+                    $this->transaction->add_transaction(
+                        $this->transaction::TRAN_TYPE_INSERT,
+                        $this->transaction::TRAN_BY_QUALTRICS_CALLBACK,
+                        null,
+                        $this->transaction::TABLE_MAILQUEUE,
+                        $mq_id
+                    );
+                    $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                } else {
+                    $result[] = 'ERROR! Mail was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                }
             }
         }
 
@@ -331,7 +353,7 @@ class CallbackQualtrics extends BaseCallback
                     if ($inserted_id > 0) {
                         //successfully inserted survey repsonse
                         $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
-                        $result['selfhelpCallback'] = array_merge($result['selfhelpCallback'], $this->check_queue_mail($data));
+                        $result['selfhelpCallback'] = array_merge($result['selfhelpCallback'], $this->check_queue_mail_from_actions($data, $user_id));
                     } else {
                         //something went wrong; survey resposne was not inserted
                         $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
@@ -343,7 +365,7 @@ class CallbackQualtrics extends BaseCallback
                     if ($update_id > 0) {
                         //successfully updated survey repsonse
                         $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                        $result['selfhelpCallback'][] = $this->check_queue_mail($data);
+                        $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
                     } else {
                         //something went wrong; survey resposne was not updated
                         $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
