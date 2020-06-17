@@ -21,6 +21,8 @@
                     <th scope="col">When survey</th>
                     <th scope="col">Is (trigger type)</th>
                     <th scope="col">For groups</th>
+                    <th scope="col">Send</th>
+                    <th scope="col">Reminder for</th>
                     <th scope="col">Functions</th>
                 </tr>
             </thead>

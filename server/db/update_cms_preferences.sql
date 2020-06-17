@@ -404,7 +404,11 @@ GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
 GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
-schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, s_reminder.name as survey_reminder_name
+schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
+CASE 
+	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
+    ELSE NULL
+END as survey_reminder_name
 FROM qualtricsActions st 
 INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
 INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
@@ -419,7 +423,6 @@ LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
 st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
-
 -- add qualtricsSync page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
 VALUES (NULL, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');

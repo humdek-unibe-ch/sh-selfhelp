@@ -9,5 +9,7 @@
     <td><?php echo $action['survey_name']; ?></td>
     <td><?php echo $action['trigger_type']; ?></td>
     <td><?php echo $action['groups']; ?></td>
+    <td><?php echo $action['action_schedule_type']; ?></td>
+    <td><?php echo $action['survey_reminder_name']; ?></td>
     <td><?php echo $action['functions']; ?></td>
 </tr>
