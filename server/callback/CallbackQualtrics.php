@@ -123,28 +123,28 @@ class CallbackQualtrics extends BaseCallback
                 'SELECT id FROM qualtricsSurveys',
                 array("qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE])
             )['id'],
-            "id_qualtricsProjectStageTriggerTypes" => $this->db->get_lookup_id_by_value(ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE, $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]),
+            "id_qualtricsProjectActionTriggerTypes" => $this->db->get_lookup_id_by_value(ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE, $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]),
             "survey_response_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]
         ));
     }
 
     /**
-     * Get all stages for a survey and a trigger_type
+     * Get all actions for a survey and a trigger_type
      *
      * @param string $sid
      *  qualtrics survey id
      * @param string $trigger_type
      *  trigger type
      *  @retval array
-     * return all stages for that survey with this trigger_type
+     * return all actions for that survey with this trigger_type
      */
-    private function get_stages($sid, $trigger_type)
+    private function get_actions($sid, $trigger_type)
     {
-        $sqlGetStages = "SELECT *
-                FROM view_qualtricsStages
+        $sqlGetActions = "SELECT *
+                FROM view_qualtricsActions
                 WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type";
         return $this->db->query_db(
-            $sqlGetStages,
+            $sqlGetActions,
             array(
                 "sid" => $sid,
                 "trigger_type" => $trigger_type
@@ -164,9 +164,9 @@ class CallbackQualtrics extends BaseCallback
     {
         $result[] = 'no mail queue';
         $mail = array();
-        //get all stages for this survey and trigger type
-        $stages = $this->get_stages($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
-        foreach ($stages as $stage) {
+        //get all actions for this survey and trigger type
+        $actions = $this->get_actions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
+        foreach ($actions as $action) {
             //clear the mail generation data
             unset($mail);
             unset($result);
@@ -217,7 +217,7 @@ class CallbackQualtrics extends BaseCallback
         return $this->db->update_by_ids(
             "qualtricsSurveysResponses",
             array(
-                "id_qualtricsProjectStageTriggerTypes" => $this->db->get_lookup_id_by_value(
+                "id_qualtricsProjectActionTriggerTypes" => $this->db->get_lookup_id_by_value(
                     ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE,
                     $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]
                 )

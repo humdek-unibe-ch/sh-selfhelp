@@ -13,6 +13,9 @@
             <div class="form-group">
                 <input type="email" class="form-control" name="email" placeholder="<?php echo $this->user_label; ?>" required>
             </div>
+            <div class="form-group d-none">
+                <input type="text" class="form-control" name="type" required value="register">
+            </div>
             <?php $this->open_registration ? '' :  require __DIR__ . "/tpl_code.php"; ?>
             <button type="submit" class="w-100 btn btn-<?php echo $this->type; ?>"><?php echo $this->submit_label; ?></button>
         </form>

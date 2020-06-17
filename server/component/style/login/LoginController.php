@@ -27,7 +27,7 @@ class LoginController extends BaseController
 
         $this->failed = false;
 
-        if(isset($_POST['email']) && isset($_POST['password']))
+        if(isset($_POST['type']) && $_POST['type'] == 'login' && isset($_POST['email']) && isset($_POST['password']))
         {
             if($model->check_login_credentials($_POST['email'], $_POST['password']))
                 header('Location: ' . $model->get_target_url());

@@ -16,6 +16,9 @@
             <div class="form-group">
                 <input type="password" class="form-control" name="password" placeholder="<?php echo $this->pw_label; ?>" required>
             </div>
+            <div class="form-group d-none">
+                <input type="text" class="form-control" name="type" required value="login">
+            </div>
             <button type="submit" class="w-100 btn btn-<?php echo $this->type; ?>"><?php echo $this->login_label; ?></button>
         </form>
         <a href="<?php echo $reset_url; ?>" class="small float-right text-<?php echo $this->type; ?>"><?php echo $this->reset_label; ?></a>

@@ -37,7 +37,7 @@ class QualtricsSurveyModel extends StyleModel
     }
 
     /**
-     * Generate the quatrics survey link based on the selected stage id
+     * Generate the quatrics survey link based on the selected action id
      * 
      * @retval string return the link which used in the iFrame
      */

@@ -43,8 +43,8 @@ class ModuleQualtricsProjectModel extends BaseModel
     const QUALTRICS_API_SUCCESS = '200 - OK';
 
     /* values */
-    const STAGE_TYPE_BASELINE = 'Baseline';
-    const STAGE_TYPE_FOLLOWUP = 'Follow-up';
+    const ACTION_TYPE_BASELINE = 'Baseline';
+    const ACTION_TYPE_FOLLOWUP = 'Follow-up';
     const QUALTRICS_PARTICIPANT_VARIABLE = 'code';
     const QUALTRICS_GROUP_VARIABLE = 'group';
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';
@@ -709,9 +709,9 @@ class ModuleQualtricsProjectModel extends BaseModel
     {
         $res1 = $this->sync_survey_header($survey['qualtrics_survey_id']);
         $surveyFlow = $this->get_survey_flow($survey['qualtrics_survey_id']);
-        if ($survey['survey_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_BASELINE) {
+        if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_BASELINE) {
             $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
-        } else if ($survey['survey_type'] === ModuleQualtricsProjectModel::STAGE_TYPE_FOLLOWUP) {
+        } else if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_FOLLOWUP) {
             $res2 = $this->sync_followup_survey($survey, $surveyFlow);
         }
         return $this->multi_return_info(array($res1, $res2));
