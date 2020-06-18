@@ -459,7 +459,7 @@ class PageDb extends BaseDb
                     $text = $text . ' - ' . $val[$column];
                 }
             }
-            array_push($arr, array("value" => intval($val[$value_column]), "text" => $text));
+            array_push($arr, array("value" => $val[$value_column], "text" => $text));
         }
         return $arr;
     }

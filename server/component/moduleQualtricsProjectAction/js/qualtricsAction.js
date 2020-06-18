@@ -12,12 +12,12 @@ function setRequiredIfDisplayed(elements) {
 function adjustRequiredFields() {
     setRequiredIfDisplayed($('select[name="schedule_info[id_qualtricsActionScheduleTypes]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[custom_time]"]'));
-    setRequiredIfDisplayed($('input[name="schedule_info[delay_value_at_time]"]'));
+    setRequiredIfDisplayed($('input[name="schedule_info[send_on_day_at]"]'));
     setRequiredIfDisplayed($('select[name="id_qualtricsSurveys_reminder"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[notificationTypes]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[qualtricScheduleTypes]"]'));
-    setRequiredIfDisplayed($('select[name="schedule_info[delay_value]"]'));
-    setRequiredIfDisplayed($('select[name="schedule_info[delay_value_type]"]'));
+    setRequiredIfDisplayed($('select[name="schedule_info[send_on_day]"]'));
+    setRequiredIfDisplayed($('select[name="schedule_info[send_on]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[recipient]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[subject]"]'));
 }
@@ -49,7 +49,7 @@ function adjustScheduleType() {
         $('.style-section-send_on_day').removeClass('d-none');
         $('#at_time_holder').removeClass('d-none');
     } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period')) {
-        $('.send_after').removeClass('d-none');
+        $('.send_after').removeClass('d-none');        
         $('.style-section-send_after_type').removeClass('d-none');
     }
     adjustRequiredFields();

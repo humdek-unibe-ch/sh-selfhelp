@@ -302,8 +302,8 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '1', '1', '1');
 
 -- add notificationTypes
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'Email', 'The notification will be sent by email');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('notificationTypes', 'SMS', 'The notification will be sent by SMS');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('notificationTypes', 'email', 'Email', 'The notification will be sent by email');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('notificationTypes', 'sms', 'SMS', 'The notification will be sent by SMS');
 
 -- add qualtricScheduleTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'immediately', 'Immediately', 'Shcedule and send the mail immediately');
@@ -312,15 +312,15 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'after_period_on_day_at_time', 'After time period on a weekday at given time', 'Schedule the mail after specific time on specific day from the week at specific time');
 
 -- add qualtricsProjectActionTypes
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'baseline', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'follow_up', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
 
 -- add qualtricsProjectActionTriggerType
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'Started', 'When the user start the survey');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'Finished', 'When the user finish the survey');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'started', 'Started', 'When the user start the survey');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'finished', 'Finished', 'When the user finish the survey');
 
 -- add qualtricsProjectActionAdditionalFunction
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'evaluate_personal_strenghts', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
 
 -- add qualtricsActionScheduleTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'nothing', 'Nothing', 'Nothing to be scheduled');
@@ -328,12 +328,12 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'reminder', 'Reminder', 'Schedule a reminder email. If the survey was done the remider is canceled');
 
 -- add timePeriod
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'seconds', 'seconds');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'minutes', 'minutes');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'hours', 'hours');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'days', 'days');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'weeks', 'weeks');
-INSERT INTO lookups (type_code, lookup_value, lookup_description) values ('timePeriod', 'months', 'months');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('timePeriod', 'seconds', 'Second(s)', 'Second(s)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('timePeriod', 'minutes', 'Minute(s)', 'Minute(s)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('timePeriod', 'hours', 'Hour(s)', 'Hour(s)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('timePeriod', 'days', 'Day(s)', 'Day(s)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('timePeriod', 'weeks', 'Week(s)', 'Week(s)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('timePeriod', 'months', 'Month(s)', 'Month(s)');
 
 -- add weekdays
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'monday', 'Monday', 'Monday');
