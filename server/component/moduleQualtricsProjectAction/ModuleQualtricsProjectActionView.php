@@ -355,7 +355,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_on_day']) ? $this->action["schedule_info"]['send_on_day'] : '',
                     "name" => "schedule_info[send_on_day]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'weekday')),
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'weekdays')),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("template", array(
@@ -554,7 +554,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "Is (trigger type)",
-                            "value" => $this->action['trigger_type'],
+                            "value" => $this->action['id_qualtricsProjectActionTriggerTypes'],
                             "is_required" => true,
                             "name" => "id_qualtricsProjectActionTriggerTypes",
                             "items" => $this->get_lookups('qualtricsProjectActionTriggerTypes'),
