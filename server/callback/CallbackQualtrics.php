@@ -124,7 +124,7 @@ class CallbackQualtrics extends BaseCallback
                 $this->db->rollback();
                 return false;
             } else {
-                if ($this->transaction->add_transaction($this->transaction::TRAN_TYPE_INSERT, $this->transaction::TRAN_BY_QUALTRICS_CALLBACK, null, $this->transaction::TABLE_USERS, $uid) === false) {
+                if ($this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_USERS, $uid) === false) {
                     $this->db->rollback();
                     return false;
                 }
@@ -155,7 +155,7 @@ class CallbackQualtrics extends BaseCallback
                 'SELECT id FROM qualtricsSurveys WHERE qualtrics_survey_id = :qualtrics_survey_id',
                 array(":qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE])
             )['id'],
-            "id_qualtricsProjectActionTriggerTypes" => $this->db->get_lookup_id_by_value(ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE, $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]),
+            "id_qualtricsProjectActionTriggerTypes" => $this->db->get_lookup_id_by_value(qualtricsProjectActionTriggerTypes, $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]),
             "survey_response_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]
         ));
     }
@@ -303,8 +303,8 @@ class CallbackQualtrics extends BaseCallback
                 $mq_id = $this->mail->add_mail_to_queue($mail);
                 if ($mq_id > 0) {
                     $this->transaction->add_transaction(
-                        $this->transaction::TRAN_TYPE_INSERT,
-                        $this->transaction::TRAN_BY_QUALTRICS_CALLBACK,
+                        transactionTypes_insert,
+                        transactionBy_by_qualtrics_callback,
                         null,
                         $this->transaction::TABLE_MAILQUEUE,
                         $mq_id
@@ -342,7 +342,7 @@ class CallbackQualtrics extends BaseCallback
             "qualtricsSurveysResponses",
             array(
                 "id_qualtricsProjectActionTriggerTypes" => $this->db->get_lookup_id_by_value(
-                    ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE,
+                    qualtricsProjectActionTriggerTypes,
                     $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]
                 )
             ),
@@ -449,7 +449,7 @@ class CallbackQualtrics extends BaseCallback
                 }
             }
             if ($user_id > 0) {
-                if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_START) {
+                if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === qualtricsProjectActionTriggerTypes_started) {
                     //insert survey response
                     $inserted_id = $this->insert_survey_response($data, $user_id);
                     if ($inserted_id > 0) {
@@ -461,7 +461,7 @@ class CallbackQualtrics extends BaseCallback
                         $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
                         $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
                     }
-                } else if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_END) {
+                } else if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === qualtricsProjectActionTriggerTypes_finished) {
                     //update survey response
                     $update_id = $this->update_survey_response($data);
                     $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);

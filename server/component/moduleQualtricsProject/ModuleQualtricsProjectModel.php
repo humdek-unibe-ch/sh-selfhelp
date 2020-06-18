@@ -43,17 +43,12 @@ class ModuleQualtricsProjectModel extends BaseModel
     const QUALTRICS_API_SUCCESS = '200 - OK';
 
     /* values */
-    const ACTION_TYPE_BASELINE = 'Baseline';
-    const ACTION_TYPE_FOLLOWUP = 'Follow-up';
     const QUALTRICS_PARTICIPANT_VARIABLE = 'code';
     const QUALTRICS_GROUP_VARIABLE = 'group';
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';
     const QUALTRICS_SURVEY_ID_VARIABLE = 'SurveyID';
     const QUALTRICS_CALLBACK_KEY_VARIABLE = 'callback_key';
-    const QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE = 'qualtricsProjectActionTriggerTypes';
     const QUALTRICS_TRIGGER_TYPE_VARIABLE = 'trigger_type';
-    const QUALTRICS_TRIGGER_TYPE_START = 'Started';
-    const QUALTRICS_TRIGGER_TYPE_END = 'Finished';
     const QUALTRICS_EMBEDED_SESSION_ID_VAR = '${e://Field/ResponseID}';
     const QUALTRICS_EMBEDED_SURVEY_ID_VAR = '${e://Field/SurveyID}';
     const QUALTRICS_CALLBACK_STATUS = 'callback_status';
@@ -455,7 +450,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             );
             $editBodyParamsStart[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE,
-                "value" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_START
+                "value" => qualtricsProjectActionTriggerTypes_started
             );
             $baseline_webService_start = $this->get_webService_flow(
                 $editBodyParamsStart,
@@ -484,7 +479,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             );
             $editBodyParamsEnd[] = array(
                 "key" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE,
-                "value" => ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_END
+                "value" => qualtricsProjectActionTriggerTypes_finished
             );
             $baseline_webService_end = $this->get_webService_flow(
                 $editBodyParamsEnd,
@@ -709,9 +704,9 @@ class ModuleQualtricsProjectModel extends BaseModel
     {
         $res1 = $this->sync_survey_header($survey['qualtrics_survey_id']);
         $surveyFlow = $this->get_survey_flow($survey['qualtrics_survey_id']);
-        if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_BASELINE) {
+        if ($survey['survey_type_code'] === qualtricsSurveyTypes_baseline) {
             $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
-        } else if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_FOLLOWUP) {            
+        } else if ($survey['survey_type_code'] === qualtricsSurveyTypes_follow_up) {            
             //$res2 = $this->sync_followup_survey($survey, $surveyFlow); //sync all surveys as baseline for now
             $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
         }

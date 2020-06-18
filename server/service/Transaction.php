@@ -13,30 +13,11 @@ class Transaction
 
     /* Constants ************************************************/
 
-    /* Transaction Types */
-    const TRAN_TYPE_INSERT = 'insert';
-    const TRAN_TYPE_UPDATE = 'update';
-    const TRAN_TYPE_DELETE = 'delete';
-    const TRAN_TYPE_SELECT = 'select';
-    const TRAN_TYPE_SEND_MAIL_OK = 'send_mail_ok';
-    const TRAN_TYPE_SEND_MAIL_FAIL = 'send_mail_fail';
-    const TRAN_TYPE_CHECK_MAILQUEUE = 'check_mailQueue';
-
-    /* Transaction By */
-    const TRAN_BY_USER = 'by_user';
-    const TRAN_BY_MAIL_CRON = 'by_mail_cron';
-    const TRAN_BY_QUALTRICS_CALLBACK = 'by_qualtrics_callback';
-
     /* Table names */
     const TABLE_PAGES = 'pages';
     const TABLE_MAILQUEUE = 'mailQueue';
     const TABLE_USERS = 'users';
-
     const TRANSACTIONS_TABLE = 'transactions';
-    const LOOKUP_TRANSACTION_TYPE = 'transactionTypes';
-    const LOOKUP_TRANSACTION_BY = 'transactionBy';
-
-
 
     /**
      * The db instance which grants access to the DB.
@@ -86,8 +67,8 @@ class Transaction
             $log['table_row_entry'] = $entry;
         }
         return $this->db->insert(Transaction::TRANSACTIONS_TABLE, array(
-            "id_transactionTypes" => $this->db->get_lookup_id_by_code(Transaction::LOOKUP_TRANSACTION_TYPE, $tran_type),
-            "id_transactionBy" => $this->db->get_lookup_id_by_code(Transaction::LOOKUP_TRANSACTION_BY, $tran_by),
+            "id_transactionTypes" => $this->db->get_lookup_id_by_code(transactionTypes, $tran_type),
+            "id_transactionBy" => $this->db->get_lookup_id_by_code(transactionBy, $tran_by),
             "id_users" => $user_id,
             "table_name" => $table_name,
             "id_table_name" => $entry_id,

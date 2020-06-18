@@ -261,8 +261,8 @@ abstract class BasePage
         $info = $db->fetch_page_info($keyword);
         $transaction = $this->services->get_transaction();
         $transaction->add_transaction(            
-            $transaction::TRAN_TYPE_SELECT,
-            $transaction::TRAN_BY_USER,
+            transactionTypes_select,
+            transactionBy_by_user,
             $_SESSION['id_user'],
             $transaction::TABLE_PAGES,
             $info['id']

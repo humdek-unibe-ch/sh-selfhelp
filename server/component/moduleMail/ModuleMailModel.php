@@ -124,7 +124,7 @@ class ModuleMailModel extends BaseModel
      */
     public function send_selected_queue_entry()
     {
-        return $this->mail->send_mail_from_queue($this->mqid, $this->transaction::TRAN_BY_USER, $_SESSION['id_user']) !== false;
+        return $this->mail->send_mail_from_queue($this->mqid, transactionBy_by_user, $_SESSION['id_user']) !== false;
     }
 
     /**
@@ -217,8 +217,8 @@ class ModuleMailModel extends BaseModel
             );
             $mq_id = $this->mail->add_mail_to_queue($mail);
             if ($this->transaction->add_transaction(
-                $this->transaction::TRAN_TYPE_INSERT,
-                $this->transaction::TRAN_BY_USER,
+                transactionTypes_insert,
+                transactionBy_by_user,
                 $_SESSION['id_user'],
                 $this->transaction::TABLE_MAILQUEUE,
                 $mq_id

@@ -202,7 +202,7 @@ class Mailer extends PHPMailer
                 $to['to'][] = array('address' => $mail, 'name' => $mail);
                 $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, array(), $replyTo);
                 $this->transaction->add_transaction(
-                    $res ? $this->transaction::TRAN_TYPE_SEND_MAIL_OK : $this->transaction::TRAN_TYPE_SEND_MAIL_FAIL,
+                    $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
                     $sent_by,
                     $user_id,
                     $this->transaction::TABLE_MAILQUEUE,
@@ -232,10 +232,7 @@ class Mailer extends PHPMailer
      */
     public function check_queue_and_send()
     {
-        $this->transaction->add_transaction(
-            $this->transaction::TRAN_TYPE_CHECK_MAILQUEUE,
-            $this->transaction::TRAN_BY_MAIL_CRON
-        );
+        $this->transaction->add_transaction(transactionTypes_check_mailQueue, transactionBy_by_mail_cron);
         $sql = 'SELECT id
                 FROM mailQueue
                 WHERE date_to_be_sent <= NOW() AND id_mailQueueStatus = :status';
@@ -243,7 +240,7 @@ class Mailer extends PHPMailer
             "status" => $this->db->get_lookup_id_by_value(mailQueueStatus, mailQueueStatus_queued)
         ));
         foreach ($queue as $mail_queue_id) {
-            $this->send_mail_from_queue($mail_queue_id['id'], $this->transaction::TRAN_BY_MAIL_CRON);
+            $this->send_mail_from_queue($mail_queue_id['id'], transactionBy_by_mail_cron);
         }
     }
 
@@ -271,7 +268,7 @@ class Mailer extends PHPMailer
                 return false;
             } else {
                 if (!$this->transaction->add_transaction(
-                    $this->transaction::TRAN_TYPE_DELETE,
+                    transactionTypes_delete,
                     $tran_by,
                     $_SESSION['id_user'],
                     $this->transaction::TABLE_MAILQUEUE,
