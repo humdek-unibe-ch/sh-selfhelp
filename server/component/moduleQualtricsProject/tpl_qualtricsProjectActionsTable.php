@@ -17,8 +17,9 @@
             <thead>
                 <tr>
                     <th scope="col">Action ID</th>
-                    <th scope="col">Action Name</th>                    
-                    <th scope="col">When survey</th>
+                    <th scope="col">Action Name</th>
+                    <th scope="col">Survey type</th>                    
+                    <th scope="col">When survey</th>                    
                     <th scope="col">Is (trigger type)</th>
                     <th scope="col">For groups</th>
                     <th scope="col">Send</th>

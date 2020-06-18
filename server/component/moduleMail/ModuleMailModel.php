@@ -115,48 +115,7 @@ class ModuleMailModel extends BaseModel
         return $this->mqid;
     }
 
-    /**
-     * Delete the selcted queue entry
-     * @retval boolean 
-     * return the result
-     */
-    public function delete_selected_queue_entry()
-    {
-
-        try {
-            $this->db->begin_transaction();
-            $del_result = $this->db->update_by_ids(
-                'mailQueue',
-                array(
-                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_DELETED)
-                ),
-                array(
-                    "id" => $this->mqid
-                )
-            );
-            if ($del_result === false) {
-                $this->db->rollback();
-                return false;
-            } else {
-                if (!$this->transaction->add_transaction(
-                    $this->transaction::TRAN_TYPE_DELETE,
-                    $this->transaction::TRAN_BY_USER,
-                    $_SESSION['id_user'],
-                    $this->transaction::TABLE_MAILQUEUE,
-                    $this->mqid,
-                    true
-                )) {
-                    $this->db->rollback();
-                    return false;
-                }
-            }
-            $this->db->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->db->rollback();
-            return false;
-        }
-    }
+    
 
     /**
      * send the selected queue entry

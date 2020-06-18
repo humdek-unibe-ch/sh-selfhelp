@@ -77,6 +77,38 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Get the scheduled reminders for the user and this survey
+     * @param int $uid 
+     * user_id
+     * @param string $qualtrics_survey_id
+     * qualtrics survey id from Qualtrics
+     * @retval array
+     * all scheduled reminders
+     */
+    private function get_scheduled_reminders($uid, $qualtrics_survey_id)
+    {        
+        return $this->db->query_db(
+            'SELECT mailQueue_id FROM view_qualtricsReminders WHERE `user_id` = :uid AND qualtrics_survey_id = :sid AND mailQueue_status_code = :status',
+            array(
+                ":uid" => $uid,
+                ":sid" => $qualtrics_survey_id,
+                ":status" => mailQueueStatus_queued
+            )
+        );
+    }
+
+    /**
+     * Change the status of the queueud mails to deleted
+     * @param @array $scheduled_reminders
+     * Arra with reminders that should be deleted
+     */
+    private function delete_reminders($scheduled_reminders){
+        foreach ($scheduled_reminders as $reminder) {
+            $this->mail->delete_queue_entry($reminder['mailQueue_id'], transactionBy_by_qualtrics_callback);
+        }
+    }
+
+    /**
      * Add a new user to the DB.
      *
      * @param string $code
@@ -114,15 +146,15 @@ class CallbackQualtrics extends BaseCallback
      * @param int $uid
      * user id
      * @retval int
-     *  The id of the new user.
+     *  The id of the new record.
      */
     private function insert_survey_response($data, $uid)
     {
         return $this->db->insert("qualtricsSurveysResponses", array(
             "id_users" => $uid,
             "id_surveys" => $this->db->query_db_first(
-                'SELECT id FROM qualtricsSurveys',
-                array("qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE])
+                'SELECT id FROM qualtricsSurveys WHERE qualtrics_survey_id = :qualtrics_survey_id',
+                array(":qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE])
             )['id'],
             "id_qualtricsProjectActionTriggerTypes" => $this->db->get_lookup_id_by_value(ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_LOOKUP_TYPE, $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]),
             "survey_response_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]
@@ -153,7 +185,16 @@ class CallbackQualtrics extends BaseCallback
         );
     }
 
-    private function is_user_in_group($user_id, $id_groups)
+    /**
+     * Check if the user belongs in group(s)
+     * @param int $uid
+     * user  id
+     * @param string $id_groups
+     * the grousp in coma separated string
+     * @retval bool 
+     * true if the user is in the group(s) or false if not
+     */
+    private function is_user_in_group($uid, $id_groups)
     {
         $sql = 'SELECT DISTINCT u.id
                 FROM users AS u
@@ -163,14 +204,18 @@ class CallbackQualtrics extends BaseCallback
         $user = $this->db->query_db_first(
             $sql,
             array(
-                ":uid" => $user_id
+                ":uid" => $uid
             )
         );
         return isset($user['id']);
     }
 
     /**
-     * 
+     * Calculate the date when the email should be sent
+     * @param array $schedule_info
+     * Schedule info from the action
+     * @retval string
+     * the date in sting format for MySQL
      */
     private function calc_date_to_be_sent($schedule_info)
     {
@@ -194,13 +239,34 @@ class CallbackQualtrics extends BaseCallback
             $at_time = explode(':', $schedule_info['send_on_day_at']);
             $next_weekday = $next_weekday->setTime($at_time[0], $at_time[1]);
             if ($schedule_info['send_on'] > 1) {
-                $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_on']-1 . ' weeks', $next_weekday->getTimestamp()));
+                $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_on'] - 1 . ' weeks', $next_weekday->getTimestamp()));
             } else {
                 $next_weekday = $next_weekday->getTimestamp();
                 $date_to_be_sent = date('Y-m-d H:i:s', $next_weekday);
-            }            
+            }
         }
         return $date_to_be_sent;
+    }
+
+    /**
+     * Add a reminder in qualtricsReminders
+     *
+     * @param int $mq_id
+     *  the mailQueue id
+     * @param int $uid
+     * user id
+     * @param int $sid
+     * the id of the reminded survey
+     * @retval int
+     *  The id of the new record.
+     */
+    public function add_reminder($mq_id, $uid, $sid)
+    {
+        return $this->db->insert("qualtricsReminders", array(
+            "id_users" => $uid,
+            "id_qualtricsSurveys" => $sid,
+            "id_mailQueue" => $mq_id
+        ));
     }
 
     /**
@@ -244,6 +310,9 @@ class CallbackQualtrics extends BaseCallback
                         $this->transaction::TABLE_MAILQUEUE,
                         $mq_id
                     );
+                    if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+                        $this->add_reminder($mq_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+                    }
                     $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
@@ -396,6 +465,10 @@ class CallbackQualtrics extends BaseCallback
                 } else if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_END) {
                     //update survey response
                     $update_id = $this->update_survey_response($data);
+                    $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+                    if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                        $this->delete_reminders($scheduled_reminders);
+                    }
                     if ($update_id > 0) {
                         //successfully updated survey repsonse
                         $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";

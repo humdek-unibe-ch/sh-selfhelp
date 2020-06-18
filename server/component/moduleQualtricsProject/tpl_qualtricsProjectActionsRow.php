@@ -5,8 +5,9 @@
 ?>
 <tr class="cursor-pointer" id="action-url-<?php echo ($action['project_id'] . '-' . $action['id']); ?>">
     <td><?php echo $action['id']; ?></td>
-    <td><?php echo $action['action_name']; ?></td>    
-    <td><?php echo $action['survey_name']; ?></td>
+    <td><?php echo $action['action_name']; ?></td>
+    <td><?php echo $action['survey_type']; ?></td>    
+    <td><?php echo $action['survey_name']; ?></td>    
     <td><?php echo $action['trigger_type']; ?></td>
     <td><?php echo $action['groups']; ?></td>
     <td><?php echo $action['action_schedule_type']; ?></td>

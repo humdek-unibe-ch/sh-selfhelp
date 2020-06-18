@@ -344,7 +344,7 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'saturday', 'Saturday', 'Saturday');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('weekdays', 'sunday', 'Sunday', 'Sunday');
 
--- add table lookups
+-- add table qualtricsActions
 CREATE TABLE `qualtricsActions` (
 	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
 	`id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -404,7 +404,7 @@ GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
-schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
+schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
 CASE 
 	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
     ELSE NULL
@@ -483,7 +483,7 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 DROP VIEW IF EXISTS view_mailQueue;
 CREATE VIEW view_mailQueue
 AS
-SELECT mq.id AS id, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
+SELECT mq.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
 reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
 FROM mailQueue mq
 INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);
@@ -617,3 +617,29 @@ LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
 ORDER BY u.email;
+
+-- add table qualtricsReminders
+CREATE TABLE `qualtricsReminders` (	
+	`id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL, 
+    `id_users` int(10) UNSIGNED ZEROFILL NOT NULL, 
+    `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `qualtricsReminders`
+  ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`, `id_mailQueue`);
+
+ALTER TABLE `qualtricsReminders`
+ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsReminders_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- view view_qualtricsReminders
+DROP VIEW IF EXISTS view_qualtricsReminders;
+CREATE VIEW view_qualtricsReminders
+AS
+select u.id as user_id, u.email, u.name as user_name, code, m.id as mailQueue_id,
+m.status_code as mailQueue_status_code, m.status as mailQueue_status, s.id as qualtricsSurvey_id, qualtrics_survey_id
+from qualtricsReminders r
+inner join view_users u on (u.id = r.id_users)
+inner join view_mailQueue m on (m.id = r.id_mailQueue)
+inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);

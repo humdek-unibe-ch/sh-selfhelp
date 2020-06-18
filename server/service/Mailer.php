@@ -255,5 +255,48 @@ class Mailer extends PHPMailer
             $this->send_mail_from_queue($mail_queue_id['id'], $this->transaction::TRAN_BY_MAIL_CRON);
         }
     }
+
+    /**
+     * Delete queue entry
+     * @retval boolean 
+     * return the result
+     */
+    public function delete_queue_entry($mqid, $tran_by)
+    {
+
+        try {
+            $this->db->begin_transaction();
+            $del_result = $this->db->update_by_ids(
+                'mailQueue',
+                array(
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_DELETED)
+                ),
+                array(
+                    "id" => $mqid
+                )
+            );
+            if ($del_result === false) {
+                $this->db->rollback();
+                return false;
+            } else {
+                if (!$this->transaction->add_transaction(
+                    $this->transaction::TRAN_TYPE_DELETE,
+                    $tran_by,
+                    $_SESSION['id_user'],
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mqid,
+                    true
+                )) {
+                    $this->db->rollback();
+                    return false;
+                }
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
+    }
 }
 ?>

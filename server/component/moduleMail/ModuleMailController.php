@@ -40,7 +40,7 @@ class ModuleMailController extends BaseController
             }
             if ($_POST['mode'] === 'delete') {
                 //delte logic
-                if ($this->model->delete_selected_queue_entry()) {
+                if ($this->model->get_services()->get_mail()->delete_queue_entry($this->model->get_mqid(), transactionBy_by_user)) {
                     $this->success = true;
                     $this->success_msgs[] = "The mail queue entry was deleted";
                 } else {

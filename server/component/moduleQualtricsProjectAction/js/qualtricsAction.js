@@ -22,6 +22,9 @@ function adjustRequiredFields() {
     setRequiredIfDisplayed($('select[name="schedule_info[send_after_type]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[recipient]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[subject]"]'));
+    setRequiredIfDisplayed($('input[name="schedule_info[from_email]"]'));
+    setRequiredIfDisplayed($('input[name="schedule_info[from_name]"]'));
+    setRequiredIfDisplayed($('input[name="schedule_info[reply_to]"]'));
 }
 
 function adjustActionScheduleType() {

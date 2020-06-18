@@ -711,8 +711,9 @@ class ModuleQualtricsProjectModel extends BaseModel
         $surveyFlow = $this->get_survey_flow($survey['qualtrics_survey_id']);
         if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_BASELINE) {
             $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
-        } else if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_FOLLOWUP) {
-            $res2 = $this->sync_followup_survey($survey, $surveyFlow);
+        } else if ($survey['survey_type'] === ModuleQualtricsProjectModel::ACTION_TYPE_FOLLOWUP) {            
+            //$res2 = $this->sync_followup_survey($survey, $surveyFlow); //sync all surveys as baseline for now
+            $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
         }
         return $this->multi_return_info(array($res1, $res2));
     }
