@@ -18,15 +18,6 @@ use PHPMailer\PHPMailer\Exception;
 class Mailer extends PHPMailer
 {
 
-    /* Constants ************************************************/
-
-    /* Status */
-    const STATUS_QUEUED = 'queued';
-    const STATUS_DELETED = 'deleted';
-    const STATUS_SENT = 'sent';
-    const STATUS_FAILED = 'failed';
-    const STATUS_LOOKUP_TYPE = 'mailQueueStatus';
-
     /**
      * The db instance which grants access to the DB.
      */
@@ -224,7 +215,7 @@ class Mailer extends PHPMailer
                 'mailQueue',
                 array(
                     "date_sent" => date('Y-m-d H:i:s', time()),
-                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, $res ? Mailer::STATUS_SENT : Mailer::STATUS_FAILED)
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(mailQueueStatus, $res ? mailQueueStatus_sent : mailQueueStatus_failed)
                 ),
                 array(
                     "id" => $mail_queue_id
@@ -249,7 +240,7 @@ class Mailer extends PHPMailer
                 FROM mailQueue
                 WHERE date_to_be_sent <= NOW() AND id_mailQueueStatus = :status';
         $queue = $this->db->query_db($sql, array(
-            "status" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED)
+            "status" => $this->db->get_lookup_id_by_value(mailQueueStatus, mailQueueStatus_queued)
         ));
         foreach ($queue as $mail_queue_id) {
             $this->send_mail_from_queue($mail_queue_id['id'], $this->transaction::TRAN_BY_MAIL_CRON);
@@ -269,7 +260,7 @@ class Mailer extends PHPMailer
             $del_result = $this->db->update_by_ids(
                 'mailQueue',
                 array(
-                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_DELETED)
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(mailQueueStatus, mailQueueStatus_deleted)
                 ),
                 array(
                     "id" => $mqid

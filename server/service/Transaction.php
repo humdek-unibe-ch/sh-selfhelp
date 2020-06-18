@@ -44,7 +44,7 @@ class Transaction
     private $db;
 
     /**
-     * Creating a PHPMailer Instance.
+     * Creating a Transaction Instance.
      *
      * @param object $db
      *  An instcance of the service class PageDb.

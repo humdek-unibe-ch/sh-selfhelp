@@ -206,7 +206,7 @@ class ModuleMailModel extends BaseModel
         try {
             $this->db->begin_transaction();
             $mail = array(
-                "id_mailQueueStatus" => $this->db->get_lookup_id_by_value($this->mail::STATUS_LOOKUP_TYPE, $this->mail::STATUS_QUEUED),
+                "id_mailQueueStatus" => $this->db->get_lookup_id_by_value(mailQueueStatus, mailQueueStatus_queued),
                 "date_to_be_sent" => date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $data['time_to_be_sent'])->getTimestamp()),
                 "from_email" => $data['from_email'],
                 "from_name" => $data['from_name'],

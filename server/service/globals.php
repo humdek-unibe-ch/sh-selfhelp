@@ -73,7 +73,21 @@ define('SELECT', 'select');
 /* mail separator */
 define('MAIL_SEPARATOR', ';');
 
-/* Lookups */
+/*Lookup types */
+define('qualtricScheduleTypes', 'qualtricScheduleTypes');
+define('mailQueueSearchDateTypes', 'mailQueueSearchDateTypes');
+define('transactionTypes', 'transactionTypes');
+define('transactionBy', 'transactionBy');
+define('weekdays', 'weekdays');
+define('qualtricsActionScheduleTypes', 'qualtricsActionScheduleTypes');
+define('mailQueueStatus', 'mailQueueStatus');
+define('qualtricsSurveyTypes', 'qualtricsSurveyTypes');
+define('qualtricsProjectActionTriggerTypes', 'qualtricsProjectActionTriggerTypes');
+define('qualtricsProjectActionAdditionalFunction', 'qualtricsProjectActionAdditionalFunction');
+define('timePeriod', 'timePeriod');
+define('notificationTypes', 'notificationTypes');
+
+/* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
 define('qualtricScheduleTypes_immediately', 'immediately');
 define('qualtricScheduleTypes_on_fixed_datetime', 'on_fixed_datetime');

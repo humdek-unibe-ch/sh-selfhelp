@@ -7,7 +7,6 @@
 require_once __DIR__ . "/BaseCallback.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProjectModel.php";
 require_once __DIR__ . "/../component/style/register/RegisterModel.php";
-require_once __DIR__ . "/../service/Mailer.php";
 
 /**
  * A small class that handles callbak and set the group number for validation code
@@ -292,7 +291,7 @@ class CallbackQualtrics extends BaseCallback
                 unset($mail);
                 unset($result);
                 $mail = array(
-                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(Mailer::STATUS_LOOKUP_TYPE, Mailer::STATUS_QUEUED),
+                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
                     "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info),
                     "from_email" => $schedule_info['from_email'],
                     "from_name" => $schedule_info['from_name'],
