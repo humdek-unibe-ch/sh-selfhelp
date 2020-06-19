@@ -56,7 +56,7 @@ class ModuleQualtricsSyncController extends BaseController
      */
     private function syncProjectSurveys($pid)
     {
-        foreach ($this->model->get_actions($pid) as $action) {
+        foreach ($this->model->get_actions_for_sync($pid) as $action) {
             $res = $this->model->syncSurvey($action);
             if($res['result']){
                 $this->success = true;

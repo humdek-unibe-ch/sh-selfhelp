@@ -352,6 +352,13 @@ class ModuleQualtricsProjectModel extends BaseModel
         return $webService;
     }
 
+    /**
+     * Generate a webservice flow for finish survey
+     * @param array $survey
+     * survey flow
+     * @retval array
+     * return the finish web service flow
+     */
     private function get_webService_finish_flow($survey)
     {
         $editBodyParamsEnd[] = array(
@@ -383,6 +390,13 @@ class ModuleQualtricsProjectModel extends BaseModel
         );
     }
 
+    /**
+     * Generate a webservice flow for start survey
+     * @param array $survey
+     * survey flow
+     * @retval array
+     * return the start web service flow
+     */
     private function get_webService_start_flow($survey)
     {
         $editBodyParamsStart[] = array(
@@ -409,6 +423,29 @@ class ModuleQualtricsProjectModel extends BaseModel
             $editBodyParamsStart,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START,
             'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
+            $survey['participant_variable'],
+            true
+        );
+    }
+
+    private function get_webService_setGroup_flow($survey)
+    {
+        $editBodyParamsGroup[] = array(
+            "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
+            "value" => '${e://Field/' . $survey['participant_variable'] . '}'
+        );
+        $editBodyParamsGroup[] = array(
+            "key" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
+            "value" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE . '}'
+        );
+        $editBodyParamsGroup[] = array(
+            "key" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_KEY_VARIABLE,
+            "value" => $this->db->get_callback_key()
+        );
+        return $this->get_webService_flow(
+            $editBodyParamsGroup,
+            ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
+            'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
             $survey['participant_variable'],
             true
         );
@@ -503,26 +540,8 @@ class ModuleQualtricsProjectModel extends BaseModel
 
             /** GROUP WEB SERVICE if there is grouping *************************************************************************************************************************************/
             if ($survey['group_variable'] == 1) {
-                // web service for setting group
-                $editBodyParamsGroup[] = array(
-                    "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-                    "value" => '${e://Field/' . $survey['participant_variable'] . '}'
-                );
-                $editBodyParamsGroup[] = array(
-                    "key" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
-                    "value" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE . '}'
-                );
-                $editBodyParamsGroup[] = array(
-                    "key" => ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_KEY_VARIABLE,
-                    "value" => $this->db->get_callback_key()
-                );
-                $baseline_webService_group = $this->get_webService_flow(
-                    $editBodyParamsGroup,
-                    ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
-                    'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
-                    $survey['participant_variable'],
-                    true
-                );
+                // web service for setting group                
+                $baseline_webService_group = $this->get_webService_setGroup_flow($survey);
             }
 
             /** LOOP IF FLOWS EXISTS, EDIT THEM **********************************************************************************************************************************/
@@ -591,6 +610,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             }
 
             /** EXECUTE THE FLOW **********************************************************************************************************************************/
+            $surveyFlow['Flow'] = array_values($surveyFlow['Flow']); // rebase the array indexes
             return $this->set_survey_flow($survey['qualtrics_survey_id'], $surveyFlow);
         } else {
             $this->return_info(false, "Something went wrong");
@@ -606,6 +626,21 @@ class ModuleQualtricsProjectModel extends BaseModel
     private function sync_followup_survey($survey, $surveyFlow)
     {
         if ($surveyFlow) {
+            /** EMBEDED DATA variables *************************************************************************************************************************************/
+            if ($survey['group_variable'] == 1) {
+                //there is a randomization in the survey, prepare the group variable
+                $baseline_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
+                $baseline_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
+                $baseline_embedded_flow['EmbeddedData'][] = array(
+                    "Description" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
+                    "Type" => "Recipient",
+                    "Field" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
+                    "VariableType" => "String",
+                    "DataVisibility" => array(),
+                    "AnalyzeText" => false
+                );
+            }
+
             //flag is the authenticator created
             $followup_authenticator_exists = false;
 
@@ -616,6 +651,12 @@ class ModuleQualtricsProjectModel extends BaseModel
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
 
             $baseline_webService_end = $this->get_webService_finish_flow($survey);
+
+            /** GROUP WEB SERVICE if there is grouping *************************************************************************************************************************************/
+            if ($survey['group_variable'] == 1) {
+                // web service for setting group                
+                $baseline_webService_group = $this->get_webService_setGroup_flow($survey);
+            }
 
             $followup_authenticator = $this->get_authenticator($survey['participant_variable']);
             foreach ($surveyFlow['Flow'] as $key => $flow) {
@@ -632,28 +673,58 @@ class ModuleQualtricsProjectModel extends BaseModel
                             //already exist; overwirite
                             $followup_authenticator['Flow'][$keyAuth] = $baseline_webService_end;
                             $baseline_webService_end = false; //not needed anymore later when we check is it assign
+                        } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP) {
+                            //already exist; overwirite
+                            if (!isset($baseline_webService_group)) {
+                                //should not exist; remove it
+                                unset($followup_authenticator['Flow'][$keyAuth]);
+                            } else {
+                                // add it
+                                $followup_authenticator['Flow'][$keyAuth] = $baseline_webService_group;
+                            }
+                            $baseline_webService_group = false; //not needed anymore later when we check is it assign
+                        } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA) {
+                            //already exist; overwirite
+                            if (!isset($baseline_embedded_flow)) {
+                                //should not exist; remove it
+                                unset($followup_authenticator['Flow'][$keyAuth]);
+                            } else {
+                                // add it
+                                $followup_authenticator['Flow'][$keyAuth] = $baseline_embedded_flow;
+                            }
+                            $baseline_embedded_flow = false; //not needed anymore later when we check is it assign
                         }
                     }
+                    $followup_authenticator['Flow'] = array_values($followup_authenticator['Flow']); // rebase the array indexes
                     $surveyFlow['Flow'][$key] = $followup_authenticator; //assign the new authenticator                    
                     $followup_authenticator_exists = true; //not needed anymore later when we check, is it assign
                 }
             }
             //check do we still have to add flows
             // order is important as we add as first. We should add the element that should be first as last call
-            if ($baseline_webService_start) {
-                // add baseline webService for starting the survey
-                array_unshift($surveyFlow['Flow'], $baseline_webService_start);
-            }
-            if ($baseline_webService_end) {
-                // add baseline webService for finishing the survey
-                array_push($surveyFlow['Flow'], $baseline_webService_end);
-            }
             if (!$followup_authenticator_exists) {
                 // add followup authenticaotr
                 $followup_authenticator['Flow'] = $surveyFlow['Flow']; //move all blocks inside the authenticator
                 unset($surveyFlow['Flow']); // clear the flow before assing the authenticator
                 $surveyFlow['Flow'][] = $followup_authenticator; // assign the authenticator to the flow, now the authenticator keeps the rest of the flow inside
             }
+            if ($baseline_webService_start) {
+                // add baseline webService for starting the survey
+                array_unshift($surveyFlow['Flow'][0]['Flow'], $baseline_webService_start);
+            }
+            if (isset($baseline_embedded_flow) && $baseline_embedded_flow) {
+                // add baseline embeded data
+                array_unshift($surveyFlow['Flow'][0]['Flow'], $baseline_embedded_flow);
+            }
+            // at at the end of the list
+            if (isset($baseline_webService_group) && $baseline_webService_group) {
+                // add baseline group web service
+                array_push($surveyFlow['Flow'][0]['Flow'], $baseline_webService_group);
+            }
+            if ($baseline_webService_end) {
+                // add baseline webService for finishing the survey
+                array_push($surveyFlow['Flow'][0]['Flow'], $baseline_webService_end);
+            }            
             return $this->set_survey_flow($survey['qualtrics_survey_id'], $surveyFlow);
         } else {
             $this->return_info(false, "Something went wrong");
@@ -733,6 +804,21 @@ class ModuleQualtricsProjectModel extends BaseModel
     public function get_actions($pid)
     {
         $sql = "SELECT *
+                FROM view_qualtricsActions
+                WHERE project_id = :pid";
+        return $this->db->query_db($sql, array(":pid" => $pid));
+    }
+
+    /**
+     * Get all the actions for the project that should be synced, with distinct
+     * @param int $pid
+     * project id
+     * @retval array $actions
+     */
+    public function get_actions_for_sync($pid)
+    {
+        $sql = "SELECT distinct project_id, qualtrics_api, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
+                id_qualtricsSurveyTypes, group_variable, survey_type, survey_type_code
                 FROM view_qualtricsActions
                 WHERE project_id = :pid";
         return $this->db->query_db($sql, array(":pid" => $pid));
