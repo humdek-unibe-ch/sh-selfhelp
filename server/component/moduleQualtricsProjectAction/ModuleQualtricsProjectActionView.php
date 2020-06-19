@@ -154,16 +154,16 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("select", array(
                     "label" => "Type",
                     "is_required" => true,
-                    "value" => isset($this->action["schedule_info"]['notificationTypes']) ? $this->action["schedule_info"]['notificationTypes'] : '',
+                    "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'notificationTypes'))
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes))
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "When",
                     "is_required" => true,
-                    "value" => isset($this->action["schedule_info"]['qualtricScheduleTypes']) ? $this->action["schedule_info"]['qualtricScheduleTypes'] : '',
+                    "value" => isset($this->action["schedule_info"][qualtricScheduleTypes]) ? $this->action["schedule_info"][qualtricScheduleTypes] : '',
                     "name" => "schedule_info[qualtricScheduleTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'qualtricScheduleTypes'))
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => qualtricScheduleTypes))
                 )),
                 new BaseStyleComponent("template", array(
                     "path" => __DIR__ . "/tpl_datepicker.php",
@@ -188,7 +188,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_after_type']) ? $this->action["schedule_info"]['send_after_type'] : '',
                     "name" => "schedule_info[send_after_type]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'timePeriod'))
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => timePeriod))
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "Send on",
@@ -205,7 +205,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_on_day']) ? $this->action["schedule_info"]['send_on_day'] : '',
                     "name" => "schedule_info[send_on_day]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'weekdays'))
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => weekdays))
                 )),
                 new BaseStyleComponent("template", array(
                     "path" => __DIR__ . "/tpl_timepicker.php",
@@ -298,17 +298,17 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("select", array(
                     "label" => "Type",
                     "is_required" => true,
-                    "value" => isset($this->action["schedule_info"]['notificationTypes']) ? $this->action["schedule_info"]['notificationTypes'] : '',
+                    "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'notificationTypes')),
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "When",
                     "is_required" => true,
-                    "value" => isset($this->action["schedule_info"]['qualtricScheduleTypes']) ? $this->action["schedule_info"]['qualtricScheduleTypes'] : '',
+                    "value" => isset($this->action["schedule_info"][qualtricScheduleTypes]) ? $this->action["schedule_info"][qualtricScheduleTypes] : '',
                     "name" => "schedule_info[qualtricScheduleTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'qualtricScheduleTypes')),
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => qualtricScheduleTypes)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("template", array(
@@ -336,7 +336,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_after_type']) ? $this->action["schedule_info"]['send_after_type'] : '',
                     "name" => "schedule_info[send_after_type]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'timePeriod')),
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => timePeriod)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("select", array(
@@ -355,7 +355,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_on_day']) ? $this->action["schedule_info"]['send_on_day'] : '',
                     "name" => "schedule_info[send_on_day]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'),'WHERE type_code=:tcode', array(":tcode"=>'weekdays')),
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => weekdays)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("template", array(
@@ -557,7 +557,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "value" => $this->action['id_qualtricsProjectActionTriggerTypes'],
                             "is_required" => true,
                             "name" => "id_qualtricsProjectActionTriggerTypes",
-                            "items" => $this->get_lookups('qualtricsProjectActionTriggerTypes'),
+                            "items" => $this->get_lookups(qualtricsProjectActionTriggerTypes),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "For group(s)",
@@ -572,8 +572,8 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "label" => "Send",
                             "name" => "id_qualtricsActionScheduleTypes",
                             "id" => "id_qualtricsActionScheduleTypes",
-                            "value" => isset($this->action['id_qualtricsActionScheduleTypes']) ? $this->action['id_qualtricsActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value('qualtricsActionScheduleTypes', 'nothing'),
-                            "items" => $this->get_lookups('qualtricsActionScheduleTypes'),
+                            "value" => isset($this->action['id_qualtricsActionScheduleTypes']) ? $this->action['id_qualtricsActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(qualtricsActionScheduleTypes, 'nothing'),
+                            "items" => $this->get_lookups(qualtricsActionScheduleTypes),
                             "css" => "mb-3",
                         )),
                         new BaseStyleComponent("select", array(
@@ -582,9 +582,9 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "name" => "id_functions[]",
                             "is_multiple" => true,
                             "value" => explode(';', $this->action['id_functions']),
-                            "items" => $this->get_lookups('qualtricsProjectActionAdditionalFunction'),
+                            "items" => $this->get_lookups(qualtricsProjectActionAdditionalFunction),
                         )),
-                        $this->get_schedule_info_card(),                        
+                        $this->get_schedule_info_card(),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -656,7 +656,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "text" => $this->action['functions']
                     ))),
                 )),
-                $this->get_schedule_info_card_view()                
+                $this->get_schedule_info_card_view()
             )
         ));
         $form->output_content();

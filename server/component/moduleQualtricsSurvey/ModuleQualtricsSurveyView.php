@@ -137,7 +137,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "value" => $this->survey['id_qualtricsSurveyTypes'],
                             "is_required" => true,
                             "name" => "id_qualtricsSurveyTypes",
-                            "items" => $this->get_lookups('qualtricsSurveyTypes'),
+                            "items" => $this->get_lookups(qualtricsSurveyTypes),
                         )),
                         new BaseStyleComponent("template", array(
                             "path" => __DIR__ . "/tpl_checkBox.php",

@@ -219,17 +219,17 @@ class CallbackQualtrics extends BaseCallback
     private function calc_date_to_be_sent($schedule_info)
     {
         $date_to_be_sent = 'undefined';
-        if ($schedule_info['qualtricScheduleTypes'] == qualtricScheduleTypes_immediately) {
+        if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately) {
             // send imediately
             $date_to_be_sent = date('Y-m-d H:i:s', time());
-        } else if ($schedule_info['qualtricScheduleTypes'] == qualtricScheduleTypes_on_fixed_datetime) {
+        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_on_fixed_datetime) {
             // send on specific date
             $date_to_be_sent = date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $schedule_info['custom_time'])->getTimestamp());
-        } else if ($schedule_info['qualtricScheduleTypes'] == qualtricScheduleTypes_after_period) {
+        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period) {
             // send after time period 
             $now = date('Y-m-d H:i:s', time());
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
-        } else if ($schedule_info['qualtricScheduleTypes'] == qualtricScheduleTypes_after_period_on_day_at_time) {
+        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period_on_day_at_time) {
             // send on specific weekday after 1,2,3, or more weeks at specifi time
             $now = date('Y-m-d H:i:s', time());
             $next_weekday = strtotime('next ' . $schedule_info['send_on_day'], strtotime($now));

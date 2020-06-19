@@ -116,7 +116,7 @@ class ModuleMailView extends BaseView
         $select_date_types = new BaseStyleComponent("select", array(
             "value" => $this->model->get_date_type(),
             "name" => "dateType",
-            "items" => $this->get_lookups_with_code("mailQueueSearchDateTypes"),
+            "items" => $this->get_lookups_with_code(mailQueueSearchDateTypes),
         ));
         $select_date_types->output_content();
     }
