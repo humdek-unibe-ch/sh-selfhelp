@@ -211,13 +211,38 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
-     * Calculate the date when the email should be sent
+     * Calculate the date when the email should be sent when it is on weekday type
      * @param array $schedule_info
      * Schedule info from the action
      * @retval string
      * the date in sting format for MySQL
      */
-    private function calc_date_to_be_sent($schedule_info)
+    private function calc_date_on_weekday($schedule_info)
+    {
+        $now = date('Y-m-d H:i:s', time());
+        $next_weekday = strtotime('next ' . $schedule_info['send_on_day'], strtotime($now));
+        $d = new DateTime();
+        $next_weekday = $d->setTimestamp($next_weekday);
+        $at_time = explode(':', $schedule_info['send_on_day_at']);
+        $next_weekday = $next_weekday->setTime($at_time[0], $at_time[1]);
+        if ($schedule_info['send_on'] > 1) {
+            return date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_on'] - 1 . ' weeks', $next_weekday->getTimestamp()));
+        } else {
+            $next_weekday = $next_weekday->getTimestamp();
+            return date('Y-m-d H:i:s', $next_weekday);
+        }
+    }
+
+    /**
+     * Calculate the date when the email should be sent
+     * @param array $schedule_info
+     * Schedule info from the action
+     * @param string action_schedule_type_code
+     * type notification or reminder
+     * @retval string
+     * the date in sting format for MySQL
+     */
+    private function calc_date_to_be_sent($schedule_info, $action_schedule_type_code)
     {
         $date_to_be_sent = 'undefined';
         if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately) {
@@ -232,17 +257,19 @@ class CallbackQualtrics extends BaseCallback
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
         } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period_on_day_at_time) {
             // send on specific weekday after 1,2,3, or more weeks at specific time
-            $now = date('Y-m-d H:i:s', time());
-            $next_weekday = strtotime('next ' . $schedule_info['send_on_day'], strtotime($now));
-            $d = new DateTime();
-            $next_weekday = $d->setTimestamp($next_weekday);
-            $at_time = explode(':', $schedule_info['send_on_day_at']);
-            $next_weekday = $next_weekday->setTime($at_time[0], $at_time[1]);
-            if ($schedule_info['send_on'] > 1) {
-                $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_on'] - 1 . ' weeks', $next_weekday->getTimestamp()));
-            } else {
-                $next_weekday = $next_weekday->getTimestamp();
-                $date_to_be_sent = date('Y-m-d H:i:s', $next_weekday);
+            $date_to_be_sent = $this->calc_date_on_weekday($schedule_info);
+            if ($action_schedule_type_code == qualtricsActionScheduleTypes_reminder) {
+                // we have to check the linked notification and schedule the reminder always after the notification
+                $schedule_info_notification = json_decode($this->db->query_db_first('SELECT schedule_info FROM qualtricsActions WHERE id = :id', array(':id'=>$schedule_info['linked_action']))['schedule_info'], true);
+                $base_schedule_info = $schedule_info;
+                $base_schedule_info['send_on'] = 1;
+                $schedule_info_notification['send_on'] = 1;
+                $base_reminder_day = $this->calc_date_on_weekday($base_schedule_info);
+                $base_notification_day = $this->calc_date_on_weekday($schedule_info_notification);
+                if($base_notification_day > $base_reminder_day){
+                    //reminder will be scheduled before the notification; it should be adjusted to 1 week later
+                    $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+1 weeks', strtotime($date_to_be_sent)));
+                }
             }
         }
         return $date_to_be_sent;
@@ -293,7 +320,7 @@ class CallbackQualtrics extends BaseCallback
                 unset($result);
                 $mail = array(
                     "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-                    "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info),
+                    "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
                     "from_email" => $schedule_info['from_email'],
                     "from_name" => $schedule_info['from_name'],
                     "reply_to" => $schedule_info['reply_to'],
