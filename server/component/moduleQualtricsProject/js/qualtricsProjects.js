@@ -31,7 +31,8 @@ $(document).ready(function () {
 
     //datatable actions
     var table = $('#qualtrics-project-actions').DataTable({
-        "order": [[1, "asc"]]
+        "order": [[1, "asc"]],
+        "scrollX": true
     });
     table.on('click', 'tr[id|="action-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
