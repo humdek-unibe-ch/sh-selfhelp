@@ -231,7 +231,7 @@ class CallbackQualtrics extends BaseCallback
             $now = date('Y-m-d H:i:s', time());
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
         } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period_on_day_at_time) {
-            // send on specific weekday after 1,2,3, or more weeks at specifi time
+            // send on specific weekday after 1,2,3, or more weeks at specific time
             $now = date('Y-m-d H:i:s', time());
             $next_weekday = strtotime('next ' . $schedule_info['send_on_day'], strtotime($now));
             $d = new DateTime();
@@ -566,9 +566,9 @@ class CallbackQualtrics extends BaseCallback
             if ($user_id > 0) {
                 // set group for user
                 if ($this->assignUserToGroup($result['groupId'], $user_id)) {
-                    array_push($result['selfhelpCallback'][], 'User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE]);
+                    $result['selfhelpCallback'][] = 'User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
                 } else {
-                    array_push($result['selfhelpCallback'][], 'Failed! User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE]);
+                    $result['selfhelpCallback'][] = 'Failed! User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
                     $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;
                 }
             } else {

@@ -216,6 +216,15 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "id" => "send_on_day_at"
                     )
                 )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Reminder for notification",
+                    "is_required" => true,
+                    "id" => "linked_action",
+                    "value" => isset($this->action["schedule_info"]['linked_action']) ? $this->action["schedule_info"]['linked_action'] : '',
+                    "name" => "schedule_info[linked_action]",
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('view_qualtricsActions', 'id', array('action_name'), 'WHERE action_schedule_type_code=:type', array(":type" => qualtricsActionScheduleTypes_notification)),
+                    "live_search" => 1
+                )),
                 new BaseStyleComponent("input", array(
                     "label" => "From email",
                     "type_input" => "email",
@@ -367,6 +376,14 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "value" => isset($this->action["schedule_info"]['send_on_day_at']) ? $this->action["schedule_info"]['send_on_day_at'] : '',
                         "disabled" => "disabled",
                     )
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Reminder for notification",
+                    "is_required" => true,
+                    "value" => isset($this->action["schedule_info"]['linked_action']) ? $this->action["schedule_info"]['linked_action'] : '',
+                    "name" => "schedule_info[linked_action]",
+                    "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsActions', 'id', array('name')),
+                    "disabled" => true
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "From Email",

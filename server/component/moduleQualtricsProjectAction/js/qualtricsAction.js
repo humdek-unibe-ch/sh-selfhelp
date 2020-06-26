@@ -25,17 +25,22 @@ function adjustRequiredFields() {
     setRequiredIfDisplayed($('input[name="schedule_info[from_email]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[from_name]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[reply_to]"]'));
+    setRequiredIfDisplayed($('select[name="schedule_info[linked_action]"]'));
 }
 
 function adjustActionScheduleType() {
     $('#section-schedule_info').addClass('d-none');
     $('.style-section-id_qualtricsSurveys_reminder').addClass('d-none');
+    $('.style-section-linked_action').addClass('d-none');
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Notification') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
         $('#section-schedule_info').removeClass('d-none');
     }
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
         $('.style-section-id_qualtricsSurveys_reminder').removeClass('d-none');
+        if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
+            $('.style-section-linked_action').removeClass('d-none');   
+        }
     }
     adjustRequiredFields();
 }
@@ -46,13 +51,17 @@ function adjustScheduleType() {
     $('.style-section-send_after_type').addClass('d-none');
     $('.style-section-send_on').addClass('d-none');
     $('.style-section-send_on_day').addClass('d-none');
+    $('.style-section-linked_action').addClass('d-none');
     $('#at_time_holder').addClass('d-none');
     if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('fixed datetime')) {
         $('#custom_time_holder').removeClass('d-none');
     } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
         $('.style-section-send_on').removeClass('d-none');
-        $('.style-section-send_on_day').removeClass('d-none');
+        $('.style-section-send_on_day').removeClass('d-none');        
         $('#at_time_holder').removeClass('d-none');
+        if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
+            $('.style-section-linked_action').removeClass('d-none');
+        }
     } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period')) {
         $('.send_after').removeClass('d-none');        
         $('.style-section-send_after_type').removeClass('d-none');
