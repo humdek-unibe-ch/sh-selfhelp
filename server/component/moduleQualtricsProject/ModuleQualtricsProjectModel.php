@@ -564,8 +564,8 @@ class ModuleQualtricsProjectModel extends BaseModel
                     $baseline_webService_start = false; //not needed anymore later when we check is it assign
                 } else if ($flow['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END) {
                     //already exist; overwirite
-                    $surveyFlow['Flow'][$key] = $baseline_webService_end;
-                    $baseline_webService_end = false; //not needed anymore later when we check is it assign
+                    // This flow whoudl be allways at the end. Remove it now and allways add it at the end
+                    unset($surveyFlow['Flow'][$key]);
                 } else if ($flow['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP) {
                     //already exist; overwirite
                     if (!isset($baseline_webService_group)) {
@@ -671,8 +671,8 @@ class ModuleQualtricsProjectModel extends BaseModel
                             $baseline_webService_start = false; //not needed anymore later when we check is it assign
                         } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END) {
                             //already exist; overwirite
-                            $followup_authenticator['Flow'][$keyAuth] = $baseline_webService_end;
-                            $baseline_webService_end = false; //not needed anymore later when we check is it assign
+                            // This flow whoudl be allways at the end. Remove it now and allways add it at the end
+                            unset($surveyFlow['Flow'][$key]);
                         } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP) {
                             //already exist; overwirite
                             if (!isset($baseline_webService_group)) {
@@ -724,7 +724,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             if ($baseline_webService_end) {
                 // add baseline webService for finishing the survey
                 array_push($surveyFlow['Flow'][0]['Flow'], $baseline_webService_end);
-            }            
+            }
             return $this->set_survey_flow($survey['qualtrics_survey_id'], $surveyFlow);
         } else {
             $this->return_info(false, "Something went wrong");

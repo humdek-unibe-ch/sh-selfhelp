@@ -474,7 +474,7 @@ class CallbackQualtrics extends BaseCallback
                 array_push($result['selfhelpCallback'], 'wrong group value (only numbers, laters, hyphens and underscores are possible)');
                 $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
             }
-            $result['groupId'] = $this->getGroupId($data['group']);
+            $result['groupId'] = $this->getGroupId($data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE]);
             if (!($result['groupId'] > 0)) {
                 // validation for does the group exists
                 array_push($result['selfhelpCallback'], 'group does not exist');
@@ -566,17 +566,17 @@ class CallbackQualtrics extends BaseCallback
             if ($user_id > 0) {
                 // set group for user
                 if ($this->assignUserToGroup($result['groupId'], $user_id)) {
-                    array_push($result['selfhelpCallback'][], 'User with code: ' . $data['code'] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data['group']);
+                    array_push($result['selfhelpCallback'][], 'User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE]);
                 } else {
-                    array_push($result['selfhelpCallback'][], 'Failed! User with code: ' . $data['code'] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data['group']);
+                    array_push($result['selfhelpCallback'][], 'Failed! User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE]);
                     $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;
                 }
             } else {
                 // set group for code and once user is registered the group will be assigned
-                if ($this->assignGroupToCode($result['groupId'], $data['code'])) {
-                    $result['selfhelpCallback'][] = 'Code: ' . $data['code'] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data['group'];
+                if ($this->assignGroupToCode($result['groupId'], $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+                    $result['selfhelpCallback'][] = 'Code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
                 } else {
-                    $result['selfhelpCallback'][] = 'Failed! Code: ' . $data['code'] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data['group'];
+                    $result['selfhelpCallback'][] = 'Failed! Code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
                     $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;
                 }
             }
