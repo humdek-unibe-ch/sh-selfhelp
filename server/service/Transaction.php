@@ -17,6 +17,8 @@ class Transaction
     const TABLE_PAGES = 'pages';
     const TABLE_MAILQUEUE = 'mailQueue';
     const TABLE_USERS = 'users';
+    const TABLE_USERS_GROUPS = 'users_groups';
+    const TABLE_CODES_GROUPS = 'codes_groups';
     const TRANSACTIONS_TABLE = 'transactions';
 
     /**

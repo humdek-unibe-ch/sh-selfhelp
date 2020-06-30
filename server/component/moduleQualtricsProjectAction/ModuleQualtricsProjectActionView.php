@@ -380,6 +380,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("select", array(
                     "label" => "Reminder for notification",
                     "is_required" => true,
+                    "id" => "linked_action",
                     "value" => isset($this->action["schedule_info"]['linked_action']) ? $this->action["schedule_info"]['linked_action'] : '',
                     "name" => "schedule_info[linked_action]",
                     "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsActions', 'id', array('name')),

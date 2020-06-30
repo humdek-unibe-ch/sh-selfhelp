@@ -7,6 +7,7 @@ id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
+GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR '; ') AS functions_code,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
 CASE 

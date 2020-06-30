@@ -186,6 +186,30 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Get all actions for a survey and a trigger_type which has functions
+     *
+     * @param string $sid
+     *  qualtrics survey id
+     * @param string $trigger_type
+     *  trigger type
+     *  @retval array
+     * return all actions for that survey with this trigger_type
+     */
+    private function get_actions_with_functions($sid, $trigger_type)
+    {
+        $sqlGetActions = "SELECT *
+                FROM view_qualtricsActions
+                WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type AND functions IS NOT NULL";
+        return $this->db->query_db(
+            $sqlGetActions,
+            array(
+                "sid" => $sid,
+                "trigger_type" => $trigger_type
+            )
+        );
+    }
+
+    /**
      * Check if the user belongs in group(s)
      * @param int $uid
      * user  id
@@ -351,6 +375,50 @@ class CallbackQualtrics extends BaseCallback
             }
         }
 
+        return $result;
+    }
+
+    /**
+     * Evaluate personal strenghts for WORKWELL project
+     *
+     * @param array $data
+     *  the data from the callback.     
+     * @param in user_id
+     * user id
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function workwell_evaluate_strenghts($data, $user_id)
+    {
+        $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
+        return $result;
+    }
+
+    /**
+     * Check if any action has addtional function that should be executed
+     *
+     * @param array $data
+     *  the data from the callback.     
+     * @param in user_id
+     * user id
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function check_functions_from_actions($data, $user_id)
+    {
+        $result[] = 'no functions';
+        //get all actions for this survey and trigger type 
+        $actions = $this->get_actions_with_functions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
+        foreach ($actions as $action) {
+            //clear the mail generation data
+            unset($result);
+            if ($this->is_user_in_group($user_id, $action['id_groups'])) {
+               if(strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false){
+                   // WORKWELL evaluate strenghts function
+                   $result[] = $this->workwell_evaluate_strenghts($data, $user_id);
+               }
+            }
+        }
         return $result;
     }
 
@@ -545,7 +613,8 @@ class CallbackQualtrics extends BaseCallback
                     if ($inserted_id > 0) {
                         //successfully inserted survey repsonse
                         $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
-                        $result['selfhelpCallback'] = array_merge($result['selfhelpCallback'], $this->check_queue_mail_from_actions($data, $user_id));
+                        $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
+                        $result['selfhelpCallback'][] = $this->check_functions_from_actions($data, $user_id);
                     } else {
                         //something went wrong; survey resposne was not inserted
                         $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
@@ -562,6 +631,7 @@ class CallbackQualtrics extends BaseCallback
                         //successfully updated survey repsonse
                         $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
                         $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
+                        $result['selfhelpCallback'][] = $this->check_functions_from_actions($data, $user_id);
                     } else {
                         //something went wrong; survey resposne was not updated
                         $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
@@ -593,7 +663,9 @@ class CallbackQualtrics extends BaseCallback
             if ($user_id > 0) {
                 // set group for user
                 if ($this->assignUserToGroup($result['groupId'], $user_id)) {
-                    $result['selfhelpCallback'][] = 'User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
+                    $log = 'User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
+                    $result['selfhelpCallback'][] = $log;
+                    $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_USERS_GROUPS, $user_id, false, $log);
                 } else {
                     $result['selfhelpCallback'][] = 'Failed! User with code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
                     $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;
@@ -601,7 +673,9 @@ class CallbackQualtrics extends BaseCallback
             } else {
                 // set group for code and once user is registered the group will be assigned
                 if ($this->assignGroupToCode($result['groupId'], $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
-                    $result['selfhelpCallback'][] = 'Code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
+                    $log = 'Code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
+                    $result['selfhelpCallback'][] = $log;
+                    $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_CODES_GROUPS, $result['groupId'], false, $log);
                 } else {
                     $result['selfhelpCallback'][] = 'Failed! Code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' was not assigned to group: ' . $result['groupId'] . ' with name: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE];
                     $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;

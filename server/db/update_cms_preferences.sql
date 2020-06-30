@@ -320,7 +320,7 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionTriggerTypes', 'finished', 'Finished', 'When the user finish the survey');
 
 -- add qualtricsProjectActionAdditionalFunction
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'evaluate_personal_strenghts', 'Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_evaluate_personal_strenghts', '[Workwell] Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email for project workwell');
 
 -- add qualtricsActionScheduleTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'nothing', 'Nothing', 'Nothing to be scheduled');
@@ -403,6 +403,7 @@ id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
+GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR '; ') AS functions_code,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
 CASE 
