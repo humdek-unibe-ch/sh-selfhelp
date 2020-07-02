@@ -18,6 +18,7 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /* API calls */
     const QUALTRICS_API_GET_SET_SURVEY_FLOW = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/flow';
+    const QUALTRICS_API_GET_SET_SURVEY_RESPONSE = 'https://eu.qualtrics.com/API/v3/surveys/:survey_api_id/responses/:survey_response';
     const QUALTRICS_API_GET_SET_SURVEY_OPTIONS = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/options';
     const QUALTRICS_API_CREATE_CONTACT = 'https://eu.qualtrics.com/API/v3/mailinglists/:api_mailing_group_id/contacts';
 
@@ -68,6 +69,11 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private $project;
 
+    /**
+     * qualtrics_api could be passed if the module is used from callback
+     */
+    private $qualtrics_api;
+
 
     /**
      * The constructor.
@@ -76,16 +82,17 @@ class ModuleQualtricsProjectModel extends BaseModel
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $pid)
+    public function __construct($services, $pid, $qultrics_api = null)
     {
         parent::__construct($services);
         $this->pid = $pid;
         $this->project = $this->db->select_by_uid("qualtricsProjects", $this->pid);
+        $this->qualtrics_api = $qultrics_api;
     }
 
     private function get_qualtrics_api()
     {
-        return "X-API-TOKEN: " . $this->project['qualtrics_api'];
+        return "X-API-TOKEN: " . ($this->project ? $this->project['qualtrics_api'] : $this->qualtrics_api);
     }
 
     private function get_qualtrics_api_headers()
@@ -93,7 +100,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         $headers = array();
         $header = array(
             "key" => "X-API-TOKEN",
-            "value" => $this->project['qualtrics_api']
+            "value" => $this->project ? $this->project['qualtrics_api'] : $this->qualtrics_api
         );
         $headers[] = $header;
         return $headers;
@@ -163,7 +170,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         );
         $result = $this->execute_curl($data);
         return $result ? $result['result'] : $result;
-    }
+    }    
 
     /**
      * Synchronize survey header; Get the header and check if the selfhelp is appended; if it is not we add it.
@@ -638,9 +645,9 @@ class ModuleQualtricsProjectModel extends BaseModel
             /** EMBEDED DATA variables *************************************************************************************************************************************/
             if ($survey['group_variable'] == 1) {
                 //there is a randomization in the survey, prepare the group variable
-                $baseline_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
-                $baseline_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
-                $baseline_embedded_flow['EmbeddedData'][] = array(
+                $followup_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
+                $followup_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
+                $followup_embedded_flow['EmbeddedData'][] = array(
                     "Description" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
                     "Type" => "Recipient",
                     "Field" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
@@ -655,16 +662,16 @@ class ModuleQualtricsProjectModel extends BaseModel
 
             /** START SURVEY WEB SERVICE *******************************************************************************************************************************/
 
-            $baseline_webService_start = $this->get_webService_start_flow($survey);
+            $followup_webService_start = $this->get_webService_start_flow($survey);
 
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
 
-            $baseline_webService_end = $this->get_webService_finish_flow($survey);
+            $followup_webService_end = $this->get_webService_finish_flow($survey);
 
             /** GROUP WEB SERVICE if there is grouping *************************************************************************************************************************************/
             if ($survey['group_variable'] == 1) {
                 // web service for setting group                
-                $baseline_webService_group = $this->get_webService_setGroup_flow($survey);
+                $followup_webService_group = $this->get_webService_setGroup_flow($survey);
             }
 
             $followup_authenticator = $this->get_authenticator($survey['participant_variable']);
@@ -676,32 +683,32 @@ class ModuleQualtricsProjectModel extends BaseModel
                         //loop inside the authenticator to cgeck for elements
                         if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START) {
                             //already exist; overwirite
-                            $followup_authenticator['Flow'][$keyAuth] = $baseline_webService_start;
-                            $baseline_webService_start = false; //not needed anymore later when we check is it assign
+                            $followup_authenticator['Flow'][$keyAuth] = $followup_webService_start;
+                            $followup_webService_start = false; //not needed anymore later when we check is it assign
                         } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END) {
                             //already exist; overwirite
                             // This flow whoudl be allways at the end. Remove it now and allways add it at the end
-                            unset($surveyFlow['Flow'][$key]);
+                            unset($followup_authenticator['Flow'][$keyAuth]);
                         } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP) {
                             //already exist; overwirite
-                            if (!isset($baseline_webService_group)) {
+                            if (!isset($followup_webService_group)) {
                                 //should not exist; remove it
                                 unset($followup_authenticator['Flow'][$keyAuth]);
                             } else {
                                 // add it
-                                $followup_authenticator['Flow'][$keyAuth] = $baseline_webService_group;
+                                $followup_authenticator['Flow'][$keyAuth] = $followup_webService_group;
                             }
-                            $baseline_webService_group = false; //not needed anymore later when we check is it assign
+                            $followup_webService_group = false; //not needed anymore later when we check is it assign
                         } else if ($flowAuth['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA) {
                             //already exist; overwirite
-                            if (!isset($baseline_embedded_flow)) {
+                            if (!isset($followup_embedded_flow)) {
                                 //should not exist; remove it
                                 unset($followup_authenticator['Flow'][$keyAuth]);
                             } else {
                                 // add it
-                                $followup_authenticator['Flow'][$keyAuth] = $baseline_embedded_flow;
+                                $followup_authenticator['Flow'][$keyAuth] = $followup_embedded_flow;
                             }
-                            $baseline_embedded_flow = false; //not needed anymore later when we check is it assign
+                            $followup_embedded_flow = false; //not needed anymore later when we check is it assign
                         }
                     }
                     $followup_authenticator['Flow'] = array_values($followup_authenticator['Flow']); // rebase the array indexes
@@ -710,34 +717,57 @@ class ModuleQualtricsProjectModel extends BaseModel
                 }
             }
             //check do we still have to add flows
-            // order is important as we add as first. We should add the element that should be first as last call
+            // order is important as we add as first. We should add the element that should be first as last call            
             if (!$followup_authenticator_exists) {
                 // add followup authenticaotr
-                $followup_authenticator['Flow'] = $surveyFlow['Flow']; //move all blocks inside the authenticator
-                unset($surveyFlow['Flow']); // clear the flow before assing the authenticator
-                $surveyFlow['Flow'][] = $followup_authenticator; // assign the authenticator to the flow, now the authenticator keeps the rest of the flow inside
+                $followup_authenticator['Flow'] = $surveyFlow['Flow']; //move all blocks inside the authenticator                                
             }
-            if ($baseline_webService_start) {
-                // add baseline webService for starting the survey
-                array_unshift($surveyFlow['Flow'][0]['Flow'], $baseline_webService_start);
+            if ($followup_webService_start) {
+                // add followup webService for starting the survey
+                array_unshift($followup_authenticator['Flow'], $followup_webService_start);
             }
-            if (isset($baseline_embedded_flow) && $baseline_embedded_flow) {
-                // add baseline embeded data
-                array_unshift($surveyFlow['Flow'][0]['Flow'], $baseline_embedded_flow);
+            if (isset($followup_embedded_flow) && $followup_embedded_flow) {
+                // add followup embeded data
+                array_unshift($followup_authenticator['Flow'], $followup_embedded_flow);
             }
             // at at the end of the list
-            if (isset($baseline_webService_group) && $baseline_webService_group) {
-                // add baseline group web service
-                array_push($surveyFlow['Flow'][0]['Flow'], $baseline_webService_group);
+            if (isset($followup_webService_group) && $followup_webService_group) {
+                // add followup group web service
+                array_push($followup_authenticator['Flow'], $followup_webService_group);
             }
-            if ($baseline_webService_end) {
-                // add baseline webService for finishing the survey
-                array_push($surveyFlow['Flow'][0]['Flow'], $baseline_webService_end);
-            }
+            if ($followup_webService_end) {
+                // add followup webService for finishing the survey
+                array_push($followup_authenticator['Flow'], $followup_webService_end);
+            }  
+            //assign authenticator on top
+            unset($surveyFlow['Flow']); // clear the flow before assing the authenticator
+            $surveyFlow['Flow'][] = $followup_authenticator; // assign the authenticator to the flow, now the authenticator keeps the rest of the flow inside              
             return $this->set_survey_flow($survey['qualtrics_survey_id'], $surveyFlow);
         } else {
             $this->return_info(false, "Something went wrong");
         }
+    }
+
+    /**
+     * PUBLIC METHODS *************************************************************************************************************
+     */
+
+    /**
+     * Get survey resposne via qualtrics api
+     * @param string $survey_api_id qualtrics survey id
+     * @param string $survey_response survey_response indetifier
+     * @retval array with the survey response
+     */
+    public function get_survey_response($survey_api_id, $survey_response)
+    {
+        $url = str_replace(':survey_api_id', $survey_api_id, $this::QUALTRICS_API_GET_SET_SURVEY_RESPONSE);
+        $url = str_replace(':survey_response', $survey_response, $url);
+        $data = array(
+            "request_type" => "GET",
+            "URL" => $url
+        );
+        $result = $this->execute_curl($data);
+        return $result ? $result['result'] : $result;
     }
 
     /**

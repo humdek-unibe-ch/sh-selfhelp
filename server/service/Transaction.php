@@ -59,6 +59,7 @@ class Transaction
      */
     public function add_transaction($tran_type, $tran_by, $user_id = null, $table_name = null, $entry_id = null, $log_row = false, $verbal_log = null)
     {
+        //TODO  make params array; it could be better
         $log = array(
             "verbal_log" => $verbal_log ? $verbal_log : ('Transaction type: `' . $tran_type . '` from table: `' . $table_name . '` triggered ' . $tran_by),
             "url" => $user_id > 0 ? $_SERVER['REQUEST_URI'] : "",
