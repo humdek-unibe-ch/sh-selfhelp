@@ -384,7 +384,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         return $this->get_webService_flow(
             $editBodyParamsEnd,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END,
-            'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
+            $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
             $survey['participant_variable'],
             true
         );
@@ -422,7 +422,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         return $this->get_webService_flow(
             $editBodyParamsStart,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START,
-            'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
+            $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
             $survey['participant_variable'],
             true
         );
@@ -445,10 +445,19 @@ class ModuleQualtricsProjectModel extends BaseModel
         return $this->get_webService_flow(
             $editBodyParamsGroup,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
-            'http://' . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
+            $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
             $survey['participant_variable'],
             true
         );
+    }
+
+    /**
+     * Get the protocol. If it is debug it returns http otherwise https
+     * @retval string
+     * it returns the protocol
+     */
+    private function get_protocol(){
+        return DEBUG ? 'http://' : 'https://';
     }
 
     /**
