@@ -321,31 +321,38 @@ p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.na
 DROP VIEW IF EXISTS view_mailQueue;
 CREATE VIEW view_mailQueue
 AS
-SELECT mq.id AS id, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
+SELECT mq.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
 reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
 FROM mailQueue mq
 INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, id_qualtricsSurveyTypes, group_variable, typ.lookup_value as survey_type, 
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
-GROUP_CONCAT(DISTINCT g.id SEPARATOR '; ') AS id_groups, 
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
+GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR '; ') AS functions_code,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
-notification, reminder 
+schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
+CASE 
+	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
+    ELSE NULL
+END as survey_reminder_name
 FROM qualtricsActions st 
 INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
 INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
 INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes)
 INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
+INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
+LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
 LEFT JOIN groups g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
-st.id_qualtricsSurveys, s.name, id_qualtricsSurveyTypes, typ.lookup_value, 
+st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;DROP VIEW IF EXISTS view_transactions;
 CREATE VIEW view_transactions
 AS
@@ -362,4 +369,29 @@ SELECT mq.id, date_create, date_to_be_sent, date_sent, t.id AS transaction_id, t
 transaction_type, transaction_by, user_name, transaction_verbal_log
 FROM mailQueue mq
 INNER JOIN view_transactions t ON (t.table_name = 'mailQueue' AND t.id_table_name = mq.id)
-ORDER BY mq.id ASC, t.id ASC;
+ORDER BY mq.id ASC, t.id ASC;DROP VIEW IF EXISTS view_users;
+CREATE VIEW view_users
+AS
+SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
+us.description, u.blocked, vc.code,
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
+FROM users AS u
+LEFT JOIN userStatus AS us ON us.id = u.id_status
+LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+LEFT JOIN validation_codes vc ON u.id = vc.id_users
+WHERE u.intern <> 1 AND u.id_status > 0
+GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
+ORDER BY u.email;DROP VIEW IF EXISTS view_qualtricsReminders;
+CREATE VIEW view_qualtricsReminders
+AS
+select u.id as user_id, u.email, u.name as user_name, code, m.id as mailQueue_id,
+m.status_code as mailQueue_status_code, m.status as mailQueue_status, s.id as qualtricsSurvey_id, qualtrics_survey_id
+from qualtricsReminders r
+inner join view_users u on (u.id = r.id_users)
+inner join view_mailQueue m on (m.id = r.id_mailQueue)
+inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);
