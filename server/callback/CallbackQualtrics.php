@@ -559,8 +559,8 @@ class CallbackQualtrics extends BaseCallback
         );
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
-        $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        //$survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_1JXdfkrpGNjQ9q9');
+        // $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_1JXdfkrpGNjQ9q9');
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
                 $strengths[$key]["value"] = round(stats_cdf_normal($survey_response['values'][$key], $value["coefficient_1"], $value["coefficient_2"], 1) * 100);
