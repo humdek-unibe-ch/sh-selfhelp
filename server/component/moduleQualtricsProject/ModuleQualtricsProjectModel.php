@@ -325,7 +325,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      * @param string $callback_key null if not set     
      * @retval array
      */
-    private function get_webService_flow($embedded_vars, $flowId, $url, $participant_variable, $is_callback)
+    private function get_webService_flow($embedded_vars, $flowId, $url, $participant_variable, $is_callback, $fireAndForget = true)
     {
         $body = array();
         $body = array_merge(array("externalDataRef" => '${e://Field/' . $participant_variable . '}'));
@@ -344,7 +344,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             "ContentType" => "application/json",
             "Headers" => $is_callback ? array() : $this->get_qualtrics_api_headers(),
             "ResponseMap" => array(),
-            "FireAndForget" => true,
+            "FireAndForget" => $fireAndForget,
             "SchemaVersion" => 0,
             "StringifyValues" => true
         );
@@ -454,7 +454,8 @@ class ModuleQualtricsProjectModel extends BaseModel
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
             $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
             $survey['participant_variable'],
-            true
+            true,
+            false
         );
     }
 
@@ -540,6 +541,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                     ModuleQualtricsProjectModel::QUALTRICS_API_CREATE_CONTACT
                 ),
                 $survey['participant_variable'],
+                false,
                 false
             );
             $branch_contact_exists = json_decode(QulatricsAPITemplates::branch_contact_exist, true);
