@@ -761,7 +761,7 @@ Religiöse bzw. gläubige Menschen haben bestimmte Überzeugungen über den höh
         $actions = $this->get_actions_with_functions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         foreach ($actions as $action) {
             //clear the mail generation data
-            //unset($result);
+            $result = [];
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false) {
                     // WORKWELL evaluate strenghts function
