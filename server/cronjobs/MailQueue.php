@@ -13,6 +13,12 @@ require_once __DIR__ . "/../service/Router.php";
 require_once __DIR__ . "/../service/UserInput.php";
 
 /**
+ * SETUP
+ * Make the script executable:  chmod +x
+ * Cronjob (Chek mail Queueu every minutes and send mails if some should be sent) * * * * * php /home/bashev/selfhelpQualtrics/server/cronjobs/MailQueue.php
+ */
+
+/**
  * MailQueue class. It is scheduled on a cronjob and it is executed on given time. It checks for mails
  * that should be send within the time and schedule events for them.
  */

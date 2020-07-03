@@ -274,7 +274,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "name" => "schedule_info[body]",
                     "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
                     "css" => "mb-3",
-                    "placeholder" => "@user_name can be used for showing the user \n@survey_(type qualtrics survey id) can be used to automatically generate the link",
+                    "placeholder" => "@user_name can be used for showing the user",
                 )),
             )
         ));
@@ -437,7 +437,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "name" => "schedule_info[body]",
                     "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
                     "css" => "d-none",
-                    "placeholder" => "@user_name can be used for showing the user \n@survey_(type qualtrics survey id) can be used to automatically generate the link",
+                    "placeholder" => "@user_name can be used for showing the user",
                 ))
             )
         ));

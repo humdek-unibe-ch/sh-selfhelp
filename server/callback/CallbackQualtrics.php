@@ -348,6 +348,7 @@ class CallbackQualtrics extends BaseCallback
                 $schedule_info = json_decode($action['schedule_info'], true);
                 unset($mail);
                 unset($result);
+                $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
                 $mail = array(
                     "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
                     "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
@@ -356,7 +357,7 @@ class CallbackQualtrics extends BaseCallback
                     "reply_to" => $schedule_info['reply_to'],
                     "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
                     "subject" => $schedule_info['subject'],
-                    "body" => $schedule_info['body']
+                    "body" => $body
                 );
                 $mq_id = $this->mail->add_mail_to_queue($mail);
                 if ($mq_id > 0) {
