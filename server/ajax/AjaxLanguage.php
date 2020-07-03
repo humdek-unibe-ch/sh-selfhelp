@@ -54,7 +54,7 @@ class AjaxLanguage extends BaseAjax
      * @retval boolean
      *  True if authorisation is granted, false otherwise.
      */
-    public function has_access()
+    public function has_access($class="", $method="")
     {
         return true;
     }
