@@ -453,12 +453,14 @@ ADD CONSTRAINT `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` FORE
 INSERT INTO userStatus (name, description)
 VALUES ('auto_created', 'This user was auto created. The user has only code and cannot login. If the real user register later with the code the user will be activated to normal user.');
 
+
+SET @@session.sql_mode ="ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
 -- add table mailQueue
 CREATE TABLE `mailQueue` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   `id_mailQueueStatus` INT(10) UNSIGNED ZEROFILL NOT NULL,  
   `date_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  
-  `date_to_be_sent` TIMESTAMP NOT NUll,
+  `date_to_be_sent` TIMESTAMP,
   `date_sent` TIMESTAMP,
   `from_email` VARCHAR(100) NOT NUll,
   `from_name` VARCHAR(100) NOT NUll,

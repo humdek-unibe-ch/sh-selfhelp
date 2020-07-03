@@ -47,7 +47,7 @@ class CmsPreferencesView extends BaseView
         $modules_arr = [];
         foreach ($this->model->get_db()->fetch_all_modules() as $module) {
             $mod = new BaseStyleComponent("template", array(
-                "path" => __DIR__ . "/tpl_checkboxModule.php",
+                "path" => __DIR__ . "/tpl_checkBoxModule.php",
                 "items" => array(
                     "is_checked" => $module['enabled'],
                     "id_HTML" => $module['module_name'],
