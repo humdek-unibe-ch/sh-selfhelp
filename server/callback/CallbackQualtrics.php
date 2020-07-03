@@ -560,21 +560,21 @@ class CallbackQualtrics extends BaseCallback
         );
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
-        $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        $loops = 0;
-        while (!$survey_response) {
-            //it takes time for the response to be recorded
-            sleep(1);
-            $loops++;
-            $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-            if ($loops > 60) {
-                // we wait maximum 1 minute for the response
-                $result[] = 'No survey response';
-                return $result;
-                break;
-            }
-        }
-        // $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_1JXdfkrpGNjQ9q9');
+        // $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        // $loops = 0;
+        // while (!$survey_response) {
+        //     //it takes time for the response to be recorded
+        //     sleep(1);
+        //     $loops++;
+        //     $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        //     if ($loops > 60) {
+        //         // we wait maximum 1 minute for the response
+        //         $result[] = 'No survey response';
+        //         return $result;
+        //         break;
+        //     }
+        // }
+        $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
                 //pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
