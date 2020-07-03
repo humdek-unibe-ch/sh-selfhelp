@@ -563,21 +563,21 @@ class CallbackQualtrics extends BaseCallback
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
-        // $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        // $loops = 0;
-        // while (!$survey_response) {
-        //     //it takes time for the response to be recorded
-        //     sleep(1);
-        //     $loops++;
-        //     $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        //     if ($loops > 60) {
-        //         // we wait maximum 1 minute for the response
-        //         $result[] = 'No survey response';
-        //         return $result;
-        //         break;
-        //     }
-        // }
-        $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
+        $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $loops = 0;
+        while (!$survey_response) {
+            //it takes time for the response to be recorded
+            sleep(1);
+            $loops++;
+            $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            if ($loops > 60) {
+                // we wait maximum 1 minute for the response
+                $result[] = 'No survey response';
+                return $result;
+                break;
+            }
+        }
+        // $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
                 //pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
@@ -756,12 +756,11 @@ Religiöse bzw. gläubige Menschen haben bestimmte Überzeugungen über den höh
     private function check_functions_from_actions($data, $user_id)
     {
         $result = [];
-        $result[] = 'no functions';
+        $result[] = 'check additional functions';
         //get all actions for this survey and trigger type 
         $actions = $this->get_actions_with_functions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         foreach ($actions as $action) {
             //clear the mail generation data
-            $result = [];
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false) {
                     // WORKWELL evaluate strenghts function
