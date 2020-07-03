@@ -560,6 +560,8 @@ class CallbackQualtrics extends BaseCallback
         );
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
+        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
+        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         // $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         // $loops = 0;
         // while (!$survey_response) {
@@ -724,15 +726,15 @@ Religiöse bzw. gläubige Menschen haben bestimmte Überzeugungen über den höh
                 $this->transaction::TABLE_MAILQUEUE,
                 $mq_id
             );
-            $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+            $result[] = '[workwell_evaluate_strenghts] Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             if ($this->mail->send_mail_from_queue($mq_id, transactionBy_by_qualtrics_callback)) {
-                $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                $result[] = '[workwell_evaluate_strenghts] Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                     ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                     ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             } else {
-                $result[] = 'ERROR! Mail was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                $result[] = '[workwell_evaluate_strenghts] ERROR! Mail was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                     ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                     ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             }
