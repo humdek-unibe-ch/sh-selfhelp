@@ -569,6 +569,8 @@ class CallbackQualtrics extends BaseCallback
             $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
             if ($loops > 60) {
                 // we wait maximum 1 minute for the response
+                $result[] = 'No survey response';
+                return $result;
                 break;
             }
         }
