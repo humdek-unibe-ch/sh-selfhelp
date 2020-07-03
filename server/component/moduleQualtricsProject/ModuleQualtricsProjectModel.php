@@ -756,7 +756,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      * Get survey resposne via qualtrics api
      * @param string $survey_api_id qualtrics survey id
      * @param string $survey_response survey_response indetifier
-     * @retval array with the survey response
+     * @retval array with the survey response or false
      */
     public function get_survey_response($survey_api_id, $survey_response)
     {
@@ -767,7 +767,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             "URL" => $url
         );
         $result = $this->execute_curl($data);
-        return $result ? $result['result'] : $result;
+        return ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
     }
 
     /**
