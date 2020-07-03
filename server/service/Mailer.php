@@ -7,6 +7,7 @@
 require_once __DIR__ . "/globals_untracked.php";
 require_once __DIR__ . "/ext/PHPMailer.php";
 require_once __DIR__ . "/ext/PHPMailer_Exception.php";
+require_once __DIR__ . "/ParsedownExtension.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
