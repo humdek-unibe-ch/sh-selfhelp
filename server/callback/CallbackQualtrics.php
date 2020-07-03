@@ -580,7 +580,7 @@ class CallbackQualtrics extends BaseCallback
         // $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
-                //pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
+                //sudo apt install php-dev; pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
                 $strengths[$key]["value"] = round(stats_cdf_normal($survey_response['values'][$key], $value["coefficient_1"], $value["coefficient_2"], 1) * 100);
             }
         }

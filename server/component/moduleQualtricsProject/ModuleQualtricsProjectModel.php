@@ -138,6 +138,8 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private function execute_curl($data)
     {
+        // curl module should be installed
+        // sudo apt-get install php-curl
         try {
             $curl = curl_init();
             curl_setopt_array($curl, $this->get_default_qaltrics_curl_settings());

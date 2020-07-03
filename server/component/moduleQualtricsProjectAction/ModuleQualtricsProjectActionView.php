@@ -290,6 +290,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     {
         return new BaseStyleComponent("card", array(
             "css" => "mb-3",
+            "id" => "schedule_info",
             "is_expanded" => true,
             "is_collapsible" => true,
             "title" => 'Schedule info',
@@ -660,13 +661,22 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "text" => $this->action['groups']
                     ))),
                 )),
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Send",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->action['action_schedule_type']
-                    ))),
+                new BaseStyleComponent("select", array(
+                    "label" => "Send",
+                    "name" => "id_qualtricsActionScheduleTypes",
+                    "id" => "id_qualtricsActionScheduleTypes",
+                    "value" => isset($this->action['id_qualtricsActionScheduleTypes']) ? $this->action['id_qualtricsActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(qualtricsActionScheduleTypes, 'nothing'),
+                    "items" => $this->get_lookups(qualtricsActionScheduleTypes),
+                    "css" => "mb-3",
+                    "disabled" => true
                 )),
+                // new BaseStyleComponent("descriptionItem", array(
+                //     "title" => "Send",
+                //     "locale" => "",
+                //     "children" => array(new BaseStyleComponent("rawText", array(
+                //         "text" => $this->action['action_schedule_type']
+                //     ))),
+                // )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Additional functions",
                     "locale" => "",

@@ -101,6 +101,15 @@ CREATE TABLE `cmsPreferences` (
 INSERT INTO cmsPreferences(callback_api_key, default_language_id)
 VALUES (NULL, 2); 
 
+-- view_cmsPreference
+DROP VIEW IF EXISTS view_cmsPreferences;
+CREATE VIEW view_cmsPreferences
+AS
+SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale
+FROM cmsPreferences p
+LEFT JOIN languages l ON (l.id = p.default_language_id)
+WHERE p.id = 1;
+
 -- add Qualtrics module page
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
 VALUES (NULL, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', '0000000002', NULL, '0000000009', '0', '90', NULL, '0000000001');
