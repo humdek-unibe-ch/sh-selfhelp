@@ -199,6 +199,7 @@ class Mailer extends PHPMailer
             $replyTo = array('address' => $mail_info['reply_to']);
             $res = true;
             foreach ($mail_info_recipients as $mail) {
+                unset($to['to']);
                 $to['to'][] = array('address' => $mail, 'name' => $mail);
                 $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, array(), $replyTo);
                 $this->transaction->add_transaction(
