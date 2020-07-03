@@ -71,6 +71,7 @@ class ModuleQualtricsView extends BaseView
      */
     public function output_page_content()
     {
+        echo round(stats_cdf_normal(3.3, 3.65, 0.56, 1) * 100);
         echo 'Dashboard - TODO';        
     }
 

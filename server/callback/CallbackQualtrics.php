@@ -415,146 +415,146 @@ class CallbackQualtrics extends BaseCallback
                                                     LIMIT 0, 1;', array("qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]))['qualtrics_api'];
         $strengths = array(
             "creativity" => array(
-                "coefficient_1" => 3.78,
-                "coefficient_2" => 0.5,
+                "coefficient_1" => 3.43,
+                "coefficient_2" => 0.6,
                 "label" => "Kreativitaet",
                 "value" => 0
             ),
             "curiosity" => array(
-                "coefficient_1" => 3.85,
-                "coefficient_2" => 0.46,
+                "coefficient_1" => 3.92,
+                "coefficient_2" => 0.51,
                 "label" => "Neugier",
                 "value" => 0
             ),
             "open_mindedness" => array(
-                "coefficient_1" => 3.62,
-                "coefficient_2" => 0.44,
+                "coefficient_1" => 3.7,
+                "coefficient_2" => 0.48,
                 "label" => "Urteilsvermoegen",
                 "value" => 0
             ),
             "learning" => array(
-                "coefficient_1" => 3.6,
-                "coefficient_2" => 0.48,
+                "coefficient_1" => 3.59,
+                "coefficient_2" => 0.62,
                 "label" => "Liebe zum Lernen",
                 "value" => 0
             ),
             "perspektive" => array(
-                "coefficient_1" => 3.9,
+                "coefficient_1" => 3.46,
                 "coefficient_2" => 0.47,
                 "label" => "Weisheit",
                 "value" => 0
             ),
             "bravery" => array(
-                "coefficient_1" => 3.57,
-                "coefficient_2" => 0.48,
+                "coefficient_1" => 3.52,
+                "coefficient_2" => 0.5,
                 "label" => "Tapferkeit",
                 "value" => 0
             ),
             "persistence" => array(
-                "coefficient_1" => 3.52,
-                "coefficient_2" => 0.52,
+                "coefficient_1" => 3.47,
+                "coefficient_2" => 0.59,
                 "label" => "Ausdauer",
                 "value" => 0
             ),
             "authenticity" => array(
-                "coefficient_1" => 3.32,
-                "coefficient_2" => 0.56,
+                "coefficient_1" => 3.78,
+                "coefficient_2" => 0.43,
                 "label" => "Authentizitaet",
                 "value" => 0
             ),
             "zest" => array(
-                "coefficient_1" => 3.32,
-                "coefficient_2" => 0.53,
+                "coefficient_1" => 3.57,
+                "coefficient_2" => 0.52,
                 "label" => "Enthusiasmus",
                 "value" => 0
             ),
             "love" => array(
-                "coefficient_1" => 3.25,
-                "coefficient_2" => 0.55,
+                "coefficient_1" => 3.78,
+                "coefficient_2" => 0.5,
                 "label" => "Bindungsfaehigkeit",
                 "value" => 0
             ),
             "kindness" => array(
-                "coefficient_1" => 3.51,
-                "coefficient_2" => 0.54,
+                "coefficient_1" => 3.85,
+                "coefficient_2" => 0.46,
                 "label" => "Freundlichkeit",
                 "value" => 0
             ),
             "social_intelligence" => array(
-                "coefficient_1" => 3.69,
-                "coefficient_2" => 0.53,
+                "coefficient_1" => 3.62,
+                "coefficient_2" => 0.44,
                 "label" => "Soziale Intelligenz",
                 "value" => 0
             ),
             "teamwork" => array(
-                "coefficient_1" => 3.54,
-                "coefficient_2" => 0.55,
+                "coefficient_1" => 3.6,
+                "coefficient_2" => 0.48,
                 "label" => "Teamwork",
                 "value" => 0
             ),
             "fairness" => array(
-                "coefficient_1" => 3.65,
-                "coefficient_2" => 0.56,
+                "coefficient_1" => 3.9,
+                "coefficient_2" => 0.47,
                 "label" => "Fairness",
                 "value" => 0
             ),
             "leadership" => array(
-                "coefficient_1" => 3.02,
-                "coefficient_2" => 0.89,
+                "coefficient_1" => 3.57,
+                "coefficient_2" => 0.48,
                 "label" => "Fuehrungsvermoegen",
                 "value" => 0
             ),
             "forgiveness" => array(
-                "coefficient_1" => 3.43,
-                "coefficient_2" => 0.6,
+                "coefficient_1" => 3.52,
+                "coefficient_2" => 0.52,
                 "label" => "Vergebungsbereitschaft",
                 "value" => 0
             ),
             "modesty" => array(
-                "coefficient_1" => 3.92,
-                "coefficient_2" => 0.51,
+                "coefficient_1" => 3.32,
+                "coefficient_2" => 0.56,
                 "label" => "Bescheidenheit",
                 "value" => 0
             ),
             "prudence" => array(
-                "coefficient_1" => 3.7,
-                "coefficient_2" => 0.48,
+                "coefficient_1" => 3.32,
+                "coefficient_2" => 0.53,
                 "label" => "Vorsicht",
                 "value" => 0
             ),
             "self_regulation" => array(
-                "coefficient_1" => 3.59,
-                "coefficient_2" => 0.62,
+                "coefficient_1" => 3.25,
+                "coefficient_2" => 0.55,
                 "label" => "Selbstregulation",
                 "value" => 0
             ),
             "appreciation" => array(
-                "coefficient_1" => 3.46,
-                "coefficient_2" => 0.47,
+                "coefficient_1" => 3.51,
+                "coefficient_2" => 0.54,
                 "label" => "Sinn fuer das Schoene",
                 "value" => 0
             ),
             "gratitude" => array(
-                "coefficient_1" => 3.52,
-                "coefficient_2" => 0.5,
+                "coefficient_1" => 3.69,
+                "coefficient_2" => 0.53,
                 "label" => "Dankbarkeit",
                 "value" => 0
             ),
             "hope" => array(
-                "coefficient_1" => 3.47,
-                "coefficient_2" => 0.59,
+                "coefficient_1" => 3.54,
+                "coefficient_2" => 0.55,
                 "label" => "Hoffnung",
                 "value" => 0
             ),
             "humor" => array(
-                "coefficient_1" => 3.78,
-                "coefficient_2" => 0.43,
+                "coefficient_1" => 3.65,
+                "coefficient_2" => 0.56,
                 "label" => "Humor",
                 "value" => 0
             ),
             "spirituality" => array(
-                "coefficient_1" => 3.57,
-                "coefficient_2" => 0.52,
+                "coefficient_1" => 3.02,
+                "coefficient_2" => 0.89,
                 "label" => "Spiritualitaet",
                 "value" => 0
             )
