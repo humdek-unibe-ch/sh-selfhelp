@@ -563,13 +563,13 @@ class CallbackQualtrics extends BaseCallback
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
-        $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         $loops = 0;
         while (!$survey_response) {
             //it takes time for the response to be recorded
             sleep(1);
             $loops++;
-            $survey_response = $this->moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
             if ($loops > 60) {
                 // we wait maximum 1 minute for the response
                 $result[] = 'No survey response';
