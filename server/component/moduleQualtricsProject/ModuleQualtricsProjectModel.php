@@ -322,7 +322,8 @@ class ModuleQualtricsProjectModel extends BaseModel
      * @param string $flowId
      * @param string $url
      * @param string $participant_varaible
-     * @param string $callback_key null if not set     
+     * @param bool $is_callback 
+     * @param string $fireAndForget if true qulatrics do not wait for a repsonse from the callback otherwise it waits
      * @retval array
      */
     private function get_webService_flow($embedded_vars, $flowId, $url, $participant_variable, $is_callback, $fireAndForget = true)
