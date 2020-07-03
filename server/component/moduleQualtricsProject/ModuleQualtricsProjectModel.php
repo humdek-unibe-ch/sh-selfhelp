@@ -344,7 +344,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             "ContentType" => "application/json",
             "Headers" => $is_callback ? array() : $this->get_qualtrics_api_headers(),
             "ResponseMap" => array(),
-            "FireAndForget" => false,
+            "FireAndForget" => true,
             "SchemaVersion" => 0,
             "StringifyValues" => true
         );
