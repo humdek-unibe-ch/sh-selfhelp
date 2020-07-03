@@ -408,6 +408,7 @@ class CallbackQualtrics extends BaseCallback
      */
     private function workwell_evaluate_strenghts($data, $user_id)
     {
+        $result = [];
         $qualtrics_api = $this->db->query_db_first('SELECT DISTINCT qualtrics_api
                                                     FROM view_qualtricsActions
                                                     WHERE qualtrics_survey_id = :qualtrics_survey_id
