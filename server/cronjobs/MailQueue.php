@@ -8,6 +8,7 @@
 require_once __DIR__ . "/../service/globals.php";
 require_once __DIR__ . "/../service/PageDb.php";
 require_once __DIR__ . "/../service/Mailer.php";
+require_once __DIR__ . "/../service/Transaction.php";
 require_once __DIR__ . "/../service/Router.php";
 require_once __DIR__ . "/../service/UserInput.php";
 
