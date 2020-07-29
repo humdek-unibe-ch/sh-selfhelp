@@ -479,6 +479,7 @@ class UserModel extends BaseModel
      */
     public function get_group_options()
     {
+        // $starttime = microtime(true);
         $groups = array();
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             ORDER BY g.name";
@@ -488,6 +489,8 @@ class UserModel extends BaseModel
             if($this->is_group_allowed(intval($group['value'])))
                 $groups[] = $group;
         }
+        // $endtime = microtime(true);
+        // print("duration: " .  ($endtime - $starttime));
         return $groups;
     }
 

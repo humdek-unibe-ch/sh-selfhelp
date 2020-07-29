@@ -126,6 +126,7 @@ class GroupModel extends BaseModel
                 )
             );
         }
+        //print('duration:');
         return $acl;
     }
 
@@ -617,6 +618,7 @@ class GroupModel extends BaseModel
      */
     public function get_groups()
     {
+        // $starttime = microtime(true);
         $res = array();
         foreach($this->fetch_groups() as $group)
         {
@@ -628,6 +630,8 @@ class GroupModel extends BaseModel
                 "url" => $this->get_link_url("groupSelect", array("gid" => $id))
             );
         }
+        // $endtime = microtime(true);
+        // print("duration: " .  ($endtime - $starttime));
         return $res;
     }
 

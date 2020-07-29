@@ -166,6 +166,7 @@ class Acl
      */
     private function get_access_levels_user($id_user, $id_page)
     {
+        // $starttime = microtime(true);
         $acl = array(
             "select" => false,
             "insert" => false,
@@ -190,6 +191,14 @@ class Acl
                 if($acl_db_group['acl_update'] == '1') $acl["update"] = true;
                 if($acl_db_group['acl_delete'] == '1') $acl["delete"] = true;
             }
+        $acl = array(
+            "select" => true,
+            "insert" => true,
+            "update" => true,
+            "delete" =>true
+        );
+        // $endtime = microtime(true);
+        //print("duration: " .  ($endtime - $starttime) . "<br>");
         return $acl;
     }
 
@@ -243,7 +252,7 @@ class Acl
      *
      */
     public function is_user_of_higer_level_than_group($id_user, $id_group)
-    {
+    {        
         $sql = "SELECT id FROM pages";
         $pages_db = $this->db->query_db($sql);
         foreach($pages_db as $page)
