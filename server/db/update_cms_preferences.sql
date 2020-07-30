@@ -312,7 +312,8 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 
 -- add notificationTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('notificationTypes', 'email', 'Email', 'The notification will be sent by email');
-INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('notificationTypes', 'sms', 'SMS', 'The notification will be sent by SMS');
+-- To Do schedule sms
+-- INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('notificationTypes', 'sms', 'SMS', 'The notification will be sent by SMS');
 
 -- add qualtricScheduleTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'immediately', 'Immediately', 'Shcedule and send the mail immediately');

@@ -1,4 +1,33 @@
-# v2.0.6 (latest)
+# v3.0.0 (latest)
+
+### Changes
+
+ - In style `register` add default `group` for new users
+ - In style `register` add `open_registration` property. If it isselected, a new user can register without a code. A new one will be generarted for him/her automatically
+ - Add export for datatables
+ - In style `select` add a field `live_search`. It eneable text filtering. The style is based now on bootstrap-select.js
+
+### New Features
+
+ - Add page CMS preferences
+ - Add user language selection
+ - Create/edit/delete language
+ - Add Module Mail
+    - Mail queue that show all shceduled emails
+    - Schedule email manually
+    - Cronjob that check and send mails
+- Add Module Qualtrics
+    -   Add projects
+    -   Add surveys
+    -   Add actions
+    -   Qualtrics synchronization
+- Add transcations
+- Add jQuery confirm dialog
+- Add flatpicker - now time can be selected too
+- Add new style `qualtricsSurvey`. It displays a Qualtroics Survey in iFrame. It uses iframeResizer.js
+- Add `lookups` table
+
+# v2.0.6
 
 ### Bugfix
 
