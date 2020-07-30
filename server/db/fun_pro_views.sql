@@ -1,3 +1,10 @@
+DROP VIEW IF EXISTS view_cmsPreferences;
+CREATE VIEW view_cmsPreferences
+AS
+SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale
+FROM cmsPreferences p
+LEFT JOIN languages l ON (l.id = p.default_language_id)
+WHERE p.id = 1;
 drop view if exists view_fields;
 create view view_fields
 as
@@ -40,10 +47,10 @@ DROP FUNCTION IF EXISTS get_field_type_id //
 CREATE FUNCTION get_field_type_id(field_type varchar(100)) RETURNS INT
 BEGIN 
 	DECLARE field_type_id INT;    
-	select id into field_type_id
-	from fieldType
-	where name = field_type;
-    return field_type_id;
+	SELECT id INTO field_type_id
+	FROM fieldType
+	WHERE name = field_type COLLATE utf8_unicode_ci;
+    RETURN field_type_id;
 END
 //
 
@@ -54,10 +61,10 @@ DROP FUNCTION IF EXISTS get_field_id //
 CREATE FUNCTION get_field_id(field varchar(100)) RETURNS INT
 BEGIN 
 	DECLARE field_id INT;    
-	select id into field_id
-	from fields
-	where name = field;
-    return field_id;
+	SELECT id INTO field_id
+	FROM fields
+	WHERE name = field COLLATE utf8_unicode_ci;
+    RETURN field_id;
 END
 //
 
@@ -68,10 +75,10 @@ DROP FUNCTION IF EXISTS get_style_id //
 CREATE FUNCTION get_style_id(style varchar(100)) RETURNS INT
 BEGIN 
 	DECLARE style_id INT;    
-	select id into style_id
-	from styles
-	where name = style;
-    return style_id;
+	SELECT id INTO style_id
+	FROM styles
+	WHERE name = style COLLATE utf8_unicode_ci;
+    RETURN style_id;
 END
 //
 
@@ -82,10 +89,10 @@ DROP FUNCTION IF EXISTS get_style_group_id //
 CREATE FUNCTION get_style_group_id(style_group varchar(100)) RETURNS INT
 BEGIN 
 	DECLARE style_group_id INT;    
-	select id into style_group_id
-	from styleGroup
-	where name = style_group;
-    return style_group_id;
+	SELECT id INTO style_group_id
+	FROM styleGroup
+	WHERE name = style_group COLLATE utf8_unicode_ci;
+    RETURN style_group_id;
 END
 //
 
@@ -240,3 +247,151 @@ END
 //
 
 DELIMITER ;
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS proc_register_module //
+
+CREATE PROCEDURE proc_register_module( 
+	p_module_name VARCHAR(500), 
+    p_page_name VARCHAR(100), 
+    p_enabled INT )
+-- send module name, page name and enabled disabled;
+-- if module does not exists, it will be created, then the page will be added to the module if it exists. First we check if the page exist, if it doesnt exist we throw error. 
+-- enabled is assigned to the module.
+BEGIN
+	SET @page_id = NULL;
+    SET @module_id = NULL;
+    SET @result = '';
+	SELECT id INTO @page_id FROM pages WHERE keyword = p_page_name COLLATE utf8_unicode_ci;
+    
+    IF (@page_id IS NULL) THEN
+		SET @result = CONCAT('Page name ', p_page_name, ' does not exist;');
+	ELSE
+
+		SELECT id INTO @module_id FROM modules WHERE module_name = p_module_name COLLATE utf8_unicode_ci;
+		IF (@module_id IS NULL) THEN
+			INSERT INTO modules (module_name, enabled) VALUES (p_module_name, p_enabled); 
+			SET @module_id = LAST_INSERT_ID();
+            SET @result = CONCAT(@result, 'Module ', p_module_name, ' was created!;');            
+		ELSE
+			UPDATE modules SET enabled = p_enabled WHERE id = @module_id;
+            SET @result = CONCAT(@result, 'The status enabled of Module ', p_module_name, ' was was changed to ', p_enabled, ';');
+            
+		END IF;
+        INSERT INTO modules_pages (id_modules, id_pages) VALUES (@module_id, @page_id); 
+		SET @result = CONCAT(@result, 'Page ', p_page_name, ' was added to module ', p_module_name);
+        
+	END IF;
+    
+    SELECT @result AS result;
+
+END
+//
+
+DELIMITER ;
+DROP VIEW IF EXISTS view_qualtricsSurveys;
+CREATE VIEW view_qualtricsSurveys
+AS
+SELECT s.*, typ.lookup_value as survey_type
+FROM qualtricsSurveys s 
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);DROP VIEW IF EXISTS view_acl_groups_pages_modules;
+CREATE VIEW view_acl_groups_pages_modules
+AS
+SELECT acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+FROM acl_groups acl
+INNER JOIN pages p ON (acl.id_pages = p.id)
+LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+LEFT JOIN modules m ON (m.id = mp.id_modules)
+GROUP BY acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
+p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
+DROP VIEW IF EXISTS view_acl_users_pages_modules;
+CREATE VIEW view_acl_users_pages_modules
+AS
+SELECT acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+FROM acl_users acl
+INNER JOIN pages p ON (acl.id_pages = p.id)
+LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+LEFT JOIN modules m ON (m.id = mp.id_modules)
+GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
+p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
+DROP VIEW IF EXISTS view_mailQueue;
+CREATE VIEW view_mailQueue
+AS
+SELECT mq.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
+reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
+FROM mailQueue mq
+INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);DROP VIEW IF EXISTS view_qualtricsActions;
+CREATE VIEW view_qualtricsActions
+AS
+SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
+GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
+GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR '; ') AS functions_code,
+GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
+schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
+CASE 
+	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
+    ELSE NULL
+END as survey_reminder_name
+FROM qualtricsActions st 
+INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
+INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes)
+INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
+INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
+LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
+LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
+LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
+LEFT JOIN lookups l on (f.id_lookups = l.id)
+GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
+st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value;DROP VIEW IF EXISTS view_transactions;
+CREATE VIEW view_transactions
+AS
+SELECT t.id, t.transaction_time, t.id_transactionTypes, tran_type.lookup_value AS transaction_type,
+id_transactionBy, tran_by.lookup_value AS transaction_by, id_users, u.name AS user_name,
+table_name, id_table_name, REPLACE(JSON_EXTRACT(transaction_log, '$.verbal_log'), '"', '') AS transaction_verbal_log
+FROM transactions t
+INNER JOIN lookups tran_type ON (tran_type.id = t.id_transactionTypes)
+INNER JOIN lookups tran_by ON (tran_by.id = t.id_transactionBy)
+LEFT JOIN users u ON (u.id = t.id_users);DROP VIEW IF EXISTS view_mailQueue_transactions;
+CREATE VIEW view_mailQueue_transactions
+AS
+SELECT mq.id, date_create, date_to_be_sent, date_sent, t.id AS transaction_id, transaction_time, 
+transaction_type, transaction_by, user_name, transaction_verbal_log
+FROM mailQueue mq
+INNER JOIN view_transactions t ON (t.table_name = 'mailQueue' AND t.id_table_name = mq.id)
+ORDER BY mq.id ASC, t.id ASC;DROP VIEW IF EXISTS view_users;
+CREATE VIEW view_users
+AS
+SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
+us.description, u.blocked, vc.code,
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
+FROM users AS u
+LEFT JOIN userStatus AS us ON us.id = u.id_status
+LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
+LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
+LEFT JOIN validation_codes vc ON u.id = vc.id_users
+WHERE u.intern <> 1 AND u.id_status > 0
+GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
+ORDER BY u.email;DROP VIEW IF EXISTS view_qualtricsReminders;
+CREATE VIEW view_qualtricsReminders
+AS
+select u.id as user_id, u.email, u.name as user_name, code, m.id as mailQueue_id,
+m.status_code as mailQueue_status_code, m.status as mailQueue_status, s.id as qualtricsSurvey_id, qualtrics_survey_id
+from qualtricsReminders r
+inner join view_users u on (u.id = r.id_users)
+inner join view_mailQueue m on (m.id = r.id_mailQueue)
+inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);
