@@ -191,12 +191,12 @@ class Acl
                 if($acl_db_group['acl_update'] == '1') $acl["update"] = true;
                 if($acl_db_group['acl_delete'] == '1') $acl["delete"] = true;
             }
-        $acl = array(
-            "select" => true,
-            "insert" => true,
-            "update" => true,
-            "delete" =>true
-        );
+        // $acl = array(
+        //     "select" => true,
+        //     "insert" => true,
+        //     "update" => true,
+        //     "delete" =>true
+        // ); //using for debuging when I will fix the group loading page
         // $endtime = microtime(true);
         //print("duration: " .  ($endtime - $starttime) . "<br>");
         return $acl;
