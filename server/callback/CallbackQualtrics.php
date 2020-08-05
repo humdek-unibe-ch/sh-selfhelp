@@ -595,6 +595,8 @@ Mit freundlichen Grüssen
 
 Ihr Forschungsteam E-Mail: <workwell@psy.unibe.ch>
 
+&nbsp;
+
 Projektleitung: Dr. Dandan Pang
 
 Abteilung Arbeits- und Organisationspsychologie
@@ -615,7 +617,7 @@ Schweiz';
             "from_name" => 'Workwell',
             "reply_to" => 'workwell@workwell.psy.unibe.ch',
             "recipient_emails" =>  $this->db->select_by_uid('users', $user_id)['email'],
-            "subject" => 'Persönliche Rückmeldung für TeilnehmerIn mit dem Code: ' . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE],
+            "subject" => 'Ihre VIA-IS Charakterstärken',
             "body" => $body
         );
         $mq_id = $this->mail->add_mail_to_queue($mail);
