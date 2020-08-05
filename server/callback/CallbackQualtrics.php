@@ -593,13 +593,9 @@ Wir freuen uns über Ihr Engagement und stehen Ihnen bei Fragen oder auftretende
 
 Mit freundlichen Grüssen
 
-Ihr Forschungsteam
+Ihr Forschungsteam E-Mail: <workwell@psy.unibe.ch>
 
-E-Mail: <workwell@psy.unibe.ch>
-
-
-
-Projektleitung: Dr. Dandan Pang 
+Projektleitung: Dr. Dandan Pang
 
 Abteilung Arbeits- und Organisationspsychologie
 
