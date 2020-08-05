@@ -586,25 +586,19 @@ class CallbackQualtrics extends BaseCallback
         }
         array_multisort(array_column($strengths, 'value'), SORT_DESC, $strengths);
         $body = 'Liebe Teilnehmerin, lieber Teilnehmer
+Vielen Dank, dass Sie den Values in Action-Fragebogen (VIA-IS) ausgefüllt haben! Im Anhang finden Sie nun Ihre persönliche Rückmeldung zu Ihren Ergebnissen mit einer kurzen Interpretationshilfe.
+Wir freuen uns über Ihr Engagement und stehen Ihnen bei Fragen oder auftretenden Problemen gerne zur Verfügung.
+Mit freundlichen Grüssen
+Ihr Forschungsteam
+E-Mail: <workwell@psy.unibe.ch>
 
-                Vielen Dank, dass Sie den Values in Action-Fragebogen (VIA-IS) ausgefüllt haben! Im Anhang finden Sie nun Ihre persönliche Rückmeldung zu Ihren Ergebnissen mit einer kurzen Interpretationshilfe.
-
-                Wir freuen uns über Ihr Engagement und stehen Ihnen bei Fragen oder auftretenden Problemen gerne zur Verfügung.
-
-                Mit freundlichen Grüssen
-
-                Ihr Forschungsteam
-
-                E-Mail: <workwell@psy.unibe.ch>
-                
-
-                Projektleitung: Dr. Dandan Pang 
-                Abteilung Arbeits- und Organisationspsychologie
-                Universität Bern
-                Institut für Psychologie
-                Fabrikstrasse 8
-                3012 Bern
-                Schweiz';
+Projektleitung: Dr. Dandan Pang 
+Abteilung Arbeits- und Organisationspsychologie
+Universität Bern
+Institut für Psychologie
+Fabrikstrasse 8
+3012 Bern
+Schweiz';
         $mail = array(
             "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
             "date_to_be_sent" => date('Y-m-d H:i:s', time()),
