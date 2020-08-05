@@ -585,129 +585,20 @@ class CallbackQualtrics extends BaseCallback
             }
         }
         array_multisort(array_column($strengths, 'value'), SORT_DESC, $strengths);
-        $body = 'Auf Basis Ihrer Antworten haben wir eine Rangreihe Ihrer persönlichen Charakterstärken erstellt. Damit Sie Ihre Ergebnisse verstehen können, erhalten Sie im Folgenden einige Hinweise, die von genereller Bedeutung sind.Im Folgenden erhalten Sie eine Auflistung der 24 Stärken. Dies ist Ihre persönliche Rangreihenfolge der Charakterstärken. Die erste Stärke ist am wichtigsten be- ziehungsweise am typischsten für sie, die letzte eher unwichtig oder wenig charakteristisch. Die Forschung hat ergeben, dass Menschen meist zwischen drei und sieben für sie _cha- rakteristische Stärken_ aufweisen. Legen Sie Ihr Augenmerk deshalb auf die ersten Stärken der Rangreihenfolge. Personen erfahren Zufriedenheit bei der Ausübung dieser Stärken, z.B. im Beruf (Harzer &amp; Ruch, 2012) oder bei Freizeitaktivitäten.
+        $body = 'Liebe Teilnehmerin, lieber Teilnehmer
+                Vielen Dank, dass Sie den Values in Action-Fragebogen (VIA-IS) ausgefüllt haben! Im Anhang finden Sie nun Ihre persönliche Rückmeldung zu Ihren Ergebnissen mit einer kurzen Interpretationshilfe.
+                Wir freuen uns über Ihr Engagement und stehen Ihnen bei Fragen oder auftretenden Problemen gerne zur Verfügung.
+                Mit freundlichen Grüssen
+                Ihr Forschungsteam
+                E-Mail: <workwell@psy.unibe.ch>
 
-Die als Nummer 24 gereihte Stärke ist die am geringsten ausgeprägte Stärke (sie ist aber nicht als Schwäche zu interpretieren).
-
-Man nimmt an, dass jeder Mensch zwischen 3 und 7 „Signaturstärken&quot; besitzt, also für eine
-
-Person besonders zentral Stärken, deren Ausübung als erfüllend empfunden wird. Die in der
-
-„top 5 strengths&quot; besonders zu beachten. Würden Sie den Fragebogen erneut ausfüllen, so könnte es sein, dass sich Ihre Rangreihenfolge mehr oder weniger verändert. Bei vielen Personen ist es jedoch so, dass die Ausprägungen ihrer Charakterstärken im Erwachsenenalter recht stabil bleiben.
-
-Die rückgemeldeten Ergebnisse reflektieren eine Zusammenfassung _Ihrer VIA-IS- Selbstbeschreibung_. Sie selbst haben sich anhand der Fragen bzw. Aussagen beschrieben. Die Ergebnisse sind daher abhängig davon, wie genau und ehrlich Sie die Fragen beantwortet haben und welches Bild Sie von sich selbst haben.
-
-**Wichtig!** Nur weil eine Charakterstärke weiter unten aufgeführt ist, bedeutet das nicht, dass Sie diese nicht haben. Der Fragebogen misst auschliesslich die Ausprägung in Stärken, nicht in Schwächen. Es ist also lediglich eine Rangfolge Ihrer Stärken.
-
-| **Rang** | **Charakterstärke** | **Score(For testing)** |
-| --- | --- | --- |
-';
-        $i = 1;
-        foreach ($strengths as $key => $value) {
-            $body = $body . '| ' . $i . ' | ' . $value['label'] . ' | ' . $value['value'] . ' |
-            ';
-            $i++;
-        }
-        $body = $body . '
-
-***Beschreibung der Stärken***
-
-**Kreativität**
-
-Kreative Menschen besitzen die nötigen Fähigkeiten, um ständig eine Vielzahl von verschiedenen originellen Ideen zu produzieren oder originelle Verhaltensweisen zu zeigen. Diese zeichnen sich dadurch aus, dass sie nicht nur innovativ und neu, sondern auch der Realität angepasst sein müssen, damit sie den Menschen im Leben nützlich sind und ihnen weiterhelfen. Menschen mit ausgeprägter Kreativität zeigen diese Stärke meistens in mehreren Bereichen des Alltags auf, d.h. sie besitzen eine so genannte „praktische Intelligenz&quot;.
-
-**Neugier**
-
-Neugierige und interessierte Menschen haben ein ausgeprägtes Interesse an neuen Erfahrungen und sind sehr offen und flexibel bezüglich neuen, oft unerwarteten Situationen. Sie haben viele Interessen und finden an jeder Situation etwas Interessantes. Sie suchen aktiv nach Abwechslungen und Herausforderungen in ihrem täglichen Leben. Menschen können neugierig in Bezug auf einen spezifischen Bereich sein (z.B. Interesse an speziellen Tierarten) oder ein weitgefasstes Interesse an unterschiedlichen Dingen aufweisen.
-
-**Urteilsvermögen**
-
-Menschen mit einem stark ausgeprägten Urteilsvermögen haben die Fähigkeit, Probleme und Gegebenheiten des Alltags aus unterschiedlichen Perspektiven zu betrachten, sie kritisch zu hinterfragen und Argumente für wichtige Entscheidungen zu entwickeln. Sie sind in der Lage, Informationen objektiv und kritisch zu beleuchten. Dabei orientieren sie sich an der Realität.
-
-**Liebe zum Lernen**
-
-Menschen mit einer ausgeprägten Wissbegierde zeichnen sich durch eine grosse Begeisterung für das Lernen neuer Fähigkeiten, Fertigkeiten und Wissensinhalte aus. Sie lieben es, neue Dinge zu lernen und sind bemüht, sich ständig weiterzubilden und zu entwickeln. Die Liebe zum Lernen kann sich auf einen spezifischen Themenbereich (z.B. Geschichte) beziehen oder auch ganz allgemein ausgeprägt sein. Die Wissbegierde widerspiegelt den Wunsch, immer mehr über das Leben und die Welt wissen zu wollen. Dabei wird das ständige Lernen als eine Herausforderung betrachtet und es gibt kaum Menschen, die nicht mindestens in einem Bereich gerne lernen.
-
-**Weisheit**
-
-Weise, weitsichtige bzw. tiefsinnige Menschen haben einen guten Überblick und eine sinnvolle Sichtweise des Lebens. Sie besitzen die Fähigkeit, über das bisherige Leben eine sinnvolle Bilanz ziehen zu können. Dabei geht es um die Koordination des gelernten Wissens und der gemachten Erfahrungen eines Menschen, die zu seinem Wohlbefinden beitragen. Aus sozialer Perspektive betrachtet, können weise bzw. tiefsinnige Menschen anderen gut zuhören, Urteile abgeben und gute Ratschläge erteilen. Von den Mitmenschen werden sie oft um Ratschläge gebeten, weil sie eine Lebenseinstellung und Weltsicht haben, die für andere Leute (und sich selbst) Sinn macht.
-
-**Tapferkeit**
-
-Tapfere und mutige Menschen verfolgen ihre Ziele und lassen sich dabei nicht von Schwierigkeiten und Hindernissen entmutigen. Tapferkeit und Mut können sich auf unterschiedliche Lebensbereiche beziehen. Bei dieser Stärke handelt es sich um die Fähigkeit, etwas Positives und Nützliches weiterzubringen, trotz drohender Gefahren. Sie ermöglicht einem Menschen, unbeliebte aber richtige Meinungen zu vertreten, sich einem Problem zu stellen, den Ängsten ins Gesicht zu schauen und sich gegen Ungerechtigkeiten zu wehren.
-
-**Ausdauer**
-
-Ausdauer, Beharrlichkeit und Fleiss kennzeichnen Menschen, die alles zu Ende bringen wollen, was sie sich vorgenommen haben. Beharrlich streben sie nach ihren Zielen, geben nicht schnell auf, beenden was sie angefangen haben und lassen sich nicht ständig ablenken. Mit Beharrlichkeit ist jedoch keine zwanghafte Verfolgung von unerreichbaren Zielen gemeint. Beharrliche Menschen passen sich flexibel und realistisch den jeweiligen Situationsbedingungen an, ohne perfektionistisch zu werden.
-
-**Autentizität**
-
-Ehrliche und authentische Menschen sind sich selbst und ihren Mitmenschen gegenüber aufrichtig und ehrlich, halten ihre Versprechen und sind ihren Prinzipien treu. Sie legen Wert darauf, dass ihre Umgebung/Wirklichkeit nicht verfälscht wird. Sie sind fähig, für sich selbst die Verantwortung zu übernehmen. Authentische Menschen handeln in Übereinstimmung mit den eigenen Gedanken, Gefühlen und Überzeugungen.
-
-**Enthusiasmus**
-
-Menschen mit einem ausgeprägten Enthusiasmus und Tatendrang sind voller Energie und Lebensfreude und weisen eine ausgeprägte Begeisterungsfähigkeit für viele unterschiedliche Aktivitäten auf. Sie freuen sich auf jeden neuen Tag. Solche Menschen werden oft als energisch, flott, keck, munter und schwungvoll beschrieben. Sie setzen sich für ihre Aufgaben jeweils voll ein und bringen sie zu Ende.
-
-**Liebe**
-
-Menschen mit ausgeprägter Bindungsfähigkeit zeichnen sich dadurch aus, dass sie anderen Menschen ihre Liebe zeigen können und auch in der Lage sind, Liebe von anderen anzunehmen. Bei dieser Stärke handelt es sich um die Fähigkeit, enge Beziehungen und Freundschaften mit Mitmenschen aufzubauen, die von Zuneigung und Gegenseitigkeit gekennzeichnet sind. Diese Beziehungen zeichnen sich vor allem durch gegenseitige Hilfeleistung, Akzeptanz und Verpflichtung aus.
-
-**Freundlichkeit**
-
-Freundliche und grosszügige Menschen zeichnen sich dadurch aus, dass sie sehr nett und hilfsbereit zu anderen Menschen sind und ihnen gerne einen Gefallen tun, auch wenn sie die andere Person nicht gut kennen. Sie lieben es, andere glücklich zu machen. Freundliches und grosszügiges Verhalten kann auf ganz unterschiedliche Art und Weise gezeigt werden (z.B. im Bus den eigenen Platz freigeben, bei den Hausaufgaben helfen, Blut spenden). Zentral an dieser Stärke ist die Wertschätzung, die man anderen Menschen zukommen lässt.
-
-**Soziale Intelligenz**
-
-Menschen unterscheiden sich in der Fähigkeit, wichtige soziale Informationen, wie z.B. Gefühle, wahrzunehmen und zu verarbeiten. Sozial intelligente Menschen kennen ihre Motive und Gefühle und sie nehmen auch Unterschiede zwischen Menschen vor allem in Bezug zu deren Stimmungen, Motivationen und Absichten wahr. Sie kennen auch ihre eigenen Interessen und Fähigkeiten und sind in der Lage, sie zu fördern. Ein wichtiges Merkmal besteht darin, sich der jeweiligen Situation anzupassen.
-
-**Teamfähigkeit**
-
-Menschen mit dieser Stärke zeichnen sich durch ihre Teamfähigkeit und Verbundenheit gegenüber ihrer Gruppe aus. Sie können dann am besten arbeiten, wenn sie Teil einer Gruppe sind. Die Gruppenzugehörigkeit wird sehr hoch bewertet. Die eigenen Interessen werden meistens zugunsten der Gruppe zurückgesteckt. Teamfähige Menschen tragen oft eine soziale Verantwortung. Auch die getroffenen Entscheidungen der Gruppe werden respektiert und vor die eigenen Meinungen gestellt.
-
-**Fairness**
-
-Faire Menschen zeichnen sich durch einen ausgeprägten Sinn für Gerechtigkeit und Gleichheit aus. Jede Person wird gleich und fair behandelt, ungeachtet dessen, wer und was sie ist. Sie lassen sich in Entscheidungen nicht durch persönliche Gefühle beeinflussen, sondern versuchen, allen eine Chance zu geben. Die Bereitschaft zu Kompromissen (Mittelwegen) sowie das Zugebenkönnen von eigenen Fehlern werden als wichtige Merkmale dieser Stärke bezeichnet.
-
-**Führungsvermögen**
-
-Menschen mit einem ausgeprägten Führungsvermögen besitzen die Fähigkeit, einer Gruppe zu helfen gut miteinander zu arbeiten trotz unterschiedlichster Personen in der Gruppe. Ebenso zeichnen sie sich durch gute Planungs- und Organisationsfähigkeiten von Gruppenaktivitäten aus und können auch schwierige Entscheidungen treffen. Sie schaffen ein arbeitsförderndes Klima, unterstützen die gemeinsame Arbeit an Gruppenzielen und fördern das Zugehörigkeitsgefühl in der Gruppe, indem sie unterschiedliche Meinungen der Gruppenmitglieder einbeziehen können.
-
-**Vergebungsbereitschaft**
-
-Menschen mit dieser Stärke sind eher in der Lage, Vergangenes (z.B. einen Streit oder eine Meinungsverschiedenheit) ruhen zu lassen und einen Neuanfang zu wagen und können bis zu einem gewissen Punkt Verständnis aufbringen für die schlechte Behandlung durch andere Menschen. Sie geben ihren Mitmenschen eine Chance zur Wiedergutmachung. Der Prozess des Vergebens bzw. des Verzeihens beinhaltet heilsame und förderliche Veränderungen von Gedanken, Gefühlen und Verhaltensweisen bei Menschen, die von anderen verletzt wurden.
-
-**Bescheidenheit**
-
-Bescheidene Menschen zeichnen sich dadurch aus, dass sie nicht mit ihren Erfolgen prahlen, nicht gerne in der Menge auffallen und auch nicht die Aufmerksamkeit auf sich ziehen wollen. Sie ziehen es vor, andere reden zu lassen. Bescheidene Menschen können Fehler und Mängel zugeben. Bescheidenheit kann sich auch auf eine innere Haltung beziehen, die sich dadurch kennzeichnet, dass man sich nicht als Zentrum der Welt betrachtet.
-
-**Vorsicht**
-
-Kluge und vorsichtige Menschen zeichnen sich dadurch aus, dass sie Entscheidungen sorgfältig treffen, über mögliche Konsequenzen vor dem Sprechen und Durchführen nachdenken und Recht von Unrecht unterscheiden können. Sie vermeiden gefährliche körperliche Aktivitäten, was aber nicht heisst, dass sie neue Erfahrungen meiden. Sie werden von ihren Mitmenschen oft als vorsichtig im positiven Sinne bezeichnet. Mit ihren Fähigkeiten sind kluge Menschen in der Lage, längerfristige Ziele sorgfältig zu planen und zu verfolgen, ohne sich „kopflos&quot; in ein Abenteuer zu stürzen.
-
-**Selbstregulation**
-
-Menschen mit ausgeprägter Selbstregulation kontrollieren ihre Gefühle und ihr Verhalten in allen Situationen, z.B. ein Geheimnis für sich behalten, sich gesund ernähren, regelmässig Sport treiben, rechtzeitig Aufgaben erledigen. Sie zeichnen sich dadurch aus, dass sie längerfristigen Erfolg dem kurzfristigen vorziehen. Sie weisen eine starke Selbstdisziplin auf und merken aber gleichzeitig auch, wann es genug ist.
-
-**Sinn für das Schöne**
-
-Menschen, die in verschiedenen Lebensbereichen (wie z.B. Musik, Kunst, Natur, Sport, Wissenschaft) Schönes bewusst wahrnehmen, wertschätzen und sich darüber freuen können, haben einen ausgeprägten Sinn für das Schöne. Sie nehmen im Alltag schöne Dinge wahr, die von anderen übersehen oder nicht beachtet werden. Beim Anblick der Schönheit der Natur oder von Kunst empfinden sie tiefe Gefühle der Ehrfurcht und der Verwunderung und sind oft sprachlos. Es kommt auch vor, dass solche Menschen selber etwas Schönes schaffen, wie z.B. ein Bild malen.
-
-**Dankbarkeit**
-
-Dankbare Menschen zeichnen sich dadurch aus, dass sie sich bewusst sind über all die vielen Dinge in ihrem Leben, die nicht selbstverständlich sind. Sie nehmen sich die Zeit, ihre Dankbarkeit Menschen gegenüber auszudrücken. Wenn sie ein Geschenk bekommen, zeigen sie ihre Dankbarkeit. Sie realisieren, dass sie im Leben mit vielem gesegnet (beschenkt) sind. Die Dankbarkeit kann sich sowohl auf Menschen beziehen als auch auf nichtmenschliche Dinge (z.B. Tiere, Natur, Gott). Man kann die Dankbarkeit als gefühlvolle Antwort auf ein „Geschenk&quot; betrachten.
-
-**Hoffnung**
-
-Zuversichtliche und optimistische Menschen haben grundsätzlich eine positive Einstellung gegenüber der Zukunft. Sie können auch dann noch etwas positiv sehen, wenn es für andere negativ erscheint. Sie hoffen das Beste für die Zukunft und tun ihr Möglichstes, um ihre Ziele zu erreichen. Sie haben dabei ein klares Bild, was sie sich für die Zukunft wünschen und wie sie sich die Zukunft vorstellen. Und wenn es mal nicht klappt, dann versuchen sie trotz Herausforderungen oder Rückschlägen hoffnungsvoll in die Zukunft zu blicken.
-
-**Humor**
-
-Humorvolle und heitere Menschen lachen gerne und bringen andere Menschen gerne zum Lächeln oder zum Lachen. Sie versuchen ihre Freunde und Freundinnen aufzuheitern, wenn diese in einer bedrückten Stimmung sind. Menschen mit einem ausgeprägten Sinn für Humor versuchen in allen möglichen Situationen, Spass zu haben und versuchen alles was sie machen, mit ein bisschen Humor anzugehen. Humorvollen Menschen gelingt es auch, verschiedene Situationen von einer leichteren Seite her zu betrachten.
-
-**Religiösität/Spiritualität**
-
-Religiöse bzw. gläubige Menschen haben bestimmte Überzeugungen über den höheren Sinn und Zweck des Universums/der Welt. Sie glauben an eine höhere Macht bzw. an einen Gott. Ihre religiösen Überzeugungen beeinflussen ihr Denken, Handeln und Fühlen und können auch in schwierigen Zeiten eine Quelle des Trostes und der Kraft sein. Religiöse Menschen praktizieren ihre Religion, was sich durch unterschiedliche Verhaltensweisen zeigen kann, z.B. beten, meditieren, Kirchenbesuch oder Besinnung.
-        ';
+                Projektleitung: Dr. Dandan Pang 
+                Abteilung Arbeits- und Organisationspsychologie
+                Universität Bern
+                Institut für Psychologie
+                Fabrikstrasse 8
+                3012 Bern
+                Schweiz';
         $mail = array(
             "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
             "date_to_be_sent" => date('Y-m-d H:i:s', time()),
