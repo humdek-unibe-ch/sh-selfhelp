@@ -138,5 +138,31 @@ class QulatricsAPITemplates extends BaseModel
                 "FlowID": "",
                 "EmbeddedData": []
             }';
+
+    const VIA_EMAIL_TEMPLATE = 'Liebe Teilnehmerin, lieber Teilnehmer
+
+Vielen Dank, dass Sie den Values in Action-Fragebogen (VIA-IS) ausgefüllt haben! Im Anhang finden Sie nun Ihre persönliche Rückmeldung zu Ihren Ergebnissen mit einer kurzen Interpretationshilfe.
+
+Wir freuen uns über Ihr Engagement und stehen Ihnen bei Fragen oder auftretenden Problemen gerne zur Verfügung.
+
+Mit freundlichen Grüssen
+
+Ihr Forschungsteam E-Mail: <workwell@psy.unibe.ch>
+
+&nbsp;
+
+Projektleitung: Dr. Dandan Pang
+
+Abteilung Arbeits- und Organisationspsychologie
+
+Universität Bern
+
+Institut für Psychologie
+
+Fabrikstrasse 8
+
+3012 Bern
+
+Schweiz';
 }
 ?>

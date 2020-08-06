@@ -202,7 +202,7 @@ class Mailer extends PHPMailer
             foreach ($mail_info_recipients as $mail) {
                 unset($to['to']);
                 $to['to'][] = array('address' => $mail, 'name' => $mail);
-                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, array(), $replyTo);
+                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, array("1"=>ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf"), $replyTo);
                 $this->transaction->add_transaction(
                     $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
                     $sent_by,
