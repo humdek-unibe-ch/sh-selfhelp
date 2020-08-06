@@ -603,7 +603,7 @@ class CallbackQualtrics extends BaseCallback
         $fields = array();
         $i = 1;
         foreach ($strengths as $key => $value) {
-            $fields['strenghts'.$i] = $value['label'];
+            $fields['Strenghts'.$i] = $value['label'];
             $i++;
         }
         $pdf = new FPDM(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
