@@ -213,7 +213,9 @@ class Mailer extends PHPMailer
             $replyTo = array('address' => $mail_info['reply_to']);
             $res = true;
             $attachments = array();
-            $fetched_attachments = $mail_info = $this->db->select_by_uid('mailAttachments', $mail_queue_id);
+            $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
+                ":id_mailQueue" => $mail_queue_id
+            ));
             if($fetched_attachments){
                 foreach ($fetched_attachments as $attachmnet) {
                     $attachments[$attachmnet['attachment_name']] = $attachmnet['attachment_path'];

@@ -233,6 +233,17 @@ class ModuleMailView extends BaseView
                         "text" => $this->mail_queue_entry['is_html'] == 1 ? 'True' : 'False'
                     ))),
                 )),
+                new BaseStyleComponent("card", array(
+                    "css" => "mb-3",
+                    "title" => "Attachments",
+                    "type" => "light",
+                    "is_expanded" => true,
+                    "is_collapsible" => true,
+                    "children" => array(new BaseStyleComponent("sortableList", array(
+                        "items" => $this->model->get_attachments(),
+                        "is_editable" => true
+                    )))
+                ))
             )
         ));
         $form->output_content();

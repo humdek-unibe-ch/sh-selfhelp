@@ -115,7 +115,7 @@ class ModuleMailModel extends BaseModel
         return $this->mqid;
     }
 
-    
+
 
     /**
      * send the selected queue entry
@@ -173,6 +173,12 @@ class ModuleMailModel extends BaseModel
         return $arr;
     }
 
+    /**
+     * Compose email and add it to mailQueue
+     * @param array $data
+     * the mailQueue data
+     * @retval boolean true if succeded and false if not
+     */
     public function compose_email($data)
     {
         $recipients = [];
@@ -233,5 +239,24 @@ class ModuleMailModel extends BaseModel
             $this->db->rollback();
             return false;
         }
+    }
+
+    public function get_attachments()
+    {
+        $attachments = array();
+        $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
+            ":id_mailQueue" => $this->mqid
+        ));
+        if ($fetched_attachments) {
+            foreach ($fetched_attachments as $attachmnet) {
+                $attachments[$attachmnet['attachment_name']] = $attachmnet['attachment_path'];
+                $attachments[] = array(
+                    "id" => $attachmnet['attachment_name'],
+                    "title" => $attachmnet['attachment_name'],
+                    "url" => ASSET_PATH . '/' . $attachmnet['attachment_name']
+                );
+            }
+        }        
+        return $attachments;
     }
 }
