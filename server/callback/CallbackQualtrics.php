@@ -567,19 +567,19 @@ class CallbackQualtrics extends BaseCallback
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         $loops = 0;
-        // while (!$survey_response) {
-        //     //it takes time for the response to be recorded
-        //     sleep(1);
-        //     $loops++;
-        //     $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        //     if ($loops > 60) {
-        //         // we wait maximum 1 minute for the response
-        //         $result[] = 'No survey response';
-        //         return $result;
-        //         break;
-        //     }
-        // }
-        $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
+        while (!$survey_response) {
+            //it takes time for the response to be recorded
+            sleep(1);
+            $loops++;
+            $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            if ($loops > 60) {
+                // we wait maximum 1 minute for the response
+                $result[] = 'No survey response';
+                return $result;
+                break;
+            }
+        }
+        //$survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
                 //sudo apt install php-dev; pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
@@ -603,14 +603,16 @@ class CallbackQualtrics extends BaseCallback
         $fields = array();
         $i = 1;
         foreach ($strengths as $key => $value) {
-            $fields['Strenghts'.$i] = $value['label'];
+            $fields['Strengths'.$i] = $value['label'];
             $i++;
         }
         $pdf = new FPDM(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
         $pdf->Load($fields, false); // second parameter: false if field values are in ISO-8859-1, true if UTF-8
         $pdf->Merge();
         $pdf->Output('F', ASSET_SERVER_PATH . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf");
-        $mq_id = $this->mail->add_mail_to_queue($mail);
+        $mq_id = $this->mail->add_mail_to_queue($mail, array(
+            PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf" => ASSET_SERVER_PATH . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf"
+        ));
         if ($mq_id > 0) {
             $this->transaction->add_transaction(
                 transactionTypes_insert,

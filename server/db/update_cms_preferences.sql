@@ -656,3 +656,14 @@ from qualtricsReminders r
 inner join view_users u on (u.id = r.id_users)
 inner join view_mailQueue m on (m.id = r.id_mailQueue)
 inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);
+
+-- add table mail attachments
+CREATE TABLE `mailAttachments` (	
+	`id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT, 
+    `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL, 
+    `attachment_name` VARCHAR(100) NOT NUll,
+    `attachment_path` VARCHAR(1000) NOT NUll    
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `mailAttachments`
+ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

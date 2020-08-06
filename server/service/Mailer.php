@@ -168,12 +168,25 @@ class Mailer extends PHPMailer
     /**
      * Insert mail record in the mailQueue table
      * @param array $data
+     * @param array $attachments
+     * array with name => path structure
      * @retval boolean
      *  return if the insert is successful
      */
-    public function add_mail_to_queue($data)
+    public function add_mail_to_queue($data, $attachments = array())
     {
-        return $this->db->insert('mailQueue', $data);
+        $mail_queue_id = $this->db->insert('mailQueue', $data);
+        if ($mail_queue_id && count($attachments) > 0) {
+            //insert attachments in the DB
+            foreach ($attachments as $attachmentName => $attachmentPath) {
+                $this->db->insert('mailAttachments', array(
+                    "id_mailQueue" => $mail_queue_id,
+                    "attachment_name" => $attachmentName,
+                    "attachment_path" => $attachmentPath
+                ));
+            }
+        }
+        return $mail_queue_id;
     }
 
     /**
@@ -199,10 +212,17 @@ class Mailer extends PHPMailer
             $msg_html = $mail_info['is_html'] == 1 ? $this->parsedown->text($msg) : $msg;
             $replyTo = array('address' => $mail_info['reply_to']);
             $res = true;
+            $attachments = array();
+            $fetched_attachments = $mail_info = $this->db->select_by_uid('mailAttachments', $mail_queue_id);
+            if($fetched_attachments){
+                foreach ($fetched_attachments as $attachmnet) {
+                    $attachments[$attachmnet['attachment_name']] = $attachmnet['attachment_path'];
+                }
+            }
             foreach ($mail_info_recipients as $mail) {
                 unset($to['to']);
                 $to['to'][] = array('address' => $mail, 'name' => $mail);
-                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, array("1"=>ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf"), $replyTo);
+                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, $attachments, $replyTo);
                 $this->transaction->add_transaction(
                     $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
                     $sent_by,
