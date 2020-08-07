@@ -382,5 +382,87 @@ class PageDb extends BaseDb
         if($res['name'] != "") return $res['name'];
         else return $res['email'];
     }
+
+    /**
+     * Fetch the list of languages
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function fetch_languages()
+    {
+        $sql = "SELECT * FROM languages where id > 1;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch cmsPreferences
+     *
+     * @retval array
+     *  All preferences     
+     *   'callback_api_key':   
+     *   'default_lanhuage_id':   
+     *   'default_lanhuage':
+     */
+    public function fetch_cmsPreferences()
+    {
+        $sql = "SELECT * FROM view_cmsPreferences;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch all modules from the databse
+     *      
+     *
+     * @retval array
+     * enabled; 0 = false; 1 = true 
+     * module_name     
+     * id
+     */
+    public function fetch_all_modules()
+    {
+        $sql = "SELECT * FROM modules;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Get values from table and retrun them in array text values for select options
+     * Example call fetch_table_as_select_values('groups', 'id', array('name'),'WHERE id=:gid', array(":gid"=>3))
+     * @param string $table_name
+     * the name of the table that we want to fetch
+     * @param string $value_column 
+     * the name of the column which will be the value
+     * @param array $text_columns_array
+     * array with the columns that we want in the text; they are separated with ` - `
+     * @param string $where_clause
+     * where clause if we want to have some filtering
+     * @param array $arguments
+     * the arguments of the parameters in the wehere cluase
+     * @retval array
+     *  The array which can be used in the select style as items
+     */
+    public function fetch_table_as_select_values($table_name, $value_column, $text_columns_array, $where_clause = '', $arguments = array())
+    {
+        $sql = "SELECT " . $value_column . ',' . implode(',', $text_columns_array) . ' FROM ' . $table_name . ' ' . $where_clause;
+        $res = $this->query_db($sql, $arguments);
+        $arr = array();
+        foreach ($res as $val) {
+            $text = '';
+            foreach ($text_columns_array as $key => $column) {
+                if($text == ''){
+                    $text = $text . $val[$column];
+                }else{
+                    $text = $text . ' - ' . $val[$column];
+                }
+            }
+            array_push($arr, array("value" => $val[$value_column], "text" => $text));
+        }
+        return $arr;
+    }
+
 }
 ?>

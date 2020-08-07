@@ -106,6 +106,9 @@ abstract class BasePage
             "/css/ext/bootstrap.min.css",
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
+            "/css/ext/bootstrap-select.min.css",
+            "/css/ext/jquery-confirm.min.css",
+            "/css/ext/flatpickr.min.css",
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -113,6 +116,9 @@ abstract class BasePage
             "/js/ext/datatables.min.js",
             "/js/ext/mermaid.min.js",
             "/js/ext/plotly.min.js",
+            "/js/ext/bootstrap-select.min.js",
+            "/js/ext/jquery-confirm.min.js",
+            "/js/ext/flatpickr.min.js",
         );
         if(DEBUG == 0)
         {
@@ -239,12 +245,12 @@ abstract class BasePage
      */
     private function get_csp_rules()
     {
-        return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
+        return "default-src 'self'; frame-src https://eu.qualtrics.com/; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
             . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' data: https://via.placeholder.com/";
     }
 
     /**
-     * Fetch the main page information from the database.
+     * Fetch the main page information from the database and add transaction to the logs
      *
      * @param string $keyword
      *  The keyword identifying the page.
@@ -253,6 +259,14 @@ abstract class BasePage
     {
         $db = $this->services->get_db();
         $info = $db->fetch_page_info($keyword);
+        $transaction = $this->services->get_transaction();
+        $transaction->add_transaction(            
+            transactionTypes_select,
+            transactionBy_by_user,
+            $_SESSION['id_user'],
+            $transaction::TABLE_PAGES,
+            $info['id']
+        );
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);

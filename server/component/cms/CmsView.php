@@ -569,6 +569,26 @@ class CmsView extends BaseView
                 "show_value" => true
             ));
         }
+        else if($field['type'] == "select-group")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+            ));
+        }
+        else if($field['type'] == "select-qualtrics-survey")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1, 
+                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+            ));
+        }
+
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
@@ -622,10 +642,27 @@ class CmsView extends BaseView
                 "path" => __DIR__ . "/tpl_checkbox_field.php",
                 "items" => array("is_checked" => ($field['content'] != "0")),
             ));
+        else if ($field['type'] == "select-group") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+            ));
+        }
+        else if ($field['type'] == "select-qualtrics-survey") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+            ));
+        }
         else if($field['content'] != null)
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content']
             ));
+        
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
@@ -642,7 +679,7 @@ class CmsView extends BaseView
      */
     private function create_settings_card()
     {
-        $languages = $this->model->get_languages();
+        $languages = $this->model->get_db()->fetch_languages();
         $options = array(array("value" => "all", "text" => "All Languages"));
         foreach($languages as $language)
             $options[] = array(
@@ -660,7 +697,7 @@ class CmsView extends BaseView
                 "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
-                "title" => "Settings",
+                "title" => "CMS Settings",
                 "children" => array(new BaseStyleComponent("form", array(
                     "url" => $this->model->get_link_url("cmsSelect",
                         $this->model->get_current_url_params()),

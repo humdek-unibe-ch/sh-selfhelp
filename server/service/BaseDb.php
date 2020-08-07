@@ -511,5 +511,98 @@ class BaseDb {
             return false;
         }
     }
+
+    /**
+     * Get lookups for given type.
+     *
+     * @param string $lookupType
+     *  The type of the lookup
+     * @retval array
+     *  An array with all row entries for the given lookuptype
+     */
+    public function get_lookups($lookupType) {
+        try {
+            $stmt = $this->dbh->prepare("SELECT * FROM lookups WHERE type_code = :code");
+            $stmt->execute(array(':code' => $lookupType));
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::select_table: ".$e->getMessage();
+        }
+    }
+
+    /**
+     * Get the id of a lookup value
+     *
+     * @param string $type
+     *  The lookup type
+     * @param string $value
+     *  The lookup value
+     * @retval int
+     *  the id of the value
+     */
+    public function get_lookup_id_by_value($type, $value)
+    {
+        $val = $this->query_db_first(
+            'SELECT id FROM lookups WHERE lookup_value = :value AND type_code = :type_code;',
+            array(
+                ':value' => $value,
+                ":type_code" => $type
+            )
+        );
+        return $val['id'];
+    }
+
+    /**
+     * Get the id of a lookup value
+     *
+     * @param string $type
+     *  The lookup type
+     * @param string $code
+     *  The lookup code
+     * @retval int
+     *  the id of the lookpu code
+     */
+    public function get_lookup_id_by_code($type, $code)
+    {
+        $val = $this->query_db_first(
+            'SELECT id FROM lookups WHERE lookup_code = :code AND type_code = :type_code;',
+            array(
+                ':code' => $code,
+                ":type_code" => $type
+            )
+        );
+        return $val['id'];
+    }
+
+    /**
+     * Begin PDO DB transanction
+     */
+    public function begin_transaction(){
+        $this->dbh->beginTransaction();;
+    }
+
+    /**
+     * commit PDO DB transanction
+     */
+    public function commit(){
+        $this->dbh->commit();;
+    }
+
+    /**
+     * rollback PDO DB transanction
+     */
+    public function rollback(){
+        $this->dbh->rollback();;
+    }
+
+    /**
+     * Get the callback key from the preferences table
+     * @retval string 
+     */
+    public function get_callback_key(){
+        $sql = "SELECT callback_api_key FROM cmsPreferences;";
+        return $this->query_db_first($sql)['callback_api_key'];
+    }
 }
 ?>

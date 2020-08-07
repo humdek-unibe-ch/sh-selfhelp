@@ -184,6 +184,16 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Check if the code exist already in the database
+     * @param string $code
+     * 
+     * @retval bool
+     */
+    private function code_exists($code){
+        return count($this->db->select_by_fk('validation_codes', 'code', $code)) > 0;
+    }
+
+    /**
      * Generate random validation codes and store them to the database.
      *
      * @retval string
@@ -297,19 +307,29 @@ class UserModel extends BaseModel
      *  The email address of the user to be added.
      * @param string $code
      *  A unique user code.
+     * @param boolean $code_exist
+     * does the code exist already in validation_codes, if exist dont insert it again
      * @retval int
      *  The id of the new user or false if the process failed.
      */
-    public function create_new_user($email, $code=null)
+    public function create_new_user($email, $code=null, $code_exists = false)
     {
         $token = $this->login->create_token();     
         $uid = $this->is_user_interested($email); 
+        if(!($uid > 0)){
+            //check if the user is autocreated
+            $uid = $this->is_user_auto_created($code); 
+        }
         if($uid > 0){  
-            // user is in status interested; change it to invited and assign the token for activation    
-            $this->set_user_status($uid, $token, USER_STATUS_INVITED);
+            // user is in status interested  or auto_created; change it to invited and assign the token for activation    
+            $this->set_user_status($uid, $token, USER_STATUS_INVITED, $email);
         }else{
             // if the user is not already interested (in database), create a new one
             $uid = $this->insert_new_user($email, $token, 2);
+        }
+        if($code_exists){
+            //this option is used for auto_created users
+            $code = null;            
         }
         $code_res = true;
         if($code !== null)
@@ -330,6 +350,20 @@ class UserModel extends BaseModel
         $msg = $this->mail->get_content($url, 'email_activate');
         $this->mail->send_mail($from, $to, $subject, $msg);
         return $uid;
+    }
+
+    /**
+     * insert user in the database with status auto_created and the email is code@selfhelp.psy.unibe.ch
+     * @param string $email
+     * @retval int
+     * the user id
+     */
+    public function auto_create_user($email)
+    {
+        return $this->db->insert("users", array(
+            "email" => $email,
+            "id_status" => $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id'],
+        ));
     }
 
     /**
@@ -445,6 +479,7 @@ class UserModel extends BaseModel
      */
     public function get_group_options()
     {
+        // $starttime = microtime(true);
         $groups = array();
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             ORDER BY g.name";
@@ -454,6 +489,8 @@ class UserModel extends BaseModel
             if($this->is_group_allowed(intval($group['value'])))
                 $groups[] = $group;
         }
+        // $endtime = microtime(true);
+        // print("duration: " .  ($endtime - $starttime));
         return $groups;
     }
 
@@ -692,7 +729,7 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Check is a user already interested
+     * Check is a user already interested 
      *
      * @param string $email
      *  The email of the user.
@@ -704,10 +741,35 @@ class UserModel extends BaseModel
         $user_id = -1;
         $sql = "SELECT id
         from users 
-        where email = :email and id_status = :user_status";
+        where email = :email and id_status = :user_status_interested";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
-            ":user_status" => USER_STATUS_INTERESTED));
+            ":user_status_interested" => USER_STATUS_INTERESTED,
+        ));
+        if ($res) {
+            $user_id = $res['id'];
+        }
+        return $user_id;
+    }
+
+    /**
+     * Check is a user already auto_created
+     *
+     * @param string $email
+     *  The email of the user.
+     * @retval int
+     *  The id of the new user.
+     */
+    public function is_user_auto_created($code)
+    {
+        $user_id = -1;
+        $sql = "SELECT id
+        from users u
+        inner join validation_codes vc on (vc.id_users = u.id)
+        where vc.code = :code and id_status = :user_status_auto_created";
+        $res = $this->db->query_db_first($sql, array(
+            ":code" => $code,
+            ":user_status_auto_created" => $this->db->query_db_first('SELECT id FROM userStatus WHERE `name` = "auto_created"')['id']));
         if($res){
             $user_id = $res['id'];
         }
@@ -762,12 +824,19 @@ class UserModel extends BaseModel
      *  The token which will be used for account activation
      * @param int $status
      *  The new status
+     * @param string $email
+     * email to be updated if the user was auto_created
      * @retval bool
      *  True on success, false on failure.
      */
-    public function set_user_status($uid, $token, $status)
+    public function set_user_status($uid, $token, $status, $email)
     {
-        return $this->db->update_by_ids('users', array("token" => $token, "id_status" => $status),
+        return $this->db->update_by_ids('users', 
+            array(
+                "token" => $token, 
+                "id_status" => $status, 
+                "email" => $email, 
+                ),
             array("id" => $uid));
     }
 
@@ -785,6 +854,23 @@ class UserModel extends BaseModel
             return false;
         return $this->db->update_by_ids("users", array("blocked" => 0),
             array("id" => $uid));
+    }
+
+    /**
+     * Generate validation code and insert it in the dabase
+     * @retval string $code
+     * return the code or false if it fails;
+     */
+    public function generate_and_add_code(){
+        $code = $this->generate_code();
+        while ($this->code_exists($code)){
+            $code = $this->generate_code();
+        }
+        $sql = "INSERT IGNORE INTO validation_codes (code) VALUES('$code')";
+        $dbh = $this->db->get_dbh();
+        $insert = $dbh->prepare($sql);
+        $insert->execute();
+        return $insert->rowCount() > 0 ? $code : false;
     }
 }
 ?>

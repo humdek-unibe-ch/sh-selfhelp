@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 05, 2020 at 08:48 AM
--- Server version: 5.7.29-0ubuntu0.18.04.1
--- PHP Version: 7.2.24-0ubuntu0.18.04.4
+-- Generation Time: Aug 07, 2020 at 02:14 PM
+-- Server version: 5.7.31-0ubuntu0.18.04.1
+-- PHP Version: 7.2.24-0ubuntu0.18.04.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelpv204`
+-- Database: `selfhelp`
 --
 
 -- --------------------------------------------------------
@@ -83,6 +83,16 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000042, 1, 0, 0, 1),
 (0000000001, 0000000043, 1, 0, 1, 0),
 (0000000001, 0000000045, 1, 1, 0, 0),
+(0000000001, 0000000046, 1, 0, 1, 0),
+(0000000001, 0000000047, 1, 0, 1, 0),
+(0000000001, 0000000048, 1, 1, 1, 1),
+(0000000001, 0000000049, 1, 0, 1, 0),
+(0000000001, 0000000050, 1, 0, 1, 0),
+(0000000001, 0000000051, 1, 1, 1, 1),
+(0000000001, 0000000052, 1, 1, 1, 1),
+(0000000001, 0000000053, 1, 1, 1, 1),
+(0000000001, 0000000054, 1, 0, 0, 0),
+(0000000001, 0000000055, 1, 0, 1, 0),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -298,6 +308,25 @@ CREATE TABLE `chatRoom_users` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `cmsPreferences`
+--
+
+CREATE TABLE `cmsPreferences` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `callback_api_key` varchar(500) DEFAULT NULL,
+  `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `cmsPreferences`
+--
+
+INSERT INTO `cmsPreferences` (`id`, `callback_api_key`, `default_language_id`) VALUES
+(0000000001, NULL, 0000000002);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `codes_groups`
 --
 
@@ -459,7 +488,12 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000136, 'hole', 0000000005, 0),
 (0000000137, 'hoverinfo', 0000000001, 0),
 (0000000138, 'textinfo', 0000000001, 0),
-(0000000139, 'anchor', 0000000016, 0);
+(0000000139, 'anchor', 0000000016, 0),
+(0000000140, 'open_registration', 0000000003, 0),
+(0000000141, 'live_search', 0000000003, 0),
+(0000000142, 'disabled', 0000000003, 0),
+(0000000143, 'group', 0000000017, 0),
+(0000000144, 'qualtricsSurvey', 0000000018, 0);
 
 -- --------------------------------------------------------
 
@@ -493,7 +527,9 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 (0000000013, 'date', 25),
 (0000000014, 'time', 24),
 (0000000015, 'data-source', 15),
-(0000000016, 'anchor-section', 14);
+(0000000016, 'anchor-section', 14),
+(0000000017, 'select-group', 7),
+(0000000018, 'select-qualtrics-survey', 7);
 
 -- --------------------------------------------------------
 
@@ -556,6 +592,154 @@ INSERT INTO `languages` (`id`, `locale`, `language`, `csv_separator`) VALUES
 (0000000001, 'all', 'Independent', ','),
 (0000000002, 'de-CH', 'Deutsch (Schweiz)', ','),
 (0000000003, 'en-GB', 'English (GB)', ',');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lookups`
+--
+
+CREATE TABLE `lookups` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `type_code` varchar(100) NOT NULL,
+  `lookup_code` varchar(100) DEFAULT NULL,
+  `lookup_value` varchar(200) DEFAULT NULL,
+  `lookup_description` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `lookups`
+--
+
+INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup_description`) VALUES
+(0000000001, 'notificationTypes', 'email', 'Email', 'The notification will be sent by email'),
+(0000000002, 'qualtricScheduleTypes', 'immediately', 'Immediately', 'Shcedule and send the mail immediately'),
+(0000000003, 'qualtricScheduleTypes', 'on_fixed_datetime', 'On specific fixed datetime', 'Shcedule and send the mail on specific fixed datetime'),
+(0000000004, 'qualtricScheduleTypes', 'after_period', 'After time period', 'Schedule the mail after specific time period'),
+(0000000005, 'qualtricScheduleTypes', 'after_period_on_day_at_time', 'After time period on a weekday at given time', 'Schedule the mail after specific time on specific day from the week at specific time'),
+(0000000006, 'qualtricsSurveyTypes', 'baseline', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list'),
+(0000000007, 'qualtricsSurveyTypes', 'follow_up', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.'),
+(0000000008, 'qualtricsProjectActionTriggerTypes', 'started', 'Started', 'When the user start the survey'),
+(0000000009, 'qualtricsProjectActionTriggerTypes', 'finished', 'Finished', 'When the user finish the survey'),
+(0000000010, 'qualtricsProjectActionAdditionalFunction', 'workwell_evaluate_personal_strenghts', '[Workwell] Evaluate personal strengths', 'Function that will evaluate the personal strengths and it will send an email for project workwell'),
+(0000000011, 'qualtricsActionScheduleTypes', 'nothing', 'Nothing', 'Nothing to be scheduled'),
+(0000000012, 'qualtricsActionScheduleTypes', 'notification', 'Notification', 'Shcedule a notification eamil'),
+(0000000013, 'qualtricsActionScheduleTypes', 'reminder', 'Reminder', 'Schedule a reminder email. If the survey was done the remider is canceled'),
+(0000000014, 'timePeriod', 'seconds', 'Second(s)', 'Second(s)'),
+(0000000015, 'timePeriod', 'minutes', 'Minute(s)', 'Minute(s)'),
+(0000000016, 'timePeriod', 'hours', 'Hour(s)', 'Hour(s)'),
+(0000000017, 'timePeriod', 'days', 'Day(s)', 'Day(s)'),
+(0000000018, 'timePeriod', 'weeks', 'Week(s)', 'Week(s)'),
+(0000000019, 'timePeriod', 'months', 'Month(s)', 'Month(s)'),
+(0000000020, 'weekdays', 'monday', 'Monday', 'Monday'),
+(0000000021, 'weekdays', 'tuesday', 'Tuesday', 'Tuesday'),
+(0000000022, 'weekdays', 'wednesday', 'Wednesday', 'Wednesday'),
+(0000000023, 'weekdays', 'thursday', 'Thursday', 'Thursday'),
+(0000000024, 'weekdays', 'friday', 'Friday', 'Friday'),
+(0000000025, 'weekdays', 'saturday', 'Saturday', 'Saturday'),
+(0000000026, 'weekdays', 'sunday', 'Sunday', 'Sunday'),
+(0000000027, 'mailQueueStatus', 'queued', 'Queued', 'Status for initialization. When the mail is queued it goes in this status'),
+(0000000028, 'mailQueueStatus', 'deleted', 'Deleted', 'When the queue is deleted'),
+(0000000029, 'mailQueueStatus', 'sent', 'Sent', 'When the mail is sent'),
+(0000000030, 'mailQueueStatus', 'failed', 'Failed', 'When something happened and the mail sending failed'),
+(0000000031, 'mailQueueSearchDateTypes', 'date_create', 'Entry date', 'The date that the queue record was created'),
+(0000000032, 'mailQueueSearchDateTypes', 'date_to_be_sent', 'Date to be send', 'The date when the queue record should be sent'),
+(0000000033, 'mailQueueSearchDateTypes', 'date_sent', 'Sent date', 'The date when the queue record was sent'),
+(0000000034, 'transactionTypes', 'insert', 'Add new entry', 'Add new entry to a table'),
+(0000000035, 'transactionTypes', 'select', 'View entry', 'View entry from a table'),
+(0000000036, 'transactionTypes', 'update', 'Edit entry', 'Edit entry from a table'),
+(0000000037, 'transactionTypes', 'delete', 'Delete entry', 'Delete entry from a table'),
+(0000000038, 'transactionTypes', 'send_mail_ok', 'Send mail successfully', 'Send mail successfully'),
+(0000000039, 'transactionTypes', 'send_mail_fail', 'Send mail failed', 'Send mail failed'),
+(0000000040, 'transactionTypes', 'check_mailQueue', 'Check mail queue', 'Check mail queue and send mails if needed'),
+(0000000041, 'transactionBy', 'by_mail_cron', 'By mail cronjob', 'The action was done by a mail cronjob'),
+(0000000042, 'transactionBy', 'by_user', 'By user', 'The action was done by an user'),
+(0000000043, 'transactionBy', 'by_qualtrics_callback', 'By qualtrics callback', 'The action was done by a qualtrics callback');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mailAttachments`
+--
+
+CREATE TABLE `mailAttachments` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `attachment_name` varchar(100) NOT NULL,
+  `attachment_path` varchar(1000) NOT NULL,
+  `attachment_url` varchar(1000) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mailQueue`
+--
+
+CREATE TABLE `mailQueue` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_mailQueueStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `date_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_to_be_sent` datetime DEFAULT NULL,
+  `date_sent` datetime DEFAULT NULL,
+  `from_email` varchar(100) NOT NULL,
+  `from_name` varchar(100) NOT NULL,
+  `reply_to` varchar(100) NOT NULL,
+  `recipient_emails` text NOT NULL,
+  `cc_emails` varchar(1000) DEFAULT NULL,
+  `bcc_emails` varchar(1000) DEFAULT NULL,
+  `subject` varchar(1000) NOT NULL,
+  `body` longtext NOT NULL,
+  `is_html` int(11) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `modules`
+--
+
+CREATE TABLE `modules` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `module_name` varchar(500) DEFAULT NULL,
+  `enabled` int(11) DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `modules`
+--
+
+INSERT INTO `modules` (`id`, `module_name`, `enabled`) VALUES
+(0000000001, 'moduleQualtrics', 1),
+(0000000002, 'moduleMail', 1),
+(0000000003, 'moduleChat', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `modules_pages`
+--
+
+CREATE TABLE `modules_pages` (
+  `id_modules` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `modules_pages`
+--
+
+INSERT INTO `modules_pages` (`id_modules`, `id_pages`) VALUES
+(0000000001, 0000000049),
+(0000000001, 0000000051),
+(0000000001, 0000000052),
+(0000000002, 0000000050),
+(0000000002, 0000000055),
+(0000000003, 0000000029),
+(0000000003, 0000000038),
+(0000000003, 0000000039),
+(0000000003, 0000000040),
+(0000000003, 0000000041);
 
 -- --------------------------------------------------------
 
@@ -625,7 +809,17 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000042, 'exportDelete', '/admin/exportDelete/[user_activity|user_input:selector]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000043, 'groupUpdateCustom', '/admin/group_update_custom/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000044, 'callback', '/callback/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000045, 'data', '/admin/data/[i:uid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 39, NULL, 0000000001);
+(0000000045, 'data', '/admin/data/[i:uid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 39, NULL, 0000000001),
+(0000000046, 'cmsPreferences', '/admin/cms_preferences', 'GET|POST', 0000000002, NULL, 0000000009, 0, 1000, NULL, 0000000001),
+(0000000047, 'cmsPreferencesUpdate', '/admin/cms_preferences_update', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000048, 'language', '/admin/language/[i:lid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000049, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', 0000000002, NULL, 0000000009, 0, 90, NULL, 0000000001),
+(0000000050, 'moduleMail', '/admin/mailQueue/[i:mqid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 80, NULL, 0000000001),
+(0000000051, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000052, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000053, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000055, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
 
 -- --------------------------------------------------------
 
@@ -730,7 +924,17 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000042, 0000000008, 0000000002, 'Userdaten Löschen'),
 (0000000042, 0000000008, 0000000003, 'Remove User Data'),
 (0000000043, 0000000008, 0000000001, 'Custom Group Update'),
-(0000000045, 0000000008, 0000000001, 'Data');
+(0000000045, 0000000008, 0000000001, 'Data'),
+(0000000046, 0000000008, 0000000001, 'CMS Preferecnes'),
+(0000000047, 0000000008, 0000000001, 'CMS Preferecnes Update'),
+(0000000048, 0000000008, 0000000001, 'Create Language'),
+(0000000049, 0000000008, 0000000001, 'Module Qualtrics'),
+(0000000050, 0000000008, 0000000001, 'Module Mail'),
+(0000000051, 0000000008, 0000000001, 'Qualtrics Projects'),
+(0000000052, 0000000008, 0000000001, 'Qualtrics Survey'),
+(0000000053, 0000000008, 0000000001, 'Qualtrics Project Action'),
+(0000000054, 0000000008, 0000000001, 'Qualtrics Synchronization'),
+(0000000055, 0000000008, 0000000001, 'Compose Mail');
 
 -- --------------------------------------------------------
 
@@ -782,6 +986,108 @@ INSERT INTO `pageType` (`id`, `name`) VALUES
 (0000000002, 'core'),
 (0000000003, 'experiment'),
 (0000000004, 'open');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsActions`
+--
+
+CREATE TABLE `qualtricsActions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `id_qualtricsProjectActionTriggerTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsActionScheduleTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsSurveys_reminder` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `schedule_info` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsActions_functions`
+--
+
+CREATE TABLE `qualtricsActions_functions` (
+  `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsActions_groups`
+--
+
+CREATE TABLE `qualtricsActions_groups` (
+  `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsProjects`
+--
+
+CREATE TABLE `qualtricsProjects` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `description` varchar(1000) DEFAULT NULL,
+  `qualtrics_api` varchar(100) DEFAULT NULL,
+  `api_library_id` varchar(100) DEFAULT NULL,
+  `api_mailing_group_id` varchar(100) DEFAULT NULL,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsReminders`
+--
+
+CREATE TABLE `qualtricsReminders` (
+  `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsSurveys`
+--
+
+CREATE TABLE `qualtricsSurveys` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `description` varchar(1000) DEFAULT NULL,
+  `qualtrics_survey_id` varchar(100) DEFAULT NULL,
+  `id_qualtricsSurveyTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `participant_variable` varchar(100) DEFAULT NULL,
+  `group_variable` int(11) DEFAULT '0',
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qualtricsSurveysResponses`
+--
+
+CREATE TABLE `qualtricsSurveysResponses` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_surveys` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsProjectActionTriggerTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `survey_response_id` varchar(100) DEFAULT NULL,
+  `started_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -1355,7 +1661,9 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000053, 'filterToggleGroup', 0000000002, 0000000011, 'Create a group of toggle buttons which will enable or disable a filter on a set of data. Multiple active buttons are combinde with the logic or function.'),
 (0000000054, 'graphPie', 0000000002, 0000000010, 'Create a pie diagram from user input data or imported static data.'),
 (0000000055, 'graphBar', 0000000002, 0000000010, 'Create a bar diagram from user input data or imported static data.'),
-(0000000056, 'graphLegend', 0000000001, 0000000010, 'Render colored list of items. This can be used to show one global legend for multiple graphs.');
+(0000000056, 'graphLegend', 0000000001, 0000000010, 'Render colored list of items. This can be used to show one global legend for multiple graphs.'),
+(0000000057, 'navigationBar', 0000000001, 0000000001, 'Provides a navigation bar style'),
+(0000000058, 'qualtricsSurvey', 0000000002, 0000000002, 'Visualize a qualtrics survey. It is shown in iFrame.');
 
 -- --------------------------------------------------------
 
@@ -1478,6 +1786,9 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000022, 0000000058, NULL, 'The preselected item of the selection elements.'),
 (0000000022, 0000000066, NULL, 'This field expects a [JSON](!https://www.json.org/json-en.html) list of select objects where each object has the following keys:\n- `value`: the value to be submitted if this item is selected\n-`text`: the text rendered as selection option.\n\nAn Example\n```\n[{\n  \"value\":\"1\",\n  \"text\": \"Item1\"\n},\n{\n  \"value\":\"2\",\n  \"text\":\"Item2\"\n},\n{\n  \"value\":\"3\",\n  \"text\": \"Item3\"\n}]\n```'),
 (0000000022, 0000000067, '0', 'If enabled the selction items will be rendered as a list where multiple items can be selected as opposed to a dropdown menu.'),
+(0000000022, 0000000070, '5', 'Set the maximum elements that can be shown in the drop down list before the scroller appears'),
+(0000000022, 0000000141, '0', 'If checked the select component will have a live search text box which can filter the values'),
+(0000000022, 0000000142, '0', 'If checked the select component is disabled'),
 (0000000023, 0000000008, NULL, 'If this field is set, a this text will be rendered above the slider.'),
 (0000000023, 0000000057, NULL, 'The name of the slider form field. This name must be unique within a form.'),
 (0000000023, 0000000058, NULL, 'The preselected position of the slider.'),
@@ -1573,6 +1884,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000041, 0000000035, NULL, 'Upon successful registration the registration form is replaced with a `jumbotron` which hold this text.'),
 (0000000041, 0000000044, NULL, 'Upon successful registration the registration form is replaced with a `jumbotron` which holds this text as a heading.'),
 (0000000041, 0000000090, NULL, 'The text on the registration button.'),
+(0000000041, 0000000140, '0', 'If checked any user can register without a registration code. The code will be automatically generated upon registration'),
+(0000000041, 0000000143, '3', 'Select the default group in which evey new user is assigned.'),
 (0000000042, 0000000006, NULL, 'The children to be rendered if the condition defined by the field `condition` resolves to true.'),
 (0000000042, 0000000091, NULL, 'The field `condition` allows to specify a condition. Note that the field `condition` is of type `json` and requires\n1. valid json syntax (see https://www.json.org/)\n2. a valid condition structure (see https://github.com/jwadhams/json-logic-php/)\n\nOnly if a condition resolves to true the sections added to the field `children` will be rendered.\n\nIn order to refer to a form-field use the syntax `\"@__form_name__#__from_field_name__\"` (the quotes are necessary to make it valid json syntax) where `__form_name__` is the value of the field `name` of the style `formUserInput` and `__form_field_name__` is the value of the field `name` of any form-field style.'),
 (0000000042, 0000000097, '0', 'If *checked*, debug messages will be rendered to the screen. These might help to understand the result of a condition evaluation. **Make sure that this field is *unchecked* once the page is productive**.'),
@@ -1655,7 +1968,9 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000055, 0000000124, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000055, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
 (0000000055, 0000000132, '1', 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.'),
-(0000000056, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```');
+(0000000056, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
+(0000000057, 0000000066, NULL, 'JSON structure for the navigation bar'),
+(0000000058, 0000000144, '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a action)');
 
 -- --------------------------------------------------------
 
@@ -1676,6 +1991,23 @@ INSERT INTO `styleType` (`id`, `name`) VALUES
 (0000000001, 'view'),
 (0000000002, 'component'),
 (0000000003, 'navigation');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `transactions`
+--
+
+CREATE TABLE `transactions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `transaction_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_transactionTypes` int(10) UNSIGNED DEFAULT NULL,
+  `id_transactionBy` int(10) UNSIGNED DEFAULT NULL,
+  `id_users` int(10) UNSIGNED DEFAULT NULL,
+  `table_name` varchar(100) DEFAULT NULL,
+  `id_table_name` int(10) UNSIGNED DEFAULT NULL,
+  `transaction_log` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -1775,7 +2107,8 @@ CREATE TABLE `userStatus` (
 INSERT INTO `userStatus` (`id`, `name`, `description`) VALUES
 (0000000001, 'interested', 'This user has shown interest in the platform but has not yet met the preconditions to be invited.'),
 (0000000002, 'invited', 'This user was invited to join the platform but has not yet validated the email address.'),
-(0000000003, 'active', 'This user can log in and visit all accessible pages.');
+(0000000003, 'active', 'This user can log in and visit all accessible pages.'),
+(0000000005, 'auto_created', 'This user was auto created. The user has only code and cannot login. If the real user register later with the code the user will be activated to normal user.');
 
 -- --------------------------------------------------------
 
@@ -1942,6 +2275,13 @@ ALTER TABLE `chatRoom_users`
   ADD KEY `id_users` (`id_users`);
 
 --
+-- Indexes for table `cmsPreferences`
+--
+ALTER TABLE `cmsPreferences`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_cmsPreferences_language` (`default_language_id`);
+
+--
 -- Indexes for table `codes_groups`
 --
 ALTER TABLE `codes_groups`
@@ -1978,7 +2318,45 @@ ALTER TABLE `groups`
 -- Indexes for table `languages`
 --
 ALTER TABLE `languages`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `locale` (`locale`),
+  ADD UNIQUE KEY `language` (`language`);
+
+--
+-- Indexes for table `lookups`
+--
+ALTER TABLE `lookups`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `lookup_code` (`lookup_code`),
+  ADD UNIQUE KEY `lookup_value` (`lookup_value`);
+
+--
+-- Indexes for table `mailAttachments`
+--
+ALTER TABLE `mailAttachments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mailAttachments_fk_id_mailQueue` (`id_mailQueue`);
+
+--
+-- Indexes for table `mailQueue`
+--
+ALTER TABLE `mailQueue`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mailQueue_fk_id_mailQueueStatus` (`id_mailQueueStatus`);
+
+--
+-- Indexes for table `modules`
+--
+ALTER TABLE `modules`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `modules_pages`
+--
+ALTER TABLE `modules_pages`
+  ADD PRIMARY KEY (`id_modules`,`id_pages`),
+  ADD KEY `id_modules` (`id_modules`),
+  ADD KEY `id_pages` (`id_pages`);
 
 --
 -- Indexes for table `pages`
@@ -2021,6 +2399,65 @@ ALTER TABLE `pages_sections`
 --
 ALTER TABLE `pageType`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `qualtricsActions`
+--
+ALTER TABLE `qualtricsActions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
+  ADD KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
+  ADD KEY `qualtricsActions_fk_id_qualtricsSurveys_reminder` (`id_qualtricsSurveys_reminder`),
+  ADD KEY `qualtricsActions_fk_id_qualtricsActionScheduleTypes` (`id_qualtricsActionScheduleTypes`),
+  ADD KEY `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` (`id_qualtricsProjectActionTriggerTypes`);
+
+--
+-- Indexes for table `qualtricsActions_functions`
+--
+ALTER TABLE `qualtricsActions_functions`
+  ADD PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
+  ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
+  ADD KEY `id_lookups` (`id_lookups`);
+
+--
+-- Indexes for table `qualtricsActions_groups`
+--
+ALTER TABLE `qualtricsActions_groups`
+  ADD PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
+  ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
+  ADD KEY `id_groups` (`id_groups`);
+
+--
+-- Indexes for table `qualtricsProjects`
+--
+ALTER TABLE `qualtricsProjects`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `qualtricsReminders`
+--
+ALTER TABLE `qualtricsReminders`
+  ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_mailQueue`),
+  ADD KEY `qualtricsReminders_fk_id_users` (`id_users`),
+  ADD KEY `qualtricsReminders_fk_id_mailQueue` (`id_mailQueue`);
+
+--
+-- Indexes for table `qualtricsSurveys`
+--
+ALTER TABLE `qualtricsSurveys`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `qualtrics_survey_id` (`qualtrics_survey_id`),
+  ADD KEY `qualtricsSurveys_fk_id_qualtricsSurveyTypes` (`id_qualtricsSurveyTypes`);
+
+--
+-- Indexes for table `qualtricsSurveysResponses`
+--
+ALTER TABLE `qualtricsSurveysResponses`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `survey_response_id` (`survey_response_id`),
+  ADD KEY `qSurveysResponses_fk_id_users` (`id_users`),
+  ADD KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
+  ADD KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`);
 
 --
 -- Indexes for table `sections`
@@ -2085,6 +2522,15 @@ ALTER TABLE `styles_fields`
 --
 ALTER TABLE `styleType`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `transactions`
+--
+ALTER TABLE `transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
+  ADD KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
+  ADD KEY `transactions_fk_id_users` (`id_users`);
 
 --
 -- Indexes for table `uploadCells`
@@ -2205,15 +2651,20 @@ ALTER TABLE `chatRoom`
 ALTER TABLE `chatRoom_users`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `cmsPreferences`
+--
+ALTER TABLE `cmsPreferences`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
 ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 --
 -- AUTO_INCREMENT for table `genders`
 --
@@ -2230,15 +2681,55 @@ ALTER TABLE `groups`
 ALTER TABLE `languages`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
+-- AUTO_INCREMENT for table `lookups`
+--
+ALTER TABLE `lookups`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+--
+-- AUTO_INCREMENT for table `mailAttachments`
+--
+ALTER TABLE `mailAttachments`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `mailQueue`
+--
+ALTER TABLE `mailQueue`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `modules`
+--
+ALTER TABLE `modules`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 --
 -- AUTO_INCREMENT for table `pageType`
 --
 ALTER TABLE `pageType`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `qualtricsActions`
+--
+ALTER TABLE `qualtricsActions`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `qualtricsProjects`
+--
+ALTER TABLE `qualtricsProjects`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `qualtricsSurveys`
+--
+ALTER TABLE `qualtricsSurveys`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `qualtricsSurveysResponses`
+--
+ALTER TABLE `qualtricsSurveysResponses`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `sections`
 --
@@ -2253,12 +2744,17 @@ ALTER TABLE `styleGroup`
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 --
 -- AUTO_INCREMENT for table `styleType`
 --
 ALTER TABLE `styleType`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT for table `transactions`
+--
+ALTER TABLE `transactions`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `uploadCols`
 --
@@ -2283,7 +2779,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `userStatus`
 --
 ALTER TABLE `userStatus`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `user_activity`
 --
@@ -2341,6 +2837,12 @@ ALTER TABLE `chatRoom_users`
   ADD CONSTRAINT `chatRoom_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `cmsPreferences`
+--
+ALTER TABLE `cmsPreferences`
+  ADD CONSTRAINT `fk_cmsPreferences_language` FOREIGN KEY (`default_language_id`) REFERENCES `languages` (`id`);
+
+--
 -- Constraints for table `codes_groups`
 --
 ALTER TABLE `codes_groups`
@@ -2352,6 +2854,25 @@ ALTER TABLE `codes_groups`
 --
 ALTER TABLE `fields`
   ADD CONSTRAINT `fields_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `mailAttachments`
+--
+ALTER TABLE `mailAttachments`
+  ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `mailQueue`
+--
+ALTER TABLE `mailQueue`
+  ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `modules_pages`
+--
+ALTER TABLE `modules_pages`
+  ADD CONSTRAINT `modules_pages_fk_id_modules` FOREIGN KEY (`id_modules`) REFERENCES `modules` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `modules_pages_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pages`
@@ -2383,6 +2904,52 @@ ALTER TABLE `pages_fields_translation`
 ALTER TABLE `pages_sections`
   ADD CONSTRAINT `pages_sections_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_sections_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `qualtricsActions`
+--
+ALTER TABLE `qualtricsActions`
+  ADD CONSTRAINT `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsActionScheduleTypes` FOREIGN KEY (`id_qualtricsActionScheduleTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys_reminder` FOREIGN KEY (`id_qualtricsSurveys_reminder`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `qualtricsActions_functions`
+--
+ALTER TABLE `qualtricsActions_functions`
+  ADD CONSTRAINT `qualtricsActions_functions_fk_id_lookups` FOREIGN KEY (`id_lookups`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_functions_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `qualtricsActions_groups`
+--
+ALTER TABLE `qualtricsActions_groups`
+  ADD CONSTRAINT `qualtricsActions_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_groups_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `qualtricsReminders`
+--
+ALTER TABLE `qualtricsReminders`
+  ADD CONSTRAINT `qualtricsReminders_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `qualtricsSurveys`
+--
+ALTER TABLE `qualtricsSurveys`
+  ADD CONSTRAINT `qualtricsSurveys_fk_id_qualtricsSurveyTypes` FOREIGN KEY (`id_qualtricsSurveyTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `qualtricsSurveysResponses`
+--
+ALTER TABLE `qualtricsSurveysResponses`
+  ADD CONSTRAINT `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`),
+  ADD CONSTRAINT `qSurveysResponses_fk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `sections`
@@ -2428,6 +2995,14 @@ ALTER TABLE `styles`
 ALTER TABLE `styles_fields`
   ADD CONSTRAINT `styles_fields_fk_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `styles_fields_fk_id_styles` FOREIGN KEY (`id_styles`) REFERENCES `styles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `transactions`
+--
+ALTER TABLE `transactions`
+  ADD CONSTRAINT `transactions_fk_id_transactionBy` FOREIGN KEY (`id_transactionBy`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `transactions_fk_id_transactionTypes` FOREIGN KEY (`id_transactionTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `uploadCells`

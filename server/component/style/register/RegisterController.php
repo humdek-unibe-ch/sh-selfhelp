@@ -21,7 +21,7 @@ class RegisterController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(isset($_POST['email']) && isset($_POST['code']))
+        if(isset($_POST['type']) && $_POST['type'] == 'register' && isset($_POST['email']) && isset($_POST['code']))
         {
             $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
             $code = filter_var($_POST['code'], FILTER_SANITIZE_STRING);
@@ -30,6 +30,13 @@ class RegisterController extends BaseController
                 $this->success = true;
             else
                 $this->fail = true;
+        } else if (isset($_POST['type']) && $_POST['type'] == 'register' && isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) !== false && $model->get_db_field("open_registration", false)) {
+            $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+            if($model->register_user_without_code($email)){
+                $this->success = true;
+            }else{
+                $this->fail = true;
+            }
         }
     }
 

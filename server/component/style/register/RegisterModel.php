@@ -51,8 +51,11 @@ class RegisterModel extends StyleModel
      */
     private function check_validation_code($code)
     {
-        $sql = "SELECT * FROM validation_codes
-            WHERE id_users is NULL AND code = :code";
+        $sql = "SELECT vc.* 
+                FROM validation_codes vc
+                LEFT JOIN users u ON (vc.id_users = u.id)
+                LEFT JOIN userStatus us ON (u.id_status = us.id)
+                WHERE (id_users is NULL || us.name = 'auto_created') AND code = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         if($res) return true;
         else return false;
@@ -71,7 +74,7 @@ class RegisterModel extends StyleModel
      */
     private function claim_validation_code($code, $uid)
     {
-        return (bool)$this->db->update_by_ids('validation_codes',
+        return $this->db->update_by_ids('validation_codes',
             array('id_users' => $uid),
             array('code' => $code)
         );
@@ -106,29 +109,59 @@ class RegisterModel extends StyleModel
      *  The email address of the user.
      * @param string $code
      *  The code string entered by the user.
+     * @param bool #skip_group
+     * if true no default group is assign to the user
      * @retval mixed
      *  The user id the new user if the registration was successful,
      *  false otherwise.
      */
-    public function register_user($email, $code)
+    public function register_user($email, $code, $skip_group = false)
     {
         if($this->check_validation_code($code))
         {
             $group = $this->get_group_from_code($code);            
-            $groupId = array(SUBJECT_GROUP_ID); // asign default group
+            $groupId = array($this->get_db_field("group", SUBJECT_GROUP_ID)); // asign predefined group in the controler if not set the default group `subject`
             if(!empty($group)){  
-                              
                 $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }
-            $uid = $this->user_model->create_new_user($email);
-            if($uid && $this->claim_validation_code($code, $uid))
+            $uid = $this->user_model->create_new_user($email, $code, true);
+            if($uid && $this->claim_validation_code($code, $uid) !== false)
             {
-                $this->user_model->add_groups_to_user($uid,
-                    $groupId);
+                if(!$skip_group){
+                    $this->user_model->add_groups_to_user($uid, $groupId);
+                }
                 return $uid;
             }
         }
         return false;
+    }
+
+    /**
+     * Register auto created user from qualtrics callback
+     * @param string $email 
+     * email adress
+     * @param string $code
+     * the vlaidation code
+     */
+    public function register_user_from_qualtrics_callback($email, $code)
+    {
+        if($this->check_validation_code($code))
+        {
+            $uid = $this->user_model->auto_create_user($email);
+            if($uid && $this->claim_validation_code($code, $uid) !== false)
+            {
+                return $uid;
+            }
+        }
+        return false;
+    }
+
+    public function register_user_without_code($email){
+        $code = $this->user_model->generate_and_add_code();        
+        if ($code === false){
+            return false;
+        }
+        return $this->register_user($email, $code);
     }
 }
 ?>
