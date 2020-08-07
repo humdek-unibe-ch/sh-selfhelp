@@ -662,7 +662,8 @@ CREATE TABLE `mailAttachments` (
 	`id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT, 
     `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL, 
     `attachment_name` VARCHAR(100) NOT NUll,
-    `attachment_path` VARCHAR(1000) NOT NUll    
+    `attachment_path` VARCHAR(1000) NOT NUll,    
+    `attachment_url` VARCHAR(1000) NOT NUll
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `mailAttachments`

@@ -609,12 +609,15 @@ class CallbackQualtrics extends BaseCallback
         }    
         $genPdfFilePath = ASSET_SERVER_PATH . "/".qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts."/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
         $genPdfFileName = PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
+        $genPdfFileUrl = ASSET_PATH . "/".qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts."/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
         $pdf = new Pdf(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
         $pdf->fillForm($fields)
             ->flatten()
             ->saveAs($genPdfFilePath);
         $mq_id = $this->mail->add_mail_to_queue($mail, array(
-            $genPdfFileName => $genPdfFilePath
+            "attachment_name" => $genPdfFileName,
+            "attachment_path" => $genPdfFilePath,
+            "attachment_url" => $genPdfFileUrl
         ));
         if ($mq_id > 0) {
             $this->transaction->add_transaction(

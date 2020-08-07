@@ -253,7 +253,7 @@ class ModuleMailModel extends BaseModel
                 $attachments[] = array(
                     "id" => $attachmnet['attachment_name'],
                     "title" => $attachmnet['attachment_name'],
-                    "url" => ASSET_PATH . '/' . $attachmnet['attachment_name']
+                    "url" => $attachmnet['attachment_url']
                 );
             }
         }        

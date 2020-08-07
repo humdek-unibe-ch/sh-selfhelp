@@ -178,12 +178,9 @@ class Mailer extends PHPMailer
         $mail_queue_id = $this->db->insert('mailQueue', $data);
         if ($mail_queue_id && count($attachments) > 0) {
             //insert attachments in the DB
-            foreach ($attachments as $attachmentName => $attachmentPath) {
-                $this->db->insert('mailAttachments', array(
-                    "id_mailQueue" => $mail_queue_id,
-                    "attachment_name" => $attachmentName,
-                    "attachment_path" => $attachmentPath
-                ));
+            foreach ($attachments as $attachment) {
+                $attachment["id_mailQueue"] = $mail_queue_id;
+                $this->db->insert('mailAttachments', $attachment);
             }
         }
         return $mail_queue_id;
