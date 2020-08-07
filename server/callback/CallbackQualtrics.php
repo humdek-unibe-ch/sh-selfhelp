@@ -614,11 +614,13 @@ class CallbackQualtrics extends BaseCallback
         $pdf->fillForm($fields)
             ->flatten()
             ->saveAs($genPdfFilePath);
-        $mq_id = $this->mail->add_mail_to_queue($mail, array(
+        $attachments = array();
+        $attachments[] = array(
             "attachment_name" => $genPdfFileName,
             "attachment_path" => $genPdfFilePath,
             "attachment_url" => $genPdfFileUrl
-        ));
+        );
+        $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
         if ($mq_id > 0) {
             $this->transaction->add_transaction(
                 transactionTypes_insert,

@@ -244,7 +244,7 @@ class ModuleMailModel extends BaseModel
     public function get_attachments()
     {
         $attachments = array();
-        $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
+        $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path, attachment_url FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
             ":id_mailQueue" => $this->mqid
         ));
         if ($fetched_attachments) {
