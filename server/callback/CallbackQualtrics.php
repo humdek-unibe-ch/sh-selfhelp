@@ -8,7 +8,9 @@ require_once __DIR__ . "/BaseCallback.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProjectModel.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/qualtrics_api_templates.php";
 require_once __DIR__ . "/../component/style/register/RegisterModel.php";
-require_once __DIR__ . "/../service/ext/FPDM/fpdm.php";
+require_once __DIR__ . "/../service/ext/php-pdftk-0.8.1.0/vendor/autoload.php";
+
+use mikehaertl\pdftk\Pdf;
 
 /**
  * A small class that handles callbak and set the group number for validation code
@@ -567,19 +569,19 @@ class CallbackQualtrics extends BaseCallback
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         $loops = 0;
-        while (!$survey_response) {
-            //it takes time for the response to be recorded
-            sleep(1);
-            $loops++;
-            $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-            if ($loops > 60) {
-                // we wait maximum 1 minute for the response
-                $result[] = 'No survey response';
-                return $result;
-                break;
-            }
-        }
-        //$survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
+        // while (!$survey_response) {
+        //     //it takes time for the response to be recorded
+        //     sleep(1);
+        //     $loops++;
+        //     $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        //     if ($loops > 60) {
+        //         // we wait maximum 1 minute for the response
+        //         $result[] = 'No survey response';
+        //         return $result;
+        //         break;
+        //     }
+        // }
+        $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG');
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
                 //sudo apt install php-dev; pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
@@ -605,11 +607,11 @@ class CallbackQualtrics extends BaseCallback
         foreach ($strengths as $key => $value) {
             $fields['Strengths'.$i] = $value['label'];
             $i++;
-        }
-        $pdf = new FPDM(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
-        $pdf->Load($fields, false); // second parameter: false if field values are in ISO-8859-1, true if UTF-8
-        $pdf->Merge();
-        $pdf->Output('F', ASSET_SERVER_PATH . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf");
+        }    
+        $pdf = new Pdf(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
+        $pdf->fillForm($fields)
+            ->flatten()
+            ->saveAs(ASSET_SERVER_PATH . "/".qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts."/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf");
         $mq_id = $this->mail->add_mail_to_queue($mail, array(
             PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf" => ASSET_SERVER_PATH . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf"
         ));
