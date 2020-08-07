@@ -3,21 +3,18 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 30, 2020 at 04:01 PM
+-- Generation Time: Aug 07, 2020 at 02:14 PM
 -- Server version: 5.7.31-0ubuntu0.18.04.1
 -- PHP Version: 7.2.24-0ubuntu0.18.04.6
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Database: `selfhelp`
@@ -662,15 +659,29 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `mailAttachments`
+--
+
+CREATE TABLE `mailAttachments` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `attachment_name` varchar(100) NOT NULL,
+  `attachment_path` varchar(1000) NOT NULL,
+  `attachment_url` varchar(1000) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mailQueue`
 --
 
 CREATE TABLE `mailQueue` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_mailQueueStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `date_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date_to_be_sent` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `date_sent` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_to_be_sent` datetime DEFAULT NULL,
+  `date_sent` datetime DEFAULT NULL,
   `from_email` varchar(100) NOT NULL,
   `from_name` varchar(100) NOT NULL,
   `reply_to` varchar(100) NOT NULL,
@@ -2320,6 +2331,13 @@ ALTER TABLE `lookups`
   ADD UNIQUE KEY `lookup_value` (`lookup_value`);
 
 --
+-- Indexes for table `mailAttachments`
+--
+ALTER TABLE `mailAttachments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mailAttachments_fk_id_mailQueue` (`id_mailQueue`);
+
+--
 -- Indexes for table `mailQueue`
 --
 ALTER TABLE `mailQueue`
@@ -2668,6 +2686,11 @@ ALTER TABLE `languages`
 ALTER TABLE `lookups`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 --
+-- AUTO_INCREMENT for table `mailAttachments`
+--
+ALTER TABLE `mailAttachments`
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `mailQueue`
 --
 ALTER TABLE `mailQueue`
@@ -2831,6 +2854,12 @@ ALTER TABLE `codes_groups`
 --
 ALTER TABLE `fields`
   ADD CONSTRAINT `fields_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `mailAttachments`
+--
+ALTER TABLE `mailAttachments`
+  ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `mailQueue`
