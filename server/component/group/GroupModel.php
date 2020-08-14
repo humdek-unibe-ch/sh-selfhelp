@@ -111,18 +111,35 @@ class GroupModel extends BaseModel
     private function fetch_acl_by_id($id, $is_group)
     {
         $acl = array();
-        $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
-        foreach($acl_db as $page)
-        {
-            $acl[$page['keyword']] = array(
-                "name" => $page['keyword'],
-                "acl" => array(
-                    "select" => $page['acl_select'] == 1,
-                    "insert" => $page['acl_insert'] == 1,
-                    "update" => $page['acl_update'] == 1,
-                    "delete" => $page['acl_delete'] == 1,
-                )
-            );
+        if ($id == null && $is_group) {
+            // prefill empty gacl which is needed for the simple acl
+            $sql = "SELECT p.id, p.keyword FROM pages AS p ORDER BY p.keyword";
+            $pages = $this->db->query_db($sql);
+            foreach ($pages as $page) {
+                $pid = intval($page['id']);
+                $acl[$page['keyword']] = array(
+                    "name" => $page['keyword'],
+                    "acl" => array(
+                        "select" => false,
+                        "insert" => false,
+                        "update" => false,
+                        "delete" => false,
+                    )
+                );
+            }
+        } else {
+            $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
+            foreach ($acl_db as $page) {
+                $acl[$page['keyword']] = array(
+                    "name" => $page['keyword'],
+                    "acl" => array(
+                        "select" => $page['acl_select'] == 1,
+                        "insert" => $page['acl_insert'] == 1,
+                        "update" => $page['acl_update'] == 1,
+                        "delete" => $page['acl_delete'] == 1,
+                    )
+                );
+            }
         }
         return $acl;
     }
