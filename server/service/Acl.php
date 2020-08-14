@@ -47,10 +47,11 @@ class Acl
      */
     private function get_access_levels($id, $id_page, $is_group = false)
     {
-        if($is_group)
+        if ($is_group) {
             return $this->get_access_levels_group($id, $id_page);
-        else
+        } else {
             return $this->get_access_levels_user($id, $id_page);
+        }
     }
 
     /**
@@ -95,6 +96,25 @@ class Acl
             ":pid" => $id_page
         );
         return $this->db->query_db_first($sql, $arguments);
+    }
+
+    /**
+     * Connects to the database and gets the acces rights of a user for all pages
+     * It checks the user permisons and all the groups in which the user is and take the highest permission
+     *
+     * @param int $id_user
+     *  The unique identifier of the user.
+     * @retval array
+     *  The result from the db query or false on failure.
+     */
+    public function get_access_levels_db_user_all_pages($id_user)
+    {
+        $sql = "SELECT * FROM view_acl_users_union            
+            WHERE `enabled` = 1 AND id_users = :uid;";
+        $arguments = array(
+            ":uid" => $id_user
+        );
+        return $this->db->query_db($sql, $arguments);
     }
 
     /**
@@ -153,6 +173,24 @@ class Acl
     }
 
     /**
+     * Connects to the database and gets the acces rights of a group for al pages.
+     *
+     * @param int $id_group
+     *  The unique identifier of the group.
+     * @retval array
+     *  The result from the db query or false on failure.
+     */
+    public function get_access_levels_db_group_all_pages($id_group)
+    {
+        $sql = "SELECT * FROM view_acl_groups_pages_modules            
+            WHERE `enabled` = 1 AND id_groups = :gid;";
+        $arguments = array(
+            ":gid" => $id_group
+        );
+        return $this->db->query_db($sql, $arguments);
+    }
+
+    /**
      * Connects to the database and gets the access rights of a user for a
      * specific page.
      *
@@ -166,7 +204,6 @@ class Acl
      */
     private function get_access_levels_user($id_user, $id_page)
     {
-        // $starttime = microtime(true);
         $acl = array(
             "select" => false,
             "insert" => false,
@@ -191,14 +228,6 @@ class Acl
                 if($acl_db_group['acl_update'] == '1') $acl["update"] = true;
                 if($acl_db_group['acl_delete'] == '1') $acl["delete"] = true;
             }
-        // $acl = array(
-        //     "select" => true,
-        //     "insert" => true,
-        //     "update" => true,
-        //     "delete" =>true
-        // ); //using for debuging when I will fix the group loading page
-        // $endtime = microtime(true);
-        //print("duration: " .  ($endtime - $starttime) . "<br>");
         return $acl;
     }
 
@@ -252,23 +281,81 @@ class Acl
      *
      */
     public function is_user_of_higer_level_than_group($id_user, $id_group)
-    {        
-        $sql = "SELECT id FROM pages";
-        $pages_db = $this->db->query_db($sql);
-        foreach($pages_db as $page)
+    {      
+        // acl for the user 
+        $acl_user = array(); 
+        $acl_db = $this->get_access_levels_db_user_all_pages($id_user);
+        foreach($acl_db as $page)
         {
-            $id_page = intval($page['id']);
-            $acl_user = $this->get_access_levels_user($id_user, $id_page);
-            $acl_group = $this->get_access_levels_group($id_group, $id_page);
-            if(!$acl_user['delete'] && $acl_group['delete'])
-                return false;
-            if(!$acl_user['update'] && $acl_group['update'])
-                return false;
-            if(!$acl_user['insert'] && $acl_group['insert'])
-                return false;
-            if(!$acl_user['select'] && $acl_group['select'])
-                return false;
+            $acl_user[$page['keyword']] = array(
+                "name" => $page['keyword'],
+                    "select" => $page['acl_select'] == 1,
+                    "insert" => $page['acl_insert'] == 1,
+                    "update" => $page['acl_update'] == 1,
+                    "delete" => $page['acl_delete'] == 1,
+            );
         }
+
+        // acl for the group 
+        $acl_group = array();
+        $acl_db = $this->get_access_levels_db_group_all_pages($id_group);
+        foreach ($acl_db as $page) {
+            $acl_group[$page['keyword']] = array(
+                "name" => $page['keyword'],
+                    "select" => $page['acl_select'] == 1,
+                    "insert" => $page['acl_insert'] == 1,
+                    "update" => $page['acl_update'] == 1,
+                    "delete" => $page['acl_delete'] == 1,
+            );
+        }        
+        $sql = "SELECT id, keyword FROM pages";
+        $pages_db = $this->db->query_db($sql);
+        foreach ($pages_db as $page) {
+            $page_keyword = $page['keyword'];
+            if (
+                $acl_group && isset($acl_group[$page_keyword]) && $acl_group[$page_keyword]['delete'] &&
+                $acl_user && (!isset($acl_user[$page_keyword]) || !$acl_user[$page_keyword]['delete'])
+            ) {
+                return false;
+            }
+            if (
+                $acl_group && isset($acl_group[$page_keyword]) && $acl_group[$page_keyword]['update'] &&
+                $acl_user && (!isset($acl_user[$page_keyword]) || !$acl_user[$page_keyword]['update'])
+            ) {
+                return false;
+            }
+            if (
+                $acl_group && isset($acl_group[$page_keyword]) && $acl_group[$page_keyword]['insert'] &&
+                $acl_user && (!isset($acl_user[$page_keyword]) || !$acl_user[$page_keyword]['insert'])
+            ) {
+                return false;
+            }
+            if (
+                $acl_group && isset($acl_group[$page_keyword]) && $acl_group[$page_keyword]['select'] &&
+                $acl_user && (!isset($acl_user[$page_keyword]) || !$acl_user[$page_keyword]['select'])
+            ) {
+                return false;
+            }
+        }
+        // $sql = "SELECT id, keyword FROM pages";
+        //     $pages_db = $this->db->query_db($sql);
+        // foreach($pages_db as $page)
+        // {
+        //     $id_page = intval($page['id']);
+        //     $acl_user = $this->get_access_levels_user($id_user, $id_page);
+        //     $acl_group = $this->get_access_levels_group($id_group, $id_page);
+        //     print($page['keyword']);
+        //     print_r($acl_user);
+        //     print_r($acl_group);
+        //     if(!$acl_user['delete'] && $acl_group['delete'])
+        //         return false;
+        //     if(!$acl_user['update'] && $acl_group['update'])
+        //         return false;
+        //     if(!$acl_user['insert'] && $acl_group['insert'])
+        //         return false;
+        //     if(!$acl_user['select'] && $acl_group['select'])
+        //         return false;
+        // }
         return true;
     }
 
@@ -287,21 +374,60 @@ class Acl
      */
     public function is_user_of_higer_level_than_user($id_user_1, $id_user_2)
     {
-        $sql = "SELECT id FROM pages";
-        $pages_db = $this->db->query_db($sql);
-        foreach($pages_db as $page)
+        // acl for the user1 
+        $acl_user_1 = array(); 
+        $acl_db = $this->get_access_levels_db_user_all_pages($id_user_1);
+        foreach($acl_db as $page)
         {
-            $id_page = intval($page['id']);
-            $acl_user_1 = $this->get_access_levels_user($id_user_1, $id_page);
-            $acl_user_2 = $this->get_access_levels_user($id_user_2, $id_page);
-            if(!$acl_user_1['delete'] && $acl_user_2['delete'])
+            $acl_user_1[$page['keyword']] = array(
+                "name" => $page['keyword'],
+                    "select" => $page['acl_select'] == 1,
+                    "insert" => $page['acl_insert'] == 1,
+                    "update" => $page['acl_update'] == 1,
+                    "delete" => $page['acl_delete'] == 1,
+            );
+        }
+
+        // acl for the user2 
+        $acl_user_2 = array();
+        $acl_db = $this->get_access_levels_db_user_all_pages($id_user_2);
+        foreach ($acl_db as $page) {
+            $acl_user_2[$page['keyword']] = array(
+                "name" => $page['keyword'],
+                    "select" => $page['acl_select'] == 1,
+                    "insert" => $page['acl_insert'] == 1,
+                    "update" => $page['acl_update'] == 1,
+                    "delete" => $page['acl_delete'] == 1,
+            );
+        }        
+        $sql = "SELECT id, keyword FROM pages";
+        $pages_db = $this->db->query_db($sql);
+        foreach ($pages_db as $page) {
+            $page_keyword = $page['keyword'];
+            if (
+                $acl_user_2 && isset($acl_user_2[$page_keyword]) && $acl_user_2[$page_keyword]['delete'] &&
+                $acl_user_1 && (!isset($acl_user_1[$page_keyword]) || !$acl_user_1[$page_keyword]['delete'])
+            ) {
                 return false;
-            if(!$acl_user_1['update'] && $acl_user_2['update'])
+            }
+            if (
+                $acl_user_2 && isset($acl_user_2[$page_keyword]) && $acl_user_2[$page_keyword]['update'] &&
+                $acl_user_1 && (!isset($acl_user_1[$page_keyword]) || !$acl_user_1[$page_keyword]['update'])
+            ) {
                 return false;
-            if(!$acl_user_1['insert'] && $acl_user_2['insert'])
+            }
+            if (
+                $acl_user_2 && isset($acl_user_2[$page_keyword]) && $acl_user_2[$page_keyword]['insert'] &&
+                $acl_user_1 && (!isset($acl_user_1[$page_keyword]) || !$acl_user_1[$page_keyword]['insert'])
+            ) {
                 return false;
-            if(!$acl_user_1['select'] && $acl_user_2['select'])
+            }
+            if (
+                $acl_user_2 && isset($acl_user_2[$page_keyword]) && $acl_user_2[$page_keyword]['select'] &&
+                $acl_user_1 && (!isset($acl_user_1[$page_keyword]) || !$acl_user_1[$page_keyword]['select'])
+            ) {
                 return false;
+            }
         }
         return true;
     }

@@ -111,22 +111,19 @@ class GroupModel extends BaseModel
     private function fetch_acl_by_id($id, $is_group)
     {
         $acl = array();
-        $sql = "SELECT p.id, p.keyword FROM pages AS p ORDER BY p.keyword";
-        $pages = $this->db->query_db($sql);
-        foreach($pages as $page)
+        $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
+        foreach($acl_db as $page)
         {
-            $pid = intval($page['id']);
             $acl[$page['keyword']] = array(
                 "name" => $page['keyword'],
                 "acl" => array(
-                    "select" => $this->acl->has_access_select($id, $pid, $is_group),
-                    "insert" => $this->acl->has_access_insert($id, $pid, $is_group),
-                    "update" => $this->acl->has_access_update($id, $pid, $is_group),
-                    "delete" => $this->acl->has_access_delete($id, $pid, $is_group),
+                    "select" => $page['acl_select'] == 1,
+                    "insert" => $page['acl_insert'] == 1,
+                    "update" => $page['acl_update'] == 1,
+                    "delete" => $page['acl_delete'] == 1,
                 )
             );
         }
-        //print('duration:');
         return $acl;
     }
 
@@ -618,7 +615,6 @@ class GroupModel extends BaseModel
      */
     public function get_groups()
     {
-        // $starttime = microtime(true);
         $res = array();
         foreach($this->fetch_groups() as $group)
         {
@@ -630,8 +626,6 @@ class GroupModel extends BaseModel
                 "url" => $this->get_link_url("groupSelect", array("gid" => $id))
             );
         }
-        // $endtime = microtime(true);
-        // print("duration: " .  ($endtime - $starttime));
         return $res;
     }
 
@@ -684,8 +678,7 @@ class GroupModel extends BaseModel
      */
     public function is_group_allowed($id_group)
     {
-        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
-                $id_group);
+        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'], $id_group);
     }
 
     /**
