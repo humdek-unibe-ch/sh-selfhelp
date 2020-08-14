@@ -633,16 +633,19 @@ class GroupModel extends BaseModel
     public function get_groups()
     {
         $res = array();
+        $starttime = microtime(true);
         foreach($this->fetch_groups() as $group)
         {
             $id = intval($group["id"]);
-            if(!$this->is_group_allowed($id)) continue;
+            // if(!$this->is_group_allowed($id)) continue; // this line is not needed. We will check if we can edit permisions that we already have
             $res[] = array(
                 "id" => $id,
                 "title" => $group["name"],
                 "url" => $this->get_link_url("groupSelect", array("gid" => $id))
             );
         }
+        $endtime = microtime(true);
+        print("duration: " .  ($endtime - $starttime) . "<br>");
         return $res;
     }
 
