@@ -24,7 +24,7 @@ class CallbackQualtrics extends BaseCallback
     const VALIDATION_set_group = 'set_group';
     const CALLBACK_NEW = 'callback_new';
     const CALLBACK_ERROR = 'callback_error';
-    const CALLBACK_SUCCESS = 'callback_success';     
+    const CALLBACK_SUCCESS = 'callback_success';
 
     /* Private Properties *****************************************************/
 
@@ -604,15 +604,16 @@ class CallbackQualtrics extends BaseCallback
         $fields = array();
         $i = 1;
         foreach ($strengths as $key => $value) {
-            $fields['Strengths'.$i] = $value['label'];
+            $fields['Strengths' . $i] = $value['label'];
             $i++;
-        }    
-        $genPdfFilePath = ASSET_SERVER_PATH . "/".qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts."/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
+        }
+        $genPdfFilePath = ASSET_SERVER_PATH . "/" . qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
         $genPdfFileName = PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
-        $genPdfFileUrl = ASSET_PATH . "/".qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts."/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
+        $genPdfFileUrl = ASSET_PATH . "/" . qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
         $pdf = new Pdf(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
-        $pdf->fillForm($fields)
-            ->flatten()
+        $pdf->fillForm($fields)            
+            //->flatten()
+            ->needAppearances()
             ->saveAs($genPdfFilePath);
         $attachments = array();
         $attachments[] = array(
