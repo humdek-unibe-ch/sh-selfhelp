@@ -1,4 +1,10 @@
-# v3.0.0 (latest)
+# v3.0.1 (latest)
+
+### Bugfix
+
+ - Fix slow loading of `Groups` module
+
+# v3.0.0
 
 ### Changes
 
