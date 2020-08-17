@@ -352,6 +352,28 @@ class CallbackQualtrics extends BaseCallback
                 $schedule_info = json_decode($action['schedule_info'], true);
                 unset($mail);
                 unset($result);
+                // *************************************** CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
+                $attachments = array();
+                $functions = explode(';', $action['functions_code']);
+                foreach ($functions as $key => $value) {
+                    if ($value == qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) {
+                        // WORKWELL evaluate strenghts function
+                        $result[] = qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4;
+                        $result[] = $this->workwell_evaluate_strenghts($data, $user_id);
+                    } else if (
+                        $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4 ||
+                        $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5
+                    ) {
+                        // Fill PDF with qualtrics embeded data
+                        $result[] = $value;
+                        $func_res = $this->fill_pdf_with_qualtrics_embeded_data($value, $data, $user_id);
+                        $result[] = $func_res['output'];
+                        if ($func_res['attachment']) {
+                            $attachments[] = $func_res['attachment'];
+                        }
+                    }
+                }
+                // *************************************** END CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
                 $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
                 $mail = array(
                     "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
@@ -363,7 +385,7 @@ class CallbackQualtrics extends BaseCallback
                     "subject" => $schedule_info['subject'],
                     "body" => $body
                 );
-                $mq_id = $this->mail->add_mail_to_queue($mail);
+                $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
                 if ($mq_id > 0) {
                     $this->transaction->add_transaction(
                         transactionTypes_insert,
@@ -413,10 +435,7 @@ class CallbackQualtrics extends BaseCallback
     private function workwell_evaluate_strenghts($data, $user_id)
     {
         $result = [];
-        $qualtrics_api = $this->db->query_db_first('SELECT DISTINCT qualtrics_api
-                                                    FROM view_qualtricsActions
-                                                    WHERE qualtrics_survey_id = :qualtrics_survey_id
-                                                    LIMIT 0, 1;', array("qualtrics_survey_id" => $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]))['qualtrics_api'];
+        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $strengths = array(
             "creativity" => array(
                 "coefficient_1" => 3.43,
@@ -611,7 +630,7 @@ class CallbackQualtrics extends BaseCallback
         $genPdfFileName = PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
         $genPdfFileUrl = ASSET_PATH . "/" . qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts . "/" . PROJECT_NAME . "_VIA_" . $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
         $pdf = new Pdf(ASSET_SERVER_PATH . "/VIA_Feedback_form.pdf");
-        $pdf->fillForm($fields)            
+        $pdf->fillForm($fields)
             //->flatten()
             ->needAppearances()
             ->saveAs($genPdfFilePath);
@@ -647,6 +666,83 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Get qualtrics api key
+     * @param string $survey_id survey id
+     * @retval string return the api key
+     */
+    private function get_qualtrics_api($survey_id)
+    {
+        return $this->db->query_db_first('SELECT DISTINCT qualtrics_api
+                                                    FROM view_qualtricsActions
+                                                    WHERE qualtrics_survey_id = :qualtrics_survey_id
+                                                    LIMIT 0, 1;', array("qualtrics_survey_id" => $survey_id))['qualtrics_api'];
+    }
+
+    /**
+     * Fill pdf form template with qualtrics embeded data. The name of the form's fields should be the same as the name of the embeded data fields
+     *
+     * @param string $function_name the name of the function - we use it to get the template
+     * @param array $data
+     *  the data from the callback.     
+     * @param in user_id
+     * user id
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function fill_pdf_with_qualtrics_embeded_data($function_name, $data, $user_id)
+    {
+        $result = [];
+        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+        $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
+        $result[] = $function_name;
+        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
+        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
+        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $loops = 0;
+        // while (!$survey_response) {
+        //     //it takes time for the response to be recorded
+        //     sleep(1);
+        //     $loops++;
+        //     $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        //     if ($loops > 60) {
+        //         // we wait maximum 1 minute for the response
+        //         $result[] = 'No survey response';
+        //         return $result;
+        //         break;
+        //     }
+        // }
+        $survey_response = $moduleQualtrics->get_survey_response('SV_6W3ecbhSYcDrxOZ', 'R_9LUy3c0n7UZhbQB');
+        $pdfTemplate = new Pdf(ASSET_SERVER_PATH . "/" . $function_name . ".pdf");
+        $data_fields = $pdfTemplate->getDataFields()->__toArray();
+
+        // generate fields dynamically from the template
+        $fields = array();
+        foreach ($data_fields as $key => $value) {
+            if (isset($survey_response['values'][$value['FieldName']])) {
+                $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']];
+            }
+        }
+        $genPdfFileName = $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE] . ".pdf";
+        $genPdfFilePath = ASSET_SERVER_PATH . "/" . $function_name . "/" . $genPdfFileName;
+        $genPdfFileUrl = ASSET_PATH . "/" . $function_name . "/" . $genPdfFileName;
+        $pdf = new Pdf(ASSET_SERVER_PATH . "/" . $function_name . ".pdf");
+        $pdf->fillForm($fields)
+            ->flatten()
+            ->needAppearances()
+            ->saveAs($genPdfFilePath);
+        $attachment = array(
+            "attachment_name" => $genPdfFileName,
+            "attachment_path" => $genPdfFilePath,
+            "attachment_url" => $genPdfFileUrl
+        );
+        $ret_value = null;
+
+        $ret_value['attachment'] = $attachment;
+        $ret_value['output'] = $result;
+        return $ret_value;
+    }
+
+    /**
      * Check if any action has addtional function that should be executed
      *
      * @param array $data
@@ -663,7 +759,6 @@ class CallbackQualtrics extends BaseCallback
         //get all actions for this survey and trigger type 
         $actions = $this->get_actions_with_functions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         foreach ($actions as $action) {
-            //clear the mail generation data
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false) {
                     // WORKWELL evaluate strenghts function

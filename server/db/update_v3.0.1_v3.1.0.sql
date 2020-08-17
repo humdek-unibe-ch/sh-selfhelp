@@ -1,3 +1,7 @@
+-- add qualtricsProjectActionAdditionalFunction
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_4', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_5', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)');
+
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
