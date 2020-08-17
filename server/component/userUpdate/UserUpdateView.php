@@ -92,6 +92,7 @@ class UserUpdateView extends BaseView
                         new BaseStyleComponent("select", array(
                             "name" => "groups[]",
                             "is_multiple" => true,
+                            "live_search" => true,
                             "items" => $this->model->get_new_group_options(
                                 $this->selected_user['id']),
                             "css" => "mb-3",

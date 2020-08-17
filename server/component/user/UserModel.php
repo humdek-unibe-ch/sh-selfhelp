@@ -165,19 +165,17 @@ class UserModel extends BaseModel
     private function fetch_acl_by_user($uid)
     {
         $acl = array();
-        $sql = "SELECT p.id, p.keyword FROM pages AS p ORDER BY p.keyword";
-        $pages = $this->db->query_db($sql);
-        foreach($pages as $page)
+        $acl_db = $this->acl->get_access_levels_db_user_all_pages($uid);
+        foreach($acl_db as $page)
         {
-            $pid = intval($page['id']);
             $acl[$page['keyword']] = array(
                 "name" => $page['keyword'],
                 "acl" => array(
-                    "select" => $this->acl->has_access_select($uid, $pid),
-                    "insert" => $this->acl->has_access_insert($uid, $pid),
-                    "update" => $this->acl->has_access_update($uid, $pid),
-                    "delete" => $this->acl->has_access_delete($uid, $pid),
-                )
+                    "select" => $page['acl_select'] == 1,
+                    "insert" => $page['acl_insert'] == 1,
+                    "update" => $page['acl_update'] == 1,
+                    "delete" => $page['acl_delete'] == 1,
+                )                
             );
         }
         return $acl;
@@ -274,11 +272,10 @@ class UserModel extends BaseModel
      */
     public function can_modify_user()
     {
-        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'],
-            $this->selected_user['id']))
-            return false;
-        return $this->acl->has_access_update($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("userUpdate"));
+        return $this->acl->has_access_update(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("userUpdate")
+        );
     }
 
     /**
@@ -483,9 +480,7 @@ class UserModel extends BaseModel
         $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
             ORDER BY g.name";
         $groups_db = $this->db->query_db($sql);
-        foreach($groups_db as $group)
-        {
-            if($this->is_group_allowed(intval($group['value'])))
+        foreach ($groups_db as $group) {
                 $groups[] = $group;
         }
         return $groups;
@@ -508,9 +503,7 @@ class UserModel extends BaseModel
             WHERE ug.id_users IS NULL
             ORDER BY g.name";
         $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
-        foreach($groups_db as $group)
-        {
-            if($this->is_group_allowed(intval($group['value'])))
+        foreach ($groups_db as $group) {
                 $groups[] = $group;
         }
         return $groups;

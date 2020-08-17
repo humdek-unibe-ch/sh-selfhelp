@@ -511,6 +511,16 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Get the ACL info for a user and when someone want to change rights, this is the maximum what they can assign
+     *
+     * @retval array
+     *  See UserModel::fetch_acl_by_id.
+     */  
+    public function get_user_rights($uid){
+       return $this->fetch_acl_by_id($uid, false);
+    }
+
+    /**
      * Get the simplified ACL info of the selected group.
      *
      * @param array $acl
@@ -636,7 +646,6 @@ class GroupModel extends BaseModel
         foreach($this->fetch_groups() as $group)
         {
             $id = intval($group["id"]);
-            if(!$this->is_group_allowed($id)) continue;
             $res[] = array(
                 "id" => $id,
                 "title" => $group["name"],
