@@ -1,3 +1,9 @@
+-- add qualtricsProjectActionAdditionalFunction
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_4', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_5', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_4', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_5', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)');
+
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
@@ -28,3 +34,7 @@ LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
 st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
+
+-- add column template_path in table mailAttachments
+ALTER TABLE mailAttachments
+ADD COLUMN `template_path` VARCHAR(1000) NOT NUll;
