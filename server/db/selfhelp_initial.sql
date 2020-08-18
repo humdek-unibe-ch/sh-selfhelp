@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 14, 2020 at 03:57 PM
+-- Generation Time: Aug 18, 2020 at 12:03 PM
 -- Server version: 5.7.31-0ubuntu0.18.04.1
 -- PHP Version: 7.2.24-0ubuntu0.18.04.6
 
@@ -654,7 +654,11 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 (0000000040, 'transactionTypes', 'check_mailQueue', 'Check mail queue', 'Check mail queue and send mails if needed'),
 (0000000041, 'transactionBy', 'by_mail_cron', 'By mail cronjob', 'The action was done by a mail cronjob'),
 (0000000042, 'transactionBy', 'by_user', 'By user', 'The action was done by an user'),
-(0000000043, 'transactionBy', 'by_qualtrics_callback', 'By qualtrics callback', 'The action was done by a qualtrics callback');
+(0000000043, 'transactionBy', 'by_qualtrics_callback', 'By qualtrics callback', 'The action was done by a qualtrics callback'),
+(0000000044, 'qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_4', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)'),
+(0000000045, 'qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_5', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)'),
+(0000000046, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_4', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)'),
+(0000000047, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_5', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)');
 
 -- --------------------------------------------------------
 
@@ -667,7 +671,8 @@ CREATE TABLE `mailAttachments` (
   `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
   `attachment_name` varchar(100) NOT NULL,
   `attachment_path` varchar(1000) NOT NULL,
-  `attachment_url` varchar(1000) NOT NULL
+  `attachment_url` varchar(1000) NOT NULL,
+  `template_path` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2684,7 +2689,7 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `lookups`
 --
 ALTER TABLE `lookups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 --
 -- AUTO_INCREMENT for table `mailAttachments`
 --

@@ -1,4 +1,14 @@
-# v3.0.1 (latest)
+# v3.1.0 (latest)
+
+### New Features
+
+ - Generate PDF files as output for spesific callback functions
+    - It is used for `Workwell` project. A folder `workwell_cg_ap_4` should be created in folder `assets`. The new folder should have 777 rights
+    - It is used for `Workwell` project. A folder `workwell_cg_ap_5` should be created in folder `assets`. The new folder should have 777 rights
+    - It is used for `Workwell` project. A folder `workwell_eg_ap_4` should be created in folder `assets`. The new folder should have 777 rights
+    - It is used for `Workwell` project. A folder `workwell_eg_ap_5` should be created in folder `assets`. The new folder should have 777 rights
+
+# v3.0.1
 
 ### Bugfix
 
