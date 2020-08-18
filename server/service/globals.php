@@ -127,6 +127,8 @@ define('qualtricsProjectActionTriggerTypes_finished', 'finished');
 define('qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts', 'workwell_evaluate_personal_strenghts');
 define('qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4', 'workwell_cg_ap_4');
 define('qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5', 'workwell_cg_ap_5');
+define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4', 'workwell_eg_ap_4');
+define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5', 'workwell_eg_ap_5');
 define('timePeriod_seconds', 'seconds');
 define('timePeriod_minutes', 'minutes');
 define('timePeriod_hours', 'hours');
