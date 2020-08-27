@@ -582,7 +582,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "label" => "For group(s)",
                             "name" => "id_groups[]",
                             "is_multiple" => true,
-                            "is_required" => true,
+                            "is_required" => false,
                             "live_search" => true,
                             "value" => explode(',', $this->action['id_groups']),
                             "items" => $this->get_groups(),
