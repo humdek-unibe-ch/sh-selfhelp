@@ -172,7 +172,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         );
         $result = $this->execute_curl($data);
         return $result ? $result['result'] : $result;
-    }    
+    }
 
     /**
      * Synchronize survey header; Get the header and check if the selfhelp is appended; if it is not we add it.
@@ -371,10 +371,12 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private function get_webService_finish_flow($survey)
     {
-        $editBodyParamsEnd[] = array(
-            "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-            "value" => '${e://Field/' . $survey['participant_variable'] . '}'
-        );
+        if ($survey['participant_variable']) {
+            $editBodyParamsEnd[] = array(
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
+                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
+            );
+        }
         $editBodyParamsEnd[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
             "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
@@ -409,10 +411,12 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private function get_webService_start_flow($survey)
     {
-        $editBodyParamsStart[] = array(
-            "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-            "value" => '${e://Field/' . $survey['participant_variable'] . '}'
-        );
+        if ($survey['participant_variable']) {
+            $editBodyParamsStart[] = array(
+                "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
+                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
+            );
+        }
         $editBodyParamsStart[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
             "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
@@ -440,6 +444,7 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     private function get_webService_setGroup_flow($survey)
     {
+
         $editBodyParamsGroup[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
             "value" => '${e://Field/' . $survey['participant_variable'] . '}'
@@ -467,7 +472,8 @@ class ModuleQualtricsProjectModel extends BaseModel
      * @retval string
      * it returns the protocol
      */
-    private function get_protocol(){
+    private function get_protocol()
+    {
         return DEBUG ? 'http://' : 'https://';
     }
 
@@ -743,10 +749,62 @@ class ModuleQualtricsProjectModel extends BaseModel
             if ($followup_webService_end) {
                 // add followup webService for finishing the survey
                 array_push($followup_authenticator['Flow'], $followup_webService_end);
-            }  
+            }
             //assign authenticator on top
             unset($surveyFlow['Flow']); // clear the flow before assing the authenticator
             $surveyFlow['Flow'][] = $followup_authenticator; // assign the authenticator to the flow, now the authenticator keeps the rest of the flow inside              
+            return $this->set_survey_flow($survey['qualtrics_survey_id'], $surveyFlow);
+        } else {
+            $this->return_info(false, "Something went wrong");
+        }
+    }
+
+    /**
+     * Synchronize anonymous survey to qualtrics via the API
+     * @param array @survey
+     * @param object @surveyFlow
+     * @retval array
+     */
+    private function sync_anonymous_survey($survey, $surveyFlow)
+    {
+        if ($surveyFlow) {
+
+            /** START SURVEY WEB SERVICE *******************************************************************************************************************************/
+
+            $webService_start = $this->get_webService_start_flow($survey);
+
+            /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
+
+            $webService_end = $this->get_webService_finish_flow($survey);
+
+            /** LOOP IF FLOWS EXISTS, EDIT THEM **********************************************************************************************************************************/
+            foreach ($surveyFlow['Flow'] as $key => $flow) {
+                if ($flow['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START) {
+                    //already exist; overwirite
+                    $surveyFlow['Flow'][$key] = $webService_start;
+                    $webService_start = false; //not needed anymore later when we check is it assign
+                } else if ($flow['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END) {
+                    //already exist; overwirite
+                    // This flow whould be allways at the end. Remove it now and allways add it at the end
+                    unset($surveyFlow['Flow'][$key]);
+                }
+            }
+
+            /** IF FLOW DOESN NOT EXIST, ADD THEM **********************************************************************************************************************************/
+
+            //check do we still have to add flows
+            // order is important as we add as first. We should add the element that should be first as last call
+            if ($webService_start) {
+                // add webService for starting the survey
+                array_unshift($surveyFlow['Flow'], $webService_start);
+            }
+            if ($webService_end) {
+                // add webService for finishing the survey
+                array_push($surveyFlow['Flow'], $webService_end);
+            }
+
+            /** EXECUTE THE FLOW **********************************************************************************************************************************/
+            $surveyFlow['Flow'] = array_values($surveyFlow['Flow']); // rebase the array indexes
             return $this->set_survey_flow($survey['qualtrics_survey_id'], $surveyFlow);
         } else {
             $this->return_info(false, "Something went wrong");
@@ -881,6 +939,8 @@ class ModuleQualtricsProjectModel extends BaseModel
             $res2 = $this->sync_baseline_survey($survey, $surveyFlow);
         } else if ($survey['survey_type_code'] === qualtricsSurveyTypes_follow_up) {
             $res2 = $this->sync_followup_survey($survey, $surveyFlow);
+        } else if ($survey['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
+            $res2 = $this->sync_anonymous_survey($survey, $surveyFlow);
         }
         return $this->multi_return_info(array($res1, $res2));
     }
