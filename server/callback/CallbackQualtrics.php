@@ -21,6 +21,7 @@ class CallbackQualtrics extends BaseCallback
     /* Constants ************************************************/
     const VALIDATION_add_survey_response = 'add_survey_response';
     const VALIDATION_set_group = 'set_group';
+    const VALIDATION_open_survey_response = 'open_survey_response';
     const CALLBACK_NEW = 'callback_new';
     const CALLBACK_ERROR = 'callback_error';
     const CALLBACK_SUCCESS = 'callback_success';
@@ -320,7 +321,7 @@ class CallbackQualtrics extends BaseCallback
      * @retval int
      *  The id of the new record.
      */
-    public function add_reminder($mq_id, $uid, $sid)
+    private function add_reminder($mq_id, $uid, $sid)
     {
         return $this->db->insert("qualtricsReminders", array(
             "id_users" => $uid,
@@ -977,10 +978,9 @@ class CallbackQualtrics extends BaseCallback
      * Add group for the user. If the group does not exist it is created.
      *
      * @param $data
-     * The POST data of the callback call:
-     * QUALTRICS_PARTICIPANT_VARIABLE,
-     * QUALTRICS_GROUP_VARIABLE,
-     * QUALTRICS_CALLBACK_KEY_VARIABLE
+     * QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
+     * QUALTRICS_CALLBACK_KEY_VARIABLE,
+     * QUALTRICS_TRIGGER_TYPE_VARIABLE
      */
     public function set_group($data)
     {
@@ -1014,6 +1014,27 @@ class CallbackQualtrics extends BaseCallback
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
     }
+
+    /**
+     * Add group for the user. If the group does not exist it is created.
+     *
+     * @param $data
+     * The POST data of the callback call:
+     * QUALTRICS_SURVEY_ID_VARIABLE,
+     * QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
+     * QUALTRICS_CALLBACK_KEY_VARIABLE,
+     * QUALTRICS_TRIGGER_TYPE_VARIABLE
+     */
+    public function open_survey_response($data)
+    {
+        $callback_log_id = $this->insert_callback_log($_SERVER, $data);
+        $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_open_survey_response);
+        if ($result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
+            //validation passed; try to execute
+            $result['pdf_link'] = "178.38.48.100/selfhelp/assets/workwell_eg_ap_4.pdf";
+        }
+        $this->update_callback_log($callback_log_id, $result);
+        echo json_encode($result);
+    }
 }
 ?>
-_

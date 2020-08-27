@@ -1,0 +1,2 @@
+-- add qualtricsSurveyTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'anonymous', 'Anonymous', 'Anonymous survey. No code or user is used.');

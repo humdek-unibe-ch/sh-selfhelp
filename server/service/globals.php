@@ -122,6 +122,7 @@ define('mailQueueStatus_sent', 'sent');
 define('mailQueueStatus_failed', 'failed');
 define('qualtricsSurveyTypes_baseline', 'baseline');
 define('qualtricsSurveyTypes_follow_up', 'follow_up');
+define('qualtricsSurveyTypes_anonymous', 'anonymous');
 define('qualtricsProjectActionTriggerTypes_started', 'started');
 define('qualtricsProjectActionTriggerTypes_finished', 'finished');
 define('qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts', 'workwell_evaluate_personal_strenghts');
