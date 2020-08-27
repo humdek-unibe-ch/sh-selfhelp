@@ -21,7 +21,6 @@ class CallbackQualtrics extends BaseCallback
     /* Constants ************************************************/
     const VALIDATION_add_survey_response = 'add_survey_response';
     const VALIDATION_set_group = 'set_group';
-    const VALIDATION_open_survey_response = 'open_survey_response';
     const CALLBACK_NEW = 'callback_new';
     const CALLBACK_ERROR = 'callback_error';
     const CALLBACK_SUCCESS = 'callback_success';
@@ -66,6 +65,22 @@ class CallbackQualtrics extends BaseCallback
                 where code  = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         return  !isset($res['id_users']) ? -1 : $res['id_users'];
+    }
+
+    /**
+     * Get survey info
+     *
+     * @param string $survey_id
+     *  The survey_id
+     * @retval $array
+     *  The survey data
+     */
+    private function getSurvey($survey_id)
+    {
+        $sql = "SELECT *
+                FROM view_qualtricsSurveys
+                WHERE qualtrics_survey_id = :survey_id";
+        return $this->db->query_db_first($sql, array(':survey_id' => $survey_id));
     }
 
     /**
@@ -689,7 +704,7 @@ class CallbackQualtrics extends BaseCallback
             if (isset($survey_response['values'][$value['FieldName']])) {
                 $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']];
             }
-        }        
+        }
         $pdf = new Pdf($attachment['template_path']);
         $pdf->fillForm($fields)
             ->flatten()
@@ -733,20 +748,25 @@ class CallbackQualtrics extends BaseCallback
      * @retval string
      *  log text what actions was done;
      */
-    private function check_functions_from_actions($data, $user_id)
+    private function check_functions_from_actions($data, $user_id = -1)
     {
         $result = [];
-        $result[] = 'check additional functions';
         //get all actions for this survey and trigger type 
         $actions = $this->get_actions_with_functions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         foreach ($actions as $action) {
-            if ($this->is_user_in_group($user_id, $action['id_groups'])) {
+            if ($user_id > 0 && $this->is_user_in_group($user_id, $action['id_groups'])) {
                 // Special Functions code here if it is not related to notifications or reminders
                 // if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false) {
                 //     // WORKWELL evaluate strenghts function
                 //     $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
                 //     $result[] = $this->workwell_evaluate_strenghts($data, $user_id);
                 // }
+            }
+            if ($action['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
+                // anonymous survey
+                if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false) {
+                    $result['pdf_link'] = 'qko';
+                }
             }
         }
         return $result;
@@ -855,16 +875,20 @@ class CallbackQualtrics extends BaseCallback
         }
         if ($type == CallbackQualtrics::VALIDATION_add_survey_response) {
             // validate add_survey_response parameters
-            if (!isset($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE]) || $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] == '') {
-                array_push($result['selfhelpCallback'], 'misisng participant');
-                $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
-            } else if (preg_match('/[^A-Za-z0-9]/', $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
-                array_push($result['selfhelpCallback'], 'wrong participant value (only numbers and laters are possible)');
-                $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
-            } else if (!$this->code_exist($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
-                //check if the code is in the table validation_codes
-                array_push($result['selfhelpCallback'], 'validation code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' does not exist');
-                $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+            $suereyInfo = $this->getSurvey($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+            if ($suereyInfo['survey_type_code'] !== qualtricsSurveyTypes_anonymous) {
+                // validate participent variable only if it is not anonymous
+                if (!isset($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE]) || $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] == '') {
+                    array_push($result['selfhelpCallback'], 'misisng participant');
+                    $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                } else if (preg_match('/[^A-Za-z0-9]/', $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+                    array_push($result['selfhelpCallback'], 'wrong participant value (only numbers and laters are possible)');
+                    $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                } else if (!$this->code_exist($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+                    //check if the code is in the table validation_codes
+                    array_push($result['selfhelpCallback'], 'validation code: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . ' does not exist');
+                    $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                }
             }
             if (!isset($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE])) {
                 array_push($result['selfhelpCallback'], 'misisng response id');
@@ -925,47 +949,53 @@ class CallbackQualtrics extends BaseCallback
         $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_add_survey_response);
         if ($result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
             //validation passed; try to execute
-            $user_id = $this->getUserId($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE]);
-            if (!($user_id > 0)) {
-                //user does not exist; create a new user with status auto_created
-                $user_id = $this->insert_new_user($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE]);
-                if ($user_id > 0) {
-                    $result['selfhelpCallback'][] = "User with code " . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . " was created.";
-                } else {
-                    $result['selfhelpCallback'][] = "Error. User with code " . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . " cannot be created.";
-                    $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+            $suereyInfo = $this->getSurvey($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+            if ($suereyInfo['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
+                // annonymous survey, no user
+                $result = array_merge($result, $this->check_functions_from_actions($data));
+            } else {
+                $user_id = $this->getUserId($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+                if (!($user_id > 0)) {
+                    //user does not exist; create a new user with status auto_created
+                    $user_id = $this->insert_new_user($data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+                    if ($user_id > 0) {
+                        $result['selfhelpCallback'][] = "User with code " . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . " was created.";
+                    } else {
+                        $result['selfhelpCallback'][] = "Error. User with code " . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] . " cannot be created.";
+                        $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                    }
                 }
-            }
-            if ($user_id > 0) {
-                if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === qualtricsProjectActionTriggerTypes_started) {
-                    //insert survey response
-                    $inserted_id = $this->insert_survey_response($data, $user_id);
-                    if ($inserted_id > 0) {
-                        //successfully inserted survey repsonse
-                        $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
-                        $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
-                        $result['selfhelpCallback'][] = $this->check_functions_from_actions($data, $user_id);
-                    } else {
-                        //something went wrong; survey resposne was not inserted
-                        $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
-                        $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
-                    }
-                } else if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === qualtricsProjectActionTriggerTypes_finished) {
-                    //update survey response
-                    $update_id = $this->update_survey_response($data);
-                    $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-                    if ($scheduled_reminders && count($scheduled_reminders) > 0) {
-                        $this->delete_reminders($scheduled_reminders);
-                    }
-                    if ($update_id > 0) {
-                        //successfully updated survey repsonse
-                        $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                        $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
-                        $result['selfhelpCallback'][] = $this->check_functions_from_actions($data, $user_id);
-                    } else {
-                        //something went wrong; survey resposne was not updated
-                        $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
-                        $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                if ($user_id > 0) {
+                    if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === qualtricsProjectActionTriggerTypes_started) {
+                        //insert survey response
+                        $inserted_id = $this->insert_survey_response($data, $user_id);
+                        if ($inserted_id > 0) {
+                            //successfully inserted survey repsonse
+                            $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
+                            $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
+                            $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                        } else {
+                            //something went wrong; survey resposne was not inserted
+                            $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
+                            $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                        }
+                    } else if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === qualtricsProjectActionTriggerTypes_finished) {
+                        //update survey response
+                        $update_id = $this->update_survey_response($data);
+                        $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+                        if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                            $this->delete_reminders($scheduled_reminders);
+                        }
+                        if ($update_id > 0) {
+                            //successfully updated survey repsonse
+                            $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
+                            $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
+                            $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                        } else {
+                            //something went wrong; survey resposne was not updated
+                            $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
+                            $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                        }
                     }
                 }
             }
@@ -1010,28 +1040,6 @@ class CallbackQualtrics extends BaseCallback
                     $result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;
                 }
             }
-        }
-        $this->update_callback_log($callback_log_id, $result);
-        echo json_encode($result);
-    }
-
-    /**
-     * Add group for the user. If the group does not exist it is created.
-     *
-     * @param $data
-     * The POST data of the callback call:
-     * QUALTRICS_SURVEY_ID_VARIABLE,
-     * QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
-     * QUALTRICS_CALLBACK_KEY_VARIABLE,
-     * QUALTRICS_TRIGGER_TYPE_VARIABLE
-     */
-    public function open_survey_response($data)
-    {
-        $callback_log_id = $this->insert_callback_log($_SERVER, $data);
-        $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_open_survey_response);
-        if ($result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
-            //validation passed; try to execute
-            $result['pdf_link'] = "178.38.48.100/selfhelp/assets/workwell_eg_ap_4.pdf";
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
