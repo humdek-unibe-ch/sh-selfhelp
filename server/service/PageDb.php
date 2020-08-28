@@ -121,6 +121,21 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Fetch the page  given a page id.
+     *
+     * @param int $id
+     *  The page id.
+     * @retval array
+     *  The page columns.
+     */
+    public function fetch_page_by_id($id)
+    {
+        $sql = "SELECT p.* FROM pages AS p WHERE id=:id";
+        $page = $this->query_db_first($sql, array(":id" => $id));
+        return $page;
+    }
+
+    /**
      * Fetch the main page information from the database, given a page id.
      *
      * @param int $id
