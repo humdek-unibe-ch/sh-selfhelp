@@ -568,6 +568,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "label" => "When survey",
                             "value" => $this->action['survey_id'],
                             "is_required" => true,
+                            "live_search" => true,
                             "name" => "id_qualtricsSurveys",
                             "items" => $this->get_surveys(),
                         )),

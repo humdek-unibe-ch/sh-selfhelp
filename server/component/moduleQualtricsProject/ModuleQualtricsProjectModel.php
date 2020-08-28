@@ -876,7 +876,21 @@ class ModuleQualtricsProjectModel extends BaseModel
             "URL" => $url
         );
         $result = $this->execute_curl($data);
-        return ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
+        $result = ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
+        $loops = 0;
+        while (!$result) {
+            //it takes time for the response to be recorded
+            sleep(1);
+            $loops++;
+            $result = $this->execute_curl($data);
+            $result = ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
+            if ($loops > 60) {
+                // we wait maximum 1 minute for the response
+                $result = false;
+                break;
+            }
+        }
+        return $result;
     }
 
     /**

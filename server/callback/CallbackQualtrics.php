@@ -608,19 +608,6 @@ class CallbackQualtrics extends BaseCallback
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        $loops = 0;
-        while (!$survey_response) {
-            //it takes time for the response to be recorded
-            sleep(1);
-            $loops++;
-            $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-            if ($loops > 60) {
-                // we wait maximum 1 minute for the response
-                $result[] = 'No survey response';
-                return $result;
-                break;
-            }
-        }
         // $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG'); //for testing
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
@@ -680,19 +667,6 @@ class CallbackQualtrics extends BaseCallback
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        $loops = 0;
-        while (!$survey_response) {
-            //it takes time for the response to be recorded
-            sleep(1);
-            $loops++;
-            $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-            if ($loops > 60) {
-                // we wait maximum 1 minute for the response
-                $result[] = 'No survey response';
-                return $result;
-                break;
-            }
-        }
         // $survey_response = $moduleQualtrics->get_survey_response('SV_039wOwdfOHnlAZT', 'R_2B8trWgcDYyyE29'); // for tests
         $attachment = $this->get_attachment_info($function_name, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdfTemplate = new Pdf($attachment['template_path']);
@@ -714,6 +688,65 @@ class CallbackQualtrics extends BaseCallback
         $ret_value['attachment'] = $attachment;
         $ret_value['output'] = $result;
         return $ret_value;
+    }
+
+    /**
+     * Generate PDF feedback based on BMZ Sport survey results
+     *
+     * @param array $data
+     *  the data from the callback.     
+     * @retval string
+     *  PDF link of the genrated file
+     */
+    private function bmz_evaluate_motive($data)
+    {
+        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+        $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
+        //$survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $survey_response = $moduleQualtrics->get_survey_response('SV_72KVJXJLoGoDWiF', 'R_3dY4Vs88lKXFhw5'); // for tests
+        // $attachment = $this->get_attachment_info(qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive, $survey_response['values']['code']);
+        // $pdfTemplate = new Pdf($attachment['template_path']);
+        // $data_fields = $pdfTemplate->getDataFields()->__toArray();
+
+
+        // $pdf = new PDF_LineGraph();
+        // $pdf->SetFont('Arial', '', 10);
+        // $data = array(
+        //     "Vergleichsgruppe Personen des höheren Erwachsenenalters" => array(
+        //         'Kontakt' => 98,
+        //         'Wettkampf/Leistung' => 90,
+        //         'Figur/Aussehen' => 95,
+        //         'Stimmungsregulation' => 95,
+        //         'Kognitive Funktionsfähigkeit' => 105,
+        //         'Alltagskompetenz/Gesundheit' => 112,
+        //         'Positive Bewegungserfahrungen' => 105,
+        //     ),
+        //     'Individuelles Motivprofil' => array(
+        //         'Kontakt' => 2.7,
+        //         'Wettkampf/Leistung' => 3.0,
+        //         'Figur/Aussehen' => 3.3928571,
+        //         'Stimmungsregulation' => 3.2903226,
+        //         'Kognitive Funktionsfähigkeit' => 3.1,
+        //         'Alltagskompetenz/Gesundheit' => 3.2903226,
+        //         'Positive Bewegungserfahrungen' => 3.2903226,
+        //     )
+        // );
+        // $colors = array(
+        //     "Vergleichsgruppe Personen des höheren Erwachsenenalters" => array(204, 204, 204),
+        //     'Individuelles Motivprofil' => array(255, 60, 52)
+        // );
+
+        // $pdf->AddPage('L');
+        // // Display options: all (horizontal and vertical lines, 4 bounding boxes)
+        // // Colors: fixed
+        // // Max ordinate: 6
+        // // Number of divisions: 3
+        // $pdf->LineGraph(280, 100, $data, 'VHkBvBgBdB', $colors, 6, 3);
+
+        // $pdf->Output('F', ASSET_SERVER_PATH . "/" . qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . ".pdf");
+
+
+        return "";
     }
 
     /**
@@ -765,7 +798,8 @@ class CallbackQualtrics extends BaseCallback
             if ($action['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
                 // anonymous survey
                 if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false) {
-                    $result['pdf_link'] = 'qko';
+                    $result['pdf_link'] = $this->bmz_evaluate_motive($data);
+                    $result['pdf_link'] = '178.38.48.100/selfhelp/assets/workwell_cg_ap_4.pdf';
                 }
             }
         }
