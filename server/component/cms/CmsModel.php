@@ -746,6 +746,7 @@ class CmsModel extends BaseModel
         $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
         $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true);
         $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+        //TO DO grant access to creator
         if($is_open)
             $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
     }
