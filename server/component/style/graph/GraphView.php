@@ -46,6 +46,11 @@ class GraphView extends StyleView
      */
     private $graph_type = "base";
 
+    /**
+     * Show the graph. It is false if the name is dynamic and it cannot be loaded
+     */
+    private $show_graph = true;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -53,31 +58,66 @@ class GraphView extends StyleView
      *
      * @param object $model
      *  The model instance of the footer component.
+     * @param string $code
+     * value from the url
      */
-    public function __construct($model)
+    public function __construct($model, $code = null)
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title");
         $this->traces = $this->model->get_db_field("traces");
         $this->layout = $this->model->get_db_field("layout");
         $this->config = $this->model->get_db_field("config");
+        if ($this->is_dynamic()) {
+            // if there is a dynamic name we check if this name comes as a paramter from the url
+            // if it does not come we do not show the graph
+            if (!$code) {
+                $this->show_graph = false;
+            } else {
+                $this->set_dynamic_parameter($code);
+            }
+        }
     }
 
     /* Private  Methods *******************************************************/
+    /**
+     * Check if the graph is dynamic and waits for parameters from the url
+     * @retval boolean return true if the graph is dynamic
+     */
+    private function is_dynamic(){
+        foreach ($this->traces as $trace) {
+            if($trace['data_source']['name'] == '@dynamic_name'){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set the dynamic parameter in the traces of the graph
+     * @param string $code the value of the paramter that comes from the url
+     */
+    private function set_dynamic_parameter($code){
+        foreach ($this->traces as $key => $value) {
+            if($this->traces[$key]['data_source']['name'] == '@dynamic_name'){
+                $this->traces[$key]['data_source']['name'] = $code;
+            }
+        }
+    }
 
     /**
      * Render the graph data to be used by the js library to draw the graph.
      */
     private function output_graph_data()
     {
-        if($this->title !== "") {
-            if($this->layout === "") {
+        if ($this->title !== "") {
+            if ($this->layout === "") {
                 $this->layout = array();
             }
             $this->layout["title"] = $this->title;
         }
-        if(!isset($this->config["responsive"])) {
-            if($this->config === "") {
+        if (!isset($this->config["responsive"])) {
+            if ($this->config === "") {
                 $this->config = array();
             }
             $this->config["responsive"] = true;
@@ -99,7 +139,7 @@ class GraphView extends StyleView
      */
     private function check_config()
     {
-        if(!is_array($this->config) && $this->config != NULL)
+        if (!is_array($this->config) && $this->config != NULL)
             return false;
         return true;
     }
@@ -112,7 +152,7 @@ class GraphView extends StyleView
      */
     private function check_layout()
     {
-        if(!is_array($this->layout) && $this->layout != NULL)
+        if (!is_array($this->layout) && $this->layout != NULL)
             return false;
         return true;
     }
@@ -125,18 +165,17 @@ class GraphView extends StyleView
      */
     private function check_traces()
     {
-        if(!is_array($this->traces) && $this->traces != NULL)
+        if (!is_array($this->traces) && $this->traces != NULL)
             return false;
-        if(is_array($this->traces)) {
-            foreach($this->traces as $idx => $trace)
-            {
-                if(isset($trace["data_source"])) {
-                    if(!isset($trace["data_source"]["name"]))
+        if (is_array($this->traces)) {
+            foreach ($this->traces as $idx => $trace) {
+                if (isset($trace["data_source"])) {
+                    if (!isset($trace["data_source"]["name"]))
                         return false;
                     /* if(!isset($trace["data_source"]["map"]) */
                     /*         && !is_array($trace["data_source"]["map"])) */
                     /*     return false; */
-                    if(!isset($trace["data_source"]["single_user"]))
+                    if (!isset($trace["data_source"]["single_user"]))
                         $trace["data_source"]["single_user"] = true;
                 }
             }
@@ -166,7 +205,8 @@ class GraphView extends StyleView
      * additional options to JS which cannot be included in the traces. Refer
      * to GraphSankeyView::output_graph_opts() for an example.
      */
-    protected function output_graph_opts() {
+    protected function output_graph_opts()
+    {
         echo "{}";
     }
 
@@ -177,14 +217,16 @@ class GraphView extends StyleView
      */
     public function output_content()
     {
-        if(!$this->check_traces()) {
-            echo "parse error in <code>traces</code>";
-        } else if(!$this->check_layout()) {
-            echo "parse error in <code>layout</code>";
-        } else if(!$this->check_config()) {
-            echo "parse error in <code>layout</code>";
-        } else {
-            require __DIR__ . "/tpl_graph.php";
+        if ($this->show_graph) {
+            if (!$this->check_traces()) {
+                echo "parse error in <code>traces</code>";
+            } else if (!$this->check_layout()) {
+                echo "parse error in <code>layout</code>";
+            } else if (!$this->check_config()) {
+                echo "parse error in <code>layout</code>";
+            } else {
+                require __DIR__ . "/tpl_graph.php";
+            }
         }
     }
 }

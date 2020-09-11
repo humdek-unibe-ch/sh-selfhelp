@@ -665,9 +665,9 @@ class CallbackQualtrics extends BaseCallback
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
         $result[] = $function_name;
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
-        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
+        // $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        // $survey_response = $moduleQualtrics->get_survey_response('SV_039wOwdfOHnlAZT', 'R_2B8trWgcDYyyE29'); // for tests
+        $survey_response = $moduleQualtrics->get_survey_response('SV_039wOwdfOHnlAZT', 'R_2B8trWgcDYyyE29'); // for tests
         $attachment = $this->get_attachment_info($function_name, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdfTemplate = new Pdf($attachment['template_path']);
         $data_fields = $pdfTemplate->getDataFields()->__toArray();
@@ -676,6 +676,7 @@ class CallbackQualtrics extends BaseCallback
         $fields = array();
         foreach ($data_fields as $key => $value) {
             if (isset($survey_response['values'][$value['FieldName']])) {
+                // $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']] . " Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
                 $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']];
             }
         }
