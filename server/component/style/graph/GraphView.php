@@ -85,9 +85,11 @@ class GraphView extends StyleView
      * @retval boolean return true if the graph is dynamic
      */
     private function is_dynamic(){
-        foreach ($this->traces as $trace) {
-            if($trace['data_source']['name'] == '@dynamic_name'){
-                return true;
+        if ($this->traces) {
+            foreach ($this->traces as $trace) {
+                if ($trace['data_source']['name'] == '@dynamic_name') {
+                    return true;
+                }
             }
         }
         return false;
