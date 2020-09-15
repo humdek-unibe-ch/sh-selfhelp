@@ -8,3 +8,14 @@
 {
     cursor: pointer;
 }
+
+.pdfHolder {
+    width: 595px;
+    height: 842px;
+    max-width: 595px;
+    max-height: 842px;
+}
+
+.pdfA4 {
+    max-width: 565px !important;
+}

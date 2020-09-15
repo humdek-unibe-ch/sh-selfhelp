@@ -112,3 +112,8 @@ END
 //
 
 DELIMITER ;
+
+-- add export_pdf field in style container
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'export_pdf', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('container'), get_field_id('export_pdf'), 0, 
+'If `export_pdf` is checked, the container has an export button in the top righ corner. All children in the container can be exported to a PDF file.');
