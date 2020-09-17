@@ -5,8 +5,8 @@
 ?>
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../StyleModel.php";
 require_once __DIR__ . "/MarkdownView.php";
-require_once __DIR__ . "/MarkdownModel.php";
 
 /**
  * A component class for a emailForm style component. This style is
@@ -34,7 +34,7 @@ class MarkdownComponent extends BaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new MarkdownModel($services, $id, $params);
+        $model = new StyleModel($services, $id, $params);
         $view = new MarkdownView($model, $params);
         parent::__construct($model, $view, $id_page);
     }
