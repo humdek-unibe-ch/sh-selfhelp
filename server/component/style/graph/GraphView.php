@@ -68,6 +68,10 @@ class GraphView extends StyleView
         $this->traces = $this->model->get_db_field("traces");
         $this->layout = $this->model->get_db_field("layout");
         $this->config = $this->model->get_db_field("config");
+        $this->data_config = $this->model->get_db_field("data_config");
+        if($this->data_config){
+            $this->retrieve_data();
+        }
         if ($this->is_dynamic()) {
             // if there is a dynamic name we check if this name comes as a paramter from the url
             // if it does not come we do not show the graph
@@ -183,6 +187,26 @@ class GraphView extends StyleView
             }
         }
         return true;
+    }
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data(){
+        $fields = $this->model->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $new_value = $field_value;
+                $traces_string = json_encode($this->traces);
+                $traces_string = str_replace($field_name, $new_value, $traces_string);
+                $this->traces = json_decode($traces_string, true);
+                $layout_string = json_encode($this->layout);
+                $layout_string = str_replace($field_name, $new_value, $layout_string);
+                $this->layout = json_decode($layout_string, true);
+            }
+        } else {
+            $this->show_graph = false;
+        }
     }
 
     /* Protected  Methods *****************************************************/
