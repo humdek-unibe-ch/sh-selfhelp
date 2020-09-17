@@ -117,3 +117,16 @@ DELIMITER ;
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'export_pdf', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('container'), get_field_id('export_pdf'), 0, 
 'If `export_pdf` is checked, the container has an export button in the top righ corner. All children in the container can be exported to a PDF file.');
+
+-- Add new style search
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('search', '2', (select id from styleGroup where `name` = 'Input' limit 1), 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('search'), get_field_id('label'), '', 'Label for the button');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('search'), get_field_id('placeholder'), '', 'Placeholder for the input field');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'prefix', get_field_type_id('text'), '1');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('search'), get_field_id('prefix'), '', 'Add prefix to the search text');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'suffix', get_field_type_id('text'), '1');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('search'), get_field_id('suffix'), '', 'Add suffix to the search text');

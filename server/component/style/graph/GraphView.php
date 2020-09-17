@@ -102,7 +102,7 @@ class GraphView extends StyleView
     private function set_dynamic_parameter($code){
         foreach ($this->traces as $key => $value) {
             if($this->traces[$key]['data_source']['name'] == '@dynamic_name'){
-                $this->traces[$key]['data_source']['name'] = $code;
+                $this->traces[$key]['data_source']['name'] = $code . "_static";
             }
         }
     }

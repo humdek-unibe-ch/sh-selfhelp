@@ -8,6 +8,7 @@ require_once __DIR__ . "/BaseCallback.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProjectModel.php";
 require_once __DIR__ . "/../component/style/register/RegisterModel.php";
 require_once __DIR__ . "/../service/ext/php-pdftk-0.8.1.0/vendor/autoload.php";
+require_once __DIR__ . "/calculations/BMZSportModel.php";
 
 use mikehaertl\pdftk\Pdf;
 
@@ -704,49 +705,9 @@ class CallbackQualtrics extends BaseCallback
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
         //$survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        $survey_response = $moduleQualtrics->get_survey_response('SV_72KVJXJLoGoDWiF', 'R_3dY4Vs88lKXFhw5'); // for tests
-        // $attachment = $this->get_attachment_info(qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive, $survey_response['values']['code']);
-        // $pdfTemplate = new Pdf($attachment['template_path']);
-        // $data_fields = $pdfTemplate->getDataFields()->__toArray();
-
-
-        // $pdf = new PDF_LineGraph();
-        // $pdf->SetFont('Arial', '', 10);
-        // $data = array(
-        //     "Vergleichsgruppe Personen des höheren Erwachsenenalters" => array(
-        //         'Kontakt' => 98,
-        //         'Wettkampf/Leistung' => 90,
-        //         'Figur/Aussehen' => 95,
-        //         'Stimmungsregulation' => 95,
-        //         'Kognitive Funktionsfähigkeit' => 105,
-        //         'Alltagskompetenz/Gesundheit' => 112,
-        //         'Positive Bewegungserfahrungen' => 105,
-        //     ),
-        //     'Individuelles Motivprofil' => array(
-        //         'Kontakt' => 2.7,
-        //         'Wettkampf/Leistung' => 3.0,
-        //         'Figur/Aussehen' => 3.3928571,
-        //         'Stimmungsregulation' => 3.2903226,
-        //         'Kognitive Funktionsfähigkeit' => 3.1,
-        //         'Alltagskompetenz/Gesundheit' => 3.2903226,
-        //         'Positive Bewegungserfahrungen' => 3.2903226,
-        //     )
-        // );
-        // $colors = array(
-        //     "Vergleichsgruppe Personen des höheren Erwachsenenalters" => array(204, 204, 204),
-        //     'Individuelles Motivprofil' => array(255, 60, 52)
-        // );
-
-        // $pdf->AddPage('L');
-        // // Display options: all (horizontal and vertical lines, 4 bounding boxes)
-        // // Colors: fixed
-        // // Max ordinate: 6
-        // // Number of divisions: 3
-        // $pdf->LineGraph(280, 100, $data, 'VHkBvBgBdB', $colors, 6, 3);
-
-        // $pdf->Output('F', ASSET_SERVER_PATH . "/" . qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . ".pdf");
-
-
+        $survey_response = $moduleQualtrics->get_survey_response('SV_72KVJXJLoGoDWiF', 'R_SOWc7n12aY9fOvf'); // for tests
+        $bmz_sport_model = new BMZSportModel($this->services, $survey_response['values'], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $bmz_sport_model->evaluate_survey();
         return "";
     }
 
