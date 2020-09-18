@@ -119,8 +119,7 @@ abstract class BasePage
             "/js/ext/bootstrap-select.min.js",
             "/js/ext/jquery-confirm.min.js",
             "/js/ext/flatpickr.min.js",
-            "/js/ext/jspdf.umd.min.js",
-            "/js/ext/html2canvas.min.js",
+            "/js/ext/jspdf.min.js",
         );
         if(DEBUG == 0)
         {
