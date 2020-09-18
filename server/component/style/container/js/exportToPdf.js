@@ -19,7 +19,7 @@ async function exportPageToPDF() {
             loadingImage = true;
             var graphs = $(child).find('.graph-plot');
             for (const graph of graphs) {
-                var imgUrl = await Plotly.toImage(graph, { format: 'png', width: 930, height: 450 }).then(function (dataUrl) {
+                var imgUrl = await Plotly.toImage(graph, { format: 'png', width: $(graph).width(), height: $(graph).height() }).then(function (dataUrl) {
                     return dataUrl;
                 });
                 var img = $('<img>');
