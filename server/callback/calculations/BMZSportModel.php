@@ -517,6 +517,10 @@ class BMZSportModel extends BaseModel
             $result_array['selected_profile'] = $bmz_sport[$age_type]['selected_profile'];
             $result_array['traces'] = json_encode($bmz_sport['traces']);
             if (DEBUG) {
+                unset($bmz_sport[$age_type]['feedback_html']);
+                foreach ($bmz_sport[$age_type]['profiles'] as $key => $value) {
+                    unset($bmz_sport[$age_type]['profiles'][$key]['feedback_html']);
+                }
                 $result_array['bmz_sport'] = json_encode($bmz_sport, JSON_PRETTY_PRINT);
             }
         }
