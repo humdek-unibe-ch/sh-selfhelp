@@ -464,7 +464,7 @@ class BMZSportModel extends BaseModel
         $bmz_sport_json_path = ASSET_SERVER_PATH . "/" . $this::bmz_sport_json_name; // it loads file bmz_sport.json from the assets folder. User can change it if needed.
         if (!file_exists($bmz_sport_json_path)) {
             $result_array["result"] = false;
-            $result_array["error"] = "File: " . $this::bmz_sport_json_name . " does not exist.";
+            $result_array["error"] = "File: " . $bmz_sport_json_path . " does not exist.";
             return $result_array;
         }
         $file = file_get_contents($bmz_sport_json_path);
