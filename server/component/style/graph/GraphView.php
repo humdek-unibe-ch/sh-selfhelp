@@ -72,45 +72,10 @@ class GraphView extends StyleView
         if($this->data_config){
             $this->retrieve_data();
         }
-        if ($this->is_dynamic()) {
-            // if there is a dynamic name we check if this name comes as a paramter from the url
-            // if it does not come we do not show the graph
-            if (!$code) {
-                $this->show_graph = false;
-            } else {
-                $this->set_dynamic_parameter($code);
-            }
-        }
     }
 
     /* Private  Methods *******************************************************/
-    /**
-     * Check if the graph is dynamic and waits for parameters from the url
-     * @retval boolean return true if the graph is dynamic
-     */
-    private function is_dynamic(){
-        if ($this->traces) {
-            foreach ($this->traces as $trace) {
-                if ($trace['data_source']['name'] == '@dynamic_name') {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Set the dynamic parameter in the traces of the graph
-     * @param string $code the value of the paramter that comes from the url
-     */
-    private function set_dynamic_parameter($code){
-        foreach ($this->traces as $key => $value) {
-            if($this->traces[$key]['data_source']['name'] == '@dynamic_name'){
-                $this->traces[$key]['data_source']['name'] = $code . "_static";
-            }
-        }
-    }
-
+    
     /**
      * Render the graph data to be used by the js library to draw the graph.
      */
@@ -205,6 +170,10 @@ class GraphView extends StyleView
                 $this->layout = json_decode($layout_string, true);
             }
         } else {
+            $this->show_graph = false;
+        }
+        if(!is_array($this->traces)){
+            // if traces are not array, do not show the graph as it is not configured correctly
             $this->show_graph = false;
         }
     }

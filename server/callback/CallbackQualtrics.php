@@ -693,22 +693,21 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
-     * Generate PDF feedback based on BMZ Sport survey results
+     * Evaluate the survey results and insert them into the database
      *
      * @param array $data
      *  the data from the callback.     
-     * @retval string
-     *  PDF link of the genrated file
+     * @retval array
+     *  result log array
      */
     private function bmz_evaluate_motive($data)
     {
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
-        //$survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        $survey_response = $moduleQualtrics->get_survey_response('SV_72KVJXJLoGoDWiF', 'R_SOWc7n12aY9fOvf'); // for tests
+        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        // $survey_response = $moduleQualtrics->get_survey_response('SV_9KzlhRjZtN8xMxv', 'R_1F3tlxta0W76adT'); // for tests
         $bmz_sport_model = new BMZSportModel($this->services, $survey_response['values'], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        $bmz_sport_model->evaluate_survey();
-        return "";
+        return $bmz_sport_model->evaluate_survey();
     }
 
     /**
@@ -760,8 +759,7 @@ class CallbackQualtrics extends BaseCallback
             if ($action['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
                 // anonymous survey
                 if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false) {
-                    $result['pdf_link'] = $this->bmz_evaluate_motive($data);
-                    $result['pdf_link'] = '178.38.48.100/selfhelp/assets/workwell_cg_ap_4.pdf';
+                    $result[] = $this->bmz_evaluate_motive($data);
                 }
             }
         }

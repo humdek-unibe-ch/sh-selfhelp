@@ -58,7 +58,6 @@ class ModuleQualtricsProjectModel extends BaseModel
     const SELFEHLP_HEADER_IFRAME_RESIZER = 'selfhelp_iFrameResizer';
 
     /* Callback result variables */
-    const CALLBACK_VAR_PDF_LINK = 'pdf_link';
 
     /* Constructors ***********************************************************/
 
@@ -410,13 +409,8 @@ class ModuleQualtricsProjectModel extends BaseModel
         $fireAndFroget = true;
         $callbackResultStructure = array();
         if (strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
-             $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_finished) {
-            // if bmz funcion is needed we wait for the result
-            $fireAndFroget = false;
-            $callbackResultStructure[] = array(
-                "key" => ModuleQualtricsProjectModel::CALLBACK_VAR_PDF_LINK,
-                "value" => ModuleQualtricsProjectModel::CALLBACK_VAR_PDF_LINK,
-            );
+             $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_finished) {            
+            $fireAndFroget = true;
         }
         return $this->get_webService_flow(
             $editBodyParamsEnd,
@@ -472,10 +466,6 @@ class ModuleQualtricsProjectModel extends BaseModel
              $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_started) {
             // if bmz funcion is needed we wait for the result
             $fireAndFroget = false;
-            $callbackResultStructure[] = array(
-                "key" => ModuleQualtricsProjectModel::CALLBACK_VAR_PDF_LINK,
-                "value" => ModuleQualtricsProjectModel::CALLBACK_VAR_PDF_LINK,
-            );
         }
         return $this->get_webService_flow(
             $editBodyParamsStart,
