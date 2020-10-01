@@ -137,10 +137,10 @@ class GroupModel extends BaseModel
                 $acl[$page['keyword']] = array(
                     "name" => $page['keyword'],
                     "acl" => array(
-                        "select" => $group_access_for_page && $group_access_for_page['acl_select'] == 1,
-                        "insert" => $group_access_for_page && $group_access_for_page['acl_insert'] == 1,
-                        "update" => $group_access_for_page && $group_access_for_page['acl_update'] == 1,
-                        "delete" => $group_access_for_page && $group_access_for_page['acl_delete'] == 1,
+                        "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
+                        "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
+                        "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
+                        "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
                     )
                 );
             }
@@ -520,7 +520,7 @@ class GroupModel extends BaseModel
      * @retval array
      *  See UserModel::fetch_acl_by_id.
      */  
-    public function get_user_rights($uid){
+    public function get_user_acl($uid){
        return $this->fetch_acl_by_id($uid, false);
     }
 
