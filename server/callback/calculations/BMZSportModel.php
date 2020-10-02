@@ -321,6 +321,25 @@ class BMZSportModel extends BaseModel
     }
 
     /**
+     * Generate an empty trace object for the graph
+     * @retval array
+     * return associative aray with trace structure for plotly graph
+     */
+    private function gen_empty_trace(){
+        return array(
+            "name" => '',
+            "data_source" => array(
+                "name" => '',
+                "map" => array(
+                    "y" => []
+                )
+            ),
+            "x" => [],
+            "type" => 'line'
+        );
+    }
+
+    /**
      * Generate the graph traces based on the selected profile and calculated variables
      * 
      * @param array $bmz_sport 
@@ -335,29 +354,34 @@ class BMZSportModel extends BaseModel
     private function gen_graph_traces($bmz_sport, $age_type, $code)
     {
         // set selected profile
-        $bmz_sport['traces'][0]['name'] = $bmz_sport[$age_type]['selected_profile'];
+        $bmz_sport['traces'] = [];
+        $compare_trace = $this->gen_empty_trace();
+        $user_trace = $this->gen_empty_trace();        
+        $compare_trace['name'] = $bmz_sport[$age_type]['selected_profile'];
         // set datatable for trace1 and trace2
-        $bmz_sport['traces'][0]['data_source']['name'] = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $code . '_static';
-        $bmz_sport['traces'][1]['data_source']['name'] = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $code . '_static';
+        $compare_trace['data_source']['name'] = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $code . '_static';
+        $user_trace['data_source']['name'] = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $code . '_static';
         // set maping and legend
-        $bmz_sport['traces'][0]['data_source']['map']['y'] = []; // clear the example
-        $bmz_sport['traces'][1]['data_source']['map']['y'] = []; // clear the example
-        $bmz_sport['traces'][0]['x'] = []; // clear the example
-        $bmz_sport['traces'][1]['x'] = []; // clear the example
+        $compare_trace['data_source']['map']['y'] = []; // clear the example
+        $user_trace['data_source']['map']['y'] = []; // clear the example
+        $compare_trace['x'] = []; // clear the example
+        $user_trace['x'] = []; // clear the example
         foreach ($bmz_sport[$age_type]["variables"] as $variable_name => $variable_object) {
             // set mapping
-            $bmz_sport['traces'][0]['data_source']['map']['y'][] = array(
+            $compare_trace['data_source']['map']['y'][] = array(
                 "name" => $variable_name . $this::var_suffix,
                 "op" => "max"
             );
-            $bmz_sport['traces'][1]['data_source']['map']['y'][] = array(
+            $user_trace['data_source']['map']['y'][] = array(
                 "name" => $variable_name,
                 "op" => "max"
             );
             //set the legend
-            $bmz_sport['traces'][0]['x'][] = $variable_object['label'];
-            $bmz_sport['traces'][1]['x'][] = $variable_object['label'];;
+            $compare_trace['x'][] = $variable_object['label'];
+            $user_trace['x'][] = $variable_object['label'];;
         }
+        $bmz_sport['traces'][] = $compare_trace;
+        $bmz_sport['traces'][] = $user_trace;
         return $bmz_sport;;
     }
 
@@ -519,7 +543,7 @@ class BMZSportModel extends BaseModel
             if (DEBUG) {
                 unset($bmz_sport[$age_type]['feedback_html']);
                 foreach ($bmz_sport[$age_type]['profiles'] as $key => $value) {
-                    unset($bmz_sport[$age_type]['profiles'][$key]['feedback_html']);                    
+                    unset($bmz_sport[$age_type]['profiles'][$key]['feedback_html']);
                 }
                 foreach ($bmz_sport[$age_type]['variables'] as $key => $value) {
                     unset($bmz_sport[$age_type]['variables'][$key]['label']);

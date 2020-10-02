@@ -704,8 +704,8 @@ class CallbackQualtrics extends BaseCallback
     {
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
-        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        // $survey_response = $moduleQualtrics->get_survey_response('SV_9KzlhRjZtN8xMxv', 'R_1F3tlxta0W76adT'); // for tests
+        // $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $survey_response = $moduleQualtrics->get_survey_response('SV_9KzlhRjZtN8xMxv', 'R_1F3tlxta0W76adT'); // for tests
         $bmz_sport_model = new BMZSportModel($this->services, $survey_response['values'], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         return $bmz_sport_model->evaluate_survey();
     }
