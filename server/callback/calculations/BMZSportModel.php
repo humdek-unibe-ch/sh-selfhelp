@@ -325,7 +325,8 @@ class BMZSportModel extends BaseModel
      * @retval array
      * return associative aray with trace structure for plotly graph
      */
-    private function gen_empty_trace(){
+    private function gen_empty_trace()
+    {
         return array(
             "name" => '',
             "data_source" => array(
@@ -356,16 +357,16 @@ class BMZSportModel extends BaseModel
         // set selected profile
         $bmz_sport['traces'] = [];
         $compare_trace = $this->gen_empty_trace();
-        $user_trace = $this->gen_empty_trace();        
+        $user_trace = $this->gen_empty_trace();
         $compare_trace['name'] = $bmz_sport[$age_type]['selected_profile'];
         // set datatable for trace1 and trace2
         $compare_trace['data_source']['name'] = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $code . '_static';
         $user_trace['data_source']['name'] = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $code . '_static';
         // set maping and legend
-        $compare_trace['data_source']['map']['y'] = []; // clear the example
-        $user_trace['data_source']['map']['y'] = []; // clear the example
-        $compare_trace['x'] = []; // clear the example
-        $user_trace['x'] = []; // clear the example
+        $compare_trace['data_source']['map']['y'] = [];
+        $user_trace['data_source']['map']['y'] = [];
+        $compare_trace['x'] = [];
+        $user_trace['x'] = [];
         foreach ($bmz_sport[$age_type]["variables"] as $variable_name => $variable_object) {
             // set mapping
             $compare_trace['data_source']['map']['y'][] = array(
@@ -480,19 +481,12 @@ class BMZSportModel extends BaseModel
      * @retval array
      * result log array
      */
-    public function evaluate_survey()
+    public function evaluate_survey($config)
     {
         $result = array();
         $result_array = array();
         $result_array["result"] = true;
-        $bmz_sport_json_path = ASSET_SERVER_PATH . "/" . $this::bmz_sport_json_name; // it loads file bmz_sport.json from the assets folder. User can change it if needed.
-        if (!file_exists($bmz_sport_json_path)) {
-            $result_array["result"] = false;
-            $result_array["error"] = "File: " . $bmz_sport_json_path . " does not exist.";
-            return $result_array;
-        }
-        $file = file_get_contents($bmz_sport_json_path);
-        $bmz_sport = json_decode($file, true);
+        $bmz_sport = json_decode($config, true);
 
         // set varaibles from the survey
         $result_array['code'] = isset($this->survey_response['code']) ? $this->survey_response['code'] : $this->response_id;

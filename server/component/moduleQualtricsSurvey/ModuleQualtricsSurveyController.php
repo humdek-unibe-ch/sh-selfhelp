@@ -24,14 +24,32 @@ class ModuleQualtricsSurveyController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if (isset($_POST['mode']) && !$this->check_acl($_POST['mode'])){
+        if (isset($_POST['mode']) && !$this->check_acl($_POST['mode'])) {
             return false;
         }
         if (isset($_POST['mode']) && $_POST['mode'] === INSERT && isset($_POST['name'])) {
             //insert mode
+            if (isset($_POST['config']) && $_POST['config'] != '') {
+                //vlaidate JSON
+                json_decode($_POST['config'], true);
+                if (!(json_last_error() === JSON_ERROR_NONE)) {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Config value is not a valid JSON";
+                    return false;
+                }
+            }
             $this->insert_survey($_POST);
         } else if (isset($_POST['mode']) && $_POST['mode'] === UPDATE && isset($_POST['name']) && isset($_POST['id'])) {
             //edit mode
+            if (isset($_POST['config']) && $_POST['config'] != '') {
+                //vlaidate JSON
+                json_decode($_POST['config'], true);
+                if (!(json_last_error() === JSON_ERROR_NONE)) {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Config value is not a valid JSON";
+                    return false;
+                }
+            }
             $this->update_survey($_POST);
         } else if (isset($_POST['mode']) && $_POST['mode'] === DELETE && isset($_POST['deleteSurveyName']) && isset($_POST['deleteSurveyId'])) {
             //delete mode
@@ -46,12 +64,13 @@ class ModuleQualtricsSurveyController extends BaseController
      * @retval bool
      * true if access is granted, false otherwise.
      */
-    private function check_acl($mode){
-        if(!$this->model->get_services()->get_acl()->has_access($_SESSION['id_user'], $this->model->get_services()->get_db()->fetch_page_id_by_keyword("moduleQualtricsSurvey"), $mode)){
+    private function check_acl($mode)
+    {
+        if (!$this->model->get_services()->get_acl()->has_access($_SESSION['id_user'], $this->model->get_services()->get_db()->fetch_page_id_by_keyword("moduleQualtricsSurvey"), $mode)) {
             $this->fail = true;
             $this->error_msgs[] = "You dont have rights to " . $mode . " this survey";
             return false;
-        }else{
+        } else {
             return true;
         }
     }

@@ -53,3 +53,12 @@
     flex: 0 0 33.333333%;
     max-width: 33.333333%;
 }
+
+.fixedHolder textarea {
+    max-height: 300px !important;
+}
+
+.fixedHolder .db-fields {
+    max-height: 300px !important;
+}
+

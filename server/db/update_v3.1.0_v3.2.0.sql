@@ -116,7 +116,14 @@ DELIMITER ;
 -- add export_pdf field in style container
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'export_pdf', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('container'), get_field_id('export_pdf'), 0, 
-'If `export_pdf` is checked, the container has an export button in the top righ corner. All children in the container can be exported to a PDF file.');
+'If `export_pdf` is checked, the container has an export button in the top righ corner. All children in the container can be exported to a PDF file.
+
+add class `skipPDF` to the `css` field in an element which should not be exported inthe PDF file
+
+add class `pdfStartNewPage` to the `css` field in an element which should be on a new page
+
+add class `pdfStartNewPageAfter` to the `css` field in an element which should insert a new page after it is loaded on the page
+');
 
 -- Add new style search
 INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('search', '2', (select id from styleGroup where `name` = 'Input' limit 1), 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter');
@@ -155,3 +162,14 @@ If the page supports parameters, then the parameter can be accessed with `#` and
 In order to inlcude the retrieved data in the markdown field, include the `field_holder` that wa defined in the markdown text.
 
 We can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;)');
+
+-- add column config in qualtricsSurvey, it keeps a JSON configuration
+ALTER TABLE qualtricsSurveys
+ADD COLUMN config LONGTEXT;
+
+DROP VIEW IF EXISTS view_qualtricsSurveys;
+CREATE VIEW view_qualtricsSurveys
+AS
+SELECT s.*, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code
+FROM qualtricsSurveys s 
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
