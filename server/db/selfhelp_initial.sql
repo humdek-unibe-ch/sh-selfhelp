@@ -1,13 +1,15 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.6deb5
+-- version 4.8.3
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Aug 18, 2020 at 12:03 PM
--- Server version: 5.7.31-0ubuntu0.18.04.1
--- PHP Version: 7.2.24-0ubuntu0.18.04.6
+-- Host: 127.0.0.1:3306
+-- Generation Time: Oct 05, 2020 at 10:47 AM
+-- Server version: 5.7.23-log
+-- PHP Version: 7.2.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -493,7 +495,11 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000141, 'live_search', 0000000003, 0),
 (0000000142, 'disabled', 0000000003, 0),
 (0000000143, 'group', 0000000017, 0),
-(0000000144, 'qualtricsSurvey', 0000000018, 0);
+(0000000144, 'qualtricsSurvey', 0000000018, 0),
+(0000000145, 'data_config', 0000000008, 0),
+(0000000146, 'export_pdf', 0000000003, 0),
+(0000000147, 'prefix', 0000000001, 1),
+(0000000148, 'suffix', 0000000001, 1);
 
 -- --------------------------------------------------------
 
@@ -658,7 +664,9 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 (0000000044, 'qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_4', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)'),
 (0000000045, 'qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_5', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)', '[Workwell] CG Action plan Week 5 (Reminder or notification is required)'),
 (0000000046, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_4', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)'),
-(0000000047, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_5', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)');
+(0000000047, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_5', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)'),
+(0000000048, 'qualtricsSurveyTypes', 'anonymous', 'Anonymous', 'Anonymous survey. No code or user is used.'),
+(0000000049, 'qualtricsProjectActionAdditionalFunction', 'bmz_evaluate_motive', '[BMZ] Evaluate motive', 'Function that will evaluate the motive and genrate PDF file as a feedback');
 
 -- --------------------------------------------------------
 
@@ -1075,7 +1083,8 @@ CREATE TABLE `qualtricsSurveys` (
   `participant_variable` varchar(100) DEFAULT NULL,
   `group_variable` int(11) DEFAULT '0',
   `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `config` longtext
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1618,7 +1627,7 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000003, 'container', 0000000001, 0000000004, 'is an **invisible** wrapper.'),
 (0000000004, 'jumbotron', 0000000001, 0000000004, 'is a **visible** wrapper that wraps its content in a grey box with large spacing.'),
 (0000000005, 'heading', 0000000001, 0000000005, 'is used to display the 6 levels of HTML headings.'),
-(0000000006, 'markdown', 0000000001, 0000000005, 'is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.'),
+(0000000006, 'markdown', 0000000002, 0000000005, 'is the bread-and-butter style which allows to style content in a very flexible way. In addition to markdown syntax, pure HTML statements are allowed which makes this style very versatile. It is recommended to limit the usage of HTML to a minimum in order to keep the layout of the webpage consistent.'),
 (0000000007, 'markdownInline', 0000000001, 0000000005, 'is similar to the markdown style but is intended for one-line text where emphasis is required.'),
 (0000000008, 'button', 0000000001, 0000000008, 'renders a button-style link with several predefined colour schemes.'),
 (0000000009, 'validate', 0000000002, 0000000001, ''),
@@ -1668,7 +1677,8 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000055, 'graphBar', 0000000002, 0000000010, 'Create a bar diagram from user input data or imported static data.'),
 (0000000056, 'graphLegend', 0000000001, 0000000010, 'Render colored list of items. This can be used to show one global legend for multiple graphs.'),
 (0000000057, 'navigationBar', 0000000001, 0000000001, 'Provides a navigation bar style'),
-(0000000058, 'qualtricsSurvey', 0000000002, 0000000002, 'Visualize a qualtrics survey. It is shown in iFrame.');
+(0000000058, 'qualtricsSurvey', 0000000002, 0000000002, 'Visualize a qualtrics survey. It is shown in iFrame.'),
+(0000000059, 'search', 0000000002, 0000000003, 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter');
 
 -- --------------------------------------------------------
 
@@ -1702,10 +1712,12 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000002, 0000000035, NULL, 'This text will be displayed upon successful change of user settings.'),
 (0000000003, 0000000006, NULL, 'The child sections to be added to the `container` body. This can hold any style.'),
 (0000000003, 0000000029, '0', 'Select for a full width container, spanning the entire width of the viewport.'),
+(0000000003, 0000000146, '0', 'If `export_pdf` is checked, the container has an export button in the top righ corner. All children in the container can be exported to a PDF file.\n\nadd class `skipPDF` to the `css` field in an element which should not be exported inthe PDF file\n\nadd class `pdfStartNewPage` to the `css` field in an element which should be on a new page\n\nadd class `pdfStartNewPageAfter` to the `css` field in an element which should insert a new page after it is loaded on the page\n'),
 (0000000004, 0000000006, NULL, 'The child sections to be added to the `jumbotron` body. This can hold any style.'),
 (0000000005, 0000000021, '1', 'The HTML heading level (1-6)'),
 (0000000005, 0000000022, NULL, 'The text to be rendered as heading.'),
 (0000000006, 0000000025, NULL, 'Use <a href=\"https://en.wikipedia.org/wiki/Markdown\" target=\"_blank\">markdown</a> syntax here.'),
+(0000000006, 0000000145, '', 'In this ***JSON*** field we can configure a data retrieve params from the DB, either `static` or `dynamic` data. Example: \n ```\n [\n	{\n		\"type\": \"static|dynamic\",\n		\"table\": \"table_name | #url_param1\",\n        \"retrieve\": \"first | last | all\",\n		\"fields\": [\n			{\n				\"field_name\": \"name | #url_param2\",\n				\"field_holder\": \"@field_1\",\n				\"not_found_text\": \"my field was not found\"				\n			}\n		]\n	}\n]\n```\nIf the page supports parameters, then the parameter can be accessed with `#` and the name of the paramer. Example `#url_param_name`. \n\nIn order to inlcude the retrieved data in the markdown field, include the `field_holder` that wa defined in the markdown text.\n\nWe can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;)'),
 (0000000007, 0000000026, NULL, 'Only use <a href=\"https://en.wikipedia.org/wiki/Markdown\" target=\"_blank\">markdown</a> elements that can be displayed inline (e.g. bold, italic, etc).'),
 (0000000008, 0000000008, NULL, 'The text to appear on the button.'),
 (0000000008, 0000000027, NULL, 'Use a full URL or any special characters as defined <a href=\"https://selfhelp.psy.unibe.ch/demo/style/440\" target=\"_blank\">here</a>.'),
@@ -1935,6 +1947,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000050, 0000000122, NULL, 'Define the data traces to be rendered. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000050, 0000000123, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000050, 0000000124, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
+(0000000050, 0000000145, '', 'In this ***JSON*** field we can configure a data retrieve params from the DB, either `static` or `dynamic` data. Example: \n ```\n [\n	{\n		\"type\": \"static|dynamic\",\n		\"table\": \"table_name | #url_param1\",\n        \"retrieve\": \"first | last | all\",\n		\"fields\": [\n			{\n				\"field_name\": \"name | #url_param2\",\n				\"field_holder\": \"@field_1\",\n				\"not_found_text\": \"my field was not found\"				\n			}\n		]\n	}\n]\n```\nIf the page supports parameters, then the parameter can be accessed with `#` and the name of the paramer. Example `#url_param_name`. \n\nIn order to inlcude the retrieved data in the markdown field, include the `field_holder` that wa defined in the markdown text.\n\nWe can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;)'),
 (0000000051, 0000000022, NULL, 'The title of the Sankey diagram.'),
 (0000000051, 0000000069, '1', 'The minimal required item count to form a link. In other words: what is the minimal required link width for a link to be displayed'),
 (0000000051, 0000000121, NULL, 'The source of the data to be used to draw the Sankey diagram.'),
@@ -1972,10 +1985,15 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000055, 0000000123, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000055, 0000000124, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000055, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
-(0000000055, 0000000132, '1', 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.'),
+(0000000055, 0000000132, '1', 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES
 (0000000056, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
 (0000000057, 0000000066, NULL, 'JSON structure for the navigation bar'),
-(0000000058, 0000000144, '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a action)');
+(0000000058, 0000000144, '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a action)'),
+(0000000059, 0000000008, '', 'Label for the button'),
+(0000000059, 0000000055, '', 'Placeholder for the input field'),
+(0000000059, 0000000147, '', 'Add prefix to the search text'),
+(0000000059, 0000000148, '', 'Add suffix to the search text');
 
 -- --------------------------------------------------------
 
@@ -2013,6 +2031,18 @@ CREATE TABLE `transactions` (
   `id_table_name` int(10) UNSIGNED DEFAULT NULL,
   `transaction_log` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id_transactionBy`, `id_users`, `table_name`, `id_table_name`, `transaction_log`) VALUES
+(0000000001, '2020-10-05 08:45:52', 35, 42, 2, 'pages', 53, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/action\\/3\\/update\\/6\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/action\\/3\\/update\\/6\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
+(0000000002, '2020-10-05 08:45:55', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
+(0000000003, '2020-10-05 08:46:02', 35, 42, 2, 'pages', 49, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
+(0000000004, '2020-10-05 08:46:04', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
+(0000000005, '2020-10-05 08:46:06', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\\/insert\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\\/insert\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
+(0000000006, '2020-10-05 08:46:10', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}');
 
 -- --------------------------------------------------------
 
@@ -2629,177 +2659,212 @@ ALTER TABLE `validation_codes`
 -- AUTO_INCREMENT for table `actions`
 --
 ALTER TABLE `actions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `activityType`
 --
 ALTER TABLE `activityType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `callbackLogs`
 --
 ALTER TABLE `callbackLogs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `chat`
 --
 ALTER TABLE `chat`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `chatRoom`
 --
 ALTER TABLE `chatRoom`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `chatRoom_users`
 --
 ALTER TABLE `chatRoom_users`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `cmsPreferences`
 --
 ALTER TABLE `cmsPreferences`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
 ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `genders`
 --
 ALTER TABLE `genders`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `languages`
 --
 ALTER TABLE `languages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `lookups`
 --
 ALTER TABLE `lookups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `mailAttachments`
 --
 ALTER TABLE `mailAttachments`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `mailQueue`
 --
 ALTER TABLE `mailQueue`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `modules`
 --
 ALTER TABLE `modules`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `pageType`
 --
 ALTER TABLE `pageType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `qualtricsActions`
 --
 ALTER TABLE `qualtricsActions`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `qualtricsProjects`
 --
 ALTER TABLE `qualtricsProjects`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `qualtricsSurveys`
 --
 ALTER TABLE `qualtricsSurveys`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `qualtricsSurveysResponses`
 --
 ALTER TABLE `qualtricsSurveysResponses`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `styleGroup`
 --
 ALTER TABLE `styleGroup`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `styles`
 --
 ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `styleType`
 --
 ALTER TABLE `styleType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `uploadCols`
 --
 ALTER TABLE `uploadCols`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `uploadRows`
 --
 ALTER TABLE `uploadRows`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `uploadTables`
 --
 ALTER TABLE `uploadTables`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `userStatus`
 --
 ALTER TABLE `userStatus`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `user_activity`
 --
 ALTER TABLE `user_activity`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `user_input`
 --
 ALTER TABLE `user_input`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `user_input_record`
 --
 ALTER TABLE `user_input_record`
   MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
 --
 -- Constraints for dumped tables
 --
@@ -3064,6 +3129,7 @@ ALTER TABLE `user_input`
 --
 ALTER TABLE `validation_codes`
   ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

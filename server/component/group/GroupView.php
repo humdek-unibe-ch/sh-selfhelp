@@ -270,7 +270,7 @@ class GroupView extends BaseView
                             "title" => "Function",
                             "is_editable" => true,
                             "items" => $this->model->get_acl_selected_group(),
-                            "items_granted" => $this->model->get_user_rights($_SESSION['id_user'], false)
+                            "items_granted" => $this->model->get_user_acl($_SESSION['id_user'], false)
                         ))
                     ),
                 ))

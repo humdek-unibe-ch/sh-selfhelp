@@ -38,10 +38,12 @@ class GraphModel extends StyleModel
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of the navigation wrapper.
+     * @param array $params
+     *  An array of get parameters.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params);
         $this->data_source = $this->get_db_field("data-source");
         $this->single_user = $this->get_db_field("single_user");
     }

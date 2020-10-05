@@ -746,6 +746,8 @@ class CmsModel extends BaseModel
         $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
         $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true);
         $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+        $this->acl->grant_access_levels($_SESSION['id_user'], $pid, 4, false);
+        //TO DO grant access to creator
         if($is_open)
             $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
     }
@@ -1988,6 +1990,30 @@ class CmsModel extends BaseModel
 
     public function get_db(){
         return $this->db;
+    }
+
+    /**
+     * Return a list of group items the user can grant access to the page.The
+     * list is prepared such that it can be passed to a select form. 
+     * Groups: Admin, therapist and subject are not in the list as they recieve the access by default
+     *
+     * @retval array
+     *  An array of group items where each item has the following keys:
+     *   'value':   The id of the group.
+     *   'text':    The name of the group.
+     */
+    public function get_groups_grant_access_to_page($uid)
+    {
+        $groups = array();
+        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+            LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
+            WHERE ug.id_users IS NULL
+            ORDER BY g.name";
+        $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
+        foreach ($groups_db as $group) {
+                $groups[] = $group;
+        }
+        return $groups;
     }
 }
 ?>

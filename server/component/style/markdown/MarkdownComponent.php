@@ -4,16 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../graph/GraphBaseComponent.php";
-require_once __DIR__ . "/GraphView.php";
-require_once __DIR__ . "/GraphModel.php";
+require_once __DIR__ . "/../../BaseComponent.php";
+require_once __DIR__ . "/../StyleModel.php";
+require_once __DIR__ . "/MarkdownView.php";
 
 /**
  * A component class for a emailForm style component. This style is
  * intended to collect email addresses of interested users and send automated
  * emails to them.
  */
-class GraphComponent extends GraphBaseComponent
+class MarkdownComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -34,9 +34,8 @@ class GraphComponent extends GraphBaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new GraphModel($services, $id, $params);
-        $code = isset($params['code']) ? $params['code'] : null;
-        $view = new GraphView($model, $code);
+        $model = new StyleModel($services, $id, $params);
+        $view = new MarkdownView($model, $params);
         parent::__construct($model, $view, $id_page);
     }
 }

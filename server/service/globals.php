@@ -122,6 +122,7 @@ define('mailQueueStatus_sent', 'sent');
 define('mailQueueStatus_failed', 'failed');
 define('qualtricsSurveyTypes_baseline', 'baseline');
 define('qualtricsSurveyTypes_follow_up', 'follow_up');
+define('qualtricsSurveyTypes_anonymous', 'anonymous');
 define('qualtricsProjectActionTriggerTypes_started', 'started');
 define('qualtricsProjectActionTriggerTypes_finished', 'finished');
 define('qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts', 'workwell_evaluate_personal_strenghts');
@@ -129,6 +130,7 @@ define('qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4', 'workwell_cg
 define('qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5', 'workwell_cg_ap_5');
 define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4', 'workwell_eg_ap_4');
 define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5', 'workwell_eg_ap_5');
+define('qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive', 'bmz_evaluate_motive');
 define('timePeriod_seconds', 'seconds');
 define('timePeriod_minutes', 'minutes');
 define('timePeriod_hours', 'hours');

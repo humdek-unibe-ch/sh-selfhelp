@@ -16,7 +16,8 @@
             <form action="<?php echo $action_url; ?>" method="post">
                 <div class="form-group">
                     <label>Name</label>
-                    <input type="text" class="form-control" name="name" placeholder="Enter chat room name" value="<?php echo $_POST['name'] ?? ""; ?>" required>
+                    <input type="text" class="form-control" name="name" placeholder="Enter chat room name" value="<?php echo $_POST['name'] ?? ""; ?>" required pattern="<?php echo NAME_PATTERN ?>">
+                    <small class="form-text text-muted"><b>Note that the chat room's name can contain numbers, letters, - and _ characters</b></small>                    
                 </div>
                 <div class="form-group">
                     <label>Title</label>

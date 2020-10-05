@@ -46,6 +46,11 @@ class GraphView extends StyleView
      */
     private $graph_type = "base";
 
+    /**
+     * Show the graph. It is false if the name is dynamic and it cannot be loaded
+     */
+    private $show_graph = true;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -53,42 +58,48 @@ class GraphView extends StyleView
      *
      * @param object $model
      *  The model instance of the footer component.
+     * @param string $code
+     * value from the url
      */
-    public function __construct($model)
+    public function __construct($model, $code = null)
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title");
         $this->traces = $this->model->get_db_field("traces");
         $this->layout = $this->model->get_db_field("layout");
         $this->config = $this->model->get_db_field("config");
+        $this->data_config = $this->model->get_db_field("data_config");
+        if($this->data_config){
+            $this->retrieve_data();
+        }
     }
 
     /* Private  Methods *******************************************************/
-
+    
     /**
      * Render the graph data to be used by the js library to draw the graph.
      */
     private function output_graph_data()
     {
-        if($this->title !== "") {
-            if($this->layout === "") {
+        if ($this->title !== "") {
+            if ($this->layout === "") {
                 $this->layout = array();
             }
             $this->layout["title"] = $this->title;
         }
-        if(!isset($this->config["responsive"])) {
-            if($this->config === "") {
+        if (!isset($this->config["responsive"])) {
+            if ($this->config === "") {
                 $this->config = array();
             }
             $this->config["responsive"] = true;
         }
 
-        echo json_encode(array(
+        echo htmlentities(json_encode(array(
             "graph_type" => $this->graph_type,
             "layout" => $this->layout ? $this->layout : new stdClass,
             "config" => $this->config ? $this->config : new stdClass,
             "traces" => $this->traces ? $this->traces : array()
-        ));
+        )));
     }
 
     /**
@@ -99,7 +110,7 @@ class GraphView extends StyleView
      */
     private function check_config()
     {
-        if(!is_array($this->config) && $this->config != NULL)
+        if (!is_array($this->config) && $this->config != NULL)
             return false;
         return true;
     }
@@ -112,7 +123,7 @@ class GraphView extends StyleView
      */
     private function check_layout()
     {
-        if(!is_array($this->layout) && $this->layout != NULL)
+        if (!is_array($this->layout) && $this->layout != NULL)
             return false;
         return true;
     }
@@ -125,23 +136,46 @@ class GraphView extends StyleView
      */
     private function check_traces()
     {
-        if(!is_array($this->traces) && $this->traces != NULL)
+        if (!is_array($this->traces) && $this->traces != NULL)
             return false;
-        if(is_array($this->traces)) {
-            foreach($this->traces as $idx => $trace)
-            {
-                if(isset($trace["data_source"])) {
-                    if(!isset($trace["data_source"]["name"]))
+        if (is_array($this->traces)) {
+            foreach ($this->traces as $idx => $trace) {
+                if (isset($trace["data_source"])) {
+                    if (!isset($trace["data_source"]["name"]))
                         return false;
                     /* if(!isset($trace["data_source"]["map"]) */
                     /*         && !is_array($trace["data_source"]["map"])) */
                     /*     return false; */
-                    if(!isset($trace["data_source"]["single_user"]))
+                    if (!isset($trace["data_source"]["single_user"]))
                         $trace["data_source"]["single_user"] = true;
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data(){
+        $fields = $this->model->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $new_value = $field_value;
+                $traces_string = json_encode($this->traces);
+                $traces_string = str_replace($field_name, $new_value, $traces_string);
+                $this->traces = json_decode($traces_string, true);
+                $layout_string = json_encode($this->layout);
+                $layout_string = str_replace($field_name, $new_value, $layout_string);
+                $this->layout = json_decode($layout_string, true);
+            }
+        } else {
+            $this->show_graph = false;
+        }
+        if(!is_array($this->traces)){
+            // if traces are not array, do not show the graph as it is not configured correctly
+            $this->show_graph = false;
+        }
     }
 
     /* Protected  Methods *****************************************************/
@@ -166,7 +200,8 @@ class GraphView extends StyleView
      * additional options to JS which cannot be included in the traces. Refer
      * to GraphSankeyView::output_graph_opts() for an example.
      */
-    protected function output_graph_opts() {
+    protected function output_graph_opts()
+    {
         echo "{}";
     }
 
@@ -177,14 +212,16 @@ class GraphView extends StyleView
      */
     public function output_content()
     {
-        if(!$this->check_traces()) {
-            echo "parse error in <code>traces</code>";
-        } else if(!$this->check_layout()) {
-            echo "parse error in <code>layout</code>";
-        } else if(!$this->check_config()) {
-            echo "parse error in <code>layout</code>";
-        } else {
-            require __DIR__ . "/tpl_graph.php";
+        if ($this->show_graph) {
+            if (!$this->check_traces()) {
+                echo "parse error in <code>traces</code>";
+            } else if (!$this->check_layout()) {
+                echo "parse error in <code>layout</code>";
+            } else if (!$this->check_config()) {
+                echo "parse error in <code>layout</code>";
+            } else {
+                require __DIR__ . "/tpl_graph.php";
+            }
         }
     }
 }

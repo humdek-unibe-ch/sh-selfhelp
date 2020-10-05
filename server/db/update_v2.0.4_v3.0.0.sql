@@ -321,7 +321,7 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'after_period', 'After time period', 'Schedule the mail after specific time period');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricScheduleTypes', 'after_period_on_day_at_time', 'After time period on a weekday at given time', 'Schedule the mail after specific time on specific day from the week at specific time');
 
--- add qualtricsProjectActionTypes
+-- add qualtricsSurveyTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'baseline', 'Baseline', 'Baselin surveys are the leadign surveys. They record the user in the contact list');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsSurveyTypes', 'follow_up', 'Follow-up', 'Folloup surveys get a user from the contact list and use it.');
 

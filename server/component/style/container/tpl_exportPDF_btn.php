@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div id="section-<?php echo $this->id_section; ?>" class="container<?php echo $fluid; ?> <?php echo $this->css; ?>">
-    <?php $this->output_export_pdf_btn(); ?>
-    <?php $this->output_children(); ?>
+<div id='pdfExportHolder' class="d-flex justify-content-end">
+    <button id='pdfExport' class="btn btn-outline-danger m-2"><i class="fas fa-file-pdf fa-lg mr-1" aria-hidden="true"></i>PDF Export</button>
 </div>

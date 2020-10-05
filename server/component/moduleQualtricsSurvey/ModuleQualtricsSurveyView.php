@@ -164,6 +164,14 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter participant variable name",
                         )),
+                        new BaseStyleComponent("textarea", array(
+                            "label" => "Config:",
+                            "type_input" => "json",
+                            "name" => "config",
+                            "value" => $this->survey['config'],
+                            "css" => "mb-3 fixedHolder",
+                            "placeholder" => "Enter JSON configuration",
+                        )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -235,6 +243,14 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->survey['participant_variable']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Config",
+                    "locale" => "",
+                    "css" => "fixedHolder",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['config']
                     ))),
                 )),
             )

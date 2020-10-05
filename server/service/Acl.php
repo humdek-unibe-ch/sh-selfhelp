@@ -337,25 +337,6 @@ class Acl
                 return false;
             }
         }
-        // $sql = "SELECT id, keyword FROM pages";
-        //     $pages_db = $this->db->query_db($sql);
-        // foreach($pages_db as $page)
-        // {
-        //     $id_page = intval($page['id']);
-        //     $acl_user = $this->get_access_levels_user($id_user, $id_page);
-        //     $acl_group = $this->get_access_levels_group($id_group, $id_page);
-        //     print($page['keyword']);
-        //     print_r($acl_user);
-        //     print_r($acl_group);
-        //     if(!$acl_user['delete'] && $acl_group['delete'])
-        //         return false;
-        //     if(!$acl_user['update'] && $acl_group['update'])
-        //         return false;
-        //     if(!$acl_user['insert'] && $acl_group['insert'])
-        //         return false;
-        //     if(!$acl_user['select'] && $acl_group['select'])
-        //         return false;
-        // }
         return true;
     }
 
@@ -560,6 +541,11 @@ class Acl
         //if(!$is_group && $id == ADMIN_USER_ID) // why?
         //    return true;
         $acl = $this->get_access_levels($id, $id_page, $is_group);
+        $page = $this->db->fetch_page_by_id($id_page);
+        if (intval($page['id_type']) === OPEN_PAGE_ID){
+            // the page is open access. Anyone should have select
+            $acl['select'] = true;
+        }
         if(isset($acl[$mode]))
             return $acl[$mode];
         return false;

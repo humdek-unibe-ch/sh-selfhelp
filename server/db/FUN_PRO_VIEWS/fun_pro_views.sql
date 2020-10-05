@@ -292,16 +292,21 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_qualtricsSurveys;
 CREATE VIEW view_qualtricsSurveys
 AS
-SELECT s.*, typ.lookup_value as survey_type
+SELECT s.*, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code
 FROM qualtricsSurveys s 
 INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);DROP VIEW IF EXISTS view_acl_groups_pages_modules;
 CREATE VIEW view_acl_groups_pages_modules
 AS
-SELECT acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+SELECT acl.id_groups, acl.id_pages, 
+CASE
+	WHEN p.id_type = 4 then 1 -- the page is open all grousp should has access for select
+	ELSE acl.acl_select
+END AS acl_select, 
+acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
 p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
 FROM acl_groups acl
-INNER JOIN pages p ON (acl.id_pages = p.id)
+INNER JOIN pages p ON (acl.id_pages = p.id or (p.id_type = 4 and acl.id_pages = null)) -- add all open pages although that there is no specific ACL
 LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
 LEFT JOIN modules m ON (m.id = mp.id_modules)
 GROUP BY acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
@@ -309,7 +314,12 @@ p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.na
 DROP VIEW IF EXISTS view_acl_users_pages_modules;
 CREATE VIEW view_acl_users_pages_modules
 AS
-SELECT acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+SELECT acl.id_users, acl.id_pages, 
+CASE
+	WHEN p.id_type = 4 then 1 -- the page is open all grousp should has access for select
+	ELSE acl.acl_select
+END AS acl_select, 
+acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
 p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
 FROM acl_users acl
@@ -329,7 +339,7 @@ CREATE VIEW view_qualtricsActions
 AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
-id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type,
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
@@ -417,4 +427,41 @@ FROM view_acl_users_in_groups_pages_modules
 UNION 
 
 SELECT *
-FROM view_acl_users_pages_modules;
+FROM view_acl_users_pages_modules;DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
+
+CREATE PROCEDURE get_form_data_for_user_with_filter( form_id_param INT, user_id_param INT, filter_param VARCHAR(1000) )
+BEGIN  
+    SET @@group_concat_max_len = 32000;
+	SET @sql = NULL;
+	SELECT
+	  GROUP_CONCAT(DISTINCT
+		CONCAT(
+		  'max(case when field_name = "',
+		  field_name,
+		  '" then value end) as `',
+		  replace(field_name, ' ', ''), '`'
+		)
+	  ) INTO @sql
+	from view_user_input
+    where form_id = form_id_param;
+	
+    IF (@sql is null) THEN
+		select user_id, form_name from view_user_input where 1=2;
+    ELSE 
+		begin
+		SET @sql = CONCAT('select user_id, form_name, edit_time, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
+		where form_id = ', form_id_param, ' and user_id = ', user_id_param,
+		' group by user_id, form_name, user_name, edit_time, user_code, removed HAVING 1 ', filter_param);
+
+		
+		PREPARE stmt FROM @sql;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+        end;
+    END IF;
+END 
+//
+
+DELIMITER ;
