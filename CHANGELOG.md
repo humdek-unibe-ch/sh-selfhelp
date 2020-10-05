@@ -3,12 +3,12 @@
 ### New Features
  - In `QualtricsModule` - Add on option for annonymous survey.
  - `For group(s)` in `Qualtrics Action` is not mandatory anymore.
- - Add new field `data_config` in style `graph`. [More information]{https://selfhelp.psy.unibe.ch/demo/style/631}
- - Add new field `data_config` in style `markdown`. [More information]{https://selfhelp.psy.unibe.ch/demo/style/454}
- - Add `PDF Export` checkbox in style `container`. [More information]{https://selfhelp.psy.unibe.ch/demo/style/447}
+ - Add new field `data_config` in style `graph`. [More information](https://selfhelp.psy.unibe.ch/demo/style/631)
+ - Add new field `data_config` in style `markdown`. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)
+ - Add `PDF Export` checkbox in style `container`. [More information](https://selfhelp.psy.unibe.ch/demo/style/447)
  - Add new style `search`. It gets the typed paramter and append it to the url
- - Add field `config` in `Qualtrics Surveys`. [More information]{https://selfhelp.psy.unibe.ch/demo/style/802}
- - Add function `[BMZ] Evaluate motive` which can be assigned in `Qualtrics Action`. [More information]{https://selfhelp.psy.unibe.ch/demo/cms_feature/799}
+ - Add field `config` in `Qualtrics Surveys`. [More information](https://selfhelp.psy.unibe.ch/demo/style/802)
+ - Add function `[BMZ] Evaluate motive` which can be assigned in `Qualtrics Action`. [More information](https://selfhelp.psy.unibe.ch/demo/cms_feature/799)
 
 ### Changes
  - When a user create new CMS page he/she recieves a full access to that page.
