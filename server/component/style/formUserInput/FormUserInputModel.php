@@ -253,9 +253,9 @@ class FormUserInputModel extends StyleModel
         $mail = array(
             "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
             "date_to_be_sent" => date('Y-m-d H:i:s', time()),
-            "from_email" => 'info@' . PROJECT_NAME . '.ch',
+            "from_email" => PROJECT_NAME . '@unibe.ch',
             "from_name" => PROJECT_NAME,
-            "reply_to" => 'no-replay@' . PROJECT_NAME . '.ch',
+            "reply_to" => PROJECT_NAME . '@unibe.ch',
             "recipient_emails" => $this->db->select_by_uid('users', $_SESSION['id_user'])['email'],
             "subject" => $subject,
             "body" => $body
