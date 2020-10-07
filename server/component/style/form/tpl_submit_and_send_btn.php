@@ -4,5 +4,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <button type="submit" class="ml-3 btn btn-<?php echo $this->type; ?>">
-    <?php echo $this->label; ?>
+    <?php echo $this->submit_and_send_label; ?>
 </button>

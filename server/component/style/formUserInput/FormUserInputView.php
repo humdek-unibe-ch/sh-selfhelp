@@ -53,6 +53,12 @@ class FormUserInputView extends StyleView
      */
     protected $submit_and_send_email;
 
+    /**
+     * DB field 'submit_and_send_lable' ('').
+     * The label on the submit and send button
+     */
+    protected $submit_and_send_lable;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -72,6 +78,7 @@ class FormUserInputView extends StyleView
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->anchor = $this->model->get_db_field("anchor");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
+        $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
     }
 
     /**
@@ -114,6 +121,11 @@ class FormUserInputView extends StyleView
             "name" => "__form_name",
             "value" => htmlentities($this->name),
         ));
+        $children[] = new BaseStyleComponent("input", array(
+            "type_input" => "hidden",
+            "name" => "submit_and_send_email",
+            "value" => $this->submit_and_send_email,
+        ));
         $url = $_SERVER['REQUEST_URI'] . '#section-'
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
@@ -123,7 +135,8 @@ class FormUserInputView extends StyleView
             "children" => $children,
             "css" => $this->css,
             "id" => $this->id_section,
-            "submit_and_send_email" => $this->submit_and_send_email
+            "submit_and_send_email" => $this->submit_and_send_email,
+            "submit_and_send_label" => $this->submit_and_send_label
         ));
         require __DIR__ . "/tpl_form.php";
     }

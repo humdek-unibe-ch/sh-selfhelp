@@ -53,6 +53,12 @@ class FormView extends StyleView
      */
     protected $submit_and_send_email;
 
+    /**
+     * DB field 'submit_and_send_lable' ('').
+     * The label on the submit and send button
+     */
+    protected $submit_and_send_lable;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -71,6 +77,7 @@ class FormView extends StyleView
             "Cancel");
         $this->cancel_url = $this->model->get_db_field("url_cancel");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
+        $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
     }
 
     /* Private Methods ********************************************************/
