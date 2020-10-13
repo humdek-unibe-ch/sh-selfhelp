@@ -23,6 +23,11 @@ class CmsUpdateView extends BaseView
      */
     private $mode;
 
+    /**
+     *  This describes the page type     
+     */
+    private $type;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -34,11 +39,14 @@ class CmsUpdateView extends BaseView
      *  The controller instance of the cms update component.
      * @param string $mode
      *  See CmsUpdateView::mode
+     * @param string $type
+     *  See CmsUpdateView::type
      */
-    public function __construct($model, $controller, $mode)
+    public function __construct($model, $controller, $mode, $type = null)
     {
         parent::__construct($model, $controller);
         $this->mode = $mode;
+        $this->type = $type;
     }
 
     /* Private Methods ********************************************************/
@@ -59,6 +67,7 @@ class CmsUpdateView extends BaseView
             ),
         ));
         $alert->output_content();
+        $this->output_controller_alerts_fail();
     }
 
     /**
@@ -80,13 +89,14 @@ class CmsUpdateView extends BaseView
      */
     private function output_section_search_list()
     {
+        $unassigned_sections = $this->model->get_unassigned_sections();
         $unassigned = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => true,
             "title" => "Select an Unassigned Section",
             "children" => array(new BaseStyleComponent("nestedList", array(
-                "items" => $this->model->get_unassigned_sections(),
+                "items" => $unassigned_sections,
                 "id_prefix" => "sections-search-unassigned",
                 "is_expanded" => false,
                 "is_collapsible" => false,
@@ -94,7 +104,11 @@ class CmsUpdateView extends BaseView
                 "search_text" => "Search"
             )))
         ));
-        $unassigned->output_content();
+        $unassigned->output_content();  
+        if(count($unassigned_sections) > 0){
+            // if there are unassigned sections show the delete button
+            $this->output_delete_unassigned_sections_btn();
+        }   
         $allowed = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => false,
@@ -110,6 +124,24 @@ class CmsUpdateView extends BaseView
             )))
         ));
         //$allowed->output_content();
+    }
+
+    /**
+     * Render delete unassigned sections button.
+     */
+    private function output_delete_unassigned_sections_btn()
+    {
+        $params = $this->model->get_current_url_params();
+        $params["type"] = "unassigned_sections";
+        $params["mode"] = "delete";
+        $url = $this->model->get_link_url("cmsUpdate", $params);
+        $deleteUnassignedBtn = new BaseStyleComponent("button", array(
+                    "label" => "Delete All Unassigned Sections",
+                    "url" => $url,
+                    "type" => "danger",
+                    "css" => "d-block mb-3",
+                ));
+        $deleteUnassignedBtn->output_content();
     }
 
     /**
@@ -200,6 +232,46 @@ class CmsUpdateView extends BaseView
         require __DIR__ . "/tpl_cms_delete.php";
     }
 
+    public function output_content_delete_unassigned_sections(){
+        $relation = $this->model->get_relation();
+        $params = $this->model->get_current_url_params();
+        $params["type"] = 'page_children';
+        $params["mode"] = "insert";
+        $url_cancel = $this->model->get_link_url("cmsUpdate", $params);    
+        $params["type"] = 'unassigned_sections';    
+        $params["mode"] = "delete";
+        $url = $this->model->get_link_url("cmsUpdate", $params);
+        $delete_unassigned_sections = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => true,
+            "type" => "danger",
+            "title" => "Delete All Unassigned Sections",
+            "children" => array(new BaseStyleComponent("form", array(
+                "label" => "Delete",
+                "url" => $url,
+                "type" => "danger",
+                "url_cancel" => $url_cancel,
+                "children" => array(
+                    new BaseStyleComponent("input", array(
+                        "type_input" => "text",
+                        "name" => "delete_all_unassigned_sections",
+                        "is_required" => true,
+                        "css" => "mb-3",
+                        "placeholder" => "Enter verification",
+                    )),
+                    new BaseStyleComponent("input", array(
+                        "type_input" => "hidden",
+                        "name" => "mode",
+                        "value" => "delete",
+                        "is_required" => true,
+                    )),
+                )
+            )))
+        ));
+        $delete_unassigned_sections->output_content();
+    }
+
     /**
      * Render the view to insert a new section.
      */
@@ -234,10 +306,23 @@ class CmsUpdateView extends BaseView
      */
     public function output_content()
     {
-        if($this->mode == "insert")
+        if ($this->mode == "insert") {
             $this->output_content_insert();
-        else if($this->mode == "delete")
+        } else if ($this->mode == "delete" && $this->type == 'unassigned_sections') {
+            if ($this->controller->has_succeeded()) {
+                $relation = $this->model->get_relation();
+                $params = $this->model->get_current_url_params();
+                $params["type"] = $relation;
+                $params["type"] = 'page_children';
+                $params["mode"] = "insert";
+                $url = $this->model->get_link_url("cmsUpdate", $params);
+                require __DIR__ . "/tpl_cms_delete_unassigned_sections_success.php";
+            } else {
+                require __DIR__ . "/tpl_cms_delete_unassigned_sections.php";
+            }
+        } else if ($this->mode == "delete") {
             $this->output_content_delete();
+        }
     }
 }
 ?>

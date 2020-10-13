@@ -66,7 +66,8 @@ class CmsUpdateComponent extends CmsComponent
         {
             $update_prop_method = "update_" . $params["mode"] . "_properties";
             $model->$update_prop_method();
-            $view = new CmsUpdateView($model, $controller, $params["mode"]);
+            $type = isset($params["type"]) ? $params["type"] : null;
+            $view = new CmsUpdateView($model, $controller, $params["mode"], $type);
         }
         parent::__construct($model, $view, $controller);
         $this->set_request_access($id_cms_page, "AjaxSearch",

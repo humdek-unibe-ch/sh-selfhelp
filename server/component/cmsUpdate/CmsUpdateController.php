@@ -79,12 +79,26 @@ class CmsUpdateController extends BaseController
                 );
                 $style->cms_update_callback($model);
             }
-        }
-        else if($_POST['mode'] == "insert"
-                && isset($_POST['relation']) && $_POST['relation'] != "")
+        } else if (
+            $_POST['mode'] == "insert"
+            && isset($_POST['relation']) && $_POST['relation'] != ""
+        ) {
             $this->insert();
-        else if($_POST['mode'] == "delete" && $_POST['relation'] != "")
+        } else if ($_POST['mode'] == "delete" && isset($_POST['delete_all_unassigned_sections'])) {
+            if ($_POST['delete_all_unassigned_sections'] == 'DELETE_ALL') {
+                if ($this->model->delete_all_unassigned_sections()) {
+                    $this->success = true;
+                } else {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Verification failed!";
+                }
+            } else {
+                $this->fail = true;
+                $this->error_msgs[] = "Verification failed!";
+            }
+        } else if ($_POST['mode'] == "delete" && $_POST['relation'] != "") {
             $this->delete();
+        }
 
     }
 
