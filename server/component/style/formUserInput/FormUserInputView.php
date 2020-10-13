@@ -121,11 +121,6 @@ class FormUserInputView extends StyleView
             "name" => "__form_name",
             "value" => htmlentities($this->name),
         ));
-        $children[] = new BaseStyleComponent("input", array(
-            "type_input" => "hidden",
-            "name" => "submit_and_send_email",
-            "value" => $this->submit_and_send_email,
-        ));
         $url = $_SERVER['REQUEST_URI'] . '#section-'
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
