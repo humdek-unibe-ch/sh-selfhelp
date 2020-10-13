@@ -22,9 +22,9 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select user_id, form_name, edit_time, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
+		SET @sql = CONCAT('select user_id, form_name, edit_time, user_code, ', @sql, ' , removed as deleted from view_user_input
 		where form_id = ', form_id_param,
-		' group by user_id, form_name, user_name, edit_time, user_code, removed');
+		' group by user_id, form_name, edit_time, user_code, removed');
 
 		
 		PREPARE stmt FROM @sql;
