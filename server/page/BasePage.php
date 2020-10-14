@@ -112,6 +112,7 @@ abstract class BasePage
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
+            "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
             "/js/ext/mermaid.min.js",

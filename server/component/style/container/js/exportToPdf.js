@@ -16,7 +16,6 @@ async function exportPageToPDF() {
             //skip PDF expot button
         } else if ($(child).find('.graph-base').length !== 0 || $(child).hasClass('graph-base')) {
             // graph. Convert to image then add to pdf
-            loadingImage = true;
             var graphs = $(child).find('.graph-plot');
             for (const graph of graphs) {
                 var cloneGraph = graph.cloneNode(true);
