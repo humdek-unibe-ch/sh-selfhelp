@@ -74,6 +74,9 @@ class Router extends AltoRouter {
             }
             return $this->generate("home");
         }
+        else if($url == "#last_user_page"){
+            return $_SESSION['last_user_page'];
+        }
         else if($url == "#self")
             return $_SERVER['REQUEST_URI'];
         else if($url[0] == "#")
