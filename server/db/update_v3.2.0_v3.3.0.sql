@@ -102,3 +102,6 @@ CREATE TABLE `version` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `version` (`version`) VALUES ('v3.3.0');
+
+INSERT INTO sections (id_styles, name) VALUES(get_style_id('version'), 'impressum-version');
+INSERT INTO sections_hierarchy (parent, child, position) VALUES((SELECT id FROM sections WHERE name = 'impressum-container'), (SELECT id FROM sections WHERE name = 'impressum-version'), 11);
