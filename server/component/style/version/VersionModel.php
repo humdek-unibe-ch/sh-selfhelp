@@ -26,4 +26,12 @@ class VersionModel extends StyleModel
         parent::__construct($services, $id);
     }
 
+    /**
+     * Get the dtabase version from the database
+     * @retval string the version of the database
+     */
+    public function get_db_version(){
+        return $this->db->query_db_first('SELECT version FROM version')['version'];
+    }
+
 }

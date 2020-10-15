@@ -43,18 +43,19 @@ class VersionView extends StyleView
      * Render version view.
      */
     public function output_content()
-    {
+    {        
+        $db_version = $this->model->get_db_version();
+        $app_version = rtrim(shell_exec("git describe --tags"));
         $versionCard = new BaseStyleComponent("card", array(
             "css" => $this->css,
             "is_expanded" => false,
             "is_collapsible" => false,
             "children" => array(
-                new BaseStyleComponent("template", array(
-                    "path" => __DIR__ . "/tpl_version.php",
-                    "items" => array(
-                        "version_selfhelp" => "v3.1.1",
-                        "version_db" => "v3.3.0",
-                    ),
+                new BaseStyleComponent("markdown", array(
+                    "text_md" => "| SelfHelp | Version | License | Comments |
+                                    |-|-|-|-|
+                                    | Application | " . $app_version . "   | <a href='https://www.mozilla.org/en-US/MPL/2.0/'>MPL2.0</a> | |
+                                    | Database | " . $db_version . "   | | |",
                 ))
             )
         ));

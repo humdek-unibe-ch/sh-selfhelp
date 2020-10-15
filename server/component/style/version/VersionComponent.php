@@ -4,14 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../StyleComponent.php";
+require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/VersionView.php";
 require_once __DIR__ . "/VersionModel.php";
 
 /**
  * The class to define the asset select component.
  */
-class VersionComponent extends StyleComponent
+class VersionComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
