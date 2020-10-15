@@ -91,3 +91,7 @@ END
 //
 
 DELIMITER ;
+
+-- Add new style version
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('version', '2', (select id from styleGroup where `name` = 'Admin' limit 1), 'Add information about the DB version and for the git version of Selfhelp');
+

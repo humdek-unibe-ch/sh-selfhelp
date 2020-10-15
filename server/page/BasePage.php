@@ -286,10 +286,10 @@ abstract class BasePage
     private function set_last_user_page()
     {
         $curr_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        if (!isset($_SESSION['last_user_page'])) {
+        if (!isset($_SESSION['last_user_page']) && isset($_SERVER['HTTP_REFERER'])) {
             // if the variable is not set assign it
             $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
-        } else if ($_SERVER['HTTP_REFERER'] != $curr_url) {
+        } else if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != $curr_url) {
             // if it is set but the current url is from a new page, reassign the page
             $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
         }
