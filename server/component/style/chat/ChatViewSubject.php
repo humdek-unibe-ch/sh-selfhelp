@@ -85,6 +85,8 @@ class ChatViewSubject extends ChatView
             $tab_name = $group['name'];
             if($tab_name == 'subject'){
                 $tab_name = $this->label_global;
+            } else {
+                $tab_name = 'Group_' . $group_id;
             }
             $tab_css = $this->model->is_group_selected($group_id) ? 'active' : '';
             $tab_url = $this->model->get_link_url('chatSubject', array("gid" => $group_id));
