@@ -209,5 +209,15 @@ class NavModel extends BaseModel
     public function has_access_to_chat($key){
         return $this->acl->has_access_select($_SESSION['id_user'], $this->db->fetch_page_id_by_keyword($key)); 
     }
+
+    public function get_chat_first_chat_group(){
+        $sql = "SELECT ug.id_groups
+                FROM users_groups ug
+                INNER JOIN acl_groups acl ON (acl.id_groups = ug.id_groups)
+                INNER JOIN pages p ON (acl.id_pages = p.id)
+                WHERE id_users = :uid AND keyword = 'chatSubject' AND acl_select = 1 AND ug.id_groups > 2
+                ORDER BY ug.id_groups ASC";
+        return $this->db->query_db_first($sql, array(":uid"=>$_SESSION['id_user']));
+    }
 }
 ?>

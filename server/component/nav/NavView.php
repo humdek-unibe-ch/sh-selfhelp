@@ -40,7 +40,12 @@ class NavView extends BaseView
             return;
         }
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key, array("gid" => SUBJECT_GROUP_ID));
+        $group =  $this->model->get_chat_first_chat_group();
+        if (!$group) {
+            // if there is no chat group do not show
+            return;
+        }
+        $url = $this->model->get_link_url($key, array("gid" => intval($group['id_groups'])));
         require __DIR__ . '/tpl_chat.php';
     }
 
