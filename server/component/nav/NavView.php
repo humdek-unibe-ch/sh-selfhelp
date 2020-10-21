@@ -27,17 +27,21 @@ class NavView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Render the contact link.
+     * Render the chat link.
      */
-    private function output_nav_contact()
+    private function output_nav_chat()
     {
-        $key = 'contact';
-        if(!$this->model->has_route($key))
+        $key = '';
+        if ($this->model->has_access_to_chat('chatTherapist')) {
+            $key = 'chatTherapist';
+        } else if ($this->model->has_access_to_chat('chatSubject')) {
+            $key = 'chatSubject';
+        } else {
             return;
+        }
         $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
-        $accessToChat = $this->model->has_access_to_chat($key) ? "" : "d-none";
-        require __DIR__ .'/tpl_contact.php';
+        $url = $this->model->get_link_url($key, array("gid" => SUBJECT_GROUP_ID));
+        require __DIR__ . '/tpl_chat.php';
     }
 
     /**

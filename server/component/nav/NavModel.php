@@ -202,7 +202,7 @@ class NavModel extends BaseModel
      * Checks whether user has access to the chat. If not later the icon is not visualized
      *
      * @param string $key
-     *  The page name of the chat; in this case "contact"
+     *  The page name of the chat; either "chatTherapist" or "chatSubject"
      * @retval bool
      *  True if the user has access to the chat.
      */

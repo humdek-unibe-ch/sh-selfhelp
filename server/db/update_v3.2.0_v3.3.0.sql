@@ -105,3 +105,104 @@ INSERT INTO `version` (`version`) VALUES ('v3.3.0');
 
 INSERT INTO sections (id_styles, name) VALUES(get_style_id('version'), 'impressum-version');
 INSERT INTO sections_hierarchy (parent, child, position) VALUES((SELECT id FROM sections WHERE name = 'impressum-container'), (SELECT id FROM sections WHERE name = 'impressum-version'), 11);
+
+-- add keyword chatSubject
+INSERT INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', '0000000003', NULL, NULL, '0', NULL, NULL, '0000000003');
+
+SET @id_page_data = LAST_INSERT_ID();
+
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
+SELECT g.id, (SELECT id FROM pages WHERE keyword = 'chatSubject'), acl_select, acl_insert, acl_update, acl_delete
+FROM groups g
+INNER JOIN acl_groups acl ON (acl.id_groups = g.id)
+INNER JOIN pages p ON (acl.id_pages = p.id)
+WHERE keyword = 'contact';
+
+INSERT INTO sections (id_styles, name) VALUES(get_style_id('container'), 'chatSubject-container');
+INSERT INTO sections (id_styles, name) VALUES(get_style_id('chat'), 'chatSubject-chat');
+INSERT INTO pages_sections (id_pages, id_Sections, position) VALUES(@id_page_data, (SELECT id FROM sections WHERE name = 'chatSubject-container'), 1);
+INSERT INTO sections_hierarchy (parent, child, position) VALUES((SELECT id FROM sections WHERE name = 'chatSubject-container'), (SELECT id FROM sections WHERE name = 'chatSubject-chat'), 1);
+
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`)
+SELECT (SELECT id FROM sections WHERE name = 'chatSubject-chat'), id_fields, id_languages, id_genders, content
+FROM sections_fields_translation
+WHERE id_sections = (SELECT id FROM sections WHERE name = 'contact-chat');
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+SELECT @id_page_data, id_fields, id_languages, content
+FROM pages_fields_translation
+WHERE id_pages = (SELECT id FROM pages WHERE keyword = 'contact');
+
+-- add keyword chatTherapist
+INSERT INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', '0000000003', NULL, NULL, '0', NULL, NULL, '0000000003');
+
+SET @id_page_data = LAST_INSERT_ID();
+
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES
+('0000000001', @id_page_data, '1', '1', '1', '1');
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES
+('0000000002', @id_page_data, '1', '1', '0', '0');
+
+INSERT INTO sections (id_styles, name) VALUES(get_style_id('container'), 'chatTherapist-container');
+INSERT INTO sections (id_styles, name) VALUES(get_style_id('chat'), 'chatTherapist-chat');
+INSERT INTO pages_sections (id_pages, id_Sections, position) VALUES(@id_page_data, (SELECT id FROM sections WHERE name = 'chatTherapist-container'), 1);
+INSERT INTO sections_hierarchy (parent, child, position) VALUES((SELECT id FROM sections WHERE name = 'chatTherapist-container'), (SELECT id FROM sections WHERE name = 'chatTherapist-chat'), 1);
+
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`)
+SELECT (SELECT id FROM sections WHERE name = 'chatTherapist-chat'), id_fields, id_languages, id_genders, content
+FROM sections_fields_translation
+WHERE id_sections = (SELECT id FROM sections WHERE name = 'contact-chat');
+
+INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`)
+SELECT @id_page_data, id_fields, id_languages, content
+FROM pages_fields_translation
+WHERE id_pages = (SELECT id FROM pages WHERE keyword = 'contact');
+
+
+-- add field id_rcv_group in table chat
+ALTER TABLE chat
+ADD COLUMN id_rcv_group int(10) UNSIGNED ZEROFILL NOT NULL;
+
+INSERT INTO groups (name, description)
+SELECT DISTINCT chr.name, chr.description
+FROM chat ch
+INNER JOIN chatRoom chr ON (ch.id_rcv_grp = chr.id)
+WHERE name <> 'root';
+
+UPDATE chat ch
+LEFT JOIN chatRoom chr ON (ch.id_rcv_grp = chr.id)
+LEFT join groups g ON (chr.name = g.name)
+SET id_rcv_group = CASE
+						WHEN g.id IS NULL THEN 3
+						ELSE g.id 
+					END;
+
+ALTER TABLE chat
+ADD CONSTRAINT fk_chat_id_rcv_group FOREIGN KEY (id_rcv_group) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+INSERT INTO users_groups (id_users, id_groups)
+SELECT u.id, g.id
+FROM chatRoom cr
+INNER JOIN chatRoom_users cru ON (cr.id = cru.id_chatRoom)
+INNER JOIN users u ON (cru.id_users = u.id)
+INNER JOIN groups g ON (cr.name = g.name);
+
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`)
+SELECT DISTINCT g.id, (SELECT id FROM pages WHERE pages.keyword = 'chatSubject'), '1', '0', '0', '0'
+FROM chatRoom cr
+INNER JOIN chatRoom_users cru ON (cr.id = cru.id_chatRoom)
+INNER JOIN users u ON (cru.id_users = u.id)
+INNER JOIN groups g ON (cr.name = g.name);
+
+ALTER TABLE chat
+DROP FOREIGN KEY fk_chat_id_rcv_grp;
+
+ALTER TABLE chat
+DROP COLUMN id_rcv_grp;
+
+DELETE FROM pages
+WHERE keyword IN ('contact', 'chatAdminDelete', 'chatAdminInsert', 'chatAdminSelect', 'chatAdminUpdate');
+
+

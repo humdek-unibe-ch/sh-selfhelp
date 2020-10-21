@@ -1,11 +1,23 @@
-$(document).ready(function() {
-    var $chat = $('.chat');
+$(document).ready(function () {
+    $('#subjects').DataTable({
+        dom: 'ftipr',
+        bInfo: false,
+        bAutoWidth: false,
+        aaSorting: []        
+    });
+    var $chat = $('.chatOverflow');
     var documenHeight = document.body.scrollHeight;
     var chatHeight = $chat.height();
-    $chat.height(chatHeight - (documenHeight - $(window).height()));
+    var newHeight = chatHeight - (documenHeight - $(window).height());
+    if (newHeight > 0) {
+        $chat.height(newHeight);
+    }
     $chat.scrollTop(documenHeight);
-    $(window).resize(function() {
-        $chat.height(chatHeight - (documenHeight - $(this).height()));
+    $(window).resize(function () {
+        var newHeight = chatHeight - (documenHeight - $(window).height());
+        if (newHeight > 0) {
+            $chat.height(newHeight);
+        }
         $chat.scrollTop(documenHeight);
     })
 });

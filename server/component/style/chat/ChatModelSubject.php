@@ -22,12 +22,12 @@ class ChatModelSubject extends ChatModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
-     * @param int $chrid
-     *  The chat room id to communicate with
+     * @param int $gid
+     *  The group id
      */
-    public function __construct($services, $id, $chrid)
+    public function __construct($services, $id, $gid)
     {
-        parent::__construct($services, $id, $chrid);
+        parent::__construct($services, $id, $gid);
     }
 
     /* Protected Methods ******************************************************/
@@ -46,12 +46,12 @@ class ChatModelSubject extends ChatModel
             FROM chat AS c
             LEFT JOIN users AS sender ON sender.id = c.id_snd
             LEFT JOIN chatRecipiants AS receiver ON c.id = receiver.id_chat AND receiver.id_users = :me
-            WHERE c.id_rcv_grp = :rid AND (receiver.id_users = :me
+            WHERE c.id_rcv_group = :gid AND (receiver.id_users = :me
                 OR c.id_snd = :me)
             ORDER BY c.timestamp";
         return $this->db->query_db($sql, array(
             ":me" => $_SESSION['id_user'],
-            ":rid" => $this->chrid,
+            ":gid" => $this->gid
         ));
     }
 
@@ -65,7 +65,7 @@ class ChatModelSubject extends ChatModel
      */
     public function is_chat_ready()
     {
-        return ($this->chrid !== null);
+        return $this->is_user_in_group($_SESSION['id_user']);
     }
 
     /**
@@ -79,44 +79,49 @@ class ChatModelSubject extends ChatModel
      */
     public function send_chat_msg($msg)
     {
-        $msg_id = $this->db->insert("chat", array(
-            "id_snd" => $_SESSION['id_user'],
-            "id_rcv_grp" => $this->chrid,
-            "content" => $msg,
-        ));
-        if($msg_id)
-        {
-            if($this->chrid === GLOBAL_CHAT_ROOM_ID)
-            {
-                // send to all therapists
-                $sql = "SELECT ug.id_users AS id_users, :cid AS id_chat
-                    FROM users_groups AS ug
-                    WHERE ug.id_groups = :gid";
+        try {
+            $this->db->begin_transaction();
+            $msg_id = $this->db->insert("chat", array(
+                "id_snd" => $_SESSION['id_user'],
+                "id_rcv_group" => $this->gid,
+                "content" => $msg,
+            ));
+            if ($msg_id) {
+                // send message to all therapsit in the group
+                $sql = "SELECT DISTINCT ug.id_users, :cid AS id_chat
+                            FROM users_groups ug 
+                            INNER JOIN users_groups ug2 on (ug.id_users = ug2.id_users)
+                            INNER JOIN acl_groups acl ON (acl.id_groups = ug2.id_groups)
+                            INNER JOIN pages p ON (acl.id_pages = p.id)
+                            WHERE ug.id_groups = :gid AND p.keyword = 'chatTherapist'
+                            GROUP BY  ug.id_users
+                            HAVING MAX(IFNULL(acl.acl_select, 0)) = 1";
                 $users = $this->db->query_db($sql, array(
                     ':cid' => $msg_id,
-                    ':gid' => EXPERIMENTER_GROUP_ID,
+                    ':gid' => $this->gid,
                 ));
+                foreach ($users as $user) {
+                    $this->db->insert('chatRecipiants', $user);
+                    try {
+                        $url = "https://" . $_SERVER['HTTP_HOST'] . $this->get_link_url('chatTherapist', array(
+                            'gid' => $this->gid,
+                            'uid' => intval($user['id_users'])
+                        ));
+                        $this->notify(intval($user['id_users']), $url);
+                    } catch (Exception $e) {
+                        // mail was not sent
+                    }
+                }
+            } else {
+                $this->db->rollback();
+                return false;
             }
-            else
-            {
-                // send to all therapists in the room
-                $sql = "SELECT cru.id AS id_room_users, cru.id_users AS id_users,
-                    :cid AS id_chat FROM chatRoom_users AS cru
-                    LEFT JOIN users_groups AS ug ON ug.id_users = cru.id_users
-                    WHERE cru.id_chatRoom = :chrid AND ug.id_groups = :gid";
-                $users = $this->db->query_db($sql, array(
-                    ':chrid' => $this->chrid,
-                    ':cid' => $msg_id,
-                    ':gid' => EXPERIMENTER_GROUP_ID,
-                ));
-            }
-            foreach($users as $user)
-            {
-                $this->db->insert('chatRecipiants', $user);
-                $this->notify(intval($user['id_users']));
-            }
-        }
-        return $msg_id;
+            $this->db->commit();
+            return $msg_id;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }       
     }
 }
 ?>

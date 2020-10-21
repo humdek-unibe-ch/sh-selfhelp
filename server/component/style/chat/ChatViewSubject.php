@@ -63,19 +63,6 @@ class ChatViewSubject extends ChatView
         require __DIR__ . "/tpl_chat_item.php";
     }
 
-    /** 
-     * Render the list of available rooms and if therapist add groups
-     */
-    protected function output_room_list()
-    {
-        $rooms = $this->model->get_rooms();        
-        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
-            "name" => $this->label_global));
-        if(count($rooms) === 1)
-           return;
-        require __DIR__ . "/tpl_room_list.php";
-    } 
-
     /* Public Methods *********************************************************/
 
     /**
@@ -86,6 +73,23 @@ class ChatViewSubject extends ChatView
         $title = $this->title_prefix . " "
             . $this->experimenter;
         require __DIR__ . "/tpl_chat_subject.php";
+    }
+
+    /**
+     * Render all groups that has access to chat and the subject is in them as tabs.
+     */
+    public function output_group_tabs(){
+        $groups = $this->model->get_groups();
+        foreach ($groups as $key => $group) {
+            $group_id = intval($group['id']);
+            $tab_name = $group['name'];
+            if($tab_name == 'subject'){
+                $tab_name = $this->label_global;
+            }
+            $tab_css = $this->model->is_group_selected($group_id) ? 'active' : '';
+            $tab_url = $this->model->get_link_url('chatSubject', array("gid" => $group_id));
+            require __DIR__ . "/tpl_chat_tab.php";
+        }        
     }
 }
 ?>

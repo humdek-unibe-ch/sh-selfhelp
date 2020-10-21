@@ -45,11 +45,16 @@ class ChatViewTherapist extends ChatView
      */
     private function output_subjects()
     {
-        $subjects = $this->model->get_subjects();
+        $subjects = array();
+        if($this->model->is_user_in_group($_SESSION['id_user'])){
+            $subjects = $this->model->get_GroupSubjects();
+        }
         foreach($subjects as $subject)
         {
             $id = intval($subject['id']);
-            $name = $subject['name'];
+            $group_id = intval($subject['id_groups']);
+            $count = intval($subject['count']);
+            $name = $subject['name'];            
             $subject_code = $subject['code'];
             $url = $this->model->get_subject_url($id);
             $active = "";
@@ -84,23 +89,12 @@ class ChatViewTherapist extends ChatView
         require __DIR__ . "/tpl_chat_item.php";
     }
 
-    /** 
-     * Render the list of available rooms and if therapist add groups
-     */
-    protected function output_room_list()
-    {
-        $rooms = $this->model->get_rooms();        
-        array_unshift($rooms, array("id" => GLOBAL_CHAT_ROOM_ID,
-            "name" => $this->label_global));
-        require __DIR__ . "/tpl_room_list.php";
-    } 
-
     /**
+     * @param int $count - the number of the new messages
      * Render the new badge.
      */
-    protected function output_new_badge_subject($id)
-    {
-        $count = $this->model->get_subject_message_count($id);
+    protected function output_new_badge_subject($count)
+    {        
         if($count > 0)
             require __DIR__ . "/tpl_new_badge.php";
     }
@@ -114,16 +108,25 @@ class ChatViewTherapist extends ChatView
     {
         $title = $this->title_prefix . " "
             . $this->model->get_selected_user_name();
+        $subjects = $this->subjects;
         require __DIR__ . "/tpl_chat_experimenter.php";
-    }
+    }   
 
-    /** 
-     * Render the list of available groups for the experamanter
+    /**
+     * Render all groups that has access to chatTherapis and the therapis is in them as tabs.
      */
-    protected function output_group_list()
-    {
+    public function output_group_tabs(){
         $groups = $this->model->get_groups();
-        require __DIR__ . "/tpl_group_list.php";
+        foreach ($groups as $key => $group) {
+            $group_id = intval($group['id']);
+            $tab_name = $group['name'];
+            if($tab_name == 'subject'){
+                $tab_name = $this->label_global;
+            }
+            $tab_css = $this->model->is_group_selected($group_id) ? 'active border-primary border-bottom-white' : '';
+            $tab_url = $this->model->get_link_url('chatTherapist', array("gid" => $group_id));
+            require __DIR__ . "/tpl_chat_tab.php";
+        }        
     }
 }
 ?>

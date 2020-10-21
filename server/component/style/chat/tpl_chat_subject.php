@@ -4,7 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php $this->output_alert(); ?>
-<?php $this->output_room_list(); ?>
-<div class="my-3">
-    <?php $this->output_chat($title); ?>
+<div class="card mt-3 mb-3">
+    <div class="card-body">
+        <?php $this->output_group_tabs_holder(); ?>        
+        <div class="my-3">
+            <?php $this->output_chat($title); ?>
+        </div>
+    </div>
 </div>
