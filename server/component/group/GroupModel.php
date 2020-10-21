@@ -204,25 +204,6 @@ class GroupModel extends BaseModel
     }
 
     /**
-     * Check whether the chat administration permissions corresponding to
-     * a certain level are given.
-     *
-     * @param array $acl
-     *  An array of ACL rights. See UserModel::fetch_acl_by_id.
-     * @param string $lvl
-     *  The level of access e.g. select, insert, update, or delete.
-     * @retval bool
-     *  True if update access is allowed, false otherwise.
-     */
-    private function get_chat_access($acl, $lvl)
-    {
-        $res = $acl["admin-link"]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl];
-        return $res;
-    }
-
-    /**
      * Check whether the cms permissions allow to modify pages.
      *
      * @param array $acl
@@ -587,15 +568,6 @@ class GroupModel extends BaseModel
                 "insert" => $this->get_data_access($acl, "insert"),
                 "update" => $this->get_data_access($acl, "update"),
                 "delete" => $this->get_data_access($acl, "delete"),
-            ),
-        );
-        $sgacl["chat"] = array(
-            "name" => "Chat Management",
-            "acl" => array(
-                "select" => $this->get_chat_access($acl, "select"),
-                "insert" => $this->get_chat_access($acl, "insert"),
-                "update" => $this->get_chat_access($acl, "update"),
-                "delete" => $this->get_chat_access($acl, "delete"),
             ),
         );
         return $sgacl;
