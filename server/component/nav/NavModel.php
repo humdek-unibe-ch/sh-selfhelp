@@ -210,6 +210,11 @@ class NavModel extends BaseModel
         return $this->acl->has_access_select($_SESSION['id_user'], $this->db->fetch_page_id_by_keyword($key)); 
     }
 
+    /**
+     * Get the first group in which the user has chat permisions
+     * @retval array
+     * The group
+     */
     public function get_chat_first_chat_group(){
         $sql = "SELECT ug.id_groups
                 FROM users_groups ug
