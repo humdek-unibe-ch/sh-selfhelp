@@ -131,18 +131,30 @@ class GroupModel extends BaseModel
             $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
             foreach ($pages as $page) {
                 $group_access_for_page_index = array_search($page['keyword'], array_column($acl_db, 'keyword'));
-                if($group_access_for_page_index){
+                if ($group_access_for_page_index !== false) {
+                    // se set the permisions after we found them
                     $group_access_for_page = $acl_db[$group_access_for_page_index];
-                }
-                $acl[$page['keyword']] = array(
-                    "name" => $page['keyword'],
-                    "acl" => array(
-                        "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
-                        "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
-                        "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
-                        "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
-                    )
-                );
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
+                            "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
+                            "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
+                            "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
+                        )
+                    );
+                } else {
+                    // no permissions exists for this page, set them all to false
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => false,
+                            "insert" => false,
+                            "update" => false,
+                            "delete" => false,
+                        )
+                    );
+                }                
             }
         }
         return $acl;
