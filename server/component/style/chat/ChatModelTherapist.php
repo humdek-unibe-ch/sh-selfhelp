@@ -83,8 +83,7 @@ class ChatModelTherapist extends ChatModel
     }
 
     /**
-     * Get all subjects in a the selected group except these who are therapists
-     *
+     * Get all subjects in a the selected group
      * @retval array
      *  The database result with the following keys:
      *   'id':      The user id of the subject.
@@ -100,12 +99,7 @@ class ChatModelTherapist extends ChatModel
                 FROM users AS u
                 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
                 LEFT JOIN validation_codes vc on vc.id_users = u.id
-                INNER JOIN users_groups ug2 on (ug.id_users = ug2.id_users)
-                INNER JOIN acl_groups acl ON (acl.id_groups = ug2.id_groups)
-                INNER JOIN pages p ON (acl.id_pages = p.id)
-                WHERE ug.id_groups = :gid AND p.keyword = 'chatTherapist' 
-                GROUP BY  u.id, u.name, vc.code, ug.id_groups
-                HAVING MAX(IFNULL(acl.acl_select, 0)) = 0
+                WHERE ug.id_groups = :gid
                 ORDER BY count DESC, u.name";
         return $this->db->query_db($sql, array(
             ":gid" => $this->gid,

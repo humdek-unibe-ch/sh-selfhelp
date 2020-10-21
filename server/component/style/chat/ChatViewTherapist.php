@@ -52,15 +52,18 @@ class ChatViewTherapist extends ChatView
         foreach($subjects as $subject)
         {
             $id = intval($subject['id']);
-            $group_id = intval($subject['id_groups']);
-            $count = intval($subject['count']);
-            $name = $subject['name'];            
-            $subject_code = $subject['code'];
-            $url = $this->model->get_subject_url($id);
-            $active = "";
-            if($this->model->is_subject_selected($id))
-                $active = "bg-info text-white";
-            require __DIR__ . "/tpl_subject.php";
+            if($id != $_SESSION['id_user'] && !$this->model->get_services()->get_acl()->has_access_select($id, $this->model->get_services()->get_db()->fetch_page_id_by_keyword("chatTherapist"))){
+                // show all users except the logged in and the other therapists
+                $group_id = intval($subject['id_groups']);
+                $count = intval($subject['count']);
+                $name = $subject['name'];            
+                $subject_code = $subject['code'];
+                $url = $this->model->get_subject_url($id);
+                $active = "";
+                if($this->model->is_subject_selected($id))
+                    $active = "bg-info text-white";
+                require __DIR__ . "/tpl_subject.php";
+            }
         }
     }
 
