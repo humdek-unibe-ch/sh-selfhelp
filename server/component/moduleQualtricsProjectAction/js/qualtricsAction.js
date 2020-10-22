@@ -77,7 +77,10 @@ $(document).ready(function () {
     if ($('textarea[name="schedule_info[body]"]')[0]) {
         var simplemde = new SimpleMDE({
             autoDownloadFontAwesome: false,
-            spellChecker: false
+            spellChecker: false,
+            renderingConfig: {
+                singleLineBreaks: false
+            }
         });
         if ($('.style-section-body code').length > 0) {
             $('.style-section-body code').first().html(simplemde.options.previewRender($('.style-section-body code').first().html()));
