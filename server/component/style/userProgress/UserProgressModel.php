@@ -43,7 +43,7 @@ class UserProgressModel extends StyleModel
     public function get_user_progress()
     {
         $user = new UserModel($this->services);
-        return round($user->get_user_progress($_SESSION['id_user'])*100);
+        return round($user->get_user_progress($_SESSION['id_user'], $user->calc_pages_for_progress())*100);
     }
 
 }

@@ -69,62 +69,16 @@ class UserModel extends BaseModel
      *   'blocked':     A boolean indication whether the user is blocked or not.
      *   'code':        The validation code of the user.
      *   'groups':      The groups in which the user belongs.
-     *   'chat_rooms_names': The caht groups in which the user is.
      */
     private function fetch_user($uid)
     {
-        $sql = "SELECT u.email, u.blocked, u.name, us.name AS status, us.description,
-            vc.code, u.last_login,
-            GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
-            GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
-            FROM users AS u
-            LEFT JOIN userStatus AS us ON us.id = u.id_status
-            LEFT JOIN validation_codes AS vc ON vc.id_users = u.id
-            LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-            LEFT JOIN groups g ON g.id = ug.id_groups
-            LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
-            LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
-            WHERE u.id = :uid and u.intern <> 1
-            GROUP BY u.email, u.blocked, u.name, us.name, us.description,
-            vc.code, u.last_login";
+        $sql = "SELECT *
+            FROM view_users            
+            WHERE id = :uid and intern <> 1";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
         if($res)
             $res['id'] = $uid;
         return $res;
-    }
-
-    /**
-     * Fetch the list of non internal users.
-     *
-     * @retval array
-     *  A list of db items where each item has the keys
-     *   'id':          The id of the user.
-     *   'email':       The email of the user.
-     *   'name':        The name of the user.
-     *   'last_login':  The date of the last login.
-     *   'status':      Indicates the state of the user.
-     *   'description': The state description of the user.
-     *   'blocked':     Indicates whether the user is blocked or not.
-     *   'groups':      Groups assigned to the user
-     *   'chat_rooms_names' The chat rooms assigned to the user
-     */
-    private function fetch_users()
-    {
-        $sql = "SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
-                us.description, u.blocked, vc.code,
-                GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
-                GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
-                FROM users AS u
-                LEFT JOIN userStatus AS us ON us.id = u.id_status
-                LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-                LEFT JOIN groups g ON g.id = ug.id_groups
-                LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
-                LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
-                LEFT JOIN validation_codes vc ON u.id = vc.id_users
-                WHERE u.intern <> 1 AND u.id_status > 0
-                GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
-                ORDER BY u.email";
-        return $this->db->query_db($sql);
     }
 
     /**
@@ -377,6 +331,27 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Fetch the list of non internal users.
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':          The id of the user.
+     *   'email':       The email of the user.
+     *   'name':        The name of the user.
+     *   'last_login':  The date of the last login.
+     *   'status':      Indicates the state of the user.
+     *   'description': The state description of the user.
+     *   'blocked':     Indicates whether the user is blocked or not.
+     *   'groups':      Groups assigned to the user
+     */
+    public function fetch_users()
+    {
+        $sql = "SELECT *
+                FROM view_users";
+        return $this->db->query_db($sql);
+    }
+
+    /**
      * Generate random validation codes and store them to the database.
      *
      * @param int $count
@@ -580,12 +555,12 @@ class UserModel extends BaseModel
             "email" => $user["email"],
             "name" => $user["name"],
             "code" => $user["code"],
+            "user_activity" => $user["user_activity"],
             "last_login" => $user["last_login"],
             "status" => $state,
             "blocked" => ($user['blocked'] == '1') ? true : false,
             "description" => $desc,
-            "groups" => $user ? (array_key_exists('groups', $user) ? $user['groups'] : '') : '',
-            "chat_rooms_names" => $user ? (array_key_exists('chat_rooms_names', $user) ? $user['chat_rooms_names'] : '') : '',
+            "groups" => $user ? (array_key_exists('groups', $user) ? $user['groups'] : '') : '',            
             "url" => $this->get_link_url("userSelect", array("uid" => $id))
         );
     }
@@ -607,33 +582,12 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Count the entries in the user_activity table given a user id.
-     *
-     * @param int $id
-     *  The id of the user to be counted
-     * @retval int
-     *  The number of activity entries of the user.
-     */
-    public function get_user_activity($id)
-    {
-        $sql = "SELECT COUNT(*) AS activity FROM user_activity
-            WHERE id_users = :uid";
-        $res = $this->db->query_db_first($sql, array(':uid' => $id));
-        return $res['activity'];
-    }
-
-    /**
      * Count all pages of type experiment as well as all navigation page
-     * sections and copmpare this count to all distinct URLs the user visited.
-     *
-     * @param int $id
-     *  The id of the user to be counted
-     *
-     * @retval float
-     *  A percentage between 0 and 1
+     * sections
+     * 
+     * @retval int returnt the page_count
      */
-    public function get_user_progress($id)
-    {
+    public function calc_pages_for_progress(){
         $sql = "SELECT id_pages FROM sections_navigation";
         $nav_sections = $this->db->query_db($sql);
         $pc = count($nav_sections);
@@ -661,7 +615,24 @@ class UserModel extends BaseModel
             if(!$has_child)
                 $pc++;
         }
+        return $pc;
+    }
 
+    /**
+     *  and copmpare this count to all distinct URLs the user visited.
+     *
+     * @param int $id
+     *  The id of the user to be counted
+     * 
+     * @param int $pc
+     *  The Count all pages of type experiment as well as all navigation page
+     *  sections
+     *
+     * @retval float
+     *  A percentage between 0 and 1
+     */
+    public function get_user_progress($id, $pc)
+    {
         $sql = "SELECT DISTINCT url FROM user_activity
             WHERE id_users = :uid AND id_type = 1";
         $activity = $this->db->query_db($sql, array(':uid' => $id));
@@ -669,21 +640,6 @@ class UserModel extends BaseModel
         if($pc === 0 || $ac > $pc)
             return 1;
         return $ac/$pc;
-    }
-
-    /**
-     * Return the validation code of a user.
-     *
-     * @param int $id
-     *  The id of the user
-     * @retval int
-     *  The validation code of the user.
-     */
-    public function get_user_code($id)
-    {
-        $sql = "SELECT code FROM validation_codes WHERE id_users = :uid";
-        $res = $this->db->query_db_first($sql, array(':uid' => $id));
-        return $res['code'];
     }
 
     /**

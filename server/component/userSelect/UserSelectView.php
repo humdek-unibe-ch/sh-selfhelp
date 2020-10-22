@@ -36,24 +36,6 @@ class UserSelectView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Return the last login string
-     *
-     * @param string $data
-     *  The data string as it was returned by the DB
-     * @retval string
-     *  A human-readable time stamp with verbose additions.
-     */
-    private function get_last_login($data)
-    {
-        $days = round((time() - strtotime($data)) / (60*60*24)) . " day";
-        if($days > 1) $days .= "s";
-        $last_login = "never";
-        if($data !== null)
-            $last_login = $data . " (" . $days . " ago)";
-        return $last_login;
-    }
-
-    /**
      * Render the button to create a new user.
      */
     private function output_button()
@@ -134,11 +116,6 @@ class UserSelectView extends BaseView
         {
             $title = "Groups";
             $content = "The groups in which the user is assigned";
-        }
-        else if($key === "chat_rooms_names")
-        {
-            $title = "Chat";
-            $content = "The chats rooms names in whcih the user is assigned";
         }
         else
             $content = $title = "bad key";
@@ -327,23 +304,32 @@ class UserSelectView extends BaseView
      * Render the activity table content.
      */
     private function output_user_activity_rows()
-    {
-        foreach($this->model->get_users() as $user)
+    {   
+        $pc = $this->model->calc_pages_for_progress();
+        foreach($this->model->fetch_users() as $user)
         {
-            $url = $user['url'];
             $id = $user['id'];
-            $email = $user['title'];
-            $state = $user['status'];
+            $url = $this->model->get_link_url("userSelect", array("uid" => $id));
+            $email = $user['email'];
+            if ($user['blocked'] == 1) {
+                $state = 'blocked';
+            } else {
+                $state = $user['status'];
+            }
             $desc = $user['description'];
             $groups = $user['groups'];
-            $chat_rooms_names = $user['chat_rooms_names'];
             $row_state = "";
             if(strpos($state, "blocked") !== false)
                 $row_state = "table-warning";
-            $code = $this->model->get_user_code($id) ?? "-";
-            $last_login = $this->get_last_login($user['last_login']);
-            $activity = $this->model->get_user_activity($id);
-            $progress = $this->model->get_user_progress($id);
+            $code = $user['code'];
+            $last_login = $user['last_login'];
+            $activity = $user['user_activity'];
+            $ac = $user['ac'];
+            if($pc === 0 || $ac > $pc){
+                $progress = 1;
+            } else {
+                $progress = $ac/$pc;
+            }
             require __DIR__ . "/tpl_user_activity_row.php";
         }
     }
@@ -375,10 +361,9 @@ class UserSelectView extends BaseView
             $code = $this->selected_user['code'] ?? "-";
             $desc = $this->selected_user['description'];
             $groups = $this->selected_user['groups'];
-            $chat_rooms_names = $this->selected_user['chat_rooms_names'];
-            $last_login = $this->get_last_login($this->selected_user['last_login']);
-            $activity = $this->model->get_user_activity($this->selected_user['id']);
-            $progress = $this->model->get_user_progress($this->selected_user['id']);
+            $last_login = $this->selected_user['last_login'];
+            $activity = $this->selected_user['user_activity'];
+            $progress = $this->model->get_user_progress($this->selected_user['id'], $this->model->calc_pages_for_progress());
             require __DIR__ . "/tpl_user.php";
         }
         else

@@ -13,5 +13,6 @@ $(document).ready(function() {
     $(function () {
         $('[data-toggle="popover"]').popover({html:true});
     });
+    $('#user-activity').removeClass('d-none');
 });
     
