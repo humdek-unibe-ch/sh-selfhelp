@@ -9,7 +9,7 @@
         <?php $this->output_group_tabs_holder(); ?>
         <div class="row my-3">
             <div class="col-sm-auto mb-2">
-                <table id="subjects" class="table table-sm table-borderless">
+                <table id="subjects" class="table table-sm table-borderless d-none">
                     <thead>
                         <tr>
                             <th><?php echo $subjects ?></th>

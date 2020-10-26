@@ -52,7 +52,7 @@ class ChatViewTherapist extends ChatView
         foreach($subjects as $subject)
         {
             $id = intval($subject['id']);
-            if($id != $_SESSION['id_user'] && !$this->model->get_services()->get_acl()->has_access_select($id, $this->model->get_services()->get_db()->fetch_page_id_by_keyword("chatTherapist"))){
+            if($id != $_SESSION['id_user']){
                 // show all users except the logged in and the other therapists
                 $group_id = intval($subject['id_groups']);
                 $count = intval($subject['count']);

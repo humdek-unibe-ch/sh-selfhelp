@@ -95,6 +95,15 @@ class ChatModelTherapist extends ChatModel
                 (SELECT COUNT(cr.id_chat) AS count FROM chatRecipiants AS cr
                     LEFT JOIN chat AS c ON c.id = cr.id_chat
                     WHERE cr.is_new = '1' AND cr.id_users = :me
+                        AND ((SELECT MAX(IFNULL(acl.acl_select, 0)) as acl_select
+							FROM users u2
+							INNER JOIN users_groups AS ug2 ON (ug2.id_users = u2.id)
+							INNER  JOIN acl_groups acl ON (acl.id_groups = ug2.id_groups)
+							INNER JOIN pages p ON (acl.id_pages = p.id)
+							LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+							LEFT JOIN modules m ON (m.id = mp.id_modules)
+                            where ug2.id_users = u.id and keyword = 'chatTherapist'
+							GROUP BY ug2.id_users, acl.id_pages, p.keyword ) = 0)
                         AND (c.id_snd = u.id OR c.id_rcv = u.id) AND c.id_rcv_group = :gid) AS count
                 FROM users AS u
                 LEFT JOIN users_groups AS ug ON ug.id_users = u.id

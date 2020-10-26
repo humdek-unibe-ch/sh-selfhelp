@@ -19,5 +19,6 @@ $(document).ready(function () {
             $chat.height(newHeight);
         }
         $chat.scrollTop(documenHeight);
-    })
+    });
+    $('#subjects').removeClass('d-none');
 });
