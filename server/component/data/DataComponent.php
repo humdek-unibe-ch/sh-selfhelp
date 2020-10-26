@@ -7,6 +7,7 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/DataModel.php";
 require_once __DIR__ . "/DataView.php";
+require_once __DIR__ . "/DataController.php";
 
 /**
  * The data component - visualize user inputs
@@ -31,7 +32,8 @@ class DataComponent extends BaseComponent
     {
         $uid = isset($params['uid']) ? $params['uid'] : null;
         $model = new DataModel($services, $uid);
-        $view = new DataView($model);
+        $controller = new DataController($model);
+        $view = new DataView($model, $controller);
         parent::__construct($model, $view, null);
     }
 }

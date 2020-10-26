@@ -225,4 +225,8 @@ WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
 ORDER BY u.email;
 
+UPDATE pages
+SET url = '/admin/data'
+WHERE keyword = 'data';
+
 
