@@ -382,6 +382,18 @@ class CmsView extends BaseView
                 $url_edit = $this->model->get_link_url("cmsUpdate",
                     $this->model->get_current_url_params());
         }
+        $children[] = new BaseStyleComponent("button", array(
+            "label" => "Export Section",
+            "css" => 'd-block',
+            "url" => $this->model->get_link_url(
+                "cmsExport",
+                array(
+                    "type" => "section",
+                    "id" => $this->model->get_active_section_id()
+                )
+            ),
+            "type" => "secondary",
+        ));
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3",
