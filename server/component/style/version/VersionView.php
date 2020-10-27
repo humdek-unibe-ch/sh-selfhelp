@@ -47,7 +47,7 @@ class VersionView extends StyleView
         $db_version = $this->model->get_db_version();
         $app_version = rtrim(shell_exec("git describe --tags"));
         $versionCard = new BaseStyleComponent("card", array(
-            "css" => $this->css,
+            "css" => 'mb-3 '. $this->css,
             "is_expanded" => false,
             "is_collapsible" => false,
             "children" => array(
