@@ -272,7 +272,6 @@ class Mailer extends PHPMailer
      */
     public function delete_queue_entry($mqid, $tran_by)
     {
-
         try {
             $this->db->begin_transaction();
             $del_result = $this->db->update_by_ids(
@@ -295,6 +294,49 @@ class Mailer extends PHPMailer
                     $this->transaction::TABLE_MAILQUEUE,
                     $mqid,
                     true
+                )) {
+                    $this->db->rollback();
+                    return false;
+                }
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * Remove an email address from multi recipient email.
+     * @retval boolean 
+     * return the result
+     */
+    public function remove_email_from_queue_entry($mqid, $tran_by, $recipients, $log)
+    {
+        try {
+            $this->db->begin_transaction();
+            $del_result = $this->db->update_by_ids(
+                'mailQueue',
+                array(
+                    "recipient_emails" => $recipients
+                ),
+                array(
+                    "id" => $mqid
+                )
+            );
+            if ($del_result === false) {
+                $this->db->rollback();
+                return false;
+            } else {
+                if (!$this->transaction->add_transaction(
+                    transactionTypes_update,
+                    $tran_by,
+                    $_SESSION['id_user'],
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mqid,
+                    true,
+                    $log
                 )) {
                     $this->db->rollback();
                     return false;

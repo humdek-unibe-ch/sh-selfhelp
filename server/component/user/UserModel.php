@@ -327,7 +327,49 @@ class UserModel extends BaseModel
      */
     public function delete_user($uid)
     {
-        return $this->db->remove_by_fk("users", "id", $uid);
+        //delete scheduled emails for that user if there are some        
+        $res = $this->db->remove_by_fk("users", "id", $uid);
+        if ($res){
+            $this->delete_mails_for_user();
+        }
+        return $res;
+    }
+
+    /**
+     * Search scheduled emails for the selected user and delete them
+     */
+    public function  delete_mails_for_user()
+    {
+        //delete all mails which are scheduled only for the selected user without any othe recipients
+        $sql = "SELECT *
+                FROM mailQueue
+                WHERE id_mailQueueStatus = :id_mailQueueStatus AND recipient_emails = :user_email";
+        $scheduledMails = $this->db->query_db($sql, array(
+            ":id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            ":user_email" => $this->selected_user['email']
+        ));
+        foreach ($scheduledMails as $key => $mail) {
+            $this->mail->delete_queue_entry($mail['id'], transactionBy_by_user);    
+        }
+
+        // *********************************************************
+        // remove the user email from group scheduled emails
+        $sql = "SELECT *
+                FROM mailQueue
+                WHERE id_mailQueueStatus = :id_mailQueueStatus AND recipient_emails LIKE (:user_email)";
+        $groupScheduledMails = $this->db->query_db($sql, array(
+            ":id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            ":user_email" => '%' . $this->selected_user['email'] . '%'
+        ));
+        foreach
+        ($groupScheduledMails as $key => $mail) {
+            $recipients = array_map('trim', explode(MAIL_SEPARATOR, $mail['recipient_emails']));
+            if (($key = array_search($this->selected_user['email'], $recipients)) !== false) {
+                unset($recipients[$key]);
+            }
+            $recipients = implode(MAIL_SEPARATOR, $recipients);
+            $this->mail->remove_email_from_queue_entry($mail['id'], transactionBy_by_user, $recipients,'Remove emails for: ' . $this->selected_user['email']);    
+        }
     }
 
     /**
