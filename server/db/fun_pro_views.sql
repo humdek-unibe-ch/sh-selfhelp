@@ -465,3 +465,147 @@ END
 //
 
 DELIMITER ;
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_group_acl //
+
+CREATE PROCEDURE get_group_acl( param_group_id INT, param_page_id INT ) # when page_id is -1 then all pages
+BEGIN
+
+    SELECT acl.id_groups, acl.id_pages, 
+	CASE
+		WHEN p.id_type = 4 then 1 -- the page is open all grousp should has access for select
+		ELSE acl.acl_select
+	END AS acl_select, 
+	acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+	p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+	FROM acl_groups acl
+	INNER JOIN pages p ON (acl.id_pages = p.id or (p.id_type = 4 and acl.id_pages = null)) -- add all open pages although that there is no specific ACL
+	LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+	LEFT JOIN modules m ON (m.id = mp.id_modules)
+    WHERE acl.id_groups = param_group_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
+	GROUP BY acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
+	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
+    HAVING enabled = 1;
+    
+END
+//
+
+DELIMITER ;
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_navigation //
+
+CREATE PROCEDURE get_navigation( param_locale VARCHAR(10) ) # when page_id is -1 then all pages
+BEGIN
+
+    SELECT Json_arrayagg(Json_object(keyword, (SELECT 
+						 Json_object('id_navigation_section' 
+						 , 
+						 p.id_navigation_section, 'title', 
+						 pft.content, 'children', (SELECT 
+						 Json_arrayagg( 
+						 Json_object(keyword, (SELECT 
+												 Json_object('id_navigation_section' 
+												 , 
+												 p2.id_navigation_section, 'title', 
+												 pft2.content, 'children', NULL)))) 
+						 AS items 
+												 FROM   pages AS p2 
+												 LEFT JOIN pages_fields_translation 
+														   AS pft2 
+												 ON pft2.id_pages = p2.id 
+												 LEFT JOIN languages AS l2 
+												 ON l2.id = pft2.id_languages 
+												 LEFT JOIN fields AS f2 
+												 ON f2.id = pft2.id_fields 
+												 WHERE  p2.parent = p.id 
+												 AND ( l.locale = param_locale 
+												 OR l.locale = 'all' ) 
+												 AND f2.NAME = 'label' 
+												 AND p2.nav_position IS NOT NULL 
+												 ORDER  BY p2.nav_position ASC))))) AS 
+		   pages 
+	FROM   pages AS p 
+		   LEFT JOIN pages_fields_translation AS pft 
+				  ON pft.id_pages = p.id 
+		   LEFT JOIN languages AS l 
+				  ON l.id = pft.id_languages 
+		   LEFT JOIN fields AS f 
+				  ON f.id = pft.id_fields 
+	WHERE  p.nav_position IS NOT NULL 
+		   AND ( l.locale = param_locale 
+				  OR l.locale = 'all' ) 
+		   AND f.NAME = 'label' 
+		   AND p.parent IS NULL 
+ORDER  BY p.nav_position DESC;
+    
+END
+//
+
+DELIMITER ;
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_user_acl //
+
+CREATE PROCEDURE get_user_acl( param_user_id INT, param_page_id INT ) # when page_id is -1 then all pages
+BEGIN
+
+    SELECT ug.id_users, acl.id_pages, MAX(IFNULL(acl.acl_select, 0)) as acl_select, MAX(IFNULL(acl.acl_insert, 0)) as acl_insert,
+	MAX(IFNULL(acl.acl_update, 0)) as acl_update, MAX(IFNULL(acl.acl_delete, 0)) as acl_delete, p.keyword,
+	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+	p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+	FROM users u
+	INNER JOIN users_groups AS ug ON (ug.id_users = u.id)
+	INNER  JOIN acl_groups acl ON (acl.id_groups = ug.id_groups)
+	INNER JOIN pages p ON (acl.id_pages = p.id)
+	LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+	LEFT JOIN modules m ON (m.id = mp.id_modules)
+	WHERE ug.id_users = param_user_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
+	GROUP BY ug.id_users, acl.id_pages, p.keyword, p.url, 
+	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
+    HAVING enabled = 1
+    
+    UNION 
+    
+    SELECT acl.id_users, acl.id_pages, 
+	CASE
+		WHEN p.id_type = 4 then 1 -- the page is open all grousp should has access for select
+		ELSE acl.acl_select
+	END AS acl_select, 
+	acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
+	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+	p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+	FROM acl_users acl
+	INNER JOIN pages p ON (acl.id_pages = p.id)
+	LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
+	LEFT JOIN modules m ON (m.id = mp.id_modules)
+    WHERE acl.id_users = param_user_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
+	GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
+	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
+    HAVING enabled = 1;
+    
+END
+//
+
+DELIMITER ;
+DROP VIEW IF EXISTS view_users;
+CREATE VIEW view_users
+AS
+SELECT u.id, u.email, u.name, 
+IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
+us.name AS status,
+us.description, u.blocked, ifnull(vc.code, '-') AS code,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+(SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
+(SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
+u.intern
+FROM users AS u
+LEFT JOIN userStatus AS us ON us.id = u.id_status
+LEFT JOIN users_groups AS ug ON ug.id_users = u.id
+LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN validation_codes vc ON u.id = vc.id_users
+WHERE u.intern <> 1 AND u.id_status > 0
+GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
+ORDER BY u.email;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 05, 2020 at 10:47 AM
+-- Generation Time: Nov 06, 2020 at 10:48 AM
 -- Server version: 5.7.23-log
 -- PHP Version: 7.2.10
 
@@ -28,13 +28,17 @@ SET time_zone = "+00:00";
 -- Table structure for table `acl_groups`
 --
 
-CREATE TABLE `acl_groups` (
+DROP TABLE IF EXISTS `acl_groups`;
+CREATE TABLE IF NOT EXISTS `acl_groups` (
   `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `acl_select` tinyint(1) NOT NULL DEFAULT '1',
   `acl_insert` tinyint(1) NOT NULL DEFAULT '0',
   `acl_update` tinyint(1) NOT NULL DEFAULT '0',
-  `acl_delete` tinyint(1) NOT NULL DEFAULT '0'
+  `acl_delete` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_groups`,`id_pages`),
+  KEY `id_pages` (`id_pages`) USING BTREE,
+  KEY `id_groups` (`id_groups`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -70,7 +74,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000026, 1, 0, 1, 0),
 (0000000001, 0000000027, 1, 0, 0, 1),
 (0000000001, 0000000028, 1, 0, 0, 0),
-(0000000001, 0000000029, 1, 1, 1, 1),
 (0000000001, 0000000030, 1, 1, 1, 1),
 (0000000001, 0000000031, 1, 1, 1, 1),
 (0000000001, 0000000032, 1, 1, 1, 1),
@@ -78,10 +81,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000035, 1, 1, 1, 1),
 (0000000001, 0000000036, 1, 1, 0, 0),
 (0000000001, 0000000037, 1, 0, 1, 0),
-(0000000001, 0000000038, 1, 0, 0, 0),
-(0000000001, 0000000039, 1, 1, 0, 0),
-(0000000001, 0000000040, 1, 0, 0, 1),
-(0000000001, 0000000041, 1, 0, 1, 0),
 (0000000001, 0000000042, 1, 0, 0, 1),
 (0000000001, 0000000043, 1, 0, 1, 0),
 (0000000001, 0000000045, 1, 1, 0, 0),
@@ -95,6 +94,8 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000053, 1, 1, 1, 1),
 (0000000001, 0000000054, 1, 0, 0, 0),
 (0000000001, 0000000055, 1, 0, 1, 0),
+(0000000001, 0000000056, 1, 1, 1, 1),
+(0000000001, 0000000057, 1, 1, 1, 1),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -123,7 +124,6 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000026, 0, 0, 0, 0),
 (0000000002, 0000000027, 0, 0, 0, 0),
 (0000000002, 0000000028, 1, 0, 0, 0),
-(0000000002, 0000000029, 1, 0, 0, 0),
 (0000000002, 0000000030, 1, 0, 0, 0),
 (0000000002, 0000000031, 1, 0, 0, 0),
 (0000000002, 0000000032, 1, 0, 0, 0),
@@ -131,6 +131,8 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000002, 0000000035, 1, 0, 0, 0),
 (0000000002, 0000000036, 1, 1, 0, 0),
 (0000000002, 0000000037, 0, 0, 0, 0),
+(0000000002, 0000000056, 1, 0, 0, 0),
+(0000000002, 0000000057, 1, 1, 0, 0),
 (0000000003, 0000000001, 1, 0, 0, 0),
 (0000000003, 0000000002, 1, 0, 0, 0),
 (0000000003, 0000000003, 1, 0, 0, 0),
@@ -159,13 +161,13 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000003, 0000000026, 0, 0, 0, 0),
 (0000000003, 0000000027, 0, 0, 0, 0),
 (0000000003, 0000000028, 1, 0, 0, 0),
-(0000000003, 0000000029, 1, 0, 0, 0),
 (0000000003, 0000000030, 1, 0, 0, 0),
 (0000000003, 0000000031, 1, 0, 0, 0),
 (0000000003, 0000000032, 1, 0, 0, 0),
 (0000000003, 0000000033, 1, 0, 0, 0),
 (0000000003, 0000000035, 1, 0, 0, 0),
-(0000000003, 0000000036, 0, 0, 0, 0);
+(0000000003, 0000000036, 0, 0, 0, 0),
+(0000000003, 0000000056, 1, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -173,13 +175,17 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 -- Table structure for table `acl_users`
 --
 
-CREATE TABLE `acl_users` (
+DROP TABLE IF EXISTS `acl_users`;
+CREATE TABLE IF NOT EXISTS `acl_users` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `acl_select` tinyint(1) NOT NULL DEFAULT '1',
   `acl_insert` tinyint(1) NOT NULL DEFAULT '0',
   `acl_update` tinyint(1) NOT NULL DEFAULT '0',
-  `acl_delete` tinyint(1) NOT NULL DEFAULT '0'
+  `acl_delete` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_users`,`id_pages`),
+  KEY `id_users` (`id_users`),
+  KEY `id_pages` (`id_pages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -198,10 +204,12 @@ INSERT INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `ac
 -- Table structure for table `actions`
 --
 
-CREATE TABLE `actions` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `actions`;
+CREATE TABLE IF NOT EXISTS `actions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `actions`
@@ -218,10 +226,12 @@ INSERT INTO `actions` (`id`, `name`) VALUES
 -- Table structure for table `activityType`
 --
 
-CREATE TABLE `activityType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `activityType`;
+CREATE TABLE IF NOT EXISTS `activityType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `activityType`
@@ -237,14 +247,16 @@ INSERT INTO `activityType` (`id`, `name`) VALUES
 -- Table structure for table `callbackLogs`
 --
 
-CREATE TABLE `callbackLogs` (
-  `id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `callbackLogs`;
+CREATE TABLE IF NOT EXISTS `callbackLogs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `callback_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `remote_addr` varchar(200) DEFAULT NULL,
   `redirect_url` varchar(1000) DEFAULT NULL,
   `callback_params` longtext,
   `status` varchar(200) DEFAULT NULL,
-  `callback_output` longtext
+  `callback_output` longtext,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -253,13 +265,18 @@ CREATE TABLE `callbackLogs` (
 -- Table structure for table `chat`
 --
 
-CREATE TABLE `chat` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `chat`;
+CREATE TABLE IF NOT EXISTS `chat` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_snd` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_rcv` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `id_rcv_grp` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `content` longtext NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_rcv_group` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_snd` (`id_snd`) USING BTREE,
+  KEY `id_rcv` (`id_rcv`) USING BTREE,
+  KEY `fk_chat_id_rcv_group` (`id_rcv_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -268,11 +285,16 @@ CREATE TABLE `chat` (
 -- Table structure for table `chatRecipiants`
 --
 
-CREATE TABLE `chatRecipiants` (
+DROP TABLE IF EXISTS `chatRecipiants`;
+CREATE TABLE IF NOT EXISTS `chatRecipiants` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_chat` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_room_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `is_new` tinyint(4) NOT NULL DEFAULT '1'
+  `is_new` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_users`,`id_chat`),
+  KEY `id_users` (`id_users`),
+  KEY `id_chat` (`id_chat`),
+  KEY `id_room_users` (`id_room_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -281,12 +303,14 @@ CREATE TABLE `chatRecipiants` (
 -- Table structure for table `chatRoom`
 --
 
-CREATE TABLE `chatRoom` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `chatRoom`;
+CREATE TABLE IF NOT EXISTS `chatRoom` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext NOT NULL,
-  `title` varchar(200) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `title` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `chatRoom`
@@ -301,10 +325,15 @@ INSERT INTO `chatRoom` (`id`, `name`, `description`, `title`) VALUES
 -- Table structure for table `chatRoom_users`
 --
 
-CREATE TABLE `chatRoom_users` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `chatRoom_users`;
+CREATE TABLE IF NOT EXISTS `chatRoom_users` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_chatRoom` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
+  KEY `id_chatRoom` (`id_chatRoom`),
+  KEY `id_users` (`id_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -313,11 +342,14 @@ CREATE TABLE `chatRoom_users` (
 -- Table structure for table `cmsPreferences`
 --
 
-CREATE TABLE `cmsPreferences` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `cmsPreferences`;
+CREATE TABLE IF NOT EXISTS `cmsPreferences` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `callback_api_key` varchar(500) DEFAULT NULL,
-  `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_cmsPreferences_language` (`default_language_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `cmsPreferences`
@@ -332,9 +364,12 @@ INSERT INTO `cmsPreferences` (`id`, `callback_api_key`, `default_language_id`) V
 -- Table structure for table `codes_groups`
 --
 
-CREATE TABLE `codes_groups` (
+DROP TABLE IF EXISTS `codes_groups`;
+CREATE TABLE IF NOT EXISTS `codes_groups` (
   `code` varchar(16) NOT NULL,
-  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`code`,`id_groups`),
+  KEY `fk_id_groups` (`id_groups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -343,12 +378,15 @@ CREATE TABLE `codes_groups` (
 -- Table structure for table `fields`
 --
 
-CREATE TABLE `fields` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `fields`;
+CREATE TABLE IF NOT EXISTS `fields` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000002',
-  `display` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `display` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `id_type` (`id_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=153 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fields`
@@ -499,7 +537,11 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000145, 'data_config', 0000000008, 0),
 (0000000146, 'export_pdf', 0000000003, 0),
 (0000000147, 'prefix', 0000000001, 1),
-(0000000148, 'suffix', 0000000001, 1);
+(0000000148, 'suffix', 0000000001, 1),
+(0000000149, 'submit_and_send_email', 0000000003, 1),
+(0000000150, 'submit_and_send_label', 0000000001, 1),
+(0000000151, 'email_subject', 0000000004, 1),
+(0000000152, 'email_body', 0000000004, 1);
 
 -- --------------------------------------------------------
 
@@ -507,11 +549,13 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 -- Table structure for table `fieldType`
 --
 
-CREATE TABLE `fieldType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `fieldType`;
+CREATE TABLE IF NOT EXISTS `fieldType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `position` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `position` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fieldType`
@@ -543,10 +587,12 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 -- Table structure for table `genders`
 --
 
-CREATE TABLE `genders` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `genders`;
+CREATE TABLE IF NOT EXISTS `genders` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `genders`
@@ -562,11 +608,14 @@ INSERT INTO `genders` (`id`, `name`) VALUES
 -- Table structure for table `groups`
 --
 
-CREATE TABLE `groups` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `groups`;
+CREATE TABLE IF NOT EXISTS `groups` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `description` varchar(250) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `description` varchar(250) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `groups`
@@ -583,12 +632,16 @@ INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 -- Table structure for table `languages`
 --
 
-CREATE TABLE `languages` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `languages`;
+CREATE TABLE IF NOT EXISTS `languages` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `locale` varchar(5) NOT NULL COMMENT '"e.g en-GB, de-CH"',
   `language` varchar(100) NOT NULL,
-  `csv_separator` varchar(1) NOT NULL DEFAULT ','
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `csv_separator` varchar(1) NOT NULL DEFAULT ',',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `locale` (`locale`),
+  UNIQUE KEY `language` (`language`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `languages`
@@ -605,13 +658,17 @@ INSERT INTO `languages` (`id`, `locale`, `language`, `csv_separator`) VALUES
 -- Table structure for table `lookups`
 --
 
-CREATE TABLE `lookups` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `lookups`;
+CREATE TABLE IF NOT EXISTS `lookups` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `type_code` varchar(100) NOT NULL,
   `lookup_code` varchar(100) DEFAULT NULL,
   `lookup_value` varchar(200) DEFAULT NULL,
-  `lookup_description` varchar(500) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `lookup_description` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `lookup_code` (`lookup_code`),
+  UNIQUE KEY `lookup_value` (`lookup_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `lookups`
@@ -674,13 +731,16 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 -- Table structure for table `mailAttachments`
 --
 
-CREATE TABLE `mailAttachments` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `mailAttachments`;
+CREATE TABLE IF NOT EXISTS `mailAttachments` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
   `attachment_name` varchar(100) NOT NULL,
   `attachment_path` varchar(1000) NOT NULL,
   `attachment_url` varchar(1000) NOT NULL,
-  `template_path` varchar(1000) NOT NULL
+  `template_path` varchar(1000) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `mailAttachments_fk_id_mailQueue` (`id_mailQueue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -689,8 +749,9 @@ CREATE TABLE `mailAttachments` (
 -- Table structure for table `mailQueue`
 --
 
-CREATE TABLE `mailQueue` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `mailQueue`;
+CREATE TABLE IF NOT EXISTS `mailQueue` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_mailQueueStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
   `date_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_to_be_sent` datetime DEFAULT NULL,
@@ -703,7 +764,9 @@ CREATE TABLE `mailQueue` (
   `bcc_emails` varchar(1000) DEFAULT NULL,
   `subject` varchar(1000) NOT NULL,
   `body` longtext NOT NULL,
-  `is_html` int(11) DEFAULT '1'
+  `is_html` int(11) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `mailQueue_fk_id_mailQueueStatus` (`id_mailQueueStatus`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -712,11 +775,13 @@ CREATE TABLE `mailQueue` (
 -- Table structure for table `modules`
 --
 
-CREATE TABLE `modules` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `modules`;
+CREATE TABLE IF NOT EXISTS `modules` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `module_name` varchar(500) DEFAULT NULL,
-  `enabled` int(11) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `enabled` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `modules`
@@ -733,9 +798,13 @@ INSERT INTO `modules` (`id`, `module_name`, `enabled`) VALUES
 -- Table structure for table `modules_pages`
 --
 
-CREATE TABLE `modules_pages` (
+DROP TABLE IF EXISTS `modules_pages`;
+CREATE TABLE IF NOT EXISTS `modules_pages` (
   `id_modules` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_modules`,`id_pages`),
+  KEY `id_modules` (`id_modules`),
+  KEY `id_pages` (`id_pages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -747,12 +816,7 @@ INSERT INTO `modules_pages` (`id_modules`, `id_pages`) VALUES
 (0000000001, 0000000051),
 (0000000001, 0000000052),
 (0000000002, 0000000050),
-(0000000002, 0000000055),
-(0000000003, 0000000029),
-(0000000003, 0000000038),
-(0000000003, 0000000039),
-(0000000003, 0000000040),
-(0000000003, 0000000041);
+(0000000002, 0000000055);
 
 -- --------------------------------------------------------
 
@@ -760,8 +824,9 @@ INSERT INTO `modules_pages` (`id_modules`, `id_pages`) VALUES
 -- Table structure for table `pages`
 --
 
-CREATE TABLE `pages` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `pages`;
+CREATE TABLE IF NOT EXISTS `pages` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `keyword` varchar(100) NOT NULL,
   `url` varchar(255) DEFAULT NULL,
   `protocol` varchar(100) DEFAULT NULL COMMENT 'pipe seperated list of HTTP Methods (GET|POST)',
@@ -771,8 +836,14 @@ CREATE TABLE `pages` (
   `is_headless` tinyint(1) NOT NULL DEFAULT '0',
   `nav_position` int(11) DEFAULT NULL,
   `footer_position` int(11) DEFAULT NULL,
-  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `keyword` (`keyword`),
+  KEY `parent` (`parent`),
+  KEY `id_actions` (`id_actions`),
+  KEY `id_navigation_section` (`id_navigation_section`),
+  KEY `id_type` (`id_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pages`
@@ -807,7 +878,6 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000027, 'assetDelete', '/admin/asset_delete/[css|asset|static:mode]/[*:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000028, 'request', '/request/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000029, 'contact', '/kontakt/[i:chrid]?/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
 (0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
 (0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
@@ -815,14 +885,10 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001),
-(0000000038, 'chatAdminSelect', '/admin/chat/[i:rid]?', 'GET', 0000000002, NULL, 0000000009, 0, 35, NULL, 0000000001),
-(0000000039, 'chatAdminInsert', '/admin/chat_insert/', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000040, 'chatAdminDelete', '/admin/chat_delete/[i:rid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000041, 'chatAdminUpdate', '/admin/chat_update/[i:rid]/[add_user|rm_user:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000042, 'exportDelete', '/admin/exportDelete/[user_activity|user_input:selector]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000043, 'groupUpdateCustom', '/admin/group_update_custom/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000044, 'callback', '/callback/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000045, 'data', '/admin/data/[i:uid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 39, NULL, 0000000001),
+(0000000045, 'data', '/admin/data', 'GET|POST', 0000000002, NULL, 0000000009, 0, 39, NULL, 0000000001),
 (0000000046, 'cmsPreferences', '/admin/cms_preferences', 'GET|POST', 0000000002, NULL, 0000000009, 0, 1000, NULL, 0000000001),
 (0000000047, 'cmsPreferencesUpdate', '/admin/cms_preferences_update', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000048, 'language', '/admin/language/[i:lid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
@@ -832,7 +898,9 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000052, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000053, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000055, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
+(0000000055, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000056, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
+(0000000057, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003);
 
 -- --------------------------------------------------------
 
@@ -840,11 +908,15 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 -- Table structure for table `pages_fields`
 --
 
-CREATE TABLE `pages_fields` (
+DROP TABLE IF EXISTS `pages_fields`;
+CREATE TABLE IF NOT EXISTS `pages_fields` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `default_value` varchar(100) DEFAULT NULL,
-  `help` longtext
+  `help` longtext,
+  PRIMARY KEY (`id_pages`,`id_fields`),
+  KEY `id_pages` (`id_pages`),
+  KEY `id_fields` (`id_fields`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -863,11 +935,16 @@ INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `default_value`, `help`) VA
 -- Table structure for table `pages_fields_translation`
 --
 
-CREATE TABLE `pages_fields_translation` (
+DROP TABLE IF EXISTS `pages_fields_translation`;
+CREATE TABLE IF NOT EXISTS `pages_fields_translation` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `content` longtext NOT NULL
+  `content` longtext NOT NULL,
+  PRIMARY KEY (`id_pages`,`id_fields`,`id_languages`),
+  KEY `id_pages` (`id_pages`),
+  KEY `id_fields` (`id_fields`),
+  KEY `id_languages` (`id_languages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -912,8 +989,6 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000025, 0000000008, 0000000001, 'Upload Asset'),
 (0000000026, 0000000008, 0000000001, 'Rename Asset'),
 (0000000027, 0000000008, 0000000001, 'Delete Asset'),
-(0000000029, 0000000008, 0000000002, 'Kontakt'),
-(0000000029, 0000000008, 0000000003, 'Contact'),
 (0000000030, 0000000008, 0000000002, 'AGB'),
 (0000000030, 0000000008, 0000000003, 'GTC'),
 (0000000031, 0000000008, 0000000002, 'Impressum'),
@@ -930,10 +1005,6 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000037, 0000000092, 0000000003, 'Hello\r\n\r\nTo verify you email address and to activate your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team'),
 (0000000037, 0000000094, 0000000002, 'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
 (0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
-(0000000038, 0000000008, 0000000001, 'Chat Rooms'),
-(0000000039, 0000000008, 0000000001, 'Create Chat Room'),
-(0000000040, 0000000008, 0000000001, 'Delete Chat Room'),
-(0000000041, 0000000008, 0000000001, 'Administrate Chat Room'),
 (0000000042, 0000000008, 0000000002, 'Userdaten Löschen'),
 (0000000042, 0000000008, 0000000003, 'Remove User Data'),
 (0000000043, 0000000008, 0000000001, 'Custom Group Update'),
@@ -947,7 +1018,11 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000052, 0000000008, 0000000001, 'Qualtrics Survey'),
 (0000000053, 0000000008, 0000000001, 'Qualtrics Project Action'),
 (0000000054, 0000000008, 0000000001, 'Qualtrics Synchronization'),
-(0000000055, 0000000008, 0000000001, 'Compose Mail');
+(0000000055, 0000000008, 0000000001, 'Compose Mail'),
+(0000000056, 0000000008, 0000000002, 'Kontakt'),
+(0000000056, 0000000008, 0000000003, 'Contact'),
+(0000000057, 0000000008, 0000000002, 'Kontakt'),
+(0000000057, 0000000008, 0000000003, 'Contact');
 
 -- --------------------------------------------------------
 
@@ -955,10 +1030,14 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 -- Table structure for table `pages_sections`
 --
 
-CREATE TABLE `pages_sections` (
+DROP TABLE IF EXISTS `pages_sections`;
+CREATE TABLE IF NOT EXISTS `pages_sections` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) DEFAULT NULL
+  `position` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_pages`,`id_sections`),
+  KEY `id_pages` (`id_pages`),
+  KEY `id_sections` (`id_sections`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -972,12 +1051,13 @@ INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 (0000000006, 0000000003, NULL),
 (0000000007, 0000000009, 0),
 (0000000008, 0000000012, 0),
-(0000000029, 0000000017, 0),
 (0000000030, 0000000016, 0),
 (0000000031, 0000000020, 0),
 (0000000032, 0000000018, 0),
 (0000000033, 0000000026, NULL),
-(0000000035, 0000000028, NULL);
+(0000000035, 0000000028, NULL),
+(0000000056, 0000000060, 1),
+(0000000057, 0000000062, 1);
 
 -- --------------------------------------------------------
 
@@ -985,10 +1065,12 @@ INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 -- Table structure for table `pageType`
 --
 
-CREATE TABLE `pageType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `pageType`;
+CREATE TABLE IF NOT EXISTS `pageType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pageType`
@@ -1006,15 +1088,22 @@ INSERT INTO `pageType` (`id`, `name`) VALUES
 -- Table structure for table `qualtricsActions`
 --
 
-CREATE TABLE `qualtricsActions` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsActions`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(200) NOT NULL,
   `id_qualtricsProjectActionTriggerTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsActionScheduleTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsSurveys_reminder` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `schedule_info` text
+  `schedule_info` text,
+  PRIMARY KEY (`id`),
+  KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
+  KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
+  KEY `qualtricsActions_fk_id_qualtricsSurveys_reminder` (`id_qualtricsSurveys_reminder`),
+  KEY `qualtricsActions_fk_id_qualtricsActionScheduleTypes` (`id_qualtricsActionScheduleTypes`),
+  KEY `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` (`id_qualtricsProjectActionTriggerTypes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1023,9 +1112,13 @@ CREATE TABLE `qualtricsActions` (
 -- Table structure for table `qualtricsActions_functions`
 --
 
-CREATE TABLE `qualtricsActions_functions` (
+DROP TABLE IF EXISTS `qualtricsActions_functions`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions_functions` (
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
+  KEY `id_qualtricsActions` (`id_qualtricsActions`),
+  KEY `id_lookups` (`id_lookups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1034,9 +1127,13 @@ CREATE TABLE `qualtricsActions_functions` (
 -- Table structure for table `qualtricsActions_groups`
 --
 
-CREATE TABLE `qualtricsActions_groups` (
+DROP TABLE IF EXISTS `qualtricsActions_groups`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions_groups` (
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
+  KEY `id_qualtricsActions` (`id_qualtricsActions`),
+  KEY `id_groups` (`id_groups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1045,15 +1142,17 @@ CREATE TABLE `qualtricsActions_groups` (
 -- Table structure for table `qualtricsProjects`
 --
 
-CREATE TABLE `qualtricsProjects` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsProjects`;
+CREATE TABLE IF NOT EXISTS `qualtricsProjects` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` varchar(1000) DEFAULT NULL,
   `qualtrics_api` varchar(100) DEFAULT NULL,
   `api_library_id` varchar(100) DEFAULT NULL,
   `api_mailing_group_id` varchar(100) DEFAULT NULL,
   `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1062,10 +1161,14 @@ CREATE TABLE `qualtricsProjects` (
 -- Table structure for table `qualtricsReminders`
 --
 
-CREATE TABLE `qualtricsReminders` (
+DROP TABLE IF EXISTS `qualtricsReminders`;
+CREATE TABLE IF NOT EXISTS `qualtricsReminders` (
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_mailQueue`),
+  KEY `qualtricsReminders_fk_id_users` (`id_users`),
+  KEY `qualtricsReminders_fk_id_mailQueue` (`id_mailQueue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1074,8 +1177,9 @@ CREATE TABLE `qualtricsReminders` (
 -- Table structure for table `qualtricsSurveys`
 --
 
-CREATE TABLE `qualtricsSurveys` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsSurveys`;
+CREATE TABLE IF NOT EXISTS `qualtricsSurveys` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` varchar(1000) DEFAULT NULL,
   `qualtrics_survey_id` varchar(100) DEFAULT NULL,
@@ -1084,7 +1188,10 @@ CREATE TABLE `qualtricsSurveys` (
   `group_variable` int(11) DEFAULT '0',
   `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `config` longtext
+  `config` longtext,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `qualtrics_survey_id` (`qualtrics_survey_id`),
+  KEY `qualtricsSurveys_fk_id_qualtricsSurveyTypes` (`id_qualtricsSurveyTypes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1093,14 +1200,20 @@ CREATE TABLE `qualtricsSurveys` (
 -- Table structure for table `qualtricsSurveysResponses`
 --
 
-CREATE TABLE `qualtricsSurveysResponses` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsSurveysResponses`;
+CREATE TABLE IF NOT EXISTS `qualtricsSurveysResponses` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_surveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsProjectActionTriggerTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `survey_response_id` varchar(100) DEFAULT NULL,
   `started_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `survey_response_id` (`survey_response_id`),
+  KEY `qSurveysResponses_fk_id_users` (`id_users`),
+  KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
+  KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1109,12 +1222,17 @@ CREATE TABLE `qualtricsSurveysResponses` (
 -- Table structure for table `sections`
 --
 
-CREATE TABLE `sections` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `sections`;
+CREATE TABLE IF NOT EXISTS `sections` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(100) NOT NULL,
-  `owner` int(10) UNSIGNED ZEROFILL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `owner` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `id_styles` (`id_styles`),
+  KEY `owner` (`owner`)
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `sections`
@@ -1174,7 +1292,12 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 (0000000055, 0000000036, 'profile-notification-formUserInput', NULL),
 (0000000056, 0000000016, 'profile-notification-chat-input', NULL),
 (0000000057, 0000000016, 'profile-notification-reminder-input', NULL),
-(0000000058, 0000000016, 'profile-notification-phone-input', NULL);
+(0000000058, 0000000016, 'profile-notification-phone-input', NULL),
+(0000000059, 0000000060, 'impressum-version', NULL),
+(0000000060, 0000000003, 'chatSubject-container', NULL),
+(0000000061, 0000000010, 'chatSubject-chat', NULL),
+(0000000062, 0000000003, 'chatTherapist-container', NULL),
+(0000000063, 0000000010, 'chatTherapist-chat', NULL);
 
 -- --------------------------------------------------------
 
@@ -1182,12 +1305,18 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 -- Table structure for table `sections_fields_translation`
 --
 
-CREATE TABLE `sections_fields_translation` (
+DROP TABLE IF EXISTS `sections_fields_translation`;
+CREATE TABLE IF NOT EXISTS `sections_fields_translation` (
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
   `id_genders` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `content` longtext NOT NULL
+  `content` longtext NOT NULL,
+  PRIMARY KEY (`id_sections`,`id_fields`,`id_languages`,`id_genders`),
+  KEY `id_sections` (`id_sections`),
+  KEY `id_fields` (`id_fields`),
+  KEY `id_languages` (`id_languages`),
+  KEY `id_genders` (`id_genders`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1494,7 +1623,47 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (0000000058, 0000000055, 0000000003, 0000000001, 'Please enter a phone number'),
 (0000000058, 0000000056, 0000000001, 0000000001, '0'),
 (0000000058, 0000000057, 0000000001, 0000000001, 'phone'),
-(0000000058, 0000000058, 0000000001, 0000000001, '');
+(0000000058, 0000000058, 0000000001, 0000000001, ''),
+(0000000061, 0000000005, 0000000002, 0000000001, 'Es ist ein Fehler aufgetreten. Die Nachricht konnte nicht gesendet werden.'),
+(0000000061, 0000000005, 0000000003, 0000000001, 'An error occurred. The message could not be sent.'),
+(0000000061, 0000000030, 0000000002, 0000000001, 'Bitte wählen Sie einen Probanden aus.'),
+(0000000061, 0000000030, 0000000003, 0000000001, 'Please select a subject'),
+(0000000061, 0000000031, 0000000002, 0000000001, 'Kommunikation mit'),
+(0000000061, 0000000031, 0000000003, 0000000001, 'Communication with'),
+(0000000061, 0000000032, 0000000002, 0000000001, 'ihrer Psychologin/ihrem Psychologe'),
+(0000000061, 0000000032, 0000000003, 0000000001, 'your psychologist'),
+(0000000061, 0000000033, 0000000002, 0000000001, 'Probanden'),
+(0000000061, 0000000033, 0000000003, 0000000001, 'Subjects'),
+(0000000061, 0000000090, 0000000002, 0000000001, 'Senden'),
+(0000000061, 0000000090, 0000000003, 0000000001, 'Send'),
+(0000000061, 0000000095, 0000000002, 0000000001, 'Lobby'),
+(0000000061, 0000000095, 0000000003, 0000000001, 'Lobby'),
+(0000000061, 0000000096, 0000000002, 0000000001, 'Neue Nachrichten'),
+(0000000061, 0000000096, 0000000003, 0000000001, 'New Messages'),
+(0000000061, 0000000110, 0000000002, 0000000001, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
+(0000000061, 0000000110, 0000000003, 0000000001, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
+(0000000061, 0000000111, 0000000002, 0000000001, '@project Chat Benachrichtigung'),
+(0000000061, 0000000111, 0000000003, 0000000001, '@project Chat Notification'),
+(0000000063, 0000000005, 0000000002, 0000000001, 'Es ist ein Fehler aufgetreten. Die Nachricht konnte nicht gesendet werden.'),
+(0000000063, 0000000005, 0000000003, 0000000001, 'An error occurred. The message could not be sent.'),
+(0000000063, 0000000030, 0000000002, 0000000001, 'Bitte wählen Sie einen Probanden aus.'),
+(0000000063, 0000000030, 0000000003, 0000000001, 'Please select a subject'),
+(0000000063, 0000000031, 0000000002, 0000000001, 'Kommunikation mit'),
+(0000000063, 0000000031, 0000000003, 0000000001, 'Communication with'),
+(0000000063, 0000000032, 0000000002, 0000000001, 'ihrer Psychologin/ihrem Psychologe'),
+(0000000063, 0000000032, 0000000003, 0000000001, 'your psychologist'),
+(0000000063, 0000000033, 0000000002, 0000000001, 'Probanden'),
+(0000000063, 0000000033, 0000000003, 0000000001, 'Subjects'),
+(0000000063, 0000000090, 0000000002, 0000000001, 'Senden'),
+(0000000063, 0000000090, 0000000003, 0000000001, 'Send'),
+(0000000063, 0000000095, 0000000002, 0000000001, 'Lobby'),
+(0000000063, 0000000095, 0000000003, 0000000001, 'Lobby'),
+(0000000063, 0000000096, 0000000002, 0000000001, 'Neue Nachrichten'),
+(0000000063, 0000000096, 0000000003, 0000000001, 'New Messages'),
+(0000000063, 0000000110, 0000000002, 0000000001, 'Guten Tag\r\n\r\nSie haben eine neue Nachricht auf der @project Plattform erhalten.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
+(0000000063, 0000000110, 0000000003, 0000000001, 'Hello\r\n\r\nYou received a new message on the @project Plattform.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
+(0000000063, 0000000111, 0000000002, 0000000001, '@project Chat Benachrichtigung'),
+(0000000063, 0000000111, 0000000003, 0000000001, '@project Chat Notification');
 
 -- --------------------------------------------------------
 
@@ -1502,10 +1671,14 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 -- Table structure for table `sections_hierarchy`
 --
 
-CREATE TABLE `sections_hierarchy` (
+DROP TABLE IF EXISTS `sections_hierarchy`;
+CREATE TABLE IF NOT EXISTS `sections_hierarchy` (
   `parent` int(10) UNSIGNED ZEROFILL NOT NULL,
   `child` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) DEFAULT NULL
+  `position` int(11) DEFAULT NULL,
+  PRIMARY KEY (`parent`,`child`),
+  KEY `parent` (`parent`),
+  KEY `child` (`child`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1533,6 +1706,7 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (0000000020, 0000000029, 0),
 (0000000020, 0000000031, 10),
 (0000000020, 0000000033, 20),
+(0000000020, 0000000059, 11),
 (0000000029, 0000000030, 0),
 (0000000031, 0000000032, 0),
 (0000000033, 0000000034, 0),
@@ -1558,7 +1732,9 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 (0000000053, 0000000055, 10),
 (0000000055, 0000000056, 0),
 (0000000055, 0000000057, 10),
-(0000000055, 0000000058, 20);
+(0000000055, 0000000058, 20),
+(0000000060, 0000000061, 1),
+(0000000062, 0000000063, 1);
 
 -- --------------------------------------------------------
 
@@ -1566,11 +1742,16 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 -- Table structure for table `sections_navigation`
 --
 
-CREATE TABLE `sections_navigation` (
+DROP TABLE IF EXISTS `sections_navigation`;
+CREATE TABLE IF NOT EXISTS `sections_navigation` (
   `parent` int(10) UNSIGNED ZEROFILL NOT NULL,
   `child` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) NOT NULL
+  `position` int(11) NOT NULL,
+  PRIMARY KEY (`parent`,`child`),
+  KEY `child` (`child`),
+  KEY `parent` (`parent`),
+  KEY `id_pages` (`id_pages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1579,12 +1760,14 @@ CREATE TABLE `sections_navigation` (
 -- Table structure for table `styleGroup`
 --
 
-CREATE TABLE `styleGroup` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `styleGroup`;
+CREATE TABLE IF NOT EXISTS `styleGroup` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext,
-  `position` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `position` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styleGroup`
@@ -1609,13 +1792,17 @@ INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 -- Table structure for table `styles`
 --
 
-CREATE TABLE `styles` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `styles`;
+CREATE TABLE IF NOT EXISTS `styles` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
   `id_group` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `description` longtext
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `description` longtext,
+  PRIMARY KEY (`id`),
+  KEY `id_type` (`id_type`),
+  KEY `id_group` (`id_group`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
@@ -1678,7 +1865,8 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000056, 'graphLegend', 0000000001, 0000000010, 'Render colored list of items. This can be used to show one global legend for multiple graphs.'),
 (0000000057, 'navigationBar', 0000000001, 0000000001, 'Provides a navigation bar style'),
 (0000000058, 'qualtricsSurvey', 0000000002, 0000000002, 'Visualize a qualtrics survey. It is shown in iFrame.'),
-(0000000059, 'search', 0000000002, 0000000003, 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter');
+(0000000059, 'search', 0000000002, 0000000003, 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter'),
+(0000000060, 'version', 0000000002, 0000000009, 'Add information about the DB version and for the git version of Selfhelp');
 
 -- --------------------------------------------------------
 
@@ -1686,11 +1874,15 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 -- Table structure for table `styles_fields`
 --
 
-CREATE TABLE `styles_fields` (
+DROP TABLE IF EXISTS `styles_fields`;
+CREATE TABLE IF NOT EXISTS `styles_fields` (
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `default_value` varchar(100) DEFAULT NULL,
-  `help` longtext
+  `help` longtext,
+  PRIMARY KEY (`id_styles`,`id_fields`),
+  KEY `id_styles` (`id_styles`),
+  KEY `id_fields` (`id_fields`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1769,6 +1961,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000014, 0000000028, NULL, 'The visual appearance of the submit button as predefined by [Bootstrap](!https://getbootstrap.com/docs/4.0/utilities/colors/).'),
 (0000000014, 0000000051, NULL, 'If set, a cancel button will be rendered. The here defined text will be used as label for this button.'),
 (0000000014, 0000000052, NULL, 'The target URL of the cancel button.'),
+(0000000014, 0000000149, '0', 'Selecting submit and send email will add additional button to the form. If the user click on that button the data inut will ne send on his/her email.'),
+(0000000014, 0000000150, '', 'The label on the submit and send button'),
 (0000000015, 0000000022, NULL, 'The text to be shown when hovering over the image.'),
 (0000000015, 0000000029, '1', 'If enabled the image scales responsively.'),
 (0000000015, 0000000030, NULL, 'The alternative text to be shown if the image cannot be loaded.'),
@@ -1879,6 +2073,11 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000036, 0000000057, NULL, 'A unique name to identify the form when exporting the collected data.'),
 (0000000036, 0000000087, '0', 'This fiels allows to control how the data is saved in the database:\n - `disabled`: The submission of data will always overwrite prior submissions of the same user. This means that the user will be able to continously update the data that was submitted here. Any input field that is used within this form will always show the current value stored in the database (if nothing has been submitted as of yet, the input field will be empty or set to a default).\n - `enabled`: Each submission will create a new entry in the database. Once entered, an entry cannot be removed or modified. Any input field within this form will always be empty or set to a default value (nothing will be read from the database).'),
 (0000000036, 0000000139, NULL, 'Search for the name of the anchor section to jump to after submitting the form. The ID of the section will be used as anchor. If this field is not set the section ID of the form itself will be used as anchor. This is useful if the form is placed within a collapsable card and the form anchor is hidden. In this case it makes sense to use the parent card as anchor here.'),
+(0000000036, 0000000145, '', 'In this ***JSON*** field we can configure a data retrieve params from the DB, either `static` or `dynamic` data. Example: \n ```\n [\n	{\n		\"type\": \"static|dynamic\",\n		\"table\": \"table_name | #url_param1\",\n        \"retrieve\": \"first | last | all\",\n		\"fields\": [\n			{\n				\"field_name\": \"name | #url_param2\",\n				\"field_holder\": \"@field_1\",\n				\"not_found_text\": \"my field was not found\"				\n			}\n		]\n	}\n]\n```\nIf the page supports parameters, then the parameter can be accessed with `#` and the name of the paramer. Example `#url_param_name`. \n\nIn order to inlcude the retrieved data in the markdown field, include the `field_holder` that wa defined in the markdown text.\n\nWe can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;)\n\n[More information](https://selfhelp.psy.unibe.ch/demo/style/454)'),
+(0000000036, 0000000149, '0', 'Selecting submit and send email will add additional button to the form. If the user click on that button the data inut will ne send on his/her email.'),
+(0000000036, 0000000150, '', 'The label on the submit and send button'),
+(0000000036, 0000000151, '', 'The email subject that will be send. It could be dynamically configured. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)'),
+(0000000036, 0000000152, '', 'The email boy that will be send. It could be dynamically configured. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)'),
 (0000000038, 0000000008, NULL, 'If this field is set, a this text will be rendered above the radio elements.'),
 (0000000038, 0000000056, '0', 'If enabled the form can only be submitted if a value is selected.'),
 (0000000038, 0000000057, NULL, 'The name of the radio form field. This name must be unique within a form.'),
@@ -1977,7 +2176,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000054, 0000000124, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000054, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
 (0000000054, 0000000132, '1', 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.'),
-(0000000054, 0000000136, '0', 'Use this to render a donut chart. Use a percentage from 0 to 100 where 0% means no hole and 100% a hole as big as the chart.'),
+(0000000054, 0000000136, '0', 'Use this to render a donut chart. Use a percentage from 0 to 100 where 0% means no hole and 100% a hole as big as the chart.');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES
 (0000000054, 0000000137, NULL, 'Allows to define the information to be rendered in the hover box. Use \"none\" to disable the hover box. Refer to the [Plotly.js documentation](!https://plotly.com/javascript/reference/#pie-hoverinfo) for more information.'),
 (0000000054, 0000000138, NULL, 'Allows to define the information to be rendered on each pie slice. Use \"none\" to show no text. Refer to the [Plotly.js documentation](!https://plotly.com/javascript/reference/#pie-textinfo) for more information.'),
 (0000000055, 0000000057, NULL, 'The name of the table column or form field to use to render a pie diagram.'),
@@ -1985,8 +2185,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000055, 0000000123, NULL, 'Define the layout of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000055, 0000000124, NULL, 'Define the configuration of the graph. Refer to the documentation of [Plotly.js](https://plotly.com/javascript/) for more information'),
 (0000000055, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value (optional)\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
-(0000000055, 0000000132, '1', 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES
+(0000000055, 0000000132, '1', 'This option only takes effect when using **dynamic** data. If checked, only data from the current logged-in user is used. If unchecked, data form all users is used.'),
 (0000000056, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```'),
 (0000000057, 0000000066, NULL, 'JSON structure for the navigation bar'),
 (0000000058, 0000000144, '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a action)'),
@@ -2001,10 +2200,12 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 -- Table structure for table `styleType`
 --
 
-CREATE TABLE `styleType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `styleType`;
+CREATE TABLE IF NOT EXISTS `styleType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styleType`
@@ -2021,16 +2222,21 @@ INSERT INTO `styleType` (`id`, `name`) VALUES
 -- Table structure for table `transactions`
 --
 
-CREATE TABLE `transactions` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `transactions`;
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `transaction_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `id_transactionTypes` int(10) UNSIGNED DEFAULT NULL,
   `id_transactionBy` int(10) UNSIGNED DEFAULT NULL,
   `id_users` int(10) UNSIGNED DEFAULT NULL,
   `table_name` varchar(100) DEFAULT NULL,
   `id_table_name` int(10) UNSIGNED DEFAULT NULL,
-  `transaction_log` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `transaction_log` text,
+  PRIMARY KEY (`id`),
+  KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
+  KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
+  KEY `transactions_fk_id_users` (`id_users`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2042,7 +2248,15 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000003, '2020-10-05 08:46:02', 35, 42, 2, 'pages', 49, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
 (0000000004, '2020-10-05 08:46:04', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
 (0000000005, '2020-10-05 08:46:06', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\\/insert\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\\/insert\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
-(0000000006, '2020-10-05 08:46:10', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}');
+(0000000006, '2020-10-05 08:46:10', 35, 42, 2, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":67,\"sid\":67,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"chat_room\":null}}'),
+(0000000007, '2020-11-06 09:46:00', 35, 42, 2, 'pages', 14, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/user\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/user\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/179\\/1263\",\"chat_room\":11}}'),
+(0000000008, '2020-11-06 09:46:08', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/179\\/1263\",\"chat_room\":11}}'),
+(0000000009, '2020-11-06 09:46:13', 35, 42, 2, 'pages', 45, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/data\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/data\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/user\",\"chat_room\":11}}'),
+(0000000010, '2020-11-06 09:46:22', 35, 42, 2, 'pages', 45, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/data\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/data\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\",\"chat_room\":11}}'),
+(0000000011, '2020-11-06 09:46:31', 35, 42, 2, 'pages', 49, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\",\"chat_room\":11}}'),
+(0000000012, '2020-11-06 09:46:35', 35, 42, 2, 'pages', 50, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/mailQueue\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/mailQueue\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/data\",\"chat_room\":11}}'),
+(0000000013, '2020-11-06 09:46:39', 35, 42, 2, 'pages', 55, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/mailQueue\\/composeEmail\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/mailQueue\\/composeEmail\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\",\"chat_room\":11}}'),
+(0000000014, '2020-11-06 09:46:57', 35, 42, 2, 'pages', 46, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_preferences\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":179,\"sid\":1263,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_preferences\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/mailQueue\",\"chat_room\":11}}');
 
 -- --------------------------------------------------------
 
@@ -2050,10 +2264,14 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 -- Table structure for table `uploadCells`
 --
 
-CREATE TABLE `uploadCells` (
+DROP TABLE IF EXISTS `uploadCells`;
+CREATE TABLE IF NOT EXISTS `uploadCells` (
   `id_uploadRows` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_uploadCols` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `value` longtext NOT NULL
+  `value` longtext NOT NULL,
+  PRIMARY KEY (`id_uploadRows`,`id_uploadCols`),
+  KEY `id_uploadRows` (`id_uploadRows`),
+  KEY `id_uploadCols` (`id_uploadCols`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2062,10 +2280,13 @@ CREATE TABLE `uploadCells` (
 -- Table structure for table `uploadCols`
 --
 
-CREATE TABLE `uploadCols` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `uploadCols`;
+CREATE TABLE IF NOT EXISTS `uploadCols` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_uploadTables` (`id_uploadTables`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2074,9 +2295,12 @@ CREATE TABLE `uploadCols` (
 -- Table structure for table `uploadRows`
 --
 
-CREATE TABLE `uploadRows` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL
+DROP TABLE IF EXISTS `uploadRows`;
+CREATE TABLE IF NOT EXISTS `uploadRows` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_uploadTables` (`id_uploadTables`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2085,10 +2309,13 @@ CREATE TABLE `uploadRows` (
 -- Table structure for table `uploadTables`
 --
 
-CREATE TABLE `uploadTables` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `uploadTables`;
+CREATE TABLE IF NOT EXISTS `uploadTables` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_uploadTables_name_timestamp` (`name`,`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2097,8 +2324,9 @@ CREATE TABLE `uploadTables` (
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `email` varchar(100) NOT NULL,
   `name` varchar(100) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
@@ -2110,8 +2338,13 @@ CREATE TABLE `users` (
   `id_languages` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `is_reminded` tinyint(1) NOT NULL DEFAULT '1',
   `last_login` date DEFAULT NULL,
-  `last_url` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `last_url` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `id_genders` (`id_genders`),
+  KEY `id_languages` (`id_languages`),
+  KEY `id_status` (`id_status`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `users`
@@ -2129,11 +2362,13 @@ INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`,
 -- Table structure for table `userStatus`
 --
 
-CREATE TABLE `userStatus` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `userStatus`;
+CREATE TABLE IF NOT EXISTS `userStatus` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `description` varchar(500) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `description` varchar(500) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `userStatus`
@@ -2151,9 +2386,13 @@ INSERT INTO `userStatus` (`id`, `name`, `description`) VALUES
 -- Table structure for table `users_groups`
 --
 
-CREATE TABLE `users_groups` (
+DROP TABLE IF EXISTS `users_groups`;
+CREATE TABLE IF NOT EXISTS `users_groups` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_users`,`id_groups`),
+  KEY `id_users` (`id_users`),
+  KEY `id_groups` (`id_groups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -2171,13 +2410,17 @@ INSERT INTO `users_groups` (`id_users`, `id_groups`) VALUES
 -- Table structure for table `user_activity`
 --
 
-CREATE TABLE `user_activity` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `user_activity`;
+CREATE TABLE IF NOT EXISTS `user_activity` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `url` varchar(200) NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
+  PRIMARY KEY (`id`),
+  KEY `id_users` (`id_users`),
+  KEY `id_type` (`id_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_activity`
@@ -2185,7 +2428,9 @@ CREATE TABLE `user_activity` (
 
 INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`, `id_type`) VALUES
 (0000000001, 0000000002, '/selfhelp/admin/export/user_input_form/all/55', '2019-11-28 16:49:46', 0000000002),
-(0000000002, 0000000002, '/selfhelp/admin/export/user_input_form/all/55', '2020-01-24 14:32:37', 0000000002);
+(0000000002, 0000000002, '/selfhelp/admin/export/user_input_form/all/55', '2020-01-24 14:32:37', 0000000002),
+(0000000003, 0000000002, '/selfhelp/admin/data', '2020-11-06 10:46:14', 0000000002),
+(0000000004, 0000000002, '/selfhelp/admin/data', '2020-11-06 10:46:22', 0000000002);
 
 -- --------------------------------------------------------
 
@@ -2193,16 +2438,22 @@ INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`, `id_type`) VA
 -- Table structure for table `user_input`
 --
 
-CREATE TABLE `user_input` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `user_input`;
+CREATE TABLE IF NOT EXISTS `user_input` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_section_form` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_user_input_record` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `value` longtext NOT NULL,
   `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `removed` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `removed` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `id_users` (`id_users`),
+  KEY `id_sections` (`id_sections`),
+  KEY `id_section_form` (`id_section_form`),
+  KEY `id_user_input_record` (`id_user_input_record`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_input`
@@ -2220,9 +2471,11 @@ INSERT INTO `user_input` (`id`, `id_users`, `id_sections`, `id_section_form`, `i
 -- Table structure for table `user_input_record`
 --
 
-CREATE TABLE `user_input_record` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+DROP TABLE IF EXISTS `user_input_record`;
+CREATE TABLE IF NOT EXISTS `user_input_record` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2231,639 +2484,35 @@ CREATE TABLE `user_input_record` (
 -- Table structure for table `validation_codes`
 --
 
-CREATE TABLE `validation_codes` (
+DROP TABLE IF EXISTS `validation_codes`;
+CREATE TABLE IF NOT EXISTS `validation_codes` (
   `code` varchar(16) NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `consumed` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+  `consumed` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`code`),
+  KEY `id_users` (`id_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `acl_groups`
---
-ALTER TABLE `acl_groups`
-  ADD PRIMARY KEY (`id_groups`,`id_pages`),
-  ADD KEY `id_pages` (`id_pages`) USING BTREE,
-  ADD KEY `id_groups` (`id_groups`) USING BTREE;
-
---
--- Indexes for table `acl_users`
---
-ALTER TABLE `acl_users`
-  ADD PRIMARY KEY (`id_users`,`id_pages`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_pages` (`id_pages`);
-
---
--- Indexes for table `actions`
---
-ALTER TABLE `actions`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `activityType`
---
-ALTER TABLE `activityType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `callbackLogs`
---
-ALTER TABLE `callbackLogs`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `chat`
---
-ALTER TABLE `chat`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_snd` (`id_snd`) USING BTREE,
-  ADD KEY `id_rcv` (`id_rcv`) USING BTREE,
-  ADD KEY `id_rcv_grp` (`id_rcv_grp`);
-
---
--- Indexes for table `chatRecipiants`
---
-ALTER TABLE `chatRecipiants`
-  ADD PRIMARY KEY (`id_users`,`id_chat`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_chat` (`id_chat`),
-  ADD KEY `id_room_users` (`id_room_users`);
-
---
--- Indexes for table `chatRoom`
---
-ALTER TABLE `chatRoom`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `chatRoom_users`
---
-ALTER TABLE `chatRoom_users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
-  ADD KEY `id_chatRoom` (`id_chatRoom`),
-  ADD KEY `id_users` (`id_users`);
-
---
--- Indexes for table `cmsPreferences`
---
-ALTER TABLE `cmsPreferences`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_cmsPreferences_language` (`default_language_id`);
-
---
--- Indexes for table `codes_groups`
---
-ALTER TABLE `codes_groups`
-  ADD PRIMARY KEY (`code`,`id_groups`),
-  ADD KEY `fk_id_groups` (`id_groups`);
-
---
--- Indexes for table `fields`
---
-ALTER TABLE `fields`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_type` (`id_type`);
-
---
--- Indexes for table `fieldType`
---
-ALTER TABLE `fieldType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `genders`
---
-ALTER TABLE `genders`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `groups`
---
-ALTER TABLE `groups`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
-
---
--- Indexes for table `languages`
---
-ALTER TABLE `languages`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `locale` (`locale`),
-  ADD UNIQUE KEY `language` (`language`);
-
---
--- Indexes for table `lookups`
---
-ALTER TABLE `lookups`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `lookup_code` (`lookup_code`),
-  ADD UNIQUE KEY `lookup_value` (`lookup_value`);
-
---
--- Indexes for table `mailAttachments`
---
-ALTER TABLE `mailAttachments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mailAttachments_fk_id_mailQueue` (`id_mailQueue`);
-
---
--- Indexes for table `mailQueue`
---
-ALTER TABLE `mailQueue`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mailQueue_fk_id_mailQueueStatus` (`id_mailQueueStatus`);
-
---
--- Indexes for table `modules`
---
-ALTER TABLE `modules`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `modules_pages`
---
-ALTER TABLE `modules_pages`
-  ADD PRIMARY KEY (`id_modules`,`id_pages`),
-  ADD KEY `id_modules` (`id_modules`),
-  ADD KEY `id_pages` (`id_pages`);
-
---
--- Indexes for table `pages`
---
-ALTER TABLE `pages`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `keyword` (`keyword`),
-  ADD KEY `parent` (`parent`),
-  ADD KEY `id_actions` (`id_actions`),
-  ADD KEY `id_navigation_section` (`id_navigation_section`),
-  ADD KEY `id_type` (`id_type`);
-
---
--- Indexes for table `pages_fields`
---
-ALTER TABLE `pages_fields`
-  ADD PRIMARY KEY (`id_pages`,`id_fields`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_fields` (`id_fields`);
-
---
--- Indexes for table `pages_fields_translation`
---
-ALTER TABLE `pages_fields_translation`
-  ADD PRIMARY KEY (`id_pages`,`id_fields`,`id_languages`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_fields` (`id_fields`),
-  ADD KEY `id_languages` (`id_languages`);
-
---
--- Indexes for table `pages_sections`
---
-ALTER TABLE `pages_sections`
-  ADD PRIMARY KEY (`id_pages`,`id_sections`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_sections` (`id_sections`);
-
---
--- Indexes for table `pageType`
---
-ALTER TABLE `pageType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `qualtricsActions`
---
-ALTER TABLE `qualtricsActions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsSurveys_reminder` (`id_qualtricsSurveys_reminder`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsActionScheduleTypes` (`id_qualtricsActionScheduleTypes`),
-  ADD KEY `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` (`id_qualtricsProjectActionTriggerTypes`);
-
---
--- Indexes for table `qualtricsActions_functions`
---
-ALTER TABLE `qualtricsActions_functions`
-  ADD PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
-  ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
-  ADD KEY `id_lookups` (`id_lookups`);
-
---
--- Indexes for table `qualtricsActions_groups`
---
-ALTER TABLE `qualtricsActions_groups`
-  ADD PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
-  ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
-  ADD KEY `id_groups` (`id_groups`);
-
---
--- Indexes for table `qualtricsProjects`
---
-ALTER TABLE `qualtricsProjects`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `qualtricsReminders`
---
-ALTER TABLE `qualtricsReminders`
-  ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_mailQueue`),
-  ADD KEY `qualtricsReminders_fk_id_users` (`id_users`),
-  ADD KEY `qualtricsReminders_fk_id_mailQueue` (`id_mailQueue`);
-
---
--- Indexes for table `qualtricsSurveys`
---
-ALTER TABLE `qualtricsSurveys`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `qualtrics_survey_id` (`qualtrics_survey_id`),
-  ADD KEY `qualtricsSurveys_fk_id_qualtricsSurveyTypes` (`id_qualtricsSurveyTypes`);
-
---
--- Indexes for table `qualtricsSurveysResponses`
---
-ALTER TABLE `qualtricsSurveysResponses`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `survey_response_id` (`survey_response_id`),
-  ADD KEY `qSurveysResponses_fk_id_users` (`id_users`),
-  ADD KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
-  ADD KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`);
-
---
--- Indexes for table `sections`
---
-ALTER TABLE `sections`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`),
-  ADD KEY `id_styles` (`id_styles`),
-  ADD KEY `owner` (`owner`);
-
---
--- Indexes for table `sections_fields_translation`
---
-ALTER TABLE `sections_fields_translation`
-  ADD PRIMARY KEY (`id_sections`,`id_fields`,`id_languages`,`id_genders`),
-  ADD KEY `id_sections` (`id_sections`),
-  ADD KEY `id_fields` (`id_fields`),
-  ADD KEY `id_languages` (`id_languages`),
-  ADD KEY `id_genders` (`id_genders`);
-
---
--- Indexes for table `sections_hierarchy`
---
-ALTER TABLE `sections_hierarchy`
-  ADD PRIMARY KEY (`parent`,`child`),
-  ADD KEY `parent` (`parent`),
-  ADD KEY `child` (`child`);
-
---
--- Indexes for table `sections_navigation`
---
-ALTER TABLE `sections_navigation`
-  ADD PRIMARY KEY (`parent`,`child`),
-  ADD KEY `child` (`child`),
-  ADD KEY `parent` (`parent`),
-  ADD KEY `id_pages` (`id_pages`);
-
---
--- Indexes for table `styleGroup`
---
-ALTER TABLE `styleGroup`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `styles`
---
-ALTER TABLE `styles`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_type` (`id_type`),
-  ADD KEY `id_group` (`id_group`);
-
---
--- Indexes for table `styles_fields`
---
-ALTER TABLE `styles_fields`
-  ADD PRIMARY KEY (`id_styles`,`id_fields`),
-  ADD KEY `id_styles` (`id_styles`),
-  ADD KEY `id_fields` (`id_fields`);
-
---
--- Indexes for table `styleType`
---
-ALTER TABLE `styleType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
-  ADD KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
-  ADD KEY `transactions_fk_id_users` (`id_users`);
-
---
--- Indexes for table `uploadCells`
---
-ALTER TABLE `uploadCells`
-  ADD PRIMARY KEY (`id_uploadRows`,`id_uploadCols`),
-  ADD KEY `id_uploadRows` (`id_uploadRows`),
-  ADD KEY `id_uploadCols` (`id_uploadCols`);
-
---
--- Indexes for table `uploadCols`
---
-ALTER TABLE `uploadCols`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_uploadTables` (`id_uploadTables`);
-
---
--- Indexes for table `uploadRows`
---
-ALTER TABLE `uploadRows`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_uploadTables` (`id_uploadTables`);
-
---
--- Indexes for table `uploadTables`
---
-ALTER TABLE `uploadTables`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_uploadTables_name_timestamp` (`name`,`timestamp`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `id_genders` (`id_genders`),
-  ADD KEY `id_languages` (`id_languages`),
-  ADD KEY `id_status` (`id_status`);
-
---
--- Indexes for table `userStatus`
---
-ALTER TABLE `userStatus`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `users_groups`
---
-ALTER TABLE `users_groups`
-  ADD PRIMARY KEY (`id_users`,`id_groups`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_groups` (`id_groups`);
-
---
--- Indexes for table `user_activity`
---
-ALTER TABLE `user_activity`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_type` (`id_type`);
-
---
--- Indexes for table `user_input`
---
-ALTER TABLE `user_input`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_sections` (`id_sections`),
-  ADD KEY `id_section_form` (`id_section_form`),
-  ADD KEY `id_user_input_record` (`id_user_input_record`);
-
---
--- Indexes for table `user_input_record`
---
-ALTER TABLE `user_input_record`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `validation_codes`
---
-ALTER TABLE `validation_codes`
-  ADD PRIMARY KEY (`code`),
-  ADD KEY `id_users` (`id_users`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `actions`
---
-ALTER TABLE `actions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `activityType`
---
-ALTER TABLE `activityType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `callbackLogs`
---
-ALTER TABLE `callbackLogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `chat`
---
-ALTER TABLE `chat`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `chatRoom`
---
-ALTER TABLE `chatRoom`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `chatRoom_users`
---
-ALTER TABLE `chatRoom_users`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `cmsPreferences`
---
-ALTER TABLE `cmsPreferences`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `fields`
---
-ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `fieldType`
---
-ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `genders`
---
-ALTER TABLE `genders`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `groups`
---
-ALTER TABLE `groups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `languages`
---
-ALTER TABLE `languages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `lookups`
---
-ALTER TABLE `lookups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `mailAttachments`
---
-ALTER TABLE `mailAttachments`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `mailQueue`
---
-ALTER TABLE `mailQueue`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `modules`
---
-ALTER TABLE `modules`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pages`
---
-ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pageType`
---
-ALTER TABLE `pageType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `qualtricsActions`
---
-ALTER TABLE `qualtricsActions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `qualtricsProjects`
---
-ALTER TABLE `qualtricsProjects`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `qualtricsSurveys`
---
-ALTER TABLE `qualtricsSurveys`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `qualtricsSurveysResponses`
---
-ALTER TABLE `qualtricsSurveysResponses`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `sections`
---
-ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `styleGroup`
---
-ALTER TABLE `styleGroup`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `styles`
---
-ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `styleType`
---
-ALTER TABLE `styleType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `transactions`
---
-ALTER TABLE `transactions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `uploadCols`
---
-ALTER TABLE `uploadCols`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `uploadRows`
---
-ALTER TABLE `uploadRows`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `uploadTables`
---
-ALTER TABLE `uploadTables`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+-- --------------------------------------------------------
 
 --
--- AUTO_INCREMENT for table `userStatus`
+-- Table structure for table `version`
 --
-ALTER TABLE `userStatus`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `user_activity`
---
-ALTER TABLE `user_activity`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE IF NOT EXISTS `version` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `version` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
--- AUTO_INCREMENT for table `user_input`
+-- Dumping data for table `version`
 --
-ALTER TABLE `user_input`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `user_input_record`
---
-ALTER TABLE `user_input_record`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+INSERT INTO `version` (`id`, `version`) VALUES
+(0000000001, 'v3.3.0');
 
 --
 -- Constraints for dumped tables
@@ -2887,7 +2536,7 @@ ALTER TABLE `acl_users`
 -- Constraints for table `chat`
 --
 ALTER TABLE `chat`
-  ADD CONSTRAINT `fk_chat_id_rcv_grp` FOREIGN KEY (`id_rcv_grp`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_chat_id_rcv_group` FOREIGN KEY (`id_rcv_group`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_chat_id_rcv_user` FOREIGN KEY (`id_rcv`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_chat_id_send` FOREIGN KEY (`id_snd`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

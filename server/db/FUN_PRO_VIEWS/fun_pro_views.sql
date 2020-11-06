@@ -544,7 +544,8 @@ ORDER  BY p.nav_position DESC;
 END
 //
 
-DELIMITER ;DELIMITER //
+DELIMITER ;
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_user_acl //
 
