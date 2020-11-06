@@ -4,7 +4,10 @@ $(document).ready(function () {
     new SimpleMDE({
         element: $('textarea[name="body"]')[0],
         autoDownloadFontAwesome: false,
-        spellChecker: false
+        spellChecker: false,
+        renderingConfig: {
+            singleLineBreaks: false
+        }
     });
 
     $('#time_to_be_sent').flatpickr({

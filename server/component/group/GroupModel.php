@@ -131,18 +131,30 @@ class GroupModel extends BaseModel
             $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
             foreach ($pages as $page) {
                 $group_access_for_page_index = array_search($page['keyword'], array_column($acl_db, 'keyword'));
-                if($group_access_for_page_index){
+                if ($group_access_for_page_index !== false) {
+                    // se set the permisions after we found them
                     $group_access_for_page = $acl_db[$group_access_for_page_index];
-                }
-                $acl[$page['keyword']] = array(
-                    "name" => $page['keyword'],
-                    "acl" => array(
-                        "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
-                        "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
-                        "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
-                        "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
-                    )
-                );
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
+                            "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
+                            "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
+                            "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
+                        )
+                    );
+                } else {
+                    // no permissions exists for this page, set them all to false
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => false,
+                            "insert" => false,
+                            "update" => false,
+                            "delete" => false,
+                        )
+                    );
+                }                
             }
         }
         return $acl;
@@ -200,25 +212,6 @@ class GroupModel extends BaseModel
             else
                 $res &= $acl[$page["keyword"]]["acl"][$lvl];
         }
-        return $res;
-    }
-
-    /**
-     * Check whether the chat administration permissions corresponding to
-     * a certain level are given.
-     *
-     * @param array $acl
-     *  An array of ACL rights. See UserModel::fetch_acl_by_id.
-     * @param string $lvl
-     *  The level of access e.g. select, insert, update, or delete.
-     * @retval bool
-     *  True if update access is allowed, false otherwise.
-     */
-    private function get_chat_access($acl, $lvl)
-    {
-        $res = $acl["admin-link"]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl];
         return $res;
     }
 
@@ -587,15 +580,6 @@ class GroupModel extends BaseModel
                 "insert" => $this->get_data_access($acl, "insert"),
                 "update" => $this->get_data_access($acl, "update"),
                 "delete" => $this->get_data_access($acl, "delete"),
-            ),
-        );
-        $sgacl["chat"] = array(
-            "name" => "Chat Management",
-            "acl" => array(
-                "select" => $this->get_chat_access($acl, "select"),
-                "insert" => $this->get_chat_access($acl, "insert"),
-                "update" => $this->get_chat_access($acl, "update"),
-                "delete" => $this->get_chat_access($acl, "delete"),
             ),
         );
         return $sgacl;

@@ -112,6 +112,7 @@ abstract class BasePage
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
+            "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
             "/js/ext/mermaid.min.js",
@@ -276,6 +277,22 @@ abstract class BasePage
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
+        $this->set_last_user_page();
+    }
+
+    /**
+     * Set the last unique page that the user visited in his/her SESSION
+     */
+    private function set_last_user_page()
+    {
+        $curr_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        if (!isset($_SESSION['last_user_page']) && isset($_SERVER['HTTP_REFERER'])) {
+            // if the variable is not set assign it
+            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        } else if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != $curr_url) {
+            // if it is set but the current url is from a new page, reassign the page
+            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        }
     }
 
     /**

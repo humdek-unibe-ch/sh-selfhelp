@@ -12,5 +12,4 @@
     <td><?php echo $last_login; ?></td>
     <td><?php echo $activity; ?></td>    
     <td><?php $this->output_user_progress_bar($progress); ?></td>
-    <td><?php echo $chat_rooms_names; ?></td>
 </tr>

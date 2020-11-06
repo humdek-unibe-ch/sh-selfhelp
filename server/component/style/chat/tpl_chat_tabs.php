@@ -3,6 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<a href="<?php echo $url; ?>" class="btn btn-secondary <?php echo $active; ?>"><?php echo $name; ?>
-    <?php $this->output_new_badge_room($id); ?>
-</a>
+<ul class="nav nav-tabs border-primary">
+    <?php $this->output_group_tabs(); ?>
+</ul>

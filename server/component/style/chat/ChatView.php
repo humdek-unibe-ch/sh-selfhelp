@@ -134,55 +134,6 @@ abstract class ChatView extends StyleView
         else
             require __DIR__ . "/tpl_no_partner.php";
 
-    }       
-
-    /**
-     * Render the room list.
-     *
-     * @param array $rooms
-     *  A list of rooms with the following keys:
-     *   - 'id':    the id of the chat room
-     *   - 'name':  the name of the chat room
-     */
-    protected function output_rooms($rooms)
-    {
-        foreach($rooms as $room)
-        {
-            $id = intval($room['id']);
-            $name = $room['name'];
-            $url = $this->model->get_link_url("contact", array(
-                "chrid" => $id
-                ));
-            $active = "";
-            if($this->model->is_room_selected($id))
-                $active = "active";
-            require __DIR__ . "/tpl_room.php";
-        }
-    }
-
-    /**
-     * Render the room list.
-     *
-     * @param array $groups
-     *  A list of rooms with the following keys:
-     *   - 'id':    the id of the chat room
-     *   - 'name':  the name of the chat room
-     */
-    protected function output_groups($groups)
-    {
-        foreach($groups as $group)
-        {
-            $id = intval($group['id']);
-            $name = $group['name'];
-            $url = $this->model->get_link_url("contact", array(
-                "gid" => $id,
-                "chrid" => 0
-                ));
-            $active = "";
-            if($this->model->is_group_selected($id))
-                $active = "active";
-            require __DIR__ . "/tpl_group.php";
-        }
     }
 
     /**
@@ -207,16 +158,6 @@ abstract class ChatView extends StyleView
     }
 
     /**
-     * Render the new badge that is displayed next to the room name.
-     */
-    protected function output_new_badge_room($id)
-    {
-        $count = $this->model->get_room_message_count($id);
-        if($count > 0)
-            require __DIR__ . "/tpl_new_badge.php";
-    }
-
-    /**
      * Render the new badge that is displayed next to the group name.
      */
     protected function output_new_badge_group($id)
@@ -234,6 +175,13 @@ abstract class ChatView extends StyleView
     public function output_content()
     {
         $this->output_content_spec();
+    }
+
+    /**
+     * Render the tabs holder.
+     */
+    public function output_group_tabs_holder(){
+        require __DIR__ . "/tpl_chat_tabs.php";
     }
 }
 ?>

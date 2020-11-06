@@ -1,4 +1,34 @@
-# v3.2.0 (latest)
+# v3.3.0 (latest)
+
+### New Features
+ - Issue: #203; Delete all unassigned sections and their children
+ - Issue: #238; Improve security server configuration
+ - Issue: #277; Add option to send data to the user in style `formUserInput`
+
+### Changes
+ - Change ACL from view to procedure; add chatTherapist and chatSubject pages to moduleChat
+ - Issue: #283; Redesign of the data export page. Now the ueser and the forms are in adropdown list and they should be selected.
+ - Redesign chat, now it works with groups and not with chat rooms. All existing chat rooms were converted to groups
+    - A therapist should have the chatTherapist permision
+    - A subject should habe chatSubject permision
+    - All groups which has chats and the user is in them are loaded as tabs
+    - All messages are sent to the group, if there are multiple therapist in the group all of them will recieve the message
+    - All old chat rooms are created as groups and users are assigned to them
+    - The therapist should be in the same groups with the subject in order to send message to him/her
+    - All groups that had access to contact now have access to chatSubject
+    - Remove pages: 'contact', 'chatAdminDelete', 'chatAdminInsert', 'chatAdminSelect', 'chatAdminUpdate'
+    - All notification mails are send with the new mail module and they can be seen in the list
+    - Subject group can be renamed in the chat style.
+ - Issue: #201; Add style version that visualize the database version and the application versionl [Link](https://selfhelp.psy.unibe.ch/demo/style/806#section-806)
+ - Issue: #196; add new link #last_user_page for buttons and links; It links to the last unique visited page #last_user_page
+ - Issue: #199 ; remove user_name form the MySQL proceudure;
+
+### Bugfix
+ - Issue: #285 When an users is deleted all scheduled emails for that users are deleted too.
+ - Issue: #282 Faster loading on page users
+ - Issue: #281 Add config for rendering singleLineBreaks for SimpleMDE. Noe the preview in the markdown editor will show correctly new lines
+
+# v3.2.0
 
 ### New Features
  - In `QualtricsModule` - Add on option for annonymous survey.

@@ -53,6 +53,9 @@ class FormUserInputController extends BaseController
             }
             else if($res > 0)
             {
+                if(isset($_POST['btnSubmitAndSend']) && $_POST['btnSubmitAndSend'] == 'send_email'){
+                    $this->model->send_feedback_email();
+                }
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;

@@ -1846,6 +1846,46 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Delete all unassigned sections and their children recursively
+     * @retval boolean
+     */
+    public function delete_all_unassigned_sections()
+    {
+        try {
+            $this->db->begin_transaction();
+            $all_unassigned_sections = $this->fetch_unassigned_sections();
+            while(count($all_unassigned_sections) > 0){
+                // delete all sections with their children
+                if($this->delete_unassigned_sections($all_unassigned_sections) === false){
+                    $this->db->rollback();
+                    return false;    
+                }
+                $all_unassigned_sections = $this->fetch_unassigned_sections();
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * Delete all unassinged sections without their children, only the sections
+     * @param array $all_unassigned_sections all sections, array by ids
+     * @retval boolean
+     */
+    public function delete_unassigned_sections($all_unassigned_sections)
+    {        
+        foreach ($all_unassigned_sections as $key => $value) {
+            if ($this->delete_section($key) === false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Set the current page acl mode.
      *
      * @param string $mode

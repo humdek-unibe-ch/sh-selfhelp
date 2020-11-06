@@ -1,5 +1,9 @@
 .chat
 {
+    
+}
+
+.chatOverflow {
     overflow-y: auto;
 }
 
@@ -45,3 +49,8 @@
     background-color: #ffc107 !important;
     border-color: #ffc107 !important;
 }
+
+.border-bottom-white {
+    border-bottom: 1px solid white !important;
+}
+

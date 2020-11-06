@@ -232,20 +232,15 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         $str_data = json_encode($data_config);
         preg_match_all('~#\w+\b~', $str_data, $m);
-        if ($m && !$this->params) {
-            // params needed but not provided
-            return false;
-        }
         foreach ($m as $key => $value) {
-            $param_name = str_replace('#', '', $value[0]);
-            if (isset($this->params[$param_name])) {
-                $ser_data = str_replace($value[0], $this->params[$param_name], $str_data);
-            } else {
-                // param is missing break
-                return false;
+            if ($value) {
+                $param_name = str_replace('#', '', $value[0]);
+                if (isset($this->params[$param_name])) {
+                    $ser_data = str_replace($value[0], $this->params[$param_name], $str_data);
+                }
             }
         }
-        return json_decode($ser_data, true);
+        return isset($ser_data) ? json_decode($ser_data, true) : $data_config;
     }
 
     /* Protected Methods ******************************************************/

@@ -47,6 +47,18 @@ class FormUserInputView extends StyleView
      */
     protected $is_log;
 
+    /**
+     * DB field 'submit_and_send_email' (false).
+     * If set to true the form will have one more submit button which will send an email with the form data to the user
+     */
+    protected $submit_and_send_email;
+
+    /**
+     * DB field 'submit_and_send_lable' ('').
+     * The label on the submit and send button
+     */
+    protected $submit_and_send_lable;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -65,6 +77,8 @@ class FormUserInputView extends StyleView
         $this->type = $this->model->get_db_field("type", "primary");
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->anchor = $this->model->get_db_field("anchor");
+        $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
+        $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
     }
 
     /**
@@ -116,6 +130,8 @@ class FormUserInputView extends StyleView
             "children" => $children,
             "css" => $this->css,
             "id" => $this->id_section,
+            "submit_and_send_email" => $this->submit_and_send_email,
+            "submit_and_send_label" => $this->submit_and_send_label
         ));
         require __DIR__ . "/tpl_form.php";
     }

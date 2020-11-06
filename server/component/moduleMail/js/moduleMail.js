@@ -45,7 +45,10 @@ $(document).ready(function () {
     if ($('textarea[name="body"]')[0]) {
         var simplemde = new SimpleMDE({
             autoDownloadFontAwesome: false,
-            spellChecker: false
+            spellChecker: false,
+            renderingConfig: {
+                singleLineBreaks: false
+            }
         });
 
         $('.style-section-body code').first().html(simplemde.options.previewRender($('.style-section-body code').first().html()));

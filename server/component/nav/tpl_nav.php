@@ -22,7 +22,7 @@
                 <?php
                     if($_SESSION['logged_in'])
                     {
-                        $this->output_nav_contact();
+                        $this->output_nav_chat();
                         $this->output_nav_menu('profile', $profile_title, $profile_children, true);
                     }
                     else if($login)
