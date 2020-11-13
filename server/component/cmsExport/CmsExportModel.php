@@ -42,6 +42,77 @@ class CmsExportModel extends BaseModel
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Fetch the section children for a section
+     * @param int $parent_id the parent section_id
+     * @retval array
+     * Array with the children for the section
+     */
+    private function fetch_section_children($parent_id)
+    {
+        $sql = "SELECT parent, child, parent.name as psarent_section_name, children.section_name as children_section_name,
+                content, style_name, field_name, locale, gender
+                FROM sections_hierarchy sh
+                INNER JOIN sections parent ON (sh.parent = parent.id)
+                INNER JOIN view_sections children ON (sh.child = children.id_sections)
+                WHERE sh.parent = :id_sections";
+        $section_sql = $this->db->query_db($sql, array(":id_sections" => $parent_id));
+        $section = array();
+        foreach ($section_sql as $row => $field) {
+            if (!isset($section[$field['children_section_name']])) {
+                // the section is not yet defined
+                $section[$field['children_section_name']] = array();
+                $section[$field['children_section_name']]['fields'] = array(); //initalize empty array for the section fields
+                $section[$field['children_section_name']]['children'] = $this->fetch_section_children($field['child']);
+            }
+            $section[$field['children_section_name']]['fields'][] = array(
+                "style_name" => $field['style_name'],
+                "field_name" => $field['field_name'],
+                "locale" => $field['locale'],
+                "gender" => $field['gender'],
+                "content" => $field['content'],
+            );
+        }
+        return $section;
+    }
+
+    /**
+     * Fetch the section that we want to export
+     * @param int $id section_id that we want to export
+     * @retval array
+     * Array with the section information
+     */
+    private function fetch_section($id)
+    {
+        $sql = "SELECT *
+                FROM view_sections_fields
+                WHERE id_sections = :id_sections";
+        $section_sql = $this->db->query_db($sql, array(":id_sections" => $id));
+        $section = array();
+        foreach ($section_sql as $row => $field) {
+            if (!isset($section[$field['section_name']])) {
+                // the section is not yet defined
+                $section[$field['section_name']] = array();
+                $section[$field['section_name']]['fields'] = array(); //initalize empty array for the section fields
+                $section[$field['section_name']]['children'] = $this->fetch_section_children($field['id_sections']);
+            }
+            $section[$field['section_name']]['fields'][] = array(
+                "style_name" => $field['style_name'],
+                "field_name" => $field['field_name'],
+                "locale" => $field['locale'],
+                "gender" => $field['gender'],
+                "content" => $field['content'],
+            );
+        }
+        return $section;
+    }
+
     /* Public Methods *********************************************************/
-    
+
+    public function export_json()
+    {
+        if ($this->type == 'section' && $this->id > 0) {
+            return $this->fetch_section($this->id);
+        }
+    }
 }

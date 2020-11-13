@@ -81,14 +81,8 @@ class CmsExportView extends BaseView
 
     private function export_json()
     {
-        $test = array(
-            "kq" =>1,
-            "sada"=> array(
-                "ds" => 'fds',
-                "dsads" => 'fdssad',
-            )
-        );
-        echo json_encode($test);
+        $export_json = $this->model->export_json();
+        echo json_encode($export_json);
     }
 }
 ?>
