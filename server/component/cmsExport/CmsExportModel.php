@@ -128,6 +128,6 @@ class CmsExportModel extends BaseModel
             "application" => rtrim(shell_exec("git describe --tags")),
             "database" => $this->db->query_db_first('SELECT version FROM version')['version']
         );
-        return $json;
+        return $json; 
     }
 }
