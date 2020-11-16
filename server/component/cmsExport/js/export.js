@@ -9,7 +9,7 @@ function exportJson() {
     a.href = URL.createObjectURL(new Blob([JSON.stringify(originalData, null, 2)], {
         type: "text/plain"
     }));
-    a.setAttribute("download", "data.json");
+    a.setAttribute("download", originalData['file_name'] + ".json");
     $(a).addClass('d-none');
     document.body.appendChild(a);
     a.click();

@@ -384,7 +384,7 @@ class CmsView extends BaseView
         }
         $children[] = new BaseStyleComponent("button", array(
             "label" => "Export Section",
-            "css" => 'd-block',
+            "css" => 'd-block mt-3',
             "url" => $this->model->get_link_url(
                 "cmsExport",
                 array(

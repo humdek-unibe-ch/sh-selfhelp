@@ -82,7 +82,7 @@ class CmsExportView extends BaseView
     private function export_json()
     {
         $export_json = $this->model->export_json();
-        echo json_encode($export_json);
+        echo json_encode($export_json, JSON_HEX_APOS|JSON_HEX_QUOT);
     }
 }
 ?>

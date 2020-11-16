@@ -51,10 +51,10 @@ class CmsExportModel extends BaseModel
     private function fetch_section_children($parent_id)
     {
         $sql = "SELECT parent, child, parent.name as psarent_section_name, children.section_name as children_section_name,
-                content, style_name, field_name, locale, gender
+                content, style_name, field_name, locale, gender, children.id_styles, children.id_fields
                 FROM sections_hierarchy sh
                 INNER JOIN sections parent ON (sh.parent = parent.id)
-                INNER JOIN view_sections children ON (sh.child = children.id_sections)
+                INNER JOIN view_sections_fields children ON (sh.child = children.id_sections)
                 WHERE sh.parent = :id_sections";
         $section_sql = $this->db->query_db($sql, array(":id_sections" => $parent_id));
         $section = array();
@@ -62,12 +62,15 @@ class CmsExportModel extends BaseModel
             if (!isset($section[$field['children_section_name']])) {
                 // the section is not yet defined
                 $section[$field['children_section_name']] = array();
+                $section[$field['children_section_name']]['id_sections'] = $field['parent'];
                 $section[$field['children_section_name']]['fields'] = array(); //initalize empty array for the section fields
                 $section[$field['children_section_name']]['children'] = $this->fetch_section_children($field['child']);
             }
             $section[$field['children_section_name']]['fields'][] = array(
+                "id_styles" => $field['id_styles'],
                 "style_name" => $field['style_name'],
                 "field_name" => $field['field_name'],
+                "id_fields" => $field['id_fields'],
                 "locale" => $field['locale'],
                 "gender" => $field['gender'],
                 "content" => $field['content'],
@@ -93,12 +96,15 @@ class CmsExportModel extends BaseModel
             if (!isset($section[$field['section_name']])) {
                 // the section is not yet defined
                 $section[$field['section_name']] = array();
+                $section[$field['section_name']]['id_sections'] = $field['id_sections'];
                 $section[$field['section_name']]['fields'] = array(); //initalize empty array for the section fields
                 $section[$field['section_name']]['children'] = $this->fetch_section_children($field['id_sections']);
             }
             $section[$field['section_name']]['fields'][] = array(
+                "id_styles" => $field['id_styles'],
                 "style_name" => $field['style_name'],
                 "field_name" => $field['field_name'],
+                "id_fields" => $field['id_fields'],
                 "locale" => $field['locale'],
                 "gender" => $field['gender'],
                 "content" => $field['content'],
@@ -111,8 +117,17 @@ class CmsExportModel extends BaseModel
 
     public function export_json()
     {
+        $json = null;
         if ($this->type == 'section' && $this->id > 0) {
-            return $this->fetch_section($this->id);
+            $json = $this->fetch_section($this->id);
         }
+        $json['file_name'] = $this->type . '_' . $this->id;
+        $json['time'] = date("Y-m-d H:i:s");
+        $json['platform'] = PROJECT_NAME;
+        $json['version'] = array(
+            "application" => rtrim(shell_exec("git describe --tags")),
+            "database" => $this->db->query_db_first('SELECT version FROM version')['version']
+        );
+        return $json;
     }
 }
