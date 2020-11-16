@@ -8,6 +8,7 @@
         <div class="col-auto">
             <div class="sticky-menu">
                 <?php $this->output_create_new_button(); ?>
+                <?php $this->output_import_button(); ?>
                 <?php $this->output_lists(); ?>
             </div>
         </div>

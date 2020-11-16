@@ -44,6 +44,16 @@ class CmsView extends BaseView
                 "css" => "d-block mb-3",
             )
         ));
+        $this->add_local_component("import", new BaseStyleComponent("button",
+            array(
+                "label" => "Import Section",
+                "url" => $this->model->get_link_url("cmsImport", array(
+                    "type" => "section"
+                )),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            )
+        ));
         $this->add_local_component("new_child_page",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3",
@@ -775,6 +785,15 @@ class CmsView extends BaseView
     {
         if($this->model->can_create_new_page())
             $this->output_local_component("new_page");
+    }
+
+    /**
+     * Render the import page/section button.
+     */
+    private function output_import_button()
+    {
+        if($this->model->can_create_new_page())
+            $this->output_local_component("import");
     }
 
     /**
