@@ -28,10 +28,12 @@ class CmsExportView extends BaseView
      *
      * @param object $model
      *  The model instance of the component.
+     * @param object $controller
+     *  The controller instance of the user insert component.
      */
-    public function __construct($model)
+    public function __construct($model, $controller)
     {
-        parent::__construct($model);
+        parent::__construct($model, $controller);
         $this->type = $this->model->type;
     }
 
@@ -46,6 +48,14 @@ class CmsExportView extends BaseView
         $this->output_controller_alerts_success();
     }
 
+    /**
+     * Encode the json in string for javascript
+     */
+    private function export_json()
+    {
+        echo json_encode($this->model->json, JSON_HEX_APOS|JSON_HEX_QUOT);
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -56,6 +66,9 @@ class CmsExportView extends BaseView
         require __DIR__ . "/tpl_cmsExport.php";
     }
 
+    /**
+     * Output back button
+     */
     public function output_back_button()
     {
         $backButton = new BaseStyleComponent("button", array(
@@ -77,12 +90,6 @@ class CmsExportView extends BaseView
     {
         $local = array(__DIR__ . "/js/export.js");
         return parent::get_js_includes($local);
-    }
-
-    private function export_json()
-    {
-        $export_json = $this->model->export_json();
-        echo json_encode($export_json, JSON_HEX_APOS|JSON_HEX_QUOT);
-    }
+    }    
 }
 ?>

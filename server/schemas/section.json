@@ -1,0 +1,103 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "field": {
+            "type": "object",
+            "properties": {
+                "id_styles": {
+                    "type": "integer"
+                },
+                "style_name": {
+                    "type": "string"
+                },
+                "field_name": {
+                    "type": "string"
+                },
+                "id_fields": {
+                    "type": "integer"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id_styles",
+                "style_name",
+                "field_name",
+                "id_fields",
+                "locale",
+                "gender",
+                "content"
+            ]
+        },
+        "section": {
+            "type": "object",
+            "properties": {
+                "id_sections": {
+                    "type": "integer"
+                },
+                "section_name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/field"
+                    }
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/section"
+                    }
+                }
+            },
+            "required": [
+                "id_sections",
+                "section_name",
+                "position",
+                "fields"
+            ]
+        }
+    },
+    "type": "object",    
+    "properties": {
+        "section": { "$ref": "#/definitions/section" },
+        "file_name": {
+            "type": "string"
+        },
+        "time": {
+            "type": "string"
+        },
+        "platform": {
+            "type": "string"
+        },
+        "version": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "type": "string"
+                },
+                "database": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "required": [
+        "file_name",
+        "time",
+        "platform",
+        "version",
+        "section"
+    ]
+}

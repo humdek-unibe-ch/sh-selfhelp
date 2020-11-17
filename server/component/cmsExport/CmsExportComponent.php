@@ -7,6 +7,7 @@
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/CmsExportView.php";
 require_once __DIR__ . "/CmsExportModel.php";
+require_once __DIR__ . "/CmsExportController.php";
 
 /**
  * The class to define the asset select component.
@@ -28,7 +29,8 @@ class CmsExportComponent extends BaseComponent
         $id = intval($params['id']);
         $type = isset($params['type']) ? $params['type'] : '';
         $model = new CmsExportModel($services, $type, $id);
-        $view = new CmsExportView($model);        
+        $controller = new CmsExportController($model);
+        $view = new CmsExportView($model, $controller);        
         parent::__construct($model, $view);
     }
 }

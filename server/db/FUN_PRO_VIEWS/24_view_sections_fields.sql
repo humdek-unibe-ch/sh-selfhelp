@@ -12,7 +12,7 @@ SELECT
    l.locale,
    g.name AS gender 
 FROM sections s 
-INNER JOIN sections_fields_translation sft ON (sft.id_sections = s.id) 
 INNER JOIN view_style_fields fields ON (fields.style_id = s.id_styles) 
+INNER JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
 INNER JOIN languages l ON (sft.id_languages = l.id) 
 INNER JOIN genders g ON (sft.id_genders = g.id);
