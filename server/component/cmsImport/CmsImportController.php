@@ -23,8 +23,24 @@ class CmsImportController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if (isset($_POST['json'])) {    
-
+        if (isset($_POST['json'])) {
+            if ($model->validate_and_set_json($_POST['json'])) {
+                $this->success = true;
+                $this->success_msgs[] = "Sucessfully parse JSON file: " . $model->json['file_name'] . '.json';
+                if ($model->type == 'section') {
+                    $res = $model->import_section();
+                    if($res === true){
+                        $this->success_msgs[] = "Section: " . $model->json['section']['section_name'] . ' was successfully imported.';
+                    }else{
+                        $this->fail = true;
+                        $this->error_msgs[] = "Error! Section: " . $model->json['section']['section_name'] . ' was not imported';
+                        $this->error_msgs[] = $res;
+                    }
+                }
+            } else {
+                $this->fail = true;
+                $this->error_msgs[] = $model->json;
+            }
         }
     }
 

@@ -2,14 +2,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+?>
+<?php
 
 use Swaggest\JsonSchema\Schema;
 
-?>
-<?php
 require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/../../service/ext/swaggest_json_schema_0.12.31.0_require/vendor/autoload.php";
-
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
@@ -80,6 +79,8 @@ class CmsExportModel extends BaseModel
                 $child = array();
                 $child['section_name'] = $field['children_section_name'];
                 $child['id_sections'] = intval($field['parent']);
+                $child['style_name'] = $field['style_name'];
+                $child['id_styles'] = intval($field['id_styles']);
                 $child['position'] = intval($field['position']);
                 $child['fields'] = array(); //initalize empty array for the section fields
                 $child['children'] = $this->fetch_section_children($field['child']);
@@ -120,6 +121,8 @@ class CmsExportModel extends BaseModel
                 // the section is not yet defined
                 $section['section_name'] = $field['section_name'];
                 $section['id_sections'] = intval($field['id_sections']);
+                $section['style_name'] = $field['style_name'];
+                $section['id_styles'] = intval($field['id_styles']);
                 $section['position'] = 0;
                 $section['fields'] = array(); //initalize empty array for the section fields
                 $section['children'] = $this->fetch_section_children($field['id_sections']);
@@ -150,21 +153,25 @@ class CmsExportModel extends BaseModel
         if ($this->type == 'section' && $this->id > 0) {
             $this->json = $this->fetch_section($this->id);
         }
-        $this->json['file_name'] = $this->type . '_' . $this->id;
+        $this->json['file_name'] = PROJECT_NAME . '_' . $this->type . '_' . $this->id;
         $this->json['time'] = date("Y-m-d H:i:s");
         $this->json['platform'] = PROJECT_NAME;
         $this->json['version'] = array(
             "application" => rtrim(shell_exec("git describe --tags")),
             "database" => $this->db->query_db_first('SELECT version FROM version')['version']
         );
-        $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/section.json')));
+        if ($this->type == 'section') {
+            $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/section.json')));
+        } else {
+            $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/page.json')));
+        }
         try {
             $validate = json_decode(json_encode($this->json), FALSE);
             $schema->in($validate);
         } catch (Exception $e) {
-            $this->json = 'Error: '.  $e->getMessage();
+            $this->json = 'Error: ' .  $e->getMessage();
             return false;
-        }                
+        }
         return true;
     }
 }

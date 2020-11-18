@@ -28,10 +28,12 @@ class CmsImportView extends BaseView
      *
      * @param object $model
      *  The model instance of the component.
+     * @param object $controller
+     *  The controller instance of the user insert component.
      */
-    public function __construct($model)
+    public function __construct($model, $controller)
     {
-        parent::__construct($model);
+        parent::__construct($model, $controller);
         $this->type = $this->model->type;
     }
 
@@ -69,6 +71,20 @@ class CmsImportView extends BaseView
     {
         $local = array(__DIR__ . "/js/import.js");
         return parent::get_js_includes($local);
+    }
+
+    /**
+     * render the app version
+     */
+    public function get_app_version(){
+        echo rtrim(shell_exec("git describe --tags"));
+    }
+
+    /**
+     * render the db version
+     */
+    public function get_db_version(){
+        echo $this->model->get_services()->get_db()->query_db_first('SELECT version FROM version')['version'];
     }
 }
 ?>

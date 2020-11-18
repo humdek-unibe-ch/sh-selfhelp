@@ -23,10 +23,10 @@ class CmsExportController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if($model->id > 0 && $model->export_json()){
+        if ($model->id > 0 && $model->export_json()) {
             $this->success = true;
             $this->success_msgs[] = "Sucessfully exported file: " . $model->json['file_name'] . '.json';
-        }else{
+        } else {
             $this->fail = true;
             $this->error_msgs[] = $model->json;
         }

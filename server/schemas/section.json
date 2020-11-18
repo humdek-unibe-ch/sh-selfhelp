@@ -45,6 +45,12 @@
                 "section_name": {
                     "type": "string"
                 },
+                "id_styles": {
+                    "type": "integer"
+                },
+                "style_name": {
+                    "type": "string"
+                },
                 "position": {
                     "type": "integer"
                 },
