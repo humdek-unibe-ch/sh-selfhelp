@@ -294,7 +294,8 @@ CREATE VIEW view_qualtricsSurveys
 AS
 SELECT s.*, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code
 FROM qualtricsSurveys s 
-INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);DROP VIEW IF EXISTS view_acl_groups_pages_modules;
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
+DROP VIEW IF EXISTS view_acl_groups_pages_modules;
 CREATE VIEW view_acl_groups_pages_modules
 AS
 SELECT acl.id_groups, acl.id_pages, 
@@ -334,7 +335,8 @@ AS
 SELECT mq.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
 reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
 FROM mailQueue mq
-INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);DROP VIEW IF EXISTS view_qualtricsActions;
+INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);
+DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
@@ -363,7 +365,8 @@ LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
 st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
-id_qualtricsProjectActionTriggerTypes, trig.lookup_value;DROP VIEW IF EXISTS view_transactions;
+id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
+DROP VIEW IF EXISTS view_transactions;
 CREATE VIEW view_transactions
 AS
 SELECT t.id, t.transaction_time, t.id_transactionTypes, tran_type.lookup_value AS transaction_type,
@@ -372,14 +375,16 @@ table_name, id_table_name, REPLACE(JSON_EXTRACT(transaction_log, '$.verbal_log')
 FROM transactions t
 INNER JOIN lookups tran_type ON (tran_type.id = t.id_transactionTypes)
 INNER JOIN lookups tran_by ON (tran_by.id = t.id_transactionBy)
-LEFT JOIN users u ON (u.id = t.id_users);DROP VIEW IF EXISTS view_mailQueue_transactions;
+LEFT JOIN users u ON (u.id = t.id_users);
+DROP VIEW IF EXISTS view_mailQueue_transactions;
 CREATE VIEW view_mailQueue_transactions
 AS
 SELECT mq.id, date_create, date_to_be_sent, date_sent, t.id AS transaction_id, transaction_time, 
 transaction_type, transaction_by, user_name, transaction_verbal_log
 FROM mailQueue mq
 INNER JOIN view_transactions t ON (t.table_name = 'mailQueue' AND t.id_table_name = mq.id)
-ORDER BY mq.id ASC, t.id ASC;DROP VIEW IF EXISTS view_users;
+ORDER BY mq.id ASC, t.id ASC;
+DROP VIEW IF EXISTS view_users;
 CREATE VIEW view_users
 AS
 SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
@@ -396,7 +401,8 @@ LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
-ORDER BY u.email;DROP VIEW IF EXISTS view_qualtricsReminders;
+ORDER BY u.email;
+DROP VIEW IF EXISTS view_qualtricsReminders;
 CREATE VIEW view_qualtricsReminders
 AS
 select u.id as user_id, u.email, u.name as user_name, code, m.id as mailQueue_id,
@@ -404,7 +410,8 @@ m.status_code as mailQueue_status_code, m.status as mailQueue_status, s.id as qu
 from qualtricsReminders r
 inner join view_users u on (u.id = r.id_users)
 inner join view_mailQueue m on (m.id = r.id_mailQueue)
-inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);DROP VIEW IF EXISTS view_acl_users_in_groups_pages_modules;
+inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);
+DROP VIEW IF EXISTS view_acl_users_in_groups_pages_modules;
 CREATE VIEW view_acl_users_in_groups_pages_modules
 AS
 SELECT ug.id_users, acl.id_pages, MAX(IFNULL(acl.acl_select, 0)) as acl_select, MAX(IFNULL(acl.acl_insert, 0)) as acl_insert,
@@ -418,7 +425,8 @@ INNER JOIN pages p ON (acl.id_pages = p.id)
 LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
 LEFT JOIN modules m ON (m.id = mp.id_modules)
 GROUP BY ug.id_users, acl.id_pages, p.keyword, p.url, 
-p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;DROP VIEW IF EXISTS view_acl_users_union;
+p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
+DROP VIEW IF EXISTS view_acl_users_union;
 CREATE VIEW view_acl_users_union
 AS
 SELECT *
@@ -427,7 +435,8 @@ FROM view_acl_users_in_groups_pages_modules
 UNION 
 
 SELECT *
-FROM view_acl_users_pages_modules;DELIMITER //
+FROM view_acl_users_pages_modules;
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
 
@@ -608,7 +617,8 @@ LEFT JOIN groups g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
-ORDER BY u.email;DROP VIEW IF EXISTS view_sections_fields;
+ORDER BY u.email;
+DROP VIEW IF EXISTS view_sections_fields;
 CREATE VIEW view_sections_fields
 AS
 SELECT
