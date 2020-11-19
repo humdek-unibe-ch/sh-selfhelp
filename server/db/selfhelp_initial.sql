@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Nov 19, 2020 at 02:47 PM
+-- Generation Time: Nov 19, 2020 at 03:35 PM
 -- Server version: 5.7.23-log
 -- PHP Version: 7.2.10
 
@@ -97,6 +97,7 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 (0000000001, 0000000056, 1, 1, 1, 1),
 (0000000001, 0000000057, 1, 1, 1, 1),
 (0000000001, 0000000058, 1, 0, 0, 0),
+(0000000001, 0000000060, 1, 1, 1, 1),
 (0000000002, 0000000001, 1, 0, 0, 0),
 (0000000002, 0000000002, 1, 0, 0, 0),
 (0000000002, 0000000003, 1, 0, 0, 0),
@@ -844,7 +845,7 @@ CREATE TABLE IF NOT EXISTS `pages` (
   KEY `id_actions` (`id_actions`),
   KEY `id_navigation_section` (`id_navigation_section`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pages`
@@ -902,7 +903,8 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000055, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000056, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
 (0000000057, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
-(0000000058, 'cmsExport', '/admin/cms_export/[page|section:type]/[i:id]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
+(0000000058, 'cmsExport', '/admin/cms_export/[page|section:type]/[i:id]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000060, 'cmsImport', '/admin/cms_import/[page|section:type]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
 
 -- --------------------------------------------------------
 
@@ -1025,7 +1027,8 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 (0000000056, 0000000008, 0000000003, 'Contact'),
 (0000000057, 0000000008, 0000000002, 'Kontakt'),
 (0000000057, 0000000008, 0000000003, 'Contact'),
-(0000000058, 0000000008, 0000000001, 'CMS Export');
+(0000000058, 0000000008, 0000000001, 'CMS Export'),
+(0000000060, 0000000008, 0000000001, 'CMS Import');
 
 -- --------------------------------------------------------
 
@@ -2239,7 +2242,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
   KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
   KEY `transactions_fk_id_users` (`id_users`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2285,7 +2288,8 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000037, '2020-11-19 13:44:01', 35, 42, 2, 'pages', 58, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/1635\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/1635\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
 (0000000038, '2020-11-19 13:44:21', 35, 42, 2, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/fsdf\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/fsdf\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
 (0000000039, '2020-11-19 13:44:25', 35, 42, 2, 'pages', 58, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/1\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/1\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
-(0000000040, '2020-11-19 13:44:30', 35, 42, 2, 'pages', 58, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/11111\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/11111\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}');
+(0000000040, '2020-11-19 13:44:30', 35, 42, 2, 'pages', 58, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/11111\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/11111\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
+(0000000041, '2020-11-19 14:34:45', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms\",\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/group_update_custom\\/3\",\"requests\":[]}}');
 
 -- --------------------------------------------------------
 
