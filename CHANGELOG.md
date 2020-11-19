@@ -1,12 +1,16 @@
-# v3.4.0 (latest)
+# v3.4.1 (latest)
+
+### Bugfix
+ - Conditional container fix for null values (This fix was not applied in v3.4.0).
+
+---------
+# v3.4.0
 
 ### New Features
  - Issue: #240; Add export section functionality. A JSON file is generated for the sections and its children.
  - Issue: #240; Add import section functionality. A JSON file can be imported and then a section is generated. It can be found in unused sections. 
 
-### Bugfix
- - Conditional container fix for null values.
-
+---------
 # v3.3.0
 
 ### New Features
@@ -37,6 +41,7 @@
  - Issue: #282 Faster loading on page users
  - Issue: #281 Add config for rendering singleLineBreaks for SimpleMDE. Noe the preview in the markdown editor will show correctly new lines
 
+---------
 # v3.2.0
 
 ### New Features
@@ -57,6 +62,7 @@
  - `ACL` chekcs if the page is open access and if it is open access, we give select mode for the user even if there is no special ACL rule, issue #274.
  - Fix #239; The chat room's name can contain numbers, letters, - and _ characters.
 
+---------
 # v3.1.0
 
 ### New Features
@@ -67,12 +73,14 @@
     - It is used for `Workwell` project. A folder `workwell_eg_ap_4` should be created in folder `assets`. The new folder should have 777 rights
     - It is used for `Workwell` project. A folder `workwell_eg_ap_5` should be created in folder `assets`. The new folder should have 777 rights
 
+---------
 # v3.0.1
 
 ### Bugfix
 
  - Fix slow loading of `Groups` module
 
+---------
 # v3.0.0
 
 ### Changes
@@ -106,6 +114,7 @@
     - It uses php-pdftk library
     - It requires pdftk installed on the server <https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/> Ubuntu 18.04 installation command: `sudo snap install pdftk` (if there some issues a symbolic link maybe needed `sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk` )
 
+---------
 # v2.0.6
 
 ### Bugfix
