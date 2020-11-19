@@ -1086,7 +1086,7 @@ class CmsModel extends BaseModel
      */
     public function can_export_section()
     {
-        return $this->acl->has_access_select($_SESSION['id_user'],
+        return $this->id_root_section > 0 && $this->acl->has_access_select($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("cmsExport"));
     }
 

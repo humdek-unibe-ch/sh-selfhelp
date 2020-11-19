@@ -1,4 +1,13 @@
-# v3.3.0 (latest)
+# v3.4.0 (latest)
+
+### New Features
+ - Issue: #240; Add export section functionality. A JSON file is generated for the sections and its children.
+ - Issue: #240; Add import section functionality. A JSON file can be imported and then a section is generated. It can be found in unused sections. 
+
+### Bugfix
+ - Conditional container fix for null values.
+
+# v3.3.0
 
 ### New Features
  - Issue: #203; Delete all unassigned sections and their children
