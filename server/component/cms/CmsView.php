@@ -91,6 +91,33 @@ class CmsView extends BaseView
                 ),
             ))
         );
+        $this->add_local_component(
+            "export_section",
+            new BaseStyleComponent("card", array(
+                "css" => "mb-3",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Export Section",
+                "type" => "primary",
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array(
+                        "text" => "Exporting a section will create a JSON file that contains information about the section and all its children.",
+                        "is_paragraph" => true,
+                    )),
+                    new BaseStyleComponent("button", array(
+                        "label" => "Export Section",
+                        "url" => $this->model->get_link_url(
+                            "cmsExport",
+                            array(
+                                "type" => "section",
+                                "id" => $this->model->get_active_section_id()
+                            )
+                        ),
+                        "type" => "primary",
+                    )),
+                ),
+            ))
+        );
         $this->add_local_component("delete_section",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3",
@@ -392,18 +419,6 @@ class CmsView extends BaseView
                 $url_edit = $this->model->get_link_url("cmsUpdate",
                     $this->model->get_current_url_params());
         }
-        $children[] = new BaseStyleComponent("button", array(
-            "label" => "Export Section",
-            "css" => 'd-block mt-3',
-            "url" => $this->model->get_link_url(
-                "cmsExport",
-                array(
-                    "type" => "section",
-                    "id" => $this->model->get_active_section_id()
-                )
-            ),
-            "type" => "secondary",
-        ));
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3",
@@ -792,7 +807,7 @@ class CmsView extends BaseView
      */
     private function output_import_button()
     {
-        if($this->model->can_create_new_page())
+        if($this->model->can_import_section())
             $this->output_local_component("import");
     }
 
@@ -805,6 +820,9 @@ class CmsView extends BaseView
         $this->output_local_component("section-fields");
         if($this->model->can_create_new_child_page())
             $this->output_local_component("new_child_page");
+        if ($this->model->can_export_section()) {
+            $this->output_local_component("export_section");
+        }
         if($this->model->can_delete_page())
         {
             if($this->model->get_active_section_id() == null) {
@@ -813,7 +831,7 @@ class CmsView extends BaseView
             else if($this->model->can_delete_section()) {
                 $this->output_local_component("delete_section");
             }
-        }
+        }        
     }
 
     /**

@@ -1067,6 +1067,30 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to import sections.
+     *
+     * @retval bool
+     *  True if the current user can import sections, false otherwise.
+     */
+    public function can_import_section()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsImport"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to export sections.
+     *
+     * @retval bool
+     *  True if the current user can export sections, false otherwise.
+     */
+    public function can_export_section()
+    {
+        return $this->acl->has_access_select($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsExport"));
+    }
+
+    /**
      * Inserts a new page to the bd and sets the basic access rights.
      *
      * @param string $keyword

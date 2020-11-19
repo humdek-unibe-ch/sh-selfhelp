@@ -39,6 +39,6 @@ VALUES (NULL, 'cmsImport', '/admin/cms_import/[page|section:type]', 'GET|POST', 
 SET @id_page_data = LAST_INSERT_ID();
 
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
-VALUES ('0000000001', @id_page_data, '1', '0', '0', '0');
+VALUES ('0000000001', @id_page_data, '1', '1', '1', '1');
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
 VALUES (@id_page_data, '0000000008', '0000000001', 'CMS Import');
