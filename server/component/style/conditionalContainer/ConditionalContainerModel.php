@@ -73,14 +73,16 @@ class ConditionalContainerModel extends StyleModel
         preg_match_all($pattern, $j_condition, $matches, PREG_PATTERN_ORDER);
         foreach ($matches[0] as $match) {
             $val = $this->user_input->get_input_value_by_pattern(trim($match, '"'), $_SESSION['id_user']);
-            if ($val === null)
+            if ($val === null) {
                 $res['fields'][$match] = "bad field syntax";
-            else if ($val === "")
+            }
+            else if ($val === "") {
                 $res['fields'][$match] = "no value stored for this field";
+            }
             else {
                 $res['fields'][$match] = $val;
-                $j_condition = str_replace($match, '"' . $val . '"', $j_condition);
             }
+            $j_condition = str_replace($match, '"' . $val . '"', $j_condition);
         }
 
         preg_match_all('~"\$[^"@#]+"~', $j_condition, $matches, PREG_PATTERN_ORDER); // group pattern
