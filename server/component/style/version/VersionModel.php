@@ -45,8 +45,11 @@ class VersionModel extends StyleModel
         $plugins = $this->db->query_db('SELECT * FROM plugins');
         $plugins_md = '';
         foreach ($plugins as $key => $plugin) {
+            $git_command = 'cd .\server\plugins\\' . $plugin['name'] . ' && git describe --tags';
+            $plugin_v = rtrim(shell_exec($git_command));
             $plugins_md = $plugins_md . "
-            | " . $plugin['name'] . " | " . $plugin['version'] . "   | | Plugin |";
+            | " . $plugin['name'] . " | " . $plugin_v . "   | | Plugin |
+            | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Database Plugin |";
         }
         return $plugins_md;
     }
