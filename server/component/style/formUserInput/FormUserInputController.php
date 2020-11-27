@@ -104,7 +104,7 @@ class FormUserInputController extends BaseController
             else if($style == "input")
             {
                 $type = $this->model->get_field_type($id_section);
-                if($type == "text" || $type == "checkbox" || $type == "month"
+                if($type == "text" || $type == "checkbox" || $type == "month" || $type == "time"
                     || $type == "week" || $type == "search" || $type == "tel")
                     $filter_rules[$id_section] = "trim|sanitize_string";
                 else if($type == "color")
@@ -115,8 +115,8 @@ class FormUserInputController extends BaseController
                     $validation_rules[$id_section] = "valid_email";
                 else if($type == "number" || $type == "range")
                     $validation_rules[$id_section] = "numeric";
-                else if($type == "time")
-                   1==1;// $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
+                // else if($type == "time")
+                //    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if($type == "url")
                     $validation_rules[$id_section] = "valid_url";
                 else
