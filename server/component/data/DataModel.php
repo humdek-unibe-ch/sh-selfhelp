@@ -160,7 +160,7 @@ class DataModel extends BaseModel
 
     public function get_selected_users()
     {
-        return $this->users;
+        return str_replace('user_', '', $this->users);
     }
 
     public function get_selected_forms()

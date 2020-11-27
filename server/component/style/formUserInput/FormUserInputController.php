@@ -116,7 +116,7 @@ class FormUserInputController extends BaseController
                 else if($type == "number" || $type == "range")
                     $validation_rules[$id_section] = "numeric";
                 else if($type == "time")
-                    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
+                   1==1;// $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if($type == "url")
                     $validation_rules[$id_section] = "valid_url";
                 else
