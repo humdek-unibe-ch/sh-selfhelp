@@ -15,3 +15,9 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'plugin'
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('trigger'), get_field_id('plugin'), '', 'Select a plugin which will execute a predifined action. Tip: Plugins are additional functionality and they are not included in the basic Selfhelp. If a plugin is missing contact your administrator!');
 
+-- create table plugins
+CREATE TABLE `plugins` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+  `name` varchar(500),
+  `version` varchar(500)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
