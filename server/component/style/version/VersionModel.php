@@ -49,7 +49,7 @@ class VersionModel extends StyleModel
             $plugin_v = rtrim(shell_exec($git_command));
             $plugins_md = $plugins_md . "
             | " . $plugin['name'] . " | " . $plugin_v . "   | | Plugin |
-            | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Database Plugin |";
+            | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Plugin [DB Info] |";
         }
         return $plugins_md;
     }
