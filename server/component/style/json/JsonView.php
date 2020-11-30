@@ -44,5 +44,9 @@ class JsonView extends StyleView
     {
         echo $this->model->json_style_parse($this->json);
     }
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

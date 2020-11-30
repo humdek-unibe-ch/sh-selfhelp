@@ -204,6 +204,11 @@ class CmsPreferencesView extends BaseView
     {
         require __DIR__ . "/tpl_cmsPreferences.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * Render the alert message.

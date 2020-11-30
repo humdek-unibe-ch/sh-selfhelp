@@ -139,6 +139,8 @@ abstract class BaseView
      */
     abstract public function output_content();
 
+    abstract public function output_content_mobile();
+
     /**
      * Get css include files required for this view. By default the css files of
      * the children of a section are included.

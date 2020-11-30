@@ -117,5 +117,10 @@ class FooterView extends BaseView
     {
         require __DIR__ . "/tpl_footer.php";
     }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

@@ -292,5 +292,10 @@ class NestedListView extends StyleView
         else
             $this->output_list($this->css);
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

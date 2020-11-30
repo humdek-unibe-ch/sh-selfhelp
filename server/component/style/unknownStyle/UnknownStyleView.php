@@ -43,5 +43,10 @@ class UnknownStyleView extends StyleView
     {
         require __DIR__ . "/tpl_unknown.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

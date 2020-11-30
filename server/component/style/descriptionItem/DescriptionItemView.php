@@ -127,5 +127,10 @@ class DescriptionItemView extends StyleView
         $border = "border-top";
         require __DIR__ . "/tpl_item.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

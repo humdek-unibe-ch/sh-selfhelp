@@ -34,5 +34,10 @@ class DivView extends StyleView
     {
         require __DIR__ . "/tpl_div.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

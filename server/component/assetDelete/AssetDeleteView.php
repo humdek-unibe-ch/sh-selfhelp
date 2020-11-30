@@ -101,5 +101,10 @@ class AssetDeleteView extends BaseView
         else
             require __DIR__ . "/tpl_rm_file.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

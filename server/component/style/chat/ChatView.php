@@ -176,6 +176,11 @@ abstract class ChatView extends StyleView
     {
         $this->output_content_spec();
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * Render the tabs holder.

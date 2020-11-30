@@ -108,5 +108,10 @@ abstract class NavigationView extends StyleView
         else
             require __DIR__ . "/tpl_nav_no_menu.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

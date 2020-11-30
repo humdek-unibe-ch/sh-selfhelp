@@ -236,6 +236,8 @@ class ExportPage extends BasePage
      */
     protected function output_content() {}
 
+    protected function output_content_mobile() {}
+
     /**
      * See BasePage::output_meta_tags()
      * The current implementation is not doing anything.

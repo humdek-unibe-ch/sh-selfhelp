@@ -172,5 +172,10 @@ class NavView extends BaseView
         $profile_children = $profile["children"];
         require __DIR__ . "/tpl_nav.php";
     }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

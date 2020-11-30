@@ -48,46 +48,99 @@ function create_callback_page($services, $class_name, $method_name)
 $router = $services->get_router();
 $db = $services->get_db();
 
-// call closure or throw 404 status
-if($router->route)
-{
-    if($router->route['target'] == "sections")
+if (isset($_POST['mobile']) && $_POST['mobile']) {
+    mobile_call($services, $router, $db);
+} else {
+    web_call($services, $router, $db);
+}
+
+function mobile_call($services, $router, $db){
+    if($router->route)
     {
-        $page = new SectionPage($services, $router->route['name'],
-            $router->route['params']);
+        if($router->route['target'] == "sections")
+        {
+            $page = new SectionPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output_base_content_mobile();
+        }
+        else if($router->route['target'] == "component")
+        {
+            $page = new ComponentPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output();
+        }
+        else if($router->route['target'] == "custom")
+        {
+            $function_name = "create_" . $router->route['name'] . "_page";
+            if(is_callable($function_name))
+                call_user_func_array($function_name,
+                    array_merge(array($services), $router->route['params'])
+                );
+            else
+                throw new Exception("Cannot call custom function '$function_name'");
+        }
+        // log user activity on experiment pages
+        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+        if($db->query_db_first($sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
+        {
+            //if transaction logs work as expected this should be removed
+            $db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+            ));
+        }
+    }
+    else {
+        // no route was matched
+        $page = new SectionPage($services, 'missing', array());
         $page->output();
     }
-    else if($router->route['target'] == "component")
+}
+
+function web_call($services, $router, $db){
+    // call closure or throw 404 status
+    if($router->route)
     {
-        $page = new ComponentPage($services, $router->route['name'],
-            $router->route['params']);
+        if($router->route['target'] == "sections")
+        {
+            $page = new SectionPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output();
+        }
+        else if($router->route['target'] == "component")
+        {
+            $page = new ComponentPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output();
+        }
+        else if($router->route['target'] == "custom")
+        {
+            $function_name = "create_" . $router->route['name'] . "_page";
+            if(is_callable($function_name))
+                call_user_func_array($function_name,
+                    array_merge(array($services), $router->route['params'])
+                );
+            else
+                throw new Exception("Cannot call custom function '$function_name'");
+        }
+        // log user activity on experiment pages
+        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+        if($db->query_db_first($sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
+        {
+            //if transaction logs work as expected this should be removed
+            $db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+            ));
+        }
+    }
+    else {
+        // no route was matched
+        $page = new SectionPage($services, 'missing', array());
         $page->output();
     }
-    else if($router->route['target'] == "custom")
-    {
-        $function_name = "create_" . $router->route['name'] . "_page";
-        if(is_callable($function_name))
-            call_user_func_array($function_name,
-                array_merge(array($services), $router->route['params'])
-            );
-        else
-            throw new Exception("Cannot call custom function '$function_name'");
-    }
-    // log user activity on experiment pages
-    $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
-    if($db->query_db_first($sql,
-        array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
-    {
-        //if transaction logs work as expected this should be removed
-        $db->insert("user_activity", array(
-            "id_users" => $_SESSION['id_user'],
-            "url" => $_SERVER['REQUEST_URI'],
-        ));
-    }
 }
-else {
-    // no route was matched
-    $page = new SectionPage($services, 'missing', array());
-    $page->output();
-}
+
 ?>

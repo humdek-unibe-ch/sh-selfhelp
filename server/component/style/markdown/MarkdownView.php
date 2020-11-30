@@ -77,5 +77,10 @@ class MarkdownView extends StyleView
             $md = $this->text_md;
         require __DIR__ . "/tpl_markdown.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

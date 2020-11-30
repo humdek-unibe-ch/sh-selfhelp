@@ -52,6 +52,11 @@ class ContainerView extends StyleView
         $fluid = ($this->is_fluid) ? "-fluid" : "";
         require __DIR__ . "/tpl_container.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     public function output_export_pdf_btn()
     {

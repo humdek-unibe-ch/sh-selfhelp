@@ -51,6 +51,11 @@ class NavigationBarView extends NavigationView
         }
         
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * Render the navbar links.

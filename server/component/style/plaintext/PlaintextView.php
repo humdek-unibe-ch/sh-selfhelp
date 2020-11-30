@@ -55,5 +55,10 @@ class PlaintextView extends StyleView
         else
             echo htmlspecialchars($this->text);
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

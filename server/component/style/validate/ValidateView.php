@@ -234,5 +234,10 @@ class ValidateView extends StyleView
             require __DIR__ . "/tpl_success.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

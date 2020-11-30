@@ -98,5 +98,10 @@ class GroupDeleteView extends BaseView
         else
             require __DIR__ . "/tpl_group_delete.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

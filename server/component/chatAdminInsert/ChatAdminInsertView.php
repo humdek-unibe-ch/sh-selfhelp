@@ -58,5 +58,10 @@ class ChatAdminInsertView extends BaseView
             require __DIR__ . "/tpl_create_room.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

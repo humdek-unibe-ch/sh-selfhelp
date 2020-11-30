@@ -113,5 +113,10 @@ class AclView extends StyleView
     {
         require __DIR__ . "/tpl_acl.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

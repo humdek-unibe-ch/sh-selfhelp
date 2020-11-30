@@ -37,6 +37,11 @@ class ModuleMailComposeEmailView extends BaseView
     {
         require __DIR__ . "/tpl_moduleMailComposeEmail.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * Render the entry form view

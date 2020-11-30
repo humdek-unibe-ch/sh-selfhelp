@@ -206,5 +206,10 @@ class ChatAdminUpdateView extends BaseView
                 require __DIR__ . "/tpl_rm_user.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

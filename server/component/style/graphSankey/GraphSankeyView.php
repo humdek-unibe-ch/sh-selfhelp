@@ -109,5 +109,10 @@ class GraphSankeyView extends GraphView
             parent::output_content();
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

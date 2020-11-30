@@ -59,5 +59,10 @@ class ConditionalContainerView extends StyleView
         if($this->model->is_cms_page() || $res['result'])
             require __DIR__ . "/tpl_container.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

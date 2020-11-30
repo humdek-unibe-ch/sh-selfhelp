@@ -37,6 +37,11 @@ class ModuleQualtricsView extends BaseView
     {
         require __DIR__ . "/tpl_moduleQualtrics.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * Render the navbar

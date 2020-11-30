@@ -114,5 +114,10 @@ class CardView extends StyleView
         $collapse = $this->is_collapsible ? "collapse" : "";
         require __DIR__ . "/tpl_card.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

@@ -69,5 +69,10 @@ class TabView extends StyleView
         $active = $this->is_expanded ? "active" : "";
         require __DIR__ . "/tpl_tab.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

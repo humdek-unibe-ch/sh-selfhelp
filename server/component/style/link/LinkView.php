@@ -63,5 +63,10 @@ class LinkView extends StyleView
         $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
         require __DIR__ . "/tpl_link.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

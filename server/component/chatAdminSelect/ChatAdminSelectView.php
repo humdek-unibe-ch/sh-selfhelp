@@ -235,5 +235,10 @@ class ChatAdminSelectView extends BaseView
     {
         require __DIR__ . "/tpl_main.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

@@ -146,5 +146,10 @@ class SortableListView extends StyleView
         $sortable = ($this->is_editable && $this->is_sortable) ? "sortable" : "";
         require __DIR__ . "/tpl_list.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

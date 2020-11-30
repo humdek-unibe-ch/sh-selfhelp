@@ -64,5 +64,10 @@ class AlertView extends StyleView
         $type = "alert-" . $this->type;
         require __DIR__ . "/tpl_alert.php";
     }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

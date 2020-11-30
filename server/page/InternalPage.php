@@ -63,5 +63,13 @@ class InternalPage
             $this->base->output_component("section-" . $section['id']);
         }
     }
+
+    public function output_content_mobile()
+    {
+        foreach($this->sections as $section)
+        {
+            $this->base->output_component("section-" . $section['id']);
+        }
+    }
 }
 ?>

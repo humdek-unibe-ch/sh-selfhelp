@@ -127,5 +127,10 @@ class CmsInsertView extends BaseView
             require __DIR__ . "/tpl_cms_insert.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>
