@@ -1,4 +1,14 @@
-# v3.4.1 (latest)
+# v3.5.0
+
+### Bugfix
+ - Issue:#288; Move time check in the global sanitize; in the future it should be adjusted to the new gulp version and array structure
+ - Issue: #286; Export sections containg fields without content.
+
+### New Features
+ - Cretae Plugin functionality for Selfhelp. All installed plugins can be seen in `impressum` 
+ - Add `triggerStyle`. It is used in order to call a `plugin` when a criteria is fulfilled.
+
+# v3.4.1
 
 ### Bugfix
  - Conditional container fix for null values (This fix was not applied in v3.4.0).

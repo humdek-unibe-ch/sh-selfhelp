@@ -13,3 +13,4 @@ js/*
 !js/ext
 .vscode/launch.json
 !assets/datatables_child_row
+server/plugins/*
