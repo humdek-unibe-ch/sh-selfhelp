@@ -64,17 +64,20 @@ class CmsImportModel extends BaseModel
             "name" => $section['section_name'] . '_' . time(),
         ));
         foreach ($section['fields'] as $key => $field) {
-            $id_fields = $this->db->query_db_first('SELECT id FROM fields WHERE name = :name', array(":name" => $field['field_name']))['id'];
-            $id_languages = $this->db->query_db_first('SELECT id FROM languages WHERE locale = :locale', array(":locale" => $field['locale']))['id'];
-            $id_genders = $this->db->query_db_first('SELECT id FROM genders WHERE name = :name', array(":name" => $field['gender']))['id'];
-            if (!$this->db->insert("sections_fields_translation", array(
-                "id_sections" => $id_sections,
-                "id_fields" => $id_fields,
-                "id_languages" => $id_languages,
-                "id_genders" => $id_genders,
-                "content" => $field['content']
-            ))) {
-                throw new Exception('Field cannot be imported. JSON: ' . json_encode($field));
+            if ($field['gender'] != null && $field['locale'] != null) {
+                // insert if the field has content
+                $id_fields = $this->db->query_db_first('SELECT id FROM fields WHERE name = :name', array(":name" => $field['field_name']))['id'];
+                $id_languages = $this->db->query_db_first('SELECT id FROM languages WHERE locale = :locale', array(":locale" => $field['locale']))['id'];
+                $id_genders = $this->db->query_db_first('SELECT id FROM genders WHERE name = :name', array(":name" => $field['gender']))['id'];
+                if (!$this->db->insert("sections_fields_translation", array(
+                    "id_sections" => $id_sections,
+                    "id_fields" => $id_fields,
+                    "id_languages" => $id_languages,
+                    "id_genders" => $id_genders,
+                    "content" => $field['content']
+                ))) {
+                    throw new Exception('Field cannot be imported. JSON: ' . json_encode($field));
+                }
             }
         }
         if ($parent > 0) {
