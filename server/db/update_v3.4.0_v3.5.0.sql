@@ -40,3 +40,9 @@ LEFT JOIN view_style_fields fields ON (fields.style_id = s.id_styles)
 LEFT JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
 LEFT JOIN languages l ON (sft.id_languages = l.id) 
 LEFT JOIN genders g ON (sft.id_genders = g.id);
+
+
+-- add AJAX fiedl in formUserInput style
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'ajax', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('formUserInput'), get_field_id('ajax'), 0, 'When it is checked, the form will be sumbited with an AJAX call and the page will not be fully reloaded. This way the state of active tabs, collapse state of cards, etc will be kept.');
