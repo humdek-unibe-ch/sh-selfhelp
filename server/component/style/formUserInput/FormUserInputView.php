@@ -48,6 +48,12 @@ class FormUserInputView extends StyleView
     protected $is_log;
 
     /**
+     * DB field 'ajax' (false).
+     * If set to true the form will be sumbited via ajax call
+     */
+    protected $ajax;
+
+    /**
      * DB field 'submit_and_send_email' (false).
      * If set to true the form will have one more submit button which will send an email with the form data to the user
      */
@@ -76,6 +82,7 @@ class FormUserInputView extends StyleView
         $this->label = $this->model->get_db_field("label", "Submit");
         $this->type = $this->model->get_db_field("type", "primary");
         $this->is_log = $this->model->get_db_field("is_log", false);
+        $this->ajax = $this->model->get_db_field("ajax", 0);
         $this->anchor = $this->model->get_db_field("anchor");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
@@ -120,6 +127,16 @@ class FormUserInputView extends StyleView
             "type_input" => "hidden",
             "name" => "__form_name",
             "value" => htmlentities($this->name),
+        ));
+        $children[] = new BaseStyleComponent("input", array(
+            "type_input" => "hidden",
+            "name" => "ajax",
+            "value" => $this->ajax,
+        ));
+        $children[] = new BaseStyleComponent("input", array(
+            "type_input" => "hidden",
+            "name" => "is_log",
+            "value" => $this->is_log,
         ));
         $url = $_SERVER['REQUEST_URI'] . '#section-'
                 . ($this->anchor ? $this->anchor : $this->id_section);

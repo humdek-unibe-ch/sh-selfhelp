@@ -86,6 +86,7 @@ define('qualtricsProjectActionTriggerTypes', 'qualtricsProjectActionTriggerTypes
 define('qualtricsProjectActionAdditionalFunction', 'qualtricsProjectActionAdditionalFunction');
 define('timePeriod', 'timePeriod');
 define('notificationTypes', 'notificationTypes');
+define('plugins', 'plugins');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -139,4 +140,5 @@ define('timePeriod_weeks', 'weeks');
 define('timePeriod_months', 'months');
 define('notificationTypes_email', 'email');
 define('notificationTypes_sms', 'sms');
+define('plugins_calc_sleep_efficiency', 'calc_sleep_efficiency');
 ?>

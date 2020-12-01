@@ -30,7 +30,7 @@ class InputComponent extends FormFieldComponent
     public function __construct($services, $id)
     {
         $model = new FormFieldModel($services, $id);
-        $view = new InputView($model);
+        $view = new InputView($model, $id);
         parent::__construct($model, $view);
     }
 }

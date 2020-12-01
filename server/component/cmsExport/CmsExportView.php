@@ -53,7 +53,7 @@ class CmsExportView extends BaseView
      */
     private function export_json()
     {
-        echo json_encode($this->model->json, JSON_HEX_APOS|JSON_HEX_QUOT);
+        echo htmlspecialchars(json_encode($this->model->json, JSON_HEX_APOS|JSON_HEX_QUOT));
     }
 
     /* Public Methods *********************************************************/

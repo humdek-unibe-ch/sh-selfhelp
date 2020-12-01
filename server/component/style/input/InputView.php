@@ -31,6 +31,12 @@ class InputView extends FormFieldView
      */
     private $disable_autocomplete;
 
+    /**
+     * DB field 'disable_autocomplete' (false).
+     * Flag to enable or disable browser autocomplete.
+     */
+    private $section_id;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -38,10 +44,13 @@ class InputView extends FormFieldView
      *
      * @param object $model
      *  The model instance of a base style component.
+     * @param int $id
+     *  The section id of this navigation component.
      */
-    public function __construct($model)
+    public function __construct($model, $id = null)
     {
         parent::__construct($model);
+        $this->section_id = $id;
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
         $this->disable_autocomplete = $this->model->get_db_field(
@@ -86,7 +95,14 @@ class InputView extends FormFieldView
         }
         else if($this->value === null)
             $this->value = $this->default_value;
-        require __DIR__ . "/tpl_input.php";
+        if(
+        $this->type == 'date' || $this->type == 'datetime') {
+            require __DIR__ . "/tpl_input_date.php";
+        } else if ($this->type == 'time') {
+            require __DIR__ . "/tpl_input_time.php";
+        } else {
+            require __DIR__ . "/tpl_input.php";
+        }
     }
 }
 ?>

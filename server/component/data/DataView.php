@@ -50,7 +50,7 @@ class DataView extends BaseView
             }
             foreach ($forms as $keyForm => $formId) {
                 $formId = isset($formId['form_id']) ? $formId['form_id'] : $formId;
-                $formFields = $this->model->getFormFields($formId, '1832');
+                $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
                 if (!empty($formFields)) {
                     // loop over the rows, outputting them
                     $tableHead = '<thead><tr>';
@@ -116,16 +116,6 @@ class DataView extends BaseView
                     "url" => $this->model->get_link_url("data"),
                     "url_cancel" => $this->model->get_link_url("data"),
                     "children" => array(
-                        // new BaseStyleComponent("template", array(
-                        //     "path" => __DIR__ . "/tpl_selectUsers.php",
-                        //     "items" => array(
-                        //         "name" => 'users[]',
-                        //         "label" => "Users",
-                        //         "id" => "users",
-                        //         "users" => $this->model->get_users(),
-                        //         "groups" => $this->model->get_groups()
-                        //     )
-                        // )),
                          new BaseStyleComponent("select", array(
                             "label" => "Select user",
                             "value" => $this->model->get_selected_users(),

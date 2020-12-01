@@ -26,7 +26,7 @@ as
 select s.style_id, s.style_name, s.style_type, s.style_group, f.field_id, f.field_name, f.field_type, f.display, f.position, 
 sf.default_value, sf.help
 from view_styles s
-left join styles_fields sf on (s.style_id = sf.id_styles)
+left join styles_fields sf on (s.style_id = sf.id_styles or sf.id_fields = (SELECT id FROM fields WHERE name = 'css')) -- hardcoded for css field
 left join view_fields f on (f.field_id = sf.id_fields);
 drop view if exists view_user_input;
 create view view_user_input
@@ -632,7 +632,7 @@ SELECT
    l.locale,
    g.name AS gender 
 FROM sections s 
-INNER JOIN view_style_fields fields ON (fields.style_id = s.id_styles) 
-INNER JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
-INNER JOIN languages l ON (sft.id_languages = l.id) 
-INNER JOIN genders g ON (sft.id_genders = g.id);
+LEFT JOIN view_style_fields fields ON (fields.style_id = s.id_styles) 
+LEFT JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
+LEFT JOIN languages l ON (sft.id_languages = l.id) 
+LEFT JOIN genders g ON (sft.id_genders = g.id);

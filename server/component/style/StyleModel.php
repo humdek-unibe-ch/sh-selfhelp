@@ -137,14 +137,16 @@ class StyleModel extends BaseModel implements IStyleModel
                     $field_value =  isset($data[0][$field['field_name']]) ? $data[0][$field['field_name']] : $field['not_found_text']; // get the first value
                     if ($config['retrieve'] === 'all') {
                         // get the other values too
+                        $field_value = '"' . $field_value . '"'; // add quotes to the first entry in the array
                         foreach ($data as $key => $row) {
                             if ($key > 0) {
                                 // we already got the first row
                                 if (isset($row[$field['field_name']])) {
-                                    $field_value = $field_value . ';' . $row[$field['field_name']];
+                                    $field_value = $field_value . ',"' . $row[$field['field_name']] . '"';
                                 }
                             }
                         }
+                        $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
                     }
                     $result[$field['field_holder']] = $field_value;
                 }

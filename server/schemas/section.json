@@ -17,13 +17,13 @@
                     "type": "integer"
                 },
                 "locale": {
-                    "type": "string"
+                    "type": [ "string", "null" ]
                 },
                 "gender": {
-                    "type": "string"
+                    "type": [ "string", "null" ]
                 },
                 "content": {
-                    "type": "string"
+                    "type": [ "string", "null" ]
                 }
             },
             "required": [

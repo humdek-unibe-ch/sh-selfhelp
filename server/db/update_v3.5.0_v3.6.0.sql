@@ -1,3 +1,7 @@
+-- set DB version
+UPDATE version
+SET version = 'v3.6.0';
+
 drop view if exists view_style_fields;
 create view view_style_fields
 as
