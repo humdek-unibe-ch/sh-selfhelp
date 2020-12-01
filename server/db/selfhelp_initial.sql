@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 30, 2020 at 05:03 PM
+-- Generation Time: Dec 01, 2020 at 02:44 PM
 -- Server version: 5.7.32-0ubuntu0.18.04.1
 -- PHP Version: 7.2.24-0ubuntu0.18.04.7
 
@@ -2363,7 +2363,7 @@ CREATE TABLE `version` (
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v3.5.0');
+(0000000001, 'v3.6.0');
 
 --
 -- Indexes for dumped tables

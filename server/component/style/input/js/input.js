@@ -19,7 +19,6 @@ function init_datetime_inputs() {
 
 function init_date_inputs() {
     $("input[type='date']").each(function () {
-        console.log(this);
         $(this).flatpickr({
             enableTime: false,
             dateFormat: 'Y-m-d',
