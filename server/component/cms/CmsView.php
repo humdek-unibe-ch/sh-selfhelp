@@ -537,6 +537,7 @@ class CmsView extends BaseView
                     array("value" => "color", "text" => "color"),
                     array("value" => "date", "text" => "date"),
                     array("value" => "datetime-local", "text" => "datetime-local"),
+                    array("value" => "datetime", "text" => "datetime"),
                     array("value" => "email", "text" => "email"),
                     array("value" => "month", "text" => "month"),
                     array("value" => "number", "text" => "number"),

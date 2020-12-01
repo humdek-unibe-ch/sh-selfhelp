@@ -147,6 +147,7 @@ class CmsUpdateController extends BaseController
                 "color",
                 "date",
                 "datetime-local",
+                "datetime",
                 "email",
                 "month",
                 "number",

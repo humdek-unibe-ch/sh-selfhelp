@@ -1,3 +1,11 @@
+# v3.6.0 (Latest)
+
+### Bugfix
+ - Export section now corectly exports CSS values.
+
+### Changes
+ - Inputs with types: date, datetime and time now are based on [flatpickr](https://flatpickr.js.org)
+
 # v3.5.0
 
 ### Bugfix

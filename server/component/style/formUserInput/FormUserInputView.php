@@ -133,6 +133,11 @@ class FormUserInputView extends StyleView
             "name" => "ajax",
             "value" => $this->ajax,
         ));
+        $children[] = new BaseStyleComponent("input", array(
+            "type_input" => "hidden",
+            "name" => "is_log",
+            "value" => $this->is_log,
+        ));
         $url = $_SERVER['REQUEST_URI'] . '#section-'
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(

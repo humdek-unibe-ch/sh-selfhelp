@@ -5,6 +5,7 @@ $(document).ready(function () {
 function formSubmitEvent() {
     $('form').on('submit', function (e) {
         if ($(this).find('input[name="ajax"]').val() == 1) {
+            var is_log = $(this).find('input[name="is_log"]').val() == 1;
             e.preventDefault(); //prevent default php submit
 
             $('.alert-danger').remove(); //remove previous fail messages if they exists
@@ -22,8 +23,8 @@ function formSubmitEvent() {
                 );
                 $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span> ' + origLabel);
             });
-            
-            var formId = $(this).attr('id');
+
+            var form = this;
 
             // AJAX call
             $.ajax({
@@ -43,11 +44,10 @@ function formSubmitEvent() {
                     $(htmlDoc).find('.alert-danger').each(function () {
                         $(this).insertBefore($('form'));
                     });
-                                        
-                    // assign form; if is log it will be cleared otherwise the values will be shown
-                    $(htmlDoc).find('#' + formId).each(function () {
-                        $('#' + formId).html($(this).html());
-                    });
+
+                    if (is_log) {
+                        $(form)[0].reset();
+                    }
 
                     // restore the original buttons labels
                     btnLabels.forEach(element => {

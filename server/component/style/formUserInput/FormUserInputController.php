@@ -104,7 +104,7 @@ class FormUserInputController extends BaseController
             else if($style == "input")
             {
                 $type = $this->model->get_field_type($id_section);
-                if($type == "text" || $type == "checkbox" || $type == "month" || $type == "time"
+                if($type == "text" || $type == "checkbox" || $type == "month" || $type == "time" || $type == "datetime-local" || $type == "datetime"
                     || $type == "week" || $type == "search" || $type == "tel")
                     $filter_rules[$id_section] = "trim|sanitize_string";
                 else if($type == "color")
