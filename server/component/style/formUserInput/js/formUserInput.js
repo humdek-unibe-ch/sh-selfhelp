@@ -22,6 +22,8 @@ function formSubmitEvent() {
                 );
                 $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span> ' + origLabel);
             });
+            
+            var formId = $(this).attr('id');
 
             // AJAX call
             $.ajax({
@@ -40,6 +42,11 @@ function formSubmitEvent() {
                     //assign fail alerts
                     $(htmlDoc).find('.alert-danger').each(function () {
                         $(this).insertBefore($('form'));
+                    });
+                                        
+                    // assign form; if is log it will be cleared otherwise the values will be shown
+                    $(htmlDoc).find('#' + formId).each(function () {
+                        $('#' + formId).html($(this).html());
                     });
 
                     // restore the original buttons labels
