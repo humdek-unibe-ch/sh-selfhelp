@@ -92,7 +92,7 @@ abstract class BaseComponent
     public function output_content_mobile()
     {
         if($this->view)
-            $this->view->output_content_mobile();
+            return $this->view->output_content_mobile();
     }
 
     /**

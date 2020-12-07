@@ -430,10 +430,11 @@ abstract class BasePage
      */
     public function output_base_content_mobile()
     {
+        $res = [];
         $login= $this->services->get_login();
         //if($this->render_nav) $this->output_component("nav");
         if($this->acl_pass)
-            $this->output_content_mobile();
+            $res[] = $this->output_content_mobile();
         // else if($login->is_logged_in())
         // {
         //     $page = new InternalPage($this, "no_access");
@@ -445,6 +446,7 @@ abstract class BasePage
         //     $page->output_content();
         // }
         // if($this->render_footer) $this->output_component("footer");
+        return $res;
     }
 
     /**

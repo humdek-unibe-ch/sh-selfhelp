@@ -93,5 +93,21 @@ abstract class StyleView extends BaseView
             else
                 echo "invalid child element of type '" . gettype($child) . "'";
     }
+
+    /**
+     * Render the content of all children of this view instance.
+     */
+    protected function output_children_mobile()
+    {
+        $res = [];
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                $res[] = $child->output_content_mobile();
+            } else {
+                echo "invalid child element of type '" . gettype($child) . "'";
+            }
+        }
+        return $res;
+    }
 }
 ?>

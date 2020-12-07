@@ -154,8 +154,9 @@ class FormUserInputView extends StyleView
     }
 	
 	public function output_content_mobile()
-    {
-        echo 'mobile';
+    {        
+        $_SESSION['mobile'][] = 'form';        
+        $this->output_content();
     }
 }
 ?>

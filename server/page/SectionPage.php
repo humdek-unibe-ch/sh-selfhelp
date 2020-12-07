@@ -111,6 +111,7 @@ class SectionPage extends BasePage
 
     protected function output_content_mobile()
     {
+        $res = [];
         $db = $this->services->get_db();
         $was_section_rendered = false;
         foreach($this->sections as $section)
@@ -118,7 +119,7 @@ class SectionPage extends BasePage
             $comp = $this->get_component("section-" . $section['id']);
             if($comp->has_access())
             {
-                $comp->output_content_mobile();
+                $res[] = $comp->output_content_mobile();
                 $was_section_rendered = true;
             }
         }
@@ -129,7 +130,7 @@ class SectionPage extends BasePage
             if($db->query_db_first($sql, array(
                     ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
             {
-                $this->output_component_mobile("navigation");
+                $res[] = $this->output_component_mobile("navigation");
                 $was_section_rendered = true;
             }
         }
@@ -138,8 +139,9 @@ class SectionPage extends BasePage
             && !$was_section_rendered)
         {
             $page = new InternalPage($this, "missing");
-            $page->output_content_mobile();
+            $res[] = $page->output_content_mobile();
         }
+        return $res;
     }
 
 

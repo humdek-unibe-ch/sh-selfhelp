@@ -49,19 +49,22 @@ $router = $services->get_router();
 $db = $services->get_db();
 
 if (isset($_POST['mobile']) && $_POST['mobile']) {
-    mobile_call($services, $router, $db);
+    mobile_call($services, $router, $db);    
 } else {
     web_call($services, $router, $db);
 }
 
 function mobile_call($services, $router, $db){
+    $_SESSION['mobile'] = [];
+    $res = [];
     if($router->route)
     {
         if($router->route['target'] == "sections")
         {
             $page = new SectionPage($services, $router->route['name'],
                 $router->route['params']);
-            $page->output_base_content_mobile();
+            $res[] = $page->output_base_content_mobile();
+            echo json_encode($res);
         }
         else if($router->route['target'] == "component")
         {

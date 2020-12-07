@@ -193,7 +193,8 @@ abstract class FormFieldView extends StyleView
 	
 	public function output_content_mobile()
     {
-        echo 'mobile';
+        $_SESSION['mobile'][] = 'field';
+        $this->output_content();
     }
 
     /**
