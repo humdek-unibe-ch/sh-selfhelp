@@ -220,7 +220,7 @@ class NavModel extends BaseModel
                 FROM users_groups ug
                 INNER JOIN acl_groups acl ON (acl.id_groups = ug.id_groups)
                 INNER JOIN pages p ON (acl.id_pages = p.id)
-                WHERE id_users = :uid AND keyword = 'chatSubject' AND acl_select = 1 AND ug.id_groups > 2
+                WHERE id_users = :uid AND keyword = 'chatSubject' AND acl_select = 1 AND ug.id_groups > 1
                 ORDER BY ug.id_groups ASC";
         return $this->db->query_db_first($sql, array(":uid"=>$_SESSION['id_user']));
     }
