@@ -34,7 +34,7 @@ class NavModel extends BaseModel
      * database.
      *
      * @retval array
-     *  An array prepared by NavModel::prepare_all_pages.
+     *  An array prepared by NavModel::prepare_pages.
      */
     public function fetch_pages()
     {
@@ -52,7 +52,17 @@ class NavModel extends BaseModel
     }
 
     /**
+     * Defines the structure of a single page navigation item.
      *
+     * @param array $page
+     *  An associative array of a single page entry returned by a db querry.
+     * @retval array
+     *  A \<page array\> with the keys
+     *  - `title`: The title of the page
+     *  - `keyword`: To the route identifier
+     *  - `id_navigation_section`: The ID of a navigation section which allows
+     *    to link the parent navigation page as a menu
+     *  - `children`: \<page array\>
      */
     private function prepare_page($page)
     {
@@ -71,11 +81,8 @@ class NavModel extends BaseModel
      * @param array $pages_db
      *  An associative array returned by a db querry.
      * @retval array
-     *  A \<page array\> of the from
-     *   \<keyword\> =>
-     *      "title" => \<page_title\>
-     *      "children" => \<page array\>
-     *  where the keyword corresponds to the route identifier.
+     *  A herarchical array of page items where ecah item is defined
+     *  NavModel::prepare_page. The key of each page is the page id.
      */
     private function prepare_pages($pages_db)
     {

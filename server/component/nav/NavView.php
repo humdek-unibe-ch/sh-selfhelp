@@ -159,6 +159,9 @@ class NavView extends BaseView
             require __DIR__ .'/tpl_new_messages.php';
     }
 
+    /**
+     * Render the profile menu.
+     */
     private function output_profile()
     {
         $profile = $this->model->get_profile();
