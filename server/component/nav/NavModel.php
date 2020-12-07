@@ -128,7 +128,8 @@ class NavModel extends BaseModel
             }
             else if($item['parent'] !== NULL
                     && $item['nav_position'] !== NULL
-                    && $item['acl']) {
+                    && $item['acl']
+                    && array_key_exists($item['parent'], $pages)) {
                 $pages[$item['parent']]['children'][$item['id']] = $this->prepare_page($item);
                 if($item['is_active']) {
                     $pages[$item['parent']]['is_active'] = true;
