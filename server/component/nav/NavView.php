@@ -55,8 +55,9 @@ class NavView extends BaseView
     private function output_nav_items()
     {
         $pages = $this->model->get_pages();
-        foreach($pages as $key => $page)
+        foreach($pages as $page)
         {
+            $key = $page['keyword'];
             $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
             if(empty($page['children']))
                 $this->output_nav_item($key, $page['title'], $nav_child);
@@ -135,8 +136,9 @@ class NavView extends BaseView
      */
     private function output_nav_menu_items($children)
     {
-        foreach($children as $key => $page)
+        foreach($children as $page)
         {
+            $key = $page['keyword'];
             if(empty($page['children']))
             {
                 $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
@@ -157,6 +159,14 @@ class NavView extends BaseView
             require __DIR__ .'/tpl_new_messages.php';
     }
 
+    private function output_profile()
+    {
+        $profile = $this->model->get_profile();
+        $profile_title = $profile["title"];
+        $profile_children = $profile["children"];
+        $this->output_nav_menu('profile', $profile_title, $profile_children, true);
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -167,9 +177,6 @@ class NavView extends BaseView
         $home_url = $this->model->get_link_url("home");
         $home = $this->model->get_home();
         $login = $this->model->get_login();
-        $profile = $this->model->get_profile();
-        $profile_title = $profile["title"];
-        $profile_children = $profile["children"];
         require __DIR__ . "/tpl_nav.php";
     }
 }
