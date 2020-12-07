@@ -70,6 +70,7 @@ class NavModel extends BaseModel
             "id_navigation_section" => $page['id_navigation_section'],
             "title" => $page['title'],
             "keyword" => $page['keyword'],
+            "is_active" => $page['is_active'],
             "children" => array()
         );
     }
@@ -102,27 +103,35 @@ class NavModel extends BaseModel
                     "id" => $item['id'],
                     "title" => $item["title"] .= ' (' . $this->db->fetch_user_name() . ')',
                     "keyword" => $item['keyword'],
+                    "is_active" => false,
                     "children" => array()
                 );
             }
             else if($item['parent'] === NULL
                     && $item['nav_position'] !== NULL
                     && $pages_db[$key]['acl']) {
+                $item['is_active'] = false;
                 $pages[$item['id']] = $this->prepare_page($item);
             }
         }
 
         foreach($pages_db as $item) {
+            $item['is_active'] = false;
+            if($this->is_link_active($item['keyword'])) {
+                $item['is_active'] = true;
+            }
             if($item['parent'] === $this->profile['id']) {
                 $this->profile['children'][$item['id']] = $this->prepare_page($item);
+                if($item['is_active']) {
+                    $this->profile['is_active'] = true;
+                }
             }
             else if($item['parent'] !== NULL
                     && $item['nav_position'] !== NULL
                     && $item['acl']) {
-                if(!array_key_exists($item['parent'], $pages)) {
-                    $profile[$item['parent']]['children'][$item['id']] = $this->prepare_page($item);
-                } else {
-                    $pages[$item['parent']]['children'][$item['id']] = $this->prepare_page($item);
+                $pages[$item['parent']]['children'][$item['id']] = $this->prepare_page($item);
+                if($item['is_active']) {
+                    $pages[$item['parent']]['is_active'] = true;
                 }
             }
         }
@@ -130,6 +139,17 @@ class NavModel extends BaseModel
     }
 
     /* Public Methods *********************************************************/
+
+    /**
+     * Checks whether the chat page is currently active.
+     *
+     * @retval bool
+     *  True if the chat page is active, fale otherwise
+     */
+    public function get_chat_active() {
+        return $this->is_link_active("chatTherapist")
+                || $this->is_link_active("chatSubject");
+    }
 
     /**
      * Fetch the first navigation section from a navigation page.
@@ -167,6 +187,14 @@ class NavModel extends BaseModel
      *  The name of the login page.
      */
     public function get_login() { return $this->db->get_link_title("login"); }
+
+    /**
+     * Checks whether the login page is currently active.
+     *
+     * @retval bool
+     *  True if the login page is active, fale otherwise
+     */
+    public function get_login_active() { return $this->is_link_active("login"); }
 
     /**
      * Return the number of new messages.
