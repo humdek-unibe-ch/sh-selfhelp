@@ -9,7 +9,7 @@ function init_datetime_inputs() {
     $("input[type='datetime']").each(function () {
         $(this).flatpickr({
             enableTime: true,
-            dateFormat: 'Y-m-d H:i',
+            dateFormat: $(this).attr('data-format') == '' ? 'Y-m-d H:i' : $(this).attr('data-format'),
             time_24hr: true,
             weekNumbers: true,
             allowInput: true
@@ -21,7 +21,7 @@ function init_date_inputs() {
     $("input[type='date']").each(function () {
         $(this).flatpickr({
             enableTime: false,
-            dateFormat: 'Y-m-d',
+            dateFormat: $(this).attr('data-format') == '' ? 'Y-m-d' : $(this).attr('data-format'),
             weekNumbers: true,
             allowInput: true
         });
@@ -32,7 +32,7 @@ function init_time_inputs() {
     $("input[type='time']").each(function () {
         $(this).flatpickr({
             enableTime: true,
-            dateFormat: 'H:i',
+            dateFormat: $(this).attr('data-format') == '' ? 'H:i' : $(this).attr('data-format'),
             time_24hr: true,
             allowInput: true,
             noCalendar: true,

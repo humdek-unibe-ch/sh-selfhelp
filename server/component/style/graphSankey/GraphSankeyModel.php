@@ -82,10 +82,12 @@ class GraphSankeyModel extends GraphModel
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of the navigation wrapper.
+     * @param array $params
+     *  An array of get parameters.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params);
         $this->data_types = $this->get_db_field("value_types", array());
         $this->data_cols = $this->get_db_field("form_field_names", array());
         $this->link_color = $this->get_db_field("link_color");

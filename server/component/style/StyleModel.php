@@ -132,6 +132,10 @@ class StyleModel extends BaseModel implements IStyleModel
                     }
                 }
                 $data = $config['type'] === 'static' ? $this->get_static_data($table_id, $filter) : $this->get_dynamic_data($table_id, $filter);
+                $data = array_filter($data, function ($value){
+
+                    return ($value["deleted"] != 1);
+                });
                 foreach ($config['fields'] as $key => $field) {
                     // loop fields
                     $field_value =  isset($data[0][$field['field_name']]) ? $data[0][$field['field_name']] : $field['not_found_text']; // get the first value
