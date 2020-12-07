@@ -141,17 +141,6 @@ class NavModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
-     * Checks whether the chat page is currently active.
-     *
-     * @retval bool
-     *  True if the chat page is active, fale otherwise
-     */
-    public function get_chat_active() {
-        return $this->is_link_active("chatTherapist")
-                || $this->is_link_active("chatSubject");
-    }
-
-    /**
      * Fetch the first navigation section from a navigation page.
      *
      * @param int $id_parent

@@ -39,7 +39,7 @@ class NavView extends BaseView
         } else {
             return;
         }
-        $active = ($this->model->get_chat_active()) ? "active" : "";
+        $active = ($this->model->is_link_active($key)) ? "active" : "";
         $group =  $this->model->get_chat_first_chat_group();
         if (!$group) {
             // if there is no chat group do not show
@@ -177,8 +177,8 @@ class NavView extends BaseView
     public function output_content()
     {
         $home_url = $this->model->get_link_url("home");
-        $login_is_active = $this->model->get_login_active();
         $home = $this->model->get_home();
+        $login_is_active = $this->model->get_login_active();
         $login = $this->model->get_login();
         require __DIR__ . "/tpl_nav.php";
     }
