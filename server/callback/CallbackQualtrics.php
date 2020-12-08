@@ -351,7 +351,7 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.
-     * @param in $user_id
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -449,7 +449,7 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.     
-     * @param in user_id
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -651,10 +651,11 @@ class CallbackQualtrics extends BaseCallback
     /**
      * Fill pdf form template with qualtrics embeded data. The name of the form's fields should be the same as the name of the embeded data fields
      *
-     * @param string $function_name the name of the function - we use it to get the template
+     * @param string $function_name the
+     *  name of the function - we use it to get the template
      * @param array $data
      *  the data from the callback.     
-     * @param in user_id
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -737,7 +738,7 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.
-     * @param in $user_id
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -771,8 +772,6 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.     
-     * @param int $uid
-     * user id
      * @retval int
      *  The id of the new user.
      */
