@@ -67,9 +67,9 @@ class DataModel extends BaseModel
 
     /**
      * Get the all fields from a form
-     * @param int formId
+     * @param int $formId
      * form id
-     * @param string user_ids
+     * @param string $user_ids
      * user ids  
      * @retval array
      *  As array of items where each item has the following keys:

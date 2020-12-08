@@ -20,7 +20,7 @@ class UserInput
     /**
      * The collection of input field attributes. See UserInput::set_field_attrs.
      */
-    private $field_attrs;
+    private $field_attrs = NULL;
 
     /* Constructors ***********************************************************/
 
@@ -31,7 +31,6 @@ class UserInput
     public function __construct($db)
     {
         $this->db = $db;
-        $this->set_field_attrs();
     }
 
     /* Private Methods ********************************************************/
@@ -61,6 +60,8 @@ class UserInput
      */
     private function fetch_input_fields($conds = array())
     {
+        if( $this->field_attrs === NULL)
+            $this->set_field_attrs();
         $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
             g.name AS gender, vc.code
             FROM user_input AS ui

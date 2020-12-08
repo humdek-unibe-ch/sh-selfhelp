@@ -175,7 +175,7 @@ abstract class BaseView
 
     /**
      *  get lookups by types.
-     *  @param string $lookupType
+     *  @param string $type
      *  The type of the lookup
      *
      *  @retval array
@@ -192,7 +192,7 @@ abstract class BaseView
 
     /**
      *  get lookups by types.
-     *  @param string $lookupType
+     *  @param string $type
      *  The type of the lookup
      *
      *  @retval array

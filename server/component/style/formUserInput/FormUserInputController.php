@@ -105,12 +105,12 @@ class FormUserInputController extends BaseController
             {
                 $type = $this->model->get_field_type($id_section);
                 if($type == "text" || $type == "checkbox" || $type == "month" || $type == "time" || $type == "datetime-local" || $type == "datetime"
-                    || $type == "week" || $type == "search" || $type == "tel")
+                    || $type == "week" || $type == "search" || $type == "tel" || $type == "date")
                     $filter_rules[$id_section] = "trim|sanitize_string";
                 else if($type == "color")
                     $validation_rules[$id_section] = "regex,/#[a-fA-F0-9]{6}/";
-                else if($type == "date")
-                    $validation_rules[$id_section] = "date";
+                // else if($type == "date")
+                //     $validation_rules[$id_section] = "date";
                 else if($type == "email")
                     $validation_rules[$id_section] = "valid_email";
                 else if($type == "number" || $type == "range")

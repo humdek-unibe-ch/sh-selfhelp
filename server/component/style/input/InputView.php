@@ -37,6 +37,12 @@ class InputView extends FormFieldView
      */
     private $section_id;
 
+    /**
+     * DB field 'format' ('').
+     * Format field for the input
+     */
+    private $format;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -53,6 +59,7 @@ class InputView extends FormFieldView
         $this->section_id = $id;
         $this->type = $this->model->get_db_field("type_input", "text");
         $this->placeholder = $this->model->get_db_field("placeholder");
+        $this->format = $this->model->get_db_field("format", "");
         $this->disable_autocomplete = $this->model->get_db_field(
             "disable_autocomplete", false);
         if($this->type == "checkbox")

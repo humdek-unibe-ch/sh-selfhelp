@@ -107,9 +107,9 @@ class StyleModel extends BaseModel implements IStyleModel
 
     /**
      * Fetch the data from the database base on the JSON configuration
-     * @param array
+     * @param array $data_config
      * Json configuration
-     * @retval array 
+     * @retval array
      * array with the retrieved fields and their values
      */
     private function fetch_data($data_config)
@@ -131,21 +131,33 @@ class StyleModel extends BaseModel implements IStyleModel
                         $filter = "ORDER BY edit_time DESC";
                     }
                 }
-                $data = $config['type'] === 'static' ? $this->get_static_data($table_id, $filter) : $this->get_dynamic_data($table_id, $filter);
+                $data = $config['type'] === 'static' ? $this->get_static_data(
+                    $table_id,
+                    $filter
+                ) : $this->get_dynamic_data($table_id, $filter);
+                $data = array_filter($data, function ($value) {
+                        return ($value["deleted"] != 1);
+                    });
                 foreach ($config['fields'] as $key => $field) {
                     // loop fields
-                    $field_value =  isset($data[0][$field['field_name']]) ? $data[0][$field['field_name']] : $field['not_found_text']; // get the first value
-                    if ($config['retrieve'] === 'all') {
-                        // get the other values too
-                        $field_value = '"' . $field_value . '"'; // add quotes to the first entry in the array
-                        foreach ($data as $key => $row) {
-                            if ($key > 0) {
-                                // we already got the first row
-                                if (isset($row[$field['field_name']])) {
-                                    $field_value = $field_value . ',"' . $row[$field['field_name']] . '"';
-                                }
+                    $i = 0;
+                    $field_value = '';
+                    foreach ($data as $key => $row) {
+                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $row[$field['not_found_text']]; // get the first value
+                        if ($config['retrieve'] != 'all') {
+                            $field_value = $val;
+                            break; // we don need the others;
+                        } else {
+                            if ($i === 0) {
+                                $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
+                            } else {
+                                // get the other values too                                
+                                $field_value = $field_value . ',"' . $val . '"';
                             }
                         }
+                        $i++;
+                    }
+                    if ($config['retrieve'] === 'all') {
                         $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
                     }
                     $result[$field['field_holder']] = $field_value;
