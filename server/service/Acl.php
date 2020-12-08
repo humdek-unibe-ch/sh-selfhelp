@@ -12,6 +12,11 @@ class Acl
     /* Private Properties *****************************************************/
 
     /**
+     * The ACL table for the current user of all pages.
+     */
+    private $current_user_acl;
+
+    /**
      * The db instance which grants access to the DB.
      */
     private $db;
@@ -27,6 +32,8 @@ class Acl
     public function __construct($db)
     {
         $this->db = $db;
+        $this->current_user_acl = $this->get_access_levels_db_user_all_pages(
+            $_SESSION['id_user']);
     }
 
     /* Private Methods ********************************************************/
@@ -469,7 +476,8 @@ class Acl
     }
 
     /**
-     * Verifies user delete access to a specific page.
+     * Verifies a specific user or group access level to a specific page.
+     * If the acl of the current user is checked, the chached db ACL is used.
      *
      * @param int $id
      *  The unique identifier of the user or the group.
@@ -484,6 +492,29 @@ class Acl
      */
     public function has_access($id, $id_page, $mode, $is_group = false)
     {
+        if(!$is_group && $id == $_SESSION['id_user']) {
+            return $this->has_access_current_user($id_page, $mode);
+        }
+
+        return $this->has_access_any($id, $id_page, $mode, $is_group);
+    }
+
+    /**
+     * Verifies a specific user or group access level to a specific page.
+     *
+     * @param int $id
+     *  The unique identifier of the user or the group.
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param string $mode
+     *  The acl mode to check, i.e. "select", "insert", "update", or "delete".
+     * @param bool $is_group
+     *  If set to true, target the groups acl, otherwise the users acl.
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access_any($id, $id_page, $mode, $is_group = false)
+    {
         //if(!$is_group && $id == ADMIN_USER_ID) // why?
         //    return true;
         $acl = $this->get_access_levels($id, $id_page, $is_group);
@@ -494,6 +525,25 @@ class Acl
         }
         if(isset($acl[$mode]))
             return $acl[$mode];
+        return false;
+    }
+
+    /**
+     * Verifies a specific access level of the current user to a specific page.
+     *
+     * @param in $id_page
+     *  The unique identifier of the page.
+     * @param string $mode
+     *  The acl mode to check, i.e. "select", "insert", "update", or "delete".
+     * @retval bool
+     *  true if access is granted, false otherwise.
+     */
+    public function has_access_current_user($id_page, $mode)
+    {
+        foreach($this->current_user_acl as $acl) {
+            if($acl['id_pages'] == $id_page && $acl['acl_' . $mode] == '1')
+                return true;
+        }
         return false;
     }
 
