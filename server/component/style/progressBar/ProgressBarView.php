@@ -87,10 +87,5 @@ class ProgressBarView extends StyleView
             $striped = "progress-bar-striped";
         require __DIR__ . "/tpl_progress.php";
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

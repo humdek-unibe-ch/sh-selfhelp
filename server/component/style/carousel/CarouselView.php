@@ -149,9 +149,5 @@ class CarouselView extends StyleView
         require __DIR__ . "/tpl_carousel.php";
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

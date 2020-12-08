@@ -110,9 +110,5 @@ class GraphSankeyView extends GraphView
         }
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

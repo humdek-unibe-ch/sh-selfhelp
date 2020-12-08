@@ -59,10 +59,5 @@ class ResetPasswordView extends EmailFormBaseView
     {
         require __DIR__ . "/tpl_reset.php";
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

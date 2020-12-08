@@ -254,10 +254,5 @@ class ShowUserInputView extends StyleView
         if(count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

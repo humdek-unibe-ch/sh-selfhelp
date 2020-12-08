@@ -37,10 +37,5 @@ class TemplateView extends StyleView
         $fields = $this->model->get_db_field("items");
         require $this->model->get_db_field("path");
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

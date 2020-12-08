@@ -56,9 +56,5 @@ class ModalView extends StyleView
         require __DIR__ . "/tpl_modal.php";
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

@@ -106,11 +106,6 @@ class FormView extends StyleView
         if($this->url == "") return;
         require __DIR__ . "/tpl_form.php";
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 
     /**
      * Render the submit and send button.

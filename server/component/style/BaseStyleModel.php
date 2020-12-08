@@ -143,5 +143,10 @@ class BaseStyleModel implements IStyleModel
         foreach($fields as $key => $content)
             $this->fields[$key] = $content;
     }
+
+    public function get_db_fields()
+    {
+        return $this->fields;
+    }
 }
 ?>

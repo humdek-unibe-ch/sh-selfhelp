@@ -115,16 +115,5 @@ class CardView extends StyleView
         require __DIR__ . "/tpl_card.php";
     }
 	
-	public function output_content_mobile()
-    {
-        $card = [];
-        $card['is_expanded'] = $this->is_expanded;
-        $card['is_collapsible'] = $this->is_collapsible;
-        $card['url_edit'] = $this->url_edit;
-        $card['title'] = $this->title;
-        $card['type'] = $this->type;
-        $card['children'] = $this->output_children_mobile();
-        return $card;
-    }
 }
 ?>

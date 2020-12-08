@@ -115,9 +115,5 @@ class ProfileView extends StyleView
         require __DIR__ . "/tpl_profile.php";
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

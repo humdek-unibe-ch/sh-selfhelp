@@ -190,12 +190,6 @@ abstract class FormFieldView extends StyleView
         else
             require __DIR__ . "/tpl_label.php";
     }
-	
-	public function output_content_mobile()
-    {
-        $_SESSION['mobile'][] = 'field';
-        $this->output_content();
-    }
 
     /**
      * Public setter for the value.

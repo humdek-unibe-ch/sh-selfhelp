@@ -128,9 +128,5 @@ class DescriptionItemView extends StyleView
         require __DIR__ . "/tpl_item.php";
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

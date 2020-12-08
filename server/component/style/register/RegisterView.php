@@ -132,9 +132,5 @@ class RegisterView extends StyleView
         }
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

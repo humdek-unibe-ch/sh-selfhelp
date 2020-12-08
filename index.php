@@ -62,8 +62,8 @@ function mobile_call($services, $router, $db){
         if($router->route['target'] == "sections")
         {
             $page = new SectionPage($services, $router->route['name'],
-                $router->route['params']);
-            $res[] = $page->output_base_content_mobile();
+                $router->route['params'], true);
+            $res = $page->output_base_content_mobile();
             echo json_encode($res);
         }
         else if($router->route['target'] == "component")

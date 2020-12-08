@@ -81,9 +81,6 @@ class GraphLegendView extends StyleView
             require __DIR__ . "/tpl_graphLegend.php";
         }
     }
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
+
 }
 ?>

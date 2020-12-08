@@ -61,9 +61,5 @@ class ButtonView extends StyleView
         require __DIR__ . "/tpl_button.php";
     }
 
-    public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

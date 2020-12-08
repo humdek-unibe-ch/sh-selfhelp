@@ -109,5 +109,14 @@ abstract class StyleView extends BaseView
         }
         return $res;
     }
+
+    public function output_content_mobile()
+    {
+        $style = $this->model->get_db_fields();
+        $style['type'] = 'style';
+        $style['name'] = $this->style_name;
+        $style['children'] = $this->output_children_mobile();
+        return $style;
+    }
 }
 ?>

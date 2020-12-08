@@ -78,9 +78,5 @@ class MarkdownView extends StyleView
         require __DIR__ . "/tpl_markdown.php";
     }
 	
-	public function output_content_mobile()
-    {
-        return 'markdown';
-    }
 }
 ?>

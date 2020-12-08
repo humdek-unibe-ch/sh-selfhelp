@@ -53,9 +53,5 @@ class HeadingView extends StyleView
         require __DIR__ . "/tpl_title.php";
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

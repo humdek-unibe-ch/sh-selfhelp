@@ -432,19 +432,21 @@ abstract class BasePage
     {
         $res = [];
         $login= $this->services->get_login();
-        //if($this->render_nav) $this->output_component("nav");
+        if($this->render_nav){ 
+            $res['navigation'] = $this->output_component_mobile("nav");
+        }
         if($this->acl_pass)
-            $res[] = $this->output_content_mobile();
-        // else if($login->is_logged_in())
-        // {
-        //     $page = new InternalPage($this, "no_access");
-        //     $page->output_content();
-        // }
-        // else
-        // {
-        //     $page = new InternalPage($this, "no_access_guest");
-        //     $page->output_content();
-        // }
+            $res['content'] = $this->output_content_mobile();
+        else if($login->is_logged_in())
+        {
+            $page = new InternalPage($this, "no_access");
+            $page->output_content_mobile();
+        }
+        else
+        {
+            $page = new InternalPage($this, "no_access_guest");
+            $page->output_content_mobile();
+        }
         // if($this->render_footer) $this->output_component("footer");
         return $res;
     }
@@ -546,7 +548,7 @@ abstract class BasePage
     {
         $component = $this->get_component($key);
         if($component != null)
-            $component->output_content_mobile();
+            return $component->output_content_mobile();
     }
 }
 ?>

@@ -36,9 +36,5 @@ class JumbotronView extends StyleView
         require __DIR__ . "/tpl_jumbotron.php";
     }
 	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

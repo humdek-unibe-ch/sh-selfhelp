@@ -80,10 +80,5 @@ class SearchView extends StyleView
         ));
         $style->output_content();
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

@@ -111,10 +111,5 @@ class QuizView extends StyleView
         if($this->title == "") return;
         require __DIR__ . "/tpl_quiz.php";
     }
-	
-	public function output_content_mobile()
-    {
-        echo 'mobile';
-    }
 }
 ?>

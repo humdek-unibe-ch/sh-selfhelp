@@ -194,7 +194,7 @@ class NavView extends BaseView
 
     public function output_content_mobile()
     {
-        echo 'mobile';
+        return $this->model->get_pages();
     }
 }
 ?>

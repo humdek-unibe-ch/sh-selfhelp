@@ -62,7 +62,7 @@ class ConditionalContainerView extends StyleView
 	
 	public function output_content_mobile()
     {
-        echo 'mobile';
+        echo 'mobile ConditionalContainerView';
     }
 }
 ?>
