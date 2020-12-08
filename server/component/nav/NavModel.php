@@ -111,6 +111,9 @@ class NavModel extends BaseModel
                     && $item['nav_position'] !== NULL
                     && $pages_db[$key]['acl']) {
                 $item['is_active'] = false;
+                if($this->is_link_active($item['keyword'])) {
+                    $item['is_active'] = true;
+                }
                 $pages[$item['id']] = $this->prepare_page($item);
             }
         }
