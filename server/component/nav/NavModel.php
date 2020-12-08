@@ -92,16 +92,9 @@ class NavModel extends BaseModel
     private function prepare_pages($pages_db)
     {
         $pages = array();
-        $acl_pages = $this->acl->get_access_levels_db_user_all_pages(
-                $_SESSION['id_user']);
         foreach($pages_db as $key => $item) {
-            $pages_db[$key]['acl'] = false;
-            foreach($acl_pages as $acl) {
-                if($acl["acl_select"] == 1 && $acl["id_pages"] == $item['id']) {
-                    $pages_db[$key]['acl'] = true;
-                    break;
-                }
-            }
+            $pages_db[$key]['acl'] = $this->acl->has_access_select(
+                $_SESSION['id_user'], $item['id']);
             if($item['keyword'] === "profile-link") {
                 $this->profile = array(
                     "id" => $item['id'],
