@@ -172,14 +172,13 @@ class Acl
         $arguments = array(
             ":uid" => $id_user,
             ":pid" => $id_page
-        );        
+        );
         $acl_db_user = $this->db->query_db($sql, $arguments);
-        if($acl_db_user)
-        {
-            if($acl_db_user[0]['acl_select'] == '1') $acl["select"] = true;
-            if($acl_db_user[0]['acl_insert'] == '1') $acl["insert"] = true;
-            if($acl_db_user[0]['acl_update'] == '1') $acl["update"] = true;
-            if($acl_db_user[0]['acl_delete'] == '1') $acl["delete"] = true;
+        foreach($acl_db_user as $item) {
+            if($item['acl_select'] == '1') $acl["select"] = true;
+            if($item['acl_insert'] == '1') $acl["insert"] = true;
+            if($item['acl_update'] == '1') $acl["update"] = true;
+            if($item['acl_delete'] == '1') $acl["delete"] = true;
         }
         return $acl;
     }
