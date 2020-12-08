@@ -1,4 +1,9 @@
-# v3.6.0 (Latest)
+# v3.7.0 (Latest)
+
+### Changes
+ - Add field format to style `input`. It is used for all date, time and datetime formats. [Info](https://selfhelp.psy.unibe.ch/demo/style/471)
+
+# v3.6.0
 
 ### Bugfix
  - Export section now corectly exports CSS values.
