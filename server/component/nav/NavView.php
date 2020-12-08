@@ -76,8 +76,11 @@ class NavView extends BaseView
      * @param int $nav_child
      *  The id of the target navigation section (only relevant for navigation
      *  pages).
+     * @param bool $is_active
+     *  A flag indicating whether the menu item is currently active.
      */
-    private function output_nav_item($key, $page_name, $nav_child=null, $is_active=false)
+    private function output_nav_item($key, $page_name, $nav_child=null,
+            $is_active=false)
     {
         $active = ($is_active) ? "active" : "";
         $params = array();
@@ -96,11 +99,14 @@ class NavView extends BaseView
      *  The title of the page the link is pointing to.
      * @param array $children
      *  An array of page items (see NavModel::prepare_pages).
+     * @param bool $is_active
+     *  A flag indicating whether the menu item is currently active.
      * @param bool $right
      *  If set to true the nemu is aligned to the right of the navbar. If set
      *  to false, the menu is left aligned (default).
      */
-    private function output_nav_menu($key, $page_name, $children, $is_active=false, $right=false)
+    private function output_nav_menu($key, $page_name, $children,
+            $is_active=false, $right=false)
     {
         $align = ($right) ? "dropdown-menu-right" : "";
         $active = ($is_active) ? "active" : "";
@@ -117,8 +123,11 @@ class NavView extends BaseView
      * @param int $nav_child
      *  The id of the target navigation section (only relevant for navigation
      *  pages).
+     * @param bool $is_active
+     *  A flag indicating whether the menu item is currently active.
      */
-    private function output_nav_menu_item($key, $page_name, $nav_child, $is_active=false)
+    private function output_nav_menu_item($key, $page_name, $nav_child,
+            $is_active=false)
     {
         $active = ($is_active) ? "active" : "";
         $params = array();

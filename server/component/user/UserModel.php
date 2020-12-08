@@ -258,7 +258,7 @@ class UserModel extends BaseModel
      *  The email address of the user to be added.
      * @param string $code
      *  A unique user code.
-     * @param boolean $code_exist
+     * @param boolean $code_exists
      * does the code exist already in validation_codes, if exist dont insert it again
      * @retval int
      *  The id of the new user or false if the process failed.
@@ -743,8 +743,8 @@ class UserModel extends BaseModel
     /**
      * Check is a user already auto_created
      *
-     * @param string $email
-     *  The email of the user.
+     * @param string $code
+     *  The code of the user.
      * @retval int
      *  The id of the new user.
      */

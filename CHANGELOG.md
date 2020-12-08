@@ -58,13 +58,13 @@
     - All messages are sent to the group, if there are multiple therapist in the group all of them will recieve the message
     - All old chat rooms are created as groups and users are assigned to them
     - The therapist should be in the same groups with the subject in order to send message to him/her
-    - All groups that had access to contact now have access to chatSubject
+    - All groups that had access to contact now have access to `chatSubject`
     - Remove pages: 'contact', 'chatAdminDelete', 'chatAdminInsert', 'chatAdminSelect', 'chatAdminUpdate'
     - All notification mails are send with the new mail module and they can be seen in the list
     - Subject group can be renamed in the chat style.
- - Issue: #201; Add style version that visualize the database version and the application versionl [Link](https://selfhelp.psy.unibe.ch/demo/style/806#section-806)
- - Issue: #196; add new link #last_user_page for buttons and links; It links to the last unique visited page #last_user_page
- - Issue: #199 ; remove user_name form the MySQL proceudure;
+ - Issue: #201; Add style version that visualize the database version and the application version [Link](https://selfhelp.psy.unibe.ch/demo/style/806#section-806)
+ - Issue: #196; add new link `#last_user_page` for buttons and links; It links to the last unique visited page `#last_user_page`
+ - Issue: #199 ; remove `user_name` form the MySQL proceudure;
 
 ### Bugfix
  - Issue: #285 When an users is deleted all scheduled emails for that users are deleted too.
@@ -130,10 +130,10 @@
     - Schedule email manually
     - Cronjob that check and send mails
 - Add Module Qualtrics
-    -   Add projects
-    -   Add surveys
-    -   Add actions
-    -   Qualtrics synchronization
+    - Add projects
+    - Add surveys
+    - Add actions
+    - Qualtrics synchronization
 - Add transcations
 - Add jQuery confirm dialog
 - Add flatpicker - now time can be selected too

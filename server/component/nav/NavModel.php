@@ -11,6 +11,10 @@ require_once __DIR__ . "/../BaseModel.php";
  */
 class NavModel extends BaseModel
 {
+    /**
+     * The profile menu structure. This is kept seperate from the rest of the
+     * menu because it will be rendered on the right.
+     */
     private $profile = array("title" => "", "children" => array());
 
     /* Constructors ***********************************************************/
