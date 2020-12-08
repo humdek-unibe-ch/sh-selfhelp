@@ -1,4 +1,14 @@
-# v3.6.0 (Latest)
+# v3.6.1 (Latest)
+
+### Bugfix
+ - Bad Scaling of UserInput Service (#284, !37).
+ - Catch Argument Count Error in conditionalContainer (!36).
+
+### Changes
+ - Redesign of the Navigation bar to reduce DB requests (!38).
+
+---------
+# v3.6.0
 
 ### Bugfix
  - Export section now corectly exports CSS values.
@@ -6,6 +16,7 @@
 ### Changes
  - Inputs with types: date, datetime and time now are based on [flatpickr](https://flatpickr.js.org)
 
+---------
 # v3.5.0
 
 ### Bugfix
@@ -16,6 +27,7 @@
  - Cretae Plugin functionality for Selfhelp. All installed plugins can be seen in `impressum` 
  - Add `triggerStyle`. It is used in order to call a `plugin` when a criteria is fulfilled.
 
+---------
 # v3.4.1
 
 ### Bugfix
