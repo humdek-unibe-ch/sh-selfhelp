@@ -107,9 +107,9 @@ class StyleModel extends BaseModel implements IStyleModel
 
     /**
      * Fetch the data from the database base on the JSON configuration
-     * @param array
+     * @param array $data_config
      * Json configuration
-     * @retval array 
+     * @retval array
      * array with the retrieved fields and their values
      */
     private function fetch_data($data_config)

@@ -109,7 +109,7 @@ class RegisterModel extends StyleModel
      *  The email address of the user.
      * @param string $code
      *  The code string entered by the user.
-     * @param bool #skip_group
+     * @param bool $skip_group
      * if true no default group is assign to the user
      * @retval mixed
      *  The user id the new user if the registration was successful,

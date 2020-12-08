@@ -124,7 +124,7 @@ class CallbackQualtrics extends BaseCallback
 
     /**
      * Change the status of the queueud mails to deleted
-     * @param @array $scheduled_reminders
+     * @param array $scheduled_reminders
      * Arra with reminders that should be deleted
      */
     private function delete_reminders($scheduled_reminders)
@@ -287,7 +287,7 @@ class CallbackQualtrics extends BaseCallback
      * Calculate the date when the email should be sent
      * @param array $schedule_info
      * Schedule info from the action
-     * @param string action_schedule_type_code
+     * @param string $action_schedule_type_code
      * type notification or reminder
      * @retval string
      * the date in sting format for MySQL
@@ -350,8 +350,8 @@ class CallbackQualtrics extends BaseCallback
      * Check if any mail should be queued based on the actions
      *
      * @param array $data
-     *  the data from the callback.     
-     * @param in user_id
+     *  the data from the callback.
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -449,7 +449,7 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.     
-     * @param in user_id
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -651,10 +651,11 @@ class CallbackQualtrics extends BaseCallback
     /**
      * Fill pdf form template with qualtrics embeded data. The name of the form's fields should be the same as the name of the embeded data fields
      *
-     * @param string $function_name the name of the function - we use it to get the template
+     * @param string $function_name the
+     *  name of the function - we use it to get the template
      * @param array $data
      *  the data from the callback.     
-     * @param in user_id
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -736,8 +737,8 @@ class CallbackQualtrics extends BaseCallback
      * Check if any action has addtional function that should be executed
      *
      * @param array $data
-     *  the data from the callback.     
-     * @param in user_id
+     *  the data from the callback.
+     * @param int $user_id
      * user id
      * @retval string
      *  log text what actions was done;
@@ -771,8 +772,6 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.     
-     * @param int $uid
-     * user id
      * @retval int
      *  The id of the new user.
      */

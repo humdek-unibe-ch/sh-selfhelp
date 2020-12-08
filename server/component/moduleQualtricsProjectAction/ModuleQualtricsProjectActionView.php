@@ -129,7 +129,6 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
 
     /**
      * get notification card.
-     * @param bool true = notification, false = reminder
      *
      *  @retval card
      */
@@ -282,7 +281,6 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
 
     /**
      * get notification card view.
-     * @param bool true = notification, false = reminder
      *
      *  @retval card
      */

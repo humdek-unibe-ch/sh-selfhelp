@@ -23,10 +23,10 @@
                     if($_SESSION['logged_in'])
                     {
                         $this->output_nav_chat();
-                        $this->output_nav_menu('profile', $profile_title, $profile_children, true);
+                        $this->output_profile();
                     }
                     else if($login)
-                        $this->output_nav_item('login', $login);
+                        $this->output_nav_item('login', $login, null, $login_is_active);
                 ?>
             </ul>
         </div>

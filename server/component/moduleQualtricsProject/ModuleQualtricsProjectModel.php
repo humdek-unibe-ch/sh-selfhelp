@@ -137,7 +137,8 @@ class ModuleQualtricsProjectModel extends BaseModel
      * Execute curl and get/set data to Qualtrics
      * @param array $data
      * request_type, url, post_params
-     * #retval bool or response
+     * @retval bool
+     *  false or response
      */
     private function execute_curl($data)
     {
@@ -221,8 +222,9 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * helper function to show the info from the requests
-     * @param bool result
-     * @param string text decription
+     * @param bool $result
+     * @param string $text
+     *  decription
      * @retval array
      */
     private function return_info($result, $text)
@@ -235,7 +237,7 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * helper function to show the info from the requests which combine multiple results
-     * @param array resultsArray
+     * @param array $resultsArray
      * @retval array
      */
     private function multi_return_info($resultsArray)
@@ -326,7 +328,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      * @param array $embedded_vars
      * @param string $flowId
      * @param string $url
-     * @param string $participant_varaible
+     * @param string $participant_variable
      * @param bool $is_callback 
      * @param string $fireAndForget if true qulatrics do not wait for a repsonse from the callback otherwise it waits
      * @param array $callbackResultStructure the variale that the callback can return
@@ -515,8 +517,8 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * Synchronize baseline survey to qualtrics via the API
-     * @param array @survey
-     * @param object @surveyFlow
+     * @param array $survey
+     * @param object $surveyFlow
      * @retval array
      */
     private function sync_baseline_survey($survey, $surveyFlow)
@@ -682,8 +684,8 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * Synchronize followup survey to qualtrics via the API
-     * @param array @survey
-     * @param object @surveyFlow
+     * @param array $survey
+     * @param object $surveyFlow
      * @retval array
      */
     private function sync_followup_survey($survey, $surveyFlow)
@@ -797,8 +799,8 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * Synchronize anonymous survey to qualtrics via the API
-     * @param array @survey
-     * @param object @surveyFlow
+     * @param array $survey
+     * @param object $surveyFlow
      * @retval array
      */
     private function sync_anonymous_survey($survey, $surveyFlow)

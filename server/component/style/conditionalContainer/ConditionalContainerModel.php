@@ -98,7 +98,7 @@ class ConditionalContainerModel extends StyleModel
         {
             $res['result'] = JsonLogic::apply(json_decode($j_condition, true));
         }
-        catch(Exception $e)
+        catch(\Exception | \ArgumentCountError $e)
         {
             $res['fields'] = "JsonLogic::apply() failed in section '"
                 . $this->get_db_field('id') . "': " . $e->getMessage();
