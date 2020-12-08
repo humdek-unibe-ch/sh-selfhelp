@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 01, 2020 at 02:44 PM
+-- Generation Time: Dec 08, 2020 at 11:11 AM
 -- Server version: 5.7.32-0ubuntu0.18.04.1
 -- PHP Version: 7.2.24-0ubuntu0.18.04.7
 
@@ -503,7 +503,8 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000151, 'email_subject', 0000000004, 1),
 (0000000152, 'email_body', 0000000004, 1),
 (0000000153, 'plugin', 0000000019, 0),
-(0000000154, 'ajax', 0000000003, 0);
+(0000000154, 'ajax', 0000000003, 0),
+(0000000155, 'format', 0000000001, 0);
 
 -- --------------------------------------------------------
 
@@ -1844,6 +1845,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 (0000000016, 0000000056, '0', 'If enabled the form can only be submitted if a value is enterd in this input field.'),
 (0000000016, 0000000057, NULL, 'The name of the input form field. This name must be unique within a form.'),
 (0000000016, 0000000058, NULL, 'The default value of the input field.'),
+(0000000016, 0000000155, '', 'Add format pattern for the [input](https://selfhelp.psy.unibe.ch/demo/style/471)'),
 (0000000017, 0000000024, NULL, 'The text to be rendered.'),
 (0000000017, 0000000059, '0', 'If enabled the text will be rendered within HTML `<p></p>` tags. If disabled the text will be rendered without any wrapping tags.'),
 (0000000018, 0000000008, NULL, 'Specifies the clickable text. If left empty the URL as specified in the field `url` will be used.'),
@@ -2363,7 +2365,7 @@ CREATE TABLE `version` (
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v3.6.0');
+(0000000001, 'v3.7.0');
 
 --
 -- Indexes for dumped tables
@@ -2833,7 +2835,7 @@ ALTER TABLE `cmsPreferences`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=155;
+  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=156;
 --
 -- AUTO_INCREMENT for table `fieldType`
 --
