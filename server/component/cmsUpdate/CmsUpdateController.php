@@ -98,11 +98,6 @@ class CmsUpdateController extends BaseController
             }
         } else if ($_POST['mode'] == "delete" && $_POST['relation'] != "") {
             $this->delete();
-        } else if ($_POST['mode'] == "update" && isset($_POST['css'])) {
-            // update the CSS if the style has now fields
-            $css = filter_var($_POST['css'], FILTER_SANITIZE_STRING);
-            $this->model->update_db(CSS_FIELD_ID, 1, 1, $css, "section_field");
-            $this->model->set_mode("select");
         }
 
     }
@@ -282,12 +277,6 @@ class CmsUpdateController extends BaseController
      */
     private function update($fields)
     {
-        if(isset($_POST['css']))
-        {
-            $css = filter_var($_POST['css'], FILTER_SANITIZE_STRING);
-            $this->model->update_db(CSS_FIELD_ID, 1, 1, $css, "section_field");
-        }
-
         foreach($fields as $name => $languages)
         {
             if(!is_array($languages))

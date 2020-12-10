@@ -1303,24 +1303,6 @@ class CmsModel extends BaseModel
     public function get_language($id)
     {
         return $this->db->select_by_uid("languages", $id);
-    }    
-
-    /**
-     * Fetch the css string of the current section from the db.
-     *
-     * @retval string
-     *  The css string from the current section.
-     */
-    public function get_css($id_section = null)
-    {
-        if($id_section === null)
-            $id_section = $this->get_active_section_id();
-        $css = $this->db->select_by_fks("sections_fields_translation", array(
-            "id_sections" => $id_section,
-            "id_fields" => CSS_FIELD_ID,
-            "id_languages" => 1,
-        ));
-        return $css['content'];
     }
 
     /**
