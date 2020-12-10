@@ -16,12 +16,18 @@ $(document).ready(function() {
         $buttons.not($this).removeClass("active");
         $this.closest('.tabs-container').children('.tab-content').not(selector).hide();
     }
+    function activate_with_hash() {
+        activate($('button.tab-button:not(.active):not(.no-anchor-expand).style-'
+            + window.location.hash.substring(1)));
+    }
     $('.tabs-container').find('.tab-content').each(function() {
         $(this).closest('.tabs-container').append($(this));
     });
-    activate($('button.tab-button:not(.active):not(.no-anchor-expand).style-'
-        + window.location.hash.substring(1)));
+    activate_with_hash();
+    $(window).bind( 'hashchange', function(e) {
+        activate_with_hash();
+    });
     $('button.tab-button').click(function() {
-        activate($(this));
+        window.location.hash = "#section-" + $(this).attr('data-context');
     });
 });
