@@ -19,7 +19,7 @@ $(document).ready(function() {
     $('.tabs-container').find('.tab-content').each(function() {
         $(this).closest('.tabs-container').append($(this));
     });
-    activate($('button.tab-button:not(.no-anchor-expand).style-'
+    activate($('button.tab-button:not(.active):not(.no-anchor-expand).style-'
         + window.location.hash.substring(1)));
     $('button.tab-button').click(function() {
         activate($(this));
