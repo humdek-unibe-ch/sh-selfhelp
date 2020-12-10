@@ -1,4 +1,18 @@
-# v3.8.0 (latest)
+# v3.9.0 (latest)
+
+### Changes
+ - For now, disable the field `ajax` from style `formUserInput` as it does not
+   work with anchors.
+
+### New Features
+ - Allow to jump to tabs by using the location hash (!46). Such an anchored tab
+   will be activated.
+ - Allow to disable style fields in the DB. This will only disable the display
+   and should be used with care because it will be difficult to change a style
+   field once it is disabled.
+
+---------
+# v3.8.0
 
 ### Changes
  - In order reduce the ACL DB connections, the ACL of the current user is cached in the ACL service (!41).
