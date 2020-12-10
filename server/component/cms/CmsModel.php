@@ -578,7 +578,7 @@ class CmsModel extends BaseModel
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
             LEFT JOIN fields AS f ON f.id = sf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE s.id = :id
+            WHERE s.id = :id AND sf.disabled = 0
             ORDER BY ft.position, f.display, f.name";
         return $this->db->query_db($sql, array(":id" => $id));
     }
