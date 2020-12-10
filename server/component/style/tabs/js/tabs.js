@@ -19,9 +19,8 @@ $(document).ready(function() {
     $('.tabs-container').find('.tab-content').each(function() {
         $(this).closest('.tabs-container').append($(this));
     });
-    $('button.tab-button.style-' + location.hash.substring(1)).each(function() {
-        activate($(this));
-    });
+    activate($('button.tab-button:not(.no-anchor-expand).style-'
+        + window.location.hash.substring(1)));
     $('button.tab-button').click(function() {
         activate($(this));
     });
