@@ -1,4 +1,9 @@
-<?php
+<?php  
+// header('Access-Control-Allow-Origin: http://localhost:8100');
+// header("Access-Control-Allow-Credentials: true");
+
+cors();
+
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
@@ -59,11 +64,16 @@ function mobile_call($services, $router, $db){
     $res = [];
     if($router->route)
     {
-        if($router->route['target'] == "sections")
-        {
-            $page = new SectionPage($services, $router->route['name'],
-                $router->route['params'], true);
+        if($router->route['target'] == "sections") {
+            $page = new SectionPage(
+                $services,
+                $router->route['name'],
+                $router->route['params'],
+                true
+            );
             $res = $page->output_base_content_mobile();
+            $res['navigation'] = array_values($res['navigation']);
+            $res['content'] = array_values($res['content']);
             echo json_encode($res);
         }
         else if($router->route['target'] == "component")
@@ -144,6 +154,32 @@ function web_call($services, $router, $db){
         $page = new SectionPage($services, 'missing', array());
         $page->output();
     }
+}
+
+function cors() {
+    
+    // Allow from any origin
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+        // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
+        // you want to allow, and if so:
+        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Max-Age: 86400');    // cache for 1 day
+    }
+    
+    // Access-Control headers are received during OPTIONS requests
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+            // may also be using PUT, PATCH, HEAD etc
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS");         
+        
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+            header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    
+        exit(0);
+    }
+    
 }
 
 ?>
