@@ -1,9 +1,21 @@
-# v3.7.0 (Latest)
+# v3.8.0 (latest)
+
+### Changes
+ - In order reduce the ACL DB connections, the ACL of the current user is cached in the ACL service (!41).
+ - Handle the style field css like any other field (!45, #290).
+ - Reduce DB requests by caching page information fetched from the DB.
+
+### New Features
+ - Added a utility script to generate the boilerplate code for a new style.
+
+---------
+# v3.7.0
 
 ### Changes
  - Add field format to style `input`. It is used for all date, time and datetime formats. [Info](https://selfhelp.psy.unibe.ch/demo/style/471)
 
-# v3.6.1 (Latest)
+---------
+# v3.6.1
 
 ### Bugfix
  - Bad Scaling of UserInput Service (#284, !37).
