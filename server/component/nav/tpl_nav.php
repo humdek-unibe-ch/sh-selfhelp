@@ -20,6 +20,7 @@
             </ul>
             <ul class="navbar-nav navbar-right">
                 <?php
+                    $this->output_versions();
                     if($_SESSION['logged_in'])
                     {
                         $this->output_nav_chat();

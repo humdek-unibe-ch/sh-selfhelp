@@ -178,6 +178,43 @@ class NavView extends BaseView
             $profile['children'], $profile['is_active'], true);
     }
 
+    /**
+     * Render the version menu
+     */
+    private function output_versions()
+    {
+        $current_version = rtrim(shell_exec("git describe --tags"));
+        $versions = $this->model->get_versions();
+        $target = substr($_SERVER['REQUEST_URI'],
+            strpos($_SERVER['REQUEST_URI'], '/', 1));
+        require __DIR__ . "/tpl_nav_versions.php";
+    }
+
+    /**
+     * Render a version menu item.
+     *
+     * @param array $versions
+     *  An array of version items.
+     * @param $current_version
+     *  The version of the currently active project
+     * @param $target
+     *  The path to the current page.
+     */
+    private function output_version_items($versions, $current_version, $target)
+    {
+        $active = "active";
+        $url = "#";
+        $page_name = $current_version;
+        require __DIR__ . "/tpl_nav_menu_item.php";
+        foreach($versions as $version)
+        {
+            $active = "";
+            $page_name = htmlentities($version['version']);
+            $url = $version['url'] . $target;
+            require __DIR__ . "/tpl_nav_menu_item.php";
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**

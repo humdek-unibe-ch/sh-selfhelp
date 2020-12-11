@@ -56,6 +56,18 @@ class NavModel extends BaseModel
     }
 
     /**
+     * Fetches all documentation versions from the database.
+     *
+     * @retval array
+     *  The DB response.
+     */
+    private function fetch_versions()
+    {
+        $sql = "SELECT * FROM demo_versions ORDER BY version DESC";
+        return $this->db->query_db($sql, array());
+    }
+
+    /**
      * Defines the structure of a single page navigation item.
      *
      * @param array $page
@@ -219,6 +231,16 @@ class NavModel extends BaseModel
      *  An array prepared by NavModel::prepare_pages.
      */
     public function get_pages() { return $this->fetch_pages(); }
+
+    /**
+     * Fetches all documentation versions from the database.
+     *
+     * @retval array
+     *  The DB request response.
+     */
+    public function get_versions() {
+        return $this->fetch_versions();
+    }
 
     /**
      * Checks whether a route exists.
