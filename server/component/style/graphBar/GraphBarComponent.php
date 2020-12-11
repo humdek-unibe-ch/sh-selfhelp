@@ -33,7 +33,7 @@ class GraphBarComponent extends GraphBaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new GraphBarModel($services, $id);
+        $model = new GraphBarModel($services, $id, $params);
         $view = new GraphBarView($model);
 
         parent::__construct($model, $view, $id_page);

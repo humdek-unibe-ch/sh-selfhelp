@@ -8,5 +8,6 @@
     <button type="submit" class="btn btn-<?php echo $this->type; ?>">
         <?php echo $this->label; ?>
     </button>
+    <?php $this->output_submit_and_send_button(); ?>
     <?php $this->output_cancel(); ?>
 </form>

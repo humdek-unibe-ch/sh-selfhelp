@@ -4,21 +4,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-//require_once __DIR__ . "/../BaseModel.php";
-require_once __DIR__ . "/../user/UserModel.php";
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the data component such
  * that the data can easily be displayed in the view of the component.
  */
-class DataModel extends UserModel
+class DataModel extends BaseModel
 {
 
     /* Private Properties *****************************************************/
 
     /**
-     * The selected user id.
+     * Selected uesers
      */
-    private $uid;
+    private $users = array();
+
+    /**
+     * Selected forms
+     */
+    private $forms;
 
     /* Constructors ***********************************************************/
 
@@ -28,13 +32,10 @@ class DataModel extends UserModel
      * @param array $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
-     * @param int $uid
-     *  The selected user id.
      */
-    public function __construct($services, $uid = null)
+    public function __construct($services)
     {
-        parent::__construct($services, $uid);
-        $this->uid = $uid;
+        parent::__construct($services);
     }
 
     /* Public Methods *********************************************************/
@@ -66,7 +67,10 @@ class DataModel extends UserModel
 
     /**
      * Get the all fields from a form
-     *
+     * @param int $formId
+     * form id
+     * @param string $user_ids
+     * user ids  
      * @retval array
      *  As array of items where each item has the following keys:
      *   - 'user_id'
@@ -79,17 +83,89 @@ class DataModel extends UserModel
      *   -  and so on
      *   - 'deleted'
      */
-    public function getFormFields($formId)
+    public function getFormFields($formId, $user_ids)
     {
-        if ($this->uid) {
-            //return for the selected user
-            $sql = 'call get_form_data_for_user(' . $formId . ', ' . $this->uid . ')';
-            return $this->services->get_db()->query_db($sql);
-        } else {
+        if ($user_ids == 'all') {
             // if no user is selected return data for all
             $sql = 'call get_form_data(' . $formId . ')';
             return $this->services->get_db()->query_db($sql);
+        } else {
+            //return for the selected user
+            $sql = 'call get_form_data_for_user(' . $formId . ', ' . $user_ids . ')';
+            return $this->services->get_db()->query_db($sql);            
         }
+    }
+
+    /**
+     * Get all active users;
+     * @retval array
+     * array used for select dropdown
+     */
+    public function get_users()
+    {
+        $arr = array();
+        $sql = "SELECT id, email, code, name 
+                FROM users u 
+                LEFT JOIN validation_codes c on (c.id_users = u.id)
+                WHERE id_status = :active_status";
+        $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
+        array_push($arr, array(
+                "value" => 'all',
+                "text" => 'All',
+            ));
+        foreach ($users as $val) {
+            $value = ('user_' . intval($val['id']));
+            //$selected = $this->users && array_search($value, $this->users) !== false ? 'selected' : '';
+            array_push($arr, array(
+                "value" => $value,
+                "text" => ("[" . $val['code'] . '] ' . $val['email']) . ' - ' . $val['name'],
+              //  "selected" => $selected
+            ));
+        }
+        return $arr;
+    }
+
+    /**
+     * Get all groups;
+     * @retval array
+     * array used for select dropdown
+     */
+    public function get_groups()
+    {
+        $arr = array();
+        $sql = "SELECT id, name 
+                FROM groups;";
+        $groups = $this->db->query_db($sql);
+        foreach ($groups as $val) {
+            $value = ('group_' . intval($val['id']));
+            $selected = $this->users && array_search($value, $this->users) !== false ? 'selected' : '';
+            array_push($arr, array(
+                "value" => $value,
+                "text" => $val['name'],
+                "selected" => $selected
+            ));
+        }
+        return $arr;
+    }
+
+    public function set_selected_users($users)
+    {
+        $this->users = $users;
+    }
+
+    public function set_selected_forms($forms)
+    {
+        $this->forms = $forms;
+    }
+
+    public function get_selected_users()
+    {
+        return str_replace('user_', '', $this->users);
+    }
+
+    public function get_selected_forms()
+    {
+        return $this->forms;
     }
 }
 ?>

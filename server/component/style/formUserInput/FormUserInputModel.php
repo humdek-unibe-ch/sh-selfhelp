@@ -231,5 +231,47 @@ class FormUserInputModel extends StyleModel
         $this->user_input->set_field_attrs();
         return $count;
     }
+
+    /**
+     * Send feedback email to the user after the data is saved.
+     * If there is data_config we retreieve the data base don the config
+     */
+    public function send_feedback_email()
+    {
+        $data_config = $this->get_db_field("data_config", '');
+        $subject = $this->get_db_field("email_subject", '');
+        $body = $this->get_db_field("email_body", '');
+        if ($data_config) {
+            $fields = $this->retrieve_data($data_config);
+            if ($fields) {
+                foreach ($fields as $field_name => $field_value) {
+                    $subject = str_replace($field_name, $field_value, $subject);
+                    $body = str_replace($field_name, $field_value, $body);
+                }
+            }
+        }
+        $mail = array(
+            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+            "from_email" => PROJECT_NAME . '@unibe.ch',
+            "from_name" => PROJECT_NAME,
+            "reply_to" => PROJECT_NAME . '@unibe.ch',
+            "recipient_emails" => $this->db->select_by_uid('users', $_SESSION['id_user'])['email'],
+            "subject" => $subject,
+            "body" => $body
+        );
+        $mq_id = $this->mail->add_mail_to_queue($mail);
+        if ($mq_id > 0) {
+            $this->transaction->add_transaction(
+                transactionTypes_insert,
+                transactionBy_by_user,
+                $_SESSION['id_user'],
+                $this->transaction::TABLE_MAILQUEUE,
+                $mq_id
+            );
+            $this->mail->send_mail_from_queue($mq_id, transactionBy_by_user, $_SESSION['id_user']);
+        }
+
+    }
 }
 ?>

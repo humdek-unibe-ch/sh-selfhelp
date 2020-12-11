@@ -21,6 +21,12 @@ class MarkdownView extends StyleView
      */
     private $text_md;
 
+    /**
+     * DB field 'data_config' (empty string).
+     * If some value is loaded from the upload tables
+     */
+    private $data_config;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -31,8 +37,28 @@ class MarkdownView extends StyleView
      */
     public function __construct($model)
     {
-        parent::__construct($model);
+        parent::__construct($model);        
         $this->text_md = $this->model->get_db_field('text_md');
+        $this->data_config = $this->model->get_db_field("data_config");
+        if($this->data_config){
+            $this->retrieve_data();
+        }
+    }
+
+    /** Private Methods */
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data(){
+        $fields = $this->model->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $this->text_md = str_replace($field_name, $field_value, $this->text_md);
+            }
+        } else {
+            $this->text_md = '';
+        }
     }
 
     /* Public Methods *********************************************************/

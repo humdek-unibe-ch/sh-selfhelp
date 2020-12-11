@@ -17,11 +17,6 @@ abstract class ChatModel extends StyleModel
     /* Private Properties *****************************************************/
 
     /**
-     * The chatroom id to communicate with.
-     */
-    protected $chrid = null;
-
-    /**
      * The active group id to communicate with.
      */
     protected $gid = null;
@@ -30,11 +25,6 @@ abstract class ChatModel extends StyleModel
      * The active user id to communicate with.
      */
     protected $uid = null;
-
-    /**
-     * The list of rooms.
-     */
-    protected $rooms;    
 
     /**
      * DB field 'email_user' (empty string)
@@ -55,6 +45,11 @@ abstract class ChatModel extends StyleModel
      */
     private $is_html;
 
+    /**
+     * The list of groups.
+     */
+    protected $groups;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -65,42 +60,24 @@ abstract class ChatModel extends StyleModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
-     * @param int $chrid
-     *  The chato room id to communicate with
      * @param int $gid
      *  The group id to communicate with
      * @param int $uid
      *  The user id to communicate with
      */
-    public function __construct($services, $id, $chrid, $gid=null, $uid=null)
+    public function __construct($services, $id, $gid=null, $uid=null)
     {
         parent::__construct($services, $id);
         $this->gid = $gid;
         $this->uid = $uid;
-        $this->chrid = $chrid ?? GLOBAL_CHAT_ROOM_ID;
-        $this->rooms = $this->fetch_rooms();        
         $this->email_user = $this->get_db_field("email_user");
         $this->subject_user = $this->get_db_field("subject_user");
         $this->is_html = $this->get_db_field("is_html", false);
+        $this->groups = $this->fetch_groups();
     }
 
     /* Private Methodes *******************************************************/
 
-    /**
-     * Get all rooms the current user is assigned to.
-     *
-     * @retval array
-     *  The database result with the following keys:
-     *   'id':      The room id.
-     *   'name':    The name of the room.
-     */
-    private function fetch_rooms()
-    {
-        $sql = "SELECT r.id, r.title as name FROM chatRoom AS r
-            LEFT JOIN chatRoom_users AS cu ON cu.id_chatRoom = r.id
-            WHERE cu.id_users = :uid";
-        return $this->db->query_db($sql, array(":uid" => $_SESSION['id_user']));
-    }    
 
     /* Abstract Protected Methodes ********************************************/
 
@@ -133,26 +110,43 @@ abstract class ChatModel extends StyleModel
      * @param int $id
      *  The id of the user to be notified.
      */
-    protected function notify($id)
+    protected function notify($id, $url)
     {
         $subject = $this->subject_user;
-        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
-        $url = "https://" . $_SERVER['HTTP_HOST']
-            . $this->get_link_url('contact');
+        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $url = $url;
         $msg = str_replace('@link', $url, $this->email_user);
-        $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
+        $msg_html = $this->is_html ? $this->parsedown->text($msg) : $msg;
         $field_chat = $this->user_input->get_input_fields(array(
             'page' => 'profile',
             'id_user' => $id,
             'form_name' => 'notification',
             'field_name' => 'chat',
         ));
-        if(count($field_chat) === 0 || $field_chat[0]['value'] !== "")
-        {
+        if (count($field_chat) === 0 || $field_chat[0]['value'] !== "") {
             $sql = "SELECT email FROM users WHERE id = :id";
             $email = $this->db->query_db_first($sql, array(':id' => $id));
-            $to = $this->mail->create_single_to($email['email']);
-            $this->mail->send_mail($from, $to, $subject, $msg);
+            $mail = array(
+                "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+                "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+                "from_email" => $from,
+                "from_name" => $from,
+                "reply_to" => $from,
+                "recipient_emails" => $email['email'],
+                "subject" => $subject,
+                "body" => $msg_html
+            );
+            $mq_id = $this->mail->add_mail_to_queue($mail);
+            if ($mq_id > 0) {
+                $this->transaction->add_transaction(
+                    transactionTypes_insert,
+                    transactionBy_by_user,
+                    $_SESSION['id_user'],
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mq_id
+                );
+                $this->mail->send_mail_from_queue($mq_id, transactionBy_by_user, $_SESSION['id_user']);
+            }
         }
         $field_phone = $this->user_input->get_input_fields(array(
             'page' => 'profile',
@@ -163,9 +157,49 @@ abstract class ChatModel extends StyleModel
         if(count($field_phone) === 1 && $field_phone[0]['value'] !== "")
         {
             $email = $field_phone[0]['value'] . "@sms.unibe.ch";
-            $to = $this->mail->create_single_to($email);
-            $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
+            $mail = array(
+                "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+                "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+                "from_email" => $from,
+                "from_name" => $from,
+                "reply_to" => $from,
+                "recipient_emails" => $email,
+                "subject" => $subject,
+                "body" => $msg_html
+            );
+            $mq_id = $this->mail->add_mail_to_queue($mail);
+            if ($mq_id > 0) {
+                $this->transaction->add_transaction(
+                    transactionTypes_insert,
+                    transactionBy_by_user,
+                    $_SESSION['id_user'],
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mq_id
+                );
+                $this->mail->send_mail_from_queue($mq_id, transactionBy_by_user, $_SESSION['id_user']);
+            }
         }
+    }
+
+    /**
+     * Fetch the list of groups except the default 3 (admin, therapist and subject) whic has access to chat
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':      The id of the group.
+     *   'name':    The name of the group.
+     */
+    private function fetch_groups()
+    {
+        $sql = "SELECT g.id, g.name 
+                FROM groups AS g
+                INNER JOIN acl_groups acl ON (acl.id_groups = g.id)
+                INNER JOIN pages p ON (acl.id_pages = p.id) 
+                INNER JOIN users_groups ug ON (ug.id_groups = g.id) 
+                INNER JOIN users u ON (u.id = ug.id_users)
+                WHERE g.id > 2 AND acl.acl_select = 1 AND p.keyword = 'chatSubject' AND u.id = :uid
+                ORDER BY g.id";
+        return $this->db->query_db($sql, array(":uid"=>$_SESSION['id_user']));
     }
 
     /* Public Methods *********************************************************/
@@ -197,96 +231,26 @@ abstract class ChatModel extends StyleModel
     }
 
     /**
-     * Get the number of new room messages.
-     *
-     * @param int $id
-     *  The id of the chat room the check for new messages.
-     * @retval int
-     *  The number of new messages in a chat room.
-     */
-    public function get_room_message_count($id)
-    {
-        $sql = "SELECT COUNT(cr.id_chat) AS count FROM chatRecipiants AS cr
-            LEFT JOIN chat AS c ON c.id = cr.id_chat
-            WHERE cr.is_new = '1' AND cr.id_users = :me
-                AND (c.id_rcv_grp = :gid
-                    OR (:gid = :ggid AND cr.id_room_users IS NULL))";
-        $res = $this->db->query_db_first($sql, array(
-            ':gid' => $id,
-            ':me' => $_SESSION['id_user'],
-            ':ggid' => GLOBAL_CHAT_ROOM_ID,
-        ));
-        if($res)
-            return intval($res['count']);
-        return 0;
-    }
-
-    /**
      * Get the number of new group messages.
      *
      * @param int $id
-     *  The id of the group the check for new messages.
+     *  The id of the group room the check for new messages.
      * @retval int
-     *  The number of new messages in a chat room.
+     *  The number of new messages in a group room.
      */
     public function get_group_message_count($id)
     {
-        $sql = "SELECT COUNT(cr.id_chat) AS count
+        $sql = "SELECT COUNT(cr.id_chat) AS count 
                 FROM chatRecipiants AS cr
                 LEFT JOIN chat AS c ON c.id = cr.id_chat
-                left join users_groups ug on (ug.id_users = c.id_snd)
-                WHERE cr.is_new = '1' AND cr.id_users = :me
-                AND ug.id_groups = :gid and c.id_rcv_grp = :ggid";
+                WHERE cr.is_new = '1' AND cr.id_users = :me and c.id_rcv_group = :gid";
         $res = $this->db->query_db_first($sql, array(
-            ':gid' => $id,
             ':me' => $_SESSION['id_user'],
-            ':ggid' => GLOBAL_CHAT_ROOM_ID,
+            ':gid' => $id
         ));
         if($res)
             return intval($res['count']);
         return 0;
-    }
-
-
-    /**
-     * Get the list of rooms.
-     *
-     * @retval array
-     *  The result from the db query see ChatModel::fetch_rooms().
-     */
-    public function get_rooms()
-    {
-        return $this->rooms;
-    }
-
-    /**
-     * Checks whether the current user is in the active group.
-     *
-     * @retval bool
-     *  True if the user is in the active group, false otherwise.
-     */
-    public function is_current_user_in_active_group()
-    {
-        $sql = "SELECT * FROM chatRoom_users
-            WHERE id_chatRoom = :rid AND id_users = :uid";
-        $res = $this->db->query_db($sql, array(
-            ":rid" => $this->chrid,
-            ":uid" => $_SESSION['id_user'],
-        ));
-        return ($res || $this->chrid === GLOBAL_CHAT_ROOM_ID || $this->chrid === 0);
-    }
-
-    /**
-     * Checks whether a given room is currently selected.
-     *
-     * @param int $id
-     *  The id of the chat room to check.
-     * @retval bool
-     *  True if the given room is selected, false otherwise.
-     */
-    public function is_room_selected($id)
-    {
-        return ($id === $this->chrid);
     }
 
     /**
@@ -303,6 +267,26 @@ abstract class ChatModel extends StyleModel
     }
 
     /**
+     * Check if user is in the group
+     * @param $user_id
+     * user id that we want to check wheather it is in the group
+     * @retval bool
+     * True if the user is in the group
+     */
+    public function is_user_in_group($user_id)
+    {
+        $sql = "SELECT u.id, u.name
+                FROM users AS u
+                INNER JOIN users_groups AS ug ON ug.id_users = u.id
+                WHERE ug.id_groups = :gid and u.id = :uid";
+        $res = $this->db->query_db($sql, array(
+            ":gid" => $this->gid,
+            ":uid" => $user_id,
+        ));
+        return count($res) > 0;
+    }
+
+    /**
      * Insert the chat item to the database. This method depends on the role.
      *
      * If the current user is an
@@ -315,6 +299,17 @@ abstract class ChatModel extends StyleModel
      * @retval int
      *  The id of the chat item on success, false otherwise.
      */
-    abstract public function send_chat_msg($msg);
+    abstract public function send_chat_msg($msg);    
+
+    /**
+     * Get the list of groups.
+     *
+     * @retval array
+     *  The result from the db query see ChatModel::fetch_groups().
+     */
+    public function get_groups()
+    {
+        return $this->groups;
+    }
 }
 ?>

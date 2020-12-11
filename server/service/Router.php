@@ -74,6 +74,9 @@ class Router extends AltoRouter {
             }
             return $this->generate("home");
         }
+        else if($url == "#last_user_page"){
+            return $_SESSION['last_user_page'];
+        }
         else if($url == "#self")
             return $_SERVER['REQUEST_URI'];
         else if($url[0] == "#")
@@ -149,6 +152,21 @@ class Router extends AltoRouter {
      */
     public function update_route() {
         $this->route = $this->match();
+    }
+
+    /**
+     * get the keyword from the URL in the browser
+     * @retval string
+     * return the keyword if found or false if not
+     */
+    public function get_keyword_from_url()
+    {
+        $path = explode('/', $_SERVER['REQUEST_URI']);
+        if (count($path) >= 2) {
+            return $path[2];
+        } else {
+            return false;
+        }
     }
 }
 ?>

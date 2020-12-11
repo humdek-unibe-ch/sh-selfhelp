@@ -44,6 +44,11 @@ abstract class BaseModel
     protected $parsedown;
 
     /**
+     * The instance instance that is used to log transactions in the database.
+     */
+    protected $transaction;
+
+    /**
      * User input handler.
      */
     protected $user_input;
@@ -81,6 +86,7 @@ abstract class BaseModel
         $this->acl = $services->get_acl();
         $this->login = $services->get_login();
         $this->mail = $services->get_mail();
+        $this->transaction = $services->get_transaction();
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
@@ -136,12 +142,6 @@ abstract class BaseModel
      */
     public function is_link_active($key)
     {
-        $sql = "SELECT pj.keyword FROM pages AS p
-            LEFT JOIN pages AS pj ON p.id = pj.parent
-            WHERE p.keyword = :keyword AND pj.keyword IS NOT NULL";
-        $matches = $this->db->query_db($sql, array(":keyword" => $key));
-        foreach($matches as $match)
-            if($this->router->is_active($match['keyword'])) return true;
         return $this->router->is_active($key);
     }
 

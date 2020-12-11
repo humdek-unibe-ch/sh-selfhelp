@@ -1,0 +1,27 @@
+.mailQueue-row
+{
+    cursor: pointer;
+}
+
+.searchPanel{
+    display: flex;
+    align-items: center;
+}
+
+.searchPanel .input-group .dropdown {
+    border: 1px solid #ced4da;
+}
+
+td.details-control {
+    background: url('../../../../assets/datatables_child_row/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url('../../../../assets/datatables_child_row/details_close.png') no-repeat center center;
+}
+
+.recipients{
+    max-width: 400px;
+    max-height: 100px;
+    overflow: hidden;
+}

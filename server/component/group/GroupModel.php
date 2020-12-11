@@ -113,18 +113,49 @@ class GroupModel extends BaseModel
         $acl = array();
         $sql = "SELECT p.id, p.keyword FROM pages AS p ORDER BY p.keyword";
         $pages = $this->db->query_db($sql);
-        foreach($pages as $page)
-        {
-            $pid = intval($page['id']);
-            $acl[$page['keyword']] = array(
-                "name" => $page['keyword'],
-                "acl" => array(
-                    "select" => $this->acl->has_access_select($id, $pid, $is_group),
-                    "insert" => $this->acl->has_access_insert($id, $pid, $is_group),
-                    "update" => $this->acl->has_access_update($id, $pid, $is_group),
-                    "delete" => $this->acl->has_access_delete($id, $pid, $is_group),
-                )
-            );
+        if ($id == null && $is_group) {
+            // prefill empty gacl which is needed for the simple acl            
+            foreach ($pages as $page) {
+                $pid = intval($page['id']);
+                $acl[$page['keyword']] = array(
+                    "name" => $page['keyword'],
+                    "acl" => array(
+                        "select" => false,
+                        "insert" => false,
+                        "update" => false,
+                        "delete" => false,
+                    )
+                );
+            }
+        } else {
+            $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
+            foreach ($pages as $page) {
+                $group_access_for_page_index = array_search($page['keyword'], array_column($acl_db, 'keyword'));
+                if ($group_access_for_page_index !== false) {
+                    // se set the permisions after we found them
+                    $group_access_for_page = $acl_db[$group_access_for_page_index];
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
+                            "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
+                            "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
+                            "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
+                        )
+                    );
+                } else {
+                    // no permissions exists for this page, set them all to false
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => false,
+                            "insert" => false,
+                            "update" => false,
+                            "delete" => false,
+                        )
+                    );
+                }                
+            }
         }
         return $acl;
     }
@@ -181,25 +212,6 @@ class GroupModel extends BaseModel
             else
                 $res &= $acl[$page["keyword"]]["acl"][$lvl];
         }
-        return $res;
-    }
-
-    /**
-     * Check whether the chat administration permissions corresponding to
-     * a certain level are given.
-     *
-     * @param array $acl
-     *  An array of ACL rights. See UserModel::fetch_acl_by_id.
-     * @param string $lvl
-     *  The level of access e.g. select, insert, update, or delete.
-     * @retval bool
-     *  True if update access is allowed, false otherwise.
-     */
-    private function get_chat_access($acl, $lvl)
-    {
-        $res = $acl["admin-link"]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl];
         return $res;
     }
 
@@ -496,6 +508,16 @@ class GroupModel extends BaseModel
     }
 
     /**
+     * Get the ACL info for a user and when someone want to change rights, this is the maximum what they can assign
+     *
+     * @retval array
+     *  See UserModel::fetch_acl_by_id.
+     */  
+    public function get_user_acl($uid){
+       return $this->fetch_acl_by_id($uid, false);
+    }
+
+    /**
      * Get the simplified ACL info of the selected group.
      *
      * @param array $acl
@@ -560,15 +582,6 @@ class GroupModel extends BaseModel
                 "delete" => $this->get_data_access($acl, "delete"),
             ),
         );
-        $sgacl["chat"] = array(
-            "name" => "Chat Management",
-            "acl" => array(
-                "select" => $this->get_chat_access($acl, "select"),
-                "insert" => $this->get_chat_access($acl, "insert"),
-                "update" => $this->get_chat_access($acl, "update"),
-                "delete" => $this->get_chat_access($acl, "delete"),
-            ),
-        );
         return $sgacl;
     }
 
@@ -621,7 +634,6 @@ class GroupModel extends BaseModel
         foreach($this->fetch_groups() as $group)
         {
             $id = intval($group["id"]);
-            if(!$this->is_group_allowed($id)) continue;
             $res[] = array(
                 "id" => $id,
                 "title" => $group["name"],
@@ -680,8 +692,7 @@ class GroupModel extends BaseModel
      */
     public function is_group_allowed($id_group)
     {
-        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
-                $id_group);
+        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'], $id_group);
     }
 
     /**

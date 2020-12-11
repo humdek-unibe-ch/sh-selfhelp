@@ -38,7 +38,7 @@
                         </div>
                         <div class="form-group">
                             <label>Style</label>
-                            <select class="form-control" name="section-style" required>
+                            <select class="form-control" name="section-style" required data-live-search="true" data-size="10">
                                 <option disabled selected value>-- select a style --</option>
                                 <?php $this->output_style_list(); ?>
                             </select>

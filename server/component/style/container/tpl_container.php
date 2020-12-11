@@ -4,5 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div id="section-<?php echo $this->id_section; ?>" class="container<?php echo $fluid; ?> <?php echo $this->css; ?>">
+    <?php $this->output_export_pdf_btn(); ?>
     <?php $this->output_children(); ?>
 </div>

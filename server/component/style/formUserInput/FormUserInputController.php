@@ -53,6 +53,9 @@ class FormUserInputController extends BaseController
             }
             else if($res > 0)
             {
+                if(isset($_POST['btnSubmitAndSend']) && $_POST['btnSubmitAndSend'] == 'send_email'){
+                    $this->model->send_feedback_email();
+                }
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
@@ -101,19 +104,19 @@ class FormUserInputController extends BaseController
             else if($style == "input")
             {
                 $type = $this->model->get_field_type($id_section);
-                if($type == "text" || $type == "checkbox" || $type == "month"
-                    || $type == "week" || $type == "search" || $type == "tel")
+                if($type == "text" || $type == "checkbox" || $type == "month" || $type == "time" || $type == "datetime-local" || $type == "datetime"
+                    || $type == "week" || $type == "search" || $type == "tel" || $type == "date")
                     $filter_rules[$id_section] = "trim|sanitize_string";
                 else if($type == "color")
                     $validation_rules[$id_section] = "regex,/#[a-fA-F0-9]{6}/";
-                else if($type == "date")
-                    $validation_rules[$id_section] = "date";
+                // else if($type == "date")
+                //     $validation_rules[$id_section] = "date";
                 else if($type == "email")
                     $validation_rules[$id_section] = "valid_email";
                 else if($type == "number" || $type == "range")
                     $validation_rules[$id_section] = "numeric";
-                else if($type == "time")
-                    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
+                // else if($type == "time")
+                //    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if($type == "url")
                     $validation_rules[$id_section] = "valid_url";
                 else

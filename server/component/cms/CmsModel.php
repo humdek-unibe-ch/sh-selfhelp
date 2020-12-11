@@ -578,7 +578,7 @@ class CmsModel extends BaseModel
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
             LEFT JOIN fields AS f ON f.id = sf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE s.id = :id
+            WHERE s.id = :id AND sf.disabled = 0
             ORDER BY ft.position, f.display, f.name";
         return $this->db->query_db($sql, array(":id" => $id));
     }
@@ -746,6 +746,8 @@ class CmsModel extends BaseModel
         $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
         $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true);
         $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+        $this->acl->grant_access_levels($_SESSION['id_user'], $pid, 4, false);
+        //TO DO grant access to creator
         if($is_open)
             $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
     }
@@ -1065,6 +1067,30 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to import sections.
+     *
+     * @retval bool
+     *  True if the current user can import sections, false otherwise.
+     */
+    public function can_import_section()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsImport"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to export sections.
+     *
+     * @retval bool
+     *  True if the current user can export sections, false otherwise.
+     */
+    public function can_export_section()
+    {
+        return $this->id_root_section > 0 && $this->acl->has_access_select($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsExport"));
+    }
+
+    /**
      * Inserts a new page to the bd and sets the basic access rights.
      *
      * @param string $keyword
@@ -1277,38 +1303,6 @@ class CmsModel extends BaseModel
     public function get_language($id)
     {
         return $this->db->select_by_uid("languages", $id);
-    }
-
-    /**
-     * Fetch all languages from the database.
-     *
-     * @retval array
-     *  As array of items where each item has the following keys:
-     *   - 'locale':    The short notation of the language.
-     *   - 'language':  The langaige name.
-     */
-    public function get_languages()
-    {
-        $sql = "SELECT locale, language FROM languages WHERE id > 1";
-        return $this->db->query_db($sql);
-    }
-
-    /**
-     * Fetch the css string of the current section from the db.
-     *
-     * @retval string
-     *  The css string from the current section.
-     */
-    public function get_css($id_section = null)
-    {
-        if($id_section === null)
-            $id_section = $this->get_active_section_id();
-        $css = $this->db->select_by_fks("sections_fields_translation", array(
-            "id_sections" => $id_section,
-            "id_fields" => CSS_FIELD_ID,
-            "id_languages" => 1,
-        ));
-        return $css['content'];
     }
 
     /**
@@ -1858,6 +1852,46 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Delete all unassigned sections and their children recursively
+     * @retval boolean
+     */
+    public function delete_all_unassigned_sections()
+    {
+        try {
+            $this->db->begin_transaction();
+            $all_unassigned_sections = $this->fetch_unassigned_sections();
+            while(count($all_unassigned_sections) > 0){
+                // delete all sections with their children
+                if($this->delete_unassigned_sections($all_unassigned_sections) === false){
+                    $this->db->rollback();
+                    return false;    
+                }
+                $all_unassigned_sections = $this->fetch_unassigned_sections();
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * Delete all unassinged sections without their children, only the sections
+     * @param array $all_unassigned_sections all sections, array by ids
+     * @retval boolean
+     */
+    public function delete_unassigned_sections($all_unassigned_sections)
+    {        
+        foreach ($all_unassigned_sections as $key => $value) {
+            if ($this->delete_section($key) === false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Set the current page acl mode.
      *
      * @param string $mode
@@ -1998,6 +2032,34 @@ class CmsModel extends BaseModel
     {
         $this->update_page_sections();
         $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
+    }
+
+    public function get_db(){
+        return $this->db;
+    }
+
+    /**
+     * Return a list of group items the user can grant access to the page.The
+     * list is prepared such that it can be passed to a select form. 
+     * Groups: Admin, therapist and subject are not in the list as they recieve the access by default
+     *
+     * @retval array
+     *  An array of group items where each item has the following keys:
+     *   'value':   The id of the group.
+     *   'text':    The name of the group.
+     */
+    public function get_groups_grant_access_to_page($uid)
+    {
+        $groups = array();
+        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+            LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
+            WHERE ug.id_users IS NULL
+            ORDER BY g.name";
+        $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
+        foreach ($groups_db as $group) {
+                $groups[] = $group;
+        }
+        return $groups;
     }
 }
 ?>

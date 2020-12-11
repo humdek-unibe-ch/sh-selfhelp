@@ -18,12 +18,6 @@ require_once __DIR__ . "/ChatController.php";
  */
 class ChatComponent extends BaseComponent
 {
-
-    /**
-     * The instance of the db service.
-     */
-    private $db;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -35,22 +29,20 @@ class ChatComponent extends BaseComponent
      * @param int $id
      *  The id of the section id of the chat component.
      * @param array $params
-     *  The GET parameters of the contact page
+     *  The GET parameters of the chatTherapist or chatSubject page
      *   'uid': The id of the selected user to communicate with
      *   'gid': The id of the selected group to communicate with
      *   'chrid': The id of the selected chat group to communicate with
      */
     public function __construct($services, $id, $params)
     {
-        $this->db = $services->get_db();
+        $is_therapist = $services->get_acl()->has_access_select($_SESSION['id_user'], $services->get_db()->fetch_page_id_by_keyword('chatTherapist'));
         $uid = isset($params['uid']) ? intval($params['uid']) : null;
         $gid = isset($params['gid']) ? intval($params['gid']) : 0;
-        $chrid = isset($params['chrid']) ? intval($params['chrid']) : null;
-        $is_therapist = $this->check_experimenter_relation($_SESSION['id_user']);
         if($is_therapist)
-            $model = new ChatModelTherapist($services, $id, $chrid, $gid, $uid);
+            $model = new ChatModelTherapist($services, $id, $gid, $uid);
         else
-            $model = new ChatModelSubject($services, $id, $chrid);
+            $model = new ChatModelSubject($services, $id, $gid);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ChatController($model);
@@ -63,26 +55,6 @@ class ChatComponent extends BaseComponent
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Check whether a user is part of the experimenter group.
-     *
-     * @param int $uid
-     *  The id of the user to check.
-     * @retval array
-     *  True if the user is part of the experimneter group, false otherwise.
-     */
-    private function check_experimenter_relation($uid)
-    {
-        $sql = "SELECT * FROM users_groups
-            WHERE id_users = :uid AND id_groups = :gid";
-        $res = $this->db->query_db_first($sql, array(
-            ":uid" => $uid,
-            ":gid" => EXPERIMENTER_GROUP_ID,
-        ));
-        if($res) return true;
-        else return false;
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -93,8 +65,7 @@ class ChatComponent extends BaseComponent
      */
     public function has_access()
     {
-        return parent::has_access()
-            && ($this->model->is_current_user_in_active_group());
+        return parent::has_access();
     }
 }
 ?>

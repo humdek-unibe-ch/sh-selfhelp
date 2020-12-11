@@ -44,6 +44,16 @@ class CmsView extends BaseView
                 "css" => "d-block mb-3",
             )
         ));
+        $this->add_local_component("import", new BaseStyleComponent("button",
+            array(
+                "label" => "Import Section",
+                "url" => $this->model->get_link_url("cmsImport", array(
+                    "type" => "section"
+                )),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            )
+        ));
         $this->add_local_component("new_child_page",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3",
@@ -77,6 +87,33 @@ class CmsView extends BaseView
                         "url" => $this->model->get_link_url("cmsDelete",
                             array("pid" => $this->model->get_active_page_id())),
                         "type" => "danger",
+                    )),
+                ),
+            ))
+        );
+        $this->add_local_component(
+            "export_section",
+            new BaseStyleComponent("card", array(
+                "css" => "mb-3",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Export Section",
+                "type" => "primary",
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array(
+                        "text" => "Exporting a section will create a JSON file that contains information about the section and all its children.",
+                        "is_paragraph" => true,
+                    )),
+                    new BaseStyleComponent("button", array(
+                        "label" => "Export Section",
+                        "url" => $this->model->get_link_url(
+                            "cmsExport",
+                            array(
+                                "type" => "section",
+                                "id" => $this->model->get_active_section_id()
+                            )
+                        ),
+                        "type" => "primary",
                     )),
                 ),
             ))
@@ -369,7 +406,7 @@ class CmsView extends BaseView
         }
         else if($this->model->get_mode() == "update")
         {
-            $children[] = $this->create_field_form($fields, true);
+            $children[] = $this->create_field_form($fields);
             $type = "warning";
         }
         else
@@ -400,12 +437,10 @@ class CmsView extends BaseView
      * @param array $fields
      *  The fields array where each field is defined in
      *  CmsModel::add_property_item.
-     * @param bool $render_margin
-     *  A flag indicating whether the margin checkboxes should be rendered.
      * @retval object
      *  A form component.
      */
-    private function create_field_form($fields, $render_margin=false)
+    private function create_field_form($fields)
     {
         $form_items = array();
         $form_items[] = new BaseStyleComponent("input", array(
@@ -413,20 +448,6 @@ class CmsView extends BaseView
             "name" => "mode",
             "type_input" => "hidden",
         ));
-
-        if($render_margin)
-        {
-            $css = $this->model->get_css();
-            $form_items[] = new BaseStyleComponent("descriptionItem", array(
-                "title" => "CSS",
-                "locale" => "all",
-                "children" => array(new BaseStyleComponent("input", array(
-                    "value" => $css,
-                    "name" => "css",
-                    "type_input" => "text",
-                ))),
-            ));
-        }
 
         foreach($fields as $field)
             $form_items[] = $this->create_field_form_item($field);
@@ -500,6 +521,7 @@ class CmsView extends BaseView
                     array("value" => "color", "text" => "color"),
                     array("value" => "date", "text" => "date"),
                     array("value" => "datetime-local", "text" => "datetime-local"),
+                    array("value" => "datetime", "text" => "datetime"),
                     array("value" => "email", "text" => "email"),
                     array("value" => "month", "text" => "month"),
                     array("value" => "number", "text" => "number"),
@@ -569,6 +591,37 @@ class CmsView extends BaseView
                 "show_value" => true
             ));
         }
+        else if($field['type'] == "select-group")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+            ));
+        }
+        else if($field['type'] == "select-qualtrics-survey")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1, 
+                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+            ));
+        }
+        else if($field['type'] == "select-plugin")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1, 
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
+            ));
+        }
+
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
@@ -622,10 +675,36 @@ class CmsView extends BaseView
                 "path" => __DIR__ . "/tpl_checkbox_field.php",
                 "items" => array("is_checked" => ($field['content'] != "0")),
             ));
+        else if ($field['type'] == "select-group") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+            ));
+        }
+        else if ($field['type'] == "select-qualtrics-survey") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+            ));
+        }
+        else if($field['type'] == "select-plugin")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
+            ));
+        }
         else if($field['content'] != null)
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content']
             ));
+        
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => $field['gender'],
             "title" => $field['name'],
@@ -642,7 +721,7 @@ class CmsView extends BaseView
      */
     private function create_settings_card()
     {
-        $languages = $this->model->get_languages();
+        $languages = $this->model->get_db()->fetch_languages();
         $options = array(array("value" => "all", "text" => "All Languages"));
         foreach($languages as $language)
             $options[] = array(
@@ -660,7 +739,7 @@ class CmsView extends BaseView
                 "css" => "mb-3",
                 "is_expanded" => false,
                 "is_collapsible" => true,
-                "title" => "Settings",
+                "title" => "CMS Settings",
                 "children" => array(new BaseStyleComponent("form", array(
                     "url" => $this->model->get_link_url("cmsSelect",
                         $this->model->get_current_url_params()),
@@ -729,6 +808,15 @@ class CmsView extends BaseView
     }
 
     /**
+     * Render the import page/section button.
+     */
+    private function output_import_button()
+    {
+        if($this->model->can_import_section())
+            $this->output_local_component("import");
+    }
+
+    /**
      * Renders the description list components.
      */
     private function output_fields()
@@ -737,6 +825,9 @@ class CmsView extends BaseView
         $this->output_local_component("section-fields");
         if($this->model->can_create_new_child_page())
             $this->output_local_component("new_child_page");
+        if ($this->model->can_export_section()) {
+            $this->output_local_component("export_section");
+        }
         if($this->model->can_delete_page())
         {
             if($this->model->get_active_section_id() == null) {
@@ -745,7 +836,7 @@ class CmsView extends BaseView
             else if($this->model->can_delete_section()) {
                 $this->output_local_component("delete_section");
             }
-        }
+        }        
     }
 
     /**

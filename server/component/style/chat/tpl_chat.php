@@ -7,7 +7,7 @@
     <div class="card-header">
         <?php echo $title; ?>
     </div>
-    <div class="card-body">
+    <div class="card-body chatOverflow">
         <div class="chat">
         <?php $this->output_msgs(); ?>
         </div>

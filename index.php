@@ -78,6 +78,7 @@ if($router->route)
     if($db->query_db_first($sql,
         array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
     {
+        //if transaction logs work as expected this should be removed
         $db->insert("user_activity", array(
             "id_users" => $_SESSION['id_user'],
             "url" => $_SERVER['REQUEST_URI'],

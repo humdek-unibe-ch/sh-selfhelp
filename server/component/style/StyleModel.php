@@ -36,6 +36,12 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     private $db_fields;
 
+    /** 
+     * An array of get parameters.
+     */
+    private $params;
+
+
     /* Constructors ***********************************************************/
 
     /**
@@ -94,9 +100,162 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->children[$child['name']] = new StyleComponent(
                 $services, intval($child['id']), $params, $id_page);
         }
+        $this->params = $params;
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Fetch the data from the database base on the JSON configuration
+     * @param array $data_config
+     * Json configuration
+     * @retval array
+     * array with the retrieved fields and their values
+     */
+    private function fetch_data($data_config)
+    {
+        $result = array();
+        foreach ($data_config as $key => $config) {
+            // loop configs; DB requests
+            $table_id = $config['type'] === 'static' ? $this->get_static_table_id($config['table']) : $this->get_dynamic_table_id($config['table']);
+            $data = null;
+            if ($table_id) {
+                if ($config['type'] === 'static') {
+                    $filter = "ORDER BY row_id ASC";
+                    if ($config['retrieve'] === 'last') {
+                        $filter = "ORDER BY row_id DESC";
+                    }
+                } else {
+                    $filter = "ORDER BY edit_time ASC";
+                    if ($config['retrieve'] === 'last') {
+                        $filter = "ORDER BY edit_time DESC";
+                    }
+                }
+                $data = $config['type'] === 'static' ? $this->get_static_data(
+                    $table_id,
+                    $filter
+                ) : $this->get_dynamic_data($table_id, $filter);
+                $data = array_filter($data, function ($value) {
+                        return ($value["deleted"] != 1);
+                    });
+                foreach ($config['fields'] as $key => $field) {
+                    // loop fields
+                    $i = 0;
+                    $field_value = '';
+                    foreach ($data as $key => $row) {
+                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $row[$field['not_found_text']]; // get the first value
+                        if ($config['retrieve'] != 'all') {
+                            $field_value = $val;
+                            break; // we don need the others;
+                        } else {
+                            if ($i === 0) {
+                                $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
+                            } else {
+                                // get the other values too                                
+                                $field_value = $field_value . ',"' . $val . '"';
+                            }
+                        }
+                        $i++;
+                    }
+                    if ($config['retrieve'] === 'all') {
+                        $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
+                    }
+                    $result[$field['field_holder']] = $field_value;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Get staic data from the database
+     * @param int $table_id
+     * id of the table that we want to retrieve
+     * @param string $filter
+     * filter used to sort the data
+     * @retval array
+     * the results rows in array
+     */
+    private function get_static_data($table_id, $filter)
+    {
+        $sql = 'CALL get_uploadTable_with_filter(:table_id, :filter)';
+        return $this->db->query_db($sql, array(
+            ":table_id" => $table_id,
+            ":filter" => $filter
+        ));
+    }
+
+    /**
+     * Get dynamic data from the database
+     * @param int $table_id
+     * id of the table that we want to retrieve
+     * @param string $filter
+     * filter used to sort the data
+     * @retval array
+     * the results rows in array
+     */
+    private function get_dynamic_data($table_id, $filter)
+    {
+        $sql = 'CALL get_form_data_for_user_with_filter(:table_id, :user_id, :filter)';
+        return $this->db->query_db($sql, array(
+            ":table_id" => $table_id,
+            ":user_id" => $_SESSION['id_user'],
+            ":filter" => $filter
+        ));
+    }
+
+    /**
+     * Get the static table id based on name
+     * @param string $table_name
+     * table name
+     * @retval int table id
+     */
+    private function get_static_table_id($table_name)
+    {
+        $sql = 'SELECT * 
+                FROM view_data_tables 
+                WHERE orig_name = :name';
+        return $this->db->query_db_first($sql, array(
+            ":name" => $table_name
+        ))['id'];
+    }
+
+    /**
+     * Get the dynamic table id based on name
+     * @param string $table_name
+     * table name
+     * @retval int table id
+     */
+    private function get_dynamic_table_id($table_name)
+    {
+        $sql = 'SELECT * 
+                FROM view_user_input 
+                WHERE form_name = :name';
+        return $this->db->query_db_first($sql, array(
+            ":name" => $table_name
+        ))['form_id'];
+    }
+
+    /**
+     * Parse the page params and if they are needed in the config they are replaced with their values
+     * @param array $data_config
+     * The json config
+     * @retval array the json parsed and parameters assigned
+     */
+    private function parse_params($data_config)
+    {
+        $str_data = json_encode($data_config);
+        preg_match_all('~#\w+\b~', $str_data, $m);
+        foreach ($m as $key => $value) {
+            if ($value) {
+                $param_name = str_replace('#', '', $value[0]);
+                if (isset($this->params[$param_name])) {
+                    $ser_data = str_replace($value[0], $this->params[$param_name], $str_data);
+                }
+            }
+        }
+        return isset($ser_data) ? json_decode($ser_data, true) : $data_config;
+    }
 
     /* Protected Methods ******************************************************/
 
@@ -164,6 +323,8 @@ class StyleModel extends BaseModel implements IStyleModel
         }
     }
 
+    /* Public Methods *********************************************************/
+
     /**
      * Checks whether the current page is a CMS page.
      *
@@ -180,8 +341,6 @@ class StyleModel extends BaseModel implements IStyleModel
         );
 
     }
-
-    /* Public Methods *********************************************************/
 
     /**
      * Returns the content of a data field given a specific key. If the key does
@@ -301,5 +460,22 @@ class StyleModel extends BaseModel implements IStyleModel
      * CMS. Redefine within the style.
      */
     public function cms_update_callback($model) { }
+
+     /**
+     * Retrieve the data based on the JSON configuration
+     * @param array $data_config
+     * JSON structure
+     * @retval array with the retrieved fields and their values, empty string if fails.
+     */
+    public function retrieve_data($data_config)
+    {
+        $parsed_data = $this->parse_params($data_config);
+        if (!$parsed_data) {
+            return '';
+        } else {
+            return $this->fetch_data($parsed_data);
+        }
+    }
+
 }
 ?>

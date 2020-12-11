@@ -1,4 +1,182 @@
-# v2.0.6 (latest)
+# v3.9.0 (latest)
+
+### Changes
+ - For now, disable the field `ajax` from style `formUserInput` as it does not
+   work with anchors.
+
+### New Features
+ - Allow to jump to tabs by using the location hash (!46). Such an anchored tab
+   will be activated.
+ - Allow to disable style fields in the DB. This will only disable the display
+   and should be used with care because it will be difficult to change a style
+   field once it is disabled.
+
+---------
+# v3.8.0
+
+### Changes
+ - In order reduce the ACL DB connections, the ACL of the current user is cached in the ACL service (!41).
+ - Handle the style field css like any other field (!45, #290).
+ - Reduce DB requests by caching page information fetched from the DB.
+
+### New Features
+ - Added a utility script to generate the boilerplate code for a new style.
+
+---------
+# v3.7.0
+
+### Changes
+ - Add field format to style `input`. It is used for all date, time and datetime formats. [Info](https://selfhelp.psy.unibe.ch/demo/style/471)
+
+---------
+# v3.6.1
+
+### Bugfix
+ - Bad Scaling of UserInput Service (#284, !37).
+ - Catch Argument Count Error in conditionalContainer (!36).
+
+### Changes
+ - Redesign of the Navigation bar to reduce DB requests (!38).
+
+---------
+# v3.6.0
+
+### Bugfix
+ - Export section now corectly exports CSS values.
+
+### Changes
+ - Inputs with types: date, datetime and time now are based on [flatpickr](https://flatpickr.js.org)
+
+---------
+# v3.5.0
+
+### Bugfix
+ - Issue:#288; Move time check in the global sanitize; in the future it should be adjusted to the new gulp version and array structure
+ - Issue: #286; Export sections containg fields without content.
+
+### New Features
+ - Cretae Plugin functionality for Selfhelp. All installed plugins can be seen in `impressum` 
+ - Add `triggerStyle`. It is used in order to call a `plugin` when a criteria is fulfilled.
+
+---------
+# v3.4.1
+
+### Bugfix
+ - Conditional container fix for null values (This fix was not applied in v3.4.0).
+
+---------
+# v3.4.0
+
+### New Features
+ - Issue: #240; Add export section functionality. A JSON file is generated for the sections and its children.
+ - Issue: #240; Add import section functionality. A JSON file can be imported and then a section is generated. It can be found in unused sections. 
+
+---------
+# v3.3.0
+
+### New Features
+ - Issue: #203; Delete all unassigned sections and their children
+ - Issue: #238; Improve security server configuration
+ - Issue: #277; Add option to send data to the user in style `formUserInput`
+
+### Changes
+ - Change ACL from view to procedure; add chatTherapist and chatSubject pages to moduleChat
+ - Issue: #283; Redesign of the data export page. Now the ueser and the forms are in adropdown list and they should be selected.
+ - Redesign chat, now it works with groups and not with chat rooms. All existing chat rooms were converted to groups
+    - A therapist should have the chatTherapist permision
+    - A subject should habe chatSubject permision
+    - All groups which has chats and the user is in them are loaded as tabs
+    - All messages are sent to the group, if there are multiple therapist in the group all of them will recieve the message
+    - All old chat rooms are created as groups and users are assigned to them
+    - The therapist should be in the same groups with the subject in order to send message to him/her
+    - All groups that had access to contact now have access to `chatSubject`
+    - Remove pages: 'contact', 'chatAdminDelete', 'chatAdminInsert', 'chatAdminSelect', 'chatAdminUpdate'
+    - All notification mails are send with the new mail module and they can be seen in the list
+    - Subject group can be renamed in the chat style.
+ - Issue: #201; Add style version that visualize the database version and the application version [Link](https://selfhelp.psy.unibe.ch/demo/style/806#section-806)
+ - Issue: #196; add new link `#last_user_page` for buttons and links; It links to the last unique visited page `#last_user_page`
+ - Issue: #199 ; remove `user_name` form the MySQL proceudure;
+
+### Bugfix
+ - Issue: #285 When an users is deleted all scheduled emails for that users are deleted too.
+ - Issue: #282 Faster loading on page users
+ - Issue: #281 Add config for rendering singleLineBreaks for SimpleMDE. Noe the preview in the markdown editor will show correctly new lines
+
+---------
+# v3.2.0
+
+### New Features
+ - In `QualtricsModule` - Add on option for annonymous survey.
+ - `For group(s)` in `Qualtrics Action` is not mandatory anymore.
+ - Add new field `data_config` in style `graph`. [More information](https://selfhelp.psy.unibe.ch/demo/style/631)
+ - Add new field `data_config` in style `markdown`. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)
+ - Add `PDF Export` checkbox in style `container`. [More information](https://selfhelp.psy.unibe.ch/demo/style/447)
+ - Add new style `search`. It gets the typed paramter and append it to the url
+ - Add field `config` in `Qualtrics Surveys`. [More information](https://selfhelp.psy.unibe.ch/demo/style/802)
+ - Add function `[BMZ] Evaluate motive` which can be assigned in `Qualtrics Action`. [More information](https://selfhelp.psy.unibe.ch/demo/cms_feature/799)
+
+### Changes
+ - When a user create new CMS page he/she recieves a full access to that page.
+
+### Bugfix
+ - fix the case where `ACL` does not show all possbile pages but just shows what the group has access.
+ - `ACL` chekcs if the page is open access and if it is open access, we give select mode for the user even if there is no special ACL rule, issue #274.
+ - Fix #239; The chat room's name can contain numbers, letters, - and _ characters.
+
+---------
+# v3.1.0
+
+### New Features
+
+ - Generate PDF files as output for spesific callback functions
+    - It is used for `Workwell` project. A folder `workwell_cg_ap_4` should be created in folder `assets`. The new folder should have 777 rights
+    - It is used for `Workwell` project. A folder `workwell_cg_ap_5` should be created in folder `assets`. The new folder should have 777 rights
+    - It is used for `Workwell` project. A folder `workwell_eg_ap_4` should be created in folder `assets`. The new folder should have 777 rights
+    - It is used for `Workwell` project. A folder `workwell_eg_ap_5` should be created in folder `assets`. The new folder should have 777 rights
+
+---------
+# v3.0.1
+
+### Bugfix
+
+ - Fix slow loading of `Groups` module
+
+---------
+# v3.0.0
+
+### Changes
+
+ - In style `register` add default `group` for new users
+ - In style `register` add `open_registration` property. If it isselected, a new user can register without a code. A new one will be generarted for him/her automatically
+ - Add export for datatables
+ - In style `select` add a field `live_search`. It eneable text filtering. The style is based now on bootstrap-select.js
+
+### New Features
+
+ - Add page CMS preferences
+ - Add user language selection
+ - Create/edit/delete language
+ - Add Module Mail
+    - Mail queue that show all shceduled emails
+    - Schedule email manually
+    - Cronjob that check and send mails
+- Add Module Qualtrics
+    - Add projects
+    - Add surveys
+    - Add actions
+    - Qualtrics synchronization
+- Add transcations
+- Add jQuery confirm dialog
+- Add flatpicker - now time can be selected too
+- Add new style `qualtricsSurvey`. It displays a Qualtroics Survey in iFrame. It uses iframeResizer.js
+- Add `lookups` table
+- Generate PDF files as output for spesific callback functions
+    - It is used for `Workwell` project. A folder `workwell_evaluate_personal_strenghts` should be created in folder `assets`. The new folder should have 777 rights
+    - It uses php-pdftk library
+    - It requires pdftk installed on the server <https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/> Ubuntu 18.04 installation command: `sudo snap install pdftk` (if there some issues a symbolic link maybe needed `sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk` )
+
+---------
+# v2.0.6
 
 ### Bugfix
 

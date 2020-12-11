@@ -55,7 +55,7 @@ class GroupView extends BaseView
     }
 
     /**
-     * Render the button to create a new user.
+     * Render the button to create a new group.
      */
     private function output_button()
     {
@@ -270,7 +270,7 @@ class GroupView extends BaseView
                             "title" => "Function",
                             "is_editable" => true,
                             "items" => $this->model->get_acl_selected_group(),
-                            "items_granted" => $this->model->get_admin_group_rights(),
+                            "items_granted" => $this->model->get_user_acl($_SESSION['id_user'], false)
                         ))
                     ),
                 ))

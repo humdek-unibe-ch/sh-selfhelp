@@ -106,13 +106,21 @@ abstract class BasePage
             "/css/ext/bootstrap.min.css",
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
+            "/css/ext/bootstrap-select.min.css",
+            "/css/ext/jquery-confirm.min.css",
+            "/css/ext/flatpickr.min.css",
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
+            "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
             "/js/ext/mermaid.min.js",
             "/js/ext/plotly.min.js",
+            "/js/ext/bootstrap-select.min.js",
+            "/js/ext/jquery-confirm.min.js",
+            "/js/ext/flatpickr.min.js",
+            "/js/ext/html2pdf.bundle.min.js",
         );
         if(DEBUG == 0)
         {
@@ -239,12 +247,12 @@ abstract class BasePage
      */
     private function get_csp_rules()
     {
-        return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
-            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' data: https://via.placeholder.com/";
+        return "default-src 'self'; frame-src https://eu.qualtrics.com/; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
+            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/";
     }
 
     /**
-     * Fetch the main page information from the database.
+     * Fetch the main page information from the database and add transaction to the logs
      *
      * @param string $keyword
      *  The keyword identifying the page.
@@ -253,6 +261,14 @@ abstract class BasePage
     {
         $db = $this->services->get_db();
         $info = $db->fetch_page_info($keyword);
+        $transaction = $this->services->get_transaction();
+        $transaction->add_transaction(            
+            transactionTypes_select,
+            transactionBy_by_user,
+            $_SESSION['id_user'],
+            $transaction::TABLE_PAGES,
+            $info['id']
+        );
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
@@ -261,6 +277,22 @@ abstract class BasePage
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
+        $this->set_last_user_page();
+    }
+
+    /**
+     * Set the last unique page that the user visited in his/her SESSION
+     */
+    private function set_last_user_page()
+    {
+        $curr_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        if (!isset($_SESSION['last_user_page']) && isset($_SERVER['HTTP_REFERER'])) {
+            // if the variable is not set assign it
+            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        } else if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != $curr_url) {
+            // if it is set but the current url is from a new page, reassign the page
+            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        }
     }
 
     /**

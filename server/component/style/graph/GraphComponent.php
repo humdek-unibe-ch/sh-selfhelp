@@ -34,9 +34,9 @@ class GraphComponent extends GraphBaseComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new GraphModel($services, $id);
-        $view = new GraphView($model);
-
+        $model = new GraphModel($services, $id, $params);
+        $code = isset($params['code']) ? $params['code'] : null;
+        $view = new GraphView($model, $code);
         parent::__construct($model, $view, $id_page);
     }
 }

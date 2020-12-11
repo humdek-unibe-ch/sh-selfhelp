@@ -33,7 +33,6 @@ define('ADMIN_GROUP_ID', 1);
 define('NAVIGATION_STYLE_ID', 33);
 define('NAVIGATION_CONTAINER_STYLE_ID', 30);
 
-define('CSS_FIELD_ID', 23);
 define('LABEL_FIELD_ID', 8);
 define('NAME_FIELD_ID', 57);
 define('TYPE_INPUT_FIELD_ID', 54);
@@ -63,4 +62,82 @@ define('USER_STATUS_ACTIVE', 3);
 define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');
 define('CALLBACK_SUCCESS', 'callback_success');
+
+/* Emtry modes */
+define('INSERT', 'insert');
+define('UPDATE', 'update');
+define('DELETE', 'delete');
+define('SELECT', 'select');
+
+/* mail separator */
+define('MAIL_SEPARATOR', ';');
+
+/*Lookup types */
+define('qualtricScheduleTypes', 'qualtricScheduleTypes');
+define('mailQueueSearchDateTypes', 'mailQueueSearchDateTypes');
+define('transactionTypes', 'transactionTypes');
+define('transactionBy', 'transactionBy');
+define('weekdays', 'weekdays');
+define('qualtricsActionScheduleTypes', 'qualtricsActionScheduleTypes');
+define('mailQueueStatus', 'mailQueueStatus');
+define('qualtricsSurveyTypes', 'qualtricsSurveyTypes');
+define('qualtricsProjectActionTriggerTypes', 'qualtricsProjectActionTriggerTypes');
+define('qualtricsProjectActionAdditionalFunction', 'qualtricsProjectActionAdditionalFunction');
+define('timePeriod', 'timePeriod');
+define('notificationTypes', 'notificationTypes');
+define('plugins', 'plugins');
+
+/* Lookup codes */
+/* Auto generate them from DB when new comes or a change is made*/
+define('qualtricScheduleTypes_immediately', 'immediately');
+define('qualtricScheduleTypes_on_fixed_datetime', 'on_fixed_datetime');
+define('qualtricScheduleTypes_after_period', 'after_period');
+define('qualtricScheduleTypes_after_period_on_day_at_time', 'after_period_on_day_at_time');
+define('mailQueueSearchDateTypes_date_create', 'date_create');
+define('mailQueueSearchDateTypes_date_to_be_sent', 'date_to_be_sent');
+define('mailQueueSearchDateTypes_date_sent', 'date_sent');
+define('transactionTypes_insert', 'insert');
+define('transactionTypes_select', 'select');
+define('transactionTypes_update', 'update');
+define('transactionTypes_delete', 'delete');
+define('transactionTypes_send_mail_ok', 'send_mail_ok');
+define('transactionTypes_send_mail_fail', 'send_mail_fail');
+define('transactionTypes_check_mailQueue', 'check_mailQueue');
+define('transactionBy_by_mail_cron', 'by_mail_cron');
+define('transactionBy_by_user', 'by_user');
+define('transactionBy_by_qualtrics_callback', 'by_qualtrics_callback');
+define('weekdays_monday', 'monday');
+define('weekdays_tuesday', 'tuesday');
+define('weekdays_wednesday', 'wednesday');
+define('weekdays_thursday', 'thursday');
+define('weekdays_friday', 'friday');
+define('weekdays_saturday', 'saturday');
+define('weekdays_sunday', 'sunday');
+define('qualtricsActionScheduleTypes_nothing', 'nothing');
+define('qualtricsActionScheduleTypes_notification', 'notification');
+define('qualtricsActionScheduleTypes_reminder', 'reminder');
+define('mailQueueStatus_queued', 'queued');
+define('mailQueueStatus_deleted', 'deleted');
+define('mailQueueStatus_sent', 'sent');
+define('mailQueueStatus_failed', 'failed');
+define('qualtricsSurveyTypes_baseline', 'baseline');
+define('qualtricsSurveyTypes_follow_up', 'follow_up');
+define('qualtricsSurveyTypes_anonymous', 'anonymous');
+define('qualtricsProjectActionTriggerTypes_started', 'started');
+define('qualtricsProjectActionTriggerTypes_finished', 'finished');
+define('qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts', 'workwell_evaluate_personal_strenghts');
+define('qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4', 'workwell_cg_ap_4');
+define('qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5', 'workwell_cg_ap_5');
+define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4', 'workwell_eg_ap_4');
+define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5', 'workwell_eg_ap_5');
+define('qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive', 'bmz_evaluate_motive');
+define('timePeriod_seconds', 'seconds');
+define('timePeriod_minutes', 'minutes');
+define('timePeriod_hours', 'hours');
+define('timePeriod_days', 'days');
+define('timePeriod_weeks', 'weeks');
+define('timePeriod_months', 'months');
+define('notificationTypes_email', 'email');
+define('notificationTypes_sms', 'sms');
+define('plugins_calc_sleep_efficiency', 'calc_sleep_efficiency');
 ?>

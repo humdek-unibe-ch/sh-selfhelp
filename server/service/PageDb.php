@@ -13,6 +13,26 @@ require_once __DIR__ . '/BaseDb.php';
  */
 class PageDb extends BaseDb
 {
+    /**
+     * Caching page properties to reduce DB requests.
+     */
+    private $pages = array();
+
+    /**
+     * Caching page keyword ID maps to reduce DB requests.
+     */
+    private $page_keywords = array();
+
+    /**
+     * Caching page ID keyword maps to reduce DB requests.
+     */
+    private $page_ids = array();
+
+    /**
+     * Caching extended page properties to reduce DB requests.
+     */
+    private $pages_info = array();
+
     /* Constructors ***********************************************************/
 
     /**
@@ -100,9 +120,12 @@ class PageDb extends BaseDb
      */
     public function fetch_page_id_by_keyword($keyword)
     {
-        $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
-        $id = $this->query_db_first($sql, array(":keyword" => $keyword));
-        return intval($id['id']);
+        if(!array_key_exists($keyword, $this->page_ids)) {
+            $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
+            $id = $this->query_db_first($sql, array(":keyword" => $keyword));
+            $this->page_ids[$keyword] = intval($id['id']);
+        }
+        return $this->page_ids[$keyword];
     }
 
     /**
@@ -115,9 +138,30 @@ class PageDb extends BaseDb
      */
     public function fetch_page_keyword_by_id($id)
     {
-        $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
-        $keyword = $this->query_db_first($sql, array(":id" => $id));
-        return $keyword['keyword'];
+        if(!array_key_exists($id, $this->page_keywords)) {
+            $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
+            $keyword = $this->query_db_first($sql, array(":id" => $id));
+            $this->page_keywords[$id] = $keyword['keyword'];
+        }
+        return $this->page_keywords[$id];
+    }
+
+    /**
+     * Fetch the page  given a page id.
+     *
+     * @param int $id
+     *  The page id.
+     * @retval array
+     *  The page columns.
+     */
+    public function fetch_page_by_id($id)
+    {
+        if(!array_key_exists($id, $this->pages)) {
+            $sql = "SELECT p.* FROM pages AS p WHERE id=:id";
+            $page = $this->query_db_first($sql, array(":id" => $id));
+            $this->pages[$id] = $page;
+        }
+        return $this->pages[$id];
     }
 
     /**
@@ -161,6 +205,9 @@ class PageDb extends BaseDb
      */
     public function fetch_page_info($keyword)
     {
+        if(array_key_exists($keyword, $this->pages_info))
+            return $this->pages_info[$keyword];
+
         $page_info = array(
             "title" => "unknown",
             "keyword" => $keyword,
@@ -205,6 +252,7 @@ class PageDb extends BaseDb
             if($info)
                 $page_info["title"] = $info["title"];
         }
+        $this->pages_info[$keyword] = $page_info;
         return $page_info;
     }
 
@@ -382,5 +430,87 @@ class PageDb extends BaseDb
         if($res['name'] != "") return $res['name'];
         else return $res['email'];
     }
+
+    /**
+     * Fetch the list of languages
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function fetch_languages()
+    {
+        $sql = "SELECT * FROM languages where id > 1;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch cmsPreferences
+     *
+     * @retval array
+     *  All preferences     
+     *   'callback_api_key':   
+     *   'default_lanhuage_id':   
+     *   'default_lanhuage':
+     */
+    public function fetch_cmsPreferences()
+    {
+        $sql = "SELECT * FROM view_cmsPreferences;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch all modules from the databse
+     *      
+     *
+     * @retval array
+     * enabled; 0 = false; 1 = true 
+     * module_name     
+     * id
+     */
+    public function fetch_all_modules()
+    {
+        $sql = "SELECT * FROM modules;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Get values from table and retrun them in array text values for select options
+     * Example call fetch_table_as_select_values('groups', 'id', array('name'),'WHERE id=:gid', array(":gid"=>3))
+     * @param string $table_name
+     * the name of the table that we want to fetch
+     * @param string $value_column 
+     * the name of the column which will be the value
+     * @param array $text_columns_array
+     * array with the columns that we want in the text; they are separated with ` - `
+     * @param string $where_clause
+     * where clause if we want to have some filtering
+     * @param array $arguments
+     * the arguments of the parameters in the wehere cluase
+     * @retval array
+     *  The array which can be used in the select style as items
+     */
+    public function fetch_table_as_select_values($table_name, $value_column, $text_columns_array, $where_clause = '', $arguments = array())
+    {
+        $sql = "SELECT " . $value_column . ',' . implode(',', $text_columns_array) . ' FROM ' . $table_name . ' ' . $where_clause;
+        $res = $this->query_db($sql, $arguments);
+        $arr = array();
+        foreach ($res as $val) {
+            $text = '';
+            foreach ($text_columns_array as $key => $column) {
+                if($text == ''){
+                    $text = $text . $val[$column];
+                }else{
+                    $text = $text . ' - ' . $val[$column];
+                }
+            }
+            array_push($arr, array("value" => $val[$value_column], "text" => $text));
+        }
+        return $arr;
+    }
+
 }
 ?>
