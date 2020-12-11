@@ -87,7 +87,7 @@ class StyleSignatureModel extends StyleModel
             FROM styles_fields AS sf
             LEFT JOIN fields AS f ON sf.id_fields = f.id
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE sf.id_styles = :id";
+            WHERE sf.id_styles = :id AND sf.disabled = 0";
         return $this->db->query_db($sql, array(
             "id" => $id
         ));
