@@ -6,7 +6,7 @@
 <?php
 define('PROJECT_NAME', '__experiment_name__');
 define('DEBUG', 0);
-define('LANGUAGE', 'de-CH');
+define('LANGUAGE', 'en-GB');
 define('BASE_PATH', '/' . PROJECT_NAME);
 
 define('DBSERVER', 'localhost');
