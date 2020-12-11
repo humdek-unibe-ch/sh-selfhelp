@@ -1,4 +1,12 @@
-# v3.9.0 (latest)
+# v3.9.1 (latest)
+
+### Bugfix
+ - In style `conditionalContainer` get the last input value instead of the
+   first if multiple values are available for one form field (e.g. with
+   `is_log` enabled).
+
+---------
+# v3.9.0
 
 ### Changes
  - For now, disable the field `ajax` from style `formUserInput` as it does not

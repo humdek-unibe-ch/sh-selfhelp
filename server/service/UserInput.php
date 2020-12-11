@@ -379,7 +379,7 @@ class UserInput
             "id_user" => $uid
         ));
         if(count($vals) > 0)
-            return $vals[0]['value'];
+            return end($vals)['value'];
 
         return "";
     }
