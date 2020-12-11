@@ -79,12 +79,16 @@ echo "Functions, views and proceuderes are created!"
 
 echo "Setting up appache"
 sudo -u $user cp ../../server/apache.default.conf ../../server/apache.conf
+sudo -u $user cp ../../server/apache_demo.default.conf ../../server/apache_demo.conf
 sudo -u $user sed -i "s/__experiment_name__/${name}/g" ../../server/apache.conf
+sudo -u $user sed -i "s/__experiment_name__/${name}/g" ../../server/apache_demo.conf
 sudo -u $user sed -i "s/__user__/${user}/g" ../../server/apache.conf
 cd /etc/apache2/sites-available
 sudo ln -s /home/$user/$name/server/apache.conf $name.conf
+sudo ln -sf /home/$user/$name/server/apache_demo.conf selfhelp_demo.conf
 cd ../sites-enabled
 sudo ln -s ../sites-available/$name.conf .
+sudo ln -sf ../sites-available/selfhelp_demo.conf .
 sudo service apache2 restart
 echo "https://www.tpf.philhum.unibe.ch/$name should be online!"
 echo "Installation is done!"

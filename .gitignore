@@ -1,5 +1,6 @@
 doc/doxygen
 server/apache.conf
+server/apache_demo.conf
 server/service/globals_untracked.php
 server/db/privileges.sql
 server/db/reminder_db_script.sql
