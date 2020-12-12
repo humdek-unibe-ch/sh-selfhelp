@@ -90,5 +90,10 @@ cd ../sites-enabled
 sudo ln -s ../sites-available/$name.conf .
 sudo ln -sf ../sites-available/selfhelp_demo.conf .
 sudo service apache2 restart
+
+echo "Run doxygen"
+cd /home/$user/$name
+sudo -u $user doxygen .doxygen
+
 echo "https://www.tpf.philhum.unibe.ch/$name should be online!"
 echo "Installation is done!"
