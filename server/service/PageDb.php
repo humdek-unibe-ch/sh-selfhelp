@@ -13,6 +13,26 @@ require_once __DIR__ . '/BaseDb.php';
  */
 class PageDb extends BaseDb
 {
+    /**
+     * Caching page properties to reduce DB requests.
+     */
+    private $pages = array();
+
+    /**
+     * Caching page keyword ID maps to reduce DB requests.
+     */
+    private $page_keywords = array();
+
+    /**
+     * Caching page ID keyword maps to reduce DB requests.
+     */
+    private $page_ids = array();
+
+    /**
+     * Caching extended page properties to reduce DB requests.
+     */
+    private $pages_info = array();
+
     /* Constructors ***********************************************************/
 
     /**
@@ -100,9 +120,12 @@ class PageDb extends BaseDb
      */
     public function fetch_page_id_by_keyword($keyword)
     {
-        $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
-        $id = $this->query_db_first($sql, array(":keyword" => $keyword));
-        return intval($id['id']);
+        if(!array_key_exists($keyword, $this->page_ids)) {
+            $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
+            $id = $this->query_db_first($sql, array(":keyword" => $keyword));
+            $this->page_ids[$keyword] = intval($id['id']);
+        }
+        return $this->page_ids[$keyword];
     }
 
     /**
@@ -115,9 +138,12 @@ class PageDb extends BaseDb
      */
     public function fetch_page_keyword_by_id($id)
     {
-        $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
-        $keyword = $this->query_db_first($sql, array(":id" => $id));
-        return $keyword['keyword'];
+        if(!array_key_exists($id, $this->page_keywords)) {
+            $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
+            $keyword = $this->query_db_first($sql, array(":id" => $id));
+            $this->page_keywords[$id] = $keyword['keyword'];
+        }
+        return $this->page_keywords[$id];
     }
 
     /**
@@ -130,9 +156,12 @@ class PageDb extends BaseDb
      */
     public function fetch_page_by_id($id)
     {
-        $sql = "SELECT p.* FROM pages AS p WHERE id=:id";
-        $page = $this->query_db_first($sql, array(":id" => $id));
-        return $page;
+        if(!array_key_exists($id, $this->pages)) {
+            $sql = "SELECT p.* FROM pages AS p WHERE id=:id";
+            $page = $this->query_db_first($sql, array(":id" => $id));
+            $this->pages[$id] = $page;
+        }
+        return $this->pages[$id];
     }
 
     /**
@@ -176,6 +205,9 @@ class PageDb extends BaseDb
      */
     public function fetch_page_info($keyword)
     {
+        if(array_key_exists($keyword, $this->pages_info))
+            return $this->pages_info[$keyword];
+
         $page_info = array(
             "title" => "unknown",
             "keyword" => $keyword,
@@ -220,6 +252,7 @@ class PageDb extends BaseDb
             if($info)
                 $page_info["title"] = $info["title"];
         }
+        $this->pages_info[$keyword] = $page_info;
         return $page_info;
     }
 

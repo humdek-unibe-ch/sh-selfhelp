@@ -406,7 +406,7 @@ class CmsView extends BaseView
         }
         else if($this->model->get_mode() == "update")
         {
-            $children[] = $this->create_field_form($fields, true);
+            $children[] = $this->create_field_form($fields);
             $type = "warning";
         }
         else
@@ -437,12 +437,10 @@ class CmsView extends BaseView
      * @param array $fields
      *  The fields array where each field is defined in
      *  CmsModel::add_property_item.
-     * @param bool $render_margin
-     *  A flag indicating whether the margin checkboxes should be rendered.
      * @retval object
      *  A form component.
      */
-    private function create_field_form($fields, $render_margin=false)
+    private function create_field_form($fields)
     {
         $form_items = array();
         $form_items[] = new BaseStyleComponent("input", array(
@@ -450,20 +448,6 @@ class CmsView extends BaseView
             "name" => "mode",
             "type_input" => "hidden",
         ));
-
-        if($render_margin)
-        {
-            $css = $this->model->get_css();
-            $form_items[] = new BaseStyleComponent("descriptionItem", array(
-                "title" => "CSS",
-                "locale" => "all",
-                "children" => array(new BaseStyleComponent("input", array(
-                    "value" => $css,
-                    "name" => "css",
-                    "type_input" => "text",
-                ))),
-            ));
-        }
 
         foreach($fields as $field)
             $form_items[] = $this->create_field_form_item($field);

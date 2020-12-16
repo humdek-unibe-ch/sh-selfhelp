@@ -47,6 +47,7 @@ class NavigationAccordionView extends NavigationView
                 "id_active" => $this->model->get_current_id(),
                 "is_expanded" => false,
                 "label_root" => $this->root_name,
+                "css" => $this->model->get_db_field("css_nav"),
             ))
         );
     }

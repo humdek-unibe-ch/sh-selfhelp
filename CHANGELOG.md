@@ -1,9 +1,43 @@
-# v3.7.0 (Latest)
+# v3.9.1 (latest)
+
+### Bugfix
+ - In style `conditionalContainer` get the last input value instead of the
+   first if multiple values are available for one form field (e.g. with
+   `is_log` enabled).
+
+---------
+# v3.9.0
+
+### Changes
+ - For now, disable the field `ajax` from style `formUserInput` as it does not
+   work with anchors.
+
+### New Features
+ - Allow to jump to tabs by using the location hash (!46). Such an anchored tab
+   will be activated.
+ - Allow to disable style fields in the DB. This will only disable the display
+   and should be used with care because it will be difficult to change a style
+   field once it is disabled.
+
+---------
+# v3.8.0
+
+### Changes
+ - In order reduce the ACL DB connections, the ACL of the current user is cached in the ACL service (!41).
+ - Handle the style field css like any other field (!45, #290).
+ - Reduce DB requests by caching page information fetched from the DB.
+
+### New Features
+ - Added a utility script to generate the boilerplate code for a new style.
+
+---------
+# v3.7.0
 
 ### Changes
  - Add field format to style `input`. It is used for all date, time and datetime formats. [Info](https://selfhelp.psy.unibe.ch/demo/style/471)
 
-# v3.6.1 (Latest)
+---------
+# v3.6.1
 
 ### Bugfix
  - Bad Scaling of UserInput Service (#284, !37).

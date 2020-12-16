@@ -578,7 +578,7 @@ class CmsModel extends BaseModel
             LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
             LEFT JOIN fields AS f ON f.id = sf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE s.id = :id
+            WHERE s.id = :id AND sf.disabled = 0
             ORDER BY ft.position, f.display, f.name";
         return $this->db->query_db($sql, array(":id" => $id));
     }
@@ -1303,24 +1303,6 @@ class CmsModel extends BaseModel
     public function get_language($id)
     {
         return $this->db->select_by_uid("languages", $id);
-    }    
-
-    /**
-     * Fetch the css string of the current section from the db.
-     *
-     * @retval string
-     *  The css string from the current section.
-     */
-    public function get_css($id_section = null)
-    {
-        if($id_section === null)
-            $id_section = $this->get_active_section_id();
-        $css = $this->db->select_by_fks("sections_fields_translation", array(
-            "id_sections" => $id_section,
-            "id_fields" => CSS_FIELD_ID,
-            "id_languages" => 1,
-        ));
-        return $css['content'];
     }
 
     /**
