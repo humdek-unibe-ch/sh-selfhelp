@@ -194,7 +194,13 @@ class NavView extends BaseView
 
     public function output_content_mobile()
     {
-        return $this->model->get_pages();
+        $res = $this->model->get_pages();
+        foreach ($res as $key => $value) {
+            if (isset($value['children'])) {
+                $res[$key]['children'] = array_values($value['children']);
+            }
+        }
+        return $res;
     }
 }
 ?>

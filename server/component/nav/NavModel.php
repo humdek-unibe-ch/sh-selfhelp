@@ -44,7 +44,7 @@ class NavModel extends BaseModel
     {
         $locale_cond = $this->db->get_locale_condition();
         $sql = "SELECT p.id, p.keyword, p.id_navigation_section,
-            pft.content AS title, p.parent, p.nav_position
+            pft.content AS title, p.parent, p.nav_position, p.url
             FROM pages AS p
             LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
             LEFT JOIN languages AS l ON l.id = pft.id_languages
@@ -75,6 +75,7 @@ class NavModel extends BaseModel
             "title" => $page['title'],
             "keyword" => $page['keyword'],
             "is_active" => $page['is_active'],
+            "url" => $page['url'],
             "children" => array()
         );
     }

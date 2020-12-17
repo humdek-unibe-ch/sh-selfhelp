@@ -115,6 +115,7 @@ abstract class StyleView extends BaseView
         $style = $this->model->get_db_fields();
         $style['type'] = 'style';
         $style['name'] = $this->style_name;
+        $style['css'] = $this->css;
         $style['children'] = $this->output_children_mobile();
         return $style;
     }

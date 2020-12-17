@@ -80,10 +80,7 @@ class MarkdownView extends StyleView
 
     public function output_content_mobile()
     {
-        $style = $this->model->get_db_fields();
-        $style['type'] = 'style';
-        $style['name'] = $this->style_name;
-        $style['children'] = $this->output_children_mobile();
+        $style = parent::output_content_mobile();
         if($this->data_config){
             $this->retrieve_data();
             $style['text_md']['content'] = $this->text_md;

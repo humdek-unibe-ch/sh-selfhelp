@@ -64,7 +64,7 @@ function mobile_call($services, $router, $db){
     $res = [];
     if($router->route)
     {
-        if($router->route['target'] == "sections") {
+        if ($router->route['target'] == "sections") {
             $page = new SectionPage(
                 $services,
                 $router->route['name'],
@@ -73,8 +73,10 @@ function mobile_call($services, $router, $db){
             );
             $res = $page->output_base_content_mobile();
             $res['navigation'] = array_values($res['navigation']);
-            $res['content'] = array_values($res['content']);
-            echo json_encode($res);
+            if (isset($res['content'])) {
+                $res['content'] = array_values($res['content']);
+            }
+            echo json_encode($res, JSON_UNESCAPED_UNICODE);
         }
         else if($router->route['target'] == "component")
         {
