@@ -1,4 +1,9 @@
-# v3.9.1 (latest)
+# v3.9.2 (latest)
+
+### Changes
+ - Add new global `REDIRECT_ON_LOGIN` In `globals_untracked.php`. When it is set to `false` the user is always redirected to home otherwise it is redirected to the last page.
+
+# v3.9.1
 
 ### Bugfix
  - In style `conditionalContainer` get the last input value instead of the
