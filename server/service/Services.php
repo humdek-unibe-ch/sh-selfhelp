@@ -107,7 +107,7 @@ class Services
      */
     private function does_redirect($keyword)
     {
-        if(!REDIRECT_ON_LOGIN)
+        if(defined('REDIRECT_ON_LOGIN') && !REDIRECT_ON_LOGIN)
             return false;
         return !$this->is_login_page($keyword)
             && !$this->is_script_page($keyword)
