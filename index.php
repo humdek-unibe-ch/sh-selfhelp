@@ -71,11 +71,19 @@ function mobile_call($services, $router, $db){
                 $router->route['params'],
                 true
             );
+            $start_time = microtime(true);
+            $start_date = date("Y-m-d H:i:s");
             $res = $page->output_base_content_mobile();
             $res['navigation'] = array_values($res['navigation']);
             if (isset($res['content'])) {
                 $res['content'] = array_values($res['content']);
             }
+            $end_time = microtime(true);
+            $res['time'] = [];
+            $res['time']['exec_time'] = $end_time - $start_time;
+            $res['time']['start_date'] = $start_date;
+            $adminIndex = array_search('admin-link', array_column($res['navigation'], 'keyword'));
+            unset($res['navigation'][$adminIndex]); //remove the admin tab
             echo json_encode($res, JSON_UNESCAPED_UNICODE);
         }
         else if($router->route['target'] == "component")

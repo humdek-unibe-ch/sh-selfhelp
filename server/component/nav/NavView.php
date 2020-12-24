@@ -196,7 +196,11 @@ class NavView extends BaseView
     {
         $res = $this->model->get_pages();
         foreach ($res as $key => $value) {
+            unset($res[$key]['is_active']);
             if (isset($value['children'])) {
+                foreach ($value['children'] as $subNavKey => $subNav) {
+                    unset($value['children'][$subNavKey]['is_active']);
+                }
                 $res[$key]['children'] = array_values($value['children']);
             }
         }
