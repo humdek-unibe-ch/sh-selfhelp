@@ -68,7 +68,7 @@ class InternalPage
     {
         foreach($this->sections as $section)
         {
-            $this->base->output_component("section-" . $section['id']);
+            $this->base->output_component_mobile("section-" . $section['id']);
         }
     }
 }
