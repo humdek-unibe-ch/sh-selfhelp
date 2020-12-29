@@ -1,8 +1,4 @@
 <?php  
-// header('Access-Control-Allow-Origin: http://localhost:8100');
-// header("Access-Control-Allow-Credentials: true");
-
-cors();
 
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
@@ -15,6 +11,10 @@ require_once "./server/page/SectionPage.php";
 require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
+
+if(DEBUG){
+    cors();
+}
 
 /**
  * Helper function to show stacktrace also of wranings.
@@ -60,7 +60,6 @@ if (isset($_POST['mobile']) && $_POST['mobile']) {
 }
 
 function mobile_call($services, $router, $db){
-    $_SESSION['mobile'] = [];
     $res = [];
     if($router->route)
     {
@@ -74,18 +73,21 @@ function mobile_call($services, $router, $db){
             $start_time = microtime(true);
             $start_date = date("Y-m-d H:i:s");
             $res = $page->output_base_content_mobile();
-            $res['navigation'] = array_values($res['navigation']);
+            if (isset($res['navigation'])) {
+                $res['navigation'] = array_values($res['navigation']);
+                $adminIndex = array_search('admin-link', array_column($res['navigation'], 'keyword'));
+                if ($adminIndex) {
+                    unset($res['navigation'][$adminIndex]); //remove the admin tab if it is returned in the navigation
+                }
+            }
             if (isset($res['content'])) {
                 $res['content'] = array_values($res['content']);
             }
             $end_time = microtime(true);
             $res['time'] = [];
             $res['time']['exec_time'] = $end_time - $start_time;
-            $res['time']['start_date'] = $start_date;
-            $adminIndex = array_search('admin-link', array_column($res['navigation'], 'keyword'));
-            if($adminIndex){
-                unset($res['navigation'][$adminIndex]); //remove the admin tab if it is returned in the navigation
-            }
+            $res['time']['start_date'] = $start_date;                        
+            $res['logged_in'] = $_SESSION['logged_in'];
             echo json_encode($res, JSON_UNESCAPED_UNICODE);
         }
         else if($router->route['target'] == "component")
@@ -175,6 +177,7 @@ function cors() {
         // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
         // you want to allow, and if so:
         header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Methods: GET, POST');
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Max-Age: 86400');    // cache for 1 day
     }
