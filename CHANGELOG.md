@@ -1,4 +1,10 @@
-# v3.9.2 (latest)
+# v3.10.0 (latest)
+
+### New Features
+ - Synchronize single action/survey in Qualtrics; Issue: #292;
+
+
+# v3.9.2
 
 ### Changes
  - Add new global `REDIRECT_ON_LOGIN` In `globals_untracked.php`. When it is set to `false` the user is always redirected to home otherwise it is redirected to the last page.

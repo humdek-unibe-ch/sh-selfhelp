@@ -740,6 +740,16 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
             "css" => "d-block mb-3",
         ));
         $backToProject->output_content();
+        if ($this->sid > 0) {
+            $syncAction = new BaseStyleComponent("button", array(
+                "id" => "syncQualtricsSurvey",
+                "label" => "Sync action",
+                "url" => $this->model->get_link_url("moduleQualtricsSync", array("pid" => $this->pid, "aid" => $this->sid)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $syncAction->output_content();
+        }
     }
 }
 ?>

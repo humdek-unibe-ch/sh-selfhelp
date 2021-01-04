@@ -1,3 +1,16 @@
+// jquery extend function for post submit
+$.extend(
+    {
+        redirectPost: function (location, args) {
+            var form = '';
+            $.each(args, function (key, value) {
+                value = value.split('"').join('\"')
+                form += '<input type="hidden" name="' + key + '" value="' + value + '">';
+            });
+            $('<form action="' + location + '" method="POST">' + form + '</form>').appendTo($(document.body)).submit();
+        }
+    });
+
 function isHidden(el) {
     return (el.offsetParent === null)
 }
@@ -144,4 +157,26 @@ $(document).ready(function () {
     $('select[name="schedule_info[qualtricScheduleTypes]"]').on('change', function () {
         adjustScheduleType();
     });
+
+    //confirmation for Qualtrics sync
+    var qualtricsSycnButton = $('.style-section-syncQualtricsSurvey').first();
+    qualtricsSycnButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Synchronization',
+            content: 'Are you sure that you want to synchonize this survey?',
+            buttons: {
+                confirm: function () {
+                    var href = $(qualtricsSycnButton).attr('href');
+                    $(qualtricsSycnButton).attr('href', '#');
+                    event.stopPropagation();
+                    $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
+    });
+
 });
