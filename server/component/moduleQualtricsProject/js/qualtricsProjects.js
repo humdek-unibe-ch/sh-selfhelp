@@ -37,7 +37,8 @@ $(document).ready(function () {
     table.on('click', 'tr[id|="action-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
         if (document.location.href.includes('sync')) {
-            document.location = '../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+            var loc = document.location.href.split('sync').pop().split('/');
+            document.location = (loc.length == 2 ? '../action/' : '../../action/') + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
         } else {
             document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
         }
