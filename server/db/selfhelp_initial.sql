@@ -1,13 +1,15 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.6deb5
+-- version 4.8.3
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Dec 10, 2020 at 04:30 PM
--- Server version: 5.7.32-0ubuntu0.18.04.1
--- PHP Version: 7.2.24-0ubuntu0.18.04.7
+-- Host: 127.0.0.1:3306
+-- Generation Time: Jan 04, 2021 at 03:00 PM
+-- Server version: 5.7.23-log
+-- PHP Version: 7.2.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -26,13 +28,17 @@ SET time_zone = "+00:00";
 -- Table structure for table `acl_groups`
 --
 
-CREATE TABLE `acl_groups` (
+DROP TABLE IF EXISTS `acl_groups`;
+CREATE TABLE IF NOT EXISTS `acl_groups` (
   `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `acl_select` tinyint(1) NOT NULL DEFAULT '1',
   `acl_insert` tinyint(1) NOT NULL DEFAULT '0',
   `acl_update` tinyint(1) NOT NULL DEFAULT '0',
-  `acl_delete` tinyint(1) NOT NULL DEFAULT '0'
+  `acl_delete` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_groups`,`id_pages`),
+  KEY `id_pages` (`id_pages`) USING BTREE,
+  KEY `id_groups` (`id_groups`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -171,13 +177,17 @@ INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `
 -- Table structure for table `acl_users`
 --
 
-CREATE TABLE `acl_users` (
+DROP TABLE IF EXISTS `acl_users`;
+CREATE TABLE IF NOT EXISTS `acl_users` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `acl_select` tinyint(1) NOT NULL DEFAULT '1',
   `acl_insert` tinyint(1) NOT NULL DEFAULT '0',
   `acl_update` tinyint(1) NOT NULL DEFAULT '0',
-  `acl_delete` tinyint(1) NOT NULL DEFAULT '0'
+  `acl_delete` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_users`,`id_pages`),
+  KEY `id_users` (`id_users`),
+  KEY `id_pages` (`id_pages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -196,10 +206,12 @@ INSERT INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `ac
 -- Table structure for table `actions`
 --
 
-CREATE TABLE `actions` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `actions`;
+CREATE TABLE IF NOT EXISTS `actions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `actions`
@@ -216,10 +228,12 @@ INSERT INTO `actions` (`id`, `name`) VALUES
 -- Table structure for table `activityType`
 --
 
-CREATE TABLE `activityType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `activityType`;
+CREATE TABLE IF NOT EXISTS `activityType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `activityType`
@@ -235,14 +249,16 @@ INSERT INTO `activityType` (`id`, `name`) VALUES
 -- Table structure for table `callbackLogs`
 --
 
-CREATE TABLE `callbackLogs` (
-  `id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `callbackLogs`;
+CREATE TABLE IF NOT EXISTS `callbackLogs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `callback_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `remote_addr` varchar(200) DEFAULT NULL,
   `redirect_url` varchar(1000) DEFAULT NULL,
   `callback_params` longtext,
   `status` varchar(200) DEFAULT NULL,
-  `callback_output` longtext
+  `callback_output` longtext,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -251,13 +267,18 @@ CREATE TABLE `callbackLogs` (
 -- Table structure for table `chat`
 --
 
-CREATE TABLE `chat` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `chat`;
+CREATE TABLE IF NOT EXISTS `chat` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_snd` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_rcv` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `content` longtext NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `id_rcv_group` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_rcv_group` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_snd` (`id_snd`) USING BTREE,
+  KEY `id_rcv` (`id_rcv`) USING BTREE,
+  KEY `fk_chat_id_rcv_group` (`id_rcv_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -266,11 +287,16 @@ CREATE TABLE `chat` (
 -- Table structure for table `chatRecipiants`
 --
 
-CREATE TABLE `chatRecipiants` (
+DROP TABLE IF EXISTS `chatRecipiants`;
+CREATE TABLE IF NOT EXISTS `chatRecipiants` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_chat` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_room_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `is_new` tinyint(4) NOT NULL DEFAULT '1'
+  `is_new` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_users`,`id_chat`),
+  KEY `id_users` (`id_users`),
+  KEY `id_chat` (`id_chat`),
+  KEY `id_room_users` (`id_room_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -279,12 +305,14 @@ CREATE TABLE `chatRecipiants` (
 -- Table structure for table `chatRoom`
 --
 
-CREATE TABLE `chatRoom` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `chatRoom`;
+CREATE TABLE IF NOT EXISTS `chatRoom` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext NOT NULL,
-  `title` varchar(200) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `title` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `chatRoom`
@@ -299,10 +327,15 @@ INSERT INTO `chatRoom` (`id`, `name`, `description`, `title`) VALUES
 -- Table structure for table `chatRoom_users`
 --
 
-CREATE TABLE `chatRoom_users` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `chatRoom_users`;
+CREATE TABLE IF NOT EXISTS `chatRoom_users` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_chatRoom` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
+  KEY `id_chatRoom` (`id_chatRoom`),
+  KEY `id_users` (`id_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -311,11 +344,14 @@ CREATE TABLE `chatRoom_users` (
 -- Table structure for table `cmsPreferences`
 --
 
-CREATE TABLE `cmsPreferences` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `cmsPreferences`;
+CREATE TABLE IF NOT EXISTS `cmsPreferences` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `callback_api_key` varchar(500) DEFAULT NULL,
-  `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_cmsPreferences_language` (`default_language_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `cmsPreferences`
@@ -330,9 +366,12 @@ INSERT INTO `cmsPreferences` (`id`, `callback_api_key`, `default_language_id`) V
 -- Table structure for table `codes_groups`
 --
 
-CREATE TABLE `codes_groups` (
+DROP TABLE IF EXISTS `codes_groups`;
+CREATE TABLE IF NOT EXISTS `codes_groups` (
   `code` varchar(16) NOT NULL,
-  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`code`,`id_groups`),
+  KEY `fk_id_groups` (`id_groups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -341,12 +380,15 @@ CREATE TABLE `codes_groups` (
 -- Table structure for table `fields`
 --
 
-CREATE TABLE `fields` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `fields`;
+CREATE TABLE IF NOT EXISTS `fields` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000002',
-  `display` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `display` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `id_type` (`id_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fields`
@@ -512,11 +554,13 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 -- Table structure for table `fieldType`
 --
 
-CREATE TABLE `fieldType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `fieldType`;
+CREATE TABLE IF NOT EXISTS `fieldType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `position` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `position` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fieldType`
@@ -549,10 +593,12 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 -- Table structure for table `genders`
 --
 
-CREATE TABLE `genders` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `genders`;
+CREATE TABLE IF NOT EXISTS `genders` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `genders`
@@ -568,11 +614,14 @@ INSERT INTO `genders` (`id`, `name`) VALUES
 -- Table structure for table `groups`
 --
 
-CREATE TABLE `groups` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `groups`;
+CREATE TABLE IF NOT EXISTS `groups` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `description` varchar(250) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `description` varchar(250) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `groups`
@@ -589,12 +638,16 @@ INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 -- Table structure for table `languages`
 --
 
-CREATE TABLE `languages` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `languages`;
+CREATE TABLE IF NOT EXISTS `languages` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `locale` varchar(5) NOT NULL COMMENT '"e.g en-GB, de-CH"',
   `language` varchar(100) NOT NULL,
-  `csv_separator` varchar(1) NOT NULL DEFAULT ','
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `csv_separator` varchar(1) NOT NULL DEFAULT ',',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `locale` (`locale`),
+  UNIQUE KEY `language` (`language`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `languages`
@@ -611,13 +664,17 @@ INSERT INTO `languages` (`id`, `locale`, `language`, `csv_separator`) VALUES
 -- Table structure for table `lookups`
 --
 
-CREATE TABLE `lookups` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `lookups`;
+CREATE TABLE IF NOT EXISTS `lookups` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `type_code` varchar(100) NOT NULL,
   `lookup_code` varchar(100) DEFAULT NULL,
   `lookup_value` varchar(200) DEFAULT NULL,
-  `lookup_description` varchar(500) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `lookup_description` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `lookup_code` (`lookup_code`),
+  UNIQUE KEY `lookup_value` (`lookup_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `lookups`
@@ -680,13 +737,16 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 -- Table structure for table `mailAttachments`
 --
 
-CREATE TABLE `mailAttachments` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `mailAttachments`;
+CREATE TABLE IF NOT EXISTS `mailAttachments` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
   `attachment_name` varchar(100) NOT NULL,
   `attachment_path` varchar(1000) NOT NULL,
   `attachment_url` varchar(1000) NOT NULL,
-  `template_path` varchar(1000) NOT NULL
+  `template_path` varchar(1000) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `mailAttachments_fk_id_mailQueue` (`id_mailQueue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -695,8 +755,9 @@ CREATE TABLE `mailAttachments` (
 -- Table structure for table `mailQueue`
 --
 
-CREATE TABLE `mailQueue` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `mailQueue`;
+CREATE TABLE IF NOT EXISTS `mailQueue` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_mailQueueStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
   `date_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_to_be_sent` datetime DEFAULT NULL,
@@ -709,7 +770,9 @@ CREATE TABLE `mailQueue` (
   `bcc_emails` varchar(1000) DEFAULT NULL,
   `subject` varchar(1000) NOT NULL,
   `body` longtext NOT NULL,
-  `is_html` int(11) DEFAULT '1'
+  `is_html` int(11) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `mailQueue_fk_id_mailQueueStatus` (`id_mailQueueStatus`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -718,11 +781,13 @@ CREATE TABLE `mailQueue` (
 -- Table structure for table `modules`
 --
 
-CREATE TABLE `modules` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `modules`;
+CREATE TABLE IF NOT EXISTS `modules` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `module_name` varchar(500) DEFAULT NULL,
-  `enabled` int(11) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `enabled` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `modules`
@@ -739,9 +804,13 @@ INSERT INTO `modules` (`id`, `module_name`, `enabled`) VALUES
 -- Table structure for table `modules_pages`
 --
 
-CREATE TABLE `modules_pages` (
+DROP TABLE IF EXISTS `modules_pages`;
+CREATE TABLE IF NOT EXISTS `modules_pages` (
   `id_modules` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_modules`,`id_pages`),
+  KEY `id_modules` (`id_modules`),
+  KEY `id_pages` (`id_pages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -761,8 +830,9 @@ INSERT INTO `modules_pages` (`id_modules`, `id_pages`) VALUES
 -- Table structure for table `pages`
 --
 
-CREATE TABLE `pages` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `pages`;
+CREATE TABLE IF NOT EXISTS `pages` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `keyword` varchar(100) NOT NULL,
   `url` varchar(255) DEFAULT NULL,
   `protocol` varchar(100) DEFAULT NULL COMMENT 'pipe seperated list of HTTP Methods (GET|POST)',
@@ -772,8 +842,14 @@ CREATE TABLE `pages` (
   `is_headless` tinyint(1) NOT NULL DEFAULT '0',
   `nav_position` int(11) DEFAULT NULL,
   `footer_position` int(11) DEFAULT NULL,
-  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `keyword` (`keyword`),
+  KEY `parent` (`parent`),
+  KEY `id_actions` (`id_actions`),
+  KEY `id_navigation_section` (`id_navigation_section`),
+  KEY `id_type` (`id_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pages`
@@ -827,7 +903,7 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000051, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000052, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000053, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000055, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000056, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
 (0000000057, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
@@ -840,11 +916,15 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 -- Table structure for table `pages_fields`
 --
 
-CREATE TABLE `pages_fields` (
+DROP TABLE IF EXISTS `pages_fields`;
+CREATE TABLE IF NOT EXISTS `pages_fields` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `default_value` varchar(100) DEFAULT NULL,
-  `help` longtext
+  `help` longtext,
+  PRIMARY KEY (`id_pages`,`id_fields`),
+  KEY `id_pages` (`id_pages`),
+  KEY `id_fields` (`id_fields`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -863,11 +943,16 @@ INSERT INTO `pages_fields` (`id_pages`, `id_fields`, `default_value`, `help`) VA
 -- Table structure for table `pages_fields_translation`
 --
 
-CREATE TABLE `pages_fields_translation` (
+DROP TABLE IF EXISTS `pages_fields_translation`;
+CREATE TABLE IF NOT EXISTS `pages_fields_translation` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `content` longtext NOT NULL
+  `content` longtext NOT NULL,
+  PRIMARY KEY (`id_pages`,`id_fields`,`id_languages`),
+  KEY `id_pages` (`id_pages`),
+  KEY `id_fields` (`id_fields`),
+  KEY `id_languages` (`id_languages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -955,10 +1040,14 @@ INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`,
 -- Table structure for table `pages_sections`
 --
 
-CREATE TABLE `pages_sections` (
+DROP TABLE IF EXISTS `pages_sections`;
+CREATE TABLE IF NOT EXISTS `pages_sections` (
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) DEFAULT NULL
+  `position` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_pages`,`id_sections`),
+  KEY `id_pages` (`id_pages`),
+  KEY `id_sections` (`id_sections`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -986,10 +1075,12 @@ INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 -- Table structure for table `pageType`
 --
 
-CREATE TABLE `pageType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `pageType`;
+CREATE TABLE IF NOT EXISTS `pageType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pageType`
@@ -1007,10 +1098,12 @@ INSERT INTO `pageType` (`id`, `name`) VALUES
 -- Table structure for table `plugins`
 --
 
-CREATE TABLE `plugins` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `plugins`;
+CREATE TABLE IF NOT EXISTS `plugins` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(500) DEFAULT NULL,
-  `version` varchar(500) DEFAULT NULL
+  `version` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1019,15 +1112,22 @@ CREATE TABLE `plugins` (
 -- Table structure for table `qualtricsActions`
 --
 
-CREATE TABLE `qualtricsActions` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsActions`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(200) NOT NULL,
   `id_qualtricsProjectActionTriggerTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsActionScheduleTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsSurveys_reminder` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
-  `schedule_info` text
+  `schedule_info` text,
+  PRIMARY KEY (`id`),
+  KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
+  KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
+  KEY `qualtricsActions_fk_id_qualtricsSurveys_reminder` (`id_qualtricsSurveys_reminder`),
+  KEY `qualtricsActions_fk_id_qualtricsActionScheduleTypes` (`id_qualtricsActionScheduleTypes`),
+  KEY `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` (`id_qualtricsProjectActionTriggerTypes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1036,9 +1136,13 @@ CREATE TABLE `qualtricsActions` (
 -- Table structure for table `qualtricsActions_functions`
 --
 
-CREATE TABLE `qualtricsActions_functions` (
+DROP TABLE IF EXISTS `qualtricsActions_functions`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions_functions` (
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
+  KEY `id_qualtricsActions` (`id_qualtricsActions`),
+  KEY `id_lookups` (`id_lookups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1047,9 +1151,13 @@ CREATE TABLE `qualtricsActions_functions` (
 -- Table structure for table `qualtricsActions_groups`
 --
 
-CREATE TABLE `qualtricsActions_groups` (
+DROP TABLE IF EXISTS `qualtricsActions_groups`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions_groups` (
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
+  KEY `id_qualtricsActions` (`id_qualtricsActions`),
+  KEY `id_groups` (`id_groups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1058,15 +1166,17 @@ CREATE TABLE `qualtricsActions_groups` (
 -- Table structure for table `qualtricsProjects`
 --
 
-CREATE TABLE `qualtricsProjects` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsProjects`;
+CREATE TABLE IF NOT EXISTS `qualtricsProjects` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` varchar(1000) DEFAULT NULL,
   `qualtrics_api` varchar(100) DEFAULT NULL,
   `api_library_id` varchar(100) DEFAULT NULL,
   `api_mailing_group_id` varchar(100) DEFAULT NULL,
   `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1075,10 +1185,14 @@ CREATE TABLE `qualtricsProjects` (
 -- Table structure for table `qualtricsReminders`
 --
 
-CREATE TABLE `qualtricsReminders` (
+DROP TABLE IF EXISTS `qualtricsReminders`;
+CREATE TABLE IF NOT EXISTS `qualtricsReminders` (
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_mailQueue`),
+  KEY `qualtricsReminders_fk_id_users` (`id_users`),
+  KEY `qualtricsReminders_fk_id_mailQueue` (`id_mailQueue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1087,8 +1201,9 @@ CREATE TABLE `qualtricsReminders` (
 -- Table structure for table `qualtricsSurveys`
 --
 
-CREATE TABLE `qualtricsSurveys` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsSurveys`;
+CREATE TABLE IF NOT EXISTS `qualtricsSurveys` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` varchar(1000) DEFAULT NULL,
   `qualtrics_survey_id` varchar(100) DEFAULT NULL,
@@ -1097,7 +1212,10 @@ CREATE TABLE `qualtricsSurveys` (
   `group_variable` int(11) DEFAULT '0',
   `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `config` longtext
+  `config` longtext,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `qualtrics_survey_id` (`qualtrics_survey_id`),
+  KEY `qualtricsSurveys_fk_id_qualtricsSurveyTypes` (`id_qualtricsSurveyTypes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1106,14 +1224,20 @@ CREATE TABLE `qualtricsSurveys` (
 -- Table structure for table `qualtricsSurveysResponses`
 --
 
-CREATE TABLE `qualtricsSurveysResponses` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `qualtricsSurveysResponses`;
+CREATE TABLE IF NOT EXISTS `qualtricsSurveysResponses` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_surveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsProjectActionTriggerTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `survey_response_id` varchar(100) DEFAULT NULL,
   `started_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `edited_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `survey_response_id` (`survey_response_id`),
+  KEY `qSurveysResponses_fk_id_users` (`id_users`),
+  KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
+  KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1122,12 +1246,17 @@ CREATE TABLE `qualtricsSurveysResponses` (
 -- Table structure for table `sections`
 --
 
-CREATE TABLE `sections` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `sections`;
+CREATE TABLE IF NOT EXISTS `sections` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(100) NOT NULL,
-  `owner` int(10) UNSIGNED ZEROFILL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `owner` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `id_styles` (`id_styles`),
+  KEY `owner` (`owner`)
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `sections`
@@ -1200,12 +1329,18 @@ INSERT INTO `sections` (`id`, `id_styles`, `name`, `owner`) VALUES
 -- Table structure for table `sections_fields_translation`
 --
 
-CREATE TABLE `sections_fields_translation` (
+DROP TABLE IF EXISTS `sections_fields_translation`;
+CREATE TABLE IF NOT EXISTS `sections_fields_translation` (
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_languages` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
   `id_genders` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `content` longtext NOT NULL
+  `content` longtext NOT NULL,
+  PRIMARY KEY (`id_sections`,`id_fields`,`id_languages`,`id_genders`),
+  KEY `id_sections` (`id_sections`),
+  KEY `id_fields` (`id_fields`),
+  KEY `id_languages` (`id_languages`),
+  KEY `id_genders` (`id_genders`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1560,10 +1695,14 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 -- Table structure for table `sections_hierarchy`
 --
 
-CREATE TABLE `sections_hierarchy` (
+DROP TABLE IF EXISTS `sections_hierarchy`;
+CREATE TABLE IF NOT EXISTS `sections_hierarchy` (
   `parent` int(10) UNSIGNED ZEROFILL NOT NULL,
   `child` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) DEFAULT NULL
+  `position` int(11) DEFAULT NULL,
+  PRIMARY KEY (`parent`,`child`),
+  KEY `parent` (`parent`),
+  KEY `child` (`child`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1627,11 +1766,16 @@ INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 -- Table structure for table `sections_navigation`
 --
 
-CREATE TABLE `sections_navigation` (
+DROP TABLE IF EXISTS `sections_navigation`;
+CREATE TABLE IF NOT EXISTS `sections_navigation` (
   `parent` int(10) UNSIGNED ZEROFILL NOT NULL,
   `child` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `position` int(11) NOT NULL
+  `position` int(11) NOT NULL,
+  PRIMARY KEY (`parent`,`child`),
+  KEY `child` (`child`),
+  KEY `parent` (`parent`),
+  KEY `id_pages` (`id_pages`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1640,12 +1784,14 @@ CREATE TABLE `sections_navigation` (
 -- Table structure for table `styleGroup`
 --
 
-CREATE TABLE `styleGroup` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `styleGroup`;
+CREATE TABLE IF NOT EXISTS `styleGroup` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext,
-  `position` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `position` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styleGroup`
@@ -1671,13 +1817,17 @@ INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 -- Table structure for table `styles`
 --
 
-CREATE TABLE `styles` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `styles`;
+CREATE TABLE IF NOT EXISTS `styles` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
   `id_group` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
-  `description` longtext
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `description` longtext,
+  PRIMARY KEY (`id`),
+  KEY `id_type` (`id_type`),
+  KEY `id_group` (`id_group`)
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
@@ -1750,12 +1900,16 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 -- Table structure for table `styles_fields`
 --
 
-CREATE TABLE `styles_fields` (
+DROP TABLE IF EXISTS `styles_fields`;
+CREATE TABLE IF NOT EXISTS `styles_fields` (
   `id_styles` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `default_value` varchar(100) DEFAULT NULL,
   `help` longtext,
-  `disabled` tinyint(1) NOT NULL DEFAULT '0'
+  `disabled` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_styles`,`id_fields`),
+  KEY `id_styles` (`id_styles`),
+  KEY `id_fields` (`id_fields`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -2124,10 +2278,12 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 -- Table structure for table `styleType`
 --
 
-CREATE TABLE `styleType` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `styleType`;
+CREATE TABLE IF NOT EXISTS `styleType` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styleType`
@@ -2144,16 +2300,21 @@ INSERT INTO `styleType` (`id`, `name`) VALUES
 -- Table structure for table `transactions`
 --
 
-CREATE TABLE `transactions` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `transactions`;
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `transaction_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `id_transactionTypes` int(10) UNSIGNED DEFAULT NULL,
   `id_transactionBy` int(10) UNSIGNED DEFAULT NULL,
   `id_users` int(10) UNSIGNED DEFAULT NULL,
   `table_name` varchar(100) DEFAULT NULL,
   `id_table_name` int(10) UNSIGNED DEFAULT NULL,
-  `transaction_log` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `transaction_log` text,
+  PRIMARY KEY (`id`),
+  KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
+  KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
+  KEY `transactions_fk_id_users` (`id_users`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2208,10 +2369,14 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 -- Table structure for table `uploadCells`
 --
 
-CREATE TABLE `uploadCells` (
+DROP TABLE IF EXISTS `uploadCells`;
+CREATE TABLE IF NOT EXISTS `uploadCells` (
   `id_uploadRows` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_uploadCols` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `value` longtext NOT NULL
+  `value` longtext NOT NULL,
+  PRIMARY KEY (`id_uploadRows`,`id_uploadCols`),
+  KEY `id_uploadRows` (`id_uploadRows`),
+  KEY `id_uploadCols` (`id_uploadCols`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2220,10 +2385,13 @@ CREATE TABLE `uploadCells` (
 -- Table structure for table `uploadCols`
 --
 
-CREATE TABLE `uploadCols` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `uploadCols`;
+CREATE TABLE IF NOT EXISTS `uploadCols` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_uploadTables` (`id_uploadTables`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2232,9 +2400,12 @@ CREATE TABLE `uploadCols` (
 -- Table structure for table `uploadRows`
 --
 
-CREATE TABLE `uploadRows` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL
+DROP TABLE IF EXISTS `uploadRows`;
+CREATE TABLE IF NOT EXISTS `uploadRows` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_uploadTables` (`id_uploadTables`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2243,10 +2414,13 @@ CREATE TABLE `uploadRows` (
 -- Table structure for table `uploadTables`
 --
 
-CREATE TABLE `uploadTables` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `uploadTables`;
+CREATE TABLE IF NOT EXISTS `uploadTables` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_uploadTables_name_timestamp` (`name`,`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2255,8 +2429,9 @@ CREATE TABLE `uploadTables` (
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `email` varchar(100) NOT NULL,
   `name` varchar(100) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
@@ -2268,8 +2443,13 @@ CREATE TABLE `users` (
   `id_languages` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `is_reminded` tinyint(1) NOT NULL DEFAULT '1',
   `last_login` date DEFAULT NULL,
-  `last_url` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `last_url` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `id_genders` (`id_genders`),
+  KEY `id_languages` (`id_languages`),
+  KEY `id_status` (`id_status`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `users`
@@ -2287,11 +2467,13 @@ INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`,
 -- Table structure for table `userStatus`
 --
 
-CREATE TABLE `userStatus` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `userStatus`;
+CREATE TABLE IF NOT EXISTS `userStatus` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  `description` varchar(500) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `description` varchar(500) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `userStatus`
@@ -2309,9 +2491,13 @@ INSERT INTO `userStatus` (`id`, `name`, `description`) VALUES
 -- Table structure for table `users_groups`
 --
 
-CREATE TABLE `users_groups` (
+DROP TABLE IF EXISTS `users_groups`;
+CREATE TABLE IF NOT EXISTS `users_groups` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL
+  `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_users`,`id_groups`),
+  KEY `id_users` (`id_users`),
+  KEY `id_groups` (`id_groups`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -2329,13 +2515,17 @@ INSERT INTO `users_groups` (`id_users`, `id_groups`) VALUES
 -- Table structure for table `user_activity`
 --
 
-CREATE TABLE `user_activity` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `user_activity`;
+CREATE TABLE IF NOT EXISTS `user_activity` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `url` varchar(200) NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `id_type` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001',
+  PRIMARY KEY (`id`),
+  KEY `id_users` (`id_users`),
+  KEY `id_type` (`id_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_activity`
@@ -2353,16 +2543,22 @@ INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`, `id_type`) VA
 -- Table structure for table `user_input`
 --
 
-CREATE TABLE `user_input` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
+DROP TABLE IF EXISTS `user_input`;
+CREATE TABLE IF NOT EXISTS `user_input` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_sections` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_section_form` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_user_input_record` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `value` longtext NOT NULL,
   `edit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `removed` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `removed` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `id_users` (`id_users`),
+  KEY `id_sections` (`id_sections`),
+  KEY `id_section_form` (`id_section_form`),
+  KEY `id_user_input_record` (`id_user_input_record`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_input`
@@ -2380,9 +2576,11 @@ INSERT INTO `user_input` (`id`, `id_users`, `id_sections`, `id_section_form`, `i
 -- Table structure for table `user_input_record`
 --
 
-CREATE TABLE `user_input_record` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+DROP TABLE IF EXISTS `user_input_record`;
+CREATE TABLE IF NOT EXISTS `user_input_record` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2391,11 +2589,14 @@ CREATE TABLE `user_input_record` (
 -- Table structure for table `validation_codes`
 --
 
-CREATE TABLE `validation_codes` (
+DROP TABLE IF EXISTS `validation_codes`;
+CREATE TABLE IF NOT EXISTS `validation_codes` (
   `code` varchar(16) NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `consumed` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+  `consumed` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`code`),
+  KEY `id_users` (`id_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2404,632 +2605,20 @@ CREATE TABLE `validation_codes` (
 -- Table structure for table `version`
 --
 
-CREATE TABLE `version` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `version` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE IF NOT EXISTS `version` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `version` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `version`
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v3.9.0');
+(0000000001, 'v3.10.0');
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `acl_groups`
---
-ALTER TABLE `acl_groups`
-  ADD PRIMARY KEY (`id_groups`,`id_pages`),
-  ADD KEY `id_pages` (`id_pages`) USING BTREE,
-  ADD KEY `id_groups` (`id_groups`) USING BTREE;
-
---
--- Indexes for table `acl_users`
---
-ALTER TABLE `acl_users`
-  ADD PRIMARY KEY (`id_users`,`id_pages`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_pages` (`id_pages`);
-
---
--- Indexes for table `actions`
---
-ALTER TABLE `actions`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `activityType`
---
-ALTER TABLE `activityType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `callbackLogs`
---
-ALTER TABLE `callbackLogs`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `chat`
---
-ALTER TABLE `chat`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_snd` (`id_snd`) USING BTREE,
-  ADD KEY `id_rcv` (`id_rcv`) USING BTREE,
-  ADD KEY `fk_chat_id_rcv_group` (`id_rcv_group`);
-
---
--- Indexes for table `chatRecipiants`
---
-ALTER TABLE `chatRecipiants`
-  ADD PRIMARY KEY (`id_users`,`id_chat`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_chat` (`id_chat`),
-  ADD KEY `id_room_users` (`id_room_users`);
-
---
--- Indexes for table `chatRoom`
---
-ALTER TABLE `chatRoom`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `chatRoom_users`
---
-ALTER TABLE `chatRoom_users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_chatRoom_2` (`id_chatRoom`,`id_users`),
-  ADD KEY `id_chatRoom` (`id_chatRoom`),
-  ADD KEY `id_users` (`id_users`);
-
---
--- Indexes for table `cmsPreferences`
---
-ALTER TABLE `cmsPreferences`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_cmsPreferences_language` (`default_language_id`);
-
---
--- Indexes for table `codes_groups`
---
-ALTER TABLE `codes_groups`
-  ADD PRIMARY KEY (`code`,`id_groups`),
-  ADD KEY `fk_id_groups` (`id_groups`);
-
---
--- Indexes for table `fields`
---
-ALTER TABLE `fields`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_type` (`id_type`);
-
---
--- Indexes for table `fieldType`
---
-ALTER TABLE `fieldType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `genders`
---
-ALTER TABLE `genders`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `groups`
---
-ALTER TABLE `groups`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
-
---
--- Indexes for table `languages`
---
-ALTER TABLE `languages`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `locale` (`locale`),
-  ADD UNIQUE KEY `language` (`language`);
-
---
--- Indexes for table `lookups`
---
-ALTER TABLE `lookups`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `lookup_code` (`lookup_code`),
-  ADD UNIQUE KEY `lookup_value` (`lookup_value`);
-
---
--- Indexes for table `mailAttachments`
---
-ALTER TABLE `mailAttachments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mailAttachments_fk_id_mailQueue` (`id_mailQueue`);
-
---
--- Indexes for table `mailQueue`
---
-ALTER TABLE `mailQueue`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mailQueue_fk_id_mailQueueStatus` (`id_mailQueueStatus`);
-
---
--- Indexes for table `modules`
---
-ALTER TABLE `modules`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `modules_pages`
---
-ALTER TABLE `modules_pages`
-  ADD PRIMARY KEY (`id_modules`,`id_pages`),
-  ADD KEY `id_modules` (`id_modules`),
-  ADD KEY `id_pages` (`id_pages`);
-
---
--- Indexes for table `pages`
---
-ALTER TABLE `pages`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `keyword` (`keyword`),
-  ADD KEY `parent` (`parent`),
-  ADD KEY `id_actions` (`id_actions`),
-  ADD KEY `id_navigation_section` (`id_navigation_section`),
-  ADD KEY `id_type` (`id_type`);
-
---
--- Indexes for table `pages_fields`
---
-ALTER TABLE `pages_fields`
-  ADD PRIMARY KEY (`id_pages`,`id_fields`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_fields` (`id_fields`);
-
---
--- Indexes for table `pages_fields_translation`
---
-ALTER TABLE `pages_fields_translation`
-  ADD PRIMARY KEY (`id_pages`,`id_fields`,`id_languages`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_fields` (`id_fields`),
-  ADD KEY `id_languages` (`id_languages`);
-
---
--- Indexes for table `pages_sections`
---
-ALTER TABLE `pages_sections`
-  ADD PRIMARY KEY (`id_pages`,`id_sections`),
-  ADD KEY `id_pages` (`id_pages`),
-  ADD KEY `id_sections` (`id_sections`);
-
---
--- Indexes for table `pageType`
---
-ALTER TABLE `pageType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `plugins`
---
-ALTER TABLE `plugins`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `qualtricsActions`
---
-ALTER TABLE `qualtricsActions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsSurveys_reminder` (`id_qualtricsSurveys_reminder`),
-  ADD KEY `qualtricsActions_fk_id_qualtricsActionScheduleTypes` (`id_qualtricsActionScheduleTypes`),
-  ADD KEY `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` (`id_qualtricsProjectActionTriggerTypes`);
-
---
--- Indexes for table `qualtricsActions_functions`
---
-ALTER TABLE `qualtricsActions_functions`
-  ADD PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
-  ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
-  ADD KEY `id_lookups` (`id_lookups`);
-
---
--- Indexes for table `qualtricsActions_groups`
---
-ALTER TABLE `qualtricsActions_groups`
-  ADD PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
-  ADD KEY `id_qualtricsActions` (`id_qualtricsActions`),
-  ADD KEY `id_groups` (`id_groups`);
-
---
--- Indexes for table `qualtricsProjects`
---
-ALTER TABLE `qualtricsProjects`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `qualtricsReminders`
---
-ALTER TABLE `qualtricsReminders`
-  ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_mailQueue`),
-  ADD KEY `qualtricsReminders_fk_id_users` (`id_users`),
-  ADD KEY `qualtricsReminders_fk_id_mailQueue` (`id_mailQueue`);
-
---
--- Indexes for table `qualtricsSurveys`
---
-ALTER TABLE `qualtricsSurveys`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `qualtrics_survey_id` (`qualtrics_survey_id`),
-  ADD KEY `qualtricsSurveys_fk_id_qualtricsSurveyTypes` (`id_qualtricsSurveyTypes`);
-
---
--- Indexes for table `qualtricsSurveysResponses`
---
-ALTER TABLE `qualtricsSurveysResponses`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `survey_response_id` (`survey_response_id`),
-  ADD KEY `qSurveysResponses_fk_id_users` (`id_users`),
-  ADD KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
-  ADD KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`);
-
---
--- Indexes for table `sections`
---
-ALTER TABLE `sections`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`),
-  ADD KEY `id_styles` (`id_styles`),
-  ADD KEY `owner` (`owner`);
-
---
--- Indexes for table `sections_fields_translation`
---
-ALTER TABLE `sections_fields_translation`
-  ADD PRIMARY KEY (`id_sections`,`id_fields`,`id_languages`,`id_genders`),
-  ADD KEY `id_sections` (`id_sections`),
-  ADD KEY `id_fields` (`id_fields`),
-  ADD KEY `id_languages` (`id_languages`),
-  ADD KEY `id_genders` (`id_genders`);
-
---
--- Indexes for table `sections_hierarchy`
---
-ALTER TABLE `sections_hierarchy`
-  ADD PRIMARY KEY (`parent`,`child`),
-  ADD KEY `parent` (`parent`),
-  ADD KEY `child` (`child`);
-
---
--- Indexes for table `sections_navigation`
---
-ALTER TABLE `sections_navigation`
-  ADD PRIMARY KEY (`parent`,`child`),
-  ADD KEY `child` (`child`),
-  ADD KEY `parent` (`parent`),
-  ADD KEY `id_pages` (`id_pages`);
-
---
--- Indexes for table `styleGroup`
---
-ALTER TABLE `styleGroup`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `styles`
---
-ALTER TABLE `styles`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_type` (`id_type`),
-  ADD KEY `id_group` (`id_group`);
-
---
--- Indexes for table `styles_fields`
---
-ALTER TABLE `styles_fields`
-  ADD PRIMARY KEY (`id_styles`,`id_fields`),
-  ADD KEY `id_styles` (`id_styles`),
-  ADD KEY `id_fields` (`id_fields`);
-
---
--- Indexes for table `styleType`
---
-ALTER TABLE `styleType`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
-  ADD KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
-  ADD KEY `transactions_fk_id_users` (`id_users`);
-
---
--- Indexes for table `uploadCells`
---
-ALTER TABLE `uploadCells`
-  ADD PRIMARY KEY (`id_uploadRows`,`id_uploadCols`),
-  ADD KEY `id_uploadRows` (`id_uploadRows`),
-  ADD KEY `id_uploadCols` (`id_uploadCols`);
-
---
--- Indexes for table `uploadCols`
---
-ALTER TABLE `uploadCols`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_uploadTables` (`id_uploadTables`);
-
---
--- Indexes for table `uploadRows`
---
-ALTER TABLE `uploadRows`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_uploadTables` (`id_uploadTables`);
-
---
--- Indexes for table `uploadTables`
---
-ALTER TABLE `uploadTables`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_uploadTables_name_timestamp` (`name`,`timestamp`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `id_genders` (`id_genders`),
-  ADD KEY `id_languages` (`id_languages`),
-  ADD KEY `id_status` (`id_status`);
-
---
--- Indexes for table `userStatus`
---
-ALTER TABLE `userStatus`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `users_groups`
---
-ALTER TABLE `users_groups`
-  ADD PRIMARY KEY (`id_users`,`id_groups`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_groups` (`id_groups`);
-
---
--- Indexes for table `user_activity`
---
-ALTER TABLE `user_activity`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_type` (`id_type`);
-
---
--- Indexes for table `user_input`
---
-ALTER TABLE `user_input`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_users` (`id_users`),
-  ADD KEY `id_sections` (`id_sections`),
-  ADD KEY `id_section_form` (`id_section_form`),
-  ADD KEY `id_user_input_record` (`id_user_input_record`);
-
---
--- Indexes for table `user_input_record`
---
-ALTER TABLE `user_input_record`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `validation_codes`
---
-ALTER TABLE `validation_codes`
-  ADD PRIMARY KEY (`code`),
-  ADD KEY `id_users` (`id_users`);
-
---
--- Indexes for table `version`
---
-ALTER TABLE `version`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `actions`
---
-ALTER TABLE `actions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
---
--- AUTO_INCREMENT for table `activityType`
---
-ALTER TABLE `activityType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
---
--- AUTO_INCREMENT for table `callbackLogs`
---
-ALTER TABLE `callbackLogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `chat`
---
-ALTER TABLE `chat`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `chatRoom`
---
-ALTER TABLE `chatRoom`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
---
--- AUTO_INCREMENT for table `chatRoom_users`
---
-ALTER TABLE `chatRoom_users`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `cmsPreferences`
---
-ALTER TABLE `cmsPreferences`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
---
--- AUTO_INCREMENT for table `fields`
---
-ALTER TABLE `fields`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=156;
---
--- AUTO_INCREMENT for table `fieldType`
---
-ALTER TABLE `fieldType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
---
--- AUTO_INCREMENT for table `genders`
---
-ALTER TABLE `genders`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
---
--- AUTO_INCREMENT for table `groups`
---
-ALTER TABLE `groups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
---
--- AUTO_INCREMENT for table `languages`
---
-ALTER TABLE `languages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
---
--- AUTO_INCREMENT for table `lookups`
---
-ALTER TABLE `lookups`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
---
--- AUTO_INCREMENT for table `mailAttachments`
---
-ALTER TABLE `mailAttachments`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `mailQueue`
---
-ALTER TABLE `mailQueue`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `modules`
---
-ALTER TABLE `modules`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
---
--- AUTO_INCREMENT for table `pages`
---
-ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
---
--- AUTO_INCREMENT for table `pageType`
---
-ALTER TABLE `pageType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
---
--- AUTO_INCREMENT for table `plugins`
---
-ALTER TABLE `plugins`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `qualtricsActions`
---
-ALTER TABLE `qualtricsActions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `qualtricsProjects`
---
-ALTER TABLE `qualtricsProjects`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `qualtricsSurveys`
---
-ALTER TABLE `qualtricsSurveys`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `qualtricsSurveysResponses`
---
-ALTER TABLE `qualtricsSurveysResponses`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `sections`
---
-ALTER TABLE `sections`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
---
--- AUTO_INCREMENT for table `styleGroup`
---
-ALTER TABLE `styleGroup`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
---
--- AUTO_INCREMENT for table `styles`
---
-ALTER TABLE `styles`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
---
--- AUTO_INCREMENT for table `styleType`
---
-ALTER TABLE `styleType`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
---
--- AUTO_INCREMENT for table `transactions`
---
-ALTER TABLE `transactions`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
---
--- AUTO_INCREMENT for table `uploadCols`
---
-ALTER TABLE `uploadCols`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `uploadRows`
---
-ALTER TABLE `uploadRows`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `uploadTables`
---
-ALTER TABLE `uploadTables`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
---
--- AUTO_INCREMENT for table `userStatus`
---
-ALTER TABLE `userStatus`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
---
--- AUTO_INCREMENT for table `user_activity`
---
-ALTER TABLE `user_activity`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
---
--- AUTO_INCREMENT for table `user_input`
---
-ALTER TABLE `user_input`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
---
--- AUTO_INCREMENT for table `user_input_record`
---
-ALTER TABLE `user_input_record`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `version`
---
-ALTER TABLE `version`
-  MODIFY `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- Constraints for dumped tables
 --
@@ -3294,6 +2883,7 @@ ALTER TABLE `user_input`
 --
 ALTER TABLE `validation_codes`
   ADD CONSTRAINT `validation_codes_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
