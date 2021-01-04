@@ -111,5 +111,12 @@ class InputView extends FormFieldView
             require __DIR__ . "/tpl_input.php";
         }
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['field_name'] = $this->get_name();
+        return $style;
+    }
 }
 ?>
