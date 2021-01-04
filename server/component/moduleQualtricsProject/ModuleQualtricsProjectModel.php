@@ -410,8 +410,10 @@ class ModuleQualtricsProjectModel extends BaseModel
         }
         $fireAndFroget = true;
         $callbackResultStructure = array();
-        if (strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
-             $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_finished) {            
+        if (
+            strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
+            $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_finished
+        ) {
             $fireAndFroget = true;
         }
         return $this->get_webService_flow(
@@ -464,8 +466,10 @@ class ModuleQualtricsProjectModel extends BaseModel
         }
         $fireAndFroget = true;
         $callbackResultStructure = array();
-        if (strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
-             $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_started) {
+        if (
+            strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
+            $survey['trigger_type_code'] === qualtricsProjectActionTriggerTypes_started
+        ) {
             // if bmz funcion is needed we wait for the result
             $fireAndFroget = false;
         }
@@ -976,6 +980,23 @@ class ModuleQualtricsProjectModel extends BaseModel
                 FROM view_qualtricsActions
                 WHERE project_id = :pid";
         return $this->db->query_db($sql, array(":pid" => $pid));
+    }
+
+    /**
+     * Get all the actions for the project that should be synced, with distinct
+     * @param int $pid
+     * project id
+     * @param int $aid
+     * action id
+     * @retval array $actions
+     */
+    public function get_action_for_sync($pid, $aid)
+    {
+        $sql = "SELECT distinct project_id, qualtrics_api, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
+                id_qualtricsSurveyTypes, group_variable, survey_type, survey_type_code, functions_code, trigger_type_code
+                FROM view_qualtricsActions
+                WHERE project_id = :pid AND id = :aid";
+        return $this->db->query_db($sql, array(":pid" => $pid, ":aid" => $aid));
     }
 
     /**

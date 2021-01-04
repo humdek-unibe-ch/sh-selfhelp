@@ -21,7 +21,7 @@ class ModuleQualtricsSyncController extends BaseController
      * @param object $model 
      *  The model instance of the component.
      */
-    public function __construct($model, $pid)
+    public function __construct($model, $pid, $aid)
     {
         parent::__construct($model);
         if (isset($_POST['mode']) && isset($_POST['type'])) {
@@ -30,7 +30,11 @@ class ModuleQualtricsSyncController extends BaseController
                 $this->error_msgs[] = "Cannot synchronize this project with Qualtrics. Permission denied.";
                 return;
             }
-            $this->syncProjectSurveys($pid);
+            if ($aid) {
+                $this->syncProjectSurvey($pid, $aid);
+            } else {
+                $this->syncProjectSurveys($pid);
+            }
         }
     }
 
@@ -58,10 +62,29 @@ class ModuleQualtricsSyncController extends BaseController
     {
         foreach ($this->model->get_actions_for_sync($pid) as $action) {
             $res = $this->model->syncSurvey($action);
-            if($res['result']){
+            if ($res['result']) {
                 $this->success = true;
-                $this->success_msgs[] = 'Survey ' .$action['survey_name'] . ': ' . $res['description'];
-            }else{
+                $this->success_msgs[] = 'Survey ' . $action['survey_name'] . ': ' . $res['description'];
+            } else {
+                $this->fail = true;
+                $this->error_msgs[] = $res['description'];
+            }
+        }
+    }
+
+    /**
+     * synchronize all surveys which belong to the project with  Qualtrics
+     * @param int $pid Project id
+     * @param int $aid Action id
+     */
+    private function syncProjectSurvey($pid, $aid)
+    {
+        foreach ($this->model->get_action_for_sync($pid, $aid) as $action) {
+            $res = $this->model->syncSurvey($action);
+            if ($res['result']) {
+                $this->success = true;
+                $this->success_msgs[] = 'Survey ' . $action['survey_name'] . ': ' . $res['description'];
+            } else {
                 $this->fail = true;
                 $this->error_msgs[] = $res['description'];
             }
