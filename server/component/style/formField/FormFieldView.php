@@ -205,5 +205,12 @@ abstract class FormFieldView extends StyleView
         else
             return $this->name_base;
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();        
+        $style['last_value'] = $this->model->get_form_field_value();
+        return $style;
+    }
 }
 ?>

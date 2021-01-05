@@ -113,10 +113,17 @@ abstract class StyleView extends BaseView
     public function output_content_mobile()
     {
         $style = $this->model->get_db_fields();
-        $style['type'] = 'style';
         $style['style_name'] = $this->style_name;
         $style['css'] = $this->css;
         $style['children'] = $this->output_children_mobile();
+        $success_msgs = $this->output_controller_alerts_success_mobile();
+        if($success_msgs){
+            $style['success_msgs'] = $success_msgs;
+        }
+        $fail_msgs = $this->output_controller_alerts_fail_mobile();
+        if($fail_msgs){
+            $style['fail_msgs']  = $fail_msgs;
+        }
         return $style;
     }
 }

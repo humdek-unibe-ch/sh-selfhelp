@@ -311,5 +311,9 @@ class ModuleMailView extends BaseView
         ));
         $composeEmail->output_content();
     }
+
+    public function output_content_mobile(){
+        echo 'mobile';
+    }
 }
 ?>
