@@ -38,10 +38,15 @@ class FormUserInputController extends BaseController
         $this->alert_success = $model->get_db_field("alert_success");
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
-        if($user_input === false)
-        {
+        if ($user_input === false) {
             $this->fail = true;
-            $this->error_msgs = $gump->get_errors_array(true);
+            if (isset($_POST['mobile']) && $_POST['mobile']) {
+                foreach ($gump->get_errors_array(true) as $key => $err) {
+                    $this->error_msgs[] = $err;
+                }                
+            } else {
+                $this->error_msgs = $gump->get_errors_array(true);
+            }
         }
         else
         {
