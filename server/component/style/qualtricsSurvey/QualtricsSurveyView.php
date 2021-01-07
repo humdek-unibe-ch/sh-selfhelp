@@ -54,5 +54,12 @@ class QualtricsSurveyView extends StyleView
     {
        return $this->model->get_survey_link();
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();        
+        $style['qualtrics_url'] = $this->model->get_survey_link();
+        return $style;
+    }
 }
 ?>
