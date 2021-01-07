@@ -70,5 +70,17 @@ class ImageView extends StyleView
         $fluid = $this->is_fluid ? "img-fluid" : "";
         require __DIR__ . "/tpl_image.php";
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        if (filter_var($this->source, FILTER_VALIDATE_URL)) {
+            $url = $this->source;
+        } else {
+            $url = ASSET_FOLDER . '/' . $this->source;
+        }
+        $style['source']['content'] = $url;
+        return $style;
+    }
 }
 ?>
