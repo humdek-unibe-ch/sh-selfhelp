@@ -224,6 +224,15 @@ class GraphView extends StyleView
             }
         }
     }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        $style["traces"]["content"] = $this->traces;
+        $style["layout"]["content"] = $this->layout;
+        $style["show_graph"] = $this->show_graph;
+        return $style;
+    }
 	
 }
 ?>
