@@ -1,4 +1,9 @@
-# v3.10.0 (latest)
+# v3.10.1 (latest)
+
+### New Features
+ - Add property `filter` in data_config. It improves the customization of all styles that has field `data_config`; Issue: #293;
+
+# v3.10.0
 
 ### New Features
  - Synchronize single action/survey in Qualtrics; Issue: #292;
