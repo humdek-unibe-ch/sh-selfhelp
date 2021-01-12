@@ -131,6 +131,10 @@ class StyleModel extends BaseModel implements IStyleModel
                         $filter = "ORDER BY edit_time DESC";
                     }
                 }
+                if(isset($config['filter'])){
+                    // if specific filter is used, overwrite it.
+                    $filter = $config['filter'];
+                }
                 $data = $config['type'] === 'static' ? $this->get_static_data(
                     $table_id,
                     $filter
