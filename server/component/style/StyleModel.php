@@ -147,7 +147,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     $i = 0;
                     $field_value = '';
                     foreach ($data as $key => $row) {
-                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $row[$field['not_found_text']]; // get the first value
+                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
                         if ($config['retrieve'] != 'all') {
                             $field_value = $val;
                             break; // we don need the others;
@@ -198,7 +198,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @retval array
      * the results rows in array
      */
-    private function get_dynamic_data($table_id, $filter)
+    protected function get_dynamic_data($table_id, $filter)
     {
         $sql = 'CALL get_form_data_for_user_with_filter(:table_id, :user_id, :filter)';
         return $this->db->query_db($sql, array(
@@ -230,7 +230,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * table name
      * @retval int table id
      */
-    private function get_dynamic_table_id($table_name)
+    protected function get_dynamic_table_id($table_name)
     {
         $sql = 'SELECT * 
                 FROM view_user_input 
