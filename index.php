@@ -88,6 +88,7 @@ function mobile_call($services, $router, $db){
             $res['time']['exec_time'] = $end_time - $start_time;
             $res['time']['start_date'] = $start_date;                        
             $res['logged_in'] = $_SESSION['logged_in'];
+            $res['base_path'] = BASE_PATH;
             echo json_encode($res, JSON_UNESCAPED_UNICODE);
         }
         else if($router->route['target'] == "component")
