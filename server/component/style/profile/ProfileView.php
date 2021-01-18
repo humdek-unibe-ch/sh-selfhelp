@@ -114,6 +114,13 @@ class ProfileView extends StyleView
     {
         require __DIR__ . "/tpl_profile.php";
     }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        $style["profile_title"] = $this->model->get_profile_title();
+        return $style;
+    }
 	
 }
 ?>

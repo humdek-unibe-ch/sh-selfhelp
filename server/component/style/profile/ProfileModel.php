@@ -101,5 +101,20 @@ class ProfileModel extends StyleModel
         $this->db->update_by_ids('users', array('is_reminded' => $val),
             array('id' => $_SESSION['id_user']));
     }
+
+    public function get_profile_title()
+    {
+        $locale_cond = $this->db->get_locale_condition();
+        $sql = "SELECT p.id, p.keyword, p.id_navigation_section,
+            pft.content AS title, p.parent, p.nav_position, p.url
+            FROM pages AS p
+            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            WHERE $locale_cond AND f.name = 'label' AND keyword = 'profile-link'
+            ORDER BY p.nav_position";
+        $profile_page = $this->db->query_db_first($sql, array());
+        return $profile_page["title"] . ' (' . $this->db->fetch_user_name() . ')';
+    }
 }
 ?>

@@ -88,7 +88,7 @@ class InputView extends FormFieldView
         {
             $css_input = "form-check-input position-static float-left";
             if($this->is_user_input())
-            {
+            {                
                 if($this->default_value == "") return;
                 if(($this->value !== null && $this->value !== "")
                     || ($this->value === null && $this->placeholder != ""))
@@ -110,6 +110,15 @@ class InputView extends FormFieldView
         } else {
             require __DIR__ . "/tpl_input.php";
         }
+    }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        $curr_value = $this->model->get_form_field_value();
+        $style['value']['content'] = $curr_value  ? $curr_value : ($this->type == "checkbox" ? $curr_value : $this->default_value);
+        $style['value']['default'] = $this->default_value;
+        return $style;
     }
 
 }

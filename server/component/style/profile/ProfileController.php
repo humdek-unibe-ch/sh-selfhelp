@@ -51,14 +51,31 @@ class ProfileController extends BaseController
             $res = $model->delete_user($email);
             $this->success_delete = $res;
             $this->fail_delete = !$res;
+            if (isset($_POST['mobile']) && $_POST['mobile']) {
+                if ($res) {
+                    $this->success = true;
+                    $this->success_msgs[] = $this->model->get_db_field('alert_del_success');
+                } else {
+                    $this->fail = true;
+                    $this->error_msgs[] = $this->model->get_db_field('alert_del_fail');
+                }
+            }
         }
 
-        if(isset($_POST['user_name']))
-        {
+        if (isset($_POST['user_name'])) {
             $name = filter_var($_POST['user_name'], FILTER_SANITIZE_STRING);
             $res = $model->change_user_name($name);
             $this->success_change = $res;
             $this->fail_change = !$res;
+            if (isset($_POST['mobile']) && $_POST['mobile']) {
+                if ($res) {
+                    $this->success = true;
+                    $this->success_msgs[] = $this->model->get_db_field('alert_success');
+                } else {
+                    $this->fail = true;
+                    $this->error_msgs[] = $this->model->get_db_field('alert_fail');
+                }
+            }
         }
 
         if(isset($_POST['password']) && isset($_POST['verification']))
@@ -69,6 +86,15 @@ class ProfileController extends BaseController
             );
             $this->success_change = $res;
             $this->fail_change = !$res;
+            if (isset($_POST['mobile']) && $_POST['mobile']) {
+                if ($res) {
+                    $this->success = true;
+                    $this->success_msgs[] = $this->model->get_db_field('alert_success');
+                } else {
+                    $this->fail = true;
+                    $this->error_msgs[] = $this->model->get_db_field('alert_fail');
+                }
+            }
         }
     }
 
