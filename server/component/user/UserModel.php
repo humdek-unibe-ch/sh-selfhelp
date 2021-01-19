@@ -296,10 +296,30 @@ class UserModel extends BaseModel
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
         $subject = $_SESSION['project'] . " Email Verification";
-        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
+        $from = "noreply@" . $_SERVER['HTTP_HOST'];
         $to = $this->mail->create_single_to($email);
         $msg = $this->mail->get_content($url, 'email_activate');
-        $this->mail->send_mail($from, $to, $subject, $msg);
+        $mail = array(
+            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+            "from_email" => $from,
+            "from_name" => $from,
+            "reply_to" => $from,
+            "recipient_emails" => $email,
+            "subject" => $subject,
+            "body" => $msg
+        );
+        $mq_id = $this->mail->add_mail_to_queue($mail);
+            if ($mq_id > 0) {
+                $this->transaction->add_transaction(
+                    transactionTypes_insert,
+                    transactionBy_by_system,
+                    null,
+                    $this->transaction::TABLE_MAILQUEUE,
+                    $mq_id
+                );
+                $this->mail->send_mail_from_queue($mq_id, transactionBy_by_system);
+            }
         return $uid;
     }
 

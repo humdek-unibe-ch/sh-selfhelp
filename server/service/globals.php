@@ -105,6 +105,7 @@ define('transactionTypes_send_mail_fail', 'send_mail_fail');
 define('transactionTypes_check_mailQueue', 'check_mailQueue');
 define('transactionBy_by_mail_cron', 'by_mail_cron');
 define('transactionBy_by_user', 'by_user');
+define('transactionBy_by_system', 'by_system');
 define('transactionBy_by_qualtrics_callback', 'by_qualtrics_callback');
 define('weekdays_monday', 'monday');
 define('weekdays_tuesday', 'tuesday');
