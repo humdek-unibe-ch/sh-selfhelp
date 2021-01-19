@@ -266,7 +266,7 @@ class UserModel extends BaseModel
     public function create_new_user($email, $code=null, $code_exists = false)
     {
         $token = $this->login->create_token();     
-        $uid = $this->is_user_interested($email); 
+        $uid = $this->is_user_interested_or_invited($email); 
         if(!($uid > 0)){
             //check if the user is autocreated
             $uid = $this->is_user_auto_created($code); 
@@ -737,22 +737,23 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Check is a user already interested 
+     * Check is a user already interested or invited but not activated
      *
      * @param string $email
      *  The email of the user.
      * @retval int
      *  The id of the new user.
      */
-    public function is_user_interested($email)
+    public function is_user_interested_or_invited($email)
     {
         $user_id = -1;
         $sql = "SELECT id
-        from users 
-        where email = :email and id_status = :user_status_interested";
+        FROM users 
+        WHERE email = :email AND id_status IN (:user_status_interested, :user_status_invited)";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
             ":user_status_interested" => USER_STATUS_INTERESTED,
+            ":user_status_invited" => USER_STATUS_INVITED
         ));
         if ($res) {
             $user_id = $res['id'];
