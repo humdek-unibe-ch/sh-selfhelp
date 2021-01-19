@@ -265,22 +265,26 @@ class UserModel extends BaseModel
      */
     public function create_new_user($email, $code=null, $code_exists = false)
     {
-        $token = $this->login->create_token();     
-        $uid = $this->is_user_interested_or_invited($email); 
-        if(!($uid > 0)){
-            //check if the user is autocreated
-            $uid = $this->is_user_auto_created($code); 
+        $token = $this->login->create_token();
+        $uid = $this->is_user_interested($email);
+        if (!($uid > 0)) {
+            // we check if the user is invited already
+            $uid = $this->is_user_invited($email)['id'];
         }
-        if($uid > 0){  
+        if (!($uid > 0)) {
+            //check if the user is autocreated
+            $uid = $this->is_user_auto_created($code);
+        }
+        if ($uid > 0) {
             // user is in status interested  or auto_created; change it to invited and assign the token for activation    
             $this->set_user_status($uid, $token, USER_STATUS_INVITED, $email);
-        }else{
+        } else {
             // if the user is not already interested (in database), create a new one
             $uid = $this->insert_new_user($email, $token, 2);
         }
-        if($code_exists){
+        if ($code_exists) {
             //this option is used for auto_created users
-            $code = null;            
+            $code = null;
         }
         $code_res = true;
         if($code !== null)
@@ -297,7 +301,6 @@ class UserModel extends BaseModel
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
         $subject = $_SESSION['project'] . " Email Verification";
         $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        $to = $this->mail->create_single_to($email);
         $msg = $this->mail->get_content($url, 'email_activate');
         $mail = array(
             "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
@@ -744,21 +747,41 @@ class UserModel extends BaseModel
      * @retval int
      *  The id of the new user.
      */
-    public function is_user_interested_or_invited($email)
+    public function is_user_interested($email)
     {
         $user_id = -1;
         $sql = "SELECT id
         FROM users 
-        WHERE email = :email AND id_status IN (:user_status_interested, :user_status_invited)";
+        WHERE email = :email AND id_status = :user_status_interested";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
-            ":user_status_interested" => USER_STATUS_INTERESTED,
-            ":user_status_invited" => USER_STATUS_INVITED
+            ":user_status_interested" => USER_STATUS_INTERESTED
         ));
         if ($res) {
             $user_id = $res['id'];
         }
         return $user_id;
+    }
+
+    /**
+     * Check is a user already interested or invited but not activated
+     *
+     * @param string $email
+     *  The email of the user.
+     * @retval array
+     *  The id of the new user and the code.
+     */
+    public function is_user_invited($email)
+    {
+        $sql = "SELECT u.id, v.code
+        FROM users u
+        INNER JOIN validation_codes v ON (u.id = v.id_users) 
+        WHERE email = :email AND id_status = :user_status_invited";
+        $res = $this->db->query_db_first($sql, array(
+            ":email" => $email,
+            ":user_status_invited" => USER_STATUS_INVITED
+        ));
+        return $res;
     }
 
     /**
