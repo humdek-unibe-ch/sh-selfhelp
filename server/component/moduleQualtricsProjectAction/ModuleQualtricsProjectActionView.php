@@ -228,6 +228,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "label" => "From email",
                     "type_input" => "email",
                     "css" => "mt-3",
+                    "id" => "from_email",
                     "name" => "schedule_info[from_email]",
                     "value" => isset($this->action["schedule_info"]['from_email']) ? $this->action["schedule_info"]['from_email'] : '',
                     "is_required" => true,
@@ -236,6 +237,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("input", array(
                     "label" => "From name",
                     "type_input" => "text",
+                    "id" => "from_name",
                     "name" => "schedule_info[from_name]",
                     "value" => isset($this->action["schedule_info"]['from_name']) ? $this->action["schedule_info"]['from_name'] : '',
                     "is_required" => true,
@@ -244,6 +246,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("input", array(
                     "label" => "Reply To",
                     "type_input" => "email",
+                    "id" => "reply_to",
                     "name" => "schedule_info[reply_to]",
                     "value" => isset($this->action["schedule_info"]['reply_to']) ? $this->action["schedule_info"]['reply_to'] : '',
                     "is_required" => true,
@@ -387,6 +390,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "From Email",
+                    "id" => "from_email",
                     "locale" => "",
                     "css" => "mt-3",
                     "children" => array(new BaseStyleComponent("rawText", array(
@@ -396,6 +400,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "From Name",
                     "locale" => "",
+                    "id" => "from_name",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['from_name']) ? $this->action["schedule_info"]['from_name'] : ''
                     ))),
@@ -403,6 +408,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Reply To",
                     "locale" => "",
+                    "id" => "reply_to",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['reply_to']) ? $this->action["schedule_info"]['reply_to'] : ''
                     ))),

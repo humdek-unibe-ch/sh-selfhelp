@@ -139,6 +139,7 @@ define('timePeriod_days', 'days');
 define('timePeriod_weeks', 'weeks');
 define('timePeriod_months', 'months');
 define('notificationTypes_email', 'email');
+define('notificationTypes_push_notification', 'push_notification');
 define('notificationTypes_sms', 'sms');
 define('plugins_calc_sleep_efficiency', 'calc_sleep_efficiency');
 ?>
