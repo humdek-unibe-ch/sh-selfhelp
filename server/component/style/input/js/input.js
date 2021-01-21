@@ -11,7 +11,10 @@ function init_datetime_inputs() {
             enableTime: true,
             dateFormat: $(this).attr('data-format') == '' ? 'Y-m-d H:i' : $(this).attr('data-format'),
             time_24hr: true,
-            weekNumbers: true,
+            weekNumbers: false,
+            locale: {
+                firstDayOfWeek: 1
+            },
             allowInput: true
         });
     });
@@ -22,7 +25,10 @@ function init_date_inputs() {
         $(this).flatpickr({
             enableTime: false,
             dateFormat: $(this).attr('data-format') == '' ? 'Y-m-d' : $(this).attr('data-format'),
-            weekNumbers: true,
+            weekNumbers: false,
+            locale: {
+                firstDayOfWeek: 1
+            },
             allowInput: true
         });
     });
@@ -43,6 +49,6 @@ function init_time_inputs() {
 function set_focus_btn_clcik() {
     $('.selfhelp-icon-btn').on("click", function () {
         var section_id = $(this).attr('id').replace('selfhelp-icon-btn-', '');
-        $('#selfhelp-input-'+section_id).focus();
+        $('#selfhelp-input-' + section_id).focus();
     })
 }
