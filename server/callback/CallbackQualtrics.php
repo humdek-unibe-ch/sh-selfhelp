@@ -9,6 +9,7 @@ require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProj
 require_once __DIR__ . "/../component/style/register/RegisterModel.php";
 require_once __DIR__ . "/../service/ext/php-pdftk-0.8.1.0/vendor/autoload.php";
 require_once __DIR__ . "/calculations/BMZSportModel.php";
+require_once __DIR__ . "/../service/ext/php-fcm/vendor/autoload.php";
 
 use mikehaertl\pdftk\Pdf;
 
@@ -201,7 +202,8 @@ class CallbackQualtrics extends BaseCallback
     {
         $sqlGetActions = "SELECT *
                 FROM view_qualtricsActions
-                WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type AND action_schedule_type <> 'Nothing'";
+                WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type 
+                AND action_schedule_type <> 'Nothing'";
         return $this->db->query_db(
             $sqlGetActions,
             array(
@@ -347,7 +349,7 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
-     * Check if any mail should be queued based on the actions
+     * Check if any event should be queued based on the actions
      *
      * @param array $data
      *  the data from the callback.
@@ -356,9 +358,9 @@ class CallbackQualtrics extends BaseCallback
      * @retval string
      *  log text what actions was done;
      */
-    private function check_queue_mail_from_actions($data, $user_id)
+    private function queue_event_from_actions($data, $user_id)
     {
-        $result[] = 'no mail queue';
+        $result = array();
         $mail = array();
         //get all actions for this survey and trigger type
         $actions = $this->get_actions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
@@ -366,81 +368,169 @@ class CallbackQualtrics extends BaseCallback
             //clear the mail generation data
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 $schedule_info = json_decode($action['schedule_info'], true);
-                unset($mail);
-                unset($result);
-                // *************************************** CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
-                $attachments = array();
-                $functions = explode(';', $action['functions_code']);
-                foreach ($functions as $key => $value) {
-                    if ($value == qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) {
-                        // WORKWELL evaluate strenghts function
-                        $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
-                        $func_res = $this->workwell_evaluate_strenghts($data, $user_id);
-                        $result[] = $func_res['output'];
-                        if ($func_res['attachment']) {
-                            $attachments[] = $func_res['attachment'];
-                        }
-                    } else if (
-                        $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4 ||
-                        $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5 ||
-                        $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4 ||
-                        $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5
-                    ) {
-                        // Fill PDF with qualtrics embeded data
-                        $result[] = $value;
-                        $func_res = $this->fill_pdf_with_qualtrics_embeded_data($value, $data, $user_id);
-                        $result[] = $func_res['output'];
-                        if ($func_res['attachment']) {
-                            $attachments[] = $func_res['attachment'];
-                        }
-                    }
-                }
-                // *************************************** END CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
-                $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
-                $mail = array(
-                    "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-                    "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
-                    "from_email" => $schedule_info['from_email'],
-                    "from_name" => $schedule_info['from_name'],
-                    "reply_to" => $schedule_info['reply_to'],
-                    "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
-                    "subject" => $schedule_info['subject'],
-                    "body" => $body
-                );
-                $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
-                if ($mq_id > 0) {
-                    $this->transaction->add_transaction(
-                        transactionTypes_insert,
-                        transactionBy_by_qualtrics_callback,
-                        null,
-                        $this->transaction::TABLE_MAILQUEUE,
-                        $mq_id
-                    );
-                    if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
-                        $this->add_reminder($mq_id, $user_id, $action['id_qualtricsSurveys_reminder']);
-                    }
-                    $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
-                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
-                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
-                    if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                        if ($this->mail->send_mail_from_queue($mq_id, transactionBy_by_qualtrics_callback)) {
-                            $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
-                                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
-                                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
-                        } else {
-                            $result[] = 'ERROR! Mail was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
-                                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
-                                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
-                        }
-                    }
-                } else {
-                    $result[] = 'ERROR! Mail was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
-                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
-                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                if ($schedule_info['notificationTypes'] == notificationTypes_email) {
+                    // the notification type is email
+                    $result = array_merge($result, $this->queue_mail($data, $user_id, $action));
                 }
             }
         }
 
+        if (count($result) == 0) {
+            $result[] = "no event";
+        }
+        return $result;
+    }
+
+    /**
+     * Queue mail
+     *
+     * @param array $data
+     *  the data from the callback.
+     * @param int $user_id
+     * user id
+     * @param array $action
+     * the action information
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function queue_mail($data, $user_id, $action)
+    {
+        $schedule_info = json_decode($action['schedule_info'], true);
+        $result = array();
+        $mail = array();
+        // *************************************** CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
+        $attachments = array();
+        $functions = explode(';', $action['functions_code']);
+        foreach ($functions as $key => $value) {
+            if ($value == qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) {
+                // WORKWELL evaluate strenghts function
+                $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
+                $func_res = $this->workwell_evaluate_strenghts($data, $user_id);
+                $result[] = $func_res['output'];
+                if ($func_res['attachment']) {
+                    $attachments[] = $func_res['attachment'];
+                }
+            } else if (
+                $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4 ||
+                $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5 ||
+                $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4 ||
+                $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5
+            ) {
+                // Fill PDF with qualtrics embeded data
+                $result[] = $value;
+                $func_res = $this->fill_pdf_with_qualtrics_embeded_data($value, $data, $user_id);
+                $result[] = $func_res['output'];
+                if ($func_res['attachment']) {
+                    $attachments[] = $func_res['attachment'];
+                }
+            }
+        }
+        // *************************************** END CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
+        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
+        $mail = array(
+            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "from_email" => $schedule_info['from_email'],
+            "from_name" => $schedule_info['from_name'],
+            "reply_to" => $schedule_info['reply_to'],
+            "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
+            "subject" => $schedule_info['subject'],
+            "body" => $body
+        );
+        $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
+        if ($mq_id > 0) {
+            $this->transaction->add_transaction(
+                transactionTypes_insert,
+                transactionBy_by_qualtrics_callback,
+                null,
+                $this->transaction::TABLE_MAILQUEUE,
+                $mq_id
+            );
+            if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+                $this->add_reminder($mq_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+            }
+            $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+                if ($this->mail->send_mail_from_queue($mq_id, transactionBy_by_qualtrics_callback)) {
+                    $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                } else {
+                    $result[] = 'ERROR! Mail was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                }
+            }
+        } else {
+            $result[] = 'ERROR! Mail was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+        }
+        return $result;
+    }
+
+    /**
+     * Queue notification
+     *
+     * @param array $data
+     *  the data from the callback.
+     * @param int $user_id
+     * user id
+     * @param array $action
+     * the action information
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function queue_notification($data, $user_id, $action)
+    {
+        $schedule_info = json_decode($action['schedule_info'], true);
+        $result = array();
+        $mail = array();
+
+        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
+        $mail = array(
+            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "from_email" => $schedule_info['from_email'],
+            "from_name" => $schedule_info['from_name'],
+            "reply_to" => $schedule_info['reply_to'],
+            "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
+            "subject" => $schedule_info['subject'],
+            "body" => $body
+        );
+        $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
+        if ($mq_id > 0) {
+            $this->transaction->add_transaction(
+                transactionTypes_insert,
+                transactionBy_by_qualtrics_callback,
+                null,
+                $this->transaction::TABLE_MAILQUEUE,
+                $mq_id
+            );
+            if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+                $this->add_reminder($mq_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+            }
+            $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+                if ($this->mail->send_mail_from_queue($mq_id, transactionBy_by_qualtrics_callback)) {
+                    $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                } else {
+                    $result[] = 'ERROR! Mail was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                }
+            }
+        } else {
+            $result[] = 'ERROR! Mail was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+        }
         return $result;
     }
 
@@ -965,7 +1055,7 @@ class CallbackQualtrics extends BaseCallback
                         if ($inserted_id > 0) {
                             //successfully inserted survey repsonse
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
-                            $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
+                            $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
                             $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
                         } else {
                             //something went wrong; survey resposne was not inserted
@@ -982,7 +1072,7 @@ class CallbackQualtrics extends BaseCallback
                         if ($update_id > 0) {
                             //successfully updated survey repsonse
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                            $result['selfhelpCallback'][] = $this->check_queue_mail_from_actions($data, $user_id);
+                            $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
                             $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
                         } else {
                             //something went wrong; survey resposne was not updated
@@ -1036,6 +1126,32 @@ class CallbackQualtrics extends BaseCallback
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
+    }
+
+    public function push()
+    {
+        // Instantiate the client with the project api_token and sender_id.
+        $client = new \Fcm\FcmClient("AAAAdHfnbKY:APA91bFJlkZJHt100NQhY3bJS--vUJLbdon2E-r3bKJHLq5713sKPMd61ysIG0tq3PSNqb51-ex25CiRoikGigoXWwGllaroH3gs581TnT9F6N4MrbG5bs-CJgPrEKuInhnFktqrp9OS", "500227861670");
+
+        // Instantiate the push notification request object.
+        $notification = new \Fcm\Push\Notification();
+
+        // Enhance the notification object with our custom options.
+        $notification
+            ->addRecipient('dmc6FeMBT92ikFzVvOkHiW:APA91bFnTAHN01CENau3kDXyvvviSZ9_fPJGIDIyyBzxljbvujVXKW5pYJk6AFmTtZ4SRfuANnTw7tQETTPmbRh-9YFYh-kKX-BHPFtGZGu4MA3Bl-8L9IXJt-kKOfT1HofE7JGKexcl')
+            ->setTitle('Hello from php-fcm!')
+            ->setBody('Notification body')
+            ->setColor('#20F037')
+            ->setSound("default")
+            ->setIcon("myIcon.png")
+            ->addData('key', 'value');
+
+        // custom sound and custom icon must be in app package
+        //     - custom sound file must be in /res/raw/
+        //     - custom icon file must be in drawable resource, if not set, FCM displays launcher icon in app manifest
+
+        // Send the notification to the Firebase servers for further handling.
+        $client->send($notification);
     }
 }
 ?>
