@@ -1,4 +1,9 @@
-# v3.10.1 (latest)
+# v3.10.2 (latest)
+
+### Changes
+ - Style `input` type `date` and `datetime`, the calendar now is without week numbers and the week starts on Monday instead of Sunday.
+
+# v3.10.1
 
 ### New Features
  - Add property `filter` in data_config. It improves the customization of all styles that has field `data_config`; Issue: #293;
