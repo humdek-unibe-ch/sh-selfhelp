@@ -361,7 +361,6 @@ class CallbackQualtrics extends BaseCallback
     private function queue_event_from_actions($data, $user_id)
     {
         $result = array();
-        $mail = array();
         //get all actions for this survey and trigger type
         $actions = $this->get_actions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         foreach ($actions as $action) {
@@ -371,6 +370,9 @@ class CallbackQualtrics extends BaseCallback
                 if ($schedule_info['notificationTypes'] == notificationTypes_email) {
                     // the notification type is email
                     $result = array_merge($result, $this->queue_mail($data, $user_id, $action));
+                }else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
+                    // the notification type is push notification
+                    $result = array_merge($result, $this->queue_notification($data, $user_id, $action));
                 }
             }
         }
@@ -435,7 +437,8 @@ class CallbackQualtrics extends BaseCallback
             "reply_to" => $schedule_info['reply_to'],
             "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
             "subject" => $schedule_info['subject'],
-            "body" => $body
+            "body" => $body,
+            "id_notificationTypes" => $this->db->get_lookup_id_by_code(notificationTypes, notificationTypes_email)
         );
         $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
         if ($mq_id > 0) {
@@ -498,9 +501,11 @@ class CallbackQualtrics extends BaseCallback
             "reply_to" => $schedule_info['reply_to'],
             "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
             "subject" => $schedule_info['subject'],
-            "body" => $body
+            "body" => $body,
+            "id_notificationTypes" => $this->db->get_lookup_id_by_code(notificationTypes, notificationTypes_push_notification)
         );
-        $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
+        $users[] = $user_id;
+        $mq_id = $this->mail->add_notification_to_queue($mail, $users);
         if ($mq_id > 0) {
             $this->transaction->add_transaction(
                 transactionTypes_insert,
@@ -752,6 +757,7 @@ class CallbackQualtrics extends BaseCallback
      */
     private function fill_pdf_with_qualtrics_embeded_data($function_name, $data, $user_id)
     {
+        $result = [];
         $result = [];
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
@@ -1141,7 +1147,7 @@ class CallbackQualtrics extends BaseCallback
             ->addRecipient('dmc6FeMBT92ikFzVvOkHiW:APA91bFnTAHN01CENau3kDXyvvviSZ9_fPJGIDIyyBzxljbvujVXKW5pYJk6AFmTtZ4SRfuANnTw7tQETTPmbRh-9YFYh-kKX-BHPFtGZGu4MA3Bl-8L9IXJt-kKOfT1HofE7JGKexcl')
             ->setTitle('Hello from php-fcm!')
             ->setBody('Notification body')
-            ->setColor('#20F037')
+            ->setColor('#ff0000')
             ->setSound("default")
             ->setIcon("myIcon.png")
             ->addData('key', 'value');
@@ -1151,7 +1157,8 @@ class CallbackQualtrics extends BaseCallback
         //     - custom icon file must be in drawable resource, if not set, FCM displays launcher icon in app manifest
 
         // Send the notification to the Firebase servers for further handling.
-        $client->send($notification);
+        $res = $client->send($notification);
+         print_r($res);
     }
 }
 ?>

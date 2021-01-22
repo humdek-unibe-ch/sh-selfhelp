@@ -8,6 +8,7 @@ require_once __DIR__ . "/globals_untracked.php";
 require_once __DIR__ . "/ext/PHPMailer.php";
 require_once __DIR__ . "/ext/PHPMailer_Exception.php";
 require_once __DIR__ . "/ParsedownExtension.php";
+require_once __DIR__ . "/ext/php-fcm/vendor/autoload.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -49,6 +50,136 @@ class Mailer extends PHPMailer
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';
         parent::__construct(false);
+    }
+
+    /* Private Methods *********************************************************/
+
+    /**
+     * Send mail from the queue
+     * @param int $mail_queue_id 
+     * the mail queeue id from where we will take the information for the fields that we will send
+     * @param array $mail_info
+     * Info for the mail queue entry
+     * @param string  $sent_by  
+     * the type which the email queue sent was triggered
+     * @param int $user_id  
+     * the user who sent the email, null if it was automated
+     * @retval boolean
+     *  return if mail was sent successfully
+     */
+    private function send_mail_single($mail_queue_id, $mail_info, $sent_by, $user_id){
+        $from = array(
+            'address' => $mail_info['from_email'],
+            'name' => $mail_info['from_name'],
+        );
+        $to = array();
+        $mail_info_recipients = explode(MAIL_SEPARATOR, $mail_info['recipient_emails']);
+        $subject = $mail_info['subject'];
+        $msg = $mail_info['body'];
+        $msg_html = $mail_info['is_html'] == 1 ? $this->parsedown->text($msg) : $msg;
+        $replyTo = array('address' => $mail_info['reply_to']);
+        $res = true;
+        $attachments = array();
+        $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
+            ":id_mailQueue" => $mail_queue_id
+        ));
+        if ($fetched_attachments) {
+            foreach ($fetched_attachments as $attachmnet) {
+                $attachments[$attachmnet['attachment_name']] = $attachmnet['attachment_path'];
+            }
+        }
+        foreach ($mail_info_recipients as $mail) {
+            unset($to['to']);
+            $to['to'][] = array('address' => $mail, 'name' => $mail);
+            $user_name = $this->db->query_db_first('SELECT name FROM users WHERE email = :email', array(":email"=>trim($mail)))['name'];
+            $msg_send = str_replace('@user_name', $user_name, $msg);
+            if($msg_html){
+                $msg_html_send = str_replace('@user_name', $user_name, $msg);
+            }
+            $res = $res && $this->send_mail($from, $to, $subject, $msg_send, $msg_html_send, $attachments, $replyTo);
+            $this->transaction->add_transaction(
+                $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
+                $sent_by,
+                $user_id,
+                $this->transaction::TABLE_MAILQUEUE,
+                $mail_queue_id,
+                false,
+                'Sending mail to ' . $mail
+            );
+        }
+        return $res;
+    }
+
+    /**
+     * Send notiifcation via fcm
+     * @param string $device_token
+     * the identifier
+     * @param array $data
+     * the notificaion data  
+     * @retval boolean
+     * return true or false;
+     */
+    private function send_notification($device_token, $data)
+    {
+        // Instantiate the client with the project api_token and sender_id.
+        $cmsPreferences = $this->db->fetch_cmsPreferences()[0];
+        $fcm_client = new \Fcm\FcmClient($cmsPreferences['fcm_api_key'], $cmsPreferences['fcm_sender_id']);
+
+        // Instantiate the push notification request object.
+        $notification = new \Fcm\Push\Notification();
+
+        // Enhance the notification object with our custom options.
+        $notification
+            ->addRecipient($device_token)
+            ->setTitle($data['subject'])
+            ->setBody($data['body'])
+            ->setColor('#20F037')
+            ->setSound("default")
+            ->setIcon("myIcon.png")
+            ->addData('key', 'value');
+
+        // custom sound and custom icon must be in app package
+        //     - custom sound file must be in /res/raw/
+        //     - custom icon file must be in drawable resource, if not set, FCM displays launcher icon in app manifest
+
+        // Send the notification to the Firebase servers for further handling.
+        $res = $fcm_client->send($notification);
+        return $res['success'] == 1;
+    }
+
+    /**
+     * Send mail from the queue
+     * @param int $mail_queue_id 
+     * the mail queeue id from where we will take the information for the fields that we will send
+     * @param array $mail_info
+     * Info for the mail queue entry
+     * @param string  $sent_by  
+     * the type which the email queue sent was triggered
+     * @param int $user_id  
+     * the user who sent the email, null if it was automated
+     * @retval boolean
+     *  return if mail was sent successfully
+     */
+    private function send_notification_single($mail_queue_id, $mail_info, $sent_by, $user_id){
+        $res = true;
+        $sql = "SELECT u.email, u.device_token
+                FROM mailQueue_users mqu
+                INNER JOIN users u ON (mqu.id_users = u.id)
+                WHERE mqu.id_mailQueue = :mail_queue_id";
+        $notifications = $this->db->query_db($sql, array(":mail_queue_id" => $mail_queue_id));
+        foreach ($notifications as $notification) {
+            $res = $res && $this->send_notification($notification['device_token'], $mail_info);
+            $this->transaction->add_transaction(
+                $res ? transactionTypes_send_notification_ok : transactionTypes_send_notification_fail,
+                $sent_by,
+                $user_id,
+                $this->transaction::TABLE_MAILQUEUE,
+                $mail_queue_id,
+                false,
+                'Sending mail to ' . $notification['email']
+            );
+        }
+        return $res;
     }
 
     /* Public Methods *********************************************************/
@@ -187,6 +318,35 @@ class Mailer extends PHPMailer
     }
 
     /**
+     * Insert mail record in the mailQueue table for notification and set the users in table mailQueue_users
+     * @param array $data
+     * @param array $users
+     * array with name => path structure
+     * @retval boolean
+     *  return if the insert is successful
+     */
+    public function add_notification_to_queue($data, $users)
+    {
+        try {
+            $this->db->begin_transaction();
+            $mail_queue_id = $this->db->insert('mailQueue', $data);
+            if ($mail_queue_id) {
+                foreach ($users as $user) {
+                    $this->db->insert('mailQueue_users', array(
+                        "id_users" => $user,
+                        "id_mailQueue" => $mail_queue_id
+                    ));
+                }
+            }
+            $this->db->commit();
+            return $mail_queue_id;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
+    }
+
+    /**
      * Send mail from the queue
      * @param int $mail_queue_id the mail queeue id from where we will take the information for the fields that we will send
      * @param string  $sent_by  the type which the email queue sent was triggered
@@ -196,42 +356,14 @@ class Mailer extends PHPMailer
      */
     public function send_mail_from_queue($mail_queue_id, $sent_by, $user_id = null)
     {
-        $mail_info = $this->db->select_by_uid('mailQueue', $mail_queue_id);
+        $mail_info = $this->db->select_by_uid('view_mailqueue', $mail_queue_id);
         if ($mail_info) {
-            $from = array(
-                'address' => $mail_info['from_email'],
-                'name' => $mail_info['from_name'],
-            );
-            $to = array();
-            $mail_info_recipients = explode(MAIL_SEPARATOR, $mail_info['recipient_emails']);
-            $subject = $mail_info['subject'];
-            $msg = $mail_info['body'];
-            $msg_html = $mail_info['is_html'] == 1 ? $this->parsedown->text($msg) : $msg;
-            $replyTo = array('address' => $mail_info['reply_to']);
-            $res = true;
-            $attachments = array();
-            $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
-                ":id_mailQueue" => $mail_queue_id
-            ));
-            if($fetched_attachments){
-                foreach ($fetched_attachments as $attachmnet) {
-                    $attachments[$attachmnet['attachment_name']] = $attachmnet['attachment_path'];
-                }
-            }
-            foreach ($mail_info_recipients as $mail) {
-                unset($to['to']);
-                $to['to'][] = array('address' => $mail, 'name' => $mail);
-                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, $attachments, $replyTo);
-                $this->transaction->add_transaction(
-                    $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
-                    $sent_by,
-                    $user_id,
-                    $this->transaction::TABLE_MAILQUEUE,
-                    $mail_queue_id,
-                    false,
-                    'Sending mail to ' . $mail
-                );
-            }
+            if($mail_info['type_code'] == notificationTypes_email){
+                $res = $this->send_mail_single($mail_queue_id, $mail_info, $sent_by, $user_id);
+            }else{
+                $res = $this->send_notification_single($mail_queue_id, $mail_info, $sent_by, $user_id);
+            }            
+
             $db_send_res = $this->db->update_by_ids(
                 'mailQueue',
                 array(

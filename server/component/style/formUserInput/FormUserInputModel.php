@@ -258,7 +258,8 @@ class FormUserInputModel extends StyleModel
             "reply_to" => PROJECT_NAME . '@unibe.ch',
             "recipient_emails" => $this->db->select_by_uid('users', $_SESSION['id_user'])['email'],
             "subject" => $subject,
-            "body" => $body
+            "body" => $body,
+            "id_notificationTypes" => $this->db->get_lookup_id_by_value(notificationTypes, notificationTypes_email)
         );
         $mq_id = $this->mail->add_mail_to_queue($mail);
         if ($mq_id > 0) {

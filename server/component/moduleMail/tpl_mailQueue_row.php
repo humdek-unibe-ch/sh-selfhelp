@@ -7,6 +7,7 @@
     <td class="details-control"></td>
     <td><?php echo $queue['id']; ?></td>
     <td><?php echo $queue['status']; ?></td>
+    <td><?php echo $queue['type']; ?></td>
     <td><?php echo $queue['date_create']; ?></td>
     <td><?php echo $queue['date_to_be_sent']; ?></td>
     <td><?php echo $queue['date_sent']; ?></td>

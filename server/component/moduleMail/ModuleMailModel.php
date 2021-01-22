@@ -219,7 +219,8 @@ class ModuleMailModel extends BaseModel
                 "reply_to" => $data['reply_to'],
                 "recipient_emails" => implode(MAIL_SEPARATOR . ' ', $recipients),
                 "subject" => $data['subject'],
-                "body" => $data['body']
+                "body" => $data['body'],
+                "id_notificationTypes" => $this->db->get_lookup_id_by_value(notificationTypes, notificationTypes_email),
             );
             $mq_id = $this->mail->add_mail_to_queue($mail);
             if ($this->transaction->add_transaction(

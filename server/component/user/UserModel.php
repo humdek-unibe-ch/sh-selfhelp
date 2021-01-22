@@ -310,7 +310,8 @@ class UserModel extends BaseModel
             "reply_to" => $from,
             "recipient_emails" => $email,
             "subject" => $subject,
-            "body" => $msg
+            "body" => $msg,
+            "id_notificationTypes" => $this->db->get_lookup_id_by_value(notificationTypes, notificationTypes_email)
         );
         $mq_id = $this->mail->add_mail_to_queue($mail);
             if ($mq_id > 0) {

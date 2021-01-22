@@ -10,6 +10,7 @@
                 <th scope="col"></th>
                 <th scope="col">ID</th>
                 <th scope="col">Status</th>
+                <th scope="col">Type</th>
                 <th scope="col">Entry date</th>
                 <th scope="col">Date to be sent</th>
                 <th scope="col">Sent date</th>

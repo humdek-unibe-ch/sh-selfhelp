@@ -102,6 +102,8 @@ define('transactionTypes_update', 'update');
 define('transactionTypes_delete', 'delete');
 define('transactionTypes_send_mail_ok', 'send_mail_ok');
 define('transactionTypes_send_mail_fail', 'send_mail_fail');
+define('transactionTypes_send_notification_ok', 'send_notification_ok');
+define('transactionTypes_send_notification_fail', 'send_notification_fail');
 define('transactionTypes_check_mailQueue', 'check_mailQueue');
 define('transactionBy_by_mail_cron', 'by_mail_cron');
 define('transactionBy_by_user', 'by_user');
