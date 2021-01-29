@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/ModuleMailComposeEmailView.php";
-require_once __DIR__ . "/../moduleMail/ModuleMailModel.php";
-require_once __DIR__ . "/../moduleMail/ModuleMailController.php";
+require_once __DIR__ . "/ModuleScheduledJobsComposeView.php";
+require_once __DIR__ . "/../moduleScheduledJobs/ModuleScheduledJobsModel.php";
+require_once __DIR__ . "/../moduleScheduledJobs/ModuleScheduledJobsController.php";
 
 /**
  * The class to define the asset select component.
  */
-class ModuleMailComposeEmailComponent extends BaseComponent
+class ModuleScheduledJobsComposeComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -24,11 +24,12 @@ class ModuleMailComposeEmailComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $params)
     {
-        $model = new ModuleMailModel($services, null);
-        $controller = new ModuleMailController($model);
-        $view = new ModuleMailComposeEmailView($model, $controller);
+        $type = isset($params['type']) ? $params['type'] : null;
+        $model = new ModuleScheduledJobsModel($services, null, $type);
+        $controller = new ModuleScheduledJobsController($model);
+        $view = new ModuleScheduledJobsComposeView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
 }

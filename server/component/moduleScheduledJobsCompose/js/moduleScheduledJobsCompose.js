@@ -23,7 +23,7 @@ $(document).ready(function () {
         $('#time_to_be_sent').focus();
     })
 
-    $('#section-composeEmailForm .btn-warning').first().on('click', function (e) {
+    $('#section-composeForm .btn-warning').first().on('click', function (e) {
         if (new Date() >= flatpickr.parseDate($('#time_to_be_sent').val(), 'd-m-Y H:i')) {
             e.stopPropagation();
             e.preventDefault();

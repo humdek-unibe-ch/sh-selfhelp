@@ -59,6 +59,11 @@ abstract class BaseModel
     protected $mail;
 
     /**
+     * JobScheduler handler.
+     */
+    protected $job_scheduler;
+
+    /**
      * An associative array holding the different available services. See the
      * class definition basepage for a list of all services.
      */
@@ -85,11 +90,11 @@ abstract class BaseModel
         $this->db = $services->get_db();
         $this->acl = $services->get_acl();
         $this->login = $services->get_login();
-        $this->mail = $services->get_mail();
         $this->transaction = $services->get_transaction();
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
+        $this->job_scheduler = $services->get_job_scheduler();
     }
 
     /** Private Methods *******************************************************/

@@ -14,8 +14,8 @@ class Transaction
     /* Constants ************************************************/
 
     /* Table names */
-    const TABLE_PAGES = 'pages';
-    const TABLE_MAILQUEUE = 'mailQueue';
+    const TABLE_PAGES = 'pages';    
+    const TABLE_SCHEDULED_JOBS = 'scheduledJobs';
     const TABLE_USERS = 'users';
     const TABLE_uploadTables = 'uploadTables';
     const TABLE_USERS_GROUPS = 'users_groups';

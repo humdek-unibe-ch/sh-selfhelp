@@ -11,9 +11,9 @@
         <div class="col">
             <?php $this->output_alert(); ?>     
             <div class="jumbotron">
-                <h1>Mail Queue</h1>
+                <h1>Scheduled Jobs</h1>
                 <p>
-                    The table below lists all queued mails for the given period.
+                    The table below lists all queued scheduled jobs for the given period.
                     Clicking on a row will select an entry. Clicking on + sing will show the transactions related to this entry.
                 </p>
             </div>

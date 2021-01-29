@@ -51,12 +51,19 @@ class ResetPasswordModel extends EmailFormBaseModel
             "mode" => "reset",
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-        $subject = $_SESSION['project'] . " Password Reset";
-        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
-        $to = $this->mail->create_single_to($email);
-        $msg = str_replace('@link', $url, $this->email_user);
-        $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
-        return $this->mail->send_mail($from, $to, $subject, $msg, $msg_html);
+        $mail = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+            "from_email" => "noreply@" . $_SERVER['HTTP_HOST'],
+            "from_name" => PROJECT_NAME,
+            "reply_to" => "noreply@" . $_SERVER['HTTP_HOST'],
+            "recipient_emails" => $email,
+            "subject" => $_SESSION['project'] . " Password Reset",
+            "body" => str_replace('@link', $url, $this->email_user),
+            "description" => "Password reset email"
+        );
+        return $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 
     /* Public Methods *********************************************************/

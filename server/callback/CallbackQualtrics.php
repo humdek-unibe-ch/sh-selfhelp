@@ -114,11 +114,11 @@ class CallbackQualtrics extends BaseCallback
     private function get_scheduled_reminders($uid, $qualtrics_survey_id)
     {
         return $this->db->query_db(
-            'SELECT mailQueue_id FROM view_qualtricsReminders WHERE `user_id` = :uid AND qualtrics_survey_id = :sid AND mailQueue_status_code = :status',
+            'SELECT id_scheduledJobs FROM view_qualtricsReminders WHERE `user_id` = :uid AND qualtrics_survey_id = :sid AND mailQueue_status_code = :status',
             array(
                 ":uid" => $uid,
                 ":sid" => $qualtrics_survey_id,
-                ":status" => mailQueueStatus_queued
+                ":status" => scheduledJobsStatus_queued
             )
         );
     }
@@ -131,7 +131,7 @@ class CallbackQualtrics extends BaseCallback
     private function delete_reminders($scheduled_reminders)
     {
         foreach ($scheduled_reminders as $reminder) {
-            $this->mail->delete_queue_entry($reminder['mailQueue_id'], transactionBy_by_qualtrics_callback);
+            $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_qualtrics_callback);
         }
     }
 
@@ -330,8 +330,8 @@ class CallbackQualtrics extends BaseCallback
     /**
      * Add a reminder in qualtricsReminders
      *
-     * @param int $mq_id
-     *  the mailQueue id
+     * @param int $sj_id
+     *  the scheduled job id
      * @param int $uid
      * user id
      * @param int $sid
@@ -339,12 +339,12 @@ class CallbackQualtrics extends BaseCallback
      * @retval int
      *  The id of the new record.
      */
-    private function add_reminder($mq_id, $uid, $sid)
+    private function add_reminder($sj_id, $uid, $sid)
     {
         return $this->db->insert("qualtricsReminders", array(
             "id_users" => $uid,
             "id_qualtricsSurveys" => $sid,
-            "id_mailQueue" => $mq_id
+            "id_scheduledJobs" => $sj_id
         ));
     }
 
@@ -370,7 +370,7 @@ class CallbackQualtrics extends BaseCallback
                 if ($schedule_info['notificationTypes'] == notificationTypes_email) {
                     // the notification type is email
                     $result = array_merge($result, $this->queue_mail($data, $user_id, $action));
-                }else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
+                } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
                     // the notification type is push notification
                     $result = array_merge($result, $this->queue_notification($data, $user_id, $action));
                 }
@@ -430,33 +430,31 @@ class CallbackQualtrics extends BaseCallback
         // *************************************** END CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
         $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
         $mail = array(
-            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-            "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
             "from_email" => $schedule_info['from_email'],
             "from_name" => $schedule_info['from_name'],
             "reply_to" => $schedule_info['reply_to'],
             "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
             "subject" => $schedule_info['subject'],
             "body" => $body,
-            "id_notificationTypes" => $this->db->get_lookup_id_by_code(notificationTypes, notificationTypes_email)
+            "description" => "Schedule email by Qualtrics Callback",
+            "attachments" => $attachments
         );
-        $mq_id = $this->mail->add_mail_to_queue($mail, $attachments);
-        if ($mq_id > 0) {
-            $this->transaction->add_transaction(
-                transactionTypes_insert,
-                transactionBy_by_qualtrics_callback,
-                null,
-                $this->transaction::TABLE_MAILQUEUE,
-                $mq_id
-            );
+        $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_qualtrics_callback);
+        if ($sj_id > 0) {
             if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
-                $this->add_reminder($mq_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+                $this->add_reminder($sj_id, $user_id, $action['id_qualtricsSurveys_reminder']);
             }
             $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if ($this->mail->send_mail_from_queue($mq_id, transactionBy_by_qualtrics_callback)) {
+                if ($this->job_scheduler->execute_job(array(
+                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+                    "id" => $sj_id
+                ), transactionBy_by_qualtrics_callback)) {
                     $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
@@ -490,49 +488,41 @@ class CallbackQualtrics extends BaseCallback
     {
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
-        $mail = array();
 
         $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
-        $mail = array(
-            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-            "date_to_be_sent" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
-            "from_email" => $schedule_info['from_email'],
-            "from_name" => $schedule_info['from_name'],
-            "reply_to" => $schedule_info['reply_to'],
-            "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
+        $notification = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "recipients" => array($user_id),
             "subject" => $schedule_info['subject'],
             "body" => $body,
-            "id_notificationTypes" => $this->db->get_lookup_id_by_code(notificationTypes, notificationTypes_push_notification)
+            "description" => "Schedule notification by Qualtrics Callback",
         );
-        $users[] = $user_id;
-        $mq_id = $this->mail->add_notification_to_queue($mail, $users);
-        if ($mq_id > 0) {
-            $this->transaction->add_transaction(
-                transactionTypes_insert,
-                transactionBy_by_qualtrics_callback,
-                null,
-                $this->transaction::TABLE_MAILQUEUE,
-                $mq_id
-            );
+        $sj_id = $this->job_scheduler->schedule_job($notification, transactionBy_by_qualtrics_callback);
+        if ($sj_id > 0) {
             if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
-                $this->add_reminder($mq_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+                $this->add_reminder($sj_id, $user_id, $action['id_qualtricsSurveys_reminder']);
             }
-            $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+            $result[] = 'Notification was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if ($this->mail->send_mail_from_queue($mq_id, transactionBy_by_qualtrics_callback)) {
-                    $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                if (($this->job_scheduler->execute_job(array(
+                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification),
+                    "id" => $sj_id
+                ), transactionBy_by_qualtrics_callback))) {
+                    $result[] = 'Notification was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
                 } else {
-                    $result[] = 'ERROR! Mail was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                    $result[] = 'ERROR! Notification was not sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
                 }
             }
         } else {
-            $result[] = 'ERROR! Mail was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+            $result[] = 'ERROR! Notificaton was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
         }
@@ -1158,7 +1148,7 @@ class CallbackQualtrics extends BaseCallback
 
         // Send the notification to the Firebase servers for further handling.
         $res = $client->send($notification);
-         print_r($res);
+        print_r($res);
     }
 }
 ?>

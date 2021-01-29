@@ -9,14 +9,10 @@
     <td><?php echo $queue['status']; ?></td>
     <td><?php echo $queue['type']; ?></td>
     <td><?php echo $queue['date_create']; ?></td>
-    <td><?php echo $queue['date_to_be_sent']; ?></td>
-    <td><?php echo $queue['date_sent']; ?></td>
-    <td><?php echo $queue['from_email']; ?></td>
-    <td><?php echo $queue['from_name']; ?></td>
-    <td><?php echo $queue['reply_to']; ?></td>
-    <td><div class="recipients"><?php echo $queue['recipient_emails']; ?></div></td>
-    <td><?php echo $queue['cc_emails']; ?></td>
-    <td><?php echo $queue['bcc_emails']; ?></td>
-    <td><?php echo $queue['subject']; ?></td>
-    <td><?php echo $queue['is_html']; ?></td>
+    <td><?php echo $queue['date_to_be_executed']; ?></td>
+    <td><?php echo $queue['date_executed']; ?></td>    
+    <td><?php echo $queue['description']; ?></td>
+    <td><?php echo $queue['recipient']; ?></td>
+    <td><?php echo $queue['title']; ?></td>
+    <td><?php echo $queue['message']; ?></td>
 </tr>

@@ -7,22 +7,23 @@
 
 require_once __DIR__ . "/../service/globals.php";
 require_once __DIR__ . "/../service/PageDb.php";
-require_once __DIR__ . "/../service/Mailer.php";
+require_once __DIR__ . "/../service/jobs/Mailer.php";
 require_once __DIR__ . "/../service/Transaction.php";
 require_once __DIR__ . "/../service/Router.php";
 require_once __DIR__ . "/../service/UserInput.php";
+require_once __DIR__ . "/../service/JobScheduler.php";
 
 /**
  * SETUP
  * Make the script executable:  chmod +x
- * Cronjob (Chek mail Queueu every minutes and send mails if some should be sent) * * * * * php /home/bashev/selfhelpQualtrics/server/cronjobs/MailQueue.php
+ * Cronjob (Chek mail Scheduled Jobs every minutes and execute them if there any) * * * * * php /home/bashev/selfhelpQualtrics/server/cronjobs/ScheduledJobsQueue.php
  */
 
 /**
- * MailQueue class. It is scheduled on a cronjob and it is executed on given time. It checks for mails
+ * ScheduledJobsQueue class. It is scheduled on a cronjob and it is executed on given time. It checks for mails
  * that should be send within the time and schedule events for them.
  */
-class MailQueue
+class ScheduledJobsQueue
 {    
 
     /**
@@ -38,7 +39,7 @@ class MailQueue
     /**
      * An instance of the PHPMailer service to handle outgoing emails.
      */
-    private $mail = null;
+    private $job_scheduler = null;
 
     /**
      * The constructor.
@@ -50,7 +51,8 @@ class MailQueue
         $router = new Router($this->db, BASE_PATH);
         $router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
         $user_input = new UserInput($this->db);
-        $this->mail = new Mailer($this->db, $this->transaction, $user_input, $router);
+        $mail = new Mailer($this->db, $this->transaction, $user_input, $router);
+        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail);
     }
 
     /**
@@ -58,11 +60,11 @@ class MailQueue
      */
     public function check_queue()
     {
-        $this->mail->check_queue_and_send();
+        $this->job_scheduler->check_queue_and_execute(transactionBy_by_cron_job);
     }
 }
 
-$mailQueue = new MailQueue();
-$mailQueue->check_queue();
+$scheduledJobsQueue = new ScheduledJobsQueue();
+$scheduledJobsQueue->check_queue();
 
 ?>

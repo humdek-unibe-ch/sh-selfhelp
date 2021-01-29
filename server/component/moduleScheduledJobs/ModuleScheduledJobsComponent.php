@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/ModuleMailView.php";
-require_once __DIR__ . "/ModuleMailModel.php";
-require_once __DIR__ . "/ModuleMailController.php";
+require_once __DIR__ . "/ModuleScheduledJobsView.php";
+require_once __DIR__ . "/ModuleScheduledJobsModel.php";
+require_once __DIR__ . "/ModuleScheduledJobsController.php";
 
 /**
  * The class to define the asset select component.
  */
-class ModuleMailComponent extends BaseComponent
+class ModuleScheduledJobsComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -26,10 +26,10 @@ class ModuleMailComponent extends BaseComponent
      */
     public function __construct($services, $params)
     {
-        $mqid = isset($params['mqid']) ? intval($params['mqid']) : null;
-        $model = new ModuleMailModel($services, $mqid);
-        $controller = new ModuleMailController($model);
-        $view = new ModuleMailView($model, $controller);
+        $mqid = isset($params['sjid']) ? intval($params['sjid']) : null;
+        $model = new ModuleScheduledJobsModel($services, $mqid);
+        $controller = new ModuleScheduledJobsController($model);
+        $view = new ModuleScheduledJobsView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
 }

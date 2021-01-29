@@ -127,27 +127,18 @@ abstract class ChatModel extends StyleModel
             $sql = "SELECT email FROM users WHERE id = :id";
             $email = $this->db->query_db_first($sql, array(':id' => $id));
             $mail = array(
-                "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-                "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+                "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+                "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+                "date_to_be_executed" => date('Y-m-d H:i:s', time()),
                 "from_email" => $from,
                 "from_name" => $from,
                 "reply_to" => $from,
                 "recipient_emails" => $email['email'],
                 "subject" => $subject,
                 "body" => $msg_html,
-                "id_notificationTypes" => $this->db->get_lookup_id_by_value(notificationTypes, notificationTypes_email)
+                "description" => "Chat notification email"
             );
-            $mq_id = $this->mail->add_mail_to_queue($mail);
-            if ($mq_id > 0) {
-                $this->transaction->add_transaction(
-                    transactionTypes_insert,
-                    transactionBy_by_user,
-                    $_SESSION['id_user'],
-                    $this->transaction::TABLE_MAILQUEUE,
-                    $mq_id
-                );
-                $this->mail->send_mail_from_queue($mq_id, transactionBy_by_user, $_SESSION['id_user']);
-            }
+            $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
         }
         $field_phone = $this->user_input->get_input_fields(array(
             'page' => 'profile',
@@ -155,31 +146,21 @@ abstract class ChatModel extends StyleModel
             'form_name' => 'notification',
             'field_name' => 'phone',
         ));
-        if(count($field_phone) === 1 && $field_phone[0]['value'] !== "")
-        {
+        if (count($field_phone) === 1 && $field_phone[0]['value'] !== "") {
             $email = $field_phone[0]['value'] . "@sms.unibe.ch";
             $mail = array(
-                "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-                "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+                "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+                "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+                "date_to_be_executed" => date('Y-m-d H:i:s', time()),
                 "from_email" => $from,
                 "from_name" => $from,
                 "reply_to" => $from,
                 "recipient_emails" => $email,
                 "subject" => $subject,
                 "body" => $msg_html,
-                "id_notificationTypes" => $this->db->get_lookup_id_by_value(notificationTypes, notificationTypes_email)
+                "description" => "Chat notification SMS"
             );
-            $mq_id = $this->mail->add_mail_to_queue($mail);
-            if ($mq_id > 0) {
-                $this->transaction->add_transaction(
-                    transactionTypes_insert,
-                    transactionBy_by_user,
-                    $_SESSION['id_user'],
-                    $this->transaction::TABLE_MAILQUEUE,
-                    $mq_id
-                );
-                $this->mail->send_mail_from_queue($mq_id, transactionBy_by_user, $_SESSION['id_user']);
-            }
+            $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
         }
     }
 

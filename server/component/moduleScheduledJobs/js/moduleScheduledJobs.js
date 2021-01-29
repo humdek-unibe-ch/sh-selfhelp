@@ -105,18 +105,18 @@ $(document).ready(function () {
     })
 
     //confirmation for send/resend mail queueu
-    var sendMailQueueButton = $('.style-section-send').first();
+    var sendMailQueueButton = $('.style-section-execute').first();
     sendMailQueueButton.click(function (e) {
         e.preventDefault();
         $.confirm({
-            title: 'Send Mail Queueu!',
-            content: 'Are you sure that you want to send this mail right now?',
+            title: 'Execute Job!',
+            content: 'Are you sure that you want to execute this job right now?',
             buttons: {
                 confirm: function () {
                     var href = $(sendMailQueueButton).attr('href');
                     $(sendMailQueueButton).attr('href', '#');
                     e.stopPropagation();
-                    $.redirectPost(href, { mode: 'send' });
+                    $.redirectPost(href, { mode: 'execute' });
                 },
                 cancel: function () {
 
@@ -130,8 +130,8 @@ $(document).ready(function () {
     deleteMailQueueButton.click(function (e) {
         e.preventDefault();
         $.confirm({
-            title: 'Delete Mail Queueu!',
-            content: 'Are you sure that you want to delete this mail queue?',
+            title: 'Delete Scheduled Jobs!',
+            content: 'Are you sure that you want to delete this job?',
             buttons: {
                 confirm: function () {
                     var href = $(deleteMailQueueButton).attr('href');
@@ -151,8 +151,8 @@ $(document).ready(function () {
     runCronJobButton.click(function (e) {
         e.preventDefault();
         $.confirm({
-            title: 'Check mail queue and send!',
-            content: 'Are you sure that you want to manually run the cronjob? It will chekc for mails that should be sent and if there are some they will be sent.',
+            title: 'Check Scheduled Jobs queue and send!',
+            content: 'Are you sure that you want to manually run the cronjob? It will chekc for scheduled jobs that should be executed and if there are some they will be executed.',
             buttons: {
                 confirm: function () {
                     var href = $(runCronJobButton).attr('href');

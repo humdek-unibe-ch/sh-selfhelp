@@ -6,7 +6,7 @@
 <div class="container-fluid mt-3">
     <div class="row">
         <div class="col-auto">
-            <?php $this->output_side_buttons_mailQueue_entry(); ?>
+            <?php $this->output_side_buttons_scheduledJobs_entry(); ?>
         </div>
         <div class="col">
             <?php $this->output_alert(); ?>            
