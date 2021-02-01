@@ -200,6 +200,7 @@ class NavView extends BaseView
             'title' => $this->model->get_home(),
             'keyword' => 'home',
             'url' => '/home',
+            'icon' => 'mobile-home',
             'children' => array(),
             'is_active' => false
         );    

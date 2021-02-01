@@ -217,6 +217,13 @@ ADD CONSTRAINT `scheduledJobs_notifications_fk_id_notifications` FOREIGN KEY (`i
 
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'status_change', 'Status changed', 'Status change');
 
+-- change home page from '/' to '/home'
 UPDATE pages
 SET url = '/home'
 WHERE keyword = 'home';
+
+-- predefine icon page field
+INSERT INTO pages_fields_translation (`id_pages`, `id_fields`, `id_languages`, `content`)
+SELECT id, 54, 1, ''
+FROM pages;
+

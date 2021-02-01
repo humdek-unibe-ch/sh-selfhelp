@@ -1404,6 +1404,27 @@ class CmsModel extends BaseModel
                 ""
             );
         }
+
+        /** IT SHOULD BE REWORKED *************************************************************************************************************************************** */
+        $page_title = $this->fetch_page_field_languages($this->id_page,
+            TYPE_INPUT_FIELD_ID);
+        foreach($page_title as $content)
+        {
+            $res[] = $this->add_property_item(
+                TYPE_INPUT_FIELD_ID,
+                intval($content['id_language']),
+                MALE_GENDER_ID,
+                "icon",
+                "The icon which will be used for menus. For mobile icons use prefix `mobile-`",
+                $content['locale'],
+                "text",
+                "page_field",
+                $content['content'],
+                ""
+            );
+        }
+        /** END IT SHOULD BE REWORKED *************************************************************************************************************************************** */
+
         $fields = $this->fetch_page_fields($this->id_page);
         foreach($fields as $field)
         {
