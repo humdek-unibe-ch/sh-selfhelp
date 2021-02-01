@@ -216,3 +216,7 @@ ADD CONSTRAINT `scheduledJobs_notifications_fk_id_scheduledJobs` FOREIGN KEY (`i
 ADD CONSTRAINT `scheduledJobs_notifications_fk_id_notifications` FOREIGN KEY (`id_notifications`) REFERENCES `notifications` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'status_change', 'Status changed', 'Status change');
+
+UPDATE pages
+SET url = '/home'
+WHERE keyword = 'home';

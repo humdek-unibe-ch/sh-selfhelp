@@ -195,6 +195,15 @@ class NavView extends BaseView
     public function output_content_mobile()
     {
         $res = $this->model->get_pages();
+        $home = array(
+            'id_navigation_section' => null,
+            'title' => $this->model->get_home(),
+            'keyword' => 'home',
+            'url' => '/home',
+            'children' => array(),
+            'is_active' => false
+        );    
+        array_unshift($res, $home);
         foreach ($res as $key => $value) {
             unset($res[$key]['is_active']);
             if (isset($value['children'])) {
@@ -203,7 +212,7 @@ class NavView extends BaseView
                 }
                 $res[$key]['children'] = array_values($value['children']);
             }
-        }
+        }        
         return $res;
     }
 }
