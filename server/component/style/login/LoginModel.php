@@ -87,7 +87,7 @@ class LoginModel extends StyleModel
      */
     public function set_device_id_and_token($device_id, $device_token)
     {
-        return $this->db->update_by_ids('users', array('device_id' => $device_id, 'device_token' => $device_token), array('id' => $_SESSION['id_user']));
+        return $this->db->update_by_ids('users', array('device_id' => $device_id, 'device_token' => $device_token), array('id' => intval($_SESSION['id_user'])));
     }
 }
 ?>

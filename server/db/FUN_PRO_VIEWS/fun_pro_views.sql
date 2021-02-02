@@ -1,7 +1,7 @@
 DROP VIEW IF EXISTS view_cmsPreferences;
 CREATE VIEW view_cmsPreferences
 AS
-SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale
+SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale, p.fcm_api_key, p.fcm_sender_id
 FROM cmsPreferences p
 LEFT JOIN languages l ON (l.id = p.default_language_id)
 WHERE p.id = 1;
@@ -26,7 +26,7 @@ as
 select s.style_id, s.style_name, s.style_type, s.style_group, f.field_id, f.field_name, f.field_type, f.display, f.position, 
 sf.default_value, sf.help
 from view_styles s
-left join styles_fields sf on (s.style_id = sf.id_styles or sf.id_fields = (SELECT id FROM fields WHERE name = 'css')) -- hardcoded for css field
+left join styles_fields sf on (s.style_id = sf.id_styles)
 left join view_fields f on (f.field_id = sf.id_fields);
 drop view if exists view_user_input;
 create view view_user_input
@@ -329,13 +329,6 @@ LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
 LEFT JOIN modules m ON (m.id = mp.id_modules)
 GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
 p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
-DROP VIEW IF EXISTS view_mailQueue;
-CREATE VIEW view_mailQueue
-AS
-SELECT mq.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, date_create, date_to_be_sent, date_sent, from_email, from_name,
-reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html
-FROM mailQueue mq
-INNER JOIN lookups l_status ON (l_status.id = mq.id_mailQueueStatus);
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
@@ -376,14 +369,6 @@ FROM transactions t
 INNER JOIN lookups tran_type ON (tran_type.id = t.id_transactionTypes)
 INNER JOIN lookups tran_by ON (tran_by.id = t.id_transactionBy)
 LEFT JOIN users u ON (u.id = t.id_users);
-DROP VIEW IF EXISTS view_mailQueue_transactions;
-CREATE VIEW view_mailQueue_transactions
-AS
-SELECT mq.id, date_create, date_to_be_sent, date_sent, t.id AS transaction_id, transaction_time, 
-transaction_type, transaction_by, user_name, transaction_verbal_log
-FROM mailQueue mq
-INNER JOIN view_transactions t ON (t.table_name = 'mailQueue' AND t.id_table_name = mq.id)
-ORDER BY mq.id ASC, t.id ASC;
 DROP VIEW IF EXISTS view_users;
 CREATE VIEW view_users
 AS
@@ -402,15 +387,6 @@ LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
 ORDER BY u.email;
-DROP VIEW IF EXISTS view_qualtricsReminders;
-CREATE VIEW view_qualtricsReminders
-AS
-select u.id as user_id, u.email, u.name as user_name, code, m.id as mailQueue_id,
-m.status_code as mailQueue_status_code, m.status as mailQueue_status, s.id as qualtricsSurvey_id, qualtrics_survey_id
-from qualtricsReminders r
-inner join view_users u on (u.id = r.id_users)
-inner join view_mailQueue m on (m.id = r.id_mailQueue)
-inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);
 DROP VIEW IF EXISTS view_acl_users_in_groups_pages_modules;
 CREATE VIEW view_acl_users_in_groups_pages_modules
 AS
@@ -636,3 +612,72 @@ LEFT JOIN view_style_fields fields ON (fields.style_id = s.id_styles)
 LEFT JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
 LEFT JOIN languages l ON (sft.id_languages = l.id) 
 LEFT JOIN genders g ON (sft.id_genders = g.id);
+DROP VIEW IF EXISTS view_scheduledJobs;
+CREATE VIEW view_scheduledJobs
+AS
+SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, l_types.lookup_code AS type_code, l_types.lookup_value AS type, 
+sj.date_create, date_to_be_executed, date_executed, description, 
+CASE
+	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails
+    WHEN l_types.lookup_code = 'notification' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+    ELSE ""
+END AS recipient,
+CASE
+	WHEN l_types.lookup_code = 'email' THEN mq.subject
+    WHEN l_types.lookup_code = 'notification' THEN n.subject
+    ELSE ""
+END AS title,
+CASE
+	WHEN l_types.lookup_code = 'email' THEN mq.body
+    WHEN l_types.lookup_code = 'notification' THEN n.body
+    ELSE ""
+END AS message,
+sj_mq.id_mailQueue,
+id_jobTypes,
+id_jobStatus
+FROM scheduledJobs sj
+INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)
+INNER JOIN lookups l_types ON (l_types.id = sj.id_jobTypes)
+LEFT JOIN scheduledJobs_mailQueue sj_mq on (sj_mq.id_scheduledJobs = sj.id)
+LEFT JOIN mailQueue mq on (mq.id = sj_mq.id_mailQueue)
+LEFT JOIN scheduledJobs_notifications sj_n on (sj_n.id_scheduledJobs = sj.id)
+LEFT JOIN notifications n on (n.id = sj_n.id_notifications);
+DROP VIEW IF EXISTS view_scheduledJobs_transactions;
+CREATE VIEW view_scheduledJobs_transactions
+AS
+SELECT sj.id, sj.date_create, date_to_be_executed, date_executed, t.id AS transaction_id, transaction_time, 
+transaction_type, transaction_by, user_name, transaction_verbal_log
+FROM scheduledJobs sj
+INNER JOIN view_transactions t ON (t.table_name = 'scheduledJobs' AND t.id_table_name = sj.id)
+ORDER BY sj.id ASC, t.id ASC;
+DROP VIEW IF EXISTS view_mailQueue;
+CREATE VIEW view_mailQueue
+AS
+SELECT sj.id AS id, from_email, from_name,
+status_code, status, type_code, type, 
+sj.date_create, date_to_be_executed, date_executed,
+reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html, mq.id as id_mailQueue, id_jobTypes,
+id_jobStatus
+FROM mailQueue mq
+INNER JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_mailQueue = mq.id)
+INNER JOIN view_scheduledJobs sj ON (sj.id = sj_mq.id_scheduledJobs);
+DROP VIEW IF EXISTS view_qualtricsReminders;
+CREATE VIEW view_qualtricsReminders
+AS
+select u.id as user_id, u.email, u.name as user_name, code, m.id as id_scheduledJobs,
+m.status_code as mailQueue_status_code, m.status as mailQueue_status, s.id as qualtricsSurvey_id, qualtrics_survey_id
+from qualtricsReminders r
+inner join view_users u on (u.id = r.id_users)
+inner join view_mailQueue m on (m.id = r.id_scheduledJobs)
+inner join view_qualtricsSurveys s on (s.id = r.id_qualtricsSurveys);
+DROP VIEW IF EXISTS view_notifications;
+CREATE VIEW view_notifications
+AS
+SELECT sj.id AS id,
+status_code, status, type_code, type, 
+sj.date_create, date_to_be_executed, date_executed,
+recipient, subject, body, id_notifications, id_jobTypes,
+id_jobStatus
+FROM notifications n
+INNER JOIN scheduledJobs_notifications sj_n ON (sj_n.id_notifications = n.id)
+INNER JOIN view_scheduledJobs sj ON (sj.id = sj_n.id_scheduledJobs);

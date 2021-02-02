@@ -448,6 +448,7 @@ abstract class BasePage
             $page->output_content_mobile();
         }
         // if($this->render_footer) $this->output_component("footer");
+        $res['title'] = $this->title;
         return $res;
     }
 
