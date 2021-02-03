@@ -9,6 +9,7 @@ require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProj
 require_once __DIR__ . "/../component/style/register/RegisterModel.php";
 require_once __DIR__ . "/../service/ext/php-pdftk-0.8.1.0/vendor/autoload.php";
 require_once __DIR__ . "/calculations/BMZSportModel.php";
+require_once __DIR__ . "/calculations/SaveDataModel.php";
 require_once __DIR__ . "/../service/ext/php-fcm/vendor/autoload.php";
 
 use mikehaertl\pdftk\Pdf;
@@ -121,6 +122,30 @@ class CallbackQualtrics extends BaseCallback
                 ":status" => scheduledJobsStatus_queued
             )
         );
+    }
+
+    /**
+     * Save the data, based on the configuration
+     * @param int $uid 
+     * user_id
+     * @param string $qualtrics_survey_id
+     * qualtrics survey id from Qualtrics
+     * @param string qualtrics_survey_response
+     * qualtrics respsonse id from Qualtrics
+     */
+    private function save_data($uid, $qualtrics_survey_id, $qualtrics_survey_response)
+    {
+        $config = $this->getSurvey($qualtrics_survey_id)['config'];
+        $config = json_decode($config, true);
+        if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
+            $qualtrics_api = $this->get_qualtrics_api($qualtrics_survey_id);
+            $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
+            $survey_response = $moduleQualtrics->get_survey_response($qualtrics_survey_id, $qualtrics_survey_response);
+            $save_data_model = new SaveDataModel($this->services, $survey_response['values'], $uid, $qualtrics_survey_id, $qualtrics_survey_response);
+            return $save_data_model->save_data($config['save_data']);
+        }else{
+            return 'No data retrieval';
+        }
     }
 
     /**
@@ -1062,6 +1087,7 @@ class CallbackQualtrics extends BaseCallback
                         //update survey response
                         $update_id = $this->update_survey_response($data);
                         $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+                        $result['selfhelpCallback'][] = $this->save_data($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
                         if ($scheduled_reminders && count($scheduled_reminders) > 0) {
                             $this->delete_reminders($scheduled_reminders);
                         }

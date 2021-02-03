@@ -227,3 +227,6 @@ INSERT INTO pages_fields_translation (`id_pages`, `id_fields`, `id_languages`, `
 SELECT id, 54, 1, ''
 FROM pages;
 
+-- add timestamp filed to table uploadRows
+ALTER TABLE uploadRows
+ADD COLUMN `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;

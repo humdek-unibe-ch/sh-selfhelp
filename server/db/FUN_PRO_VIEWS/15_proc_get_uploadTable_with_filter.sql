@@ -22,7 +22,7 @@ BEGIN
         select table_name from view_uploadTables where 1=2;
     ELSE
         begin
-            SET @sql = CONCAT('select table_name, timestamp, row_id, ', @sql, ' from view_uploadTables t
+            SET @sql = CONCAT('select table_name, timestamp, row_id, entry_date, ', @sql, ' from view_uploadTables t
                 where table_id = ', table_id_param,
                 ' group by table_name, timestamp, row_id HAVING 1 ', filter_param);
 
