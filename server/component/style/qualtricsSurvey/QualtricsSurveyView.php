@@ -64,7 +64,7 @@ class QualtricsSurveyView extends StyleView
                 if ($this->label_survey_done != '') {
                     $alert = new BaseStyleComponent("alert", array(
                         "type" => "danger",
-                        "is_dismissable" => true,
+                        "is_dismissable" => false,
                         "children" => array(new BaseStyleComponent("markdown", array(
                             "text_md" => $this->label_survey_done,
                         )))
@@ -78,7 +78,7 @@ class QualtricsSurveyView extends StyleView
             if ($this->label_survey_not_active != '') {
                 $alert = new BaseStyleComponent("alert", array(
                     "type" => "danger",
-                    "is_dismissable" => true,
+                    "is_dismissable" => false,
                     "children" => array(new BaseStyleComponent("markdown", array(
                         "text_md" => $this->label_survey_not_active,
                     )))
@@ -100,6 +100,15 @@ class QualtricsSurveyView extends StyleView
     {
         $style = parent::output_content_mobile();
         $style['qualtrics_url'] = $this->model->get_survey_link();
+        if ($this->model->is_survey_active()) {
+            if ($this->model->is_survey_done()) {
+                $style['alert'] = $this->label_survey_done;
+            }
+        } else {
+            if ($this->label_survey_not_active != '') {
+                $style['alert'] = $this->label_survey_not_active;
+            }
+        }
         return $style;
     }
 }
