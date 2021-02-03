@@ -11,6 +11,19 @@ require_once __DIR__ . "/../StyleView.php";
  */
 class QualtricsSurveyView extends StyleView
 {
+
+    /* Private Properties *****************************************************/
+
+    /**
+     * Markdown text that is shown if the survey is done and it can be filled only once per schedule.
+     */
+    private $label_survey_done;
+
+    /**
+     * Markdown text that is shown if the survey is not active right now.
+     */
+    private $label_survey_not_active;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -22,6 +35,8 @@ class QualtricsSurveyView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->label_survey_done = $this->model->get_db_field('label_survey_done', '');
+        $this->label_survey_not_active = $this->model->get_db_field('label_survey_not_active', '');
     }
 
     /* Private Methods ********************************************************/
@@ -44,7 +59,33 @@ class QualtricsSurveyView extends StyleView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_qualtricsSurvey.php";
+        if ($this->model->is_survey_active()) {
+            if ($this->model->is_survey_done()) {
+                if ($this->label_survey_done != '') {
+                    $alert = new BaseStyleComponent("alert", array(
+                        "type" => "danger",
+                        "is_dismissable" => true,
+                        "children" => array(new BaseStyleComponent("markdown", array(
+                            "text_md" => $this->label_survey_done,
+                        )))
+                    ));
+                    $alert->output_content();
+                }
+            } else {
+                require __DIR__ . "/tpl_qualtricsSurvey.php";
+            }
+        } else {
+            if ($this->label_survey_not_active != '') {
+                $alert = new BaseStyleComponent("alert", array(
+                    "type" => "danger",
+                    "is_dismissable" => true,
+                    "children" => array(new BaseStyleComponent("markdown", array(
+                        "text_md" => $this->label_survey_not_active,
+                    )))
+                ));
+                $alert->output_content();
+            }
+        }
     }
 
     /**
@@ -52,12 +93,12 @@ class QualtricsSurveyView extends StyleView
      */
     public function get_survey_link()
     {
-       return $this->model->get_survey_link();
+        return $this->model->get_survey_link();
     }
 
     public function output_content_mobile()
     {
-        $style = parent::output_content_mobile();        
+        $style = parent::output_content_mobile();
         $style['qualtrics_url'] = $this->model->get_survey_link();
         return $style;
     }

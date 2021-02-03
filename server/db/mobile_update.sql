@@ -231,9 +231,13 @@ FROM pages;
 ALTER TABLE uploadRows
 ADD COLUMN `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
--- add field once_per_day to style qualtricsSurvey
+-- add field once_per_schedule to style qualtricsSurvey
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'once_per_schedule', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('once_per_schedule'), 0, 'If checked the survey can be done once per schedule');
+
+-- add field once_per_user to style qualtricsSurvey
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'once_per_user', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('once_per_user'), 0, 'If checked the survey can be done only once by an user. The checkbox `once_per_schedule` is ignore if this is checked');
 
 -- add field start_time to style qualtricsSurvey
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'start_time', get_field_type_id('time'), '0');
