@@ -12,7 +12,7 @@ require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
 
-if(DEBUG){
+if(CORS){
     cors();
 }
 
