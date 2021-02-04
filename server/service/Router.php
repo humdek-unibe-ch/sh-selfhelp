@@ -131,9 +131,9 @@ class Router extends AltoRouter {
     public function is_active( $route_name )
     {
         $match = $this->match();
-        if(!$match){
-            return false;
-        }
+        // if(!$match){
+        //     return false;
+        // }
         return ($match['name'] == $route_name);
     }
 
