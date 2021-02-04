@@ -224,7 +224,7 @@ class ModuleScheduledJobsComposeView extends BaseView
         if (empty($local)) {
             $local = array(
                 __DIR__ . "/../js/simplemde.min.js",
-                __DIR__ . "/js/ModuleScheduledJobsCompose.js"
+                __DIR__ . "/js/moduleScheduledJobsCompose.js"
             );
         }
         return parent::get_js_includes($local);
