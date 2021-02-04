@@ -213,7 +213,7 @@ class Mailer extends PHPMailer
      */
     public function send_entry($sj_id, $sent_by, $user_id = null)
     {
-        $mail_info = $this->db->select_by_uid('view_mailqueue', $sj_id);
+        $mail_info = $this->db->select_by_uid('view_mailQueue', $sj_id);
         if ($mail_info) {
             return $this->send_mail_single($mail_info, $sent_by, $user_id);
         } else {
