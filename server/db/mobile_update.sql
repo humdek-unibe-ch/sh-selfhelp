@@ -254,3 +254,5 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 -- add field label_survey_not_active to style qualtricsSurvey
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_survey_not_active', get_field_type_id('markdown'), 1);
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('label_survey_not_active'), null, 'Markdown text that is shown if the survey is not active right now.');
+
+-- ************************** EXECUTEED ON BECCCS ***********************************************************************

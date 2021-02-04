@@ -176,7 +176,7 @@ DELIMITER ;
 drop view if exists view_uploadTables;
 create view view_uploadTables
 as
-select t.id as table_id, r.id as row_id, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp
+select t.id as table_id, r.id as row_id, r.timestamp as entry_date, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp
 from uploadTables t
 inner join uploadRows r on (t.id = r.id_uploadTables)
 inner join uploadCells cell on (cell.id_uploadRows = r.id)
@@ -222,7 +222,7 @@ BEGIN
         select table_name from view_uploadTables where 1=2;
     ELSE
         begin
-            SET @sql = CONCAT('select table_name, timestamp, row_id, ', @sql, ' from view_uploadTables t
+            SET @sql = CONCAT('select table_name, timestamp, row_id, entry_date, ', @sql, ' from view_uploadTables t
                 where table_id = ', table_id_param,
                 ' group by table_name, timestamp, row_id HAVING 1 ', filter_param);
 
