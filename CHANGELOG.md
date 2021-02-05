@@ -203,6 +203,9 @@
     - It is used for `Workwell` project. A folder `workwell_evaluate_personal_strenghts` should be created in folder `assets`. The new folder should have 777 rights
     - It uses php-pdftk library
     - It requires pdftk installed on the server <https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/> Ubuntu 18.04 installation command: `sudo snap install pdftk` (if there some issues a symbolic link maybe needed `sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk` )
+- For Qualtrics synchronizations:
+    - `php-dom` is needed: `sudo apt-get install php7.2-xml`
+    - `php-curl` is needed: `sudo apt-get install php7.2-curl`
 
 ---------
 # v2.0.6
