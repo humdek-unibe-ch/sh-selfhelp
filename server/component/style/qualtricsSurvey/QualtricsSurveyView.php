@@ -101,15 +101,15 @@ class QualtricsSurveyView extends StyleView
         $style = parent::output_content_mobile();
         $style['qualtrics_url'] = $this->model->get_survey_link();
         $style['alert'] = '';
-        $style['show_survey'] = false;
+        $style['show_survey'] = true;
         if ($this->model->is_survey_active()) {
             if ($this->model->is_survey_done()) {
                 $style['alert'] = $this->label_survey_done;
-                $style['show_survey'] = true;
+                $style['show_survey'] = false;
             }
         } else {
             $style['alert'] = $this->label_survey_not_active;
-            $style['show_survey'] = true;
+            $style['show_survey'] = false;
         }
         return $style;
     }
