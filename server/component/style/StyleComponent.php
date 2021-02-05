@@ -80,18 +80,24 @@ class StyleComponent extends BaseComponent
         else if($style['type'] == "component" || $style['type'] == "navigation")
         {
             $className = ucfirst($style['name']) . "Component";
-            if(class_exists($className))
-            {
+            if (class_exists($className)) {
                 $this->style = new $className($services, $id, $params, $id_page);
             }
-            if($this->style === null || !$this->style->has_access())
-            {
+            if ($this->style === null) {
                 $model = new StyleModel($services, $id, $params, $id_page);
-                $this->style = new BaseStyleComponent("unknownStyle",
-                    array("style_name" => $style['name']));
-            }
-            else
-            {
+                $this->style = new BaseStyleComponent(
+                    "unknownStyle",
+                    array("style_name" => $style['name'])
+                );
+            } else if (!$this->style->has_access()) {
+                // print access denied or something
+                $this->style = new BaseStyleComponent("alert", array(
+                    "type" => "danger",
+                    "children" => array(new BaseStyleComponent("plaintext", array(
+                        "text" => 'No Access'
+                    )))
+                ));
+            } else {
                 $model = $this->style->get_model();
             }
         }

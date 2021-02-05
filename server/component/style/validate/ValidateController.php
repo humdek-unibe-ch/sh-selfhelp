@@ -41,9 +41,12 @@ class ValidateController extends BaseController
             {
                 $this->success = true;
                 unset($_SESSION['target_url']);
-            }
-            else
+            } else {
                 $this->fail = true;
+                if (isset($_POST['mobile']) && $_POST['mobile']) {
+                    $this->error_msgs[] = $this->model->get_db_field("alert_fail");
+                }
+            }
         }
     }
 }
