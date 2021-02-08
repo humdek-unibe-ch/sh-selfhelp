@@ -148,7 +148,18 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "name" => "id_qualtricsSurveys_reminder",
                     "id" => "id_qualtricsSurveys_reminder",
                     "css" => "d-none",
-                    "items" => $this->get_surveys(),
+                    "items" => $this->model->get_surveys(),
+                    "live_search" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Reminder for notification (Needed for surveys with sessions and multiple block schedules)",
+                    "value" => isset($this->action['id_qualtricsActions']) ? $this->action['id_qualtricsActions'] : "",
+                    "is_required" => false,
+                    "name" => "id_qualtricsActions",
+                    "id" => "id_qualtricsActions",
+                    "css" => "d-none",
+                    "items" => $this->model->get_notifications(),
+                    "live_search" => true
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "Type",
@@ -156,6 +167,15 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
                     "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes))
+                )),
+                 new BaseStyleComponent("input", array(
+                    "label" => "Valid after scheduled time (in minutes). [It is used for surveys with multiple sessions and reminders]",
+                    "is_required" => false,
+                    "id" => "valid",
+                    "css" => "d-none",
+                    "value" => isset($this->action["schedule_info"]["valid"]) ? $this->action["schedule_info"]["valid"] : '',
+                    "name" => "schedule_info[valid]",
+                    "type_input" => "number"
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "When",
@@ -303,7 +323,17 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "name" => "id_qualtricsSurveys_reminder",
                     "id" => "id_qualtricsSurveys_reminder",
                     "css" => "d-none",
-                    "items" => $this->get_surveys(),
+                    "items" => $this->model->get_surveys(),
+                    "disabled" => true
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Reminder for notification (Needed for surveys with sessions and multiple block schedules)",
+                    "value" => isset($this->action['id_qualtricsActions']) ? $this->action['id_qualtricsActions'] : "",
+                    "is_required" => false,
+                    "name" => "id_qualtricsActions",
+                    "id" => "id_qualtricsActions",
+                    "css" => "d-none",
+                    "items" => $this->model->get_notifications(),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("select", array(
@@ -313,6 +343,15 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "name" => "schedule_info[notificationTypes]",
                     "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes)),
                     "disabled" => true
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Valid after scheduled time (in minutes). [It is used for surveys with multiple sessions and reminders]",
+                    "id" => "valid",
+                    "locale" => "",
+                    "css" => "d-none mt-3",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => isset($this->action["schedule_info"]['valid']) ? $this->action["schedule_info"]['valid'] : ''
+                    ))),
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "When",
@@ -497,23 +536,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     private function get_lookup($id)
     {
         return $this->model->get_services()->get_db()->select_by_uid("lookups", $id)['lookup_value'];
-    }
-
-    /**
-     * get surveys from the database.
-     *
-     *  @retval array
-     *  value int,
-     *  text string
-     */
-    private function get_surveys()
-    {
-        $surveys = array();
-        foreach ($this->model->get_services()->get_db()->select_table("qualtricsSurveys") as $survey) {
-            array_push($surveys, array("value" => $survey['id'], "text" => $survey['name']));
-        }
-        return $surveys;
-    }
+    }   
 
     /* Public Methods *********************************************************/
 
@@ -524,8 +547,8 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     {
         require __DIR__ . "/../moduleQualtrics/tpl_moduleQualtrics.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }
@@ -579,7 +602,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "is_required" => true,
                             "live_search" => true,
                             "name" => "id_qualtricsSurveys",
-                            "items" => $this->get_surveys(),
+                            "items" => $this->model->get_surveys(),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "Is (trigger type)",

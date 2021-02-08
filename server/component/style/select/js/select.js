@@ -1,3 +1,6 @@
 $(document).ready(function () {
-    $('select').selectpicker();
+    $('select').selectpicker({
+        showTick: true,
+        allowClear: true
+    });
 });

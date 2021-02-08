@@ -50,10 +50,11 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
             $actionId = $this->db->insert("qualtricsActions", array(
                 "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
-                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],                
+                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
                 "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
                 "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
+                "id_qualtricsActions" => isset($data['id_qualtricsActions']) ? $data['id_qualtricsActions'] : null,
                 "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info']) : null
             ));
             if (isset($data['id_groups']) && is_array($data['id_groups'])) {
@@ -104,10 +105,11 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
             $this->db->update_by_ids("qualtricsActions", array(
                 "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
-                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],                
+                "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
                 "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
                 "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
+                "id_qualtricsActions" => isset($data['id_qualtricsActions']) ? ($data['id_qualtricsActions'] == '' ? null : $data['id_qualtricsActions']) : null,
                 "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info']) : null
             ), array('id' => $data['id']));
 
@@ -156,5 +158,43 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
             ),
             array('id' => $data['id'])
         );
+    }
+
+    /**
+     * get surveys from the database.
+     *
+     *  @retval array
+     *  value int,
+     *  text string
+     */
+    public function get_surveys()
+    {
+        $surveys = array();
+        foreach ($this->db->select_table("qualtricsSurveys") as $survey) {
+            array_push($surveys, array("value" => $survey['id'], "text" => $survey['name']));
+        }
+        return $surveys;
+    }
+
+    /**
+     * get notifications from the database.
+     *
+     *  @retval array
+     *  value int,
+     *  text string
+     */
+    public function get_notifications()
+    {
+        $notifications = array();
+        $sql = "SELECT id, name
+                FROM qualtricsActions
+                WHERE id_qualtricsActionScheduleTypes = :id_qualtricsActionScheduleTypes";
+        $fetch_notifivations = $this->db->query_db($sql, array(
+            ":id_qualtricsActionScheduleTypes" => $this->db->get_lookup_id_by_value(qualtricsActionScheduleTypes, qualtricsActionScheduleTypes_notification)
+        ));
+        foreach ($fetch_notifivations as $notification) {
+            array_push($notifications, array("value" => $notification['id'], "text" => $notification['name']));
+        }
+        return $notifications;
     }
 }

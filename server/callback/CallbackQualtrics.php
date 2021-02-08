@@ -115,7 +115,10 @@ class CallbackQualtrics extends BaseCallback
     private function get_scheduled_reminders($uid, $qualtrics_survey_id)
     {
         return $this->db->query_db(
-            'SELECT id_scheduledJobs FROM view_qualtricsReminders WHERE `user_id` = :uid AND qualtrics_survey_id = :sid AND mailQueue_status_code = :status',
+            'SELECT id_scheduledJobs 
+            FROM view_qualtricsReminders 
+            WHERE `user_id` = :uid AND qualtrics_survey_id = :sid AND status_code = :status
+            AND (valid_till IS NULL OR (NOW() BETWEEN session_start_date AND valid_till))',
             array(
                 ":uid" => $uid,
                 ":sid" => $qualtrics_survey_id,
@@ -143,7 +146,7 @@ class CallbackQualtrics extends BaseCallback
             $survey_response = $moduleQualtrics->get_survey_response($qualtrics_survey_id, $qualtrics_survey_response);
             $save_data_model = new SaveDataModel($this->services, $survey_response['values'], $uid, $qualtrics_survey_id, $qualtrics_survey_response);
             return $save_data_model->save_data($config['save_data']);
-        }else{
+        } else {
             return 'No data retrieval';
         }
     }
@@ -359,18 +362,19 @@ class CallbackQualtrics extends BaseCallback
      *  the scheduled job id
      * @param int $uid
      * user id
-     * @param int $sid
-     * the id of the reminded survey
+     * @param array $action
+     * the action info
      * @retval int
      *  The id of the new record.
      */
-    private function add_reminder($sj_id, $uid, $sid)
+    private function add_reminder($sj_id, $uid, $action)
     {
-        return $this->db->insert("qualtricsReminders", array(
+        $res = $this->db->insert("qualtricsReminders", array(
             "id_users" => $uid,
-            "id_qualtricsSurveys" => $sid,
+            "id_qualtricsSurveys" => $action['id_qualtricsSurveys_reminder'],
             "id_scheduledJobs" => $sj_id
         ));
+        return $res;
     }
 
     /**
@@ -392,12 +396,21 @@ class CallbackQualtrics extends BaseCallback
             //clear the mail generation data
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 $schedule_info = json_decode($action['schedule_info'], true);
+                $res = array();
                 if ($schedule_info['notificationTypes'] == notificationTypes_email) {
                     // the notification type is email
-                    $result = array_merge($result, $this->queue_mail($data, $user_id, $action));
+                    $res = $this->queue_mail($data, $user_id, $action);
+                    $result = array_merge($result, $res['result']);
                 } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
                     // the notification type is push notification
-                    $result = array_merge($result, $this->queue_notification($data, $user_id, $action));
+                    $res = $this->queue_notification($data, $user_id, $action);
+                    $result = array_merge($result, $res['result']);
+                }
+                if(isset($res['sj_id'])){
+                   $this->db->insert('scheduledJobs_qualtricsActions', array(
+                       "id_scheduledJobs" => $res['sj_id'],
+                       "id_qualtricsActions" => $action['id'],
+                   )); 
                 }
             }
         }
@@ -470,7 +483,7 @@ class CallbackQualtrics extends BaseCallback
         $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_qualtrics_callback);
         if ($sj_id > 0) {
             if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
-                $this->add_reminder($sj_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+                $this->add_reminder($sj_id, $user_id, $action);
             }
             $result[] = 'Mail was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
@@ -494,7 +507,10 @@ class CallbackQualtrics extends BaseCallback
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
         }
-        return $result;
+        return array(
+            "result" => $result,
+            "sj_id" => $sj_id
+        );
     }
 
     /**
@@ -527,7 +543,7 @@ class CallbackQualtrics extends BaseCallback
         $sj_id = $this->job_scheduler->schedule_job($notification, transactionBy_by_qualtrics_callback);
         if ($sj_id > 0) {
             if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
-                $this->add_reminder($sj_id, $user_id, $action['id_qualtricsSurveys_reminder']);
+                $this->add_reminder($sj_id, $user_id, $action);
             }
             $result[] = 'Notification was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
@@ -551,7 +567,10 @@ class CallbackQualtrics extends BaseCallback
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
         }
-        return $result;
+        return array(
+            "result" => $result,
+            "sj_id" => $sj_id
+        );
     }
 
     /**

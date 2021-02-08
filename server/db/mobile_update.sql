@@ -168,6 +168,11 @@ ADD `id_scheduledJobs` INT(10 ) UNSIGNED ZEROFILL NOT NULL;
 UPDATE qualtricsReminders
 SET id_scheduledJobs = (SELECT id_scheduledJobs FROM scheduledJobs_mailQueue sjmq WHERE sjmq.id_mailQueue = id_mailQueue);
 
+ALTER TABLE `qualtricsReminders`
+DROP PRIMARY KEY;
+ALTER TABLE `qualtricsReminders`
+ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`, `id_scheduledJobs`);
+
 ALTER TABLE qualtricsReminders
 DROP FOREIGN KEY qualtricsReminders_fk_id_mailQueue;
 
@@ -256,3 +261,32 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_s
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('label_survey_not_active'), null, 'Markdown text that is shown if the survey is not active right now.');
 
 -- ************************** EXECUTEED ON BECCCS ***********************************************************************
+
+-- add fields id_qualtricsActions to table qualtricsActions. It is used for linking reminders actions to notifications for surveys with sessions and block shceduling
+ALTER TABLE qualtricsActions
+ADD COLUMN `id_qualtricsActions` INT(10) UNSIGNED ZEROFILL;
+
+-- add table scheduledJobs_qualtricsActions
+CREATE TABLE `scheduledJobs_qualtricsActions` (
+  `id_scheduledJobs` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsActions` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY(id_scheduledJobs, id_qualtricsActions)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `scheduledJobs_qualtricsActions`
+ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+CREATE TABLE `qualtricsReminders` (	
+	`id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL, 
+    `id_users` int(10) UNSIGNED ZEROFILL NOT NULL, 
+    `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `qualtricsReminders`
+ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`, `id_scheduledJobs`);
+ALTER TABLE `qualtricsReminders`
+ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `qualtricsReminders`
+ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

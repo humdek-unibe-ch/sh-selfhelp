@@ -13,7 +13,7 @@ schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as ac
 CASE 
 	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
     ELSE NULL
-END as survey_reminder_name
+END as survey_reminder_name, st.id_qualtricsActions
 FROM qualtricsActions st 
 INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
 INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
