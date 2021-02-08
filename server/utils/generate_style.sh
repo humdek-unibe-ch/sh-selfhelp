@@ -81,15 +81,15 @@ class ${prefix}Model extends StyleModel
     /**
      * The constructor.
      *
-     * @param array $services
+     * @param array \$services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
-     * @param int $id
+     * @param int \$id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct(\$services, \$id)
     {
-        parent::__construct($services, $id);
+        parent::__construct(\$services, \$id);
     }
 
     /* Private Methods ********************************************************/
@@ -117,14 +117,14 @@ class ${prefix}View extends StyleView
     /**
      * The constructor.
      *
-     * @param object $model
+     * @param object \$model
      *  The model instance of the component.
-     * @param object $controller
+     * @param object \$controller
      *  The controller instance of the component.
      */
-    public function __construct($model, $controller)
+    public function __construct(\$model, \$controller)
     {
-        parent::__construct($model, $controller);
+        parent::__construct(\$model, \$controller);
     }
 
     /* Private Methods ********************************************************/
@@ -162,12 +162,12 @@ class ${prefix}Controller extends BaseController
     /**
      * The constructor.
      *
-     * @param object $model
+     * @param object \$model
      *  The model instance of the component.
      */
-    public function __construct($model)
+    public function __construct(\$model)
     {
-        parent::__construct($model);
+        parent::__construct(\$model);
     }
 
     /* Public Methods *********************************************************/
@@ -200,18 +200,18 @@ class ${prefix}Component extends BaseComponent
      * class and the Controller class and passes them to the constructor of the
      * parent class.
      *
-     * @param array $services
+     * @param array \$services
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
-     * @param int $id
+     * @param int \$id
      *  The section id of this component.
      */
-    public function __construct($services, $id)
+    public function __construct(\$services, \$id)
     {
-        $model = new ${prefix}Model($services, $id);
-        $controller = new ${prefix}Controller($model);
-        $view = new ${prefix}View($model, $controller);
-        parent::__construct($model, $view, $controller);
+        \$model = new ${prefix}Model(\$services, \$id);
+        \$controller = new ${prefix}Controller(\$model);
+        \$view = new ${prefix}View(\$model, \$controller);
+        parent::__construct(\$model, \$view, \$controller);
     }
 }
 ?>
