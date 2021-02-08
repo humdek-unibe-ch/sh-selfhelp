@@ -477,6 +477,20 @@ class PageDb extends BaseDb
         return $this->query_db($sql);
     }
 
+    public function fetch_style_id_by_name($name)
+    {
+        $sql = "SELECT * FROM styles WHERE name = :name;";
+        $res = $this->query_db_first($sql, array( ":name" => $name));
+        return $res['id'];
+    }
+
+    public function fetch_field_id_by_name($name)
+    {
+        $sql = "SELECT * FROM fields WHERE name = :name;";
+        $res = $this->query_db_first($sql, array( ":name" => $name));
+        return $res['id'];
+    }
+
     /**
      * Get values from table and retrun them in array text values for select options
      * Example call fetch_table_as_select_values('groups', 'id', array('name'),'WHERE id=:gid', array(":gid"=>3))

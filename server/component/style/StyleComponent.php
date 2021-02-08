@@ -27,6 +27,11 @@ class StyleComponent extends BaseComponent
     /* Private Properties *****************************************************/
 
     /**
+     * The ID of the section.
+     */
+    private $id_section;
+
+    /**
      * The component instance of the style.
      */
     private $style = null;
@@ -55,6 +60,7 @@ class StyleComponent extends BaseComponent
      */
     public function __construct($services, $id, $params=array(), $id_page=-1)
     {
+        $this->id_section = $id;
         $model = null;
         $this->is_style_known = true;
         // get style name and type
@@ -116,6 +122,14 @@ class StyleComponent extends BaseComponent
     {
         return parent::has_access() && $this->is_style_known
             && $this->style->has_access();
+    }
+
+    /**
+     * Get the ID of the section.
+     */
+    public function get_id_section()
+    {
+        return $this->id_section;
     }
 
     /**

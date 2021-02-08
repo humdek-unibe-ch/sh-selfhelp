@@ -9,11 +9,11 @@
     <div class="card-body">
         <div class="d-flex align-items-center">
             <h1><span class="badge badge-<?php echo $color; ?> mr-3"><?php echo $score; ?></span></h1>
-            <span><?php echo $message ?></span>
+            <span class="messageBoard-message"><?php echo $message ?></span>
         </div>
         <div class="pl-3">
             <?php $this->output_message_replies($replies); ?>
         </div>
     </div>
-    <?php $this->output_message_footer($user); ?>
+    <?php $this->output_message_footer($user, $record_id); ?>
 </div>

@@ -4,13 +4,27 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../StyleView.php";
+require_once __DIR__ . "/../formUserInput/FormUserInputView.php";
 
 /**
  * The view class of the messageBoard style component.
  */
-class MessageBoardView extends StyleView
+class MessageBoardView extends FormUserInputView
 {
+    /* Private Properties *****************************************************/
+
+    /**
+     * DB field 'title' (empty string).
+     * The title of each message.
+     */
+    private $title;
+
+    /**
+     * DB field 'text' (empty string).
+     * The title of each message.
+     */
+    private $message;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -24,6 +38,8 @@ class MessageBoardView extends StyleView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
+        $this->title = $this->model->get_db_field("title");
+        $this->message = $this->model->get_db_field("text_md");
     }
 
     /* Private Methods ********************************************************/
@@ -33,132 +49,24 @@ class MessageBoardView extends StyleView
      */
     private function output_messages()
     {
-        $messages = array(
-            array(
-                "user" => 3,
-                "title" => "Simon's Highscore",
-                "message" => "My new highscore",
-                "time" => "2m",
-                "score" => "70",
-                "replies" => array(
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    )
-                )
-            ),
-            array(
-                "user" => 2,
-                "title" => "Hanueles's Highscore",
-                "message" => "My new highscore",
-                "time" => "32m",
-                "score" => "82",
-                "replies" => array(
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Baser",
-                        "messgae" => "Go for it my friend.",
-                        "time" => "just now"
-                    )
-                )
-            ),
-            array(
-                "user" => 2,
-                "title" => "Basers's Highscore",
-                "message" => "My new highscore",
-                "time" => "1h",
-                "score" => "94",
-                "replies" => array(
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Baser",
-                        "messgae" => "Go for it my friend.",
-                        "time" => "just now"
-                    )
-                )
-            ),
-            array(
-                "user" => 2,
-                "title" => "Basers's Highscore",
-                "message" => "My new highscore",
-                "time" => "1h",
-                "score" => "95",
-                "replies" => array()
-            ),
-            array(
-                "user" => 3,
-                "title" => "Simon's Highscore",
-                "message" => "My new highscore",
-                "time" => "3d",
-                "score" => "86",
-                "replies" => array(
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Hanuele",
-                        "messgae" => "Well Done!",
-                        "time" => "4m"
-                    ),
-                    array(
-                        "user" => "Baser",
-                        "messgae" => "Go for it my friend.",
-                        "time" => "just now"
-                    )
-                )
-            )
-        );
+        $messages = $this->model->get_scores();
 
         foreach($messages as $score_message)
         {
-            $title = $score_message['title'];
-            $message = $score_message['message'];
-            $time = $score_message['time'];
-            $score = $score_message['score'];
-            $replies = $score_message['replies'];
-            $user = $score_message['user'];
+            $title = str_replace("@publisher", $score_message['user_name'],
+                $this->title);
+            $message = $this->message;
+            $time = $score_message['create_time'];
+            $score = $score_message['value'];
+            $record_id = $score_message['record_id'];
+            $replies = $this->model->get_replies($record_id);
+            $user = $score_message['user_id'];
             $color = $_SESSION['id_user'] == $user ? "primary" : "success";
             require __DIR__ . "/tpl_message.php";
         }
     }
 
-    private function output_message_footer($user)
+    private function output_message_footer($user, $record_id)
     {
         if($_SESSION['id_user'] == $user)
             return;
@@ -174,18 +82,27 @@ class MessageBoardView extends StyleView
         require __DIR__ . "/tpl_message_footer.php";
     }
 
-    private function output_message_footer_comments($comments)
+    private function output_message_footer_comments($comments, $record_id)
     {
+        $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
+        $id_reply = $this->model->get_reply_input_section_id();
+        $id_link = $this->model->get_link_input_section_id();
+        $form_name = $this->model->get_form_name();
         foreach($comments as $comment)
         {
             require __DIR__ . "/tpl_comment.php";
         }
     }
 
-    private function output_message_footer_icons($icons)
+    private function output_message_footer_icons($icons, $record_id)
     {
+        $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
+        $id_reply = $this->model->get_reply_input_section_id();
+        $id_link = $this->model->get_link_input_section_id();
+        $form_name = $this->model->get_form_name();
         foreach($icons as $icon)
         {
+            $count = $this->model->get_icon_count($icon, $record_id);
             require __DIR__ . "/tpl_icon.php";
         }
     }
@@ -194,9 +111,9 @@ class MessageBoardView extends StyleView
     {
         foreach($replies as $reply)
         {
-            $user = $reply['user'];
-            $message = $reply['messgae'];
-            $time = $reply['time'];
+            $user = $reply['user_name'];
+            $message = $reply['value'];
+            $time = $reply['create_time'];
             require __DIR__ . "/tpl_reply.php";
         }
     }

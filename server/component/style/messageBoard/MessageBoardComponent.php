@@ -30,7 +30,9 @@ class MessageBoardComponent extends BaseComponent
     public function __construct($services, $id)
     {
         $model = new MessageBoardModel($services, $id);
-        $controller = new MessageBoardController($model);
+        $controller = null;
+        if(!$model->is_cms_page())
+            $controller = new MessageBoardController($model);
         $view = new MessageBoardView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
