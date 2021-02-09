@@ -15,5 +15,10 @@
             <?php $this->output_message_replies($reply_messages); ?>
         </div>
     </div>
-    <?php $this->output_message_footer($icon_counter, $user, $record_id); ?>
+    <div class="card-footer d-flex align-items-center">
+        <div>
+            <?php $this->output_message_footer_icons($user, $icon_counter, $record_id); ?>
+        </div>
+        <?php $this->output_message_footer_comments($user, $record_id); ?>
+    </div>
 </div>

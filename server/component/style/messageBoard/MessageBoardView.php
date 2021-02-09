@@ -97,12 +97,17 @@ class MessageBoardView extends FormUserInputView
 
     private function output_message_footer($icon_counter, $user, $record_id)
     {
-        if($_SESSION['id_user'] == $user)
-            return;
         require __DIR__ . "/tpl_message_footer.php";
     }
 
-    private function output_message_footer_comments($record_id)
+    private function output_message_footer_comments($user, $record_id)
+    {
+        if($_SESSION['id_user'] == $user)
+            return;
+        require __DIR__ . "/tpl_message_footer_comments.php";
+    }
+
+    private function output_message_footer_comment_options($record_id)
     {
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $id_reply = $this->model->get_reply_input_section_id();
@@ -114,8 +119,9 @@ class MessageBoardView extends FormUserInputView
         }
     }
 
-    private function output_message_footer_icons($icon_counter, $record_id)
+    private function output_message_footer_icons($user, $icon_counter, $record_id)
     {
+        $disabled_forced = $_SESSION['id_user'] == $user;
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
@@ -126,7 +132,8 @@ class MessageBoardView extends FormUserInputView
             $disabled = false;
             if(isset($icon_counter[$icon])) {
                 $count = $icon_counter[$icon]['count'];
-                $disabled = in_array($_SESSION['id_user'], $icon_counter[$icon]['users']);
+                $disabled = $disabled_forced ||
+                    in_array($_SESSION['id_user'], $icon_counter[$icon]['users']);
             }
             require __DIR__ . "/tpl_icon_form.php";
         }
