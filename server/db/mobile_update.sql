@@ -276,17 +276,6 @@ ALTER TABLE `scheduledJobs_qualtricsActions`
 ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
-CREATE TABLE `qualtricsReminders` (	
-	`id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL, 
-    `id_users` int(10) UNSIGNED ZEROFILL NOT NULL, 
-    `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL	
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-ALTER TABLE `qualtricsReminders`
-ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`, `id_scheduledJobs`);
-ALTER TABLE `qualtricsReminders`
-ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `qualtricsReminders`
-ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- add fields url to table notifications. It is used to navigate to a page when a notification is recieved
+ALTER TABLE notifications
+ADD COLUMN `url` VARCHAR(100) DEFAULT NULL;

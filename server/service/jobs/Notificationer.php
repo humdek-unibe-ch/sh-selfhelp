@@ -63,8 +63,10 @@ class Notificaitoner
             ->setBody($data['body'])
             ->setColor('#20F037')
             ->setSound("default")
-            ->setIcon("myIcon.png")
-            ->addData('key', 'value');
+            ->setIcon("myIcon.png");
+        if (isset($data['url'])) {
+            $notification->addData('url', $data['url']);
+        }
 
         // custom sound and custom icon must be in app package
         //     - custom sound file must be in /res/raw/
@@ -97,7 +99,7 @@ class Notificaitoner
                 WHERE sj_u.id_scheduledJobs = :sj_id";
         $notifications = $this->db->query_db($sql, array(":sj_id" => $notification_info['id']));
         foreach ($notifications as $notification) {
-            if($notification['device_token']){
+            if ($notification['device_token']) {
                 $res = $res && $this->send_notification($notification['device_token'], $notification_info);
                 $this->transaction->add_transaction(
                     $res ? transactionTypes_send_notification_ok : transactionTypes_send_notification_fail,
@@ -108,7 +110,7 @@ class Notificaitoner
                     false,
                     'Sending notification to ' . $notification['email']
                 );
-            }else{
+            } else {
                 $this->transaction->add_transaction(
                     transactionTypes_send_notification_fail,
                     $sent_by,
@@ -140,8 +142,9 @@ class Notificaitoner
         try {
             $this->db->begin_transaction();
             $notification = array(
-                "body"=>$data['body'],
-                "subject"=>$data['subject'],
+                "body" => $data['body'],
+                "subject" => $data['subject'],
+                "url" => $data['url'],
             );
             $notification_id = $this->db->insert('notifications', $notification);
             if ($notification_id) {

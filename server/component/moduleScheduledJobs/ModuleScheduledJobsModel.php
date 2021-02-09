@@ -141,7 +141,7 @@ class ModuleScheduledJobsModel extends BaseModel
             return false;
         }
     }
-    
+
     /**
      * Get all active users;
      * @retval array
@@ -265,6 +265,7 @@ class ModuleScheduledJobsModel extends BaseModel
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
             "date_to_be_executed" => date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $data['time_to_be_sent'])->getTimestamp()),
             "recipients" => $uids,
+            "url" => isset($data['url']) ? $data['url'] : null,
             "subject" => $data['subject'],
             "body" => $data['body'],
             "description" => "Compose Notification"

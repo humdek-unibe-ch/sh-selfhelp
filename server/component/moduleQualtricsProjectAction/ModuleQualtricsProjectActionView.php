@@ -273,6 +273,15 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "placeholder" => "reply to email",
                 )),
                 new BaseStyleComponent("input", array(
+                    "label" => "URL",
+                    "type_input" => "text",
+                    "id" => "url",
+                    "name" => "schedule_info[url]",
+                    "value" => isset($this->action["schedule_info"]['url']) ? $this->action["schedule_info"]['url'] : '',
+                    "is_required" => false,
+                    "placeholder" => "Url of the page that should be opened",
+                )),
+                new BaseStyleComponent("input", array(
                     "label" => "To",
                     "type_input" => "text",
                     "name" => "schedule_info[recipient]",
@@ -434,6 +443,14 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "css" => "mt-3",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['from_email']) ? $this->action["schedule_info"]['from_email'] : ''
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "URL",
+                    "locale" => "",
+                    "id" => "url",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => isset($this->action["schedule_info"]['url']) ? $this->action["schedule_info"]['url'] : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(

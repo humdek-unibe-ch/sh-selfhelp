@@ -406,11 +406,11 @@ class CallbackQualtrics extends BaseCallback
                     $res = $this->queue_notification($data, $user_id, $action);
                     $result = array_merge($result, $res['result']);
                 }
-                if(isset($res['sj_id'])){
-                   $this->db->insert('scheduledJobs_qualtricsActions', array(
-                       "id_scheduledJobs" => $res['sj_id'],
-                       "id_qualtricsActions" => $action['id'],
-                   )); 
+                if (isset($res['sj_id'])) {
+                    $this->db->insert('scheduledJobs_qualtricsActions', array(
+                        "id_scheduledJobs" => $res['sj_id'],
+                        "id_qualtricsActions" => $action['id'],
+                    ));
                 }
             }
         }
@@ -537,6 +537,7 @@ class CallbackQualtrics extends BaseCallback
             "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
             "recipients" => array($user_id),
             "subject" => $schedule_info['subject'],
+            "url" => isset($schedule_info['url']) ? $schedule_info['url'] : null,
             "body" => $body,
             "description" => "Schedule notification by Qualtrics Callback",
         );

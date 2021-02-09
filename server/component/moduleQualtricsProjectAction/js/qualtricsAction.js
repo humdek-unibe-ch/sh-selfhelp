@@ -93,10 +93,12 @@ function adjustNotificationTypes() {
         $('.style-section-from_email').addClass('d-none');
         $('.style-section-from_name').addClass('d-none');
         $('.style-section-reply_to').addClass('d-none');
+        $('.style-section-url').removeClass('d-none');
     }else{
         $('.style-section-from_email').removeClass('d-none');
         $('.style-section-from_name').removeClass('d-none');
         $('.style-section-reply_to').removeClass('d-none');
+        $('.style-section-url').addClass('d-none');
     }
 }
 

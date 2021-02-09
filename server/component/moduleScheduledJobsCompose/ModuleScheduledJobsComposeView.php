@@ -144,6 +144,13 @@ class ModuleScheduledJobsComposeView extends BaseView
                             )
                         )),
                         new BaseStyleComponent("input", array(
+                            "label" => "URL",
+                            "type_input" => "text",
+                            "name" => "url",
+                            "is_required" => false,
+                            "placeholder" => "Url of the page that should be opened",
+                        )),
+                        new BaseStyleComponent("input", array(
                             "label" => "Subject",
                             "type_input" => "text",
                             "name" => "subject",

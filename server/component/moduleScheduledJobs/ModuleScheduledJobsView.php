@@ -208,6 +208,13 @@ class ModuleScheduledJobsView extends BaseView
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
+                    "title" => "URL",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['url']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
                     "title" => "Subject",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
