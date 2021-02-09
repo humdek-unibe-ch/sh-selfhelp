@@ -7,7 +7,7 @@
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/MessageBoardView.php";
 require_once __DIR__ . "/MessageBoardModel.php";
-require_once __DIR__ . "/MessageBoardController.php";
+require_once __DIR__ . "/../formUserInput/FormUserInputController.php";
 
 /**
  * The class to define the component of the style messageBoard.
@@ -30,9 +30,11 @@ class MessageBoardComponent extends BaseComponent
     public function __construct($services, $id)
     {
         $model = new MessageBoardModel($services, $id);
+        if($model == null)
+            return;
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new MessageBoardController($model);
+            $controller = new FormUserInputController($model);
         $view = new MessageBoardView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
