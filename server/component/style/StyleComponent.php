@@ -157,14 +157,57 @@ class StyleComponent extends BaseComponent
     }
 
     /**
-     * A wrapper function to call the model cms update callback.
+     * A wrapper function to call the model cms create callback after the
+     * creation takes place.
+     *
      * @param object $cms_model
      *  The CMS model instance. This is handy to perform operations on db
      *  fields and such.
+     * @param string $section_name
+     *  The name of the new section.
+     * @param int $section_style_id
+     *  The style ID of the new section.
+     * @param string $relation
+     *  The database relation to know whether the link targets the navigation
+     *  or children list and whether the parent is a page or a section.
+     * @param int $id
+     *  The ID of the new section.
      */
-    public function cms_update_callback($cms_model)
+    public function cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id)
     {
-        $this->model->cms_update_callback($cms_model);
+        $this->model->cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback after the
+     * update takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param array $data
+     *  The submitted data fields to be updated
+     */
+    public function cms_post_update_callback($cms_model, $data)
+    {
+        $this->model->cms_post_update_callback($cms_model, $data);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback before the
+     * update takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param array $data
+     *  The submitted data fields to be updated
+     */
+    public function cms_pre_update_callback($cms_model, $data)
+    {
+        $this->model->cms_pre_update_callback($cms_model, $data);
     }
 }
 ?>
