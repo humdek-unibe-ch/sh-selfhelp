@@ -519,14 +519,14 @@ class GraphSankeyModel extends GraphModel
      * @param object $cms_model
      *  The CMS model instance.
      */
-    public function cms_update_callback($cms_model)
+    public function cms_post_update_callback($cms_model, $data)
     {
         /* $data = $this->read_sample_csv(); */
         $data = $this->read_data_source();
         if($data !== false) {
             $raw_data = json_encode($this->prepare_sankey_data(
                 $data, $this->data_cols, $this->data_types));
-            $cms_model->update_db($this->db->fetch_field_id("raw"),
+            $cms_model->update_db($this->db->fetch_field_id_by_name("raw"),
                 ALL_LANGUAGE_ID, MALE_GENDER_ID, $raw_data, "section_field");
         }
     }
