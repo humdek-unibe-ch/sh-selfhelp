@@ -102,7 +102,7 @@ class PageDb extends BaseDb
      * @retval mixed
      *  The id of the filed or false on failure
      */
-    public function fetch_field_id($name)
+    public function fetch_field_id_by_name($name)
     {
         $sql = "SELECT id FROM fields WHERE name = :name";
         $res = $this->query_db_first($sql, array('name' => $name));
@@ -477,17 +477,19 @@ class PageDb extends BaseDb
         return $this->query_db($sql);
     }
 
+    /**
+     * Fetch the id of a style given the name of the style
+     *
+     * @param string $name
+     *  The name of the style.
+     * @retval mixed
+     *  The id of the style or false on failure
+     */
     public function fetch_style_id_by_name($name)
     {
         $sql = "SELECT * FROM styles WHERE name = :name;";
         $res = $this->query_db_first($sql, array( ":name" => $name));
-        return $res['id'];
-    }
-
-    public function fetch_field_id_by_name($name)
-    {
-        $sql = "SELECT * FROM fields WHERE name = :name;";
-        $res = $this->query_db_first($sql, array( ":name" => $name));
+        if(!$res) return false;
         return $res['id'];
     }
 
