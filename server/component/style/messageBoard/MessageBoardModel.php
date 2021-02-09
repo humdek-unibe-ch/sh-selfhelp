@@ -67,30 +67,11 @@ class MessageBoardModel extends FormUserInputModel
     {
         parent::__construct($services, $id);
         $this->form_name = $this->get_db_field("form_name", null);
-        if(!$this->form_name)
-            return null;
-
-        // dynamically set the DB field `name` to the name of the reply form
-        $this->name = $this->get_db_field("name", null);
-        if(!$this->name)
-        {
-            $this->name = $this->form_name . "_replies";
-            $id_field = $this->db->fetch_field_id_by_name("name");
-            $this->add_section_field($id, $id_field, $this->name);
-        }
-        // dynamically set the DB field `is_log` to `1`
-        $is_log = $this->get_db_field("is_log", null);
-        if(!$is_log)
-        {
-            $id_field = $this->db->fetch_field_id_by_name("is_log");
-            $this->add_section_field($id, $id_field, 1);
-        }
+        $this->name = $this->get_db_field("name");
         $this->reply_input_name = $this->name . "_reply";
         $this->link_input_name = $this->name . "_link";
         $this->score_input_name = $this->form_name . "_publish";
-        // dynamically add child sections of style input to allow submitting
-        // replies.
-        $this->init_children($id);
+        $this->init_children_ids($id);
     }
 
     /* Private Methods ********************************************************/
@@ -111,7 +92,7 @@ class MessageBoardModel extends FormUserInputModel
      * @retval int
      *  The ID of the new section.
      */
-    private function add_section_child_input($id, $id_style, $id_field, $name)
+    private function add_section_child($id, $id_style, $id_field, $name)
     {
         $new_id = $this->db->insert("sections", array(
             "name" => $name,
@@ -121,7 +102,6 @@ class MessageBoardModel extends FormUserInputModel
             "parent" => $id,
             "child" => $new_id
         ));
-        $this->add_section_field($new_id, $id_field, $name);
 
         return $new_id;
     }
@@ -152,30 +132,18 @@ class MessageBoardModel extends FormUserInputModel
      * @param int $id
      *  The ID of this section.
      */
-    private function init_children($id)
+    private function init_children_ids($id)
     {
-        if( count($this->children ) == 0 )
+        foreach($this->children as $input)
         {
-            $id_field = $this->db->fetch_field_id_by_name("name");
-            $id_style = $this->db->fetch_style_id_by_name("input");
-            $this->link_input_section_id = $this->add_section_child_input($id,
-                $id_style, $id_field, $this->link_input_name);
-            $this->reply_input_section_id = $this->add_section_child_input($id,
-                $id_style, $id_field, $this->reply_input_name);
-        }
-        else
-        {
-            foreach($this->children as $input)
+            $section_name = $input->get_model()->get_section_name();
+            if($section_name == $this->section_name . "_link")
             {
-                $section_name = $input->get_model()->get_section_name();
-                if($section_name == $this->link_input_name)
-                {
-                    $this->link_input_section_id = $input->get_id_section();
-                }
-                else if($section_name == $this->reply_input_name)
-                {
-                    $this->reply_input_section_id = $input->get_id_section();
-                }
+                $this->link_input_section_id = $input->get_id_section();
+            }
+            else if($section_name == $this->section_name . "_reply")
+            {
+                $this->reply_input_section_id = $input->get_id_section();
             }
         }
     }
@@ -211,6 +179,54 @@ class MessageBoardModel extends FormUserInputModel
     /* Public Methods *********************************************************/
 
     /**
+     * Overwrites the parent definition. This is called after the creation of
+     * the section. Here the hidden style fields are added and preset.
+     */
+    public function cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id)
+    {
+        $id_field = $this->db->fetch_field_id_by_name("is_log");
+        $this->add_section_field($id, $id_field, 1);
+
+        $id_field = $this->db->fetch_field_id_by_name("name");
+        $this->add_section_field($id, $id_field, "");
+
+        $id_style = $this->db->fetch_style_id_by_name("input");
+        $this->link_input_section_id = $this->add_section_child(
+            $this->section_id, $id_style, $id_field,
+            $this->section_name . "_link");
+        $this->add_section_field($this->link_input_section_id, $id_field, "");
+
+        $this->reply_input_section_id = $this->add_section_child(
+            $this->section_id, $id_style, $id_field,
+            $this->section_name . "_reply");
+        $this->add_section_field($this->reply_input_section_id, $id_field, "");
+    }
+
+    /**
+     * Overwrites the parent definition. This is called after the creation of
+     * the section. Here the hidden style fields are added and preset.
+     */
+    public function cms_pre_update_callback($cms_model, $data)
+    {
+        if(!isset($data['form_name'][ALL_LANGUAGE_ID][MALE_GENDER_ID]['content'])) {
+            return;
+        }
+        $new_form_name = $data['form_name'][ALL_LANGUAGE_ID][MALE_GENDER_ID]['content'];
+        if($new_form_name !== $this->form_name) {
+            $id_field = $this->db->fetch_field_id_by_name("name");
+            $cms_model->update_section_fields_db($id_field, ALL_LANGUAGE_ID,
+                MALE_GENDER_ID, $new_form_name . "_replies", $this->section_id);
+            $cms_model->update_section_fields_db($id_field, ALL_LANGUAGE_ID,
+                MALE_GENDER_ID, $new_form_name . "_replies_link",
+                $this->link_input_section_id);
+            $cms_model->update_section_fields_db($id_field, ALL_LANGUAGE_ID,
+                MALE_GENDER_ID, $new_form_name . "_replies_reply",
+                $this->reply_input_section_id);
+        }
+    }
+
+    /**
      * Get all score records which were submitted by all users.
      *
      * @retval array
@@ -219,7 +235,7 @@ class MessageBoardModel extends FormUserInputModel
      *   - `user_name`: The name of the user who submitted the score.
      *   - `create_time`: The time of creation of the score record.
      *   - `value`: The score value.
-     *  - `record_id`: The ID of the score record.
+     *   - `record_id`: The ID of the score record.
      */
     public function get_scores($limit)
     {
