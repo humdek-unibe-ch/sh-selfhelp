@@ -1,4 +1,4 @@
-<div class="card bg-light mb-3">
+<div id="message-<?php echo $this->id_section . '-' . $record_id; ?>" class="card bg-light mb-3">
     <div class="card-header">
         <h5 class="mb-0 d-flex align-items-center">
             <i class="fas fa-chart-line mr-3"></i>

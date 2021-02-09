@@ -109,7 +109,7 @@ class MessageBoardView extends FormUserInputView
 
     private function output_message_footer_comment_options($record_id)
     {
-        $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
+        $url = $_SERVER['REQUEST_URI'] . '#message-' . $this->id_section . '-' . $record_id;
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
         $form_name = $this->model->get_form_name();
@@ -122,7 +122,7 @@ class MessageBoardView extends FormUserInputView
     private function output_message_footer_icons($user, $icon_counter, $record_id)
     {
         $disabled_forced = $_SESSION['id_user'] == $user;
-        $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
+        $url = $_SERVER['REQUEST_URI'] . '#message-' . $this->id_section . '-' . $record_id;
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
         $form_name = $this->model->get_form_name();
