@@ -244,12 +244,13 @@ class MessageBoardModel extends FormUserInputModel
                 FROM view_user_input AS ui
                 LEFT JOIN user_input_record AS uir ON ui.record_id = uir.id
                 WHERE form_name = :form_name AND field_name = :field_name
-                ORDER BY ui.record_id DESC
-                ) AS T1 ORDER BY T1.record_id";
+                ORDER BY ui.record_id DESC";
 
         if($limit) {
             $sql .= " LIMIT $limit";
         }
+
+        $sql .= ") AS T1 ORDER BY T1.record_id";
 
         return $this->db->query_db($sql, array(
             ":form_name" => $this->form_name,

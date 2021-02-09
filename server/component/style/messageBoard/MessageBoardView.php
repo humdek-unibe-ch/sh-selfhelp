@@ -58,7 +58,7 @@ class MessageBoardView extends FormUserInputView
         parent::__construct($model, $controller);
         $this->title = $this->model->get_db_field("title");
         $this->message = $this->model->get_db_field("text_md");
-        $this->limit = $this->model->get_db_field("limit", 10);
+        $this->limit = $this->model->get_db_field("limit", 0);
         $this->icons = $this->model->get_db_field("icons", array());
         if(!is_array($this->icons)) {
             $this->icons = array();
