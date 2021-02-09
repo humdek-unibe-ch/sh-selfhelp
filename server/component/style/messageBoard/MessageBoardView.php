@@ -26,7 +26,7 @@ class MessageBoardView extends FormUserInputView
     private $message;
 
     /**
-     * DB field 'limit' (0).
+     * DB field 'max' (0).
      * The maximal number of messages to be shown.
      */
     private $limit;
@@ -58,7 +58,7 @@ class MessageBoardView extends FormUserInputView
         parent::__construct($model, $controller);
         $this->title = $this->model->get_db_field("title");
         $this->message = $this->model->get_db_field("text_md");
-        $this->limit = $this->model->get_db_field("limit", 0);
+        $this->limit = $this->model->get_db_field("max", 0);
         $this->icons = $this->model->get_db_field("icons", array());
         if(!is_array($this->icons)) {
             $this->icons = array();
