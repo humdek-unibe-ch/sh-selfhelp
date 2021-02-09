@@ -25,6 +25,24 @@ class MessageBoardView extends FormUserInputView
      */
     private $message;
 
+    /**
+     * DB field 'limit' (0).
+     * The maximal number of messages to be shown.
+     */
+    private $limit;
+
+    /**
+     * DB field 'icons' (empty array).
+     * A list of icons to be shown in the message footer.
+     */
+    private $icons;
+
+    /**
+     * DB field 'comments' (empty array).
+     * A list of expressions to be shown in the message footer.
+     */
+    private $comments;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -40,16 +58,25 @@ class MessageBoardView extends FormUserInputView
         parent::__construct($model, $controller);
         $this->title = $this->model->get_db_field("title");
         $this->message = $this->model->get_db_field("text_md");
+        $this->limit = $this->model->get_db_field("limit", 10);
+        $this->icons = $this->model->get_db_field("icons", array());
+        if(!is_array($this->icons)) {
+            $this->icons = array();
+        }
+        $this->comments = $this->model->get_db_field("comments", array());
+        if(!is_array($this->comments)) {
+            $this->comments = array();
+        }
     }
 
     /* Private Methods ********************************************************/
 
     /**
-     * 
+     * Render the messages to the message board.
      */
     private function output_messages()
     {
-        $messages = $this->model->get_scores();
+        $messages = $this->model->get_scores(intval($this->limit));
 
         foreach($messages as $score_message)
         {
@@ -59,56 +86,57 @@ class MessageBoardView extends FormUserInputView
             $time = $score_message['create_time'];
             $score = $score_message['value'];
             $record_id = $score_message['record_id'];
-            $replies = $this->model->get_replies($record_id);
+            $replies = $this->model->get_replies($record_id, $this->icons);
+            $reply_messages = $replies['reply_messages'];
+            $icon_counter = $replies['icon_counter'];
             $user = $score_message['user_id'];
             $color = $_SESSION['id_user'] == $user ? "primary" : "success";
             require __DIR__ . "/tpl_message.php";
         }
     }
 
-    private function output_message_footer($user, $record_id)
+    private function output_message_footer($icon_counter, $user, $record_id)
     {
         if($_SESSION['id_user'] == $user)
             return;
-        $icons = [
-            "thumbs-up",
-            "laugh",
-            "heart"
-        ];
-        $comments = [
-            "Well Done!",
-            "Go for it my friend."
-        ];
         require __DIR__ . "/tpl_message_footer.php";
     }
 
-    private function output_message_footer_comments($comments, $record_id)
+    private function output_message_footer_comments($record_id)
     {
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
         $form_name = $this->model->get_form_name();
-        foreach($comments as $comment)
+        foreach($this->comments as $comment)
         {
             require __DIR__ . "/tpl_comment.php";
         }
     }
 
-    private function output_message_footer_icons($icons, $record_id)
+    private function output_message_footer_icons($icon_counter, $record_id)
     {
         $url = $_SERVER['REQUEST_URI'] . '#section-' . $this->id_section;
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
         $form_name = $this->model->get_form_name();
-        foreach($icons as $icon)
+        foreach($this->icons as $icon)
         {
-            $count = $this->model->get_icon_count($icon, $record_id);
-            require __DIR__ . "/tpl_icon.php";
+            $count = 0;
+            $disabled = false;
+            if(isset($icon_counter[$icon])) {
+                $count = $icon_counter[$icon]['count'];
+                $disabled = in_array($_SESSION['id_user'], $icon_counter[$icon]['users']);
+            }
+            require __DIR__ . "/tpl_icon_form.php";
         }
     }
 
     private function output_message_replies($replies)
     {
+        if(!$replies) {
+            return;
+        }
         foreach($replies as $reply)
         {
             $user = $reply['user_name'];
@@ -118,6 +146,20 @@ class MessageBoardView extends FormUserInputView
         }
     }
 
+    private function output_message_reply($message)
+    {
+        if(in_array($message, $this->icons)) {
+            $this->output_icon($message);
+        } else {
+            echo $message;
+        }
+    }
+
+    private function output_icon($icon)
+    {
+        require __DIR__ . "/tpl_icon.php";
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -125,7 +167,6 @@ class MessageBoardView extends FormUserInputView
      */
     public function output_content()
     {
-
         require __DIR__ . "/tpl_messageBoard.php";
     }
 }

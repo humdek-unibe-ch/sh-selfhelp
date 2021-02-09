@@ -1,6 +1,6 @@
 <div class="card-footer d-flex align-items-center">
     <div>
-        <?php $this->output_message_footer_icons($icons, $record_id) ?>
+        <?php $this->output_message_footer_icons($icon_counter, $record_id); ?>
     </div>
     <div class="ml-auto">
         <div class="dropdown">
@@ -8,7 +8,7 @@
                 Comment
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <?php $this->output_message_footer_comments($comments, $record_id) ?>
+                <?php $this->output_message_footer_comments($record_id); ?>
             </div>
         </div>
     </div>

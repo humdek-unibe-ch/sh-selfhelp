@@ -12,8 +12,8 @@
             <span class="messageBoard-message"><?php echo $message ?></span>
         </div>
         <div class="pl-3">
-            <?php $this->output_message_replies($replies); ?>
+            <?php $this->output_message_replies($reply_messages); ?>
         </div>
     </div>
-    <?php $this->output_message_footer($user, $record_id); ?>
+    <?php $this->output_message_footer($icon_counter, $user, $record_id); ?>
 </div>
