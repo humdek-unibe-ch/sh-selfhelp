@@ -83,7 +83,8 @@ class MessageBoardView extends FormUserInputView
             $title = str_replace("@publisher", $score_message['user_name'],
                 $this->title);
             $message = $this->message;
-            $time = $score_message['create_time'];
+            $ts = $score_message['create_time'];
+            $time = $this->model->convert_timestamp($ts);
             $score = $score_message['value'];
             $record_id = $score_message['record_id'];
             $replies = $this->model->get_replies($record_id, $this->icons);
@@ -148,7 +149,8 @@ class MessageBoardView extends FormUserInputView
         {
             $user = $reply['user_name'];
             $message = $reply['value'];
-            $time = $reply['create_time'];
+            $ts = $reply['create_time'];
+            $time = $this->model->convert_timestamp($ts);
             require __DIR__ . "/tpl_reply.php";
         }
     }

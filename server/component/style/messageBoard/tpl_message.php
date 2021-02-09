@@ -3,7 +3,7 @@
         <h5 class="mb-0 d-flex align-items-center">
             <i class="fas fa-chart-line mr-3"></i>
             <?php echo $title; ?>
-            <small class="text-muted ml-auto"><?php echo $time; ?></small>
+            <small class="text-muted ml-auto" title="<?php echo $ts; ?>"><?php echo $time; ?></small>
         </h5>
     </div>
     <div class="card-body">
