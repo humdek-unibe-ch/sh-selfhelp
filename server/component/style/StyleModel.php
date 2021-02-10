@@ -17,9 +17,14 @@ class StyleModel extends BaseModel implements IStyleModel
     /* Private Properties *****************************************************/
 
     /**
+     * The ID of the section.
+     */
+    protected $section_id;
+
+    /**
      * The name of the section.
      */
-    private $section_name;
+    protected $section_name;
 
     /**
      * The name of the style associated to the section.
@@ -60,6 +65,7 @@ class StyleModel extends BaseModel implements IStyleModel
     public function __construct($services, $id, $params=array(), $id_page=-1)
     {
         parent::__construct($services);
+        $this->section_id = $id;
         if($this->is_cms_page())
         {
             if($_SESSION['cms_gender'] !== "both")
@@ -460,10 +466,23 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
-     * This function is called whenever the style component is updated via the
+     * This function is called after the style component is created via the
      * CMS. Redefine within the style.
      */
-    public function cms_update_callback($model) { }
+    public function cms_post_create_callback($model, $section_name,
+        $section_style_id, $relation, $id) { }
+
+    /**
+     * This function is called after the style component is updated via the
+     * CMS. Redefine within the style.
+     */
+    public function cms_post_update_callback($model, $data) { }
+
+    /**
+     * This function is called before the style component is updated via the
+     * CMS. Redefine within the style.
+     */
+    public function cms_pre_update_callback($model, $data) { }
 
      /**
      * Retrieve the data based on the JSON configuration

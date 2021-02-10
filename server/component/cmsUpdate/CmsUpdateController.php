@@ -68,16 +68,22 @@ class CmsUpdateController extends BaseController
         $this->remove_fail= false;
         $this->bad_fields = array();
         if(!isset($_POST['mode'])) return;
-        else if($_POST['mode'] == "update" && isset($_POST["fields"]))
+        if($_POST['mode'] == "update" && isset($_POST["fields"]))
         {
-            $this->update($_POST["fields"]);
+            $style = null;
             $section_id = $this->model->get_active_section_id();
             if($section_id != null) {
                 $style = new StyleComponent(
                     $this->model->get_services(),
                     $section_id
                 );
-                $style->cms_update_callback($model);
+            }
+            if($style != null) {
+                $style->cms_pre_update_callback($model, $_POST["fields"]);
+            }
+            $res = $this->update($_POST["fields"], $style);
+            if($res && $style != null) {
+                $style->cms_post_update_callback($model, $_POST["fields"]);
             }
         } else if (
             $_POST['mode'] == "insert"
@@ -181,8 +187,13 @@ class CmsUpdateController extends BaseController
                 $_POST['relation']);
 
         else if(isset($_POST['section-name']) && isset($_POST['section-style']))
-            $this->insert_new_section(htmlspecialchars($_POST['section-name']),
-                intval($_POST['section-style']), $_POST['relation']);
+        {
+            $section_name = htmlspecialchars($_POST['section-name']);
+            $section_style_id = intval($_POST['section-style']);
+            $relation = $_POST['relation'];
+            $id = $this->insert_new_section($section_name, $section_style_id,
+                $relation);
+        }
 
     }
 
@@ -222,6 +233,11 @@ class CmsUpdateController extends BaseController
     private function insert_new_section($name, $id_style, $relation)
     {
         $new_id = $this->model->insert_new_section($name, $id_style, $relation);
+        if($new_id != null) {
+            $style = new StyleComponent($this->model->get_services(), $new_id);
+            $style->cms_post_create_callback($this->model, $name,
+                $id_style, $relation, $new_id);
+        }
         if($new_id)
         {
             $this->insert_success = true;
@@ -274,6 +290,9 @@ class CmsUpdateController extends BaseController
      *   'id':      The id of the field.
      *   'content'  The content of the field.
      *   'relation' The database relation of the field.
+     * @retval boolean
+     *  True if all updates were successful, false if the update did not take
+     *  place.
      */
     private function update($fields)
     {
@@ -325,8 +344,11 @@ class CmsUpdateController extends BaseController
                 }
             }
         }
-        if($this->update_success_count >= 0 && $this->update_fail_count == 0)
+        if($this->update_success_count >= 0 && $this->update_fail_count == 0) {
             $this->model->set_mode("select");
+            return true;
+        }
+        return false;
     }
 
     /**
