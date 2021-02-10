@@ -277,15 +277,20 @@ class MessageBoardModel extends FormUserInputModel
         foreach($icons as $icon) {
             $icon_counter[$icon] = array(
                 "count" => 0,
-                "users" => array()
+                "users" => array(),
+                "user_names" => array(),
+                "disabled" => false
             );
         }
 
-        foreach($replies as $reply) {
-            if(in_array($reply['value'], $icons)) {
+        foreach ($replies as $reply) {
+            if (in_array($reply['value'], $icons)) {
                 $icon_counter[$reply['value']]['count']++;
-                array_push($icon_counter[$reply['value']]['users'],
-                    $reply['user_id']);
+                array_push($icon_counter[$reply['value']]['users'], $reply['user_id']);
+                array_push($icon_counter[$reply['value']]['user_names'], $reply['user_name']);
+                if(in_array($_SESSION['id_user'], $icon_counter[$reply['value']]['users'])){
+                    $icon_counter[$reply['value']]['disabled'] = true;
+                };
             } else {
                 array_push($filtered_replies, $reply);
             }

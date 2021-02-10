@@ -60,11 +60,11 @@ class MessageBoardView extends FormUserInputView
         $this->message = $this->model->get_db_field("text_md");
         $this->limit = $this->model->get_db_field("max", 0);
         $this->icons = $this->model->get_db_field("icons", array());
-        if(!is_array($this->icons)) {
+        if (!is_array($this->icons)) {
             $this->icons = array();
         }
         $this->comments = $this->model->get_db_field("comments", array());
-        if(!is_array($this->comments)) {
+        if (!is_array($this->comments)) {
             $this->comments = array();
         }
     }
@@ -74,14 +74,16 @@ class MessageBoardView extends FormUserInputView
     /**
      * Render the messages to the message board.
      */
-    private function output_messages()
+    private function output_messages($mobile = false)
     {
         $messages = $this->model->get_scores(intval($this->limit));
-
-        foreach($messages as $score_message)
-        {
-            $title = str_replace("@publisher", $score_message['user_name'],
-                $this->title);
+        $mobile_messages = array();
+        foreach ($messages as $score_message) {
+            $title = str_replace(
+                "@publisher",
+                $score_message['user_name'],
+                $this->title
+            );
             $message = $this->message;
             $ts = $score_message['create_time'];
             $time = $this->model->convert_timestamp($ts);
@@ -92,7 +94,30 @@ class MessageBoardView extends FormUserInputView
             $icon_counter = $replies['icon_counter'];
             $user = $score_message['user_id'];
             $color = $_SESSION['id_user'] == $user ? "primary" : "success";
-            require __DIR__ . "/tpl_message.php";
+            if ($mobile) {
+                if ($reply_messages) {     
+                    foreach ($reply_messages as $key => $reply) {
+                        $reply_messages[$key]['time'] = $this->model->convert_timestamp($reply['create_time']);
+                    }
+                }
+                $mobile_messages[] = array(
+                    'ts' => $ts,
+                    'time' => $time,
+                    'score' => $score,
+                    'record_id' => $record_id,
+                    'reply_messages' => $reply_messages,
+                    'icon_counter' => $icon_counter,
+                    'user' => $score_message['user_name'],
+                    'color' => $color,
+                    'url' => str_replace(BASE_PATH, '', $_SERVER['REQUEST_URI']) . '#message-' . $this->id_section . '-' . $record_id
+                );
+            }
+            if (!$mobile) {
+                require __DIR__ . "/tpl_message.php";
+            }
+        }
+        if ($mobile) {
+            return $mobile_messages;
         }
     }
 
@@ -103,7 +128,7 @@ class MessageBoardView extends FormUserInputView
 
     private function output_message_footer_comments($user, $record_id)
     {
-        if($_SESSION['id_user'] == $user)
+        if ($_SESSION['id_user'] == $user)
             return;
         require __DIR__ . "/tpl_message_footer_comments.php";
     }
@@ -114,8 +139,7 @@ class MessageBoardView extends FormUserInputView
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
         $form_name = $this->model->get_form_name();
-        foreach($this->comments as $comment)
-        {
+        foreach ($this->comments as $comment) {
             require __DIR__ . "/tpl_comment.php";
         }
     }
@@ -127,11 +151,10 @@ class MessageBoardView extends FormUserInputView
         $id_reply = $this->model->get_reply_input_section_id();
         $id_link = $this->model->get_link_input_section_id();
         $form_name = $this->model->get_form_name();
-        foreach($this->icons as $icon)
-        {
+        foreach ($this->icons as $icon) {
             $count = 0;
             $disabled = false;
-            if(isset($icon_counter[$icon])) {
+            if (isset($icon_counter[$icon])) {
                 $count = $icon_counter[$icon]['count'];
                 $disabled = $disabled_forced ||
                     in_array($_SESSION['id_user'], $icon_counter[$icon]['users']);
@@ -142,11 +165,10 @@ class MessageBoardView extends FormUserInputView
 
     private function output_message_replies($replies)
     {
-        if(!$replies) {
+        if (!$replies) {
             return;
         }
-        foreach($replies as $reply)
-        {
+        foreach ($replies as $reply) {
             $user = $reply['user_name'];
             $message = $reply['value'];
             $ts = $reply['create_time'];
@@ -157,7 +179,7 @@ class MessageBoardView extends FormUserInputView
 
     private function output_message_reply($message)
     {
-        if(in_array($message, $this->icons)) {
+        if (in_array($message, $this->icons)) {
             $this->output_icon($message);
         } else {
             echo $message;
@@ -177,6 +199,16 @@ class MessageBoardView extends FormUserInputView
     public function output_content()
     {
         require __DIR__ . "/tpl_messageBoard.php";
+    }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['messages'] = $this->output_messages(true);
+        $style['id_section'] = $this->id_section;
+        $style['id_reply'] = $this->model->get_reply_input_section_id();
+        $style['id_link'] = $this->model->get_link_input_section_id();
+        return $style;
     }
 }
 ?>
