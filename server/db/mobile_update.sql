@@ -168,19 +168,25 @@ ADD `id_scheduledJobs` INT(10 ) UNSIGNED ZEROFILL NOT NULL;
 UPDATE qualtricsReminders
 SET id_scheduledJobs = (SELECT id_scheduledJobs FROM scheduledJobs_mailQueue sjmq WHERE sjmq.id_mailQueue = id_mailQueue);
 
+ALTER TABLE qualtricsReminders
+DROP FOREIGN KEY qualtricsReminders_fk_id_mailQueue;
+ALTER TABLE qualtricsReminders
+DROP FOREIGN KEY qualtricsReminders_fk_id_qualtricsSurveys;
+ALTER TABLE qualtricsReminders
+DROP FOREIGN KEY qualtricsReminders_fk_id_users;
+
 ALTER TABLE `qualtricsReminders`
 DROP PRIMARY KEY;
 ALTER TABLE `qualtricsReminders`
 ADD PRIMARY KEY (`id_qualtricsSurveys`,`id_users`, `id_scheduledJobs`);
 
 ALTER TABLE qualtricsReminders
-DROP FOREIGN KEY qualtricsReminders_fk_id_mailQueue;
-
-ALTER TABLE qualtricsReminders
 DROP COLUMN id_mailQueue;
 
 ALTER TABLE `qualtricsReminders`
-ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add transactionBy
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_anonymous_user', 'By anonymous user', 'The action was done by an anonymous user');
