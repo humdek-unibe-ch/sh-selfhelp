@@ -141,12 +141,14 @@ class StyleModel extends BaseModel implements IStyleModel
                     // if specific filter is used, overwrite it.
                     $filter = $config['filter'];
                 }
+                $current_user = isset($config['current_user']) && $config['current_user'];
                 $data = $config['type'] === 'static' ? $this->get_static_data(
                     $table_id,
-                    $filter
+                    $filter,
+                    $current_user
                 ) : $this->get_dynamic_data($table_id, $filter);
                 $data = array_filter($data, function ($value) {
-                        return ($value["deleted"] != 1);
+                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
                     });
                 foreach ($config['fields'] as $key => $field) {
                     // loop fields
@@ -183,11 +185,16 @@ class StyleModel extends BaseModel implements IStyleModel
      * id of the table that we want to retrieve
      * @param string $filter
      * filter used to sort the data
+     * @param boolean $current_user
+     * get the data for the current user if enabled
      * @retval array
      * the results rows in array
      */
-    private function get_static_data($table_id, $filter)
+    private function get_static_data($table_id, $filter, $current_user)
     {
+        if($current_user){
+            $filter = "AND id_users = '" . $_SESSION['id_user'] . "'" . $filter;
+        }
         $sql = 'CALL get_uploadTable_with_filter(:table_id, :filter)';
         return $this->db->query_db($sql, array(
             ":table_id" => $table_id,

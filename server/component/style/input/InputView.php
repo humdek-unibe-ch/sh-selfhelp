@@ -68,6 +68,25 @@ class InputView extends FormFieldView
             $this->css_label = "form-check-label";
             if($this->label == "") $this->label = "&zwnj;";
         }
+        $this->data_config = $this->model->get_db_field("data_config");
+        $this->value = $this->model->get_db_field("value", "");
+        if($this->data_config){
+            $this->retrieve_data();
+        }
+    }
+
+    /** Private Methods */
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data(){
+        $fields = $this->model->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $this->value = str_replace($field_name, $field_value, $this->value);
+            }
+        }
     }
 
     /* Protected Methods ******************************************************/

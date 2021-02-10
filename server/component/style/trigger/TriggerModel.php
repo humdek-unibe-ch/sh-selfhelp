@@ -22,7 +22,7 @@ class TriggerModel extends StyleModel
     /**
      * Section id
      */
-    private $section_id;
+    protected $section_id;
 
     /* Constructors ***********************************************************/
 
