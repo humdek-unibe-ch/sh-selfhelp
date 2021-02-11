@@ -101,6 +101,7 @@ class QualtricsSurveyView extends StyleView
         $style = parent::output_content_mobile();
         $style['qualtrics_url'] = $this->model->get_survey_link();
         $style['alert'] = '';
+        $style['time'] = date('Y-m-d H:i:s');
         $style['show_survey'] = true;
         if ($this->model->is_survey_active()) {
             if ($this->model->is_survey_done()) {

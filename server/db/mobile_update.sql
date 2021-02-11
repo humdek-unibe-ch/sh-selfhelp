@@ -284,8 +284,6 @@ ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN 
 ALTER TABLE notifications
 ADD COLUMN `url` VARCHAR(100) DEFAULT NULL;
 
--- ************************** EXECUTEED ON BECCCS ***********************************************************************
-
 -- Add style messageBoard
 INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES (NULL, 'messageBoard', '0000000002', '0000000002', 'Shows a board of messages which can be rated and commented with pre-defined messages.');
 SET @id_style = LAST_INSERT_ID();
@@ -338,3 +336,7 @@ In order to inlcude the retrieved data in the input `value`, include the `field_
 We can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;);
 
 `It is used for prefil of the default value`');
+
+INSERT INTO genders (name) VALUES ('divers');
+
+-- ************************** EXECUTEED ON BECCCS ***********************************************************************
