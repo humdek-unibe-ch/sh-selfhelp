@@ -340,3 +340,7 @@ We can access multiple tables by adding another element to the array. The retrie
 INSERT INTO genders (name) VALUES ('divers');
 
 -- ************************** EXECUTEED ON BECCCS ***********************************************************************
+
+-- add field restart_on_refresh to style qualtricsSurvey
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'restart_on_refresh', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('restart_on_refresh'), 0, 'If checked the survey is restarted on refresh');
