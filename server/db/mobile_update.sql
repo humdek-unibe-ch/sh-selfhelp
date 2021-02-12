@@ -339,8 +339,15 @@ We can access multiple tables by adding another element to the array. The retrie
 
 INSERT INTO genders (name) VALUES ('divers');
 
--- ************************** EXECUTEED ON BECCCS ***********************************************************************
-
 -- add field restart_on_refresh to style qualtricsSurvey
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'restart_on_refresh', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('restart_on_refresh'), 0, 'If checked the survey is restarted on refresh');
+
+-- ************************** EXECUTEED ON BECCCS ***********************************************************************
+
+-- add field use_as_container to style qualtricsSurvey
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'use_as_container', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('use_as_container'), 0, 'If checked the style is used as container only and do not visualize the survey in iFrame');
+
+-- add field children to style qualtricsSurvey
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('children'), 0, 'Children that can be added to the style. It is mainly used when the style is used as container');

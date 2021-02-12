@@ -96,6 +96,15 @@ class QualtricsSurveyView extends StyleView
         return $this->model->get_survey_link();
     }
 
+    public function output_iframe()
+    {
+        if ($this->model->get_db_field('use_as_container', 0)) {
+            return;
+        } else {
+            require __DIR__ . "/tpl_qualtricsSurvey_iframe.php";
+        }
+    }
+
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();
