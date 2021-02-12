@@ -66,6 +66,7 @@ class QualtricsSurveyModel extends StyleModel
         $this->survey_id = $this->get_db_field("qualtricsSurvey");
         $this->once_per_schedule = $this->get_db_field('once_per_schedule', 0);
         $this->once_per_user = $this->get_db_field('once_per_user', 0);
+        $this->use_as_container = $this->get_db_field('use_as_container', 0);
         $this->start_time = $this->get_db_field('start_time', '00:00');
         $this->end_time = $this->get_db_field('end_time', '00:00');
         $this->calc_times();
