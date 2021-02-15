@@ -355,3 +355,26 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'close_m
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('close_modal_at_end'), 0, '`Only for mobile` - if selected the modal form will be closed once the survey is done');
 
 -- ************************** EXECUTEED ON BECCCS ***********************************************************************
+
+-- add qualtricsActionScheduleTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'task', 'Task', 'Schedule');
+
+-- add table tasks
+CREATE TABLE `tasks` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,    
+  `config` VARCHAR(1000) NOT NUll
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- add table scheduledJobs_tasks
+CREATE TABLE `scheduledJobs_tasks` (
+  `id_scheduledJobs` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_tasks` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY(id_scheduledJobs, id_tasks)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `scheduledJobs_tasks`
+ADD CONSTRAINT `scheduledJobs_tasks_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `scheduledJobs_tasks_fk_id_tasks` FOREIGN KEY (`id_tasks`) REFERENCES `tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- add transactionTypes
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'execute_task_ok', 'Execute task successfully', 'Execute task successfully');
+INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'execute_task_fail', 'Execute task failed', 'Execute task failed');

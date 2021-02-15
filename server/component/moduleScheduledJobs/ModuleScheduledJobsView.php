@@ -37,7 +37,8 @@ class ModuleScheduledJobsView extends BaseView
 
     /* Private Methods ********************************************************/
 
-    private function output_mail_form_view(){
+    private function output_mail_form_view()
+    {
         $mail_entry = $this->model->get_services()->get_db()->query_db_first('SELECT * FROM view_mailQueue WHERE id = :sjid;', array(":sjid" => $this->model->get_sjid()));
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
@@ -162,7 +163,8 @@ class ModuleScheduledJobsView extends BaseView
         $form->output_content();
     }
 
-    private function output_notification_form_view(){
+    private function output_notification_form_view()
+    {
         $entry = $this->model->get_services()->get_db()->query_db_first('SELECT * FROM view_notifications WHERE id = :sjid;', array(":sjid" => $this->model->get_sjid()));
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
@@ -199,7 +201,7 @@ class ModuleScheduledJobsView extends BaseView
                         "text" => $entry['date_executed']
                     ))),
                 )),
-               
+
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Recipient",
                     "locale" => "",
@@ -237,6 +239,71 @@ class ModuleScheduledJobsView extends BaseView
                     "value" => $entry['body'],
                     "placeholder" => "@user_name can be used for showing the user",
                 ))
+            )
+        ));
+        $form->output_content();
+    }
+
+    private function output_task_form_view()
+    {
+        $entry = $this->model->get_services()->get_db()->query_db_first('SELECT * FROM view_tasks WHERE id = :sjid;', array(":sjid" => $this->model->get_sjid()));
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => 'Scheduled Job ID: ' . $entry['id'],
+            "children" => array(
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Status",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['status'],
+                        "css" => $entry['status_code'] === scheduledJobsStatus_deleted ? 'text-danger' : ''
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Date Created",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['date_create']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Date To Be Sent",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['date_to_be_executed']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Date Sent",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['date_executed']
+                    ))),
+                )),
+
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Recipient",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['recipient']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Description",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['description']
+                    ))),
+                )), 
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Config",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['config']
+                    ))),
+                )),                
             )
         ));
         $form->output_content();
@@ -331,13 +398,15 @@ class ModuleScheduledJobsView extends BaseView
      */
     protected function output_entry_form_view()
     {
-        if($this->job_entry['type_code'] == jobTypes_email){
+        if ($this->job_entry['type_code'] == jobTypes_email) {
             $this->output_mail_form_view();
-        }else if($this->job_entry['type_code'] == jobTypes_notification){
+        } else if ($this->job_entry['type_code'] == jobTypes_notification) {
             $this->output_notification_form_view();
+        }else if ($this->job_entry['type_code'] == jobTypes_task) {
+            $this->output_task_form_view();
         }
     }
-    
+
 
     /**
      * Render the sidebar buttons for scheduledJobs entry
@@ -412,7 +481,8 @@ class ModuleScheduledJobsView extends BaseView
         $composeNotification->output_content();
     }
 
-    public function output_content_mobile(){
+    public function output_content_mobile()
+    {
         echo 'mobile';
     }
 }

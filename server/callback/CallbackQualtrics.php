@@ -404,14 +404,22 @@ class CallbackQualtrics extends BaseCallback
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 $schedule_info = json_decode($action['schedule_info'], true);
                 $res = array();
-                if ($schedule_info['notificationTypes'] == notificationTypes_email) {
-                    // the notification type is email
-                    $res = $this->queue_mail($data, $user_id, $action);
+                if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
+                    $res = $this->queue_task($data, $user_id, $action);
                     $result = array_merge($result, $res['result']);
-                } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
-                    // the notification type is push notification
-                    $res = $this->queue_notification($data, $user_id, $action);
-                    $result = array_merge($result, $res['result']);
+                } else if (
+                    $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_notification ||
+                    $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder
+                ) {
+                    if ($schedule_info['notificationTypes'] == notificationTypes_email) {
+                        // the notification type is email
+                        $res = $this->queue_mail($data, $user_id, $action);
+                        $result = array_merge($result, $res['result']);
+                    } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
+                        // the notification type is push notification
+                        $res = $this->queue_notification($data, $user_id, $action);
+                        $result = array_merge($result, $res['result']);
+                    }
                 }
                 if (isset($res['sj_id'])) {
                     $this->db->insert('scheduledJobs_qualtricsActions', array(
@@ -572,6 +580,81 @@ class CallbackQualtrics extends BaseCallback
             }
         } else {
             $result[] = 'ERROR! Notificaton was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+        }
+        return array(
+            "result" => $result,
+            "sj_id" => $sj_id
+        );
+    }
+
+    /**
+     * Queue task
+     * 
+     *
+     * @param array $data
+     *  the data from the callback.
+     * @param int $user_id
+     * user id
+     * @param array $action
+     * the action information
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function queue_task($data, $user_id, $action)
+    {
+        //  {
+        // 	"type": "add_group | remove_group",
+        // 	"group": ["group_name1", "group_name2"]
+        //  "description": "task description"
+        // }
+
+        $schedule_info = json_decode($action['schedule_info'], true);
+        // $schedule_info['config'] = json_decode($schedule_info['config'], true);
+        $result = array();
+        if ($schedule_info['config']['type'] == "add_group" || $schedule_info['config']['type'] == "remove_group") {
+            // check qualtrics for more groups comming as embeded data
+            $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+            $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
+            $survey_response = $moduleQualtrics->get_survey_response($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            $qualtrics_group = [];
+            if ($schedule_info['config']['type'] == "add_group" && isset($survey_response['values']['add_group'])) {
+                $qualtrics_group =  explode(',', $survey_response['values']['add_group']);
+            } else if ($schedule_info['config']['type'] == "remove_group" && isset($survey_response['values']['remove_group'])) {
+                $qualtrics_group =  explode(',', $survey_response['values']['remove_group']);
+            }
+            $schedule_info['config']['group'] = array_merge($schedule_info['config']['group'], $qualtrics_group);
+        }
+        $task = array(
+            'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "id_users" => array($user_id),
+            "config" => $schedule_info['config'],
+            "description" => isset($schedule_info['config']['description']) ? $schedule_info['config']['description'] : "Schedule task by Qualtrics Callback",
+        );
+        $sj_id = $this->job_scheduler->schedule_job($task, transactionBy_by_qualtrics_callback);
+        if ($sj_id > 0) {
+            $result[] = 'Task was queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+                if (($this->job_scheduler->execute_job(array(
+                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
+                    "id" => $sj_id
+                ), transactionBy_by_qualtrics_callback))) {
+                    $result[] = 'Task was executed for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                } else {
+                    $result[] = 'ERROR! Task was not executed for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
+                        ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
+                        ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
+                }
+            }
+        } else {
+            $result[] = 'ERROR! Task was not queued for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
         }
@@ -1175,33 +1258,6 @@ class CallbackQualtrics extends BaseCallback
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
-    }
-
-    public function push()
-    {
-        // Instantiate the client with the project api_token and sender_id.
-        $client = new \Fcm\FcmClient("AAAAdHfnbKY:APA91bFJlkZJHt100NQhY3bJS--vUJLbdon2E-r3bKJHLq5713sKPMd61ysIG0tq3PSNqb51-ex25CiRoikGigoXWwGllaroH3gs581TnT9F6N4MrbG5bs-CJgPrEKuInhnFktqrp9OS", "500227861670");
-
-        // Instantiate the push notification request object.
-        $notification = new \Fcm\Push\Notification();
-
-        // Enhance the notification object with our custom options.
-        $notification
-            ->addRecipient('dmc6FeMBT92ikFzVvOkHiW:APA91bFnTAHN01CENau3kDXyvvviSZ9_fPJGIDIyyBzxljbvujVXKW5pYJk6AFmTtZ4SRfuANnTw7tQETTPmbRh-9YFYh-kKX-BHPFtGZGu4MA3Bl-8L9IXJt-kKOfT1HofE7JGKexcl')
-            ->setTitle('Hello from php-fcm!')
-            ->setBody('Notification body')
-            ->setColor('#ff0000')
-            ->setSound("default")
-            ->setIcon("myIcon.png")
-            ->addData('key', 'value');
-
-        // custom sound and custom icon must be in app package
-        //     - custom sound file must be in /res/raw/
-        //     - custom icon file must be in drawable resource, if not set, FCM displays launcher icon in app manifest
-
-        // Send the notification to the Firebase servers for further handling.
-        $res = $client->send($notification);
-        print_r($res);
     }
 }
 ?>

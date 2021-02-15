@@ -60,6 +60,9 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
         $this->actions = $this->model->get_actions($this->pid);
         if ($this->action) {
             $this->action['schedule_info'] = json_decode($this->action['schedule_info'], true);
+            if(isset($this->action['schedule_info']['config'])){
+                $this->action['schedule_info']['config'] = json_encode($this->action['schedule_info']['config'], JSON_PRETTY_PRINT);
+            }
         }
     }
 
@@ -164,6 +167,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("select", array(
                     "label" => "Type",
                     "is_required" => true,
+                    "id" => "type",
                     "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
                     "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes))
@@ -284,6 +288,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("input", array(
                     "label" => "To",
                     "type_input" => "text",
+                    "id" => "to",
                     "name" => "schedule_info[recipient]",
                     "value" => isset($this->action["schedule_info"]['recipient']) ? $this->action["schedule_info"]['recipient'] : '',
                     "css" => "mt-3",
@@ -293,6 +298,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("input", array(
                     "label" => "Subject",
                     "type_input" => "text",
+                    "id" => "subject",
                     "name" => "schedule_info[subject]",
                     "value" => isset($this->action["schedule_info"]['subject']) ? $this->action["schedule_info"]['subject'] : '',
                     "css" => "mt-3",
@@ -303,10 +309,20 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "label" => "Body",
                     "type_input" => "text",
                     "name" => "schedule_info[body]",
+                    "id" => "body",
                     "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
                     "css" => "mb-3",
                     "placeholder" => "@user_name can be used for showing the user",
                 )),
+                new BaseStyleComponent("textarea", array(
+                    "label" => "Config",
+                    "type_input" => "json",
+                    "id" => "config",
+                    "name" => "schedule_info[config]",
+                    "value" => isset($this->action["schedule_info"]['config']) ? $this->action["schedule_info"]['config'] : '',
+                    "css" => "mb-3",
+                    "placeholder" => "",
+                ))
             )
         ));
     }
@@ -348,6 +364,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("select", array(
                     "label" => "Type",
                     "is_required" => true,
+                    "id" => "type",
                     "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
                     "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes)),
@@ -473,6 +490,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "title" => "To",
                     "locale" => "",
                     "css" => "mt-3",
+                    "id" => "to",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['recipient']) ? $this->action["schedule_info"]['recipient'] : ''
                     ))),
@@ -480,6 +498,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Subject",
                     "locale" => "",
+                    "id" => "subject",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['subject']) ? $this->action["schedule_info"]['subject'] : ''
                     ))),
@@ -492,13 +511,13 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "text" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : ''
                     ))),
                 )),
-                new BaseStyleComponent("textarea", array(
-                    "label" => "Body",
-                    "type_input" => "text",
-                    "name" => "schedule_info[body]",
-                    "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
-                    "css" => "d-none",
-                    "placeholder" => "@user_name can be used for showing the user",
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Config",
+                    "locale" => "",
+                    "id" => "config",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => isset($this->action["schedule_info"]['config']) ? $this->action["schedule_info"]['config'] : ''
+                    ))),
                 ))
             )
         ));
@@ -517,7 +536,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
             "type" => "danger",
             "children" => array(
                 new BaseStyleComponent("plaintext", array(
-                    "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the project name.",
+                    "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the action name.",
                     "is_paragraph" => true,
                 )),
                 new BaseStyleComponent("form", array(
@@ -639,7 +658,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "css" => "mb-3",
                         )),
                         new BaseStyleComponent("select", array(
-                            "label" => "Send",
+                            "label" => "Schedule",
                             "name" => "id_qualtricsActionScheduleTypes",
                             "id" => "id_qualtricsActionScheduleTypes",
                             "value" => isset($this->action['id_qualtricsActionScheduleTypes']) ? $this->action['id_qualtricsActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(qualtricsActionScheduleTypes, 'nothing'),
@@ -714,7 +733,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     ))),
                 )),
                 new BaseStyleComponent("select", array(
-                    "label" => "Send",
+                    "label" => "Schedule",
                     "name" => "id_qualtricsActionScheduleTypes",
                     "id" => "id_qualtricsActionScheduleTypes",
                     "value" => isset($this->action['id_qualtricsActionScheduleTypes']) ? $this->action['id_qualtricsActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(qualtricsActionScheduleTypes, 'nothing'),

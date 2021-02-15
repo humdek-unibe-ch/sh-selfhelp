@@ -6,6 +6,7 @@
 <?php
 
 require_once __DIR__ . "/jobs/Notificationer.php";
+require_once __DIR__ . "/jobs/Task.php";
 
 /**
  * A wrapper class for PHPMailer. It provides a simple email sending method
@@ -46,6 +47,7 @@ class JobScheduler
         $this->transaction = $transaction;
         $this->mail = $mail;
         $this->notification = new Notificaitoner($db, $transaction);
+        $this->task = new Task($db, $transaction);
     }
 
     /* Private Methods *********************************************************/
@@ -64,7 +66,7 @@ class JobScheduler
     }
 
     private function schedule_notification($job_id, $data)
-    {        
+    {
         $id_notifications = $this->notification->schedule($job_id, $data);
         if (!$id_notifications) {
             throw new Exception('Error in fucntion: notification->schedule()');
@@ -72,6 +74,18 @@ class JobScheduler
         return $this->db->insert('scheduledJobs_notifications', array(
             "id_scheduledJobs" => $job_id,
             "id_notifications" => $id_notifications
+        ));
+    }
+
+    private function schedule_task($job_id, $data)
+    {
+        $id_tasks = $this->task->schedule($job_id, $data);
+        if (!$id_tasks) {
+            throw new Exception('Error in fucntion: task->schedule()');
+        }
+        return $this->db->insert('scheduledJobs_tasks', array(
+            "id_scheduledJobs" => $job_id,
+            "id_tasks" => $id_tasks
         ));
     }
 
@@ -120,11 +134,15 @@ class JobScheduler
             $job_id = $this->init_job($data);
             if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email)) {
                 if (!$this->schedule_mail($job_id, $data)) {
-                    throw new Exception('Error while scheduling email');
+                    throw new Exception('Error while scheduling the email');
                 }
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
                 if (!$this->schedule_notification($job_id, $data)) {
-                    throw new Exception('Error while scheduling notification');
+                    throw new Exception('Error while scheduling the notification');
+                }
+            } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
+                if (!$this->schedule_task($job_id, $data)) {
+                    throw new Exception('Error while scheduling the task');
                 }
             }
             $this->transaction->add_transaction(
@@ -208,6 +226,9 @@ class JobScheduler
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
                 // send notificaiton
                 $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $id_users);
+            }else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
+                // execute task
+                $execution_reult = $this->task->execute_entry($data['id'], $tran_by, $id_users);
             }
             $status = $this->db->get_lookup_id_by_value(scheduledJobsStatus, $execution_reult ? scheduledJobsStatus_done : scheduledJobsStatus_failed);
             $this->set_status($data['id'], $status);

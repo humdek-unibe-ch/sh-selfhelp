@@ -47,6 +47,9 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
     {
         try {
             $this->db->begin_transaction();
+            if(isset($data['schedule_info']) && isset($data['schedule_info']['config'])){
+                $data['schedule_info']['config'] = json_decode($data['schedule_info']['config'], true);
+            }
             $actionId = $this->db->insert("qualtricsActions", array(
                 "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
@@ -55,7 +58,7 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
                 "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
                 "id_qualtricsActions" => isset($data['id_qualtricsActions']) ? $data['id_qualtricsActions'] : null,
-                "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info']) : null
+                "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info'], true) : null
             ));
             if (isset($data['id_groups']) && is_array($data['id_groups'])) {
                 //insert related groups to the action if some are set
@@ -102,6 +105,9 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
     {
         try {
             $this->db->begin_transaction();
+            if(isset($data['schedule_info']) && isset($data['schedule_info']['config'])){
+                $data['schedule_info']['config'] = json_decode($data['schedule_info']['config'], true);
+            }
             $this->db->update_by_ids("qualtricsActions", array(
                 "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
@@ -110,7 +116,7 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
                 "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
                 "id_qualtricsActions" => isset($data['id_qualtricsActions']) ? ($data['id_qualtricsActions'] == '' ? null : $data['id_qualtricsActions']) : null,
-                "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info']) : null
+                "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info'], true) : null
             ), array('id' => $data['id']));
 
             //delete all group relations
