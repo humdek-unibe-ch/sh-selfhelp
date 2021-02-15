@@ -25,7 +25,11 @@ function setRequiredIfDisplayed(elements) {
 function adjustRequiredFields() {
     setRequiredIfDisplayed($('select[name="schedule_info[id_qualtricsActionScheduleTypes]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[custom_time]"]'));
-    setRequiredIfDisplayed($('input[name="schedule_info[send_on_day_at]"]'));
+    if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
+        // reuqired only for weekdays
+        console.log('needed');
+        setRequiredIfDisplayed($('input[name="schedule_info[send_on_day_at]"]'));
+    }
     setRequiredIfDisplayed($('select[name="id_qualtricsSurveys_reminder"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[notificationTypes]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[qualtricScheduleTypes]"]'));
@@ -84,17 +88,18 @@ function adjustScheduleType() {
     } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period')) {
         $('.send_after').removeClass('d-none');
         $('.style-section-send_after_type').removeClass('d-none');
+        $('#at_time_holder').removeClass('d-none');
     }
     adjustRequiredFields();
 }
 
 function adjustNotificationTypes() {
-    if ($('select[name="schedule_info[notificationTypes]"] option:selected').text().includes('Push Notification')){
+    if ($('select[name="schedule_info[notificationTypes]"] option:selected').text().includes('Push Notification')) {
         $('.style-section-from_email').addClass('d-none');
         $('.style-section-from_name').addClass('d-none');
         $('.style-section-reply_to').addClass('d-none');
         $('.style-section-url').removeClass('d-none');
-    }else{
+    } else {
         $('.style-section-from_email').removeClass('d-none');
         $('.style-section-from_name').removeClass('d-none');
         $('.style-section-reply_to').removeClass('d-none');
@@ -106,7 +111,7 @@ $(document).ready(function () {
     adjustActionScheduleType();
     adjustScheduleType();
     adjustNotificationTypes();
-    adjustRequiredFields();    
+    adjustRequiredFields();
     $('select').selectpicker();
     if ($('textarea[name="schedule_info[body]"]')[0]) {
         var simplemde = new SimpleMDE({
@@ -148,6 +153,12 @@ $(document).ready(function () {
 
     $('#btnsend_on_day_at').on("click", function (e) {
         $('#send_on_day_at').focus();
+    })
+
+    $('#clearBtnsend_on_day_at').on("click", function (e) {
+        if (!$('#send_on_day_at').attr('disabled')) {
+            $('#send_on_day_at').val('');
+        }
     })
 
     $('#section-composeEmailForm .btn-warning').first().on('click', function (e) {

@@ -6,11 +6,14 @@
 <div class="form-group d-none" id="at_time_holder">
     <label for="<?php echo $fields['id'] ?>"><?php echo $fields['label'] ?></label>
     <div class="input-group">    
-        <input required name="<?php echo $fields['name'] ?>" id="<?php echo $fields['id'] ?>" type="text" class="form-control" id="<?php echo $fields['id'] ?>"
+        <input name="<?php echo $fields['name'] ?>" id="<?php echo $fields['id'] ?>" type="text" class="form-control" id="<?php echo $fields['id'] ?>"
          <?php echo isset($fields['disabled']) ? $fields['disabled'] : '' ?>
         value="<?php echo $fields['value'] ?>">
         <div class="input-group-append">
             <div class="btn btn-primary" id="btn<?php echo $fields['id'] ?>"><i class="far fa-clock"></i></div>
-        </div>        
+        </div>    
+        <div class="input-group-append">
+            <div class="btn btn-secondary" id="clearBtn<?php echo $fields['id'] ?>" <?php echo isset($fields['disabled']) ? $fields['disabled'] : '' ?>><i class="far fa-times-circle"></i></div>
+        </div>    
     </div>
 </div>

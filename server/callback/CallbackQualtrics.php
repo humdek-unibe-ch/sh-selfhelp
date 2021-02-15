@@ -335,6 +335,13 @@ class CallbackQualtrics extends BaseCallback
             // send after time period 
             $now = date('Y-m-d H:i:s', time());
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
+            if ($schedule_info['send_on_day_at']) {
+                $at_time = explode(':', $schedule_info['send_on_day_at']);
+                $d = new DateTime();
+                $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
+                $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
+                $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
+            }
         } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period_on_day_at_time) {
             // send on specific weekday after 1,2,3, or more weeks at specific time
             $date_to_be_sent = $this->calc_date_on_weekday($schedule_info);
