@@ -196,8 +196,8 @@ SET type_code = "transactionTypes", lookup_code = "check_scheduledJobs", lookup_
 WHERE type_code = "transactionTypes" AND lookup_code = "check_mailQueue";
 
 UPDATE lookups
-SET type_code = "transactionTypes", lookup_code = "by_cron_job", lookup_value = "By cron job", lookup_description = "The action was executed by cron job" 
-WHERE type_code = "transactionTypes" AND lookup_code = "by_mail_cron";
+SET type_code = "transactionBy", lookup_code = "by_cron_job", lookup_value = "By cron job", lookup_description = "The action was executed by cron job" 
+WHERE type_code = "transactionBy" AND lookup_code = "by_mail_cron";
 
 -- add table scheduledJobs_users
 CREATE TABLE `scheduledJobs_users` (
@@ -354,8 +354,6 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'close_modal_at_end', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('close_modal_at_end'), 0, '`Only for mobile` - if selected the modal form will be closed once the survey is done');
 
--- ************************** EXECUTEED ON BECCCS ***********************************************************************
-
 -- add qualtricsActionScheduleTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('qualtricsActionScheduleTypes', 'task', 'Task', 'Schedule');
 
@@ -378,3 +376,9 @@ ADD CONSTRAINT `scheduledJobs_tasks_fk_id_tasks` FOREIGN KEY (`id_tasks`) REFERE
 -- add transactionTypes
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'execute_task_ok', 'Execute task successfully', 'Execute task successfully');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'execute_task_fail', 'Execute task failed', 'Execute task failed');
+
+-- ************************** EXECUTEED ON BECCCS ***********************************************************************
+
+-- add field image_selector to style select
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'image_selector', get_field_type_id('checkbox'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('image_selector'), 0, 'If checked the style treat the values as images and expect image paths in the `text` property');

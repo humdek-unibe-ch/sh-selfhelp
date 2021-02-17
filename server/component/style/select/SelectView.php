@@ -29,6 +29,14 @@ class SelectView extends FormFieldView
      */
     private $is_multiple;
 
+    private $live_search;
+
+    private $max;
+
+    private $disabled;
+
+    private $image_selector;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -45,9 +53,22 @@ class SelectView extends FormFieldView
         $this->live_search = $this->model->get_db_field("live_search", false);
         $this->max = $this->model->get_db_field("max", 5);
         $this->disabled = $this->model->get_db_field("disabled", 0);
+        $this->image_selector = $this->model->get_db_field("image_selector", 0);        
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Prepare the img paths if the select loads images
+     */
+    private function prepare_imgs_paths()
+    {
+        foreach ($this->items as $key => $item) {
+            if (!filter_var($item['text'], FILTER_VALIDATE_URL)) {
+                $this->items[$key]['text'] = ASSET_PATH . '/' . $item['text'];
+            }
+        }
+    }
 
     /**
      * Render a select option.
@@ -97,7 +118,26 @@ class SelectView extends FormFieldView
         $css = ($this->label == "") ? $this->css : "";
         $multiple = ($this->is_multiple) ? "multiple" : "";
         $required = ($this->is_required) ? "required" : "";
-        require __DIR__ . "/tpl_select.php";
+        if ($this->image_selector) {
+            $this->prepare_imgs_paths();
+            require __DIR__ . "/tpl_select_image.php";
+        } else {
+            require __DIR__ . "/tpl_select.php";
+        }
+    }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        if ($this->image_selector) {
+            foreach ($this->items as $key => $item) {
+                if (!filter_var($item['text'], FILTER_VALIDATE_URL)) {
+                    $this->items[$key]['text'] = ASSET_FOLDER . '/' . $item['text'];
+                }
+            }
+            $style['items'] = $this->items;
+        }        
+        return $style;
     }
 }
 ?>
