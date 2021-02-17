@@ -13,8 +13,8 @@ $(document).ready(function () {
 function initSelectImage(el) {
     var selectImageId = $(el).attr('id');
     var classNames = $(el).attr('class');
-    iconSelect = new IconSelect(selectImageId);
-    selectedValueHolder = document.getElementById('selectValue-' + selectImageId.split('-')[1]);
+    var iconSelect = new IconSelect(selectImageId);
+    var selectedValueHolder = document.getElementById('selectValue-' + selectImageId.split('-')[1]);
 
     $(el).on('changed', function (e) {
         selectedValueHolder.value = iconSelect.getSelectedValue();
