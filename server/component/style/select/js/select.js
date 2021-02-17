@@ -34,7 +34,6 @@ function initSelectImage(el) {
             icons.push({ 'iconFilePath': value['text'], 'iconValue': value['value'] });
         }
     });
-    console.log(icons);
     iconSelect.refresh(icons);
     $(el).addClass(classNames);
 }

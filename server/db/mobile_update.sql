@@ -377,8 +377,8 @@ ADD CONSTRAINT `scheduledJobs_tasks_fk_id_tasks` FOREIGN KEY (`id_tasks`) REFERE
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'execute_task_ok', 'Execute task successfully', 'Execute task successfully');
 INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionTypes', 'execute_task_fail', 'Execute task failed', 'Execute task failed');
 
--- ************************** EXECUTEED ON BECCCS ***********************************************************************
-
 -- add field image_selector to style select
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'image_selector', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('image_selector'), 0, 'If checked the style treat the values as images and expect image paths in the `text` property');
+
+-- ************************** EXECUTEED ON BECCCS ***********************************************************************
