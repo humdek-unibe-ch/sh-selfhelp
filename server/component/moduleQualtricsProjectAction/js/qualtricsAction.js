@@ -57,7 +57,6 @@ function adjustActionScheduleType() {
     $('.style-section-id_qualtricsActions').addClass('d-none');
     $('.style-section-valid').addClass('d-none');
     $('.style-section-linked_action').addClass('d-none');
-    $('.style-section-config').addClass('d-none');
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Notification') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Task') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
@@ -78,7 +77,6 @@ function adjustActionScheduleType() {
         $('.style-section-subject').addClass('d-none');
         $('.style-section-body').addClass('d-none');
         $('.style-section-type').addClass('d-none');
-        $('.style-section-config').removeClass('d-none');
     }
     adjustRequiredFields();
 }

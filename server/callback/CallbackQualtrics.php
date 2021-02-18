@@ -450,8 +450,16 @@ class CallbackQualtrics extends BaseCallback
      */
     private function queue_mail($data, $user_id, $action)
     {
+        //  {
+        // 	"type": "overwrite_variable",
+        // 	"variable": ["send_on_day_at", "var2"]    
+        // }
+
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
+        $check_config = $this->check_config($schedule_info, $data);
+        $schedule_info = $check_config['schedule_info'];
+        $result = $check_config['result'];
         $mail = array();
         // *************************************** CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
         $attachments = array();
@@ -529,6 +537,36 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Check config field for extra modifications
+     * @param array $schedule_info
+     * the schedule info
+     * @param array $data
+     * the survey data;
+     * @retval array 
+     * return the info from the check
+     */
+    private function check_config($schedule_info, $data)
+    {
+        $result = array();
+        if ($schedule_info['config']['type'] == "overwrite_variable") {
+            // check qualtrics for more groups comming as embeded data
+            $survey_response = $this->get_survey_response($data);
+            if (isset($schedule_info['config']['variable'])) {
+                foreach ($schedule_info['config']['variable'] as $key => $variable) {
+                    if (isset($survey_response['values'][$variable])) {
+                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $survey_response['values'][$variable];
+                        $schedule_info[$variable] = $survey_response['values'][$variable];
+                    }
+                }
+            }
+        }
+        return array(
+            "result" => $result,
+            "schedule_info" => $schedule_info
+        );
+    }
+
+    /**
      * Queue notification
      *
      * @param array $data
@@ -542,8 +580,16 @@ class CallbackQualtrics extends BaseCallback
      */
     private function queue_notification($data, $user_id, $action)
     {
+        //  {
+        // 	"type": "overwrite_variable",
+        // 	"variable": ["send_on_day_at", "var2"]    
+        // }
+
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
+        $check_config = $this->check_config($schedule_info, $data);
+        $schedule_info = $check_config['schedule_info'];
+        $result = $check_config['result'];
 
         $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
         $notification = array(
@@ -615,9 +661,7 @@ class CallbackQualtrics extends BaseCallback
         $result = array();
         if ($schedule_info['config']['type'] == "add_group" || $schedule_info['config']['type'] == "remove_group") {
             // check qualtrics for more groups comming as embeded data
-            $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-            $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
-            $survey_response = $moduleQualtrics->get_survey_response($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            $survey_response = $this->get_survey_response($data);
             $qualtrics_group = [];
             if ($schedule_info['config']['type'] == "add_group" && isset($survey_response['values']['add_group'])) {
                 $qualtrics_group =  explode(',', $survey_response['values']['add_group']);
@@ -662,6 +706,20 @@ class CallbackQualtrics extends BaseCallback
             "result" => $result,
             "sj_id" => $sj_id
         );
+    }
+
+    /**
+     * Get survey data
+     * @param array $data
+     * the data from the survey info
+     * @retval array
+     * the survey response information
+     */
+    private function get_survey_response($data)
+    {
+        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+        $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
+        return $moduleQualtrics->get_survey_response($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
     }
 
     /**
