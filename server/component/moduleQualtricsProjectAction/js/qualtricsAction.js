@@ -34,7 +34,7 @@ function adjustRequiredFields() {
     setRequiredIfDisplayed($('select[name="schedule_info[qualtricScheduleTypes]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[send_on_day]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[send_on]"]'));
-    setRequiredIfDisplayed($('select[name="schedule_info[send_after]"]'));
+    setRequiredIfDisplayed($('input[name="schedule_info[send_after]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[send_after_type]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[recipient]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[subject]"]'));
