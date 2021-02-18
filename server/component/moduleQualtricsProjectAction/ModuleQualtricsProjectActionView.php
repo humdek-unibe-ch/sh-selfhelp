@@ -196,14 +196,15 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "id" => "custom_time"
                     )
                 )),
-                new BaseStyleComponent("select", array(
+                new BaseStyleComponent("input", array(
                     "label" => "Send After",
                     "css" => 'send_after d-none',
                     "id" => "send_after",
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_after']) ? $this->action["schedule_info"]['send_after'] : '',
                     "name" => "schedule_info[send_after]",
-                    "items" => $this->get_time_intervals(),
+                    // "items" => $this->get_time_intervals(),
+                    "type_input" => "number"
                 )),
                 new BaseStyleComponent("select", array(
                     "id" => "send_after_type",
@@ -396,15 +397,25 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                         "id" => "custom_time"
                     )
                 )),
-                new BaseStyleComponent("select", array(
-                    "label" => "Send After",
-                    "css" => 'send_after d-none',
+                // new BaseStyleComponent("input", array(
+                //     "label" => "Send After",
+                //     "css" => 'send_after d-none',
+                //     "id" => "send_after",
+                //     "is_required" => true,
+                //     "value" => isset($this->action["schedule_info"]['send_after']) ? $this->action["schedule_info"]['send_after'] : '',
+                //     "name" => "schedule_info[send_after]",
+                //     // "items" => $this->get_time_intervals(),
+                //     "type" => "numbe",
+                //     "disabled" => true
+                // )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Send After",
                     "id" => "send_after",
-                    "is_required" => true,
-                    "value" => isset($this->action["schedule_info"]['send_after']) ? $this->action["schedule_info"]['send_after'] : '',
-                    "name" => "schedule_info[send_after]",
-                    "items" => $this->get_time_intervals(),
-                    "disabled" => true
+                    "locale" => "",
+                    "css" => "send_after d-none",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => isset($this->action["schedule_info"]['send_after']) ? $this->action["schedule_info"]['send_after'] : ''
+                    ))),
                 )),
                 new BaseStyleComponent("select", array(
                     "id" => "send_after_type",
