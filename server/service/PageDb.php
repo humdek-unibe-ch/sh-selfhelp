@@ -449,7 +449,7 @@ class PageDb extends BaseDb
             $sql = 'CALL get_form_data_for_user(:table_id, :user_id)';
             $avatar = $this->query_db_first($sql, array(
                 ":table_id" => $form['form_id'],
-                ":user_id" => $_SESSION['id_user']
+                ":user_id" => $user_id
             ));
             return $avatar ? $avatar['avatar'] : '';
         } else {
