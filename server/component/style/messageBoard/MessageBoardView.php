@@ -108,6 +108,7 @@ class MessageBoardView extends FormUserInputView
                     'reply_messages' => $reply_messages,
                     'icon_counter' => $icon_counter,
                     'user' => $score_message['user_name'],
+                    'avatar' => $this->model->get_avatar(),
                     'color' => $color,
                     'url' => str_replace(BASE_PATH, '', $_SERVER['REQUEST_URI']) . '#message-' . $this->id_section . '-' . $record_id
                 );

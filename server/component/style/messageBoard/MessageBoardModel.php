@@ -352,4 +352,14 @@ class MessageBoardModel extends FormUserInputModel
     {
         return $this->link_input_section_id;
     }
+
+    /**
+     * return the avatar
+     * @param int $user_id 
+     * @retval string
+     * the avatar
+     */
+    public function get_avatar($user_id){
+        return $this->db->get_avatar($user_id);
+    }
 }

@@ -434,10 +434,12 @@ class PageDb extends BaseDb
     /**
      * Get the avatar of the current user
      *
+     * @param int $user_id
+     * 
      * @retval string
      *  The avatar image of the current user or emty string.
      */
-    public function get_avatar()
+    public function get_avatar($user_id)
     {
         $sql_get_form_id = "SELECT form_id
                             FROM view_form
