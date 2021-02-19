@@ -109,6 +109,7 @@ abstract class BasePage
             "/css/ext/bootstrap-select.min.css",
             "/css/ext/jquery-confirm.min.css",
             "/css/ext/flatpickr.min.css",
+            "/css/ext/iconselect.css"
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
