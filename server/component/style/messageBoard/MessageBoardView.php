@@ -209,6 +209,7 @@ class MessageBoardView extends FormUserInputView
         $style['id_section'] = $this->id_section;
         $style['id_reply'] = $this->model->get_reply_input_section_id();
         $style['id_link'] = $this->model->get_link_input_section_id();
+        $style['time'] = date('Y-m-d H:i:s');
         return $style;
     }
 }
