@@ -284,6 +284,7 @@ class MessageBoardModel extends FormUserInputModel
         }
 
         foreach ($replies as $reply) {
+            $reply['avatar'] = $this->get_avatar($reply['user_id']);
             if (in_array($reply['value'], $icons)) {
                 $icon_counter[$reply['value']]['count']++;
                 array_push($icon_counter[$reply['value']]['users'], $reply['user_id']);
