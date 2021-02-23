@@ -1,7 +1,7 @@
 DROP VIEW IF EXISTS view_scheduledJobs;
 CREATE VIEW view_scheduledJobs
 AS
-SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, l_types.lookup_code AS type_code, l_types.lookup_value AS type, 
+SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, l_types.lookup_code AS type_code, l_types.lookup_value AS type, sj.config,
 sj.date_create, date_to_be_executed, date_executed, description, 
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails

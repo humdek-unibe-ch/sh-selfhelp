@@ -599,6 +599,7 @@ class CallbackQualtrics extends BaseCallback
             "recipients" => array($user_id),
             "subject" => $schedule_info['subject'],
             "url" => isset($schedule_info['url']) ? $schedule_info['url'] : null,
+            "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
             "body" => $body,
             "description" => "Schedule notification by Qualtrics Callback",
         );

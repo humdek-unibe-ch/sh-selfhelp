@@ -6,23 +6,14 @@
 <?php
 require_once __DIR__ . "/../globals_untracked.php";
 require_once __DIR__ . "/../ext/php-fcm/vendor/autoload.php";
+require_once __DIR__ . "/BasicJob.php";
 
 /**
  * A wrapper class for PHPMailer. It provides a simple email sending method
  * which should be usable throughout this rpoject.
  */
-class Notificaitoner
+class Notificaitoner extends BasicJob
 {
-
-    /**
-     * The db instance which grants access to the DB.
-     */
-    private $db;
-
-    /**
-     * The transaction instance that log to DB.
-     */
-    private $transaction;
 
     /**
      * Creating a PHPMailer Instance.
@@ -32,8 +23,7 @@ class Notificaitoner
      */
     public function __construct($db, $transaction)
     {
-        $this->db = $db;
-        $this->transaction = $transaction;
+        parent::__construct($db, $transaction);
     }
 
     /* Private Methods *********************************************************/
@@ -90,26 +80,39 @@ class Notificaitoner
      * @retval boolean
      *  return if mail was sent successfully
      */
-    private function send_notification_single($notification_info, $sent_by, $user_id)
+    private function send_notification_single($notification_info, $sent_by, $condition, $user_id)
     {
         $res = true;
-        $sql = "SELECT u.email, u.device_token
+        $sql = "SELECT u.email, u.device_token, u.id AS id_users
                 FROM scheduledJobs_users sj_u
                 INNER JOIN users u ON (sj_u.id_users = u.id)
                 WHERE sj_u.id_scheduledJobs = :sj_id";
         $notifications = $this->db->query_db($sql, array(":sj_id" => $notification_info['id']));
         foreach ($notifications as $notification) {
-            if ($notification['device_token']) {
-                $res = $res && $this->send_notification($notification['device_token'], $notification_info);
-                $this->transaction->add_transaction(
-                    $res ? transactionTypes_send_notification_ok : transactionTypes_send_notification_fail,
-                    $sent_by,
-                    $user_id,
-                    $this->transaction::TABLE_SCHEDULED_JOBS,
-                    $notification_info['id'],
-                    false,
-                    'Sending notification to ' . $notification['email']
-                );
+            if ($this->check_condition($condition, $notification['id_users'])) {
+                if ($notification['device_token']) {
+                    $res = $res && $this->send_notification($notification['device_token'], $notification_info);
+                    $this->transaction->add_transaction(
+                        $res ? transactionTypes_send_notification_ok : transactionTypes_send_notification_fail,
+                        $sent_by,
+                        $user_id,
+                        $this->transaction::TABLE_SCHEDULED_JOBS,
+                        $notification_info['id'],
+                        false,
+                        'Sending notification to ' . $notification['email']
+                    );
+                } else {
+                    $this->transaction->add_transaction(
+                        transactionTypes_send_notification_fail,
+                        $sent_by,
+                        $user_id,
+                        $this->transaction::TABLE_SCHEDULED_JOBS,
+                        $notification_info['id'],
+                        false,
+                        'Sending notification to ' . $notification['email'] . ' failed because the user has no device_token'
+                    );
+                    $res = false;
+                }
             } else {
                 $this->transaction->add_transaction(
                     transactionTypes_send_notification_fail,
@@ -118,7 +121,7 @@ class Notificaitoner
                     $this->transaction::TABLE_SCHEDULED_JOBS,
                     $notification_info['id'],
                     false,
-                    'Sending notification to ' . $notification['email'] . ' failed because the user has no device_token'
+                    'Sending notification to ' . $notification['email'] . ' failed because the condition was not meat'
                 );
                 $res = false;
             }
@@ -163,11 +166,11 @@ class Notificaitoner
         }
     }
 
-    public function send_entry($sj_id, $sent_by, $user_id = null)
+    public function send_entry($sj_id, $sent_by, $condition, $user_id = null)
     {
         $mail_info = $this->db->select_by_uid('view_notifications', $sj_id);
         if ($mail_info) {
-            return $this->send_notification_single($mail_info, $sent_by, $user_id);
+            return $this->send_notification_single($mail_info, $sent_by, $condition, $user_id);
         } else {
             return false;
         }

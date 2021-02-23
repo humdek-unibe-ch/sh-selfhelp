@@ -95,6 +95,7 @@ class JobScheduler
             "id_jobTypes" => $data['id_jobTypes'],
             "id_jobStatus" => $data['id_jobStatus'],
             "description" => isset($data['description']) ? $data['description'] : "",
+            "config" => isset($data['condition']) ? json_encode($data['condition']) : "",
             "date_to_be_executed" => $data['date_to_be_executed']
         );
         return $this->db->insert('scheduledJobs', $schedule_data);
@@ -115,7 +116,7 @@ class JobScheduler
         if (!$res) {
             throw new Exception('Error! Job status cannot be set');
         }
-    }
+    }       
 
     /* Public Methods *********************************************************/
 
@@ -225,8 +226,8 @@ class JobScheduler
                 $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
                 // send notificaiton
-                $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $id_users);
-            }else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
+                $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);
+            } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
                 // execute task
                 $execution_reult = $this->task->execute_entry($data['id'], $tran_by, $id_users);
             }
