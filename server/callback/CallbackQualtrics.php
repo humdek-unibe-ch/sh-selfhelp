@@ -548,7 +548,7 @@ class CallbackQualtrics extends BaseCallback
     private function check_config($schedule_info, $data)
     {
         $result = array();
-        if ($schedule_info['config']['type'] == "overwrite_variable") {
+        if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
             // check qualtrics for more groups comming as embeded data
             $survey_response = $this->get_survey_response($data);
             if (isset($schedule_info['config']['variable'])) {

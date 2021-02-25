@@ -381,8 +381,8 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'image_selector', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('image_selector'), 0, 'If checked the style treat the values as images and expect image paths in the `text` property');
 
--- ************************** EXECUTEED ON BECCCS ***********************************************************************
-
 -- add column config to table scheduledJobs. It is used to check if the job should be executed if the condition is fulfilled. If conditon is not defined it will be executed
 ALTER TABLE scheduledJobs
 ADD COLUMN `config` VARCHAR(1000) DEFAULT NULL;
+
+-- ************************** EXECUTEED ON BECCCS ***********************************************************************
