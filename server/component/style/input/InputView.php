@@ -135,7 +135,8 @@ class InputView extends FormFieldView
     {        
         $style = parent::output_content_mobile();
         $curr_value = $this->model->get_form_field_value();
-        $style['value']['content'] = $curr_value  ? $curr_value : ($this->type == "checkbox" ? $curr_value : $this->default_value);
+        // $style['value']['content'] = $curr_value  ? $curr_value : ($this->type == "checkbox" ? $curr_value : $this->default_value);
+        $style['value']['content'] = $this->value;
         $style['value']['default'] = $this->default_value;
         return $style;
     }
