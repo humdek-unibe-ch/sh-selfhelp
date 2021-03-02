@@ -118,12 +118,13 @@ function adjustNotificationTypes() {
         $('.style-section-reply_to').removeClass('d-none');
         $('.style-section-url').addClass('d-none');
     }
+    adjustRequiredFields();
 }
 
 $(document).ready(function () {
-    adjustScheduleType();
-    adjustNotificationTypes();
+    adjustScheduleType();    
     adjustActionScheduleType();
+    adjustNotificationTypes();
     adjustRequiredFields();
     $('select').selectpicker();
     if ($('textarea[name="schedule_info[body]"]')[0]) {

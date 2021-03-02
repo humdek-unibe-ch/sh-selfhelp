@@ -381,6 +381,10 @@ INSERT INTO lookups (type_code, lookup_code, lookup_value, lookup_description) v
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'image_selector', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('image_selector'), 0, 'If checked the style treat the values as images and expect image paths in the `text` property');
 
+-- add field redirect_at_end to style qualtricsSurvey
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'redirect_at_end', get_field_type_id('text'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('qualtricsSurvey'), get_field_id('redirect_at_end'), null, 'Redirect to this url at the end of the survey');
+
 -- add column config to table scheduledJobs. It is used to check if the job should be executed if the condition is fulfilled. If conditon is not defined it will be executed
 ALTER TABLE scheduledJobs
 ADD COLUMN `config` VARCHAR(1000) DEFAULT NULL;
