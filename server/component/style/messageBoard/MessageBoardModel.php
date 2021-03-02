@@ -308,17 +308,28 @@ class MessageBoardModel extends FormUserInputModel
         $now = new DateTime('now');
         $ts = new DateTime($ts_str);
         $diff = date_diff($now, $ts);
+        // if($diff->y)
+        //     return $diff->y . " year" . ($diff->y == 1 ? "" : "s") . " ago";
+        // if($diff->m)
+        //     return $diff->m . " month" . ($diff->m == 1 ? "" : "s") . " ago";
+        // if($diff->d)
+        //     return $diff->d . " day" . ($diff->d == 1 ? "" : "s") . " ago";
+        // if($diff->h)
+        //     return $diff->h . " hour" . ($diff->h == 1 ? "" : "s") . " ago";
+        // if($diff->i)
+        //     return $diff->i . " minute" . ($diff->i == 1 ? "" : "s") . " ago";
+        // return "just now";
         if($diff->y)
-            return $diff->y . " year" . ($diff->y == 1 ? "" : "s") . " ago";
+            return "vor " . $diff->y . " Jahr" . ($diff->y == 1 ? "" : "en");
         if($diff->m)
-            return $diff->m . " month" . ($diff->m == 1 ? "" : "s") . " ago";
+            return "vor " . $diff->m . " Monat" . ($diff->m == 1 ? "" : "en");
         if($diff->d)
-            return $diff->d . " day" . ($diff->d == 1 ? "" : "s") . " ago";
+            return "vor " . $diff->d . " Tag" . ($diff->d == 1 ? "" : "en");
         if($diff->h)
-            return $diff->h . " hour" . ($diff->h == 1 ? "" : "s") . " ago";
+            return "vor " . $diff->h . " Stunde" . ($diff->h == 1 ? "" : "n");
         if($diff->i)
-            return $diff->i . " minute" . ($diff->i == 1 ? "" : "s") . " ago";
-        return "just now";
+            return "vor " . $diff->i . " Minute" . ($diff->i == 1 ? "" : "n");
+        return "gerade eben";
     }
 
     /**
