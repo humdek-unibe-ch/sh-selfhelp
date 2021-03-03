@@ -91,7 +91,7 @@ class Mailer extends PHPMailer
             $user_name = $this->db->query_db_first('SELECT name FROM users WHERE email = :email', array(":email"=>trim($mail)))['name'];
             $msg_send = str_replace('@user_name', $user_name, $msg);
             if($msg_html){
-                $msg_html_send = str_replace('@user_name', $user_name, $msg);
+                $msg_html_send = str_replace('@user_name', $user_name, $msg_html);
             }
             $res = $res && $this->send_mail($from, $to, $subject, $msg_send, $msg_html_send, $attachments, $replyTo);
             $this->transaction->add_transaction(
