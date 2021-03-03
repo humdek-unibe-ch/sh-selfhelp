@@ -343,6 +343,7 @@ class UserModel extends BaseModel
             "recipient_emails" => $email,
             "subject" => $subject,
             "body" => $msg,
+            "is_html" => true,
             "description" => "Registration Email"
         );
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
