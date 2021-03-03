@@ -61,7 +61,7 @@ class ResetPasswordModel extends EmailFormBaseModel
             "recipient_emails" => $email,
             "subject" => $_SESSION['project'] . " Password Reset",
             "body" => str_replace('@link', $url, $this->email_user),
-            "is_html" => true,
+            "is_html" => 1,
             "description" => "Password reset email"
         );
         return $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
