@@ -331,7 +331,8 @@ class UserModel extends BaseModel
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
         $subject = $_SESSION['project'] . " Email Verification";
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        // $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $from = "noreply@" . PROJECT_NAME . '.unibe.ch';
         $msg = $this->get_content($url, 'email_activate');
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
