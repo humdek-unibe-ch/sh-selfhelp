@@ -41,6 +41,12 @@ class CallbackQualtrics extends BaseCallback
     private $services = null;
 
     /**
+     * The QUaltrics survey result is kept here
+     * It is used only when there is overwrite in the config settings
+     */
+    private $survey_response = [];
+
+    /**
      * The constructor.
      *
      * @param object $services
@@ -385,6 +391,26 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Check if any of the actions assigne to this survey need the survey_response from the Qualtrics
+     * The data request is not very fast that is why we call it when we need it
+     * @param array $actions
+     * All actions attached to the survey for which we recieved a survey_response
+     * @retval boolean
+     * true if we need the extra data and false if we dont need it
+     */
+    private function is_survey_response_needed($actions)
+    {
+        foreach ($actions as $key => $action) {
+            $schedule_info = json_decode($action['schedule_info'], true);
+            if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
+                // data is needed
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Check if any event should be queued based on the actions
      *
      * @param array $data
@@ -399,26 +425,56 @@ class CallbackQualtrics extends BaseCallback
         $result = array();
         //get all actions for this survey and trigger type
         $actions = $this->get_actions($data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
+        $this->survey_response = []; // always clear it, new resposnce new data if we need it
+        if ($this->is_survey_response_needed($actions)) {
+            $start_time = microtime(true);
+                    $start_date = date("Y-m-d H:i:s");
+                    $this->survey_response = $this->get_survey_response($data);
+                    $res['action'] = 'get_survey_response';
+                    $res['time'] = [];
+                    $end_time = microtime(true);
+                    $res['time']['exec_time'] = $end_time - $start_time;
+                    $res['time']['start_date'] = $start_date;
+                    array_push($result, $res);            
+        }
         foreach ($actions as $action) {
             //clear the mail generation data
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
                 $schedule_info = json_decode($action['schedule_info'], true);
                 $res = array();
                 if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
+                    $start_time = microtime(true);
+                    $start_date = date("Y-m-d H:i:s");
                     $res = $this->queue_task($data, $user_id, $action);
-                    $result = array_merge($result, $res['result']);
+                    $res['time'] = [];
+                    $end_time = microtime(true);
+                    $res['time']['exec_time'] = $end_time - $start_time;
+                    $res['time']['start_date'] = $start_date;
+                    array_push($result, $res);
                 } else if (
                     $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_notification ||
                     $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder
                 ) {
                     if ($schedule_info['notificationTypes'] == notificationTypes_email) {
-                        // the notification type is email
+                        // the notification type is email                        
+                        $start_time = microtime(true);
+                        $start_date = date("Y-m-d H:i:s");
                         $res = $this->queue_mail($data, $user_id, $action);
-                        $result = array_merge($result, $res['result']);
+                        $res['time'] = [];
+                        $end_time = microtime(true);
+                        $res['time']['exec_time'] = $end_time - $start_time;
+                        $res['time']['start_date'] = $start_date;
+                        array_push($result, $res);
                     } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
-                        // the notification type is push notification
+                        // the notification type is push notification                        
+                        $start_time = microtime(true);
+                        $start_date = date("Y-m-d H:i:s");
                         $res = $this->queue_notification($data, $user_id, $action);
-                        $result = array_merge($result, $res['result']);
+                        $res['time'] = [];
+                        $end_time = microtime(true);
+                        $res['time']['exec_time'] = $end_time - $start_time;
+                        $res['time']['start_date'] = $start_date;
+                        array_push($result, $res);
                     }
                 }
                 if (isset($res['sj_id'])) {
@@ -457,7 +513,7 @@ class CallbackQualtrics extends BaseCallback
 
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
-        $check_config = $this->check_config($schedule_info, $data);
+        $check_config = $this->check_config($schedule_info);
         $schedule_info = $check_config['schedule_info'];
         $result = $check_config['result'];
         $mail = array();
@@ -540,22 +596,19 @@ class CallbackQualtrics extends BaseCallback
      * Check config field for extra modifications
      * @param array $schedule_info
      * the schedule info
-     * @param array $data
-     * the survey data;
      * @retval array 
      * return the info from the check
      */
-    private function check_config($schedule_info, $data)
+    private function check_config($schedule_info)
     {
         $result = array();
         if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
             // check qualtrics for more groups comming as embeded data
-            $survey_response = $this->get_survey_response($data);
             if (isset($schedule_info['config']['variable'])) {
                 foreach ($schedule_info['config']['variable'] as $key => $variable) {
-                    if (isset($survey_response['values'][$variable])) {
-                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $survey_response['values'][$variable];
-                        $schedule_info[$variable] = $survey_response['values'][$variable];
+                    if (isset($this->survey_response['values'][$variable])) {
+                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $this->survey_response['values'][$variable];
+                        $schedule_info[$variable] = $this->survey_response['values'][$variable];
                     }
                 }
             }
@@ -587,7 +640,7 @@ class CallbackQualtrics extends BaseCallback
 
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
-        $check_config = $this->check_config($schedule_info, $data);
+        $check_config = $this->check_config($schedule_info);
         $schedule_info = $check_config['schedule_info'];
         $result = $check_config['result'];
 
@@ -658,19 +711,19 @@ class CallbackQualtrics extends BaseCallback
         // }
 
         $schedule_info = json_decode($action['schedule_info'], true);
-        // $schedule_info['config'] = json_decode($schedule_info['config'], true);
         $result = array();
-        if ($schedule_info['config']['type'] == "add_group" || $schedule_info['config']['type'] == "remove_group") {
-            // check qualtrics for more groups comming as embeded data
-            $survey_response = $this->get_survey_response($data);
-            $qualtrics_group = [];
-            if ($schedule_info['config']['type'] == "add_group" && isset($survey_response['values']['add_group'])) {
-                $qualtrics_group =  explode(',', $survey_response['values']['add_group']);
-            } else if ($schedule_info['config']['type'] == "remove_group" && isset($survey_response['values']['remove_group'])) {
-                $qualtrics_group =  explode(',', $survey_response['values']['remove_group']);
-            }
-            $schedule_info['config']['group'] = array_merge($schedule_info['config']['group'], $qualtrics_group);
-        }
+        // if ($schedule_info['config']['type'] == "add_group" || $schedule_info['config']['type'] == "remove_group") {
+        //     // check qualtrics for more groups comming as embeded data
+        //     // disabled for now as it is not used and it shouldbe improved not to be called multiple times for the same response
+        //     $survey_response = $this->get_survey_response($data);
+        //     $qualtrics_group = [];
+        //     if ($schedule_info['config']['type'] == "add_group" && isset($survey_response['values']['add_group'])) {
+        //         $qualtrics_group =  explode(',', $survey_response['values']['add_group']);
+        //     } else if ($schedule_info['config']['type'] == "remove_group" && isset($survey_response['values']['remove_group'])) {
+        //         $qualtrics_group =  explode(',', $survey_response['values']['remove_group']);
+        //     }
+        //     $schedule_info['config']['group'] = array_merge($schedule_info['config']['group'], $qualtrics_group);
+        // }
         $task = array(
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -1218,6 +1271,8 @@ class CallbackQualtrics extends BaseCallback
      */
     public function add_survey_response($data)
     {
+        $start_time = microtime(true);
+        $start_date = date("Y-m-d H:i:s");
         $callback_log_id = $this->insert_callback_log($_SERVER, $data);
         $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_add_survey_response);
         if ($result[ModuleQualtricsProjectModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
@@ -1274,6 +1329,10 @@ class CallbackQualtrics extends BaseCallback
                 }
             }
         }
+        $end_time = microtime(true);
+        $result['time'] = [];
+        $result['time']['exec_time'] = $end_time - $start_time;
+        $result['time']['start_date'] = $start_date;
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
     }

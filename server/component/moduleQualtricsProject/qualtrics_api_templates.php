@@ -18,8 +18,9 @@ class QulatricsAPITemplates extends BaseModel
     const hideQualtricsLogo = '<script type="text/javascript" id="selfhelp_hideQualtricsLogo">
                                     Qualtrics.SurveyEngine.addOnReady(function() {
                                     jQuery("#Plug").attr("style", "display:none !important");
+                                    jQuery(jQuery(".SkinInner")[0]).attr("data-iframe-height", "iFrameResizer");
                                 });
-                                </script>';
+                                </script>'; // plus add taggedElement for iFrame Resizer
 
     /* API calls */
     const authenticator = '{
