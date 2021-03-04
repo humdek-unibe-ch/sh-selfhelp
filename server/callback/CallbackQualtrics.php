@@ -665,10 +665,8 @@ class CallbackQualtrics extends BaseCallback
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if (($this->job_scheduler->execute_job(array(
-                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification),
-                    "id" => $sj_id
-                ), transactionBy_by_qualtrics_callback))) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_qualtrics_callback))) {
                     $result[] = 'Notification was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
