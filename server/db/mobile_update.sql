@@ -389,4 +389,10 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 ALTER TABLE scheduledJobs
 ADD COLUMN `config` VARCHAR(1000) DEFAULT NULL;
 
+-- add field redirect_at_end to style formUserInput
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('formUserInput'), get_field_id('redirect_at_end'), null, 'Redirect to this url at the end of the survey');
+
+-- add field close_modal_at_end to style formUserInput
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('formUserInput'), get_field_id('close_modal_at_end'), 0, '`Only for mobile` - if selected the modal form will be closed once the survey is done');
+
 -- ************************** EXECUTEED ON BECCCS ***********************************************************************

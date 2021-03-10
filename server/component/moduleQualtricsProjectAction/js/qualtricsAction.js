@@ -112,7 +112,7 @@ function adjustNotificationTypes() {
         $('.style-section-from_name').addClass('d-none');
         $('.style-section-reply_to').addClass('d-none');
         $('.style-section-url').removeClass('d-none');
-    } else {
+    } else if ($('select[name="schedule_info[notificationTypes]"] option:selected').text().includes('Email')){
         $('.style-section-from_email').removeClass('d-none');
         $('.style-section-from_name').removeClass('d-none');
         $('.style-section-reply_to').removeClass('d-none');
