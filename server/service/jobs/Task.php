@@ -11,17 +11,7 @@ require_once __DIR__ . "/BasicJob.php";
  * A task class repsonsible for tasks
  */
 class Task  extends BasicJob
-{
-
-    /**
-     * The db instance which grants access to the DB.
-     */
-    private $db;
-
-    /**
-     * The transaction instance that log to DB.
-     */
-    private $transaction;
+{    
 
     /**
      * Creating a PHPMailer Instance.
@@ -31,8 +21,7 @@ class Task  extends BasicJob
      */
     public function __construct($db, $transaction)
     {
-        $this->db = $db;
-        $this->transaction = $transaction;
+        parent::__construct($db, $transaction);
     }
 
     /* Private Methods *********************************************************/
