@@ -1,4 +1,4 @@
-# v4.0.0 [mobile] (latest)
+# v4.0.0 (latest)
 
 ### Bugfix
  - Resend a verification email on already invited users
