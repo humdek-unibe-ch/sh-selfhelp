@@ -50,6 +50,6 @@ class VersionView extends StyleView
             )
         ));
         $versionCard->output_content();
-    }
+    }	
 }
 ?>

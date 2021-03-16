@@ -980,39 +980,6 @@ class CmsModel extends BaseModel
         return $res;
     }
 
-    /**
-     * Update a field of the current section.
-     *
-     * @param int $id
-     *  The id of the field to update.
-     * @param int $id_language
-     *  The id of the language of the field.
-     * @param int $id_gender
-     *  The id of the target gender of the field.
-     * @param string $content
-     *  The new content.
-     * @retval bool
-     *  True if the update operation is successful, false otherwise.
-     */
-    private function update_section_fields_db($id, $id_language, $id_gender,
-        $content)
-    {
-        $id_section = $this->get_active_section_id();
-        if($id_section == null && $this->is_navigation())
-            $id_section = $this->page_info['id_navigation_section'];
-        $update = array(
-            "content" => $content
-        );
-        $insert = array(
-            "content" => $content,
-            "id_fields" => $id,
-            "id_languages" => $id_language,
-            "id_sections" => $id_section,
-            "id_genders" => $id_gender,
-        );
-        return $this->db->insert("sections_fields_translation", $insert, $update);
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -1404,6 +1371,27 @@ class CmsModel extends BaseModel
                 ""
             );
         }
+
+        /** IT SHOULD BE REWORKED *************************************************************************************************************************************** */
+        $page_title = $this->fetch_page_field_languages($this->id_page,
+            TYPE_INPUT_FIELD_ID);
+        foreach($page_title as $content)
+        {
+            $res[] = $this->add_property_item(
+                TYPE_INPUT_FIELD_ID,
+                intval($content['id_language']),
+                MALE_GENDER_ID,
+                "icon",
+                "The icon which will be used for menus. For mobile icons use prefix `mobile-`",
+                $content['locale'],
+                "text",
+                "page_field",
+                $content['content'],
+                ""
+            );
+        }
+        /** END IT SHOULD BE REWORKED *************************************************************************************************************************************** */
+
         $fields = $this->fetch_page_fields($this->id_page);
         foreach($fields as $field)
         {
@@ -1708,8 +1696,11 @@ class CmsModel extends BaseModel
         ));
         if(!$new_id) return false;
         $res &= $this->insert_section_link($new_id, $relation);
-        if($res) return $new_id;
-        else return false;
+        if($res) {
+            return $new_id;
+        }
+
+        return false;
     }
 
     /**
@@ -2060,6 +2051,40 @@ class CmsModel extends BaseModel
                 $groups[] = $group;
         }
         return $groups;
+    }
+
+    /**
+     * Update a field of the current section.
+     *
+     * @param int $id
+     *  The id of the field to update.
+     * @param int $id_language
+     *  The id of the language of the field.
+     * @param int $id_gender
+     *  The id of the target gender of the field.
+     * @param string $content
+     *  The new content.
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_section_fields_db($id, $id_language, $id_gender,
+        $content, $id_section = null)
+    {
+        if($id_section === null)
+            $id_section = $this->get_active_section_id();
+        if($id_section == null && $this->is_navigation())
+            $id_section = $this->page_info['id_navigation_section'];
+        $update = array(
+            "content" => $content
+        );
+        $insert = array(
+            "content" => $content,
+            "id_fields" => $id,
+            "id_languages" => $id_language,
+            "id_sections" => $id_section,
+            "id_genders" => $id_gender,
+        );
+        return $this->db->insert("sections_fields_translation", $insert, $update);
     }
 }
 ?>

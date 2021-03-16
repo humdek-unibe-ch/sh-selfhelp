@@ -324,5 +324,10 @@ class CmsUpdateView extends BaseView
             $this->output_content_delete();
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

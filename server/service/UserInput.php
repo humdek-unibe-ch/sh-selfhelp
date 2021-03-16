@@ -57,13 +57,14 @@ class UserInput
      *                    input type.
      *  - 'value'         The value that was entered by the user.
      *  - 'timestamp'     The date and time when the value was entered.
+     *  - 'id_user_input_record' The new field that keep the rows
      */
     private function fetch_input_fields($conds = array())
     {
         if( $this->field_attrs === NULL)
             $this->set_field_attrs();
         $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
-            g.name AS gender, vc.code
+            g.name AS gender, vc.code, id_user_input_record
             FROM user_input AS ui
             LEFT JOIN users AS u ON u.id = ui.id_users
             LEFT JOIN genders AS g ON g.id = u.id_genders
@@ -98,6 +99,7 @@ class UserInput
                 "form_name" => $this->field_attrs[$id]["form_name"],
                 "value" => $field["value"],
                 "timestamp" => $field["edit_time"],
+                "id_user_input_record" => $field["id_user_input_record"],
             );
         }
         return $fields;

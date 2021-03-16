@@ -48,7 +48,6 @@ function init_time_inputs() {
 
 function set_focus_btn_clcik() {
     $('.selfhelp-icon-btn').on("click", function () {
-        var section_id = $(this).attr('id').replace('selfhelp-icon-btn-', '');
-        $('#selfhelp-input-' + section_id).focus();
+        $($(this).parent().parent().find('.selfhelp-input-date')[0]).focus();
     })
 }

@@ -68,6 +68,25 @@ class InputView extends FormFieldView
             $this->css_label = "form-check-label";
             if($this->label == "") $this->label = "&zwnj;";
         }
+        $this->data_config = $this->model->get_db_field("data_config");
+        $this->value = $this->model->get_db_field("value", "");
+        if($this->data_config){
+            $this->retrieve_data();
+        }
+    }
+
+    /** Private Methods */
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data(){
+        $fields = $this->model->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $this->value = str_replace($field_name, $field_value, $this->value);
+            }
+        }
     }
 
     /* Protected Methods ******************************************************/
@@ -88,7 +107,7 @@ class InputView extends FormFieldView
         {
             $css_input = "form-check-input position-static float-left";
             if($this->is_user_input())
-            {
+            {                
                 if($this->default_value == "") return;
                 if(($this->value !== null && $this->value !== "")
                     || ($this->value === null && $this->placeholder != ""))
@@ -111,5 +130,16 @@ class InputView extends FormFieldView
             require __DIR__ . "/tpl_input.php";
         }
     }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        $curr_value = $this->model->get_form_field_value();
+        // $style['value']['content'] = $curr_value  ? $curr_value : ($this->type == "checkbox" ? $curr_value : $this->default_value);
+        $style['value']['content'] = $this->value;
+        $style['value']['default'] = $this->default_value;
+        return $style;
+    }
+
 }
 ?>

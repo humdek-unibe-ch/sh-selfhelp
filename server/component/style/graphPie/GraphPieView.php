@@ -106,5 +106,6 @@ class GraphPieView extends GraphView
             parent::output_content();
         }
     }
+	
 }
 ?>

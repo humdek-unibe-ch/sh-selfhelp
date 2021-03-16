@@ -35,5 +35,6 @@ class JumbotronView extends StyleView
     {
         require __DIR__ . "/tpl_jumbotron.php";
     }
+	
 }
 ?>

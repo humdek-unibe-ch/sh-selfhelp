@@ -251,27 +251,18 @@ class FormUserInputModel extends StyleModel
             }
         }
         $mail = array(
-            "id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
-            "date_to_be_sent" => date('Y-m-d H:i:s', time()),
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
             "from_email" => PROJECT_NAME . '@unibe.ch',
             "from_name" => PROJECT_NAME,
             "reply_to" => PROJECT_NAME . '@unibe.ch',
             "recipient_emails" => $this->db->select_by_uid('users', $_SESSION['id_user'])['email'],
             "subject" => $subject,
-            "body" => $body
+            "body" => $body,
+            "description" => "FormUserInput Feedback email"
         );
-        $mq_id = $this->mail->add_mail_to_queue($mail);
-        if ($mq_id > 0) {
-            $this->transaction->add_transaction(
-                transactionTypes_insert,
-                transactionBy_by_user,
-                $_SESSION['id_user'],
-                $this->transaction::TABLE_MAILQUEUE,
-                $mq_id
-            );
-            $this->mail->send_mail_from_queue($mq_id, transactionBy_by_user, $_SESSION['id_user']);
-        }
-
+        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 }
 ?>

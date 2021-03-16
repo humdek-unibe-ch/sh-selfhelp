@@ -60,5 +60,6 @@ class ButtonView extends StyleView
         if($this->url == "" || $this->label == "") return;
         require __DIR__ . "/tpl_button.php";
     }
+
 }
 ?>

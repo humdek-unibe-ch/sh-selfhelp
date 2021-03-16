@@ -102,7 +102,7 @@ class PageDb extends BaseDb
      * @retval mixed
      *  The id of the filed or false on failure
      */
-    public function fetch_field_id($name)
+    public function fetch_field_id_by_name($name)
     {
         $sql = "SELECT id FROM fields WHERE name = :name";
         $res = $this->query_db_first($sql, array('name' => $name));
@@ -432,6 +432,32 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Get the avatar of the current user
+     *
+     * @param int $user_id
+     * 
+     * @retval string
+     *  The avatar image of the current user or emty string.
+     */
+    public function get_avatar($user_id)
+    {
+        $sql_get_form_id = "SELECT form_id
+                            FROM view_form
+                            WHERE form_name = 'avatar';";
+        $form = $this->query_db_first($sql_get_form_id);
+        if ($form) {
+            $sql = 'CALL get_form_data_for_user(:table_id, :user_id)';
+            $avatar = $this->query_db_first($sql, array(
+                ":table_id" => $form['form_id'],
+                ":user_id" => $user_id
+            ));
+            return $avatar ? $avatar['avatar'] : '';
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * Fetch the list of languages
      *
      * @retval array
@@ -475,6 +501,22 @@ class PageDb extends BaseDb
     {
         $sql = "SELECT * FROM modules;";
         return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch the id of a style given the name of the style
+     *
+     * @param string $name
+     *  The name of the style.
+     * @retval mixed
+     *  The id of the style or false on failure
+     */
+    public function fetch_style_id_by_name($name)
+    {
+        $sql = "SELECT * FROM styles WHERE name = :name;";
+        $res = $this->query_db_first($sql, array( ":name" => $name));
+        if(!$res) return false;
+        return $res['id'];
     }
 
     /**

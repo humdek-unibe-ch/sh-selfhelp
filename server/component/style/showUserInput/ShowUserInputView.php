@@ -88,7 +88,7 @@ class ShowUserInputView extends StyleView
         $this->source_an = $this->model->convert_to_alphanumeric($this->source);
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Date");
-        $this->label_delete = $this->model->get_db_field("label_delete", "Remove");
+        $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
         $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
         $this->can_delete = $this->label_delete != "";
@@ -188,9 +188,17 @@ class ShowUserInputView extends StyleView
         foreach($fields as $field)
         {
             $header[] = $field['field_label'];
-            if(!isset($rows[$field['timestamp']]))
-                $rows[$field['timestamp']] = array($field['timestamp']);
-            $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
+            if(isset($field['id_user_input_record'])){
+                // new visualization based on row id
+                if(!isset($rows[$field['id_user_input_record']]))
+                    $rows[$field['id_user_input_record']] = array($field['id_user_input_record']);
+                $rows[$field['id_user_input_record']][intval($field['id'])] = $field['value'];
+            }else{
+                // legacy
+                if(!isset($rows[$field['timestamp']]))
+                    $rows[$field['timestamp']] = array($field['timestamp']);
+                $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
+            }
         }
         $header = array_unique($header);
         if($this->can_delete)
@@ -253,6 +261,14 @@ class ShowUserInputView extends StyleView
         $fields = $this->model->get_user_data($this->source);
         if(count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
+    }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        $style['fields'] = $this->model->get_user_data($this->source);
+        $style['can_delete'] = $this->can_delete;
+        return $style;
     }
 }
 ?>

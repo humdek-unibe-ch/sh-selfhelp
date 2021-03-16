@@ -8,12 +8,13 @@ require_once __DIR__ . "/globals.php";
 require_once __DIR__ . "/Acl.php";
 require_once __DIR__ . "/PageDb.php";
 require_once __DIR__ . "/Login.php";
-require_once __DIR__ . "/Mailer.php";
+require_once __DIR__ . "/jobs/Mailer.php";
 require_once __DIR__ . "/Navigation.php";
 require_once __DIR__ . "/ParsedownExtension.php";
 require_once __DIR__ . "/Router.php";
 require_once __DIR__ . "/UserInput.php";
 require_once __DIR__ . "/Transaction.php";
+require_once __DIR__ . "/JobScheduler.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -36,11 +37,6 @@ class Services
      * The login instance that allows to check user credentials.
      */
     private $login = null;
-
-    /**
-     * An instance of the PHPMailer service to handle outgoing emails.
-     */
-    private $mail = null;
 
     /**
      * An instance of the transaction class used for loging.
@@ -70,6 +66,11 @@ class Services
     private $user_input = null;
 
     /**
+     * The JobSheduler service instnce to handle jobs scheduling and execution.
+     */
+    private $job_scheduler;
+
+    /**
      * The constructor.
      */
     public function __construct()
@@ -88,7 +89,9 @@ class Services
 
         $this->transaction = new Transaction($this->db);
 
-        $this->mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router);
+        $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router);
+
+        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail);
 
         $this->user_input = new UserInput($this->db);
 
@@ -241,17 +244,6 @@ class Services
     }
 
     /**
-     * Get the service class Mailer.
-     *
-     * @retval object
-     *  The Mailer service class.
-     */
-    public function get_mail()
-    {
-        return $this->mail;
-    }
-
-    /**
      * Get the service class Navigation.
      *
      * @retval object
@@ -293,6 +285,17 @@ class Services
     public function get_user_input()
     {
         return $this->user_input;
+    }
+
+    /**
+     * Get the service class UserInput.
+     *
+     * @retval object
+     *  The UserInput service class.
+     */
+    public function get_job_scheduler()
+    {
+        return $this->job_scheduler;
     }
 
     /**

@@ -1,4 +1,5 @@
-<?php
+<?php  
+
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
@@ -10,6 +11,10 @@ require_once "./server/page/SectionPage.php";
 require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
+
+if(CORS){
+    cors();
+}
 
 /**
  * Helper function to show stacktrace also of wranings.
@@ -48,46 +53,149 @@ function create_callback_page($services, $class_name, $method_name)
 $router = $services->get_router();
 $db = $services->get_db();
 
-// call closure or throw 404 status
-if($router->route)
-{
-    if($router->route['target'] == "sections")
+if (isset($_POST['mobile']) && $_POST['mobile']) {
+    mobile_call($services, $router, $db);    
+} else {
+    web_call($services, $router, $db);
+}
+
+function mobile_call($services, $router, $db){
+    $res = [];
+    if($router->route)
     {
-        $page = new SectionPage($services, $router->route['name'],
-            $router->route['params']);
-        $page->output();
-    }
-    else if($router->route['target'] == "component")
-    {
-        $page = new ComponentPage($services, $router->route['name'],
-            $router->route['params']);
-        $page->output();
-    }
-    else if($router->route['target'] == "custom")
-    {
-        $function_name = "create_" . $router->route['name'] . "_page";
-        if(is_callable($function_name))
-            call_user_func_array($function_name,
-                array_merge(array($services), $router->route['params'])
+        if ($router->route['target'] == "sections") {
+            $page = new SectionPage(
+                $services,
+                $router->route['name'],
+                $router->route['params'],
+                true
             );
-        else
-            throw new Exception("Cannot call custom function '$function_name'");
+            $start_time = microtime(true);
+            $start_date = date("Y-m-d H:i:s");
+            $res = $page->output_base_content_mobile();
+            if (isset($res['navigation'])) {
+                $res['navigation'] = array_values($res['navigation']);
+                $adminIndex = array_search('admin-link', array_column($res['navigation'], 'keyword'));
+                if ($adminIndex) {
+                    unset($res['navigation'][$adminIndex]); //remove the admin tab if it is returned in the navigation
+                }
+            }
+            if (isset($res['content'])) {
+                $res['content'] = array_values($res['content']);
+            }
+            $end_time = microtime(true);
+            $res['time'] = [];
+            $res['time']['exec_time'] = $end_time - $start_time;
+            $res['time']['start_date'] = $start_date;                        
+            $res['logged_in'] = $_SESSION['logged_in'];
+            $res['base_path'] = BASE_PATH;
+            echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        }
+        else if($router->route['target'] == "component")
+        {
+            $page = new ComponentPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output();
+        }
+        else if($router->route['target'] == "custom")
+        {
+            $function_name = "create_" . $router->route['name'] . "_page";
+            if(is_callable($function_name))
+                call_user_func_array($function_name,
+                    array_merge(array($services), $router->route['params'])
+                );
+            else
+                throw new Exception("Cannot call custom function '$function_name'");
+        }
+        // log user activity on experiment pages
+        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+        if($db->query_db_first($sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
+        {
+            //if transaction logs work as expected this should be removed
+            $db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+            ));
+        }
     }
-    // log user activity on experiment pages
-    $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
-    if($db->query_db_first($sql,
-        array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
+    else {
+        // no route was matched
+        $page = new SectionPage($services, 'missing', array());
+        $page->output();
+    }
+}
+
+function web_call($services, $router, $db){
+    // call closure or throw 404 status
+    if($router->route)
     {
-        //if transaction logs work as expected this should be removed
-        $db->insert("user_activity", array(
-            "id_users" => $_SESSION['id_user'],
-            "url" => $_SERVER['REQUEST_URI'],
-        ));
+        if($router->route['target'] == "sections")
+        {
+            $page = new SectionPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output();
+        }
+        else if($router->route['target'] == "component")
+        {
+            $page = new ComponentPage($services, $router->route['name'],
+                $router->route['params']);
+            $page->output();
+        }
+        else if($router->route['target'] == "custom")
+        {
+            $function_name = "create_" . $router->route['name'] . "_page";
+            if(is_callable($function_name))
+                call_user_func_array($function_name,
+                    array_merge(array($services), $router->route['params'])
+                );
+            else
+                throw new Exception("Cannot call custom function '$function_name'");
+        }
+        // log user activity on experiment pages
+        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+        if($db->query_db_first($sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
+        {
+            //if transaction logs work as expected this should be removed
+            $db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+            ));
+        }
+    }
+    else {
+        // no route was matched
+        $page = new SectionPage($services, 'missing', array());
+        $page->output();
     }
 }
-else {
-    // no route was matched
-    $page = new SectionPage($services, 'missing', array());
-    $page->output();
+
+function cors() {
+    
+    // Allow from any origin
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+        // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
+        // you want to allow, and if so:
+        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Methods: GET, POST');
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Max-Age: 86400');    // cache for 1 day
+    }
+    
+    // Access-Control headers are received during OPTIONS requests
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+            // may also be using PUT, PATCH, HEAD etc
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS");         
+        
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+            header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    
+        exit(0);
+    }
+    
 }
+
 ?>

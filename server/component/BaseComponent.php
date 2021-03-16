@@ -89,6 +89,12 @@ abstract class BaseComponent
             $this->view->output_content();
     }
 
+    public function output_content_mobile()
+    {
+        if($this->view)
+            return $this->view->output_content_mobile();
+    }
+
     /**
      * Get css include files required for this component. Extensions of this
      * class ought to override this method. By default, a component includes no

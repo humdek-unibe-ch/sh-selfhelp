@@ -44,5 +44,6 @@ class JsonView extends StyleView
     {
         echo $this->model->json_style_parse($this->json);
     }
+
 }
 ?>

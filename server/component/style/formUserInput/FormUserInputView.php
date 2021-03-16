@@ -152,5 +152,15 @@ class FormUserInputView extends StyleView
         ));
         require __DIR__ . "/tpl_form.php";
     }
+
+    // public function output_content_mobile()
+    // {
+    //     $style = parent::output_content_mobile();
+    //     $children = $this->model->get_children();
+    //     $this->propagate_input_field_settings($children, !$this->is_log);
+    //     $style['children'] = $children;
+    //     return $style;
+    // }
+	
 }
 ?>

@@ -191,5 +191,30 @@ class NavView extends BaseView
         $login = $this->model->get_login();
         require __DIR__ . "/tpl_nav.php";
     }
+
+    public function output_content_mobile()
+    {
+        $res = $this->model->get_pages();
+        $home = array(
+            'id_navigation_section' => null,
+            'title' => $this->model->get_home(),
+            'keyword' => 'home',
+            'url' => '/home',
+            'icon' => 'mobile-home',
+            'children' => array(),
+            'is_active' => false
+        );    
+        array_unshift($res, $home);
+        foreach ($res as $key => $value) {
+            unset($res[$key]['is_active']);
+            if (isset($value['children'])) {
+                foreach ($value['children'] as $subNavKey => $subNav) {
+                    unset($value['children'][$subNavKey]['is_active']);
+                }
+                $res[$key]['children'] = array_values($value['children']);
+            }
+        }        
+        return $res;
+    }
 }
 ?>

@@ -17,9 +17,14 @@ class StyleModel extends BaseModel implements IStyleModel
     /* Private Properties *****************************************************/
 
     /**
+     * The ID of the section.
+     */
+    protected $section_id;
+
+    /**
      * The name of the section.
      */
-    private $section_name;
+    protected $section_name;
 
     /**
      * The name of the style associated to the section.
@@ -60,6 +65,7 @@ class StyleModel extends BaseModel implements IStyleModel
     public function __construct($services, $id, $params=array(), $id_page=-1)
     {
         parent::__construct($services);
+        $this->section_id = $id;
         if($this->is_cms_page())
         {
             if($_SESSION['cms_gender'] !== "both")
@@ -135,19 +141,21 @@ class StyleModel extends BaseModel implements IStyleModel
                     // if specific filter is used, overwrite it.
                     $filter = $config['filter'];
                 }
+                $current_user = isset($config['current_user']) && $config['current_user'];
                 $data = $config['type'] === 'static' ? $this->get_static_data(
                     $table_id,
-                    $filter
+                    $filter,
+                    $current_user
                 ) : $this->get_dynamic_data($table_id, $filter);
                 $data = array_filter($data, function ($value) {
-                        return ($value["deleted"] != 1);
+                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
                     });
                 foreach ($config['fields'] as $key => $field) {
                     // loop fields
                     $i = 0;
                     $field_value = '';
                     foreach ($data as $key => $row) {
-                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $row[$field['not_found_text']]; // get the first value
+                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
                         if ($config['retrieve'] != 'all') {
                             $field_value = $val;
                             break; // we don need the others;
@@ -177,11 +185,16 @@ class StyleModel extends BaseModel implements IStyleModel
      * id of the table that we want to retrieve
      * @param string $filter
      * filter used to sort the data
+     * @param boolean $current_user
+     * get the data for the current user if enabled
      * @retval array
      * the results rows in array
      */
-    private function get_static_data($table_id, $filter)
+    private function get_static_data($table_id, $filter, $current_user)
     {
+        if($current_user){
+            $filter = "AND id_users = '" . $_SESSION['id_user'] . "'" . $filter;
+        }
         $sql = 'CALL get_uploadTable_with_filter(:table_id, :filter)';
         return $this->db->query_db($sql, array(
             ":table_id" => $table_id,
@@ -198,7 +211,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @retval array
      * the results rows in array
      */
-    private function get_dynamic_data($table_id, $filter)
+    protected function get_dynamic_data($table_id, $filter)
     {
         $sql = 'CALL get_form_data_for_user_with_filter(:table_id, :user_id, :filter)';
         return $this->db->query_db($sql, array(
@@ -230,7 +243,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * table name
      * @retval int table id
      */
-    private function get_dynamic_table_id($table_name)
+    protected function get_dynamic_table_id($table_name)
     {
         $sql = 'SELECT * 
                 FROM view_user_input 
@@ -460,10 +473,23 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
-     * This function is called whenever the style component is updated via the
+     * This function is called after the style component is created via the
      * CMS. Redefine within the style.
      */
-    public function cms_update_callback($model) { }
+    public function cms_post_create_callback($model, $section_name,
+        $section_style_id, $relation, $id) { }
+
+    /**
+     * This function is called after the style component is updated via the
+     * CMS. Redefine within the style.
+     */
+    public function cms_post_update_callback($model, $data) { }
+
+    /**
+     * This function is called before the style component is updated via the
+     * CMS. Redefine within the style.
+     */
+    public function cms_pre_update_callback($model, $data) { }
 
      /**
      * Retrieve the data based on the JSON configuration

@@ -80,6 +80,7 @@ class Login
             else if($this->redirect)
                 $this->update_last_url($_SESSION['id_user'], null);
         }
+        // session_write_close(); // otherwise it blocks request, check later if session is uesed naywhere else to assgin data.
     }
 
     /**

@@ -117,21 +117,22 @@ class RegisterModel extends StyleModel
      */
     public function register_user($email, $code, $skip_group = false)
     {
-        if($this->check_validation_code($code))
-        {
-            $group = $this->get_group_from_code($code);            
+        if($this->check_validation_code($code)) {
+            $group = $this->get_group_from_code($code);
             $groupId = array($this->get_db_field("group", SUBJECT_GROUP_ID)); // asign predefined group in the controler if not set the default group `subject`
-            if(!empty($group)){  
+            if (!empty($group)) {
                 $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }
             $uid = $this->user_model->create_new_user($email, $code, true);
-            if($uid && $this->claim_validation_code($code, $uid) !== false)
-            {
-                if(!$skip_group){
+            if ($uid && $this->claim_validation_code($code, $uid) !== false) {
+                if (!$skip_group) {
                     $this->user_model->add_groups_to_user($uid, $groupId);
                 }
                 return $uid;
             }
+        } else if ($this->user_model->is_user_invited($email)['id'] > 0) {
+            // if the user already is created and we want to resend the activation link
+            return $this->user_model->create_new_user($email, $code, true);
         }
         return false;
     }
@@ -157,6 +158,11 @@ class RegisterModel extends StyleModel
     }
 
     public function register_user_without_code($email){
+        $user = $this->user_model->is_user_invited($email); 
+        if ($user['id'] > 0 ){
+            // if the user already is created and we want to resend the activation link
+            return $this->user_model->create_new_user($email, $user['code'], true);
+        }
         $code = $this->user_model->generate_and_add_code();        
         if ($code === false){
             return false;

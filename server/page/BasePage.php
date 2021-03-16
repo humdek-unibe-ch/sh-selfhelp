@@ -109,6 +109,7 @@ abstract class BasePage
             "/css/ext/bootstrap-select.min.css",
             "/css/ext/jquery-confirm.min.css",
             "/css/ext/flatpickr.min.css",
+            "/css/ext/iconselect.css"
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -121,6 +122,8 @@ abstract class BasePage
             "/js/ext/jquery-confirm.min.js",
             "/js/ext/flatpickr.min.js",
             "/js/ext/html2pdf.bundle.min.js",
+            "/js/ext/iconselect.js",
+            "/js/ext/iscroll.js"
         );
         if(DEBUG == 0)
         {
@@ -378,6 +381,12 @@ abstract class BasePage
      */
     abstract protected function output_content();
 
+    /**
+     * Render the content of the page.
+     * This function needs to be implemented by the class extending the BasePage.
+     */
+    abstract protected function output_content_mobile();
+
     /* Protected Methods ******************************************************/
 
     /**
@@ -417,6 +426,34 @@ abstract class BasePage
             $page->output_content();
         }
         if($this->render_footer) $this->output_component("footer");
+    }
+
+    /**
+     * Render the content of the page.
+     */
+    public function output_base_content_mobile()
+    {
+        $res = [];
+        $login= $this->services->get_login();
+        if($this->render_nav){ 
+            $res['navigation'] = $this->output_component_mobile("nav");
+        }
+        if($this->acl_pass)
+            $res['content'] = $this->output_content_mobile();
+        else if($login->is_logged_in())
+        {
+            $page = new InternalPage($this, "no_access");
+            $page->output_content_mobile();
+        }
+        else
+        {
+            $page = new InternalPage($this, "no_access_guest");
+            $page->output_content_mobile();
+        }
+        // if($this->render_footer) $this->output_component("footer");
+        $res['title'] = $this->title;
+        $res['avatar'] = $this->services->get_db()->get_avatar($_SESSION['id_user']);
+        return $res;
     }
 
     /**
@@ -510,6 +547,13 @@ abstract class BasePage
         $component = $this->get_component($key);
         if($component != null)
             $component->output_content();
+    }
+
+    public function output_component_mobile($key)
+    {
+        $component = $this->get_component($key);
+        if($component != null)
+            return $component->output_content_mobile();
     }
 }
 ?>

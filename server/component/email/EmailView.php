@@ -115,5 +115,10 @@ class EmailView extends BaseView
     {
         require __DIR__ . "/tpl_email.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

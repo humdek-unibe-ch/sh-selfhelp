@@ -137,6 +137,16 @@ class CmsPreferencesView extends BaseView
                 "value" => $this->model->get_cmsPreferences()['callback_api_key'],
                 "name" => "callback_api_key"
             )),
+            new BaseStyleComponent("input", array(
+                "label" => "FCM API Key",
+                "value" => $this->model->get_cmsPreferences()['fcm_api_key'],
+                "name" => "fcm_api_key"
+            )),
+            new BaseStyleComponent("input", array(
+                "label" => "FCM Sender ID",
+                "value" => $this->model->get_cmsPreferences()['fcm_sender_id'],
+                "name" => "fcm_sender_id"
+            )),
             $this->get_all_modules('update')
         );
         $cmsPreferences = new BaseStyleComponent("card", array(
@@ -188,6 +198,20 @@ class CmsPreferencesView extends BaseView
                         "text" => $this->model->get_cmsPreferences()['callback_api_key']
                     ))),
                 )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "FCM API Key",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->model->get_cmsPreferences()['fcm_api_key']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "FCM Sender ID",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->model->get_cmsPreferences()['fcm_sender_id']
+                    ))),
+                )),
                 $this->get_all_modules('view')
             ),
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
@@ -203,6 +227,11 @@ class CmsPreferencesView extends BaseView
     public function output_content()
     {
         require __DIR__ . "/tpl_cmsPreferences.php";
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 
     /**

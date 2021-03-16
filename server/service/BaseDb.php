@@ -9,12 +9,20 @@
  *
  * @author moiri
  */
+
+require_once __DIR__ . "/ExtendedPdo.php";
+
 class BaseDb {
 
     /**
      * The DB handler.
      */
     private $dbh = null;
+
+    /**
+     * @var int the current transaction depth
+     */
+    protected $_transactionDepth = 0;
 
     /**
      * Open connection to mysql database
@@ -27,7 +35,7 @@ class BaseDb {
      */
     public function __construct($server, $dbname, $username, $password, $names="utf8") {
         try {
-            $this->dbh = new PDO(
+            $this->dbh = new ExtendedPdo(
                 "mysql:host=$server;dbname=$dbname;charset=$names",
                 $username, $password, array(PDO::ATTR_PERSISTENT => true)
             );
@@ -579,21 +587,21 @@ class BaseDb {
      * Begin PDO DB transanction
      */
     public function begin_transaction(){
-        $this->dbh->beginTransaction();;
+        $this->dbh->beginTransaction();
     }
 
     /**
      * commit PDO DB transanction
      */
     public function commit(){
-        $this->dbh->commit();;
+        $this->dbh->commit();
     }
 
     /**
      * rollback PDO DB transanction
      */
     public function rollback(){
-        $this->dbh->rollback();;
+        $this->dbh->rollback();
     }
 
     /**

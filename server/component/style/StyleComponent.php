@@ -27,6 +27,11 @@ class StyleComponent extends BaseComponent
     /* Private Properties *****************************************************/
 
     /**
+     * The ID of the section.
+     */
+    private $id_section;
+
+    /**
      * The component instance of the style.
      */
     private $style = null;
@@ -55,6 +60,7 @@ class StyleComponent extends BaseComponent
      */
     public function __construct($services, $id, $params=array(), $id_page=-1)
     {
+        $this->id_section = $id;
         $model = null;
         $this->is_style_known = true;
         // get style name and type
@@ -80,18 +86,24 @@ class StyleComponent extends BaseComponent
         else if($style['type'] == "component" || $style['type'] == "navigation")
         {
             $className = ucfirst($style['name']) . "Component";
-            if(class_exists($className))
-            {
+            if (class_exists($className)) {
                 $this->style = new $className($services, $id, $params, $id_page);
             }
-            if($this->style === null || !$this->style->has_access())
-            {
+            if ($this->style === null) {
                 $model = new StyleModel($services, $id, $params, $id_page);
-                $this->style = new BaseStyleComponent("unknownStyle",
-                    array("style_name" => $style['name']));
-            }
-            else
-            {
+                $this->style = new BaseStyleComponent(
+                    "unknownStyle",
+                    array("style_name" => $style['name'])
+                );
+            } else if (!$this->style->has_access()) {
+                // print access denied or something
+                $this->style = new BaseStyleComponent("alert", array(
+                    "type" => "danger",
+                    "children" => array(new BaseStyleComponent("plaintext", array(
+                        "text" => 'No Access'
+                    )))
+                ));
+            } else {
                 $model = $this->style->get_model();
             }
         }
@@ -119,6 +131,14 @@ class StyleComponent extends BaseComponent
     }
 
     /**
+     * Get the ID of the section.
+     */
+    public function get_id_section()
+    {
+        return $this->id_section;
+    }
+
+    /**
      * Returns the reference to the instance of a style class.
      *
      * @retval reference
@@ -143,14 +163,57 @@ class StyleComponent extends BaseComponent
     }
 
     /**
-     * A wrapper function to call the model cms update callback.
+     * A wrapper function to call the model cms create callback after the
+     * creation takes place.
+     *
      * @param object $cms_model
      *  The CMS model instance. This is handy to perform operations on db
      *  fields and such.
+     * @param string $section_name
+     *  The name of the new section.
+     * @param int $section_style_id
+     *  The style ID of the new section.
+     * @param string $relation
+     *  The database relation to know whether the link targets the navigation
+     *  or children list and whether the parent is a page or a section.
+     * @param int $id
+     *  The ID of the new section.
      */
-    public function cms_update_callback($cms_model)
+    public function cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id)
     {
-        $this->model->cms_update_callback($cms_model);
+        $this->model->cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback after the
+     * update takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param array $data
+     *  The submitted data fields to be updated
+     */
+    public function cms_post_update_callback($cms_model, $data)
+    {
+        $this->model->cms_post_update_callback($cms_model, $data);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback before the
+     * update takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param array $data
+     *  The submitted data fields to be updated
+     */
+    public function cms_pre_update_callback($cms_model, $data)
+    {
+        $this->model->cms_pre_update_callback($cms_model, $data);
     }
 }
 ?>

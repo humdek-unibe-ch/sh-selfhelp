@@ -111,5 +111,6 @@ class LoginView extends StyleView
         $reset_url = $this->model->get_link_url('reset_password');
         require __DIR__ . "/tpl_login.php";
     }
+
 }
 ?>

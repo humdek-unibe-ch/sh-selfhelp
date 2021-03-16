@@ -239,6 +239,11 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     {
         require __DIR__ . "/../moduleQualtrics/tpl_moduleQualtrics.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * call the navbar render

@@ -109,5 +109,6 @@ class GraphSankeyView extends GraphView
             parent::output_content();
         }
     }
+	
 }
 ?>

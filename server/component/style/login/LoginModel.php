@@ -76,5 +76,18 @@ class LoginModel extends StyleModel
     {
         return $this->login->check_credentials($email, $password);
     }
+
+    /**
+     * Set device_id to the user when logged in from a mobile device
+     *
+     * @param string $device_id
+     *  Unique device_id
+     * @retval bool
+     *  true if succeded, false otherwise.
+     */
+    public function set_device_id_and_token($device_id, $device_token)
+    {
+        return $this->db->update_by_ids('users', array('device_id' => $device_id, 'device_token' => $device_token), array('id' => intval($_SESSION['id_user'])));
+    }
 }
 ?>

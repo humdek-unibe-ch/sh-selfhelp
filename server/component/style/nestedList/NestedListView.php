@@ -296,5 +296,6 @@ class NestedListView extends StyleView
         else
             $this->output_list($this->css);
     }
+	
 }
 ?>

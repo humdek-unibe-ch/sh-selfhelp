@@ -67,5 +67,6 @@ class EmailFormBaseView extends StyleView
         ));
         require __DIR__ . "/tpl_form.php";
     }
+	
 }
 ?>

@@ -43,13 +43,17 @@ class NavModel extends BaseModel
     public function fetch_pages()
     {
         $locale_cond = $this->db->get_locale_condition();
+        $locale_cond2 = str_replace('l.','l_icon.',$this->db->get_locale_condition());
         $sql = "SELECT p.id, p.keyword, p.id_navigation_section,
-            pft.content AS title, p.parent, p.nav_position
+            pft.content AS title, pft_icon.content AS icon, p.parent, p.nav_position, p.url
             FROM pages AS p
             LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE $locale_cond AND f.name = 'label'
+            LEFT JOIN pages_fields_translation AS pft_icon ON pft_icon.id_pages = p.id
+            LEFT JOIN languages AS l_icon ON l_icon.id = pft_icon.id_languages
+            LEFT JOIN fields AS f_icon ON f_icon.id = pft_icon.id_fields
+            WHERE ($locale_cond AND f.name = 'label') AND ($locale_cond2 AND f_icon.name = 'type_input')
             ORDER BY p.nav_position";
         $pages_db = $this->db->query_db($sql, array());
         return $this->prepare_pages($pages_db);
@@ -75,6 +79,8 @@ class NavModel extends BaseModel
             "title" => $page['title'],
             "keyword" => $page['keyword'],
             "is_active" => $page['is_active'],
+            "url" => $page['url'],
+            "icon" => $page['icon'],
             "children" => array()
         );
     }
@@ -99,7 +105,7 @@ class NavModel extends BaseModel
                 $this->profile = array(
                     "id" => $item['id'],
                     "title" => $item["title"] .= ' (' . $this->db->fetch_user_name() . ')',
-                    "keyword" => $item['keyword'],
+                    "keyword" => $item['keyword'],                    
                     "is_active" => false,
                     "children" => array()
                 );

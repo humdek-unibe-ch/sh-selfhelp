@@ -72,5 +72,10 @@ class GroupInsertView extends BaseView
             require __DIR__ . "/tpl_insert_group.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

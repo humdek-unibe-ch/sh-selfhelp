@@ -95,5 +95,10 @@ class ChatAdminDeleteView extends BaseView
             require __DIR__ . "/tpl_delete_room.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

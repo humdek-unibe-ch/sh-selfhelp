@@ -59,6 +59,11 @@ class LanguageView extends BaseView
             }
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     private function output_delete_form()
     {

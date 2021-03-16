@@ -85,5 +85,6 @@ class GraphBarView extends GraphView
             parent::output_content();
         }
     }
+	
 }
 ?>

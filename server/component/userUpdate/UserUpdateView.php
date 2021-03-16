@@ -339,5 +339,10 @@ class UserUpdateView extends BaseView
                 require __DIR__ . "/tpl_rm_group.php";
         }
     }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

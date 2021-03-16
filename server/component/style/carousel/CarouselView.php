@@ -148,5 +148,18 @@ class CarouselView extends StyleView
         $crossfade = $this->has_crossfade ? "carousel-fade" : "";
         require __DIR__ . "/tpl_carousel.php";
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $sources = [];
+        if (is_array($style['sources']['content'])) {
+            foreach ($style['sources']['content'] as $key => $source) {
+                $style['sources']['content'][$key]['source'] = ASSET_FOLDER . '/' . $source["source"];
+            }
+        }
+        return $style;
+    }
+	
 }
 ?>

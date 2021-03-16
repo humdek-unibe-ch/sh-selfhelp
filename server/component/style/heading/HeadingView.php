@@ -52,5 +52,6 @@ class HeadingView extends StyleView
         if($this->level > 6) $this->level = 6;
         require __DIR__ . "/tpl_title.php";
     }
+	
 }
 ?>

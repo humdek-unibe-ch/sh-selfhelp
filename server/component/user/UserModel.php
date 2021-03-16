@@ -157,6 +157,37 @@ class UserModel extends BaseModel
         return base_convert($hash, 16, 36);
     }
 
+    /**
+     * Read the email content from the db.
+     *
+     * @param string $url
+     *  The activation link that will be included into the mail content.
+     * @param string $email_type
+     *  The field name identifying which email will be loaded from the database.
+     * @retval string
+     *  The email content with replaced keywords.
+     */
+    private function get_content($url, $email_type)
+    {
+        $content = "";
+        $sql = "SELECT content FROM pages_fields_translation AS pft
+            LEFT JOIN pages AS p ON p.id = pft.id_pages
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            WHERE p.keyword = 'email' AND f.name = :field
+            AND l.locale = :lang";
+        $res = $this->db->query_db_first($sql, array(
+            ':lang' => $_SESSION['language'],
+            ':field' => $email_type,
+        ));
+        if ($res) {
+            $content = $res['content'];
+            $content = str_replace('@project', $_SESSION['project'], $content);
+            $content = str_replace('@link', $url, $content);
+        }
+        return $content;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -265,22 +296,26 @@ class UserModel extends BaseModel
      */
     public function create_new_user($email, $code=null, $code_exists = false)
     {
-        $token = $this->login->create_token();     
-        $uid = $this->is_user_interested($email); 
-        if(!($uid > 0)){
-            //check if the user is autocreated
-            $uid = $this->is_user_auto_created($code); 
+        $token = $this->login->create_token();
+        $uid = $this->is_user_interested($email);
+        if (!($uid > 0)) {
+            // we check if the user is invited already
+            $uid = $this->is_user_invited($email)['id'];
         }
-        if($uid > 0){  
+        if (!($uid > 0)) {
+            //check if the user is autocreated
+            $uid = $this->is_user_auto_created($code);
+        }
+        if ($uid > 0) {
             // user is in status interested  or auto_created; change it to invited and assign the token for activation    
             $this->set_user_status($uid, $token, USER_STATUS_INVITED, $email);
-        }else{
+        } else {
             // if the user is not already interested (in database), create a new one
             $uid = $this->insert_new_user($email, $token, 2);
         }
-        if($code_exists){
+        if ($code_exists) {
             //this option is used for auto_created users
-            $code = null;            
+            $code = null;
         }
         $code_res = true;
         if($code !== null)
@@ -296,10 +331,22 @@ class UserModel extends BaseModel
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
         $subject = $_SESSION['project'] . " Email Verification";
-        $from = array('address' => "noreply@" . $_SERVER['HTTP_HOST']);
-        $to = $this->mail->create_single_to($email);
-        $msg = $this->mail->get_content($url, 'email_activate');
-        $this->mail->send_mail($from, $to, $subject, $msg);
+        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $msg = $this->get_content($url, 'email_activate');
+        $mail = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+            "from_email" => $from,
+            "from_name" => $from,
+            "reply_to" => $from,
+            "recipient_emails" => $email,
+            "subject" => $subject,
+            "body" => $msg,
+            "is_html" => 1,
+            "description" => "Registration Email"
+        );
+        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
         return $uid;
     }
 
@@ -342,33 +389,34 @@ class UserModel extends BaseModel
     {
         //delete all mails which are scheduled only for the selected user without any othe recipients
         $sql = "SELECT *
-                FROM mailQueue
-                WHERE id_mailQueueStatus = :id_mailQueueStatus AND recipient_emails = :user_email";
+                FROM view_mailQueue
+                WHERE id_jobStatus = :id_jobStatus AND recipient_emails = :user_email";
         $scheduledMails = $this->db->query_db($sql, array(
-            ":id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            ":id_jobStatus" => $this->db->get_lookup_id_by_code(scheduledJobsStatus, scheduledJobsStatus_queued),
             ":user_email" => $this->selected_user['email']
         ));
         foreach ($scheduledMails as $key => $mail) {
-            $this->mail->delete_queue_entry($mail['id'], transactionBy_by_user);    
+            $this->job_scheduler->delete_job($mail['id'], transactionBy_by_user);    
         }
 
         // *********************************************************
         // remove the user email from group scheduled emails
         $sql = "SELECT *
-                FROM mailQueue
-                WHERE id_mailQueueStatus = :id_mailQueueStatus AND recipient_emails LIKE (:user_email)";
+                FROM view_mailQueue
+                WHERE id_jobStatus = :id_jobStatus AND recipient_emails LIKE (:user_email)";
         $groupScheduledMails = $this->db->query_db($sql, array(
-            ":id_mailQueueStatus" => $this->db->get_lookup_id_by_code(mailQueueStatus, mailQueueStatus_queued),
+            ":id_jobStatus" => $this->db->get_lookup_id_by_code(scheduledJobsStatus, scheduledJobsStatus_queued),
             ":user_email" => '%' . $this->selected_user['email'] . '%'
         ));
-        foreach
-        ($groupScheduledMails as $key => $mail) {
-            $recipients = array_map('trim', explode(MAIL_SEPARATOR, $mail['recipient_emails']));
+        foreach ($groupScheduledMails as $key => $mail) {
+            $recipients = array_map('trim',
+                explode(MAIL_SEPARATOR, $mail['recipient_emails'])
+            );
             if (($key = array_search($this->selected_user['email'], $recipients)) !== false) {
                 unset($recipients[$key]);
             }
             $recipients = implode(MAIL_SEPARATOR, $recipients);
-            $this->mail->remove_email_from_queue_entry($mail['id'], transactionBy_by_user, $recipients,'Remove emails for: ' . $this->selected_user['email']);    
+            $this->job_scheduler->remove_email_from_queue_entry($mail['id_mailQueue'], $mail['id'], transactionBy_by_user, $recipients, 'Remove emails for: ' . $this->selected_user['email']);
         }
     }
 
@@ -717,7 +765,7 @@ class UserModel extends BaseModel
     }
 
     /**
-     * Check is a user already interested 
+     * Check is a user already interested or invited but not activated
      *
      * @param string $email
      *  The email of the user.
@@ -728,16 +776,37 @@ class UserModel extends BaseModel
     {
         $user_id = -1;
         $sql = "SELECT id
-        from users 
-        where email = :email and id_status = :user_status_interested";
+        FROM users 
+        WHERE email = :email AND id_status = :user_status_interested";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
-            ":user_status_interested" => USER_STATUS_INTERESTED,
+            ":user_status_interested" => USER_STATUS_INTERESTED
         ));
         if ($res) {
             $user_id = $res['id'];
         }
         return $user_id;
+    }
+
+    /**
+     * Check is a user already interested or invited but not activated
+     *
+     * @param string $email
+     *  The email of the user.
+     * @retval array
+     *  The id of the new user and the code.
+     */
+    public function is_user_invited($email)
+    {
+        $sql = "SELECT u.id, v.code
+        FROM users u
+        INNER JOIN validation_codes v ON (u.id = v.id_users) 
+        WHERE email = :email AND id_status = :user_status_invited";
+        $res = $this->db->query_db_first($sql, array(
+            ":email" => $email,
+            ":user_status_invited" => USER_STATUS_INVITED
+        ));
+        return $res;
     }
 
     /**

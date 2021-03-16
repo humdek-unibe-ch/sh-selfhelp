@@ -91,5 +91,6 @@ class MermaidFormView extends FormUserInputView
         $fields = json_encode($fields);
         require __DIR__ . "/tpl_mermaidForm.php";
     }
+	
 }
 ?>

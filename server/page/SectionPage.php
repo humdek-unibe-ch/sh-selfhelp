@@ -109,6 +109,42 @@ class SectionPage extends BasePage
         }
     }
 
+    protected function output_content_mobile()
+    {
+        $res = [];
+        $db = $this->services->get_db();
+        $was_section_rendered = false;
+        foreach($this->sections as $section)
+        {
+            $comp = $this->get_component("section-" . $section['id']);
+            if($comp->has_access())
+            {
+                $res[] = $comp->output_content_mobile();
+                $was_section_rendered = true;
+            }
+        }
+        if($this->nav_section_id)
+        {
+            $sql = "SELECT * FROM sections_navigation
+                WHERE child = :id AND id_pages = :pid";
+            if($db->query_db_first($sql, array(
+                    ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
+            {
+                $res[] = $this->output_component_mobile("navigation");
+                $was_section_rendered = true;
+            }
+        }
+
+        if((count($this->sections) > 0 || $this->nav_section_id)
+            && !$was_section_rendered)
+        {
+            $page = new InternalPage($this, "missing");
+            $res[] = $page->output_content_mobile();
+        }
+        return $res;
+    }
+
+
     /* Private Methods ********************************************************/
 
     /**

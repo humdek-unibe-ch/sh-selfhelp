@@ -59,6 +59,11 @@ class CmsImportView extends BaseView
         $action_url = $this->model->get_link_url("cmsImport",array("type"=>$this->model->type));
         require __DIR__ . "/tpl_cmsImport.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 
     /**
      * Get js include files required for this component. This overrides the

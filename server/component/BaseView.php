@@ -114,6 +114,16 @@ abstract class BaseView
     /**
      * Render the fail alerts of the controller.
      */
+    protected function output_controller_alerts_fail_mobile()
+    {
+        if($this->controller === null) return;
+        if(!$this->controller->has_failed()) return;
+        return $this->controller->get_error_msgs();
+    }
+
+    /**
+     * Render the fail alerts of the controller.
+     */
     protected function output_controller_alerts_success()
     {
         if($this->controller === null) return;
@@ -132,12 +142,24 @@ abstract class BaseView
         }
     }
 
+    /**
+     * Render the fail alerts of the controller.
+     */
+    protected function output_controller_alerts_success_mobile()
+    {
+        if($this->controller === null) return;
+        if(!$this->controller->has_succeeded()) return;
+        return $this->controller->get_success_msgs();
+    }
+
     /* Public Methods *********************************************************/
 
     /**
      * Render the component view.
      */
     abstract public function output_content();
+
+    abstract public function output_content_mobile();
 
     /**
      * Get css include files required for this view. By default the css files of

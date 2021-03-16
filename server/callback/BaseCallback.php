@@ -51,11 +51,11 @@ abstract class BaseCallback
      * User input handler.
      */
     protected $user_input;
-
+    
     /**
-     * Mail handler.
+     * Job Scheduler handler.
      */
-    protected $mail;
+    protected $job_scheduler;
 
     /**
      * The constructor.
@@ -72,8 +72,8 @@ abstract class BaseCallback
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
-        $this->mail = $services->get_mail();
         $this->transaction = $services->get_transaction();
+        $this->job_scheduler = $services->get_job_scheduler();
     }
 
     /**

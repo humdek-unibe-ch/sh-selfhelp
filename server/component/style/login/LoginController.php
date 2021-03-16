@@ -29,9 +29,16 @@ class LoginController extends BaseController
 
         if(isset($_POST['type']) && $_POST['type'] == 'login' && isset($_POST['email']) && isset($_POST['password']))
         {
-            if($model->check_login_credentials($_POST['email'], $_POST['password']))
-                header('Location: ' . $model->get_target_url());
-            else
+            if($model->check_login_credentials($_POST['email'], $_POST['password'])) {
+                if (isset($_POST['mobile']) && $_POST['mobile']) {
+                    // set device id for the user
+                    $device_token = isset($_POST['device_token']) ? $_POST['device_token'] : 'web';
+                    $device_id = isset($_POST['device_id']) ? $_POST['device_id'] : 'web';
+                    $res = $this->model->set_device_id_and_token($device_id, $device_token);
+                }else{
+                    header('Location: ' . $model->get_target_url());
+                }
+            }else
                 $this->failed = true;
         }
     }

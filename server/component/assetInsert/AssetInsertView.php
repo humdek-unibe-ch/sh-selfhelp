@@ -86,5 +86,10 @@ class AssetInsertView extends BaseView
             require __DIR__ . "/tpl_insert.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

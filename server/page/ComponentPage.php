@@ -66,5 +66,16 @@ class ComponentPage extends BasePage
             $page->output_content();
         }
     }
+
+    protected function output_content_mobile()
+    {
+        if ($this->componentInstance && $this->componentInstance->has_access()
+        )
+            $this->output_component("comp");
+        else {
+            $page = new InternalPage($this, "missing");
+            $page->output_content();
+        }
+    }
 }
 ?>
