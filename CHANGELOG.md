@@ -1,4 +1,38 @@
-# v3.10.2 (latest)
+# v4.0.0 [mobile] (latest)
+
+### Bugfix
+ - Resend a verification email on already invited users
+ - Fix show datetime calendar when click on button for style input type date
+ - Add basePath to mobile request; if there is no last_user_page in router it gave an error -  now i check if is set before used
+
+### Changes
+
+ - Refactor `mailModule` into `scheduledJobsModule`
+    - add `Tasks` to the `scheduledJobs`
+        - `add_group` task
+        - `remove_group` task
+    - add `Notifications` to the `scheduledJobs`        
+    - add `Emails` to the `scheduledJobs`
+ - Add conditions to the jobs, which are checked before execution and only if it is fulfilled it is executed
+ - Add `timestamp` filed to table `uploadRows`
+ - Add field `use_as_container` to style `qualtricsSurvey`
+ - Add field `children` to style `qualtricsSurvey`
+ - Add field `restart_on_refresh` to style `qualtricsSurvey`
+ - Add field `reedirect_at_end` to style `qualtricsSurvey`
+ - Add an option to schedule notifications after time period on specific time
+
+### New Features
+
+ - Add an option for mobile calls. If the `POST` request contains parameter `mobile` which is `true`, then the request return JSON object
+ - Adjust all styles to be able to return JSON structure when a mobile call is made 
+ - Add `device_id` and `device_token` to table `users`. It is used for sending notifications to the user
+ - Add PHP-FCM library
+ - Expand style qualtricsSurvey; add schedule times and once per user or once per schedule options
+ - Add style `MessageBoard`
+ - Add image select to select style
+ - Add taggedElement to qualtrics_templates for the iframe_resizer; improve checking actions for  qualtrics survey_repsonse and now make maximum one request to the survey data and only if it is needed
+
+# v3.10.2
 
 ### Changes
  - Style `input` type `date` and `datetime`, the calendar now is without week numbers and the week starts on Monday instead of Sunday.

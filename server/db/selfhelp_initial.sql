@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 04, 2021 at 03:00 PM
+-- Generation Time: Mar 16, 2021 at 02:38 PM
 -- Server version: 5.7.23-log
 -- PHP Version: 7.2.10
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelp`
+-- Database: `selfhelp_install`
 --
 
 -- --------------------------------------------------------
@@ -349,6 +349,8 @@ CREATE TABLE IF NOT EXISTS `cmsPreferences` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `callback_api_key` varchar(500) DEFAULT NULL,
   `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
+  `fcm_api_key` varchar(200) DEFAULT NULL,
+  `fcm_sender_id` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_cmsPreferences_language` (`default_language_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
@@ -357,8 +359,8 @@ CREATE TABLE IF NOT EXISTS `cmsPreferences` (
 -- Dumping data for table `cmsPreferences`
 --
 
-INSERT INTO `cmsPreferences` (`id`, `callback_api_key`, `default_language_id`) VALUES
-(0000000001, NULL, 0000000002);
+INSERT INTO `cmsPreferences` (`id`, `callback_api_key`, `default_language_id`, `fcm_api_key`, `fcm_sender_id`) VALUES
+(0000000001, NULL, 0000000002, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -388,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `fields` (
   `display` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fields`
@@ -546,7 +548,21 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000152, 'email_body', 0000000004, 1),
 (0000000153, 'plugin', 0000000019, 0),
 (0000000154, 'ajax', 0000000003, 0),
-(0000000155, 'format', 0000000001, 0);
+(0000000155, 'format', 0000000001, 0),
+(0000000156, 'once_per_schedule', 0000000003, 0),
+(0000000157, 'once_per_user', 0000000003, 0),
+(0000000158, 'start_time', 0000000014, 0),
+(0000000159, 'end_time', 0000000014, 0),
+(0000000160, 'label_survey_done', 0000000004, 1),
+(0000000161, 'label_survey_not_active', 0000000004, 1),
+(0000000162, 'form_name', 0000000001, 0),
+(0000000163, 'icons', 0000000008, 0),
+(0000000164, 'comments', 0000000008, 0),
+(0000000165, 'restart_on_refresh', 0000000003, 0),
+(0000000166, 'use_as_container', 0000000003, 0),
+(0000000167, 'close_modal_at_end', 0000000003, 0),
+(0000000168, 'image_selector', 0000000003, 0),
+(0000000169, 'redirect_at_end', 0000000001, 0);
 
 -- --------------------------------------------------------
 
@@ -598,7 +614,7 @@ CREATE TABLE IF NOT EXISTS `genders` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `genders`
@@ -606,7 +622,8 @@ CREATE TABLE IF NOT EXISTS `genders` (
 
 INSERT INTO `genders` (`id`, `name`) VALUES
 (0000000001, 'male'),
-(0000000002, 'female');
+(0000000002, 'female'),
+(0000000003, 'divers');
 
 -- --------------------------------------------------------
 
@@ -672,9 +689,8 @@ CREATE TABLE IF NOT EXISTS `lookups` (
   `lookup_value` varchar(200) DEFAULT NULL,
   `lookup_description` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `lookup_code` (`lookup_code`),
-  UNIQUE KEY `lookup_value` (`lookup_value`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `idx_lookups_type_code_lookup_code` (`type_code`,`lookup_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `lookups`
@@ -707,21 +723,21 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 (0000000024, 'weekdays', 'friday', 'Friday', 'Friday'),
 (0000000025, 'weekdays', 'saturday', 'Saturday', 'Saturday'),
 (0000000026, 'weekdays', 'sunday', 'Sunday', 'Sunday'),
-(0000000027, 'mailQueueStatus', 'queued', 'Queued', 'Status for initialization. When the mail is queued it goes in this status'),
-(0000000028, 'mailQueueStatus', 'deleted', 'Deleted', 'When the queue is deleted'),
-(0000000029, 'mailQueueStatus', 'sent', 'Sent', 'When the mail is sent'),
-(0000000030, 'mailQueueStatus', 'failed', 'Failed', 'When something happened and the mail sending failed'),
-(0000000031, 'mailQueueSearchDateTypes', 'date_create', 'Entry date', 'The date that the queue record was created'),
-(0000000032, 'mailQueueSearchDateTypes', 'date_to_be_sent', 'Date to be send', 'The date when the queue record should be sent'),
-(0000000033, 'mailQueueSearchDateTypes', 'date_sent', 'Sent date', 'The date when the queue record was sent'),
+(0000000027, 'scheduledJobsStatus', 'queued', 'Queued', 'Status for initialization. When the job is queued it goes in this status'),
+(0000000028, 'scheduledJobsStatus', 'deleted', 'Deleted', 'When the job is deleted'),
+(0000000029, 'scheduledJobsStatus', 'done', 'Done', 'Job was executed successfully'),
+(0000000030, 'scheduledJobsStatus', 'failed', 'Failed', 'When something happened and the job failed'),
+(0000000031, 'scheduledJobsSearchDateTypes', 'date_create', 'Entry date', 'The date that the queue record was created'),
+(0000000032, 'scheduledJobsSearchDateTypes', 'date_to_be_executed', 'Date to be executed', 'The date when the queue record should be executed'),
+(0000000033, 'scheduledJobsSearchDateTypes', 'date_executed', 'Execution date', 'The date when the queue record was executed'),
 (0000000034, 'transactionTypes', 'insert', 'Add new entry', 'Add new entry to a table'),
 (0000000035, 'transactionTypes', 'select', 'View entry', 'View entry from a table'),
 (0000000036, 'transactionTypes', 'update', 'Edit entry', 'Edit entry from a table'),
 (0000000037, 'transactionTypes', 'delete', 'Delete entry', 'Delete entry from a table'),
 (0000000038, 'transactionTypes', 'send_mail_ok', 'Send mail successfully', 'Send mail successfully'),
 (0000000039, 'transactionTypes', 'send_mail_fail', 'Send mail failed', 'Send mail failed'),
-(0000000040, 'transactionTypes', 'check_mailQueue', 'Check mail queue', 'Check mail queue and send mails if needed'),
-(0000000041, 'transactionBy', 'by_mail_cron', 'By mail cronjob', 'The action was done by a mail cronjob'),
+(0000000040, 'transactionTypes', 'check_scheduledJobs', 'Check scheduled jobs', 'Check scheduled hobs and execute if there are any'),
+(0000000041, 'transactionBy', 'by_cron_job', 'By cron job', 'The action was executed by cron job'),
 (0000000042, 'transactionBy', 'by_user', 'By user', 'The action was done by an user'),
 (0000000043, 'transactionBy', 'by_qualtrics_callback', 'By qualtrics callback', 'The action was done by a qualtrics callback'),
 (0000000044, 'qualtricsProjectActionAdditionalFunction', 'workwell_cg_ap_4', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)', '[Workwell] CG Action plan Week 4 (Reminder or notification is required)'),
@@ -729,7 +745,19 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 (0000000046, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_4', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)', '[Workwell] EG Action plan Week 4 (Reminder or notification is required)'),
 (0000000047, 'qualtricsProjectActionAdditionalFunction', 'workwell_eg_ap_5', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)', '[Workwell] EG Action plan Week 5 (Reminder or notification is required)'),
 (0000000048, 'qualtricsSurveyTypes', 'anonymous', 'Anonymous', 'Anonymous survey. No code or user is used.'),
-(0000000049, 'qualtricsProjectActionAdditionalFunction', 'bmz_evaluate_motive', '[BMZ] Evaluate motive', 'Function that will evaluate the motive and genrate PDF file as a feedback');
+(0000000049, 'qualtricsProjectActionAdditionalFunction', 'bmz_evaluate_motive', '[BMZ] Evaluate motive', 'Function that will evaluate the motive and genrate PDF file as a feedback'),
+(0000000050, 'transactionBy', 'by_system', 'By Selfhelp', 'By Selfhelp'),
+(0000000051, 'notificationTypes', 'push_notification', 'Push Notification', 'The notification will be sent by a push message. It works only for mobile devices!'),
+(0000000052, 'transactionTypes', 'send_notification_ok', 'Send notification successfully', 'Send notification successfully'),
+(0000000053, 'transactionTypes', 'send_notification_fail', 'Send notification failed', 'Send notification failed'),
+(0000000054, 'jobTypes', 'email', 'Email', 'Email Job Type'),
+(0000000055, 'jobTypes', 'notification', 'Notification', 'Notification Job Type'),
+(0000000056, 'jobTypes', 'task', 'Task', 'Task Job Type'),
+(0000000057, 'transactionBy', 'by_anonymous_user', 'By anonymous user', 'The action was done by an anonymous user'),
+(0000000058, 'transactionTypes', 'status_change', 'Status changed', 'Status change'),
+(0000000059, 'qualtricsActionScheduleTypes', 'task', 'Task', 'Schedule'),
+(0000000060, 'transactionTypes', 'execute_task_ok', 'Execute task successfully', 'Execute task successfully'),
+(0000000061, 'transactionTypes', 'execute_task_fail', 'Execute task failed', 'Execute task failed');
 
 -- --------------------------------------------------------
 
@@ -758,10 +786,6 @@ CREATE TABLE IF NOT EXISTS `mailAttachments` (
 DROP TABLE IF EXISTS `mailQueue`;
 CREATE TABLE IF NOT EXISTS `mailQueue` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
-  `id_mailQueueStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `date_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date_to_be_sent` datetime DEFAULT NULL,
-  `date_sent` datetime DEFAULT NULL,
   `from_email` varchar(100) NOT NULL,
   `from_name` varchar(100) NOT NULL,
   `reply_to` varchar(100) NOT NULL,
@@ -771,8 +795,7 @@ CREATE TABLE IF NOT EXISTS `mailQueue` (
   `subject` varchar(1000) NOT NULL,
   `body` longtext NOT NULL,
   `is_html` int(11) DEFAULT '1',
-  PRIMARY KEY (`id`),
-  KEY `mailQueue_fk_id_mailQueueStatus` (`id_mailQueueStatus`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -787,7 +810,7 @@ CREATE TABLE IF NOT EXISTS `modules` (
   `module_name` varchar(500) DEFAULT NULL,
   `enabled` int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `modules`
@@ -795,8 +818,8 @@ CREATE TABLE IF NOT EXISTS `modules` (
 
 INSERT INTO `modules` (`id`, `module_name`, `enabled`) VALUES
 (0000000001, 'moduleQualtrics', 1),
-(0000000002, 'moduleMail', 1),
-(0000000003, 'moduleChat', 1);
+(0000000003, 'moduleChat', 1),
+(0000000004, 'moduleScheduledJobs', 1);
 
 -- --------------------------------------------------------
 
@@ -821,8 +844,22 @@ INSERT INTO `modules_pages` (`id_modules`, `id_pages`) VALUES
 (0000000001, 0000000049),
 (0000000001, 0000000051),
 (0000000001, 0000000052),
-(0000000002, 0000000050),
-(0000000002, 0000000055);
+(0000000004, 0000000050);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+DROP TABLE IF EXISTS `notifications`;
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `subject` varchar(1000) NOT NULL,
+  `body` longtext NOT NULL,
+  `url` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -857,7 +894,7 @@ CREATE TABLE IF NOT EXISTS `pages` (
 
 INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES
 (0000000001, 'login', '/login', 'GET|POST', 0000000003, NULL, NULL, 1, NULL, NULL, 0000000002),
-(0000000002, 'home', '/', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
+(0000000002, 'home', '/home', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0000000002),
 (0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 0, 10, NULL, 0000000002),
 (0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 0, 20, NULL, 0000000002),
@@ -899,12 +936,12 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000047, 'cmsPreferencesUpdate', '/admin/cms_preferences_update', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000048, 'language', '/admin/language/[i:lid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000049, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', 0000000002, NULL, 0000000009, 0, 90, NULL, 0000000001),
-(0000000050, 'moduleMail', '/admin/mailQueue/[i:mqid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 80, NULL, 0000000001),
+(0000000050, 'moduleScheduledJobs', '/admin/scheduledJobs/[i:sjid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 80, NULL, 0000000001),
 (0000000051, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000052, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000053, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000055, 'moduleMailComposeEmail', '/admin/mailQueue/composeEmail', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
+(0000000055, 'moduleScheduledJobsCompose', '/admin/scheduledJobs/compose/[v:type]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
 (0000000056, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
 (0000000057, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
 (0000000058, 'cmsExport', '/admin/cms_export/[page|section:type]/[i:id]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
@@ -962,77 +999,130 @@ CREATE TABLE IF NOT EXISTS `pages_fields_translation` (
 INSERT INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES
 (0000000001, 0000000008, 0000000002, 'Login'),
 (0000000001, 0000000008, 0000000003, 'Login'),
+(0000000001, 0000000054, 0000000001, ''),
 (0000000002, 0000000008, 0000000002, 'Projekt Name'),
 (0000000002, 0000000008, 0000000003, 'Project Name'),
+(0000000002, 0000000054, 0000000001, ''),
 (0000000002, 0000000115, 0000000002, 'Um eine Server-Wartung durchzuführen wird die Seite ab dem @date um @time für einen kurzen Moment nicht erreichbar sein. Wir bitten um Entschuldigung.'),
 (0000000002, 0000000115, 0000000003, 'There will be a short service disruption on the @date at @time due to server maintenance. Please accept our apologies for the caused inconveniences.'),
 (0000000003, 0000000008, 0000000002, 'Profil'),
 (0000000003, 0000000008, 0000000003, 'Profile'),
+(0000000003, 0000000054, 0000000001, ''),
 (0000000004, 0000000008, 0000000002, 'Einstellungen'),
 (0000000004, 0000000008, 0000000003, 'Settings'),
+(0000000004, 0000000054, 0000000001, ''),
 (0000000005, 0000000008, 0000000002, 'Logout'),
 (0000000005, 0000000008, 0000000003, 'Logout'),
+(0000000005, 0000000054, 0000000001, ''),
 (0000000006, 0000000008, 0000000002, 'Seite nicht gefunden'),
 (0000000006, 0000000008, 0000000003, 'Missing'),
+(0000000006, 0000000054, 0000000001, ''),
 (0000000007, 0000000008, 0000000002, 'Kein Zugriff'),
 (0000000007, 0000000008, 0000000003, 'No Access'),
+(0000000007, 0000000054, 0000000001, ''),
 (0000000008, 0000000008, 0000000002, 'Kein Zugriff'),
 (0000000008, 0000000008, 0000000003, 'No Access'),
+(0000000008, 0000000054, 0000000001, ''),
 (0000000009, 0000000008, 0000000001, 'Admin'),
+(0000000009, 0000000054, 0000000001, ''),
 (0000000010, 0000000008, 0000000001, 'CMS'),
+(0000000010, 0000000054, 0000000001, ''),
 (0000000011, 0000000008, 0000000001, 'Create Page'),
+(0000000011, 0000000054, 0000000001, ''),
 (0000000012, 0000000008, 0000000001, 'Update Content'),
+(0000000012, 0000000054, 0000000001, ''),
 (0000000013, 0000000008, 0000000001, 'Delete Page'),
+(0000000013, 0000000054, 0000000001, ''),
 (0000000014, 0000000008, 0000000001, 'Users'),
+(0000000014, 0000000054, 0000000001, ''),
 (0000000015, 0000000008, 0000000001, 'Create User'),
+(0000000015, 0000000054, 0000000001, ''),
 (0000000016, 0000000008, 0000000001, 'Modify User'),
+(0000000016, 0000000054, 0000000001, ''),
 (0000000017, 0000000008, 0000000001, 'Delete User'),
+(0000000017, 0000000054, 0000000001, ''),
 (0000000018, 0000000008, 0000000001, 'Groups'),
+(0000000018, 0000000054, 0000000001, ''),
 (0000000019, 0000000008, 0000000001, 'Create Group'),
+(0000000019, 0000000054, 0000000001, ''),
 (0000000020, 0000000008, 0000000001, 'Modify Group'),
+(0000000020, 0000000054, 0000000001, ''),
 (0000000021, 0000000008, 0000000001, 'Delete Group'),
+(0000000021, 0000000054, 0000000001, ''),
 (0000000022, 0000000008, 0000000001, 'Export'),
+(0000000022, 0000000054, 0000000001, ''),
 (0000000023, 0000000008, 0000000001, 'Export'),
+(0000000023, 0000000054, 0000000001, ''),
 (0000000024, 0000000008, 0000000001, 'Assets'),
+(0000000024, 0000000054, 0000000001, ''),
 (0000000025, 0000000008, 0000000001, 'Upload Asset'),
+(0000000025, 0000000054, 0000000001, ''),
 (0000000026, 0000000008, 0000000001, 'Rename Asset'),
+(0000000026, 0000000054, 0000000001, ''),
 (0000000027, 0000000008, 0000000001, 'Delete Asset'),
+(0000000027, 0000000054, 0000000001, ''),
+(0000000028, 0000000054, 0000000001, ''),
 (0000000030, 0000000008, 0000000002, 'AGB'),
 (0000000030, 0000000008, 0000000003, 'GTC'),
+(0000000030, 0000000054, 0000000001, ''),
 (0000000031, 0000000008, 0000000002, 'Impressum'),
 (0000000031, 0000000008, 0000000003, 'Impressum'),
+(0000000031, 0000000054, 0000000001, ''),
 (0000000032, 0000000008, 0000000002, 'Disclaimer'),
 (0000000032, 0000000008, 0000000003, 'Disclaimer'),
+(0000000032, 0000000054, 0000000001, ''),
 (0000000033, 0000000008, 0000000002, 'Benutzer Validierung'),
 (0000000033, 0000000008, 0000000003, 'User Validation'),
+(0000000033, 0000000054, 0000000001, ''),
 (0000000035, 0000000008, 0000000002, 'Passwort zurücksetzen'),
 (0000000035, 0000000008, 0000000003, 'Reset Password'),
+(0000000035, 0000000054, 0000000001, ''),
 (0000000036, 0000000008, 0000000001, 'Generate Validation Codes'),
+(0000000036, 0000000054, 0000000001, ''),
 (0000000037, 0000000008, 0000000001, 'Email CMS'),
+(0000000037, 0000000054, 0000000001, ''),
 (0000000037, 0000000092, 0000000002, 'Guten Tag\r\n\r\nUm Ihre Email Adresse zu verifizieren und Ihren @project Account zu aktivieren klicken Sie bitte auf den untenstehenden Link.\r\n\r\n@link\r\n\r\nVielen Dank!\r\n\r\nIhr @project Team'),
 (0000000037, 0000000092, 0000000003, 'Hello\r\n\r\nTo verify you email address and to activate your @project account please click the link below.\r\n\r\n@link\r\n\r\nThank you!\r\n\r\nSincerely, your @project team'),
 (0000000037, 0000000094, 0000000002, 'Guten Tag\r\n\r\nSie waren für längere Zeit nicht mehr aktiv auf der @project Plattform.\r\nEs würde uns freuen wenn Sie wieder vorbeischauen würden.\r\n\r\n@link\r\n\r\nMit freundlichen Grüssen\r\nihr @project Team'),
 (0000000037, 0000000094, 0000000003, 'Hello\r\n\r\nYou did not visit the @project platform for some time now.\r\nWe would be pleased if you would visit us again.\r\n\r\n@link\r\n\r\nSincerely, your @project team'),
 (0000000042, 0000000008, 0000000002, 'Userdaten Löschen'),
 (0000000042, 0000000008, 0000000003, 'Remove User Data'),
+(0000000042, 0000000054, 0000000001, ''),
 (0000000043, 0000000008, 0000000001, 'Custom Group Update'),
+(0000000043, 0000000054, 0000000001, ''),
+(0000000044, 0000000054, 0000000001, ''),
 (0000000045, 0000000008, 0000000001, 'Data'),
+(0000000045, 0000000054, 0000000001, ''),
 (0000000046, 0000000008, 0000000001, 'CMS Preferecnes'),
+(0000000046, 0000000054, 0000000001, ''),
 (0000000047, 0000000008, 0000000001, 'CMS Preferecnes Update'),
+(0000000047, 0000000054, 0000000001, ''),
 (0000000048, 0000000008, 0000000001, 'Create Language'),
+(0000000048, 0000000054, 0000000001, ''),
 (0000000049, 0000000008, 0000000001, 'Module Qualtrics'),
-(0000000050, 0000000008, 0000000001, 'Module Mail'),
+(0000000049, 0000000054, 0000000001, ''),
+(0000000050, 0000000008, 0000000001, 'Module Scheduled Jobs'),
+(0000000050, 0000000054, 0000000001, ''),
 (0000000051, 0000000008, 0000000001, 'Qualtrics Projects'),
+(0000000051, 0000000054, 0000000001, ''),
 (0000000052, 0000000008, 0000000001, 'Qualtrics Survey'),
+(0000000052, 0000000054, 0000000001, ''),
 (0000000053, 0000000008, 0000000001, 'Qualtrics Project Action'),
+(0000000053, 0000000054, 0000000001, ''),
 (0000000054, 0000000008, 0000000001, 'Qualtrics Synchronization'),
+(0000000054, 0000000054, 0000000001, ''),
 (0000000055, 0000000008, 0000000001, 'Compose Mail'),
+(0000000055, 0000000054, 0000000001, ''),
 (0000000056, 0000000008, 0000000002, 'Kontakt'),
 (0000000056, 0000000008, 0000000003, 'Contact'),
+(0000000056, 0000000054, 0000000001, ''),
 (0000000057, 0000000008, 0000000002, 'Kontakt'),
 (0000000057, 0000000008, 0000000003, 'Contact'),
+(0000000057, 0000000054, 0000000001, ''),
 (0000000058, 0000000008, 0000000001, 'CMS Export'),
-(0000000060, 0000000008, 0000000001, 'CMS Import');
+(0000000058, 0000000054, 0000000001, ''),
+(0000000060, 0000000008, 0000000001, 'CMS Import'),
+(0000000060, 0000000054, 0000000001, '');
 
 -- --------------------------------------------------------
 
@@ -1122,6 +1212,7 @@ CREATE TABLE IF NOT EXISTS `qualtricsActions` (
   `id_qualtricsActionScheduleTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsSurveys_reminder` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   `schedule_info` text,
+  `id_qualtricsActions` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `qualtricsActions_fk_id_qualtricsProjects` (`id_qualtricsProjects`),
   KEY `qualtricsActions_fk_id_qualtricsSurveys` (`id_qualtricsSurveys`),
@@ -1189,10 +1280,10 @@ DROP TABLE IF EXISTS `qualtricsReminders`;
 CREATE TABLE IF NOT EXISTS `qualtricsReminders` (
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
-  PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_mailQueue`),
+  `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_qualtricsSurveys`,`id_users`,`id_scheduledJobs`),
   KEY `qualtricsReminders_fk_id_users` (`id_users`),
-  KEY `qualtricsReminders_fk_id_mailQueue` (`id_mailQueue`)
+  KEY `qualtricsReminders_fk_id_scheduledJobs` (`id_scheduledJobs`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1238,6 +1329,97 @@ CREATE TABLE IF NOT EXISTS `qualtricsSurveysResponses` (
   KEY `qSurveysResponses_fk_id_users` (`id_users`),
   KEY `qSurveysResponses_fk_id_surveys` (`id_surveys`),
   KEY `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` (`id_qualtricsProjectActionTriggerTypes`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheduledJobs`
+--
+
+DROP TABLE IF EXISTS `scheduledJobs`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `id_jobTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_jobStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `description` varchar(1000) DEFAULT NULL,
+  `date_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_to_be_executed` datetime DEFAULT NULL,
+  `date_executed` datetime DEFAULT NULL,
+  `config` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `scheduledJobs_fk_id_jobTypes` (`id_jobTypes`),
+  KEY `scheduledJobs_fk_id_jobStatus` (`id_jobStatus`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheduledJobs_mailQueue`
+--
+
+DROP TABLE IF EXISTS `scheduledJobs_mailQueue`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_mailQueue` (
+  `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_scheduledJobs`,`id_mailQueue`),
+  KEY `scheduledJobs_mailQueue_fk_id_mailQueue` (`id_mailQueue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheduledJobs_notifications`
+--
+
+DROP TABLE IF EXISTS `scheduledJobs_notifications`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_notifications` (
+  `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_notifications` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_scheduledJobs`,`id_notifications`),
+  KEY `scheduledJobs_notifications_fk_id_notifications` (`id_notifications`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheduledJobs_qualtricsActions`
+--
+
+DROP TABLE IF EXISTS `scheduledJobs_qualtricsActions`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_qualtricsActions` (
+  `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_scheduledJobs`,`id_qualtricsActions`),
+  KEY `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` (`id_qualtricsActions`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheduledJobs_tasks`
+--
+
+DROP TABLE IF EXISTS `scheduledJobs_tasks`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_tasks` (
+  `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_tasks` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_scheduledJobs`,`id_tasks`),
+  KEY `scheduledJobs_tasks_fk_id_tasks` (`id_tasks`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheduledJobs_users`
+--
+
+DROP TABLE IF EXISTS `scheduledJobs_users`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_users` (
+  `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
+  PRIMARY KEY (`id_users`,`id_scheduledJobs`),
+  KEY `scheduledJobs_users_fk_scheduledJobs` (`id_scheduledJobs`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1827,7 +2009,7 @@ CREATE TABLE IF NOT EXISTS `styles` (
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`),
   KEY `id_group` (`id_group`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
@@ -1892,7 +2074,8 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000058, 'qualtricsSurvey', 0000000002, 0000000002, 'Visualize a qualtrics survey. It is shown in iFrame.'),
 (0000000059, 'search', 0000000002, 0000000003, 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter'),
 (0000000060, 'version', 0000000002, 0000000009, 'Add information about the DB version and for the git version of Selfhelp'),
-(0000000061, 'trigger', 0000000002, 0000000012, 'Create a basic trigger that execute selected action.');
+(0000000061, 'trigger', 0000000002, 0000000012, 'Create a basic trigger that execute selected action.'),
+(0000000062, 'messageBoard', 0000000002, 0000000002, 'Shows a board of messages which can be rated and commented with pre-defined messages.');
 
 -- --------------------------------------------------------
 
@@ -2013,6 +2196,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000016, 0000000056, '0', 'If enabled the form can only be submitted if a value is enterd in this input field.', 0),
 (0000000016, 0000000057, NULL, 'The name of the input form field. This name must be unique within a form.', 0),
 (0000000016, 0000000058, NULL, 'The default value of the input field.', 0),
+(0000000016, 0000000145, '', 'In this ***JSON*** field we can configure a data retrieve params from the DB, either `static` or `dynamic` data. Example: \n ```\n [\n	{\n		\"type\": \"static|dynamic\",\n		\"table\": \"table_name | #url_param1\",\n        \"retrieve\": \"first | last | all\",\n		\"fields\": [\n			{\n				\"field_name\": \"name | #url_param2\",\n				\"field_holder\": \"@field_1\",\n				\"not_found_text\": \"my field was not found\"				\n			}\n		]\n	}\n]\n```\nIf the page supports parameters, then the parameter can be accessed with `#` and the name of the paramer. Example `#url_param_name`. \n\nIn order to inlcude the retrieved data in the input `value`, include the `field_holder` that wa defined in the markdown text.\n\nWe can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;);\n\n`It is used for prefil of the default value`', 0),
 (0000000016, 0000000155, '', 'Add format pattern for the [input](https://selfhelp.psy.unibe.ch/demo/style/471)', 0),
 (0000000017, 0000000024, NULL, 'The text to be rendered.', 0),
 (0000000017, 0000000059, '0', 'If enabled the text will be rendered within HTML `<p></p>` tags. If disabled the text will be rendered without any wrapping tags.', 0),
@@ -2046,6 +2230,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000022, 0000000070, '5', 'Set the maximum elements that can be shown in the drop down list before the scroller appears', 0),
 (0000000022, 0000000141, '0', 'If checked the select component will have a live search text box which can filter the values', 0),
 (0000000022, 0000000142, '0', 'If checked the select component is disabled', 0),
+(0000000022, 0000000168, '0', 'If checked the style treat the values as images and expect image paths in the `text` property', 0),
 (0000000023, 0000000008, NULL, 'If this field is set, a this text will be rendered above the slider.', 0),
 (0000000023, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000023, 0000000057, NULL, 'The name of the slider form field. This name must be unique within a form.', 0),
@@ -2134,6 +2319,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000036, 0000000151, '', 'The email subject that will be send. It could be dynamically configured. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)', 0),
 (0000000036, 0000000152, '', 'The email boy that will be send. It could be dynamically configured. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)', 0),
 (0000000036, 0000000154, '0', 'When it is checked, the form will be sumbited with an AJAX call and the page will not be fully reloaded. This way the state of active tabs, collapse state of cards, etc will be kept.', 1),
+(0000000036, 0000000167, '0', '`Only for mobile` - if selected the modal form will be closed once the survey is done', 0),
+(0000000036, 0000000169, NULL, 'Redirect to this url at the end of the survey', 0),
 (0000000038, 0000000008, NULL, 'If this field is set, a this text will be rendered above the radio elements.', 0),
 (0000000038, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000038, 0000000056, '0', 'If enabled the form can only be submitted if a value is selected.', 0),
@@ -2218,9 +2405,9 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000051, 0000000022, NULL, 'The title of the Sankey diagram.', 0),
 (0000000051, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000051, 0000000069, '1', 'The minimal required item count to form a link. In other words: what is the minimal required link width for a link to be displayed', 0),
-(0000000051, 0000000121, NULL, 'The source of the data to be used to draw the Sankey diagram.', 0),
-(0000000051, 0000000125, NULL, 'In order to create a Sankey diagram from a set of user input data two types of information are required:\r\n 1. the form field names defined here (think of it as the column headers of a table where each row holds the data of one subject)\r\n 2. the value types defined in `value_types` (the value entered by the subject).\r\n\r\nThe Sankey diagram consist of *nodes* and *links*. All possible combinations of form field names (1) and value types (2) define the nodes in a Sankey diagram. The links are computed by accumulating all values of the same type (2) when transitioning from one field name (1) to another.\r\n\r\nThis field expects an ordered list (`json` syntax) which specifies the form field names (1) to be used to generate the Sankey diagram. The order is important because two consecutive form field names (1) form a transition. Each list item is an object with the following fields:\r\n - `key`: the name of the field. When using static data this refers to a column name from the table specified in the field `data-source`. When using dynamic data this refers to a user input field name of the form specified in the field `data-source`.\r\n - `label`: A human-readable label which can be displayed on the diagram.\r\n\r\nAn Example\r\n```\r\n[\r\n  { \"key\": \"field1\", \"label\": \"Field 1\" },\r\n  { \"key\": \"field2\", \"label\": \"Field 2\" }\r\n]\r\n```', 0);
+(0000000051, 0000000121, NULL, 'The source of the data to be used to draw the Sankey diagram.', 0);
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`) VALUES
+(0000000051, 0000000125, NULL, 'In order to create a Sankey diagram from a set of user input data two types of information are required:\r\n 1. the form field names defined here (think of it as the column headers of a table where each row holds the data of one subject)\r\n 2. the value types defined in `value_types` (the value entered by the subject).\r\n\r\nThe Sankey diagram consist of *nodes* and *links*. All possible combinations of form field names (1) and value types (2) define the nodes in a Sankey diagram. The links are computed by accumulating all values of the same type (2) when transitioning from one field name (1) to another.\r\n\r\nThis field expects an ordered list (`json` syntax) which specifies the form field names (1) to be used to generate the Sankey diagram. The order is important because two consecutive form field names (1) form a transition. Each list item is an object with the following fields:\r\n - `key`: the name of the field. When using static data this refers to a column name from the table specified in the field `data-source`. When using dynamic data this refers to a user input field name of the form specified in the field `data-source`.\r\n - `label`: A human-readable label which can be displayed on the diagram.\r\n\r\nAn Example\r\n```\r\n[\r\n  { \"key\": \"field1\", \"label\": \"Field 1\" },\r\n  { \"key\": \"field2\", \"label\": \"Field 2\" }\r\n]\r\n```', 0),
 (0000000051, 0000000126, NULL, 'In order to create a Sankey diagram from a set of user input data two types of information are required:\n 1. the form field names defined in `form_field_names` (think of it as the column headers of a table where each row holds the data of one subject)\n 2. the value types defined here (the value entered by the subject).\n\nThe Sankey diagram consist of *nodes* and *links*. All possible combinations of form field names (1) and value types (2) define the nodes in a Sankey diagram. The links are computed by accumulating all values of the same type (2) when transitioning from one field name (1) to another.\n\nThis field expects an ordered list (`json` syntax) which specifies the value types (2) to be used to generate the Sankey diagram. The order is important because it may be used for node placement. Each list item is an object with the following fields:\n - `key`: the value of the value type.\n - `label`: A human-readable label which can be displayed on the diagram.\n - `color`: A hex string definig the color of the node of this type. Use a string of the following from `\"#FF0000\"`\n\nAn Example\n```\n[\n  { \"key\": 1, \"label\": \"Value Type 1\", \"color\": \"#FF0000\" },\n  { \"key\": 2, \"label\": \"Value Type 2\", \"color\": \"#00FF00\" }\n]\n```', 0),
 (0000000051, 0000000127, NULL, 'Define the color of the links. There are four options:\n - `source`: use the color of the source node\n - `target`: use the color of the target node\n - a hex string of the from `#FF0000` to define the same color for all links\n - the empty string to use the default translucent gray', 0),
 (0000000051, 0000000128, NULL, 'Define the alpha value of the color of the links. There are two options:\n - `sum`: compute the alpha value based on the width of the link\n - any number from 0 to 1: the same alpha value for all links as defined', 0),
@@ -2262,15 +2449,33 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000056, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000056, 0000000126, NULL, 'Defines the label and color for each distinct data value. Use a JSON array where each item has the following keys:\n - `key`: the data value to which the color and label will be assigned\n - `label`: to the label of the data value\n - `color`: the color of the data value\n\nAn example:\n```\n[\n  { \"key\": \"value_1\", \"label\", \"Label 1\", \"color\": \"#ff0000\" },\n  { \"key\": \"value_2\", \"label\", \"Label 2\", \"color\": \"#00ff00\" }\n}\n```', 0),
 (0000000057, 0000000066, NULL, 'JSON structure for the navigation bar', 0),
+(0000000058, 0000000006, '0', 'Children that can be added to the style. It is mainly used when the style is used as container', 0),
 (0000000058, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000058, 0000000144, '', 'Select a survey. TIP: A Survey should be assigned to a project (added as a action)', 0),
+(0000000058, 0000000156, '0', 'If checked the survey can be done once per schedule', 0),
+(0000000058, 0000000157, '0', 'If checked the survey can be done only once by an user. The checkbox `once_per_schedule` is ignore if this is checked', 0),
+(0000000058, 0000000158, '00:00', 'Start time when the survey should be available', 0),
+(0000000058, 0000000159, '00:00', 'End time when the survey should be not available anymore', 0),
+(0000000058, 0000000160, NULL, 'Markdown text that is shown if the survey is done and it can be filled only once per schedule', 0),
+(0000000058, 0000000161, NULL, 'Markdown text that is shown if the survey is not active right now.', 0),
+(0000000058, 0000000165, '0', 'If checked the survey is restarted on refresh', 0),
+(0000000058, 0000000166, '0', 'If checked the style is used as container only and do not visualize the survey in iFrame', 0),
+(0000000058, 0000000167, '0', '`Only for mobile` - if selected the modal form will be closed once the survey is done', 0),
+(0000000058, 0000000169, NULL, 'Redirect to this url at the end of the survey', 0),
 (0000000059, 0000000008, '', 'Label for the button', 0),
 (0000000059, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000059, 0000000055, '', 'Placeholder for the input field', 0),
 (0000000059, 0000000147, '', 'Add prefix to the search text', 0),
 (0000000059, 0000000148, '', 'Add suffix to the search text', 0),
 (0000000060, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
-(0000000061, 0000000153, '', 'Select a plugin which will execute a predifined action. Tip: Plugins are additional functionality and they are not included in the basic Selfhelp. If a plugin is missing contact your administrator!', 0);
+(0000000061, 0000000153, '', 'Select a plugin which will execute a predifined action. Tip: Plugins are additional functionality and they are not included in the basic Selfhelp. If a plugin is missing contact your administrator!', 0),
+(0000000062, 0000000022, NULL, 'The title of a message. The special string `@publisher` will be replaced by the name of the user who published the message.', 0),
+(0000000062, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style. E.g use the bootsrap class [`card-columns`](!https://getbootstrap.com/docs/4.6/components/card/#card-columns) to arrange the messages in a grid.', 0),
+(0000000062, 0000000025, NULL, 'The messgae to be displayed nex to the score badge.', 0),
+(0000000062, 0000000070, '0', 'The maximal number of messages to be shown. `0` means all messages.', 0),
+(0000000062, 0000000162, NULL, 'The name of the form under which the score is stored.', 0),
+(0000000062, 0000000163, NULL, 'A list of icons to be displayed in the message footer. Use a JSON array of free [fontawesome](https://fontawesome.com/icons?d=gallery&m=free) icons. E.g.\n```json\n[\n  \"fa-thumbs-up\",\n  \"fa-laugh\",\n  \"fa-heart\"\n]\n```', 0),
+(0000000062, 0000000164, NULL, 'A list of comments to be displayed in a dropdown of a message footer. Use a JSON array of exclamations for the user to select. E.g.\n```json\n[\n  \"Well done!\",\n  \"Keep it up!\",\n  \"Nice one!\"\n]\n```', 0);
 
 -- --------------------------------------------------------
 
@@ -2297,6 +2502,19 @@ INSERT INTO `styleType` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tasks`
+--
+
+DROP TABLE IF EXISTS `tasks`;
+CREATE TABLE IF NOT EXISTS `tasks` (
+  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `config` varchar(1000) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `transactions`
 --
 
@@ -2314,7 +2532,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
   KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
   KEY `transactions_fk_id_users` (`id_users`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2361,7 +2579,30 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000038, '2020-11-19 13:44:21', 35, 42, 2, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/fsdf\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/fsdf\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
 (0000000039, '2020-11-19 13:44:25', 35, 42, 2, 'pages', 58, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/1\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/1\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
 (0000000040, '2020-11-19 13:44:30', 35, 42, 2, 'pages', 58, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/11111\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":183,\"sid\":1635,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms_export\\/section\\/11111\",\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\\/183\\/1635\",\"chat_room\":11}}'),
-(0000000041, '2020-11-19 14:34:45', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms\",\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/group_update_custom\\/3\",\"requests\":[]}}');
+(0000000041, '2020-11-19 14:34:45', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":\"\\/selfhelp\\/admin\\/cms\",\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/group_update_custom\\/3\",\"requests\":[]}}'),
+(0000000042, '2021-03-16 13:34:20', 35, 42, 3, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/user\\/60\",\"requests\":[]}}'),
+(0000000043, '2021-03-16 13:34:25', 35, 42, 3, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/user\\/60\",\"requests\":[]}}'),
+(0000000044, '2021-03-16 13:34:27', 35, 42, 3, 'pages', 50, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/scheduledJobs\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
+(0000000045, '2021-03-16 13:34:31', 35, 42, 3, 'pages', 49, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\",\"requests\":[]}}'),
+(0000000046, '2021-03-16 13:34:32', 35, 42, 3, 'pages', 51, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/project\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/scheduledJobs\",\"requests\":[]}}'),
+(0000000047, '2021-03-16 13:34:32', 35, 42, 3, 'pages', 52, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\",\"requests\":[]}}'),
+(0000000048, '2021-03-16 13:34:33', 35, 42, 3, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\\/project\",\"requests\":[]}}'),
+(0000000049, '2021-03-16 13:34:35', 35, 42, 3, 'pages', 11, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_insert\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"requests\":[]}}'),
+(0000000050, '2021-03-16 13:34:37', 35, 42, 3, 'pages', 14, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/user\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\",\"requests\":[]}}'),
+(0000000051, '2021-03-16 13:34:39', 35, 42, 3, 'pages', 45, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/data\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms_insert\",\"requests\":[]}}'),
+(0000000052, '2021-03-16 13:34:40', 35, 42, 3, 'pages', 22, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/export\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/user\",\"requests\":[]}}'),
+(0000000053, '2021-03-16 13:34:41', 35, 42, 3, 'pages', 50, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/scheduledJobs\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/data\",\"requests\":[]}}'),
+(0000000054, '2021-03-16 13:34:43', 35, 42, 3, 'pages', 24, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/asset\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/export\",\"requests\":[]}}'),
+(0000000055, '2021-03-16 13:34:44', 35, 42, 3, 'pages', 37, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/email\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/scheduledJobs\",\"requests\":[]}}'),
+(0000000056, '2021-03-16 13:34:45', 35, 42, 3, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/asset\",\"requests\":[]}}'),
+(0000000057, '2021-03-16 13:34:46', 35, 42, 3, 'pages', 50, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/scheduledJobs\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/email\",\"requests\":[]}}'),
+(0000000058, '2021-03-16 13:34:48', 35, 42, 3, 'pages', 46, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms_preferences\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms\",\"requests\":[]}}'),
+(0000000059, '2021-03-16 13:34:49', 35, 42, 3, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/scheduledJobs\",\"requests\":[]}}'),
+(0000000060, '2021-03-16 13:35:21', 35, 42, 1, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1}}'),
+(0000000061, '2021-03-16 13:35:40', 35, 42, 1, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}'),
+(0000000062, '2021-03-16 13:35:55', 35, 42, 1, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}'),
+(0000000063, '2021-03-16 13:36:00', 35, 42, 3, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms_preferences\",\"requests\":[]}}'),
+(0000000064, '2021-03-16 13:36:06', 35, 42, 1, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}');
 
 -- --------------------------------------------------------
 
@@ -2404,6 +2645,7 @@ DROP TABLE IF EXISTS `uploadRows`;
 CREATE TABLE IF NOT EXISTS `uploadRows` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `id_uploadTables` (`id_uploadTables`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2444,6 +2686,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `is_reminded` tinyint(1) NOT NULL DEFAULT '1',
   `last_login` date DEFAULT NULL,
   `last_url` varchar(100) DEFAULT NULL,
+  `device_id` varchar(100) DEFAULT NULL,
+  `device_token` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `id_genders` (`id_genders`),
@@ -2455,11 +2699,11 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `id_status`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`, `last_url`) VALUES
-(0000000001, 'guest', '', NULL, NULL, 0, NULL, 1, NULL, NULL, 0, NULL, NULL),
-(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, '2020-04-29', NULL),
-(0000000003, 'tpf', 'TPF', '$2y$10$VxLANpP09THlDIDDfvL7PurilxKZ8vU8WzdGdfCYkdeBgy7hUkiUu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL),
-(0000000004, 'sysadmin', 'sysadmin', '$2y$10$H5MhmUF3cLLMNayuIQ4g.OXikV528bDOkConwtVBjdpj4rqrUtAXu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL);
+INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`, `id_status`, `intern`, `token`, `id_languages`, `is_reminded`, `last_login`, `last_url`, `device_id`, `device_token`) VALUES
+(0000000001, 'guest', '', NULL, NULL, 0, NULL, 1, NULL, NULL, 0, NULL, NULL, NULL, NULL),
+(0000000002, 'admin', 'admin', '$2y$10$lqb/Eieowq8lWTUxVrb1MOHrZ1ZDvbnU4RNvWxqP5pa8/QOdwFB8e', NULL, 0, 0000000003, 0, NULL, NULL, 1, '2020-04-29', NULL, NULL, NULL),
+(0000000003, 'tpf', 'TPF', '$2y$10$VxLANpP09THlDIDDfvL7PurilxKZ8vU8WzdGdfCYkdeBgy7hUkiUu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL),
+(0000000004, 'sysadmin', 'sysadmin', '$2y$10$H5MhmUF3cLLMNayuIQ4g.OXikV528bDOkConwtVBjdpj4rqrUtAXu', 0000000001, 0, 0000000003, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2525,7 +2769,7 @@ CREATE TABLE IF NOT EXISTS `user_activity` (
   PRIMARY KEY (`id`),
   KEY `id_users` (`id_users`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_activity`
@@ -2535,7 +2779,8 @@ INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`, `id_type`) VA
 (0000000001, 0000000002, '/selfhelp/admin/export/user_input_form/all/55', '2019-11-28 16:49:46', 0000000002),
 (0000000002, 0000000002, '/selfhelp/admin/export/user_input_form/all/55', '2020-01-24 14:32:37', 0000000002),
 (0000000003, 0000000002, '/selfhelp/admin/data', '2020-11-06 10:46:14', 0000000002),
-(0000000004, 0000000002, '/selfhelp/admin/data', '2020-11-06 10:46:22', 0000000002);
+(0000000004, 0000000002, '/selfhelp/admin/data', '2020-11-06 10:46:22', 0000000002),
+(0000000005, 0000000003, '/selfhelp/admin/data', '2021-03-16 14:34:39', 0000000002);
 
 -- --------------------------------------------------------
 
@@ -2617,7 +2862,7 @@ CREATE TABLE IF NOT EXISTS `version` (
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v3.10.0');
+(0000000001, 'v4.0.0');
 
 --
 -- Constraints for dumped tables
@@ -2686,12 +2931,6 @@ ALTER TABLE `mailAttachments`
   ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `mailQueue`
---
-ALTER TABLE `mailQueue`
-  ADD CONSTRAINT `mailQueue_fk_id_mailQueueStatus` FOREIGN KEY (`id_mailQueueStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Constraints for table `modules_pages`
 --
 ALTER TABLE `modules_pages`
@@ -2757,8 +2996,8 @@ ALTER TABLE `qualtricsActions_groups`
 -- Constraints for table `qualtricsReminders`
 --
 ALTER TABLE `qualtricsReminders`
-  ADD CONSTRAINT `qualtricsReminders_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -2774,6 +3013,48 @@ ALTER TABLE `qualtricsSurveysResponses`
   ADD CONSTRAINT `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`),
   ADD CONSTRAINT `qSurveysResponses_fk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `qSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scheduledJobs`
+--
+ALTER TABLE `scheduledJobs`
+  ADD CONSTRAINT `scheduledJobs_fk_id_jobStatus` FOREIGN KEY (`id_jobStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_fk_id_jobTypes` FOREIGN KEY (`id_jobTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scheduledJobs_mailQueue`
+--
+ALTER TABLE `scheduledJobs_mailQueue`
+  ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scheduledJobs_notifications`
+--
+ALTER TABLE `scheduledJobs_notifications`
+  ADD CONSTRAINT `scheduledJobs_notifications_fk_id_notifications` FOREIGN KEY (`id_notifications`) REFERENCES `notifications` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_notifications_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scheduledJobs_qualtricsActions`
+--
+ALTER TABLE `scheduledJobs_qualtricsActions`
+  ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scheduledJobs_tasks`
+--
+ALTER TABLE `scheduledJobs_tasks`
+  ADD CONSTRAINT `scheduledJobs_tasks_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_tasks_fk_id_tasks` FOREIGN KEY (`id_tasks`) REFERENCES `tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scheduledJobs_users`
+--
+ALTER TABLE `scheduledJobs_users`
+  ADD CONSTRAINT `scheduledJobs_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_users_fk_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `sections`

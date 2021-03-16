@@ -215,22 +215,25 @@ BEGIN
             replace(col_name, ' ', ''), '`'
         )
     ) INTO @sql
-    from view_uploadTables
-    where table_id = table_id_param;
+    FROM view_uploadTables
+    WHERE table_id = table_id_param;
 
     IF (@sql is null) THEN
-        select table_name from view_uploadTables where 1=2;
+        SELECT table_name from view_uploadTables where 1=2;
     ELSE
-        begin
+        BEGIN
             SET @sql = CONCAT('select table_name, timestamp, row_id, entry_date, ', @sql, ' from view_uploadTables t
                 where table_id = ', table_id_param,
                 ' group by table_name, timestamp, row_id HAVING 1 ', filter_param);
-
+			IF LOCATE('id_users', @sql) THEN
+				-- get user_name if there is id_users column
+				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id)');
+			END IF;
 
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
-        end;
+        END;
     END IF;
 END
 //
@@ -615,7 +618,7 @@ LEFT JOIN genders g ON (sft.id_genders = g.id);
 DROP VIEW IF EXISTS view_scheduledJobs;
 CREATE VIEW view_scheduledJobs
 AS
-SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, l_types.lookup_code AS type_code, l_types.lookup_value AS type, 
+SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value AS status, l_types.lookup_code AS type_code, l_types.lookup_value AS type, sj.config,
 sj.date_create, date_to_be_executed, date_executed, description, 
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails
@@ -710,7 +713,7 @@ AS
 SELECT sj.id AS id,
 status_code, status, type_code, type, 
 sj.date_create, date_to_be_executed, date_executed,
-recipient, config, id_tasks, id_jobTypes, id_jobStatus, description
+recipient, t.config, id_tasks, id_jobTypes, id_jobStatus, description
 FROM tasks t
 INNER JOIN scheduledJobs_tasks sj_t ON (sj_t.id_tasks = t.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_t.id_scheduledJobs);
