@@ -166,7 +166,7 @@ ALTER TABLE qualtricsReminders
 ADD `id_scheduledJobs` INT(10 ) UNSIGNED ZEROFILL NOT NULL;
 
 UPDATE qualtricsReminders
-SET id_scheduledJobs = (SELECT id_scheduledJobs FROM scheduledJobs_mailQueue sjmq WHERE sjmq.id_mailQueue = id_mailQueue);
+SET id_scheduledJobs = (SELECT id_scheduledJobs FROM scheduledJobs_mailQueue sjmq WHERE sjmq.id_mailQueue = qualtricsReminders.id_mailQueue);
 
 ALTER TABLE qualtricsReminders
 DROP FOREIGN KEY qualtricsReminders_fk_id_mailQueue;
