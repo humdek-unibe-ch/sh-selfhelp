@@ -78,7 +78,7 @@ class Mailer extends PHPMailer
         $res = true;
         $attachments = array();
         $fetched_attachments = $this->db->query_db('SELECT attachment_name, attachment_path FROM mailAttachments WHERE id_mailQueue = :id_mailQueue;', array(
-            ":id_mailQueue" => $mail_info['id']
+            ":id_mailQueue" => $mail_info['id_mailQueue']
         ));
         if ($fetched_attachments) {
             foreach ($fetched_attachments as $attachmnet) {
