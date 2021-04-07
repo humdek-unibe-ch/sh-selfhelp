@@ -1,4 +1,9 @@
-# v3.10.0 (latest)
+# v3.10.0.1 (latest)
+
+### Bugfix
+ - fix new line in field used in JSON logic in `conditionalContainer` (this version was created for workwell project, the bug was fixed in v4.0.2)
+
+# v3.10.0
 
 ### New Features
  - Synchronize single action/survey in Qualtrics; Issue: #292;
