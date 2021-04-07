@@ -1,4 +1,14 @@
-# v4.0.0 (latest)
+# v4.0.2 (latest)
+
+### Bugfix
+ - fix new line in field used in JSON logic in `conditionalContainer`
+
+# v4.0.1
+
+### Bugfix
+ - fix sending attachmnets for emails
+
+# v4.0.0
 
 ### Bugfix
  - Resend a verification email on already invited users
@@ -41,6 +51,10 @@
 
 ### New Features
  - Add property `filter` in data_config. It improves the customization of all styles that has field `data_config`; Issue: #293;
+
+# v3.10.0.1
+### Bugfix
+ - fix new line in field used in JSON logic in `conditionalContainer` (this version was created for workwell project, the bug was fixed in v4.0.2)
 
 # v3.10.0
 

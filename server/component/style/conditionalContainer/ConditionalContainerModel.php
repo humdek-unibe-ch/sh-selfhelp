@@ -96,6 +96,8 @@ class ConditionalContainerModel extends StyleModel
         // compute the condition
         try
         {
+            $j_condition = str_replace("\\", '\\\\', $j_condition); //get rid of new lines, otherwise it fails
+            $j_condition = str_replace("\r\n", '\n', $j_condition); //get rid of new lines, otherwise it fails
             $res['result'] = JsonLogic::apply(json_decode($j_condition, true));
         }
         catch(\Exception | \ArgumentCountError $e)
