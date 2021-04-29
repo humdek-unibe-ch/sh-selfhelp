@@ -107,7 +107,7 @@ class NavView extends BaseView
      * if the menu should show an icon
      */
     private function output_nav_item($key, $page_name, $nav_child=null,
-            $is_active=false, $icon)
+            $is_active=false, $icon='')
     {
         $active = ($is_active) ? "active" : "";
         $params = array();
