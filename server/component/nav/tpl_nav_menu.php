@@ -5,6 +5,7 @@
 ?>
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle <?php echo $active; ?>" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expand="false">
+        <?php $this->output_icon($icon); ?>
         <?php echo $page_name; ?>
     </a>
     <div class="dropdown-menu <?php echo $align; ?>">
