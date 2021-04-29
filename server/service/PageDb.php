@@ -222,7 +222,7 @@ class PageDb extends BaseDb
             "is_headless" => false,
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            p.protocol, a.name AS action, parent, is_headless, id_type
+            p.protocol, a.name AS action, parent, is_headless, id_type, id_pageAccessTypes
             FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE keyword=:keyword";
@@ -231,6 +231,7 @@ class PageDb extends BaseDb
         {
             $page_info["url"] = $info["url"];
             $page_info["id_type"] = intval($info["id_type"]);
+            $page_info["id_pageAccessTypes"] = intval($info["id_pageAccessTypes"]);
             $page_info["parent"] = $info["parent"];
             $page_info["id"] = intval($info["id"]);
             $page_info["action"] = $info["action"];

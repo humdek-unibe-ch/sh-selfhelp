@@ -53,7 +53,33 @@ class NavModel extends BaseModel
             LEFT JOIN pages_fields_translation AS pft_icon ON pft_icon.id_pages = p.id
             LEFT JOIN languages AS l_icon ON l_icon.id = pft_icon.id_languages
             LEFT JOIN fields AS f_icon ON f_icon.id = pft_icon.id_fields
-            WHERE ($locale_cond AND f.name = 'label') AND ($locale_cond2 AND f_icon.name = 'type_input')
+            WHERE ($locale_cond AND f.name = 'label') AND ($locale_cond2 AND f_icon.name = 'type_input') AND p.id_pageAccessTypes != 62
+            ORDER BY p.nav_position";
+        $pages_db = $this->db->query_db($sql, array());
+        return $this->prepare_pages($pages_db);
+    }
+
+    /**
+     * Fetches all root page links that are placed in the navbar from the
+     * database. for mobile
+     *
+     * @retval array
+     *  An array prepared by NavModel::prepare_pages.
+     */
+    public function fetch_pages_mobile()
+    {
+        $locale_cond = $this->db->get_locale_condition();
+        $locale_cond2 = str_replace('l.','l_icon.',$this->db->get_locale_condition());
+        $sql = "SELECT p.id, p.keyword, p.id_navigation_section,
+            pft.content AS title, pft_icon.content AS icon, p.parent, p.nav_position, p.url
+            FROM pages AS p
+            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
+            LEFT JOIN languages AS l ON l.id = pft.id_languages
+            LEFT JOIN fields AS f ON f.id = pft.id_fields
+            LEFT JOIN pages_fields_translation AS pft_icon ON pft_icon.id_pages = p.id
+            LEFT JOIN languages AS l_icon ON l_icon.id = pft_icon.id_languages
+            LEFT JOIN fields AS f_icon ON f_icon.id = pft_icon.id_fields
+            WHERE ($locale_cond AND f.name = 'label') AND ($locale_cond2 AND f_icon.name = 'type_input') AND p.id_pageAccessTypes != 63
             ORDER BY p.nav_position";
         $pages_db = $this->db->query_db($sql, array());
         return $this->prepare_pages($pages_db);
@@ -225,6 +251,14 @@ class NavModel extends BaseModel
      *  An array prepared by NavModel::prepare_pages.
      */
     public function get_pages() { return $this->fetch_pages(); }
+
+    /**
+     * Fetches all page links that are placed in the navbar from the database foe mobile.
+     *
+     * @retval array
+     *  An array prepared by NavModel::prepare_pages.
+     */
+    public function get_pages_mobile() { return $this->fetch_pages_mobile(); }
 
     /**
      * Checks whether a route exists.

@@ -80,7 +80,7 @@ class CmsInsertController extends BaseController
 
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
                 intval($type), $position, $is_headless, $is_open,
-                $this->model->get_active_page_id());
+                $this->model->get_active_page_id(), $_POST['id_pageAccessTypes']);
             if($this->pid)
                 $this->success = true;
             else

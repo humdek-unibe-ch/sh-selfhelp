@@ -85,6 +85,11 @@ abstract class BasePage
      */
     protected $acl_pass = false;
 
+    /**
+     * Page Access type, it can be mobile, web and mobile_and_web
+     */
+    protected $pageAccessType;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -275,6 +280,7 @@ abstract class BasePage
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
+        $this->pageAccessType = $db->get_lookup_code_by_id(intval($info['id_pageAccessTypes']));
         $this->required_access_level = $info['access_level'];
         if($info['is_headless']) $this->disable_navigation();
         $this->id_navigation_section = null;

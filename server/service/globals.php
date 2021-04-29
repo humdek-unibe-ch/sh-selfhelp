@@ -87,6 +87,7 @@ define('timePeriod', 'timePeriod');
 define('notificationTypes', 'notificationTypes');
 define('plugins', 'plugins');
 define('jobTypes', 'jobTypes');
+define('pageAccessTypes', 'pageAccessTypes');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -153,4 +154,7 @@ define('plugins_calc_sleep_efficiency', 'calc_sleep_efficiency');
 define('jobTypes_email', 'email');
 define('jobTypes_notification', 'notification');
 define('jobTypes_task', 'task');
+define('pageAccessTypes_mobile', 'mobile');
+define('pageAccessTypes_web', 'web');
+define('pageAccessTypes_mobile_and_web', 'mobile_and_web');
 ?>

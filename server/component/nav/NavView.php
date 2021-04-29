@@ -234,7 +234,7 @@ class NavView extends BaseView
 
     public function output_content_mobile()
     {
-        $res = $this->model->get_pages();
+        $res = $this->model->get_pages_mobile();
         $home = array(
             'id_navigation_section' => null,
             'title' => $this->model->get_home(),

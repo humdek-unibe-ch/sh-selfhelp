@@ -344,6 +344,8 @@ class CmsView extends BaseView
                 "url" => $this->page_info['url'],
                 "protocol_title" => "Protocol:",
                 "protocol" => $this->page_info['protocol'],
+                "page_access_title" => "Page Access:",
+                "page_access" => $this->model->get_db()->get_lookup_value_by_id($this->page_info['id_pageAccessTypes'])
             ),
         ));
         $fields = $this->model->get_page_properties();

@@ -1,4 +1,10 @@
-# v4.0.3 (latest)
+# v4.1.0 (latest)
+
+### New Features
+ - add an option for a menu icon for the website
+ - add `pageAccessTypes`; It separates pages to mobile, web or mobile_and_web
+
+# v4.0.3
 
 ### Bugfix
  - show the number of the messages over the users in the chat and order the users by the number of the new messages

@@ -74,6 +74,23 @@ class CmsInsertView extends BaseView
         $list->output_content();
     }
 
+    /**
+     * Render select with all the page access types.
+     */
+    private function output_page_access_type()
+    {
+        $items = $this->get_lookups(pageAccessTypes);
+        $access_types = new BaseStyleComponent("select", array(
+            "label" => "Page Access Type:",
+            "value" => 0,
+            "css" => "w-100",
+            "is_required" => true,
+            "name" => "id_pageAccessTypes",
+            "items" => $items,
+        ));
+        $access_types->output_content();
+    }
+
     /* Public Methods *********************************************************/
 
     /**

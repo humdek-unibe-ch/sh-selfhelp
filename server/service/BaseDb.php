@@ -584,6 +584,44 @@ class BaseDb {
     }
 
     /**
+     * Get the lookup value by id
+     *
+     * @param int $id
+     *  The lookup id
+     * @retval string
+     *  the lookup value
+     */
+    public function get_lookup_value_by_id($id)
+    {
+        $val = $this->query_db_first(
+            'SELECT lookup_value FROM lookups WHERE id = :id;',
+            array(
+                ':id' => $id
+            )
+        );
+        return $val['lookup_value'];
+    }
+
+    /**
+     * Get the lookup code by id
+     *
+     * @param int $id
+     *  The lookup id
+     * @retval string
+     *  the lookup code
+     */
+    public function get_lookup_code_by_id($id)
+    {
+        $val = $this->query_db_first(
+            'SELECT lookup_code FROM lookups WHERE id = :id;',
+            array(
+                ':id' => $id
+            )
+        );
+        return $val['lookup_code'];
+    }
+
+    /**
      * Begin PDO DB transanction
      */
     public function begin_transaction(){
