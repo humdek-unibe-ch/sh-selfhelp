@@ -1,4 +1,9 @@
-# v4.0.2 (latest)
+# v4.0.3 (latest)
+
+### Bugfix
+ - show the number of the messages over the users in the chat and order the users by the number of the new messages
+
+# v4.0.2
 
 ### Bugfix
  - fix new line in field used in JSON logic in `conditionalContainer`
