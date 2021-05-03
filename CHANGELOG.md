@@ -3,6 +3,12 @@
 ### New Features
  - add an option for a menu icon for the website
  - add `pageAccessTypes`; It separates pages to mobile, web or mobile_and_web
+ - add style `entryList`; The style visualize entries from a formUserInput used as admin tool for inserting entries.
+ - add new method `output_content_entry` and `output_content_mobile_entry` with param the entry value. Then the style can be used to visualize the value as an entry. The value of these styles can be dynamically loaded as entry if the form name is set in the value field with the `$` sign (ex. if we have a form with inpiut name `firstName`, in order to visualize that input, we should use `$firstName`). The styles which have this new method are:
+    - `markdown`
+    - `heading`
+    - `image`
+    - `div`
 
 # v4.0.3
 

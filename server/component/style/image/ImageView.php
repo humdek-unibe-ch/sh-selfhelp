@@ -71,10 +71,49 @@ class ImageView extends StyleView
         require __DIR__ . "/tpl_image.php";
     }
 
+    /**
+     * Render output as an entry
+     * @param array $entry_value
+     * the data for the entry value 
+     */
+    public function output_content_entry($entry_value)
+    {
+        if($this->source == "") return;
+        $this->source = $this->model->get_db_field("source");
+        $param = $this->get_entry_param($this->source);
+        $this->source = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->source) : $this->source; // if the param is not set, return the original
+        if(filter_var($this->source, FILTER_VALIDATE_URL))
+            $url = $this->source;
+        else
+            $url = ASSET_PATH . '/' . $this->source;
+        $fluid = $this->is_fluid ? "img-fluid" : "";
+        require __DIR__ . "/tpl_image.php";
+    }
+
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();
         if (filter_var($this->source, FILTER_VALIDATE_URL)) {
+            $url = $this->source;
+        } else {
+            $url = ASSET_FOLDER . '/' . $this->source;
+        }
+        $style['source']['content'] = $url;
+        return $style;
+    }
+
+     /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $this->source = $this->model->get_db_field("source");
+        $param = $this->get_entry_param($this->source);
+        $this->source = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->source) : $this->source; // if the param is not set, return the original
+         if (filter_var($this->source, FILTER_VALIDATE_URL)) {
             $url = $this->source;
         } else {
             $url = ASSET_FOLDER . '/' . $this->source;

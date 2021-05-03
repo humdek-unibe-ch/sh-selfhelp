@@ -14,3 +14,17 @@ ADD CONSTRAINT `pages_fk_id_pacgeAccessTypes` FOREIGN KEY (`id_pageAccessTypes`)
 UPDATE pages
 SET id_pageAccessTypes = (SELECT id FROM lookups WHERE type_code = 'pageAccessTypes' AND lookup_code = 'mobile_and_web');
 
+-- Add new style entryList
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('entryList', '2', (select id from styleGroup where `name` = 'Wrapper' limit 1), 'Wrap other styles that later visualize list of entries (inserted via `formUserInput`).');
+
+-- Add new field type `select-formName` and field `formName` in style entryList
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-formName', '8');
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'formName', get_field_type_id('select-formName'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('entryList'), get_field_id('formName'), '', 'Select a form name which will be linked to the style');
+
+-- add field children to style entryList
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryList'), get_field_id('children'), 0, 'Children that can be added to the style. It is used to design how the entry in the list will looks like.');
+-- add field css to style entryList
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryList'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');
+
