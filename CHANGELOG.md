@@ -9,6 +9,7 @@
     - `heading`
     - `image`
     - `div`
+    - `button`
 
 # v4.0.3
 

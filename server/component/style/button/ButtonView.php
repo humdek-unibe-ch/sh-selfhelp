@@ -57,9 +57,37 @@ class ButtonView extends StyleView
      */
     public function output_content()
     {
-        if($this->url == "" || $this->label == "") return;
+        if ($this->url == "" || $this->label == "") return;
         require __DIR__ . "/tpl_button.php";
     }
 
+    /**
+     * Render output as an entry
+     * @param array $entry_value
+     * the data for the entry value 
+     */
+    public function output_content_entry($entry_value)
+    {
+        if ($this->url == "" || $this->label == "") return;
+        $this->url = $this->model->get_db_field("url");
+        $param = $this->get_entry_param($this->url);
+        $this->url = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->url) : $this->url; // if the param is not set, return the original
+        require __DIR__ . "/tpl_button.php";
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $this->url = $this->model->get_db_field("url");
+        $param = $this->get_entry_param($this->url);
+        $this->url = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->url) : $this->url; // if the param is not set, return the original
+        $style['url']['content'] = $this->url[0] == '/' ? $this->url : '/' . $this->url;
+        return $style;
+    }
 }
 ?>
