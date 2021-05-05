@@ -28,3 +28,12 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 -- add field css to style entryList
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryList'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');
 
+-- Add new style entryRecord
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('entryRecord', '2', (select id from styleGroup where `name` = 'Wrapper' limit 1), 'Wrap other styles that later visualize a record from the entry list');
+-- Add field `formName` in style entryRecord
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('entryRecord'), get_field_id('formName'), '', 'Select a form name which will be linked to the style');
+-- add field children to style entryRecord
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecord'), get_field_id('children'), 0, 'Children that can be added to the style. It is used to design how the entry will looks like.');
+-- add field css to style entryRecord
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecord'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');

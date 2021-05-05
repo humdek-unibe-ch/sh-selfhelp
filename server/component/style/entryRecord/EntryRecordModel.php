@@ -9,7 +9,7 @@ require_once __DIR__ . "/../StyleModel.php";
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class EntryListModel extends StyleModel
+class EntryRecordModel extends StyleModel
 {
     /* Private Properties *****************************************************/
 
@@ -19,43 +19,46 @@ class EntryListModel extends StyleModel
     private $form_id;
 
     /**
-     * Array with the entry list data
+     * The entry record data
      */
-    private $entry_list;
+    private $entry_record;
 
-    public function __construct($services, $id)
+    public function __construct($services, $id, $record_id)
     {
         parent::__construct($services, $id);
         $this->form_id = $this->get_db_field("formName");
-        $this->entry_list = $this->fetch_entry_list($this->form_id);
+        $this->entry_record = $record_id > 0 ? $this->fetch_entry_record($this->form_id, $record_id) : null;
     }
 
     /* Private Methods *********************************************************/
 
     /**
-     * Fetch form data by id
+     * Fetch the record data
      * @param int $form_id
      * the form id of the form that we want to fetcht
+     * @param int $record_id
+     * the record id of the form entry
      * @retval array
-     * the result of the fetched form
+     * the result of the fetched form row
      */
-    private function fetch_entry_list($form_id)
+    private function fetch_entry_record($form_id, $record_id)
     {
-        $sql = 'CALL get_form_data_with_filter(:form_id, " AND deleted = 0")';
-        return $this->db->query_db($sql, array(
-            ":form_id" => $form_id
+        $filter = " AND deleted = 0 AND record_id = " . $record_id;
+        $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
+        return $this->db->query_db_first($sql, array(
+            ":form_id" => $form_id,
+            ":filter" => $filter
         ));
     }
-
 
     /* Public Methods *********************************************************/
 
     /**
-     * Getter function, return the entry_list array property
-     * @retval array emtry_list
+     * Get the entry record;
+     * @retval array;
+     * The entry record;
      */
-    public function get_entry_list()
-    {
-        return $this->entry_list;
+    public function get_entry_record(){
+        return $this->entry_record;
     }
 }

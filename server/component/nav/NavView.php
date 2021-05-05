@@ -112,7 +112,7 @@ class NavView extends BaseView
         $active = ($is_active) ? "active" : "";
         $params = array();
         if($nav_child !== null)
-            $params['nav'] = $nav_child;
+            $params['nav'] = $nav_child;        
         $url = $this->model->get_link_url($key, $params);
         require __DIR__ . "/tpl_nav_item.php";
     }
@@ -253,7 +253,18 @@ class NavView extends BaseView
                 }
                 $res[$key]['children'] = array_values($value['children']);
             }
-        }        
+        }
+
+        foreach ($res as $arr_key => $page) {
+            // get navigation page url corectly
+            $key = $page['keyword'];
+            $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
+            if ($nav_child !== null) {
+                $params['nav'] = $nav_child;
+                $res[$arr_key]['url'] = str_replace($_SERVER['CONTEXT_PREFIX'], '', $this->model->get_link_url($key, $params));
+            }
+        }
+
         return $res;
     }
 }
