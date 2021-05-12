@@ -60,6 +60,26 @@ class ConditionalContainerView extends StyleView
             require __DIR__ . "/tpl_container.php";
     }
 
+    /**
+     * Render the style view.
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $entry_data = $entry_value;
+
+        $res = $this->model->compute_condition($this->condition);
+        if($this->debug)
+        {
+            echo '<pre class="alert alert-warning">';
+                var_dump($res);
+            echo "</pre>";
+        }
+        if($this->model->is_cms_page() || $res['result'])
+            require __DIR__ . "/tpl_container_entryValue.php";
+    }
+
     public function output_content_mobile()
     {
         $res = $this->model->compute_condition($this->condition);

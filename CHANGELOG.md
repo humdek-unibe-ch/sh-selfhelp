@@ -4,7 +4,7 @@
  - add an option for a menu icon for the website
  - add `pageAccessTypes`; It separates pages to mobile, web or mobile_and_web
  - add style `entryList`; The style visualize entries from a formUserInput used as admin tool for inserting entries.
- - add style `entryRecord`; The style visualize selected entry.
+ - add style `entryRecord`; The style visualize selected entry. It need a `page` with advanced settings and path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`
  - add style `calendar`; The style is only for mobile and it shows the calendar in the app.
  - add new method `output_content_entry` and `output_content_mobile_entry` with param the entry value. Then the style can be used to visualize the value as an entry. The value of these styles can be dynamically loaded as entry if the form name is set in the value field with the `$` sign (ex. if we have a form with inpiut name `firstName`, in order to visualize that input, we should use `$firstName`). The styles which have this new method are:
     - `markdown`
@@ -12,6 +12,10 @@
     - `image`
     - `div`
     - `button`
+    - `conditionalContainer`
+
+### Changes
+ - `formUserInput` can be added to a page with path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`. When the id is loaded the entry will be in edit mode. Also an option for delete will apear.
 
 # v4.0.3
 

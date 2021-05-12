@@ -340,6 +340,25 @@ class StyleModel extends BaseModel implements IStyleModel
         }
     }
 
+    /**
+     * Fetch the record data
+     * @param int $form_id
+     * the form id of the form that we want to fetcht
+     * @param int $record_id
+     * the record id of the form entry
+     * @retval array
+     * the result of the fetched form row
+     */
+    protected function fetch_entry_record($form_id, $record_id)
+    {
+        $filter = " AND deleted = 0 AND record_id = " . $record_id;
+        $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
+        return $this->db->query_db_first($sql, array(
+            ":form_id" => $form_id,
+            ":filter" => $filter
+        ));
+    }
+
     /* Public Methods *********************************************************/
 
     /**

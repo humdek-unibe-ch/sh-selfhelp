@@ -65,6 +65,11 @@ class FormUserInputView extends StyleView
      */
     protected $submit_and_send_lable;
 
+    /**
+     * Selected record_id if there is one selected
+     */
+    protected $record_id;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -75,7 +80,7 @@ class FormUserInputView extends StyleView
      * @param object $controller
      *  The controller instance of the component.
      */
-    public function __construct($model, $controller)
+    public function __construct($model, $controller, $record_id)
     {
         parent::__construct($model, $controller);
         $this->name = $this->model->get_db_field("name");
@@ -86,6 +91,19 @@ class FormUserInputView extends StyleView
         $this->anchor = $this->model->get_db_field("anchor");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
+        $this->record_id = $record_id; // if record_id > 0 the form is in edit mode
+    }
+
+    private function get_delete_url()
+    {
+        // implode string into array
+        $url = explode('/', $_SERVER['REQUEST_URI']);
+        //The array_filter() function filters the values of an array using a callback function.
+        $url = array_filter($url);
+        // remove the last element and return an array
+        array_pop($url);
+        // implode again into string
+        return '/' . implode('/', $url);
     }
 
     /**
@@ -113,6 +131,28 @@ class FormUserInputView extends StyleView
         }
     }
 
+    /**
+     * For each child of style formField enable the value for the selected record
+     * entry is displayed in the form field. 
+     *
+     * @param array $children
+     *  The child component array of the current component.
+     * @param array $entry_record
+     *  The values of the selected record
+     */
+    protected function propagate_input_fields($children, $entry_record)
+    {        
+        foreach ($children as $child) {
+            $style = $child->get_style_instance();
+            if (is_a($style, "FormFieldComponent")) {
+                if(isset($entry_record[$style->get_view()->get_name_base()])){                    
+                    $style->get_view()->set_value($entry_record[$style->get_view()->get_name_base()]);
+                }
+            }
+            $this->propagate_input_fields($child->get_children(), $entry_record);
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -121,8 +161,26 @@ class FormUserInputView extends StyleView
     public function output_content()
     {
         if($this->name === "") return;
-        $children = $this->model->get_children();
+
+        if ($this->record_id > 0) {
+            // edit mode; load the entry record value
+            $entry_record = $this->model->get_entry_record($this->name, $this->record_id);
+            if (!$entry_record) {
+                // no data for that record
+                $this->sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
+                foreach ($this->sections as $section) {
+                    $missing_styles =  new StyleComponent($this->model->get_services(), intval($section['id']));
+                    $missing_styles->output_content();
+                }
+                return;
+            }
+        }
+
+        $children = $this->model->get_children();        
         $this->propagate_input_field_settings($children, !$this->is_log);
+        if($this->record_id > 0){
+            $this->propagate_input_fields($children, $entry_record);
+        }
         $children[] = new BaseStyleComponent("input", array(
             "type_input" => "hidden",
             "name" => "__form_name",
@@ -138,10 +196,17 @@ class FormUserInputView extends StyleView
             "name" => "is_log",
             "value" => $this->is_log,
         ));
+        if ($this->record_id > 0) {
+            $children[] = new BaseStyleComponent("input", array(
+                "type_input" => "hidden",
+                "name" => "record_id",
+                "value" => $this->record_id,
+            ));
+        }
         $url = $_SERVER['REQUEST_URI'] . '#section-'
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
-            "label" => $this->label,
+            "label" => $this->record_id > 0 ? 'Update' : $this->label,
             "type" => $this->type,
             "url" => $url,
             "children" => $children,
@@ -151,6 +216,38 @@ class FormUserInputView extends StyleView
             "submit_and_send_label" => $this->submit_and_send_label
         ));
         require __DIR__ . "/tpl_form.php";
+        if ($this->record_id > 0) {
+            // update mode; show delete button
+
+            $form_delete = new BaseStyleComponent("card", array(
+                "css" => "mt-3 mb-3",
+                "is_expanded" => false,
+                "type" => 'danger',
+                "is_collapsible" => true,
+                "title" => "Delete Entry",
+                "children" => array(
+                    new BaseStyleComponent("form", array(
+                        "label" => 'Delete',
+                        "type" => 'danger',
+                        "url" => $this->get_delete_url(),
+                        "children" => array(
+                            new BaseStyleComponent("input", array(
+                                "type_input" => "hidden",
+                                "name" => "delete_record_id",
+                                "value" => $this->record_id,
+                            )),
+                            new BaseStyleComponent("input", array(
+                                "type_input" => "hidden",
+                                "name" => "__form_name",
+                                "value" => htmlentities($this->name),
+                            ))
+                        )
+                    ))
+                )
+            ));
+
+            $form_delete->output_content();
+        }
     }
 
     // public function output_content_mobile()

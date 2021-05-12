@@ -47,10 +47,22 @@ class FormUserInputController extends BaseController
             } else {
                 $this->error_msgs = $gump->get_errors_array(true);
             }
+        }else if(isset($_POST['delete_record_id'])){
+            $res =  $this->model->delete_user_input($_POST['delete_record_id']);
+            if ($res === false) {
+                $this->fail = true;
+                $this->alert_fail = "The record was not deleted";
+                $this->error_msgs[] = "The record was not deleted";
+            } else {
+                $this->success = true;
+                $this->alert_success = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+                if ($this->alert_success !== "")
+                    $this->success_msgs[] = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+            }
         }
         else
         {
-            $res = $this->model->save_user_input($user_input);
+            $res = isset($_POST['record_id']) ? $this->model->update_user_input($user_input, $_POST['record_id']) : $this->model->save_user_input($user_input);
             if($res === false)
             {
                 $this->fail = true;
