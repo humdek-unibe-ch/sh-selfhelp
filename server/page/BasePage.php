@@ -379,6 +379,30 @@ abstract class BasePage
         }
     }
 
+    private function get_external_css_for_mobile(){
+        $path = CSS_SERVER_PATH;
+        $extension = 'css';
+        if(!file_exists($path)) return;
+        $files = array();
+        if($handle = opendir($path)) {
+            while(false !== ($file = readdir($handle)))
+            {
+                if(filetype($path . '/' . $file) === "dir") continue;
+                $files[] = $file;
+            }
+            closedir($handle);
+        }
+        natcasesort($files);
+        $css_content = '';
+        foreach($files as $file)
+        {
+            $file_parts = pathinfo($file);
+            if($file_parts['extension'] === $extension)
+                $css_content .= file_get_contents($path . '/' . $file);
+        }
+        return $css_content;
+    }
+
     /* Protected Abstract Methods ***********************************************/
 
     /**
@@ -459,6 +483,7 @@ abstract class BasePage
         // if($this->render_footer) $this->output_component("footer");
         $res['title'] = $this->title;
         $res['avatar'] = $this->services->get_db()->get_avatar($_SESSION['id_user']);
+        $res['external_css'] = $this->get_external_css_for_mobile();
         return $res;
     }
 

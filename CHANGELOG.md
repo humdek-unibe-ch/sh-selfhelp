@@ -13,9 +13,11 @@
     - `div`
     - `button`
     - `conditionalContainer`
+ - load all custom css files in the mobile app
 
 ### Changes
  - `formUserInput` can be added to a page with path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`. When the id is loaded the entry will be in edit mode. Also an option for delete will apear.
+ - add `icon` to style `tab`.
 
 # v4.0.3
 
