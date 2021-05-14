@@ -63,3 +63,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('calendar'), get_field_id('label_day'), NULL, 'Label for the day button');
 
 # executed on studybuddy
+
+-- Add new field `icon` in style tabs
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'icon', get_field_type_id('text'), '0');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('tab'), get_field_id('icon'), '', 'Show icon; For web font awsome icons are used; For mobile ionicicons are used.');
