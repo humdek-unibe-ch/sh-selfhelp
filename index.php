@@ -60,6 +60,8 @@ if (isset($_POST['mobile']) && $_POST['mobile']) {
 }
 
 function mobile_call($services, $router, $db){
+    $_SESSION['user_language'] = $_POST['locale'];
+    $_SESSION['language'] = $_POST['locale'];
     $res = [];
     if($router->route)
     {

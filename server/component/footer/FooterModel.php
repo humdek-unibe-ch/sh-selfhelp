@@ -25,30 +25,7 @@ class FooterModel extends BaseModel
         parent::__construct($services);
     }
 
-    /* Public Methods *********************************************************/ 
-
-    /**
-     * Get a list of languages and prepares the list such that it can be passed to a
-     * list component.
-     *
-     * @retval array
-     *  An array of items where each item has the following keys:
-     *   'id':      The id of the language.
-     *   'locale':   
-     *   'language':   
-     *   'csv_separator':
-     */
-    public function get_languages()
-    {
-        $res = array();
-        foreach ($this->db->fetch_languages() as $language) {
-            $res[] = array(
-                "locale" => $language["locale"],
-                "title" => $language["language"]                
-            );
-        }
-        return $res;
-    }
+    /* Public Methods *********************************************************/     
 
     /**
      * Fetches all page links that are placed in the footer from the database.

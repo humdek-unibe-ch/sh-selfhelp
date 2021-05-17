@@ -568,5 +568,28 @@ class PageDb extends BaseDb
         return $arr;
     }
 
+    /**
+     * Get a list of languages and prepares the list such that it can be passed to a
+     * list component.
+     *
+     * @retval array
+     *  An array of items where each item has the following keys:
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function get_languages()
+    {
+        $res = array();
+        foreach ($this->fetch_languages() as $language) {
+            $res[] = array(
+                "locale" => $language["locale"],
+                "title" => $language["language"]                
+            );
+        }
+        return $res;
+    }
+
 }
 ?>

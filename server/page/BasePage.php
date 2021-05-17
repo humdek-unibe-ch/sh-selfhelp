@@ -484,6 +484,7 @@ abstract class BasePage
         $res['title'] = $this->title;
         $res['avatar'] = $this->services->get_db()->get_avatar($_SESSION['id_user']);
         $res['external_css'] = $this->get_external_css_for_mobile();
+        $res['languages'] = $this->services->get_db()->get_languages();
         return $res;
     }
 
