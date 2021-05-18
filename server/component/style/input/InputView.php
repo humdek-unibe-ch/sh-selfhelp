@@ -150,5 +150,19 @@ class InputView extends FormFieldView
         return $style;
     }
 
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $param = $this->get_entry_param($this->value);
+        $style['value']['content'] = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->value) : $this->value; // if the param is not set, return the original
+        $style['value']['default'] = $this->default_value;
+        return $style;
+    }
+
 }
 ?>
