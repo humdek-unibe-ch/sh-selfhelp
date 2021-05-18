@@ -70,6 +70,11 @@ class FormUserInputView extends StyleView
      */
     protected $record_id;
 
+    /**
+     * Entry data if the style is used in entry visualization
+     */
+    protected $entry_data;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -84,7 +89,7 @@ class FormUserInputView extends StyleView
     {
         parent::__construct($model, $controller);
         $this->name = $this->model->get_db_field("name");
-        $this->label = $this->model->get_db_field("label", "Submit");
+        $this->label = $this->model->get_db_field("label");
         $this->type = $this->model->get_db_field("type", "primary");
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->ajax = $this->model->get_db_field("ajax", 0);
@@ -250,14 +255,16 @@ class FormUserInputView extends StyleView
         }
     }
 
-    // public function output_content_mobile()
-    // {
-    //     $style = parent::output_content_mobile();
-    //     $children = $this->model->get_children();
-    //     $this->propagate_input_field_settings($children, !$this->is_log);
-    //     $style['children'] = $children;
-    //     return $style;
-    // }
+    /**
+     * Render the style view.
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $this->entry_data = $entry_value;
+        $this->output_content();        
+    }
 	
 }
 ?>

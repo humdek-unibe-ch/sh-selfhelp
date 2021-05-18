@@ -59,6 +59,12 @@ class FormView extends StyleView
      */
     protected $submit_and_send_lable;
 
+    /**
+     * Entry data if the style is used in entry visualization
+     */
+    protected $entry_data;
+
+
     /* Constructors ***********************************************************/
 
     /**
@@ -108,11 +114,32 @@ class FormView extends StyleView
     }
 
     /**
+     * Render the style view.
+     */
+    public function output_content_entry($entry_value)
+    {
+        $this->entry_data = $entry_value;
+        if($this->url == "") return;
+        require __DIR__ . "/tpl_form.php";
+    }
+
+    /**
+     * Render the submit button.
+     */
+    public function output_submit_button()
+    {
+        if($this->label) {
+            require __DIR__ . "/tpl_submit_btn.php";
+        }
+    }
+
+    /**
      * Render the submit and send button.
      */
     public function output_submit_and_send_button()
     {
-        if($this->submit_and_send_email) {
+        if ($this->submit_and_send_email) {
+            $custom_css = $this->label ? 'ml-3' : ''; // if submit button is shown, add left margin 
             require __DIR__ . "/tpl_submit_and_send_btn.php";
         }
     }

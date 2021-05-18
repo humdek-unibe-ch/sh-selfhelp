@@ -68,3 +68,9 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)
 VALUES (get_style_id('tab'), get_field_id('icon'), '', 'Show icon; For web font awsome icons are used; For mobile ionicicons are used.');
 
 # executed on studybuddy
+
+
+
+
+
+#gen all functions and procs

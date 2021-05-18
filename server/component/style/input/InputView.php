@@ -96,6 +96,10 @@ class InputView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if($this->entry_data){
+            // if entry data; reset the value
+            $this->value = $this->model->get_db_field("value", "");
+        }
         $autocomplete = '';
         if($this->disable_autocomplete) {
             $autocomplete = 'autocomplete="off"';
@@ -121,6 +125,11 @@ class InputView extends FormFieldView
         }
         else if($this->value === null)
             $this->value = $this->default_value;
+        if($this->entry_data){
+            $orig_val = $this->model->get_db_field("value", "");
+            $param = $this->get_entry_param($orig_val);
+            $this->value = isset($this->entry_data[$param]) ? str_replace('$' . $param, $this->entry_data[$param], $orig_val) : $this->value; // if the param is not set, return the original
+        }
         if(
         $this->type == 'date' || $this->type == 'datetime') {
             require __DIR__ . "/tpl_input_date.php";

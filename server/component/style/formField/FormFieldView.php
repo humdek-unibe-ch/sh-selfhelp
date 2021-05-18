@@ -75,6 +75,11 @@ abstract class FormFieldView extends StyleView
      */
     protected $name_base;
 
+    /**
+     * Entry data if the style is used in entry visualization
+     */
+    protected $entry_data;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -175,6 +180,27 @@ abstract class FormFieldView extends StyleView
      */
     public function output_content()
     {
+        if($this->name_base === "") return;
+
+        if($this->show_db_value())
+            $this->value = $this->model->get_form_field_value();
+    
+        $this->name = $this->get_name();
+
+        if($this->label == "")
+            $this->output_base_form_field();
+        else
+            require __DIR__ . "/tpl_label.php";
+    }
+
+    /**
+     * Render output as an entry
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $this->entry_data = $entry_value;        
         if($this->name_base === "") return;
 
         if($this->show_db_value())
