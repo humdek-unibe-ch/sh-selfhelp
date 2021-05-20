@@ -285,6 +285,40 @@ class FormUserInputView extends StyleView
         $this->controller->success = false;
         $this->controller->fail = false;
     }
+
+    // /**
+    //  * Render output as an entry for mobile
+    //  * @param array $entry_value
+    //  * the data for the entry value
+    //  */
+    public function output_content_mobile_entry($entry_value)
+    {            
+        $entry_value['id_users'] = $_SESSION['id_user'];
+        $this->entry_data = $entry_value;
+        $this->model->set_entry_data($entry_value);        
+        if(isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value']) && $entry_value[ENTRY_RECORD_ID] == $_POST[ENTRY_RECORD_ID]['value']){
+            // execute only if the right record is loaded
+            if($this->controller){
+                $this->controller->execute();      
+            }
+        }        
+        $entry_record_id_field = new BaseStyleComponent("input", array(
+                "type_input" => "hidden",
+                "name" => ENTRY_RECORD_ID,
+                "id" => ENTRY_RECORD_ID,
+                "value" => $this->entry_data[ENTRY_RECORD_ID],
+                "is_required" => 1
+            ));
+        $style = parent::output_content_mobile();    
+        $style['children'][] = $entry_record_id_field->output_content_mobile();
+        // $style['children'][] = $entry_record_id_field->output_content_mobile();
+        //clear the controller messages
+        $this->controller->alert_success = '';
+        $this->controller->fail_success = '';
+        $this->controller->success = false;
+        $this->controller->fail = false;
+        return $style;
+    }
 	
 }
 ?>

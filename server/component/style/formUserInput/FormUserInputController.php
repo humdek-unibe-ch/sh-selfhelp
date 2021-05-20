@@ -108,6 +108,9 @@ class FormUserInputController extends BaseController
             || $_POST['__form_name'] !== $this->model->get_db_field("name"))
             return;
         unset($_POST['__form_name']);
+        if(isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value'])){
+            $_POST[ENTRY_RECORD_ID] = $_POST[ENTRY_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
+        }
         $this->alert_success = $this->model->get_db_field("alert_success");
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
