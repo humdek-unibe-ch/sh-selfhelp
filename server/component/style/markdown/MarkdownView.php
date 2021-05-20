@@ -84,12 +84,11 @@ class MarkdownView extends StyleView
      */
     public function output_content_entry($entry_value)
     {
-        $param = $this->get_entry_param($this->text_md);
         $this->text_md = str_replace('<p>', '', $this->text_md);
         $this->text_md = str_replace('</p>', '', $this->text_md);
-        $entry_value = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->text_md) : $this->text_md; // if the param is not set, return the original
+        $txt = $this->get_entry_value($entry_value, $this->text_md); 
         $pd = new ParsedownExtension();
-        $md = $pd->text($entry_value);
+        $md = $pd->text($txt);
         require __DIR__ . "/tpl_markdown.php";
     }
 
@@ -111,12 +110,11 @@ class MarkdownView extends StyleView
     public function output_content_mobile_entry($entry_value)
     {
         $style = parent::output_content_mobile();
-        $param = $this->get_entry_param($this->text_md);
         $this->text_md = str_replace('<p>', '', $this->text_md);
         $this->text_md = str_replace('</p>', '', $this->text_md);
-        $entry_value = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->text_md) : $this->text_md; // if the param is not set, return the original
+        $txt = $this->get_entry_value($entry_value, $this->text_md); 
         $pd = new ParsedownExtension();
-        $md = $pd->text($entry_value);
+        $md = $pd->text($txt);
         $style['text_md']['content'] = $md;
         if ($this->data_config) {
             $this->retrieve_data();

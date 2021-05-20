@@ -16,6 +16,11 @@ class FormUserInputModel extends StyleModel
 {
     /* Private Properties *****************************************************/
 
+    /**
+     * Entry data if the style is used in entry visualization
+     */
+    private $entry_data = null;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -331,9 +336,16 @@ class FormUserInputModel extends StyleModel
      */
     public function send_feedback_email()
     {
+        $entry_data = $this->entry_data;
         $data_config = $this->get_db_field("data_config", '');
         $subject = $this->get_db_field("email_subject", '');
         $body = $this->get_db_field("email_body", '');
+        if($entry_data){
+            // $entry_data = json_decode($entry_data, true);            
+            $body = $this->get_entry_value($entry_data, $body);
+            $subject = $this->get_entry_value($entry_data, $subject);
+            $data_config = $this->get_entry_value($entry_data, $data_config);
+        }
         if ($data_config) {
             $fields = $this->retrieve_data($data_config);
             if ($fields) {
@@ -342,7 +354,7 @@ class FormUserInputModel extends StyleModel
                     $body = str_replace($field_name, $field_value, $body);
                 }
             }
-        }
+        }        
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -408,6 +420,10 @@ class FormUserInputModel extends StyleModel
         ));
         if($res) return $res['content'];
         else return false;
+    }
+
+    public function set_entry_data($entry_data){
+        $this->entry_data = $entry_data;
     }
 }
 ?>

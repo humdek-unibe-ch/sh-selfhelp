@@ -68,12 +68,12 @@ class FormUserInputView extends StyleView
     /**
      * Selected record_id if there is one selected
      */
-    protected $record_id;
+    protected $selected_record_id;
 
     /**
      * Entry data if the style is used in entry visualization
      */
-    protected $entry_data;
+    protected $entry_data = null;
 
     /* Constructors ***********************************************************/
 
@@ -85,7 +85,7 @@ class FormUserInputView extends StyleView
      * @param object $controller
      *  The controller instance of the component.
      */
-    public function __construct($model, $controller, $record_id)
+    public function __construct($model, $controller, $selected_record_id)
     {
         parent::__construct($model, $controller);
         $this->name = $this->model->get_db_field("name");
@@ -96,7 +96,7 @@ class FormUserInputView extends StyleView
         $this->anchor = $this->model->get_db_field("anchor");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
-        $this->record_id = $record_id; // if record_id > 0 the form is in edit mode
+        $this->selected_record_id = $selected_record_id; // if selected_record_id > 0 the form is in edit mode
     }
 
     private function get_delete_url()
@@ -167,9 +167,9 @@ class FormUserInputView extends StyleView
     {
         if($this->name === "") return;
 
-        if ($this->record_id > 0) {
+        if ($this->selected_record_id > 0) {
             // edit mode; load the entry record value
-            $entry_record = $this->model->get_entry_record($this->name, $this->record_id);
+            $entry_record = $this->model->get_entry_record($this->name, $this->selected_record_id);
             if (!$entry_record) {
                 // no data for that record
                 $this->sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
@@ -183,7 +183,7 @@ class FormUserInputView extends StyleView
 
         $children = $this->model->get_children();        
         $this->propagate_input_field_settings($children, !$this->is_log);
-        if($this->record_id > 0){
+        if($this->selected_record_id > 0){
             $this->propagate_input_fields($children, $entry_record);
         }
         $children[] = new BaseStyleComponent("input", array(
@@ -201,27 +201,34 @@ class FormUserInputView extends StyleView
             "name" => "is_log",
             "value" => $this->is_log,
         ));
-        if ($this->record_id > 0) {
+        if ($this->entry_data) {
             $children[] = new BaseStyleComponent("input", array(
                 "type_input" => "hidden",
-                "name" => "record_id",
-                "value" => $this->record_id,
+                "name" => ENTRY_RECORD_ID,
+                "value" => $this->entry_data[ENTRY_RECORD_ID],
+            ));
+        }
+        if ($this->selected_record_id > 0) {
+            $children[] = new BaseStyleComponent("input", array(
+                "type_input" => "hidden",
+                "name" => "selected_record_id",
+                "value" => $this->selected_record_id,
             ));
         }
         $url = $_SERVER['REQUEST_URI'] . '#section-'
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
-            "label" => $this->record_id > 0 ? 'Update' : $this->label,
+            "label" => $this->selected_record_id > 0 ? 'Update' : $this->label,
             "type" => $this->type,
             "url" => $url,
             "children" => $children,
             "css" => $this->css,
-            "id" => $this->id_section,
+            "id" => $this->id_section . isset($this->entry_data[ENTRY_RECORD_ID]) ? ' ' . $this->entry_data[ENTRY_RECORD_ID] : '',
             "submit_and_send_email" => $this->submit_and_send_email,
             "submit_and_send_label" => $this->submit_and_send_label
         ));
         require __DIR__ . "/tpl_form.php";
-        if ($this->record_id > 0) {
+        if ($this->selected_record_id > 0) {
             // update mode; show delete button
 
             $form_delete = new BaseStyleComponent("card", array(
@@ -239,7 +246,7 @@ class FormUserInputView extends StyleView
                             new BaseStyleComponent("input", array(
                                 "type_input" => "hidden",
                                 "name" => "delete_record_id",
-                                "value" => $this->record_id,
+                                "value" => $this->selected_record_id,
                             )),
                             new BaseStyleComponent("input", array(
                                 "type_input" => "hidden",
@@ -252,7 +259,7 @@ class FormUserInputView extends StyleView
             ));
 
             $form_delete->output_content();
-        }
+        }        
     }
 
     /**
@@ -261,9 +268,22 @@ class FormUserInputView extends StyleView
      * the data for the entry value
      */
     public function output_content_entry($entry_value)
-    {
+    { 
+        $entry_value['id_users'] = $_SESSION['id_user'];
         $this->entry_data = $entry_value;
-        $this->output_content();        
+        $this->model->set_entry_data($entry_value);        
+        if(isset($_POST[ENTRY_RECORD_ID]) && $entry_value[ENTRY_RECORD_ID] == $_POST[ENTRY_RECORD_ID]){
+            // execute only if the right record is loaded
+            if($this->controller){
+                $this->controller->execute();      
+            }
+        }
+        $this->output_content();  
+        //clear the controller messages
+        $this->controller->alert_success = '';
+        $this->controller->fail_success = '';
+        $this->controller->success = false;
+        $this->controller->fail = false;
     }
 	
 }

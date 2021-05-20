@@ -70,8 +70,7 @@ class ButtonView extends StyleView
     {
         if ($this->url == "" || $this->label == "") return;
         $this->url = $this->model->get_db_field("url");
-        $param = $this->get_entry_param($this->url);
-        $this->url = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->url) : $this->url; // if the param is not set, return the original
+        $this->url = $this->get_entry_value($entry_value, $this->url); 
         require __DIR__ . "/tpl_button.php";
     }
 
@@ -84,8 +83,7 @@ class ButtonView extends StyleView
     {
         $style = parent::output_content_mobile();
         $this->url = $this->model->get_db_field("url");
-        $param = $this->get_entry_param($this->url);
-        $this->url = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->url) : $this->url; // if the param is not set, return the original
+        $this->url = $this->get_entry_value($entry_value, $this->url); 
         $style['url']['content'] = $this->url[0] == '/' ? $this->url : '/' . $this->url;
         return $style;
     }

@@ -127,8 +127,7 @@ class InputView extends FormFieldView
             $this->value = $this->default_value;
         if($this->entry_data){
             $orig_val = $this->model->get_db_field("value", "");
-            $param = $this->get_entry_param($orig_val);
-            $this->value = isset($this->entry_data[$param]) ? str_replace('$' . $param, $this->entry_data[$param], $orig_val) : $this->value; // if the param is not set, return the original
+            $this->value = $this->get_entry_value($this->entry_data, $this->value); 
         }
         if(
         $this->type == 'date' || $this->type == 'datetime') {
@@ -158,8 +157,7 @@ class InputView extends FormFieldView
     public function output_content_mobile_entry($entry_value)
     {
         $style = parent::output_content_mobile();
-        $param = $this->get_entry_param($this->value);
-        $style['value']['content'] = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->value) : $this->value; // if the param is not set, return the original
+        $style['value']['content'] = $this->get_entry_value($entry_value, $this->value); 
         $style['value']['default'] = $this->default_value;
         return $style;
     }

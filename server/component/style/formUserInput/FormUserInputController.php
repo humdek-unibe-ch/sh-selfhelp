@@ -17,7 +17,7 @@ class FormUserInputController extends BaseController
      * DB field 'alert_success' (empty string).
      * The allert message to be shown if the content was updated successfully.
      */
-    private $alert_success;
+    public $alert_success;
 
     /* Constructors ***********************************************************/
 
@@ -30,54 +30,7 @@ class FormUserInputController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(count($_POST) === 0) return;
-        if(!isset($_POST['__form_name'])
-            || $_POST['__form_name'] !== $this->model->get_db_field("name"))
-            return;
-        unset($_POST['__form_name']);
-        $this->alert_success = $model->get_db_field("alert_success");
-        $gump = new GUMP('de');
-        $user_input = $this->check_user_input($gump);
-        if ($user_input === false) {
-            $this->fail = true;
-            if (isset($_POST['mobile']) && $_POST['mobile']) {
-                foreach ($gump->get_errors_array(true) as $key => $err) {
-                    $this->error_msgs[] = $err;
-                }                
-            } else {
-                $this->error_msgs = $gump->get_errors_array(true);
-            }
-        }else if(isset($_POST['delete_record_id'])){
-            $res =  $this->model->delete_user_input($_POST['delete_record_id']);
-            if ($res === false) {
-                $this->fail = true;
-                $this->alert_fail = "The record was not deleted";
-                $this->error_msgs[] = "The record was not deleted";
-            } else {
-                $this->success = true;
-                $this->alert_success = "The record: " . $_POST['delete_record_id'] . " was deleted.";
-                if ($this->alert_success !== "")
-                    $this->success_msgs[] = "The record: " . $_POST['delete_record_id'] . " was deleted.";
-            }
-        }
-        else
-        {
-            $res = isset($_POST['record_id']) ? $this->model->update_user_input($user_input, $_POST['record_id']) : $this->model->save_user_input($user_input);
-            if($res === false)
-            {
-                $this->fail = true;
-                $this->error_msgs[] = "An unexpected problem occurred. Please Contact the Server Administrator";
-            }
-            else if($res > 0)
-            {
-                if(isset($_POST['btnSubmitAndSend']) && $_POST['btnSubmitAndSend'] == 'send_email'){
-                    $this->model->send_feedback_email();
-                }
-                $this->success = true;
-                if($this->alert_success !== "")
-                    $this->success_msgs[] = $this->alert_success;
-            }
-        }
+        
     }
 
     /* Private Methods ********************************************************/
@@ -147,6 +100,56 @@ class FormUserInputController extends BaseController
         $gump->filter_rules($filter_rules);
         $gump->set_field_names($field_names);
         return $gump->run($post);
+    }
+
+    public function execute(){        
+        if(count($_POST) === 0) return;
+        if(!isset($_POST['__form_name'])
+            || $_POST['__form_name'] !== $this->model->get_db_field("name"))
+            return;
+        unset($_POST['__form_name']);
+        $this->alert_success = $this->model->get_db_field("alert_success");
+        $gump = new GUMP('de');
+        $user_input = $this->check_user_input($gump);
+        if ($user_input === false) {
+            $this->fail = true;
+            if (isset($_POST['mobile']) && $_POST['mobile']) {
+                foreach ($gump->get_errors_array(true) as $key => $err) {
+                    $this->error_msgs[] = $err;
+                }                
+            } else {
+                $this->error_msgs = $gump->get_errors_array(true);
+            }
+        }else if(isset($_POST['delete_record_id'])){
+            $res =  $this->model->delete_user_input($_POST['delete_record_id']);
+            if ($res === false) {
+                $this->fail = true;
+                $this->error_msgs[] = "The record was not deleted";
+            } else {
+                $this->success = true;
+                $this->alert_success = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+                if ($this->alert_success !== "")
+                    $this->success_msgs[] = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+            }
+        }
+        else
+        {
+            $res = isset($_POST['selected_record_id']) ? $this->model->update_user_input($user_input, $_POST['selected_record_id']) : $this->model->save_user_input($user_input);
+            if($res === false)
+            {
+                $this->fail = true;
+                $this->error_msgs[] = "An unexpected problem occurred. Please Contact the Server Administrator";
+            }
+            else if($res > 0)
+            {
+                if(isset($_POST['btnSubmitAndSend']) && $_POST['btnSubmitAndSend'] == 'send_email'){
+                    $this->model->send_feedback_email();
+                }
+                $this->success = true;
+                if($this->alert_success !== "")
+                    $this->success_msgs[] = $this->alert_success;
+            }
+        }
     }
 }
 ?>

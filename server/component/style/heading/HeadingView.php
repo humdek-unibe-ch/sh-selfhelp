@@ -61,8 +61,7 @@ class HeadingView extends StyleView
     public function output_content_entry($entry_value)
     {
         $this->title = $this->model->get_db_field("title");
-        $param = $this->get_entry_param($this->title);
-        $this->title = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->title) : $this->title; // if the param is not set, return the original
+        $this->title = $this->get_entry_value($entry_value, $this->title); 
         if ($this->level < 1) {
             $this->level = 1;
         };
@@ -80,8 +79,7 @@ class HeadingView extends StyleView
     public function output_content_mobile_entry($entry_value)
     {
         $style = parent::output_content_mobile();
-        $param = $this->get_entry_param($this->title);
-        $style['title']['content'] = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->title) : $this->title; // if the param is not set, return the original
+        $style['title']['content'] = $this->get_entry_value($entry_value, $this->title);
         return $style;
     }
 	

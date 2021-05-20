@@ -80,8 +80,7 @@ class ImageView extends StyleView
     {
         if($this->source == "") return;
         $this->source = $this->model->get_db_field("source");
-        $param = $this->get_entry_param($this->source);
-        $this->source = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->source) : $this->source; // if the param is not set, return the original
+        $this->source = $this->get_entry_value($entry_value, $this->source); 
         if(filter_var($this->source, FILTER_VALIDATE_URL))
             $url = $this->source;
         else
@@ -111,8 +110,7 @@ class ImageView extends StyleView
     {
         $style = parent::output_content_mobile();
         $this->source = $this->model->get_db_field("source");
-        $param = $this->get_entry_param($this->source);
-        $this->source = isset($entry_value[$param]) ? str_replace('$' . $param, $entry_value[$param], $this->source) : $this->source; // if the param is not set, return the original
+        $this->source = $this->get_entry_value($entry_value, $this->source); 
          if (filter_var($this->source, FILTER_VALIDATE_URL)) {
             $url = $this->source;
         } else {

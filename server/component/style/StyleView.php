@@ -101,16 +101,17 @@ abstract class StyleView extends BaseView
      */
     protected function output_children_entry($entry_data)
     {
-        foreach ($this->children as $child)
-        if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
-            if(method_exists($child, 'output_content_entry')){
-                $child->output_content_entry($entry_data);
-            }else{
-                $child->output_content();
-            }
-        } else {
-            echo "invalid child element of type '" . gettype($child) . "'";
-        };
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                if (method_exists($child, 'output_content_entry')) {
+                    $child->output_content_entry($entry_data);
+                } else {
+                    $child->output_content();
+                }
+            } else {
+                echo "invalid child element of type '" . gettype($child) . "'";
+            };
+        }
     }
 
     /**
@@ -185,14 +186,8 @@ abstract class StyleView extends BaseView
         return $style;
     }
 
-    public function get_entry_param($input){
-        preg_match_all('~\$\w+\b~', $input, $m);
-        foreach ($m as $key => $value) {
-            if ($value) {
-                $param_name = str_replace('$', '', $value[0]);
-                return $param_name;
-            }
-        }
+    public function get_entry_value($entry_data, $value){
+        return $this->model->get_entry_value($entry_data, $value);
     }
 }
 ?>

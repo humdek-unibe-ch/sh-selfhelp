@@ -8,6 +8,7 @@ require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/StyleComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
 require_once __DIR__ . "/IStyleModel.php";
+require_once __DIR__ . "/BaseStyleModel.php";
 /**
  * This class is used to prepare all data related to the style component such
  * that the data can easily be displayed in the view of the component.
@@ -524,6 +525,10 @@ class StyleModel extends BaseModel implements IStyleModel
         } else {
             return $this->fetch_data($parsed_data);
         }
+    }
+
+    public function get_entry_value($entry_data, $value){
+        return BaseStyleModel::get_entry_value($entry_data, $value);
     }
 
 }
