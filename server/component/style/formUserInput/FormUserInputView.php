@@ -279,18 +279,20 @@ class FormUserInputView extends StyleView
             }
         }
         $this->output_content();  
-        //clear the controller messages
-        $this->controller->alert_success = '';
-        $this->controller->fail_success = '';
-        $this->controller->success = false;
-        $this->controller->fail = false;
+        if($this->controller){
+            //clear the controller messages
+            $this->controller->alert_success = '';
+            $this->controller->fail_success = '';
+            $this->controller->success = false;
+            $this->controller->fail = false;
+        }
     }
 
-    // /**
-    //  * Render output as an entry for mobile
-    //  * @param array $entry_value
-    //  * the data for the entry value
-    //  */
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
     public function output_content_mobile_entry($entry_value)
     {            
         $entry_value['id_users'] = $_SESSION['id_user'];
@@ -311,7 +313,6 @@ class FormUserInputView extends StyleView
             ));
         $style = parent::output_content_mobile();    
         $style['children'][] = $entry_record_id_field->output_content_mobile();
-        // $style['children'][] = $entry_record_id_field->output_content_mobile();
         //clear the controller messages
         $this->controller->alert_success = '';
         $this->controller->fail_success = '';

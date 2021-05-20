@@ -42,6 +42,12 @@ class ConditionalContainerView extends StyleView
         $this->debug = $this->model->get_db_field('debug', false);
     }
 
+    private function get_entry_values($entry_value){
+        $cond = json_encode($this->model->get_db_field('condition'));
+        $cond = $this->model->get_entry_value($entry_value, $cond);
+        $this->condition = json_decode($cond, true);
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -68,6 +74,7 @@ class ConditionalContainerView extends StyleView
     public function output_content_entry($entry_value)
     {
         $entry_data = $entry_value;
+        $this->get_entry_values($entry_value);
 
         $res = $this->model->compute_condition($this->condition);
         if($this->debug)
@@ -82,6 +89,20 @@ class ConditionalContainerView extends StyleView
 
     public function output_content_mobile()
     {
+        $res = $this->model->compute_condition($this->condition);
+        if ($res['result']) {
+            return parent::output_content_mobile();
+        }
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {        
+        $this->get_entry_values($entry_value);
         $res = $this->model->compute_condition($this->condition);
         if ($res['result']) {
             return parent::output_content_mobile();
