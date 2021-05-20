@@ -311,7 +311,7 @@ class FormUserInputView extends StyleView
                 "value" => $this->entry_data[ENTRY_RECORD_ID],
                 "is_required" => 1
             ));
-        $style = parent::output_content_mobile();    
+        $style = parent::output_content_mobile_entry($entry_value);    
         $style['children'][] = $entry_record_id_field->output_content_mobile();
         //clear the controller messages
         $this->controller->alert_success = '';

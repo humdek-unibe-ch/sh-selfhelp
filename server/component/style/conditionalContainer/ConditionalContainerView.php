@@ -105,7 +105,7 @@ class ConditionalContainerView extends StyleView
         $this->get_entry_values($entry_value);
         $res = $this->model->compute_condition($this->condition);
         if ($res['result']) {
-            return parent::output_content_mobile();
+            return parent::output_content_mobile_entry($entry_value);
         }
     }
 }
