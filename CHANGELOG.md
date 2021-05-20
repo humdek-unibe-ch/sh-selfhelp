@@ -16,6 +16,8 @@
     - `form`
     - `formUserInput`
     - `input`
+    - `container`
+    - `markdownInline`
  - load all custom css files in the mobile app
  - set locale from mobile calls
 
