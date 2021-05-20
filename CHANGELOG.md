@@ -23,6 +23,7 @@
  - `formUserInput` can be added to a page with path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`. When the id is loaded the entry will be in edit mode. Also an option for delete will apear.
  - add `icon` to style `tab`.
  - `form` without label does not load the button anymore
+ - add field `email_address` to style `formUserInput`. Use `@email_user` to retrive automaticaly the user email. Emails are separated by the MAIL_SEPARATOR. It is `;`. 
 
 # v4.0.3
 
