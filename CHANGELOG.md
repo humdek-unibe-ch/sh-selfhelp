@@ -20,6 +20,9 @@
     - `markdownInline`
     - `card`
     - `plaintext`
+    - `alert`
+    - `link`
+    - `rawtext`
  - load all custom css files in the mobile app
  - set locale from mobile calls
 

@@ -58,5 +58,28 @@ class RawTextView extends StyleView
     {
         require __DIR__ . "/tpl_raw_text.php";
     }
+
+    /**
+     * Render output as an entry
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $this->text = $this->model->get_entry_value($entry_value, $this->model->get_db_field("text"));
+        require __DIR__ . "/tpl_raw_text.php";
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $style['text']['content'] = $this->model->get_entry_value($entry_value, $this->model->get_db_field("text"));
+        return $style;
+    }
 }
 ?>

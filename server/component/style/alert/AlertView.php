@@ -65,5 +65,17 @@ class AlertView extends StyleView
         require __DIR__ . "/tpl_alert.php";
     }
 
+    /**
+     * Render the style view.
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $entry_data = $entry_value;
+        $type = "alert-" . $this->type;
+        require __DIR__ . "/tpl_alert.php";
+    }
+
 }
 ?>
