@@ -18,6 +18,8 @@
     - `input`
     - `container`
     - `markdownInline`
+    - `card`
+    - `plaintext`
  - load all custom css files in the mobile app
  - set locale from mobile calls
 
