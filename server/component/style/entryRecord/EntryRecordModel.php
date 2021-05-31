@@ -27,7 +27,8 @@ class EntryRecordModel extends StyleModel
     {
         parent::__construct($services, $id);
         $this->form_id = $this->get_db_field("formName");
-        $this->entry_record = $record_id > 0 ? $this->fetch_entry_record($this->form_id, $record_id) : null;
+        $own_entries_only =  $this->get_db_field("own_entries_only", 1);
+        $this->entry_record = $record_id > 0 ? $this->fetch_entry_record($this->form_id, $record_id, $own_entries_only) : null;
     }
 
     /* Private Methods *********************************************************/

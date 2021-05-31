@@ -75,6 +75,11 @@ class FormUserInputView extends StyleView
      */
     protected $entry_data = null;
 
+    /**
+     * If true it loads only records created by the same user
+     */
+    protected $own_entries_only;    
+
     /* Constructors ***********************************************************/
 
     /**
@@ -96,6 +101,7 @@ class FormUserInputView extends StyleView
         $this->anchor = $this->model->get_db_field("anchor");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
+        $this->own_entries_only = $this->model->get_db_field("own_entries_only", 1);
         $this->selected_record_id = $selected_record_id; // if selected_record_id > 0 the form is in edit mode
     }
 
@@ -158,6 +164,27 @@ class FormUserInputView extends StyleView
         }
     }
 
+    /**
+     * For each child of style formField enable the value for the selected record
+     * entry is displayed in the form field. 
+     *
+     * @param array $style
+     *  The child component array of the current component.
+     * @param array $entry_record
+     *  The values of the selected record
+     */
+    protected function propagate_input_fields_mobile($style, $entry_record)
+    {
+        foreach ($style['children'] as $key => $child) {
+            if (isset($entry_record[$child["name"]["content"]])) {
+                $style['children'][$key]["value"]["content"] = $entry_record[$child["name"]["content"]];
+            }
+            // if($style['children'])
+            $style['children'][$key] = $this->propagate_input_fields_mobile($style['children'][$key], $entry_record);
+        }
+        return $style;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -169,7 +196,7 @@ class FormUserInputView extends StyleView
 
         if ($this->selected_record_id > 0) {
             // edit mode; load the entry record value
-            $entry_record = $this->model->get_entry_record($this->name, $this->selected_record_id);
+            $entry_record = $this->model->get_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
             if (!$entry_record) {
                 // no data for that record
                 $this->sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
@@ -275,7 +302,7 @@ class FormUserInputView extends StyleView
         if(isset($_POST[ENTRY_RECORD_ID]) && $entry_value[ENTRY_RECORD_ID] == $_POST[ENTRY_RECORD_ID]){
             // execute only if the right record is loaded
             if($this->controller){
-                $this->controller->execute();      
+               $this->controller->execute();      
             }
         }
         $this->output_content();  
@@ -318,6 +345,79 @@ class FormUserInputView extends StyleView
         $this->controller->fail_success = '';
         $this->controller->success = false;
         $this->controller->fail = false;
+        return $style;
+    }
+
+    /**
+     * Render the style view.
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();   
+        if ($this->selected_record_id > 0) {
+            // edit mode; load the entry record value
+            $entry_record = $this->model->get_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
+        }
+        if ($this->selected_record_id > 0) {
+            $selected_record_id = new BaseStyleComponent("input", array(
+                "type_input" => "hidden",
+                "name" => "selected_record_id",
+                "id" => "selected_record_id",
+                "value" => $this->selected_record_id,
+                "is_required" => 1
+            ));
+            $style['children'][] = $selected_record_id->output_content_mobile();
+            $style = $this->propagate_input_fields_mobile($style, $entry_record);
+        }
+        $style['label']['content'] = $this->selected_record_id > 0 ? 'Update' : $style['label']['content'];
+        if ($this->selected_record_id > 0) {
+            $form_delete = new BaseStyleComponent("card", array(
+                "css" => "mt-3 mb-3",
+                "is_expanded" => false,
+                "type" => 'danger',
+                "is_collapsible" => true,                
+                "title" => "Delete Entry",
+                "children" => array(
+                    new BaseStyleComponent("form", array(
+                        "label" => 'Delete',
+                        "type" => 'danger',
+                        "close_modal_at_end" => 1,
+                        "redirect_at_end" => $this->model->get_db_field("redirect_at_end"),
+                        "url" => $this->get_delete_url(),
+                        "children" => array(
+                            new BaseStyleComponent("input", array(
+                                "type_input" => "hidden",
+                                "name" => "delete_record_id",
+                                "id" => "delete_record_id",
+                                "value" => $this->selected_record_id,
+                                "is_required" => 1
+                            )),
+                            new BaseStyleComponent("input", array(
+                                "type_input" => "hidden",
+                                "name" => "__form_name",
+                                "id" => "__form_name",
+                                "value" => htmlentities($this->name),
+                                "is_required" => 1
+                            ))
+                        )
+                    ))
+                )
+            ));
+            if(!$entry_record){
+                // no data for that record or no access
+                $no_access = new BaseStyleComponent("markdown", array(
+                    "text_md" => 'No access or no data for that record',
+                ));
+                return $no_access->output_content_mobile();
+            }
+            $holder = new BaseStyleComponent("div", array(
+                "css" => ""                
+            ));            
+            $new_style = $holder->output_content_mobile();
+            $new_style['children'][] = $style;
+            $new_style['children'][] = $form_delete->output_content_mobile();            
+            return $new_style;
+        }
         return $style;
     }
 	

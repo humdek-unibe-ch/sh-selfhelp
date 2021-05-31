@@ -23,10 +23,16 @@ class EntryListModel extends StyleModel
      */
     private $entry_list;
 
+    /**
+     * If selected only the entries of the user will be loaded
+     */
+    private $own_entries_only;
+
     public function __construct($services, $id)
     {
         parent::__construct($services, $id);
         $this->form_id = $this->get_db_field("formName");
+        $this->own_entries_only = $this->get_db_field("own_entries_only", "1");
         $this->entry_list = $this->fetch_entry_list($this->form_id);
     }
 
@@ -41,10 +47,18 @@ class EntryListModel extends StyleModel
      */
     private function fetch_entry_list($form_id)
     {
-        $sql = 'CALL get_form_data_with_filter(:form_id, " AND deleted = 0")';
-        return $this->db->query_db($sql, array(
-            ":form_id" => $form_id
-        ));
+        $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, " AND deleted = 0")';
+        $params = array(
+            ":form_id" => $form_id,
+            ":user_id" => $_SESSION['id_user']
+        );
+        if (!$this->own_entries_only) {
+            $sql = 'CALL get_form_data_with_filter(:form_id, " AND deleted = 0")';
+            $params = array(
+                ":form_id" => $form_id
+            );
+        }        
+        return $this->db->query_db($sql, $params);
     }
 
 

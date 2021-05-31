@@ -19,6 +19,11 @@ class FormUserInputController extends BaseController
      */
     public $alert_success;
 
+    /**
+     * If a specific record is selected
+     */
+    private $record_id;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -27,9 +32,10 @@ class FormUserInputController extends BaseController
      * @param object $model
      *  The model instance of the login component.
      */
-    public function __construct($model)
+    public function __construct($model, $record_id)
     {
         parent::__construct($model);
+        $this->record_id = $record_id;
         
     }
 
@@ -102,15 +108,48 @@ class FormUserInputController extends BaseController
         return $gump->run($post);
     }
 
+    /**
+     * Check if entry is a record and check if the user has access to delete it or update it
+     * @retval boolean
+     * true if it is ok and false if no access
+     */
+    private function has_access()
+    {
+        if ($this->record_id > 0) {
+            $entry_record = $this->model->get_entry_record($this->model->get_db_field("name"), $this->record_id, $this->model->get_db_field("own_entries_only", 1));
+            if ($entry_record) {
+                return true;
+            } else {
+                // no access
+                return false;
+            }
+        } else {
+            // not a specific case
+            return true;
+        }
+    }
+
     public function execute(){        
         if(count($_POST) === 0) return;
         if(!isset($_POST['__form_name'])
             || $_POST['__form_name'] !== $this->model->get_db_field("name"))
             return;
         unset($_POST['__form_name']);
-        if(isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value'])){
+        if (isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value'])) {
             $_POST[ENTRY_RECORD_ID] = $_POST[ENTRY_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
+        if (isset($_POST['selected_record_id']) && isset($_POST['selected_record_id']['value'])) {
+            $_POST['selected_record_id'] = $_POST['selected_record_id']['value']; // normalize the variable when it comes from mobile call
+        }
+        if (isset($_POST['delete_record_id']) && isset($_POST['delete_record_id']['value'])) {
+            $_POST['delete_record_id'] = $_POST['delete_record_id']['value']; // normalize the variable when it comes from mobile call
+        }
+
+        if(!$this->has_access()){
+            // if the user has no acess to edit or delete this record abort and return
+            return;
+        }
+
         $this->alert_success = $this->model->get_db_field("alert_success");
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
@@ -136,7 +175,7 @@ class FormUserInputController extends BaseController
             }
         }
         else
-        {
+        {            
             $res = isset($_POST['selected_record_id']) ? $this->model->update_user_input($user_input, $_POST['selected_record_id']) : $this->model->save_user_input($user_input);
             if($res === false)
             {
@@ -152,6 +191,12 @@ class FormUserInputController extends BaseController
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
             }
+        }
+        $redirect = $this->model->get_db_field("redirect_at_end", "");
+        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $res && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
+            $redirect = str_replace("/", "", $redirect);
+            header("Location: " . $this->model->get_link_url($redirect));
+            die();
         }
     }
 }

@@ -17,6 +17,10 @@ require_once __DIR__ . "/../service/JobScheduler.php";
  * SETUP
  * Make the script executable:  chmod +x
  * Cronjob (Chek mail Scheduled Jobs every minutes and execute them if there any) * * * * * php /home/bashev/selfhelpQualtrics/server/cronjobs/ScheduledJobsQueue.php
+ * TIP:
+ * Chekc the time zone in mysql
+ * sudo dpkg-reconfigure tzdata
+ * /etc/init.d/mysql restart
  */
 
 /**

@@ -240,5 +240,32 @@ abstract class FormFieldView extends StyleView
         }       
         return $style;
     }
+
+    // /**
+    //  * Render output as an entry for mobile
+    //  * @param array $entry_value
+    //  * the data for the entry value
+    //  */
+    // public function output_content_mobile_entry($entry_value)
+    // {
+    //     $style = parent::output_content_mobile_entry($entry_value);    
+    //     if (method_exists($this->model, 'get_form_field_value')){
+    //         $style['last_value'] = $this->model->get_form_field_value();
+    //     }    
+    //     $this->entry_data = $entry_value;        
+    //     if($this->name_base === "") return;
+
+    //     if($this->show_db_value())
+    //         $this->value = $this->model->get_form_field_value();
+    
+    //     $this->name = $this->get_name();
+
+    //     if($this->label == "")
+    //         $this->output_base_form_field();
+    //     else
+    //         require __DIR__ . "/tpl_label.php";
+    //     return $style;
+    // }
+
 }
 ?>

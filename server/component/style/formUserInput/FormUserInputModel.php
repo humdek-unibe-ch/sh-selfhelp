@@ -114,7 +114,8 @@ class FormUserInputModel extends StyleModel
     private function update_entry_with_record_id($id, $value, $record_id)
     {
         $this->db->begin_transaction();
-        $entry_record = $this->fetch_entry_record($this->get_db_field("id"), $record_id);
+        $own_entries_only = $this->get_db_field("own_entries_only", "1");
+        $entry_record = $this->fetch_entry_record($this->get_db_field("id"), $record_id, $own_entries_only);
         $field_name = $this->get_form_field_name($id);
         $res = false;
         $tran_type = '';
@@ -379,12 +380,14 @@ class FormUserInputModel extends StyleModel
      * the name of the form
      * @param int $record_id
      * the record id
+     * * @param int $own_entries_only
+     * If true it loads only records created by the same user
      * @retval @array
      * the record row
      */
-    public function get_entry_record($form_name, $record_id){
+    public function get_entry_record($form_name, $record_id, $own_entries_only){
         $form_id = $this->db->get_form_id($form_name);
-        return $this->fetch_entry_record($form_id, $record_id);
+        return $this->fetch_entry_record($form_id, $record_id, $own_entries_only);
     }
 
     /**

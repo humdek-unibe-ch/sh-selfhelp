@@ -61,7 +61,16 @@ class EntryRecordView extends StyleView
     {
         $style = parent::output_content_mobile();
         $entry_record = $this->model->get_entry_record();
-        $style['children'] = $this->output_children_mobile_entry($entry_record);
+        if ($entry_record) {
+            $style['children'] = $this->output_children_mobile_entry($entry_record);
+        } else {
+            // no data for that record or no access
+            $no_access = new BaseStyleComponent("markdown", array(
+                "text_md" => 'No access or no data for that record',
+            ));
+            $style['children'] = [];
+            $style['children'][] = $no_access->output_content_mobile();
+        }
         return $style;
     }
 }

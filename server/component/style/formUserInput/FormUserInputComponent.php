@@ -39,12 +39,12 @@ class FormUserInputComponent extends BaseComponent
         $model = new FormUserInputModel($services, $id);        
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new FormUserInputController($model);
+            $controller = new FormUserInputController($model, $record_id);
         $view = new FormUserInputView($model, $controller, $record_id);
         parent::__construct($model, $view, $controller);
-        if($this->controller && !isset($_POST[ENTRY_RECORD_ID]) ){
+        if ($this->controller && !isset($_POST[ENTRY_RECORD_ID])) {
             // dont execute it if it is from entry; It will be handled later
-            $this->controller->execute();     
+            $this->controller->execute();
         }
     }
 }
