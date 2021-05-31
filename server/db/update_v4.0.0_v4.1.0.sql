@@ -84,11 +84,11 @@ VALUES (get_style_id('entryRecord'), get_field_id('own_entries_only'), '1', 'If 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('formUserInput'), get_field_id('own_entries_only'), '1', 'If selected the entry list will load only the records entered by the user.');
 
-# executed on studybuddy
-
 -- enable field Ajax for formUserInput
 update styles_fields
 set disabled = 0
 where id_fields = get_field_id('ajax') and id_styles = get_style_id('formUserInput');
+
+# executed on studybuddy
 
 #gen all functions and procs
