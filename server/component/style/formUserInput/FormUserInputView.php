@@ -387,6 +387,7 @@ class FormUserInputView extends StyleView
             $form_delete = new BaseStyleComponent("card", array(
                 "css" => "mobile-mt-3 mobile-mb-3",
                 "is_expanded" => false,
+                "id" => "delete-card-" . $this->id_section,
                 "type" => 'danger',
                 "is_collapsible" => true,                
                 "title" => "Delete Entry",
