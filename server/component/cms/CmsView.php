@@ -600,20 +600,25 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
             ));
-        }
-        else if($field['type'] == "select-qualtrics-survey")
-        {
+        } else if ($field['type'] == "select-qualtrics-survey") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "max" => 10,
                 "live_search" => 1,
-                "is_required" => 1, 
+                "is_required" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
             ));
-        }
-        else if($field['type'] == "select-formName")
-        {
+        } else if ($field['type'] == "select-platform") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
+            ));
+        } else if ($field['type'] == "select-formName") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
@@ -702,6 +707,14 @@ class CmsView extends BaseView
                 "name" => $field['name'],
                 "disabled" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+            ));
+        }
+        else if ($field['type'] == "select-platform") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
             ));
         }
         else if ($field['type'] == "select-formName") {
