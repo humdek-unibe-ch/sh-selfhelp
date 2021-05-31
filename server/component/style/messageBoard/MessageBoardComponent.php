@@ -34,7 +34,7 @@ class MessageBoardComponent extends BaseComponent
             return;
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new FormUserInputController($model);
+            $controller = new FormUserInputController($model, -1);
         $view = new MessageBoardView($model, $controller);
         parent::__construct($model, $view, $controller);
     }

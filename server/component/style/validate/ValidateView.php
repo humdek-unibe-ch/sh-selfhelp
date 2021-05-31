@@ -81,6 +81,12 @@ class ValidateView extends StyleView
     private $gender_female;
 
     /**
+     * DB field 'gender_divers' (empty string)
+     * The female gender string.
+     */
+    private $gender_divers;
+
+    /**
      * DB field 'label_activate' (empty string)
      * The label of the submit button.
      */
@@ -148,6 +154,7 @@ class ValidateView extends StyleView
         $this->gender_label = $this->model->get_db_field("label_gender");
         $this->gender_male = $this->model->get_db_field("gender_male");
         $this->gender_female = $this->model->get_db_field("gender_female");
+        $this->gender_divers = $this->model->get_db_field("gender_divers");
         $this->activate_label = $this->model->get_db_field("label_activate");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alert_success = $this->model->get_db_field("alert_success");
@@ -223,6 +230,7 @@ class ValidateView extends StyleView
             $gender = $this->model->get_user_gender();
             $male_checked = ($gender === "male") ? "checked" : "";
             $female_checked = ($gender === "female") ? "checked" : "";
+            $divers_checked = ($gender === "divers") ? "checked" : "";
             $name = $this->model->get_user_name();
             require __DIR__ . "/tpl_validate.php";
         }

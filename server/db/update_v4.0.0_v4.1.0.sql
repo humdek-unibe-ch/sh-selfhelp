@@ -89,12 +89,17 @@ update styles_fields
 set disabled = 0
 where id_fields = get_field_id('ajax') and id_styles = get_style_id('formUserInput');
 
-# executed on studybuddy
-
 -- Add new field type `select-platform` and field `platform` in style conditionalCointainer
 INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-platform', '8');
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'platform', get_field_type_id('select-platform'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('conditionalContainer'), get_field_id('platform'), 'mobile_and_web', 'Select for which platform the conditional container will be loaded');
+
+-- Add field 'gender_divers' in style valdiate
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'gender_divers', get_field_type_id('text'), '1');
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('validate'), get_field_id('gender_divers'), 'divers', 'The label next to the divers radio button option.');
+
+# executed on studybuddy
 
 #gen all functions and procs
