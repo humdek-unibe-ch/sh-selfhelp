@@ -385,7 +385,7 @@ class FormUserInputView extends StyleView
         $style['label']['content'] = $this->selected_record_id > 0 ? 'Update' : $style['label']['content'];
         if ($this->selected_record_id > 0) {
             $form_delete = new BaseStyleComponent("card", array(
-                "css" => "mt-3 mb-3",
+                "css" => "mobile-mt-3 mobile-mb-3",
                 "is_expanded" => false,
                 "type" => 'danger',
                 "is_collapsible" => true,                

@@ -54,7 +54,6 @@ function formSubmitEvent() {
                     btnLabels.forEach(element => {
                         $(element.btn).html(element.origLabel);
                     });
-                    console.log(redirect_at_end);
                     if (redirect_at_end) {                        
                         window.location = redirect_at_end;
                     }
