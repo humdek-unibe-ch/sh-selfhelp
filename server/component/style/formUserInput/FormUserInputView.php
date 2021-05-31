@@ -80,6 +80,11 @@ class FormUserInputView extends StyleView
      */
     protected $own_entries_only;    
 
+    /**
+     * Any path to whcih we want to redirect
+     */
+    protected $redirect_at_end;   
+
     /* Constructors ***********************************************************/
 
     /**
@@ -102,6 +107,7 @@ class FormUserInputView extends StyleView
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
         $this->own_entries_only = $this->model->get_db_field("own_entries_only", 1);
+        $this->redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
         $this->selected_record_id = $selected_record_id; // if selected_record_id > 0 the form is in edit mode
     }
 
@@ -227,6 +233,13 @@ class FormUserInputView extends StyleView
             "type_input" => "hidden",
             "name" => "is_log",
             "value" => $this->is_log,
+        ));
+        $redirect_link = str_replace("/", "", $this->redirect_at_end);
+        $redirect_link = $this->model->get_link_url($redirect_link);
+        $children[] = new BaseStyleComponent("input", array(
+            "type_input" => "hidden",
+            "name" => "redirect_at_end",
+            "value" => $redirect_link,
         ));
         if ($this->entry_data) {
             $children[] = new BaseStyleComponent("input", array(

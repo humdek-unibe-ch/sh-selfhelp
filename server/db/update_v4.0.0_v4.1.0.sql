@@ -71,8 +71,6 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_a
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('formUserInput'), get_field_id('email_address'), '@email_user', 'Use `@email_user` to retrive automaticaly the user email. Emails are separated by the MAIL_SEPARATOR. It is `;`');
 
-# executed on studybuddy
-
 -- Add new field `own_entries_only` in style entryList
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'own_entries_only', get_field_type_id('checkbox'), '0');
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
@@ -85,5 +83,12 @@ VALUES (get_style_id('entryRecord'), get_field_id('own_entries_only'), '1', 'If 
 -- Add new field `own_entries_only` in style entryRecord
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('formUserInput'), get_field_id('own_entries_only'), '1', 'If selected the entry list will load only the records entered by the user.');
+
+# executed on studybuddy
+
+-- enable field Ajax for formUserInput
+update styles_fields
+set disabled = 0
+where id_fields = get_field_id('ajax') and id_styles = get_style_id('formUserInput');
 
 #gen all functions and procs
