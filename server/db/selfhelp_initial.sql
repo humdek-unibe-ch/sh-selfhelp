@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 16, 2021 at 02:38 PM
+-- Generation Time: Jun 01, 2021 at 09:29 AM
 -- Server version: 5.7.23-log
 -- PHP Version: 7.2.10
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `selfhelp_install`
+-- Database: `selfhelp`
 --
 
 -- --------------------------------------------------------
@@ -390,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `fields` (
   `display` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=179 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fields`
@@ -562,7 +562,16 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 (0000000166, 'use_as_container', 0000000003, 0),
 (0000000167, 'close_modal_at_end', 0000000003, 0),
 (0000000168, 'image_selector', 0000000003, 0),
-(0000000169, 'redirect_at_end', 0000000001, 0);
+(0000000169, 'redirect_at_end', 0000000001, 0),
+(0000000170, 'formName', 0000000020, 0),
+(0000000171, 'label_month', 0000000001, 1),
+(0000000172, 'label_week', 0000000001, 1),
+(0000000173, 'label_day', 0000000001, 1),
+(0000000174, 'icon', 0000000001, 0),
+(0000000175, 'email_address', 0000000001, 0),
+(0000000176, 'own_entries_only', 0000000003, 0),
+(0000000177, 'platform', 0000000021, 0),
+(0000000178, 'gender_divers', 0000000001, 1);
 
 -- --------------------------------------------------------
 
@@ -576,7 +585,7 @@ CREATE TABLE IF NOT EXISTS `fieldType` (
   `name` varchar(100) NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fieldType`
@@ -601,7 +610,9 @@ INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 (0000000016, 'anchor-section', 14),
 (0000000017, 'select-group', 7),
 (0000000018, 'select-qualtrics-survey', 7),
-(0000000019, 'select-plugin', 8);
+(0000000019, 'select-plugin', 8),
+(0000000020, 'select-formName', 8),
+(0000000021, 'select-platform', 8);
 
 -- --------------------------------------------------------
 
@@ -690,7 +701,7 @@ CREATE TABLE IF NOT EXISTS `lookups` (
   `lookup_description` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_lookups_type_code_lookup_code` (`type_code`,`lookup_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `lookups`
@@ -757,7 +768,10 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 (0000000058, 'transactionTypes', 'status_change', 'Status changed', 'Status change'),
 (0000000059, 'qualtricsActionScheduleTypes', 'task', 'Task', 'Schedule'),
 (0000000060, 'transactionTypes', 'execute_task_ok', 'Execute task successfully', 'Execute task successfully'),
-(0000000061, 'transactionTypes', 'execute_task_fail', 'Execute task failed', 'Execute task failed');
+(0000000061, 'transactionTypes', 'execute_task_fail', 'Execute task failed', 'Execute task failed'),
+(0000000062, 'pageAccessTypes', 'mobile', 'Mobile', 'The page will be loaded only for mobile apps'),
+(0000000063, 'pageAccessTypes', 'web', 'Web', 'The page will be loaded only for the website'),
+(0000000064, 'pageAccessTypes', 'mobile_and_web', 'Mobile and web', 'The page will be loaded for web and mobile');
 
 -- --------------------------------------------------------
 
@@ -880,72 +894,74 @@ CREATE TABLE IF NOT EXISTS `pages` (
   `nav_position` int(11) DEFAULT NULL,
   `footer_position` int(11) DEFAULT NULL,
   `id_type` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_pageAccessTypes` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `keyword` (`keyword`),
   KEY `parent` (`parent`),
   KEY `id_actions` (`id_actions`),
   KEY `id_navigation_section` (`id_navigation_section`),
-  KEY `id_type` (`id_type`)
+  KEY `id_type` (`id_type`),
+  KEY `pages_fk_id_pacgeAccessTypes` (`id_pageAccessTypes`)
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pages`
 --
 
-INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) VALUES
-(0000000001, 'login', '/login', 'GET|POST', 0000000003, NULL, NULL, 1, NULL, NULL, 0000000002),
-(0000000002, 'home', '/home', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 0, 10, NULL, 0000000002),
-(0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 0, 20, NULL, 0000000002),
-(0000000006, 'missing', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000007, 'no_access', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000008, 'no_access_guest', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000009, 'admin-link', NULL, NULL, NULL, NULL, NULL, 0, 1000, NULL, 0000000001),
-(0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 10, NULL, 0000000001),
-(0000000011, 'cmsInsert', '/admin/cms_insert/[i:pid]?', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000012, 'cmsUpdate', '/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000013, 'cmsDelete', '/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000014, 'userSelect', '/admin/user/[i:uid]?', 'GET', 0000000002, NULL, 0000000009, 0, 20, NULL, 0000000001),
-(0000000015, 'userInsert', '/admin/user_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000016, 'userUpdate', '/admin/user_update/[i:uid]/[v:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000017, 'userDelete', '/admin/user_delete/[i:uid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000018, 'groupSelect', '/admin/group/[i:gid]?', 'GET', 0000000002, NULL, 0000000009, 0, 30, NULL, 0000000001),
-(0000000019, 'groupInsert', '/admin/group_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000020, 'groupUpdate', '/admin/group_update/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000021, 'groupDelete', '/admin/group_delete/[i:gid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000022, 'export', '/admin/export', 'GET|POST', 0000000002, NULL, 0000000009, 0, 40, NULL, 0000000001),
-(0000000023, 'exportData', '/admin/export/[user_input|user_activity|validation_codes|user_input_form:selector]/[all|used|open:option]?/[i:id]?', 'GET', 0000000001, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000024, 'assetSelect', '/admin/asset', 'GET', 0000000002, NULL, 0000000009, 0, 15, NULL, 0000000001),
-(0000000025, 'assetInsert', '/admin/asset_insert/[css|asset|static:mode]', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000027, 'assetDelete', '/admin/asset_delete/[css|asset|static:mode]/[*:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000028, 'request', '/request/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002),
-(0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002),
-(0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002),
-(0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002),
-(0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001),
-(0000000042, 'exportDelete', '/admin/exportDelete/[user_activity|user_input:selector]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000043, 'groupUpdateCustom', '/admin/group_update_custom/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000044, 'callback', '/callback/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001),
-(0000000045, 'data', '/admin/data', 'GET|POST', 0000000002, NULL, 0000000009, 0, 39, NULL, 0000000001),
-(0000000046, 'cmsPreferences', '/admin/cms_preferences', 'GET|POST', 0000000002, NULL, 0000000009, 0, 1000, NULL, 0000000001),
-(0000000047, 'cmsPreferencesUpdate', '/admin/cms_preferences_update', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000048, 'language', '/admin/language/[i:lid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000049, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', 0000000002, NULL, 0000000009, 0, 90, NULL, 0000000001),
-(0000000050, 'moduleScheduledJobs', '/admin/scheduledJobs/[i:sjid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 80, NULL, 0000000001),
-(0000000051, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000052, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000053, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000055, 'moduleScheduledJobsCompose', '/admin/scheduledJobs/compose/[v:type]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000056, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
-(0000000057, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003),
-(0000000058, 'cmsExport', '/admin/cms_export/[page|section:type]/[i:id]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001),
-(0000000060, 'cmsImport', '/admin/cms_import/[page|section:type]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001);
+INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) VALUES
+(0000000001, 'login', '/login', 'GET|POST', 0000000003, NULL, NULL, 1, NULL, NULL, 0000000002, 0000000064),
+(0000000002, 'home', '/home', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000003, 'profile-link', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000004, 'profile', '/profile', 'GET|POST', 0000000003, NULL, 0000000003, 0, 10, NULL, 0000000002, 0000000064),
+(0000000005, 'logout', '/login', 'GET', NULL, NULL, 0000000003, 0, 20, NULL, 0000000002, 0000000064),
+(0000000006, 'missing', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000007, 'no_access', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000008, 'no_access_guest', NULL, NULL, 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000009, 'admin-link', NULL, NULL, NULL, NULL, NULL, 0, 1000, NULL, 0000000001, 0000000064),
+(0000000010, 'cmsSelect', '/admin/cms/[i:pid]?/[i:sid]?/[i:ssid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 10, NULL, 0000000001, 0000000064),
+(0000000011, 'cmsInsert', '/admin/cms_insert/[i:pid]?', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000012, 'cmsUpdate', '/admin/cms_update/[i:pid]?/[i:sid]?/[i:ssid]?/[update|insert|delete:mode]/[v:type]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000013, 'cmsDelete', '/admin/cms_delete/[i:pid]/[i:sid]?/[i:ssid]?', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000014, 'userSelect', '/admin/user/[i:uid]?', 'GET', 0000000002, NULL, 0000000009, 0, 20, NULL, 0000000001, 0000000064),
+(0000000015, 'userInsert', '/admin/user_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000016, 'userUpdate', '/admin/user_update/[i:uid]/[v:mode]/[i:did]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000017, 'userDelete', '/admin/user_delete/[i:uid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000018, 'groupSelect', '/admin/group/[i:gid]?', 'GET', 0000000002, NULL, 0000000009, 0, 30, NULL, 0000000001, 0000000064),
+(0000000019, 'groupInsert', '/admin/group_insert', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000020, 'groupUpdate', '/admin/group_update/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000021, 'groupDelete', '/admin/group_delete/[i:gid]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000022, 'export', '/admin/export', 'GET|POST', 0000000002, NULL, 0000000009, 0, 40, NULL, 0000000001, 0000000064),
+(0000000023, 'exportData', '/admin/export/[user_input|user_activity|validation_codes|user_input_form:selector]/[all|used|open:option]?/[i:id]?', 'GET', 0000000001, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000024, 'assetSelect', '/admin/asset', 'GET', 0000000002, NULL, 0000000009, 0, 15, NULL, 0000000001, 0000000064),
+(0000000025, 'assetInsert', '/admin/asset_insert/[css|asset|static:mode]', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000026, 'assetUpdate', '/admin/asset_update/[v:file]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000027, 'assetDelete', '/admin/asset_delete/[css|asset|static:mode]/[*:file]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000028, 'request', '/request/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000030, 'agb', '/agb', 'GET', 0000000003, NULL, NULL, 0, NULL, 300, 0000000002, 0000000064),
+(0000000031, 'impressum', '/impressum', 'GET', 0000000003, NULL, NULL, 0, NULL, 100, 0000000002, 0000000064),
+(0000000032, 'disclaimer', '/disclaimer', 'GET', 0000000003, NULL, NULL, 0, NULL, 200, 0000000002, 0000000064),
+(0000000033, 'validate', '/validate/[i:uid]/[a:token]', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000035, 'reset_password', '/reset', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000002, 0000000064),
+(0000000036, 'userGenCode', '/admin/user_gen_code', 'GET|POST|PUT', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000037, 'email', '/admin/email/[i:id]?', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, 11, NULL, 0000000001, 0000000064),
+(0000000042, 'exportDelete', '/admin/exportDelete/[user_activity|user_input:selector]', 'GET|POST|DELETE', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000043, 'groupUpdateCustom', '/admin/group_update_custom/[i:gid]', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000044, 'callback', '/callback/[v:class]/[v:method]?', 'GET|POST', 0000000001, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000045, 'data', '/admin/data', 'GET|POST', 0000000002, NULL, 0000000009, 0, 39, NULL, 0000000001, 0000000064),
+(0000000046, 'cmsPreferences', '/admin/cms_preferences', 'GET|POST', 0000000002, NULL, 0000000009, 0, 1000, NULL, 0000000001, 0000000064),
+(0000000047, 'cmsPreferencesUpdate', '/admin/cms_preferences_update', 'GET|POST|PATCH', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000048, 'language', '/admin/language/[i:lid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000049, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', 0000000002, NULL, 0000000009, 0, 90, NULL, 0000000001, 0000000064),
+(0000000050, 'moduleScheduledJobs', '/admin/scheduledJobs/[i:sjid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, 80, NULL, 0000000001, 0000000064),
+(0000000051, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000052, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000053, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000054, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000055, 'moduleScheduledJobsCompose', '/admin/scheduledJobs/compose/[v:type]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000056, 'chatSubject', '/chat/subject/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003, 0000000064),
+(0000000057, 'chatTherapist', '/chat/therapist/[i:gid]?/[i:uid]?', 'GET|POST', 0000000003, NULL, NULL, 0, NULL, NULL, 0000000003, 0000000064),
+(0000000058, 'cmsExport', '/admin/cms_export/[page|section:type]/[i:id]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000060, 'cmsImport', '/admin/cms_import/[page|section:type]', 'GET|POST', 0000000002, NULL, 0000000009, 0, NULL, NULL, 0000000001, 0000000064);
 
 -- --------------------------------------------------------
 
@@ -1973,7 +1989,7 @@ CREATE TABLE IF NOT EXISTS `styleGroup` (
   `description` longtext,
   `position` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styleGroup`
@@ -1991,7 +2007,8 @@ INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 (0000000009, 'Admin', 'The admin styles are for user registration and access handling.\r\nThe following styles are available:', 80),
 (0000000010, 'Graph', 'Graph styles allow to draw graps and diagrams based on static (uploaded assets) or dynamic (user input) data.', 55),
 (0000000011, 'Filter', 'Filter styles allow to filter data sets and store the filter state in the session. This allows to filter all styles using the same data source with only one filter', 56),
-(0000000012, 'Triggers', 'Trigger styles allow to attach an action that can be executed when the user fulfill the triger condition', 75);
+(0000000012, 'Triggers', 'Trigger styles allow to attach an action that can be executed when the user fulfill the triger condition', 75),
+(0000000013, 'Mobile', 'Styles that are only used by the mobile application', 79);
 
 -- --------------------------------------------------------
 
@@ -2009,7 +2026,7 @@ CREATE TABLE IF NOT EXISTS `styles` (
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`),
   KEY `id_group` (`id_group`)
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
@@ -2075,7 +2092,10 @@ INSERT INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) VALUES
 (0000000059, 'search', 0000000002, 0000000003, 'Add search input box. Used for pages that accept additional paramter. On click the text is assigned in the url and it can be used as a parameter'),
 (0000000060, 'version', 0000000002, 0000000009, 'Add information about the DB version and for the git version of Selfhelp'),
 (0000000061, 'trigger', 0000000002, 0000000012, 'Create a basic trigger that execute selected action.'),
-(0000000062, 'messageBoard', 0000000002, 0000000002, 'Shows a board of messages which can be rated and commented with pre-defined messages.');
+(0000000062, 'messageBoard', 0000000002, 0000000002, 'Shows a board of messages which can be rated and commented with pre-defined messages.'),
+(0000000063, 'entryList', 0000000002, 0000000004, 'Wrap other styles that later visualize list of entries (inserted via `formUserInput`).'),
+(0000000064, 'entryRecord', 0000000002, 0000000004, 'Wrap other styles that later visualize a record from the entry list'),
+(0000000065, 'calendar', 0000000001, 0000000013, 'Calendar style');
 
 -- --------------------------------------------------------
 
@@ -2149,6 +2169,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000009, 0000000043, NULL, 'The placeholder for the password input field.', 0),
 (0000000009, 0000000044, NULL, 'On successful validation a new page appears where the content of this field is displayed in as a heading in a `jumbotron`.', 0),
 (0000000009, 0000000057, NULL, 'The validate style allows to add custom input fields in order to collect further data about the user. This data is stored in the database like any other user input. The content of the field `name` will be used in the column `form_name` of the user data export (in the menu *Admin/Export*) for all custom validation input fields.', 0),
+(0000000009, 0000000178, 'divers', 'The label next to the divers radio button option.', 0),
 (0000000010, 0000000005, NULL, 'The here defined text will be displayed in an danger-alert-box if it was not possible to send the message. If this alert is shown there is probably an issue with the server.', 0),
 (0000000010, 0000000030, NULL, 'This message is displayed to a user in the role `Therapist` if no `Subject` is selected.', 0),
 (0000000010, 0000000031, NULL, 'This is the first part of the text that is displayed in the message card header. The second part of this text depends on the role of the user.', 0),
@@ -2243,6 +2264,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000024, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000024, 0000000028, 'light', NULL, 0),
 (0000000024, 0000000046, '0', NULL, 0),
+(0000000024, 0000000174, '', 'Show icon; For web font awsome icons are used; For mobile ionicicons are used.', 0),
 (0000000025, 0000000006, NULL, 'The child sections to be added to the `tabs` body. Add only sections of style `tab` here.', 0),
 (0000000025, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000026, 0000000008, NULL, 'If this field is set, a this text will be rendered above the textarea.', 0),
@@ -2318,9 +2340,11 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000036, 0000000150, '', 'The label on the submit and send button', 0),
 (0000000036, 0000000151, '', 'The email subject that will be send. It could be dynamically configured. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)', 0),
 (0000000036, 0000000152, '', 'The email boy that will be send. It could be dynamically configured. [More information](https://selfhelp.psy.unibe.ch/demo/style/454)', 0),
-(0000000036, 0000000154, '0', 'When it is checked, the form will be sumbited with an AJAX call and the page will not be fully reloaded. This way the state of active tabs, collapse state of cards, etc will be kept.', 1),
+(0000000036, 0000000154, '0', 'When it is checked, the form will be sumbited with an AJAX call and the page will not be fully reloaded. This way the state of active tabs, collapse state of cards, etc will be kept.', 0),
 (0000000036, 0000000167, '0', '`Only for mobile` - if selected the modal form will be closed once the survey is done', 0),
 (0000000036, 0000000169, NULL, 'Redirect to this url at the end of the survey', 0),
+(0000000036, 0000000175, '@email_user', 'Use `@email_user` to retrive automaticaly the user email. Emails are separated by the MAIL_SEPARATOR. It is `;`', 0),
+(0000000036, 0000000176, '1', 'If selected the entry list will load only the records entered by the user.', 0),
 (0000000038, 0000000008, NULL, 'If this field is set, a this text will be rendered above the radio elements.', 0),
 (0000000038, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000038, 0000000056, '0', 'If enabled the form can only be submitted if a value is selected.', 0),
@@ -2353,6 +2377,7 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000042, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000042, 0000000091, NULL, 'The field `condition` allows to specify a condition. Note that the field `condition` is of type `json` and requires\n1. valid json syntax (see https://www.json.org/)\n2. a valid condition structure (see https://github.com/jwadhams/json-logic-php/)\n\nOnly if a condition resolves to true the sections added to the field `children` will be rendered.\n\nIn order to refer to a form-field use the syntax `\"@__form_name__#__from_field_name__\"` (the quotes are necessary to make it valid json syntax) where `__form_name__` is the value of the field `name` of the style `formUserInput` and `__form_field_name__` is the value of the field `name` of any form-field style.', 0),
 (0000000042, 0000000097, '0', 'If *checked*, debug messages will be rendered to the screen. These might help to understand the result of a condition evaluation. **Make sure that this field is *unchecked* once the page is productive**.', 0),
+(0000000042, 0000000177, 'mobile_and_web', 'Select for which platform the conditional container will be loaded', 0),
 (0000000043, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
 (0000000043, 0000000030, NULL, 'The alternative text to be displayed if the audio cannot be loaded.', 0),
 (0000000043, 0000000071, NULL, 'This field expects a [JSON](!https://www.json.org/json-en.html) list of source objects where each object has the following keys:\n - `source`: The source of the audio file. If it is an asset, simply use the full name of the asset.\n - `type`: The [type](!https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers) of the audio file.\n\nFor example:\n```\n[{\n  \"source\": \"audio_name.mp3\",\n  \"type\": \"audio/mpeg\"\n}, {\n  \"source\":\"audio_name.ogg\",\n  \"type\": \"audio/ogg\"\n}]\n```\n', 0),
@@ -2475,7 +2500,21 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 (0000000062, 0000000070, '0', 'The maximal number of messages to be shown. `0` means all messages.', 0),
 (0000000062, 0000000162, NULL, 'The name of the form under which the score is stored.', 0),
 (0000000062, 0000000163, NULL, 'A list of icons to be displayed in the message footer. Use a JSON array of free [fontawesome](https://fontawesome.com/icons?d=gallery&m=free) icons. E.g.\n```json\n[\n  \"fa-thumbs-up\",\n  \"fa-laugh\",\n  \"fa-heart\"\n]\n```', 0),
-(0000000062, 0000000164, NULL, 'A list of comments to be displayed in a dropdown of a message footer. Use a JSON array of exclamations for the user to select. E.g.\n```json\n[\n  \"Well done!\",\n  \"Keep it up!\",\n  \"Nice one!\"\n]\n```', 0);
+(0000000062, 0000000164, NULL, 'A list of comments to be displayed in a dropdown of a message footer. Use a JSON array of exclamations for the user to select. E.g.\n```json\n[\n  \"Well done!\",\n  \"Keep it up!\",\n  \"Nice one!\"\n]\n```', 0),
+(0000000063, 0000000006, '0', 'Children that can be added to the style. It is used to design how the entry in the list will looks like.', 0),
+(0000000063, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
+(0000000063, 0000000170, '', 'Select a form name which will be linked to the style', 0),
+(0000000063, 0000000176, '1', 'If selected the entry list will load only the records entered by the user.', 0),
+(0000000064, 0000000006, '0', 'Children that can be added to the style. It is used to design how the entry will looks like.', 0),
+(0000000064, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
+(0000000064, 0000000170, '', 'Select a form name which will be linked to the style', 0),
+(0000000064, 0000000176, '1', 'If selected the entry list will load only the records entered by the user.', 0),
+(0000000065, 0000000022, NULL, 'Title of the calendar component', 0),
+(0000000065, 0000000023, NULL, 'Allows to assign CSS classes to the root item of the style.', 0),
+(0000000065, 0000000124, NULL, 'Define the configuration of the calendar. Refer to the documentation of [Ionic2-Calendar](https://github.com/twinssbc/Ionic2-Calendar) for more information', 0),
+(0000000065, 0000000171, NULL, 'Label for the month button', 0),
+(0000000065, 0000000172, NULL, 'Label for the week button', 0),
+(0000000065, 0000000173, NULL, 'Label for the day button', 0);
 
 -- --------------------------------------------------------
 
@@ -2532,7 +2571,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
   KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
   KEY `transactions_fk_id_users` (`id_users`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2602,7 +2641,12 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000061, '2021-03-16 13:35:40', 35, 42, 1, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}'),
 (0000000062, '2021-03-16 13:35:55', 35, 42, 1, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}'),
 (0000000063, '2021-03-16 13:36:00', 35, 42, 3, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms_preferences\",\"requests\":[]}}'),
-(0000000064, '2021-03-16 13:36:06', 35, 42, 1, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}');
+(0000000064, '2021-03-16 13:36:06', 35, 42, 1, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}'),
+(0000000065, '2021-06-01 07:27:59', 35, 42, 2, 'pages', 0, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"unknown\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
+(0000000066, '2021-06-01 07:28:12', 35, 42, 2, 'pages', 0, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"unknown\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
+(0000000067, '2021-06-01 07:28:28', 35, 42, 2, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
+(0000000068, '2021-06-01 07:28:31', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
+(0000000069, '2021-06-01 07:28:34', 35, 42, 2, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/home\",\"requests\":[]}}');
 
 -- --------------------------------------------------------
 
@@ -2862,7 +2906,7 @@ CREATE TABLE IF NOT EXISTS `version` (
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v4.0.0');
+(0000000001, 'v4.1.0');
 
 --
 -- Constraints for dumped tables
@@ -2943,6 +2987,7 @@ ALTER TABLE `modules_pages`
 ALTER TABLE `pages`
   ADD CONSTRAINT `pages_fk_id_actions` FOREIGN KEY (`id_actions`) REFERENCES `actions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_id_navigation_section` FOREIGN KEY (`id_navigation_section`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `pages_fk_id_pacgeAccessTypes` FOREIGN KEY (`id_pageAccessTypes`) REFERENCES `lookups` (`id`),
   ADD CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 

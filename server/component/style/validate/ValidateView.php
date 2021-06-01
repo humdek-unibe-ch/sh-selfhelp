@@ -154,7 +154,7 @@ class ValidateView extends StyleView
         $this->gender_label = $this->model->get_db_field("label_gender");
         $this->gender_male = $this->model->get_db_field("gender_male");
         $this->gender_female = $this->model->get_db_field("gender_female");
-        $this->gender_divers = $this->model->get_db_field("gender_divers");
+        $this->gender_divers = $this->model->get_db_field("gender_divers", "divers");
         $this->activate_label = $this->model->get_db_field("label_activate");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alert_success = $this->model->get_db_field("alert_success");
