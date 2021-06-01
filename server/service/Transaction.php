@@ -16,6 +16,7 @@ class Transaction
     /* Table names */
     const TABLE_PAGES = 'pages';    
     const TABLE_SCHEDULED_JOBS = 'scheduledJobs';
+    const TABLE_USER_INPUT = 'user_input';
     const TABLE_USERS = 'users';
     const TABLE_uploadTables = 'uploadTables';
     const TABLE_USERS_GROUPS = 'users_groups';

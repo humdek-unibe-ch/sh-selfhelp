@@ -59,10 +59,35 @@ class NavView extends BaseView
         {
             $key = $page['keyword'];
             $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
+            $icon = $this->get_icon($page['icon']);
             if(empty($page['children']))
-                $this->output_nav_item($key, $page['title'], $nav_child, $page['is_active']);
+                $this->output_nav_item($key, $page['title'], $nav_child, $page['is_active'], $icon);
             else
-                $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active']);
+                $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active'], false, $icon);
+        }
+    }
+
+    /**
+     * Return icon value for web if it exists
+     * @param string $icon
+     * icon value form cms
+     * @retval string or false
+     * Return the icon value or false if none set 
+     */
+    private function get_icon($icon)
+    {
+        $icons = explode(' ', $icon);
+        if (count($icons) > 0) {
+            foreach ($icons as $key => $iconValue) {
+                if (strpos($iconValue, 'mobile-') === 0) {
+                    // not needed for web
+                } else {
+                    return $iconValue;
+                }
+            }
+            return false;
+        } else {
+            return false;
         }
     }
 
@@ -78,14 +103,16 @@ class NavView extends BaseView
      *  pages).
      * @param bool $is_active
      *  A flag indicating whether the menu item is currently active.
+     * @param string $icon
+     * if the menu should show an icon
      */
     private function output_nav_item($key, $page_name, $nav_child=null,
-            $is_active=false)
+            $is_active=false, $icon='')
     {
         $active = ($is_active) ? "active" : "";
         $params = array();
         if($nav_child !== null)
-            $params['nav'] = $nav_child;
+            $params['nav'] = $nav_child;        
         $url = $this->model->get_link_url($key, $params);
         require __DIR__ . "/tpl_nav_item.php";
     }
@@ -104,9 +131,11 @@ class NavView extends BaseView
      * @param bool $right
      *  If set to true the nemu is aligned to the right of the navbar. If set
      *  to false, the menu is left aligned (default).
+     * @param string $icon
+     * if the menu should show an icon
      */
     private function output_nav_menu($key, $page_name, $children,
-            $is_active=false, $right=false)
+            $is_active=false, $right=false, $icon)
     {
         $align = ($right) ? "dropdown-menu-right" : "";
         $active = ($is_active) ? "active" : "";
@@ -125,9 +154,11 @@ class NavView extends BaseView
      *  pages).
      * @param bool $is_active
      *  A flag indicating whether the menu item is currently active.
+     * @param string $icon
+     * if the menu should show an icon
      */
     private function output_nav_menu_item($key, $page_name, $nav_child,
-            $is_active=false)
+            $is_active=false, $icon)
     {
         $active = ($is_active) ? "active" : "";
         $params = array();
@@ -150,11 +181,14 @@ class NavView extends BaseView
             $key = $page['keyword'];
             if(empty($page['children']))
             {
+                $icon = $this->get_icon($page['icon']);
                 $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
-                $this->output_nav_menu_item($key, $page['title'], $nav_child, $page['is_active']);
+                $this->output_nav_menu_item($key, $page['title'], $nav_child, $page['is_active'], $icon);
             }
-            else
-                $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active']);
+            else{
+                $icon = $this->get_icon($page['icon']);
+                $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active'], false, $icon);
+            }
         }
     }
 
@@ -175,7 +209,13 @@ class NavView extends BaseView
     {
         $profile = $this->model->get_profile();
         $this->output_nav_menu('profile', $profile['title'],
-            $profile['children'], $profile['is_active'], true);
+            $profile['children'], $profile['is_active'], true, ''); // no icon - later it can be added
+    }
+
+    private function output_icon($icon){
+        if($icon){
+            require __DIR__ .'/tpl_icon.php';
+        }
     }
 
     /* Public Methods *********************************************************/
@@ -190,11 +230,11 @@ class NavView extends BaseView
         $login_is_active = $this->model->get_login_active();
         $login = $this->model->get_login();
         require __DIR__ . "/tpl_nav.php";
-    }
+    }    
 
     public function output_content_mobile()
     {
-        $res = $this->model->get_pages();
+        $res = $this->model->get_pages_mobile();
         $home = array(
             'id_navigation_section' => null,
             'title' => $this->model->get_home(),
@@ -213,7 +253,18 @@ class NavView extends BaseView
                 }
                 $res[$key]['children'] = array_values($value['children']);
             }
-        }        
+        }
+
+        foreach ($res as $arr_key => $page) {
+            // get navigation page url corectly
+            $key = $page['keyword'];
+            $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
+            if ($nav_child !== null) {
+                $params['nav'] = $nav_child;
+                $res[$arr_key]['url'] = str_replace($_SERVER['CONTEXT_PREFIX'], '', $this->model->get_link_url($key, $params));
+            }
+        }
+
         return $res;
     }
 }

@@ -159,6 +159,8 @@ abstract class BaseView
      */
     abstract public function output_content();
 
+    // abstract public function output_content_entry($entry_data);
+
     abstract public function output_content_mobile();
 
     /**

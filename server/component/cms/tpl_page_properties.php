@@ -16,4 +16,8 @@
         <strong class="text-truncate"><?php echo $fields['protocol_title']; ?></strong>
         <?php echo $fields['protocol']; ?>
     </div>
+    <div class="ml-auto pl-2">
+        <strong class="text-truncate"><?php echo $fields['page_access_title']; ?></strong>
+        <?php echo $fields['page_access']; ?>
+    </div>
 </div>

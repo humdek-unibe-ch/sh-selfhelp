@@ -6,6 +6,7 @@ function formSubmitEvent() {
     $('form').on('submit', function (e) {
         if ($(this).find('input[name="ajax"]').val() == 1) {
             var is_log = $(this).find('input[name="is_log"]').val() == 1;
+            var redirect_at_end = $(this).find('input[name="redirect_at_end"]').val();
             e.preventDefault(); //prevent default php submit
 
             $('.alert-danger').remove(); //remove previous fail messages if they exists
@@ -53,6 +54,9 @@ function formSubmitEvent() {
                     btnLabels.forEach(element => {
                         $(element.btn).html(element.origLabel);
                     });
+                    if (redirect_at_end) {                        
+                        window.location = redirect_at_end;
+                    }
                 }
             });
         }

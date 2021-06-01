@@ -4,5 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <a class="dropdown-item <?php echo $active; ?>" href="<?php echo $url; ?>">
+    <?php $this->output_icon($icon); ?>
     <?php echo $page_name; ?>
 </a>

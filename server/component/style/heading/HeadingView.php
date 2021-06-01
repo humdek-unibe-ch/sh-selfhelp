@@ -52,6 +52,36 @@ class HeadingView extends StyleView
         if($this->level > 6) $this->level = 6;
         require __DIR__ . "/tpl_title.php";
     }
+
+    /**
+     * Render output as an entry
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $this->title = $this->model->get_db_field("title");
+        $this->title = $this->get_entry_value($entry_value, $this->title); 
+        if ($this->level < 1) {
+            $this->level = 1;
+        };
+        if ($this->level > 6) {
+            $this->level = 6;
+        };
+        require __DIR__ . "/tpl_title.php";
+    }
+
+     /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $style['title']['content'] = $this->get_entry_value($entry_value, $this->title);
+        return $style;
+    }
 	
 }
 ?>

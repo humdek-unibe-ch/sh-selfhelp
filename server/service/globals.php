@@ -25,6 +25,8 @@ define('NAME_PATTERN', '[a-zA-Z0-9_-]+'); // pattern used for naming
 
 define('MAX_USER_COUNT', 100000);
 
+define('ENTRY_RECORD_ID', 'record_id');
+
 /* Static DB Content */
 define('GUEST_USER_ID', 1);
 define('ADMIN_USER_ID', 2);
@@ -87,6 +89,7 @@ define('timePeriod', 'timePeriod');
 define('notificationTypes', 'notificationTypes');
 define('plugins', 'plugins');
 define('jobTypes', 'jobTypes');
+define('pageAccessTypes', 'pageAccessTypes');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -153,4 +156,7 @@ define('plugins_calc_sleep_efficiency', 'calc_sleep_efficiency');
 define('jobTypes_email', 'email');
 define('jobTypes_notification', 'notification');
 define('jobTypes_task', 'task');
+define('pageAccessTypes_mobile', 'mobile');
+define('pageAccessTypes_web', 'web');
+define('pageAccessTypes_mobile_and_web', 'mobile_and_web');
 ?>

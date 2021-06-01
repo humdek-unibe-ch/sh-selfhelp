@@ -51,6 +51,46 @@ class MarkdownInlineView extends StyleView
             $md = $this->text_md_inline;
         require __DIR__ . "/tpl_markdown.php";
     }
+
+    /**
+     * Render output as an entry
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $this->text_md_inline = str_replace('<p>', '', $this->text_md_inline);
+        $this->text_md_inline = str_replace('</p>', '', $this->text_md_inline);
+        $txt = $this->get_entry_value($entry_value, $this->text_md_inline); 
+        if(is_a($this->model, "BaseStyleModel"))
+        {
+            $pd = new ParsedownExtension();
+            $md = $pd->line($txt);
+        }
+        else
+            $md = $txt;
+        require __DIR__ . "/tpl_markdown.php";
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $this->text_md_inline = str_replace('<p>', '', $this->text_md_inline);
+        $this->text_md_inline = str_replace('</p>', '', $this->text_md_inline);
+        $txt = $this->get_entry_value($entry_value, $this->text_md_inline);
+        if (is_a($this->model, "BaseStyleModel")) {
+            $pd = new ParsedownExtension();
+            $md = $pd->line($txt);
+        } else
+            $md = $txt;
+        $style['text_md_inline']['content'] = $md;
+        return $style;
+    }
 	
 }
 ?>

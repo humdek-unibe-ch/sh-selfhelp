@@ -58,6 +58,12 @@
                     </div>
                     <small class="form-text text-muted">A headless page will <strong>not</strong> render any header or footer.</small>
                 </div>
+                <div class="form-group">
+                    <div class="form-check form-check-inline w-100">
+                        <?php $this->output_page_access_type(); ?>
+                    </div>
+                    <small class="form-text text-muted">Page access type: mobile, web or mobile_and_web</small>
+                </div>
                 <div id="protocol-list" class="form-group d-none">
                     <div>
                         <label>Protocol</label>

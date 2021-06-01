@@ -8,6 +8,7 @@ require_once __DIR__ . "/../BaseModel.php";
 require_once __DIR__ . "/StyleComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
 require_once __DIR__ . "/IStyleModel.php";
+require_once __DIR__ . "/BaseStyleModel.php";
 /**
  * This class is used to prepare all data related to the style component such
  * that the data can easily be displayed in the view of the component.
@@ -340,6 +341,35 @@ class StyleModel extends BaseModel implements IStyleModel
         }
     }
 
+    /**
+     * Fetch the record data
+     * @param int $form_id
+     * the form id of the form that we want to fetcht
+     * @param int $record_id
+     * the record id of the form entry
+     * @param int $own_entries_only
+     * If true it loads only records created by the same user
+     * @retval array
+     * the result of the fetched form row
+     */
+    protected function fetch_entry_record($form_id, $record_id, $own_entries_only = 1)
+    {
+        $filter = " AND deleted = 0 AND record_id = " . $record_id;
+        $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, "'.$filter.'")';
+        $params = array(
+            ":form_id" => $form_id,
+            ":user_id" => $_SESSION['id_user']
+        );
+        if (!$own_entries_only) {
+            $sql = 'CALL get_form_data_with_filter(:form_id, "'.$filter.'")';
+            $params = array(
+                ":form_id" => $form_id
+            );
+        }
+        
+        return $this->db->query_db_first($sql, $params);
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -505,6 +535,10 @@ class StyleModel extends BaseModel implements IStyleModel
         } else {
             return $this->fetch_data($parsed_data);
         }
+    }
+
+    public function get_entry_value($entry_data, $value){
+        return BaseStyleModel::get_entry_value($entry_data, $value);
     }
 
 }

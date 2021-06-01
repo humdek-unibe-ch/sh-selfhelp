@@ -53,6 +53,18 @@ class ContainerView extends StyleView
         require __DIR__ . "/tpl_container.php";
     }
 
+    /**
+     * Render the style view.
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $entry_data = $entry_value;
+        $fluid = ($this->is_fluid) ? "-fluid" : "";
+        require __DIR__ . "/tpl_container_entryValue.php";
+    }
+
     public function output_export_pdf_btn()
     {
         if ($this->export_pdf) {
@@ -63,6 +75,18 @@ class ContainerView extends StyleView
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();        
+        $style['css'] = $style['css'] . ' ' . ($this->is_fluid ? "mobile-container-fluid" : "mobile-container");
+        return $style;
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile_entry($entry_value);        
         $style['css'] = $style['css'] . ' ' . ($this->is_fluid ? "mobile-container-fluid" : "mobile-container");
         return $style;
     }

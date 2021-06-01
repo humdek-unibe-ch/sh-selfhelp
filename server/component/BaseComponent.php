@@ -89,10 +89,45 @@ abstract class BaseComponent
             $this->view->output_content();
     }
 
+    /**
+     * Render the component view as entries
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_data)
+    {
+        if ($this->view) {
+            if (method_exists($this->view, 'output_content_entry')) {
+                $this->view->output_content_entry($entry_data);
+            } else {
+                $this->view->output_content();
+            }
+        }
+    }
+
+    /**
+     * Render the component view for mobile
+     */
     public function output_content_mobile()
     {
         if($this->view)
             return $this->view->output_content_mobile();
+    }
+
+    /**
+     * Render the component view for mobile as entries
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_data)
+    {
+        if ($this->view) {
+            if (method_exists($this->view, 'output_content_mobile_entry')) {
+                return $this->view->output_content_mobile_entry($entry_data);
+            } else {
+                return $this->view->output_content_mobile();
+            }
+        }
     }
 
     /**

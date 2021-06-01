@@ -38,7 +38,7 @@ class MermaidFormComponent extends BaseComponent
         $model = new MermaidFormModel($services, $id);
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new FormUserInputController($model);
+            $controller = new FormUserInputController($model, -1);
         $view = new MermaidFormView($model, $controller);
 
         parent::__construct($model, $view, $controller);

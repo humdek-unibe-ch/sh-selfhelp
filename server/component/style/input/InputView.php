@@ -96,6 +96,10 @@ class InputView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if($this->entry_data){
+            // if entry data; reset the value
+            $this->value = $this->model->get_db_field("value", "");
+        }
         $autocomplete = '';
         if($this->disable_autocomplete) {
             $autocomplete = 'autocomplete="off"';
@@ -121,6 +125,9 @@ class InputView extends FormFieldView
         }
         else if($this->value === null)
             $this->value = $this->default_value;
+        if($this->entry_data){
+            $this->value = $this->get_entry_value($this->entry_data, $this->value); 
+        }
         if(
         $this->type == 'date' || $this->type == 'datetime') {
             require __DIR__ . "/tpl_input_date.php";
@@ -134,9 +141,20 @@ class InputView extends FormFieldView
     public function output_content_mobile()
     {        
         $style = parent::output_content_mobile();
-        $curr_value = $this->model->get_form_field_value();
-        // $style['value']['content'] = $curr_value  ? $curr_value : ($this->type == "checkbox" ? $curr_value : $this->default_value);
         $style['value']['content'] = $this->value;
+        $style['value']['default'] = $this->default_value;
+        return $style;
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $style['value']['content'] = $this->get_entry_value($entry_value, $this->value); 
         $style['value']['default'] = $this->default_value;
         return $style;
     }

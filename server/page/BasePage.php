@@ -85,6 +85,11 @@ abstract class BasePage
      */
     protected $acl_pass = false;
 
+    /**
+     * Page Access type, it can be mobile, web and mobile_and_web
+     */
+    protected $pageAccessType;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -275,6 +280,7 @@ abstract class BasePage
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
+        $this->pageAccessType = $db->get_lookup_code_by_id(intval($info['id_pageAccessTypes']));
         $this->required_access_level = $info['access_level'];
         if($info['is_headless']) $this->disable_navigation();
         $this->id_navigation_section = null;
@@ -373,6 +379,30 @@ abstract class BasePage
         }
     }
 
+    private function get_external_css_for_mobile(){
+        $path = CSS_SERVER_PATH;
+        $extension = 'css';
+        if(!file_exists($path)) return;
+        $files = array();
+        if($handle = opendir($path)) {
+            while(false !== ($file = readdir($handle)))
+            {
+                if(filetype($path . '/' . $file) === "dir") continue;
+                $files[] = $file;
+            }
+            closedir($handle);
+        }
+        natcasesort($files);
+        $css_content = '';
+        foreach($files as $file)
+        {
+            $file_parts = pathinfo($file);
+            if($file_parts['extension'] === $extension)
+                $css_content .= file_get_contents($path . '/' . $file);
+        }
+        return $css_content;
+    }
+
     /* Protected Abstract Methods ***********************************************/
 
     /**
@@ -453,6 +483,8 @@ abstract class BasePage
         // if($this->render_footer) $this->output_component("footer");
         $res['title'] = $this->title;
         $res['avatar'] = $this->services->get_db()->get_avatar($_SESSION['id_user']);
+        $res['external_css'] = $this->get_external_css_for_mobile();
+        $res['languages'] = $this->services->get_db()->get_languages();
         return $res;
     }
 

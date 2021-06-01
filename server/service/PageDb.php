@@ -222,7 +222,7 @@ class PageDb extends BaseDb
             "is_headless" => false,
         );
         $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            p.protocol, a.name AS action, parent, is_headless, id_type
+            p.protocol, a.name AS action, parent, is_headless, id_type, id_pageAccessTypes
             FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE keyword=:keyword";
@@ -231,6 +231,7 @@ class PageDb extends BaseDb
         {
             $page_info["url"] = $info["url"];
             $page_info["id_type"] = intval($info["id_type"]);
+            $page_info["id_pageAccessTypes"] = intval($info["id_pageAccessTypes"]);
             $page_info["parent"] = $info["parent"];
             $page_info["id"] = intval($info["id"]);
             $page_info["action"] = $info["action"];
@@ -441,20 +442,33 @@ class PageDb extends BaseDb
      */
     public function get_avatar($user_id)
     {
-        $sql_get_form_id = "SELECT form_id
-                            FROM view_form
-                            WHERE form_name = 'avatar';";
-        $form = $this->query_db_first($sql_get_form_id);
-        if ($form) {
+        $form_id = $this->get_form_id('avatar');
+        if ($form_id) {
             $sql = 'CALL get_form_data_for_user(:table_id, :user_id)';
             $avatar = $this->query_db_first($sql, array(
-                ":table_id" => $form['form_id'],
+                ":table_id" => $form_id,
                 ":user_id" => $user_id
             ));
             return $avatar ? $avatar['avatar'] : '';
         } else {
             return '';
         }
+    }
+
+    /**
+     * Get the form id
+     * @param string $form_name
+     * the form name
+     * @retval int
+     * Return the form id
+     */
+    public function get_form_id($form_name)
+    {
+        $sql_get_form_id = "SELECT form_id
+                            FROM view_form
+                            WHERE form_name = :form_name;";
+        $form = $this->query_db_first($sql_get_form_id, array(":form_name" => $form_name));
+        return $form['form_id'];
     }
 
     /**
@@ -552,6 +566,29 @@ class PageDb extends BaseDb
             array_push($arr, array("value" => $val[$value_column], "text" => $text));
         }
         return $arr;
+    }
+
+    /**
+     * Get a list of languages and prepares the list such that it can be passed to a
+     * list component.
+     *
+     * @retval array
+     *  An array of items where each item has the following keys:
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function get_languages()
+    {
+        $res = array();
+        foreach ($this->fetch_languages() as $language) {
+            $res[] = array(
+                "locale" => $language["locale"],
+                "title" => $language["language"]                
+            );
+        }
+        return $res;
     }
 
 }

@@ -79,31 +79,30 @@ class SectionPage extends BasePage
     {
         $db = $this->services->get_db();
         $was_section_rendered = false;
-        require __DIR__ . "/tpl_fixed_box.php";
-        foreach($this->sections as $section)
-        {
-            $comp = $this->get_component("section-" . $section['id']);
-            if($comp->has_access())
-            {
-                $comp->output_content();
-                $was_section_rendered = true;
+        if ($this->pageAccessType != pageAccessTypes_mobile) {
+            // if the page is only mobile do not load here
+            require __DIR__ . "/tpl_fixed_box.php";
+            foreach ($this->sections as $section) {
+                $comp = $this->get_component("section-" . $section['id']);
+                if ($comp->has_access()) {
+                    $comp->output_content();
+                    $was_section_rendered = true;
+                }
             }
-        }
-        if($this->nav_section_id)
-        {
-            $sql = "SELECT * FROM sections_navigation
+            if ($this->nav_section_id) {
+                $sql = "SELECT * FROM sections_navigation
                 WHERE child = :id AND id_pages = :pid";
-            if($db->query_db_first($sql, array(
-                    ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
-            {
-                $this->output_component("navigation");
-                $was_section_rendered = true;
+                if ($db->query_db_first($sql, array(
+                    ":id" => $this->nav_section_id, ":pid" => $this->id_page
+                ))) {
+                    $this->output_component("navigation");
+                    $was_section_rendered = true;
+                }
             }
         }
-
-        if((count($this->sections) > 0 || $this->nav_section_id)
-            && !$was_section_rendered)
-        {
+        if ((count($this->sections) > 0 || $this->nav_section_id)
+            && !$was_section_rendered
+        ) {
             $page = new InternalPage($this, "missing");
             $page->output_content();
         }
@@ -114,32 +113,33 @@ class SectionPage extends BasePage
         $res = [];
         $db = $this->services->get_db();
         $was_section_rendered = false;
-        foreach($this->sections as $section)
-        {
-            $comp = $this->get_component("section-" . $section['id']);
-            if($comp->has_access())
-            {
-                $res[] = $comp->output_content_mobile();
-                $was_section_rendered = true;
+        if ($this->pageAccessType != pageAccessTypes_web) {
+            // if the page is only mobile do not load here
+            foreach ($this->sections as $section) {
+                $comp = $this->get_component("section-" . $section['id']);
+                if ($comp->has_access()) {
+                    $res[] = $comp->output_content_mobile();
+                    $was_section_rendered = true;
+                }
             }
-        }
-        if($this->nav_section_id)
-        {
-            $sql = "SELECT * FROM sections_navigation
+            if ($this->nav_section_id) {
+                $sql = "SELECT * FROM sections_navigation
                 WHERE child = :id AND id_pages = :pid";
-            if($db->query_db_first($sql, array(
-                    ":id" => $this->nav_section_id, ":pid" => $this->id_page)))
-            {
-                $res[] = $this->output_component_mobile("navigation");
-                $was_section_rendered = true;
+                if ($db->query_db_first($sql, array(
+                    ":id" => $this->nav_section_id, ":pid" => $this->id_page
+                ))) {
+                    $res[] = $this->output_component_mobile("navigation");
+                    $was_section_rendered = true;
+                }
             }
         }
 
-        if((count($this->sections) > 0 || $this->nav_section_id)
-            && !$was_section_rendered)
-        {
+        if ((count($this->sections) > 0 || $this->nav_section_id)
+            && !$was_section_rendered
+        ) {
             $page = new InternalPage($this, "missing");
-            $res[] = $page->output_content_mobile();
+            // $res[] = $page->output_content_mobile();
+            $res[] = 'missing';
         }
         return $res;
     }

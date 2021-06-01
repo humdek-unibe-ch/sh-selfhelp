@@ -1,4 +1,41 @@
-# v4.0.3 (latest)
+# v4.1.0 (latest)
+
+### New Features
+ - add an option for a menu icon for the website
+ - add `pageAccessTypes`; It separates pages to mobile, web or mobile_and_web
+ - add style `entryList`; The style visualize entries from a formUserInput used as admin tool for inserting entries.
+ - add style `entryRecord`; The style visualize selected entry. It need a `page` with advanced settings and path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`
+ - add style `calendar`; The style is only for mobile and it shows the calendar in the app.
+ - add new method `output_content_entry` and `output_content_mobile_entry` with param the entry value. Then the style can be used to visualize the value as an entry. The value of these styles can be dynamically loaded as entry if the form name is set in the value field with the `$` sign (ex. if we have a form with inpiut name `firstName`, in order to visualize that input, we should use `$firstName`). The styles which have this new method are:
+    - `markdown`
+    - `heading`
+    - `image`
+    - `div`
+    - `button`
+    - `conditionalContainer`
+    - `form`
+    - `formUserInput`
+    - `input`
+    - `container`
+    - `markdownInline`
+    - `card`
+    - `plaintext`
+    - `alert`
+    - `link`
+    - `rawtext`
+    - `textarea`
+ - load all custom css files in the mobile app
+ - set locale from mobile calls
+ - add field `own_entries_only` in style `formUserInput`. 
+ - add field `platform` in style `conditionalContainer`. The style can filter calls from mobile, web or both.
+
+### Changes
+ - `formUserInput` can be added to a page with path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`. When the id is loaded the entry will be in edit mode. Also an option for delete will apear.
+ - add `icon` to style `tab`.
+ - `form` without label does not load the button anymore
+ - add field `email_address` to style `formUserInput`. Use `@email_user` to retrive automaticaly the user email. Emails are separated by the MAIL_SEPARATOR. It is `;`. 
+
+# v4.0.3
 
 ### Bugfix
  - show the number of the messages over the users in the chat and order the users by the number of the new messages

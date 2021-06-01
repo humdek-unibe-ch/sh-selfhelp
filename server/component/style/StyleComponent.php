@@ -86,7 +86,7 @@ class StyleComponent extends BaseComponent
         else if($style['type'] == "component" || $style['type'] == "navigation")
         {
             $className = ucfirst($style['name']) . "Component";
-            if (class_exists($className)) {
+           if (class_exists($className)) {
                 $this->style = new $className($services, $id, $params, $id_page);
             }
             if ($this->style === null) {

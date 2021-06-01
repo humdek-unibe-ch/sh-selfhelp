@@ -95,6 +95,26 @@ abstract class StyleView extends BaseView
     }
 
     /**
+     * Render the content of all children of this view instance as entries
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    protected function output_children_entry($entry_data)
+    {
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                if (method_exists($child, 'output_content_entry')) {
+                    $child->output_content_entry($entry_data);
+                } else {
+                    $child->output_content();
+                }
+            } else {
+                echo "invalid child element of type '" . gettype($child) . "'";
+            };
+        }
+    }
+
+    /**
      * Render the content of all children of this view instance.
      */
     protected function output_children_mobile()
@@ -103,6 +123,28 @@ abstract class StyleView extends BaseView
         foreach ($this->children as $child) {
             if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
                 $res[] = $child->output_content_mobile();
+            } else {
+                echo "invalid child element of type '" . gettype($child) . "'";
+            }
+        }
+        return $res;
+    }
+
+    /**
+     * Render the content of all children of this view instance as entries
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    protected function output_children_mobile_entry($entry_data)
+    {
+        $res = [];
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                if (method_exists($child, 'output_content_mobile_entry')) {
+                    $res[] = $child->output_content_mobile_entry($entry_data);
+                } else {
+                    $res[] = $child->output_content_mobile();
+                }
             } else {
                 echo "invalid child element of type '" . gettype($child) . "'";
             }
@@ -125,6 +167,27 @@ abstract class StyleView extends BaseView
             $style['fail_msgs']  = $fail_msgs;
         }
         return $style;
+    }
+
+    public function output_content_mobile_entry($entry_data)
+    {
+        $style = $this->model->get_db_fields();
+        $style['style_name'] = $this->style_name;
+        $style['css'] = $this->css;
+        $style['children'] = $this->output_children_mobile_entry($entry_data);
+        $success_msgs = $this->output_controller_alerts_success_mobile();
+        if($success_msgs){
+            $style['success_msgs'] = $success_msgs;
+        }
+        $fail_msgs = $this->output_controller_alerts_fail_mobile();
+        if($fail_msgs){
+            $style['fail_msgs']  = $fail_msgs;
+        }
+        return $style;
+    }
+
+    public function get_entry_value($entry_data, $value){
+        return $this->model->get_entry_value($entry_data, $value);
     }
 }
 ?>

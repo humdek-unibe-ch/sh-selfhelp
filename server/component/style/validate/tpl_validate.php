@@ -40,6 +40,10 @@
                         <input class="form-check-input" type="radio" name="gender" value="2" <?php echo $female_checked; ?> required>
                         <label class="form-check-label"><?php echo $this->gender_female; ?></label>
                     </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" value="3" <?php echo $divers_checked; ?> required>
+                        <label class="form-check-label"><?php echo $this->gender_divers; ?></label>
+                    </div>
                 </div>
                 <?php $this->output_custom_fields(); ?>
                 <button type="submit" class="btn btn-primary"><?php echo $this->activate_label; ?></button>

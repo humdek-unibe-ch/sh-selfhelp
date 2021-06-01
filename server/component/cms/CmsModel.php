@@ -1079,11 +1079,13 @@ class CmsModel extends BaseModel
      *  is required.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
+     * @param int $id_pageAccessTypes
+     *  Page type access. It could be mobile, web or mobile_web
      * @retval int
      *  The id of the created page.
      */
     public function create_new_page($keyword, $url, $protocol, $action,
-        $position, $is_headless, $is_open, $parent)
+        $position, $is_headless, $is_open, $parent, $id_pageAccessTypes)
     {
         $nav_id = null;
         $page_type = $is_open ? OPEN_PAGE_ID : EXPERIMENT_PAGE_ID;
@@ -1102,6 +1104,7 @@ class CmsModel extends BaseModel
             "nav_position" => $position ? 999 : null,
             "parent" => $parent,
             "is_headless" => $is_headless ? 1 : 0,
+            "id_pageAccessTypes" => $id_pageAccessTypes
         ));
         $this->set_new_page_acl($pid, $is_open);
         if($position)

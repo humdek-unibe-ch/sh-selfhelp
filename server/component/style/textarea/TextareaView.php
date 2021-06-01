@@ -40,6 +40,10 @@ class TextareaView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if($this->entry_data){
+            // if entry data; reset the value
+            $this->value = $this->get_entry_value($this->entry_data, $this->model->get_db_field("value", "")); 
+        }
         if($this->value === null)
             $this->value = $this->default_value;
         $css = ($this->label == "") ? $this->css : "";
@@ -48,5 +52,17 @@ class TextareaView extends FormFieldView
     }
 
     /* Public Methods *********************************************************/
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile();
+        $style['value']['content'] = $this->get_entry_value($entry_value, $this->model->get_db_field("value", "")); 
+        $style['value']['default'] = $this->default_value;
+        return $style;
+    }
 }
 ?>

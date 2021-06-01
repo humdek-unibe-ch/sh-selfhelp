@@ -71,13 +71,18 @@ class CardView extends StyleView
     /* Private Methods ********************************************************/
 
     /**
+     * @param $entryValue 
+     * The entry value data
      * Render the card header if a title is set. The card can be collapsible
      * or always open.
      */
-    private function output_card_header()
+    private function output_card_header($entryValue = null)
     {
         $show = ($this->is_expanded || !$this->is_collapsible) ? "" : "collapsed";
         if($this->title == "") return;
+        if($entryValue){
+            $this->title = $this->model->get_entry_value($entryValue, $this->model->get_db_field("title"));
+        }
         $collapsible = $this->is_collapsible ? "collapsible" : "";
         require __DIR__ . "/tpl_card_header.php";
     }
@@ -113,6 +118,31 @@ class CardView extends StyleView
         $show = $this->is_expanded ? "show" : "";
         $collapse = $this->is_collapsible ? "collapse" : "";
         require __DIR__ . "/tpl_card.php";
+    }
+
+    /**
+     * Render the style view.
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_entry($entry_value)
+    {
+        $entry_data = $entry_value;
+        $show = $this->is_expanded ? "show" : "";
+        $collapse = $this->is_collapsible ? "collapse" : "";
+        require __DIR__ . "/tpl_card_entryValue.php";
+    }
+
+    /**
+     * Render output as an entry for mobile
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    public function output_content_mobile_entry($entry_value)
+    {
+        $style = parent::output_content_mobile_entry($entry_value);        
+        $style['title']['content'] = $this->model->get_entry_value($entry_value, $this->model->get_db_field("title"));
+        return $style;
     }
 	
 }
