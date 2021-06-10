@@ -96,10 +96,14 @@ ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_mailQueue` FOREIGN KEY (`id_mailQu
 ALTER TABLE scheduledJobs
 ADD COLUMN id_mailQueue INT(10 ) UNSIGNED;
 
+SET SQL_MODE='ALLOW_INVALID_DATES';
 -- generate scheduled jobs from old emails
 INSERT INTO scheduledJobs (id_jobTypes, id_jobStatus, description, date_create, date_to_be_executed, date_executed, id_mailQueue)
 SELECT (SELECT id FROM lookups WHERE type_code = "jobTypes" AND lookup_code = "email"), id_mailQueueStatus, 'Email Job', date_create, date_to_be_sent, date_sent, id
 FROM mailQueue;
+UPDATE scheduledJobs
+SET date_executed = null
+WHERE date_executed = '0000-00-00 00:00:00';
 
 -- insert into linking table
 INSERT INTO scheduledJobs_mailQueue (id_scheduledJobs, id_mailQueue)

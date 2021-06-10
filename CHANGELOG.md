@@ -1,4 +1,9 @@
-# v4.1.0 (latest)
+# v4.1.1 (latest)
+
+### Bugfix
+ - fix insert script for `update_v3.10.0_v4.0.0.sql`
+
+# v4.1.0
 
 ### New Features
  - add an option for a menu icon for the website
