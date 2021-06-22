@@ -28,6 +28,10 @@ cd ../sites-enabled
 sudo ln -s ../sites-available/__experiment_name__.conf .
 ```
 
+##### PHP Modules
+
+`sudo apt install php7.2-mbstring`
+
 ##### PHP Settings
 
 In order to allow to upload large media files the file `/etc/php/7.2/apache2/php.ini` must be modified:
