@@ -15,7 +15,8 @@ function init_datetime_inputs() {
             locale: {
                 firstDayOfWeek: 1
             },
-            allowInput: true
+            allowInput: true,
+            defaultDate: $(this).attr('value') == 'now' ? new Date() : ''
         });
     });
 }
@@ -29,7 +30,8 @@ function init_date_inputs() {
             locale: {
                 firstDayOfWeek: 1
             },
-            allowInput: true
+            allowInput: true,
+            defaultDate: $(this).attr('value') == 'now' ? new Date() : ''
         });
     });
 }

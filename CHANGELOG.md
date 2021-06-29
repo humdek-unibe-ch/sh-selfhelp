@@ -1,4 +1,10 @@
-# v4.1.1 (latest)
+# v4.1.2 (latest)
+
+### New Features
+ - add an option to set default date and time for the `input` style. If in value is typed `now`, it will load the current datetime.
+ - rename the default label for the leadinf recrod for `showUserInput` from `Date` to `Record Id`.
+
+# v4.1.1
 
 ### Bugfix
  - fix insert script for `update_v3.10.0_v4.0.0.sql`

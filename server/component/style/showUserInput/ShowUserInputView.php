@@ -87,7 +87,7 @@ class ShowUserInputView extends StyleView
         $this->anchor = $this->model->get_db_field("anchor");
         $this->source_an = $this->model->convert_to_alphanumeric($this->source);
         $this->is_log = $this->model->get_db_field("is_log", false);
-        $this->label = $this->model->get_db_field("label_date_time", "Date");
+        $this->label = $this->model->get_db_field("label_date_time", "Record Id");
         $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
         $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
