@@ -11,3 +11,6 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');
 -- add field config to style book
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('config'), NULL, 'Define the configuration of the book. Refer to the documentation of [turn.js](http://www.turnjs.com/turnjs4-api-docs.pdf) for more information');
+
+-- executed in wesir
+
