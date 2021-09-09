@@ -128,7 +128,9 @@ abstract class BasePage
             "/js/ext/flatpickr.min.js",
             "/js/ext/html2pdf.bundle.min.js",
             "/js/ext/iconselect.js",
-            "/js/ext/iscroll.js"
+            "/js/ext/iscroll.js",
+            "/js/ext/turn.min.js",
+            "/js/ext/jquery-ui.min.js"
         );
         if(DEBUG == 0)
         {

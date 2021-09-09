@@ -44,3 +44,7 @@ textarea
     top: 1rem;
     z-index: 900;
 }
+
+.fieldsOnTop {
+    z-index: 1000;
+}

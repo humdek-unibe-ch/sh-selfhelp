@@ -1,4 +1,9 @@
-# v4.1.2 (latest)
+# v4.2.0 (latest)
+
+### New Features
+ - add new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)
+
+# v4.1.2
 
 ### New Features
  - add an option to set default date and time for the `input` style. If in value is typed `now`, it will load the current datetime.

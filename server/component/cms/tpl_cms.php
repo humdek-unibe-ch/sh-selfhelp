@@ -10,7 +10,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col">
+    <div class="col fieldsOnTop">
         <?php $this->output_fields(); ?>
     </div>
     <div class="col">
