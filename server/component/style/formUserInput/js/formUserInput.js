@@ -3,7 +3,7 @@ $(document).ready(function () {
 });
 
 function formSubmitEvent() {
-    $('form').on('submit', function (e) {
+    $('form').on('submit', function (e) {        
         if ($(this).find('input[name="ajax"]').val() == 1) {
             var is_log = $(this).find('input[name="is_log"]').val() == 1;
             var redirect_at_end = $(this).find('input[name="redirect_at_end"]').val();
@@ -26,12 +26,11 @@ function formSubmitEvent() {
             });
 
             var form = this;
-
             // AJAX call
             $.ajax({
                 type: 'post',
-                url: $('form').attr('action'),
-                data: $('form').serialize(),
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
                 success: function (data) {
                     // Parse the page that is returned in order to get the alerts
                     var parser = new DOMParser();
@@ -39,11 +38,11 @@ function formSubmitEvent() {
 
                     // assign success allerts
                     $(htmlDoc).find('.alert-success').each(function () {
-                        $(this).insertBefore($('form'));
+                        $(this).insertBefore($(form)[0]);
                     });
                     //assign fail alerts
                     $(htmlDoc).find('.alert-danger').each(function () {
-                        $(this).insertBefore($('form'));
+                        $(this).insertBefore($(form)[0]);
                     });
 
                     if (is_log) {
