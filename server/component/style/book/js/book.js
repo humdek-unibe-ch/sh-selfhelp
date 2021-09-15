@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    // loadApp();    
     $('.book-turnjs').each(function () {
         var config = $(this).data('config');
         if (!config || config == '""') {
@@ -19,7 +18,6 @@ $(document).ready(function () {
                 var book = $(this),
                     currentPage = book.turn('page'),
                     pages = book.turn('pages');
-
                 if (currentPage > 3 && currentPage < pages - 3) {
                     if (page == 1) {
                         book.turn('page', 2).turn('stop').turn('page', page);
@@ -52,6 +50,12 @@ $(document).ready(function () {
                 } else {
                     $('.book-turnjs .secondLast').removeClass('fixed');
                 }
+                if (config['saveOnTurnPage']) {
+                    var currentView = book.turn('view');
+                    currentView.forEach(p => {
+                        $(this).find('[page="' + p + '"]').find(':submit').click();
+                    });
+                }
             },
             turned: function (e, page, view) {
                 var book = $(this);
@@ -64,7 +68,7 @@ $(document).ready(function () {
                 }
                 book.turn('center');
             },
-            end: function (e, pageObj) {
+            end: function (e, pageObject) {
                 var book = $(this);
                 updateDepth(book);
                 setTimeout(function () {
@@ -74,6 +78,9 @@ $(document).ready(function () {
                 }, 1);
             },
             missing: function (e, pages) {
+
+            },
+            start: function (e, pageObject, corner) {
 
             }
         }
@@ -89,10 +96,10 @@ $(document).ready(function () {
         $(this).addClass('animated');
         // Show canvas
         $('#canvas').css({ visibility: '' });
+
     });
 
     setKeyboardKeys();
-
 });
 
 function setKeyboardKeys() {
