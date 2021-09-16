@@ -156,7 +156,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     $i = 0;
                     $field_value = '';
                     foreach ($data as $key => $row) {
-                        $val =  isset($row[$field['field_name']]) ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
+                        $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
                         if ($config['retrieve'] != 'all') {
                             $field_value = $val;
                             break; // we don need the others;
