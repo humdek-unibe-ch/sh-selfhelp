@@ -109,13 +109,28 @@ class CmsUpdateView extends BaseView
             // if there are unassigned sections show the delete button
             $this->output_delete_unassigned_sections_btn();
         }   
-        $allowed = new BaseStyleComponent("card", array(
+        // $allowed = new BaseStyleComponent("card", array(
+        //     "css" => "mb-3",
+        //     "is_expanded" => false,
+        //     "is_collapsible" => true,
+        //     "title" => "Select an Existing Section",
+        //     "children" => array(new BaseStyleComponent("nestedList", array(
+        //         "items" => $this->model->get_accessible_sections(),
+        //         "id_prefix" => "sections-search-accessible",
+        //         "is_expanded" => false,
+        //         "is_collapsible" => false,
+        //         "id_active" => 0,
+        //         "search_text" => "Search"
+        //     )))
+        // ));
+        // $allowed->output_content();
+        $reference_sections = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => false,
             "is_collapsible" => true,
-            "title" => "Select an Existing Section",
+            "title" => "Select an Reference Section",
             "children" => array(new BaseStyleComponent("nestedList", array(
-                "items" => $this->model->get_accessible_sections(),
+                "items" => $this->model->get_reference_sections(),
                 "id_prefix" => "sections-search-accessible",
                 "is_expanded" => false,
                 "is_collapsible" => false,
@@ -123,7 +138,7 @@ class CmsUpdateView extends BaseView
                 "search_text" => "Search"
             )))
         ));
-        //$allowed->output_content();
+        $reference_sections->output_content();
     }
 
     /**

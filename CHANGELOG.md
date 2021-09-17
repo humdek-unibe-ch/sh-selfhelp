@@ -1,7 +1,8 @@
 # v4.2.0 (latest)
 
 ### New Features
- - add new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)
+ - add a new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)
+ - add a new style `refContainer`. It wraps styles and make them available on multiple places in selfhelp.
 
 # v4.1.2
 

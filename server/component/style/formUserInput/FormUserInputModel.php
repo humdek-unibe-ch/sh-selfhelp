@@ -39,7 +39,7 @@ class FormUserInputModel extends StyleModel
 
     /* Private Methods ********************************************************/
 
-    private function get_form_id(){
+    private function get_form_id(){        
         return $this->get_db_field("id");
     }
 

@@ -21,6 +21,13 @@ class CmsModel extends BaseModel
     private $all_accessible_sections;
 
     /**
+     * All reference sections the user has select access to. The access rights of sections
+     * are inherited from pages. This means that all sections associated to a
+     * page are accessible if the page is accessible.
+     */
+    private $all_reference_sections;
+
+    /**
      * All sections that are not assigned to any page.
      */
     private $all_unassigned_sections;
@@ -143,6 +150,7 @@ class CmsModel extends BaseModel
         $this->page_hierarchy = array();
         $this->navigation_hierarchy = array();
         $this->all_accessible_sections = array();
+        $this->all_reference_sections = array();
     }
 
     /* Private Methods ********************************************************/
@@ -734,6 +742,41 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch all reference sections where the user has select access and add them to the
+     * corresponding private property. The access rights of sections are
+     * inherited from the pages.
+     */
+    private function set_all_reference_sections()
+    {
+        $sql = "SELECT s.id, s.name, s.id_styles,
+        COALESCE(ps.id_pages, psn.id_pages) AS pid
+        FROM sections AS s
+        INNER JOIN styles st on(s.id_styles = st.id)
+        LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
+        LEFT JOIN sections_navigation AS psn ON psn.child = s.id
+        LEFT JOIN pages AS pp ON pp.id = ps.id_pages
+        LEFT JOIN pages AS pn ON pn.id = psn.id_pages
+        WHERE st.name = 'refContainer' AND (pp.id_type = 3 OR pn.id_type = 3)
+        AND (ps.id_pages IS NOT NULL OR psn.id_pages IS NOT NULL)";
+        $root_sections = $this->db->query_db($sql);
+        foreach($root_sections as $section)
+        {
+            if(!$this->acl->has_access_select($_SESSION['id_user'],
+                    $section['pid']))
+                continue;
+            $id = intval($section['id']);
+            $this->all_reference_sections[$id] = $this->add_list_item(
+                array($id, intval($section['id_styles'])), $section['name'],
+                array(), "");
+            $this->set_section_children($id);
+        }
+        $name = array();
+        foreach($this->all_reference_sections as $key => $row)
+            $name[$key] = $row['title'];
+        array_multisort($name, SORT_ASC, $this->all_reference_sections);
+    }
+
+    /**
      * Sets the default acl rights for the newly created page.
      *
      * @param int $pid
@@ -1154,6 +1197,18 @@ class CmsModel extends BaseModel
     public function get_accessible_sections()
     {
         return $this->all_accessible_sections;
+    }
+
+    /**
+     * Returns an array of all reference section that are accessible by the current user.
+     *
+     * @retval array
+     *  a list of key => value pairs where the key is the id of a section and
+     *  the value a list item (see CmsModel::add_list_item).
+     */
+    public function get_reference_sections()
+    {
+        return $this->all_reference_sections;
     }
 
     /**
@@ -1945,7 +2000,8 @@ class CmsModel extends BaseModel
     {
         $this->update_page_hierarchy();
         $this->update_page_sections();
-        $this->set_all_accessible_sections();
+        // $this->set_all_accessible_sections();
+        $this->set_all_reference_sections();
         $this->all_unassigned_sections = $this->fetch_unassigned_sections();
     }
 
