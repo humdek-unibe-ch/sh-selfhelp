@@ -756,8 +756,7 @@ class CmsModel extends BaseModel
         LEFT JOIN sections_navigation AS psn ON psn.child = s.id
         LEFT JOIN pages AS pp ON pp.id = ps.id_pages
         LEFT JOIN pages AS pn ON pn.id = psn.id_pages
-        WHERE st.name = 'refContainer' AND (pp.id_type = 3 OR pn.id_type = 3)
-        AND (ps.id_pages IS NOT NULL OR psn.id_pages IS NOT NULL)";
+        WHERE st.name = 'refContainer' ";
         $root_sections = $this->db->query_db($sql);
         foreach($root_sections as $section)
         {
