@@ -760,9 +760,9 @@ class CmsModel extends BaseModel
         $root_sections = $this->db->query_db($sql);
         foreach($root_sections as $section)
         {
-            if(!$this->acl->has_access_select($_SESSION['id_user'],
-                    $section['pid']))
-                continue;
+            // if(!$this->acl->has_access_select($_SESSION['id_user'],
+            //         $section['pid']))
+            //     continue;
             $id = intval($section['id']);
             $this->all_reference_sections[$id] = $this->add_list_item(
                 array($id, intval($section['id_styles'])), $section['name'],
