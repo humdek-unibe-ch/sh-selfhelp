@@ -35,8 +35,16 @@ function formSubmitEvent() {
                     // Parse the page that is returned in order to get the alerts
                     var parser = new DOMParser();
                     var htmlDoc = parser.parseFromString(data, 'text/html');
+
+                    // update inputs
                     $('.selfhelpInput').each(function () {
                         if ($(this).data('locked_after_submit') && $(this).val()) {
+                            $(this).prop('disabled', true);
+                        }
+                    })
+                    // update rasios
+                    $('.selfhelpRadio').each(function () {
+                        if ($(this).data('locked_after_submit') && $('input[name="' + $(this).attr('name') + '"]:checked').val()) {
                             $(this).prop('disabled', true);
                         }
                     })

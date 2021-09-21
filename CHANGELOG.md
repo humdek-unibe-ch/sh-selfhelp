@@ -4,6 +4,7 @@
  - add a new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)
  - add a new style `refContainer`. It wraps styles and make them available on multiple places in selfhelp.
  - add field `locked_after_submit` in style `input`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited 
+ - add field `locked_after_submit` in style `radio`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited 
 anymore.
 
 # v4.1.2

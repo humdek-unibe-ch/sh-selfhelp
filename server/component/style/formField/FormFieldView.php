@@ -80,6 +80,12 @@ abstract class FormFieldView extends StyleView
      */
     protected $entry_data;
 
+    /**
+     * DB field 'locked_after_submit' ('').
+     * If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+     */
+    protected $locked_after_submit;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -99,6 +105,8 @@ abstract class FormFieldView extends StyleView
         $this->label = $this->model->get_db_field("label");
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
+        $this->locked_after_submit = $this->model->get_db_field("locked_after_submit", 0);
+        
     }
 
     /* Private Methods ********************************************************/
