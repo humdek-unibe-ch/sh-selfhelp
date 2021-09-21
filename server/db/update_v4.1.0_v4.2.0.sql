@@ -20,3 +20,8 @@ INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('refCont
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('refContainer'), get_field_id('children'), 0, 'Children that can be added to the style and later used in multiple places');
 
 -- executed in wesir
+
+-- add field locked_after_submit
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'locked_after_submit', get_field_type_id('checkbox'), '0');
+-- add field locked_after_submit to style input
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('input'), get_field_id('locked_after_submit'), NULL, 'If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.');

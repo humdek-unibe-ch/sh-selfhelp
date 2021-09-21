@@ -1,5 +1,6 @@
 $(document).ready(function () {
     $('.book-turnjs').each(function () {
+        var init = false;
         var config = $(this).data('config');
         if (!config || config == '""') {
             config = {}
@@ -51,10 +52,15 @@ $(document).ready(function () {
                     $('.book-turnjs .secondLast').removeClass('fixed');
                 }
                 if (config['saveOnTurnPage']) {
+                    // save forms inside book
                     var currentView = book.turn('view');
                     currentView.forEach(p => {
                         $(this).find('[page="' + p + '"]').find(':submit').click();
                     });
+                    // save form if it is parrent of the book
+                    if (init) {
+                        $(this).parent().find("> :submit").click();
+                    }
                 }
             },
             turned: function (e, page, view) {
@@ -89,6 +95,8 @@ $(document).ready(function () {
         var pageNumber = window.location.hash.substring(1);
         if (pageNumber) {
             $(this).turn('page', pageNumber.replace('page-', ''));
+        } else {
+            init = true;
         }
         if (slider) {
             $('#slider').slider('option', 'max', $(this).turn('pages') / 2 + 1);
@@ -96,7 +104,9 @@ $(document).ready(function () {
         $(this).addClass('animated');
         // Show canvas
         $('#canvas').css({ visibility: '' });
-
+        setTimeout(() => {
+            init = true; // workaround for page loading in the middle of the book
+        }, 2000);
     });
 
     setKeyboardKeys();

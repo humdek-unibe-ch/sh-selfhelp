@@ -3,7 +3,7 @@ $(document).ready(function () {
 });
 
 function formSubmitEvent() {
-    $('form').on('submit', function (e) {        
+    $('form').on('submit', function (e) {
         if ($(this).find('input[name="ajax"]').val() == 1) {
             var is_log = $(this).find('input[name="is_log"]').val() == 1;
             var redirect_at_end = $(this).find('input[name="redirect_at_end"]').val();
@@ -35,6 +35,11 @@ function formSubmitEvent() {
                     // Parse the page that is returned in order to get the alerts
                     var parser = new DOMParser();
                     var htmlDoc = parser.parseFromString(data, 'text/html');
+                    $('.selfhelpInput').each(function () {
+                        if ($(this).data('locked_after_submit') && $(this).val()) {
+                            $(this).prop('disabled', true);
+                        }
+                    })
 
                     // assign success allerts
                     $(htmlDoc).find('.alert-success').each(function () {
@@ -53,7 +58,7 @@ function formSubmitEvent() {
                     btnLabels.forEach(element => {
                         $(element.btn).html(element.origLabel);
                     });
-                    if (redirect_at_end) {                        
+                    if (redirect_at_end) {
                         window.location = redirect_at_end;
                     }
                 }

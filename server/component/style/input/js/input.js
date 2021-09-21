@@ -1,9 +1,18 @@
 $(document).ready(() => {
+    check_locked_after_submit();
     init_datetime_inputs();
     init_date_inputs();
     init_time_inputs();
     set_focus_btn_clcik();
 });
+
+function check_locked_after_submit(){
+    $('.selfhelpInput').each(function(){
+        if($(this).data('locked_after_submit') && $(this).val()){
+            $(this).prop('disabled', true);
+        }        
+    })
+}
 
 function init_datetime_inputs() {
     $("input[type='datetime']").each(function () {

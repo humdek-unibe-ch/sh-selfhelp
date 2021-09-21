@@ -43,6 +43,12 @@ class InputView extends FormFieldView
      */
     private $format;
 
+    /**
+     * DB field 'locked_after_submit' ('').
+     * If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+     */
+    private $locked_after_submit;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -70,6 +76,7 @@ class InputView extends FormFieldView
         }
         $this->data_config = $this->model->get_db_field("data_config");
         $this->value = $this->model->get_db_field("value", "");
+        $this->locked_after_submit = $this->model->get_db_field("locked_after_submit", 0);
         if($this->data_config){
             $this->retrieve_data();
         }
