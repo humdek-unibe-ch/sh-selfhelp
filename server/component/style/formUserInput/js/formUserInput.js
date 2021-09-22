@@ -42,9 +42,16 @@ function formSubmitEvent() {
                             $(this).prop('disabled', true);
                         }
                     })
-                    // update rasios
+                    // update radios
                     $('.selfhelpRadio').each(function () {
                         if ($(this).data('locked_after_submit') && $('input[name="' + $(this).attr('name') + '"]:checked').val()) {
+                            $(this).prop('disabled', true);
+                        }
+                    })
+                    // update selects
+                    $('.selfhelpSelect').each(function () {
+                        console.log(this);
+                        if ($(this).data('locked_after_submit') && $(this).val()) {
                             $(this).prop('disabled', true);
                         }
                     })
