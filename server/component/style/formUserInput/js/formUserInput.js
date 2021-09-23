@@ -36,25 +36,16 @@ function formSubmitEvent() {
                     var parser = new DOMParser();
                     var htmlDoc = parser.parseFromString(data, 'text/html');
 
-                    // update inputs
-                    $('.selfhelpInput').each(function () {
-                        if ($(this).data('locked_after_submit') && $(this).val()) {
-                            $(this).prop('disabled', true);
-                        }
-                    })
-                    // update radios
-                    $('.selfhelpRadio').each(function () {
-                        if ($(this).data('locked_after_submit') && $('input[name="' + $(this).attr('name') + '"]:checked').val()) {
-                            $(this).prop('disabled', true);
-                        }
-                    })
-                    // update selects
-                    $('.selfhelpSelect').each(function () {
-                        console.log(this);
-                        if ($(this).data('locked_after_submit') && $(this).val()) {
-                            $(this).prop('disabled', true);
-                        }
-                    })
+                    // update inputs - the function is in the style js
+                    check_input_locked_after_submit();
+                    // update radios - the function is in the style js
+                    check_radio_locked_after_submit();
+                    // update selects - the function is in the style js
+                    check_select_locked_after_submit();
+                    // update sliders - the function is in the style js
+                    check_slider_locked_after_submit();
+                    // update textarea - the function is in the style js
+                    check_textarea_locked_after_submit();
 
                     // assign success allerts
                     $(htmlDoc).find('.alert-success').each(function () {

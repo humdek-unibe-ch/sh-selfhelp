@@ -109,23 +109,7 @@ $(document).ready(function () {
         }, 2000);
     });
 
-    setKeyboardKeys();
 });
-
-function setKeyboardKeys() {
-    $(document).keydown(function (e) {
-        var previous = 37, next = 39;
-        switch (e.keyCode) {
-            case previous:
-                $('.book-turnjs').turn('previous');
-                break;
-            case next:
-                $('.book-turnjs').turn('next');
-                break;
-        }
-
-    });
-}
 
 function updateDepth(book, newPage) {
     var page = book.turn('page'),

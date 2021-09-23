@@ -263,6 +263,22 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
+     * Check the last record_id for the form. Used for the update form which is not is_log
+     *
+     * @retval int
+     *  return record_id, if not return false
+     */
+    public function get_id_record()
+    {
+        $sql = "CALL get_form_data_with_filter(:fid, 'ORDER BY record_id DESC')";
+        $res = $this->db->query_db_first($sql, array(
+            ":fid" => $this->get_form_id()
+        ));
+        if($res) return $res['record_id'];
+        else return false;
+    }
+
+    /**
      * Checks whether the form is a logging or a documentation form.
      *
      * @retval bool
@@ -295,8 +311,11 @@ class FormUserInputModel extends StyleModel
             if($this->is_log() || !$this->has_field_data($id))
                 $res = $this->insert_new_entry($id, $value, $id_record, intval($_SESSION['id_user']));
             else
-            {                
-                $res = $this->update_entry($id, $value);
+            {      
+                if($id_record == null){
+                    $id_record = $this->get_id_record();
+                }          
+                $res = $this->update_entry_with_record_id($id, $value, $id_record);
             }
 
             if($res === false)

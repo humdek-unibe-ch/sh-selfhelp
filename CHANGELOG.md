@@ -6,6 +6,8 @@
  - add field `locked_after_submit` in style `input`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
  - add field `locked_after_submit` in style `radio`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
  - add field `locked_after_submit` in style `select`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add field `locked_after_submit` in style `slider`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add field `locked_after_submit` in style `textarea`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
 
 # v4.1.2
 

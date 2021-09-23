@@ -8,7 +8,7 @@ $(document).ready(function () {
         initSelectImage(value);
     })
 
-    check_locked_after_submit();
+    check_select_locked_after_submit();
 
 });
 
@@ -40,10 +40,11 @@ function initSelectImage(el) {
     $(el).addClass(classNames);
 }
 
-function check_locked_after_submit(){
-    $('.selfhelpSelect').each(function(){
+function check_select_locked_after_submit(){
+    $('.selfhelpSelect').each(function(){        
         if($(this).data('locked_after_submit') && $(this).val()){
-            $(this).prop('disabled', true);
+            $(this).find("option:not(:selected)").prop('disabled',true);
+            $(this).selectpicker('refresh');
         }        
     })
 }
