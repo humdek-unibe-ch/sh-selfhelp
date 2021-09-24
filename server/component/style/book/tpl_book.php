@@ -9,3 +9,7 @@
 <div id="slider-bar" class="turnjs-slider">
     <div id="slider"></div>
 </div>
+<div id="book-buttons" class="turnjs-book-buttons d-none justify-content-between">
+    <button id="book-previous-button" class="btn btn-primary"><?php echo $this->label_back; ?></button>
+    <button id="book-next-button" class="btn btn-primary"><?php echo $this->label_next; ?></button>
+</div>

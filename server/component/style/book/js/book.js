@@ -14,11 +14,36 @@ $(document).ready(function () {
         }
         config['when'] = {
             turning: function (e, page, pageObject) {
+                if ($(this).turn('data').hover) {
+                    $(this).turn('data').hover = false;
+                    e.preventDefault();
+                    return;
+                }
+                var book = $(this);
+                var currentPage = book.turn('page');
+                var pages = book.turn('pages');
+                if (config['saveOnTurnPage']) {
+                    for (let i = 0; i < page; i++) {
+                        for (let j = 0; j < $(this).find('[page="' + i + '"]').find('input,textarea,select').filter('[required]').length; j++) {
+                            const el = $(this).find('[page="' + i + '"]').find('input,textarea,select').filter('[required]')[j];
+                            if ($(el).attr('type') == 'radio' && !$(this).find('[page="' + i + '"]').find('input[name="' + $(el).attr('name') + '"]:checked').val()) {
+                                e.preventDefault();
+                                book.turn('page', i);
+                                el.reportValidity();
+                                return;
+                            } else {
+                                if (!$(el).val()) {
+                                    e.preventDefault();
+                                    book.turn('page', i);
+                                    el.reportValidity();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
                 // when page is turned add the page number to the url
                 window.location.hash = "#page-" + page;
-                var book = $(this),
-                    currentPage = book.turn('page'),
-                    pages = book.turn('pages');
                 if (currentPage > 3 && currentPage < pages - 3) {
                     if (page == 1) {
                         book.turn('page', 2).turn('stop').turn('page', page);
@@ -87,10 +112,14 @@ $(document).ready(function () {
 
             },
             start: function (e, pageObject, corner) {
-
+                if (config['stopClickPageTurn'] && corner != null) {
+                    $(this).turn('data').hover = true;
+                    return e.preventDefault();
+                }
             }
         }
         $(this).turn(config);
+        var book = $(this);
         // check if there is page number in the url
         var pageNumber = window.location.hash.substring(1);
         if (pageNumber) {
@@ -104,6 +133,20 @@ $(document).ready(function () {
         $(this).addClass('animated');
         // Show canvas
         $('#canvas').css({ visibility: '' });
+        if (config['showButtons']) {
+            $('#book-buttons').removeClass('d-none');
+            $('#book-buttons').addClass('d-flex');
+            $('#book-previous-button').click(function (e) {
+                book.turn('data').hover = false;
+                e.preventDefault();
+                book.turn("previous");
+            });
+            $('#book-next-button').click(function (e) {
+                book.turn('data').hover = false;
+                e.preventDefault();
+                book.turn("next");
+            });
+        }
         setTimeout(() => {
             init = true; // workaround for page loading in the middle of the book
         }, 2000);

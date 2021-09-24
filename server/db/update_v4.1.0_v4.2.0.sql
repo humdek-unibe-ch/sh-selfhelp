@@ -33,3 +33,8 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('slider'), get_field_id('locked_after_submit'), NULL, 'If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.');
 -- add field locked_after_submit to style textarea
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('textarea'), get_field_id('locked_after_submit'), NULL, 'If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.');
+
+-- add field label_next to style book
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('label_next'), NULL, 'Label for button next if in the book config propert `showButtons` is set to `true`');
+-- add field label_back to style book
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('label_back'), NULL, 'Label for button back if in the book config propert `showButtons` is set to `true`');
