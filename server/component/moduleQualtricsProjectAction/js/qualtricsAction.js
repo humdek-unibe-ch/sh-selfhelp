@@ -57,10 +57,11 @@ function adjustActionScheduleType() {
     $('.style-section-id_qualtricsActions').addClass('d-none');
     $('.style-section-valid').addClass('d-none');
     $('.style-section-linked_action').addClass('d-none');
+    $('.style-section-targetGroups').addClass('d-none');
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Notification') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Task') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
-        $('#section-schedule_info').removeClass('d-none');
+        $('#section-schedule_info').removeClass('d-none');        
     }
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
         $('.style-section-id_qualtricsSurveys_reminder').removeClass('d-none');
@@ -77,6 +78,7 @@ function adjustActionScheduleType() {
         $('.style-section-subject').addClass('d-none');
         $('.style-section-body').addClass('d-none');
         $('.style-section-type').addClass('d-none');
+        $('.style-section-targetGroups').removeClass('d-none');
     }
     adjustRequiredFields();
 }
@@ -88,7 +90,7 @@ function adjustScheduleType() {
     $('.style-section-send_on').addClass('d-none');
     $('.style-section-send_on_day').addClass('d-none');
     $('.style-section-linked_action').addClass('d-none');
-    $('#at_time_holder').addClass('d-none');
+    $('#at_time_holder').addClass('d-none');    
     if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('fixed datetime')) {
         $('#custom_time_holder').removeClass('d-none');
     } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {

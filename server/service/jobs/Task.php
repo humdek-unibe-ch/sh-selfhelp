@@ -52,10 +52,10 @@ class Task  extends BasicJob
                 // check if no condition or condition fullfiled -> then execute
                 if ($task_info['config']['type'] == "add_group") {
                     // add group to user
-                    $res = $res && $this->add_group_to_user($task_info, $sent_by, $user['id_users'], $execute_user_id);
+                    $res = $this->add_group_to_user($task_info, $sent_by, $user['id_users'], $execute_user_id) && $res;
                 } else if ($task_info['config']['type'] == "remove_group") {
                     // remove group from user
-                    $res = $res && $this->remove_group_from_user($task_info, $sent_by, $user['id_users'], $execute_user_id);
+                    $res = $this->remove_group_from_user($task_info, $sent_by, $user['id_users'], $execute_user_id)  && $res;
                 }
             } else {
                 $this->transaction->add_transaction(

@@ -19,8 +19,6 @@ INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('refCont
 -- add field children to style refContainer
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('refContainer'), get_field_id('children'), 0, 'Children that can be added to the style and later used in multiple places');
 
--- executed in wesir
-
 -- add field locked_after_submit
 INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'locked_after_submit', get_field_type_id('checkbox'), '0');
 -- add field locked_after_submit to style input
@@ -38,3 +36,5 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('label_next'), NULL, 'Label for button next if in the book config propert `showButtons` is set to `true`');
 -- add field label_back to style book
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('label_back'), NULL, 'Label for button back if in the book config propert `showButtons` is set to `true`');
+
+-- executed in wesir
