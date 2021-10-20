@@ -8,6 +8,8 @@ $(document).ready(function () {
         initSelectImage(value);
     })
 
+    check_select_locked_after_submit();
+
 });
 
 function initSelectImage(el) {
@@ -36,4 +38,13 @@ function initSelectImage(el) {
     });
     iconSelect.refresh(icons);
     $(el).addClass(classNames);
+}
+
+function check_select_locked_after_submit(){
+    $('.selfhelpSelect').each(function(){        
+        if($(this).data('locked_after_submit') && $(this).val()){
+            $(this).find("option:not(:selected)").prop('disabled',true);
+            $(this).selectpicker('refresh');
+        }        
+    })
 }

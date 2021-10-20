@@ -1,4 +1,19 @@
-# v4.1.2 (latest)
+# v4.2.0 (latest)
+
+### New Features
+ - add a new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)
+ - add a new style `refContainer`. It wraps styles and make them available on multiple places in selfhelp.
+ - add field `locked_after_submit` in style `input`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add field `locked_after_submit` in style `radio`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add field `locked_after_submit` in style `select`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add field `locked_after_submit` in style `slider`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add field `locked_after_submit` in style `textarea`. If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+ - add `groupTarget` for Qualtrics actions from type `task`. If a target group/s is selected all the users in that group will receive the task.
+
+### Bugfix
+ - in style `radio` the field `is_required` is proeprly checked
+
+# v4.1.2
 
 ### New Features
  - add an option to set default date and time for the `input` style. If in value is typed `now`, it will load the current datetime.

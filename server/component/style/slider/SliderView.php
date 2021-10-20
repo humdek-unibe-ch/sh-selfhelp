@@ -44,7 +44,7 @@ class SliderView extends FormFieldView
         parent::__construct($model);
         $this->min = $this->model->get_db_field("min", 0);
         $this->max = $this->model->get_db_field("max", 5);
-        $this->labels = $this->model->get_db_field("labels", array());
+        $this->labels = $this->model->get_db_field("labels", array());        
     }
 
     /* Private Methods ********************************************************/
@@ -71,6 +71,9 @@ class SliderView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if($this->value === null){
+            $this->value = $this->default_value;
+        }
         $css = ($this->label == "") ? $this->css : "";
         require __DIR__ . "/tpl_slider.php";
     }

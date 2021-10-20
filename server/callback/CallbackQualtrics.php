@@ -272,6 +272,23 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Get all users for selected groups
+     *
+     * @param array $groups
+     *  Array with group ids
+     *  @retval array
+     * return all users for the selected groups or false
+     */
+    private function get_users_from_groups($groups)
+    {
+        $sql = "SELECT u.id
+                    FROM users u
+                    INNER JOIN users_groups g ON (u.id = g.id_users)
+                    WHERE u.id_status = 3 AND g.id_groups IN (" . implode(",", $groups) . ");";
+        return $this->db->query_db($sql);
+    }
+
+    /**
      * Check if the user belongs in group(s)
      * @param int $uid
      * user  id
@@ -428,14 +445,14 @@ class CallbackQualtrics extends BaseCallback
         $this->survey_response = []; // always clear it, new resposnce new data if we need it
         if ($this->is_survey_response_needed($actions)) {
             $start_time = microtime(true);
-                    $start_date = date("Y-m-d H:i:s");
-                    $this->survey_response = $this->get_survey_response($data);
-                    $res['action'] = 'get_survey_response';
-                    $res['time'] = [];
-                    $end_time = microtime(true);
-                    $res['time']['exec_time'] = $end_time - $start_time;
-                    $res['time']['start_date'] = $start_date;
-                    array_push($result, $res);            
+            $start_date = date("Y-m-d H:i:s");
+            $this->survey_response = $this->get_survey_response($data);
+            $res['action'] = 'get_survey_response';
+            $res['time'] = [];
+            $end_time = microtime(true);
+            $res['time']['exec_time'] = $end_time - $start_time;
+            $res['time']['start_date'] = $start_date;
+            array_push($result, $res);
         }
         foreach ($actions as $action) {
             //clear the mail generation data
@@ -443,9 +460,20 @@ class CallbackQualtrics extends BaseCallback
                 $schedule_info = json_decode($action['schedule_info'], true);
                 $res = array();
                 if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
+                    $users = array();
+                    array_push($users, $user_id);
+                    if (isset($schedule_info['target_groups'])) {
+                        $users_from_groups = $this->get_users_from_groups($schedule_info['target_groups']);
+                        if ($users_from_groups) {
+                            foreach ($users_from_groups as $key => $user) {
+                                array_push($users, $user['id']);
+                            }                            
+                            $users = array_unique($users);
+                        }
+                    }
                     $start_time = microtime(true);
                     $start_date = date("Y-m-d H:i:s");
-                    $res = $this->queue_task($data, $user_id, $action);
+                    $res = $this->queue_task($data, $users, $action);
                     $res['time'] = [];
                     $end_time = microtime(true);
                     $res['time']['exec_time'] = $end_time - $start_time;
@@ -693,14 +721,14 @@ class CallbackQualtrics extends BaseCallback
      *
      * @param array $data
      *  the data from the callback.
-     * @param int $user_id
-     * user id
+     * @param array $user_id
+     * user id arrays
      * @param array $action
      * the action information
      * @retval string
      *  log text what actions was done;
      */
-    private function queue_task($data, $user_id, $action)
+    private function queue_task($data, $users, $action)
     {
         //  {
         // 	"type": "add_group | remove_group",
@@ -726,7 +754,7 @@ class CallbackQualtrics extends BaseCallback
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
             "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
-            "id_users" => array($user_id),
+            "id_users" => $users,
             "config" => $schedule_info['config'],
             "description" => isset($schedule_info['config']['description']) ? $schedule_info['config']['description'] : "Schedule task by Qualtrics Callback",
         );

@@ -41,7 +41,7 @@ class InputView extends FormFieldView
      * DB field 'format' ('').
      * Format field for the input
      */
-    private $format;
+    private $format;    
 
     /* Constructors ***********************************************************/
 
@@ -69,7 +69,7 @@ class InputView extends FormFieldView
             if($this->label == "") $this->label = "&zwnj;";
         }
         $this->data_config = $this->model->get_db_field("data_config");
-        $this->value = $this->model->get_db_field("value", "");
+        $this->value = $this->model->get_db_field("value", "");        
         if($this->data_config){
             $this->retrieve_data();
         }

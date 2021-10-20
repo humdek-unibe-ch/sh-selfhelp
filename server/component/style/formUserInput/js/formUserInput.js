@@ -26,24 +26,34 @@ function formSubmitEvent() {
             });
 
             var form = this;
-
             // AJAX call
             $.ajax({
                 type: 'post',
-                url: $('form').attr('action'),
-                data: $('form').serialize(),
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
                 success: function (data) {
                     // Parse the page that is returned in order to get the alerts
                     var parser = new DOMParser();
                     var htmlDoc = parser.parseFromString(data, 'text/html');
 
+                    // update inputs - the function is in the style js
+                    check_input_locked_after_submit();
+                    // update radios - the function is in the style js
+                    check_radio_locked_after_submit();
+                    // update selects - the function is in the style js
+                    check_select_locked_after_submit();
+                    // update sliders - the function is in the style js
+                    check_slider_locked_after_submit();
+                    // update textarea - the function is in the style js
+                    check_textarea_locked_after_submit();
+
                     // assign success allerts
                     $(htmlDoc).find('.alert-success').each(function () {
-                        $(this).insertBefore($('form'));
+                        $(this).insertBefore($(form)[0]);
                     });
                     //assign fail alerts
                     $(htmlDoc).find('.alert-danger').each(function () {
-                        $(this).insertBefore($('form'));
+                        $(this).insertBefore($(form)[0]);
                     });
 
                     if (is_log) {
@@ -54,7 +64,7 @@ function formSubmitEvent() {
                     btnLabels.forEach(element => {
                         $(element.btn).html(element.origLabel);
                     });
-                    if (redirect_at_end) {                        
+                    if (redirect_at_end) {
                         window.location = redirect_at_end;
                     }
                 }

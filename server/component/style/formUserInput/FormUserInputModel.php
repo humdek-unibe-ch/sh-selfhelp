@@ -39,6 +39,10 @@ class FormUserInputModel extends StyleModel
 
     /* Private Methods ********************************************************/
 
+    private function get_form_id(){        
+        return $this->get_db_field("id");
+    }
+
     /**
      * Insert a new form field entry to the database.
      *
@@ -60,7 +64,7 @@ class FormUserInputModel extends StyleModel
         $res = $this->db->insert("user_input", array(
             "id_users" => $id_users,
             "id_sections" => $id,
-            "id_section_form" => $this->get_db_field("id"),
+            "id_section_form" => $this->get_form_id(),
             "value" => $value,
             "id_user_input_record" => $id_record,
         ));
@@ -82,21 +86,23 @@ class FormUserInputModel extends StyleModel
      *  The id of the form field.
      * @param string $value
      *  The value of the form field.
+     * @param string $id_record
+     *  The id of user input record. This serves to group a set of input data
      * @retval int
      *  The number of affected rows or false if an error ocurred.
      */
     private function update_entry($id, $value)
     {
-        return $this->db->update_by_ids("user_input",
-            array(
-                "value" => $value,
-            ),
-            array(
-                "id_users" => intval($_SESSION['id_user']),
-                "id_sections" => $id,
-                "id_section_form" => $this->get_db_field("id"),
-            )
-        );
+
+        $sql = "UPDATE user_input SET `value` = :value
+            WHERE id_users = :id_users AND id_sections = :id_sections AND id_section_form = :id_section_form
+            ORDER BY id DESC LIMIT 1;";
+        return $this->db->execute_update_db($sql, array(
+            "value" => $value,
+            "id_users" => intval($_SESSION['id_user']),
+            "id_sections" => $id,
+            "id_section_form" => $this->get_form_id()
+        ));
     }
 
     /**
@@ -115,7 +121,7 @@ class FormUserInputModel extends StyleModel
     {
         $this->db->begin_transaction();
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
-        $entry_record = $this->fetch_entry_record($this->get_db_field("id"), $record_id, $own_entries_only);
+        $entry_record = $this->fetch_entry_record($this->get_form_id(), $record_id, $own_entries_only);
         $field_name = $this->get_form_field_name($id);
         $res = false;
         $tran_type = '';
@@ -128,7 +134,7 @@ class FormUserInputModel extends StyleModel
                 ),
                 array(
                     "id_sections" => $id,
-                    "id_section_form" => $this->get_db_field("id"),
+                    "id_section_form" => $this->get_form_id(),
                     "id_user_input_record" => $record_id
                 )
             );
@@ -231,7 +237,7 @@ class FormUserInputModel extends StyleModel
             AND id_users = :uid";
         $res = $this->db->query_db($sql, array(
             ":id" => $id,
-            ":fid" => $this->get_db_field("id"),
+            ":fid" => $this->get_form_id(),
             ":uid" => $_SESSION['id_user'],
         ));
         if($res) return true;
@@ -249,10 +255,26 @@ class FormUserInputModel extends StyleModel
         $sql = "SELECT * FROM user_input
             WHERE id_section_form = :fid AND id_users = :uid";
         $res = $this->db->query_db($sql, array(
-            ":fid" => $this->get_db_field("id"),
+            ":fid" => $this->get_form_id(),
             ":uid" => $_SESSION['id_user'],
         ));
         if($res) return true;
+        else return false;
+    }
+
+    /**
+     * Check the last record_id for the form. Used for the update form which is not is_log
+     *
+     * @retval int
+     *  return record_id, if not return false
+     */
+    public function get_id_record()
+    {
+        $sql = "CALL get_form_data_with_filter(:fid, 'ORDER BY record_id DESC')";
+        $res = $this->db->query_db_first($sql, array(
+            ":fid" => $this->get_form_id()
+        ));
+        if($res) return $res['record_id'];
         else return false;
     }
 
@@ -281,7 +303,7 @@ class FormUserInputModel extends StyleModel
     {
         $count = 0;
         $id_record = null;
-        if($this->is_log()) {
+        if($this->is_log() || !$this->has_form_data()) {
             $id_record = $this->db->insert("user_input_record", array());
         }
         foreach($user_input as $id => $value)
@@ -289,7 +311,12 @@ class FormUserInputModel extends StyleModel
             if($this->is_log() || !$this->has_field_data($id))
                 $res = $this->insert_new_entry($id, $value, $id_record, intval($_SESSION['id_user']));
             else
-                $res = $this->update_entry($id, $value);
+            {      
+                if($id_record == null){
+                    $id_record = $this->get_id_record();
+                }          
+                $res = $this->update_entry_with_record_id($id, $value, $id_record);
+            }
 
             if($res === false)
                 return false;

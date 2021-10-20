@@ -60,7 +60,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
         $this->actions = $this->model->get_actions($this->pid);
         if ($this->action) {
             $this->action['schedule_info'] = json_decode($this->action['schedule_info'], true);
-            if(isset($this->action['schedule_info']['config'])){
+            if (isset($this->action['schedule_info']['config'])) {
                 $this->action['schedule_info']['config'] = json_encode($this->action['schedule_info']['config'], JSON_PRETTY_PRINT);
             }
         }
@@ -172,7 +172,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "name" => "schedule_info[notificationTypes]",
                     "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes))
                 )),
-                 new BaseStyleComponent("input", array(
+                new BaseStyleComponent("input", array(
                     "label" => "Valid after scheduled time (in minutes). [It is used for surveys with multiple sessions and reminders]",
                     "is_required" => false,
                     "id" => "valid",
@@ -180,6 +180,17 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "value" => isset($this->action["schedule_info"]["valid"]) ? $this->action["schedule_info"]["valid"] : '',
                     "name" => "schedule_info[valid]",
                     "type_input" => "number"
+                )),
+                new BaseStyleComponent("select", array(
+                    "label" => "Target group(s)",
+                    "name" => "schedule_info[target_groups][]",
+                    "id" => "targetGroups",
+                    "is_multiple" => true,
+                    "is_required" => false,
+                    "live_search" => true,
+                    "value" => isset($this->action["schedule_info"]['target_groups']) ? $this->action["schedule_info"]['target_groups'] : '',
+                    "items" => $this->get_groups(),
+                    "css" => "mb-3",
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "When",
@@ -379,7 +390,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['valid']) ? $this->action["schedule_info"]['valid'] : ''
                     ))),
-                )),
+                )),                
                 new BaseStyleComponent("select", array(
                     "label" => "When",
                     "is_required" => true,
@@ -583,7 +594,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     private function get_lookup($id)
     {
         return $this->model->get_services()->get_db()->select_by_uid("lookups", $id)['lookup_value'];
-    }   
+    }
 
     /* Public Methods *********************************************************/
 
