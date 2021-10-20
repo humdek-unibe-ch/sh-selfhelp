@@ -36,5 +36,3 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('label_next'), NULL, 'Label for button next if in the book config propert `showButtons` is set to `true`');
 -- add field label_back to style book
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('book'), get_field_id('label_back'), NULL, 'Label for button back if in the book config propert `showButtons` is set to `true`');
-
--- executed in wesir

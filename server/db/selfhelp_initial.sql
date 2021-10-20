@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 01, 2021 at 09:29 AM
+-- Generation Time: Oct 20, 2021 at 09:38 AM
 -- Server version: 5.7.23-log
 -- PHP Version: 7.2.10
 
@@ -390,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `fields` (
   `display` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=179 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=180 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `fields`
@@ -2026,7 +2026,7 @@ CREATE TABLE IF NOT EXISTS `styles` (
   PRIMARY KEY (`id`),
   KEY `id_type` (`id_type`),
   KEY `id_group` (`id_group`)
-) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `styles`
@@ -2571,7 +2571,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
   KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
   KEY `transactions_fk_id_users` (`id_users`)
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2646,7 +2646,10 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000066, '2021-06-01 07:28:12', 35, 42, 2, 'pages', 0, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"unknown\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
 (0000000067, '2021-06-01 07:28:28', 35, 42, 2, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
 (0000000068, '2021-06-01 07:28:31', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}'),
-(0000000069, '2021-06-01 07:28:34', 35, 42, 2, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/home\",\"requests\":[]}}');
+(0000000069, '2021-06-01 07:28:34', 35, 42, 2, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":69,\"sid\":64,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/home\",\"requests\":[]}}'),
+(0000000070, '2021-10-20 07:36:40', 35, 42, 2, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":64,\"sid\":81,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"requests\":{\"AjaxSearch\":{\"search_data_source\":12,\"search_anchor_section\":12}}}}'),
+(0000000071, '2021-10-20 07:36:46', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":64,\"sid\":81,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\\/survey\",\"requests\":[]}}'),
+(0000000072, '2021-10-20 07:36:50', 35, 42, 2, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":64,\"sid\":81,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\",\"requests\":[]}}');
 
 -- --------------------------------------------------------
 
