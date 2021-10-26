@@ -451,8 +451,9 @@ class CmsView extends BaseView
             "type_input" => "hidden",
         ));
 
-        foreach($fields as $field)
+        foreach($fields as $field) {
             $form_items[] = $this->create_field_form_item($field);
+        }
 
 
         $params = $this->model->get_current_url_params();
@@ -505,19 +506,21 @@ class CmsView extends BaseView
         if($field['type'] === "checkbox")
             $children[] = new BaseStyleComponent("input", array(
                 "value" => ($field['content'] != '0') ? $field['content'] : "",
-                "name" => $field_name_content,
+                "name" => $field_name_content,            
                 "type_input" => $field['type'],
             ));
         else if(in_array($field['type'], array("textarea", "markdown", "json", "code", "email")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
+                "type_input" => $field['type'],
             ));
         else if($field['type'] == "type-input")
         {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => ($field['content'] == "") ? "text" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
+                "type_input" => $field['type'],
                 "items" => array(
                     array("value" => "checkbox", "text" => "checkbox"),
                     array("value" => "color", "text" => "color"),
@@ -543,6 +546,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("select", array(
                 "value" => ($field['content'] == "") ? "primary" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
+                "type_input" => $field['type'],
                 "items" => array(
                     array("value" => "primary", "text" => "primary"),
                     array("value" => "secondary", "text" => "secondary"),
@@ -646,6 +650,7 @@ class CmsView extends BaseView
             "type_input" => $field['type'],
             "locale" => $field['locale'],
             "help" => $field['help'],
+            "css" => ($field['hidden']  == 1 ? 'd-none' : ''),
             "children" => $children
         ));
     }
@@ -745,6 +750,7 @@ class CmsView extends BaseView
             "locale" => $field['locale'],
             "alt" => "field is not set",
             "help" => $field['help'],
+            "css" => ($field['hidden']  == 1 ? 'd-none' : ''),
             "children" => $children
         ));
     }

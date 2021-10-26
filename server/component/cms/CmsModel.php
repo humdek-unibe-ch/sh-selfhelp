@@ -232,7 +232,7 @@ class CmsModel extends BaseModel
      *  The gender the content is associated with.
      */
     private function add_property_item($id, $id_language, $id_gender, $name,
-        $help, $locale, $type, $relation, $content, $gender="")
+        $help, $locale, $type, $relation, $content, $gender="", $hidden=0)
     {
         return array(
             "id" => $id,
@@ -245,6 +245,7 @@ class CmsModel extends BaseModel
             "relation" => $relation,
             "content" => $content,
             "gender" => $gender,
+            "hidden" => $hidden,
         );
     }
 
@@ -579,7 +580,7 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+        $sql = "SELECT f.id, f.display, sf.hidden, f.name, ft.name AS type,
             sf.default_value, sf.help
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -1606,7 +1607,8 @@ class CmsModel extends BaseModel
                     $field['type'],
                     $relation,
                     ($content['content'] == "") ? $field['default_value'] : $content['content'],
-                    $content['gender']
+                    $content['gender'],
+                    $field['hidden']
                 );
             }
         }

@@ -1,4 +1,9 @@
-# v4.2.0 (latest)
+# v4.3.0 (latest)
+
+### New Features
+ - #302 - add a sub styles `formUserInputLog` where `is_log` is `true` and add a sub style `formUserInputRecord` where `is_log` is always `false`
+
+# v4.2.0
 
 ### New Features
  - add a new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)

@@ -56,12 +56,8 @@ class DataModel extends BaseModel
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
         ));
-        $sql = 'select cast(s.id as unsigned) as form_id, ifnull(sft_if.content, s.name) as form_name 
-                from sections s
-                inner join view_styles st on (s.id_styles = st.style_id)
-                LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = s.id AND sft_if.id_fields = 57
-                where style_group = "Form" and style_type = "component" and style_name <> "showUserInput"
-                order by form_name';
+        $sql = 'SELECT *
+                FROM view_form';
         return $this->db->query_db($sql);
     }
 
