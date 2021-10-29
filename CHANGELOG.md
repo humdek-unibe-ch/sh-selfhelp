@@ -2,6 +2,9 @@
 
 ### New Features
  - #302 - add a sub styles `formUserInputLog` where `is_log` is `true` and add a sub style `formUserInputRecord` where `is_log` is always `false`
+ - #299 - add JSON Editor.
+    - add shcema for `dataConfig`
+    - add schema for `json-logic`
 
 # v4.2.0
 

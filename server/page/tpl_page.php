@@ -19,6 +19,9 @@
     $this->output_js_includes();
 ?>
     <script><?php echo $this->get_js_constants() ?></script>
+ <?php
+    $this->output_js_includes_after();
+?>   
 </head>
 <body>
 <?php

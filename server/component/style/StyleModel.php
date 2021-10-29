@@ -122,60 +122,64 @@ class StyleModel extends BaseModel implements IStyleModel
     private function fetch_data($data_config)
     {
         $result = array();
-        foreach ($data_config as $key => $config) {
-            // loop configs; DB requests
-            $table_id = $config['type'] === 'static' ? $this->get_static_table_id($config['table']) : $this->get_dynamic_table_id($config['table']);
-            $data = null;
-            if ($table_id) {
-                if ($config['type'] === 'static') {
-                    $filter = "ORDER BY row_id ASC";
-                    if ($config['retrieve'] === 'last') {
-                        $filter = "ORDER BY row_id DESC";
+        try {
+            foreach ($data_config as $key => $config) {
+                // loop configs; DB requests
+                $table_id = $config['type'] === 'static' ? $this->get_static_table_id($config['table']) : $this->get_dynamic_table_id($config['table']);
+                $data = null;
+                if ($table_id) {
+                    if ($config['type'] === 'static') {
+                        $filter = "ORDER BY row_id ASC";
+                        if ($config['retrieve'] === 'last') {
+                            $filter = "ORDER BY row_id DESC";
+                        }
+                    } else {
+                        $filter = "ORDER BY edit_time ASC";
+                        if ($config['retrieve'] === 'last') {
+                            $filter = "ORDER BY edit_time DESC";
+                        }
                     }
-                } else {
-                    $filter = "ORDER BY edit_time ASC";
-                    if ($config['retrieve'] === 'last') {
-                        $filter = "ORDER BY edit_time DESC";
+                    if (isset($config['filter'])) {
+                        // if specific filter is used, overwrite it.
+                        $filter = $config['filter'];
                     }
-                }
-                if(isset($config['filter'])){
-                    // if specific filter is used, overwrite it.
-                    $filter = $config['filter'];
-                }
-                $current_user = isset($config['current_user']) && $config['current_user'];
-                $data = $config['type'] === 'static' ? $this->get_static_data(
-                    $table_id,
-                    $filter,
-                    $current_user
-                ) : $this->get_dynamic_data($table_id, $filter);
-                $data = array_filter($data, function ($value) {
+                    $current_user = isset($config['current_user']) && $config['current_user'];
+                    $data = $config['type'] === 'static' ? $this->get_static_data(
+                        $table_id,
+                        $filter,
+                        $current_user
+                    ) : $this->get_dynamic_data($table_id, $filter);
+                    $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
                     });
-                foreach ($config['fields'] as $key => $field) {
-                    // loop fields
-                    $i = 0;
-                    $field_value = '';
-                    foreach ($data as $key => $row) {
-                        $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
-                        if ($config['retrieve'] != 'all') {
-                            $field_value = $val;
-                            break; // we don need the others;
-                        } else {
-                            if ($i === 0) {
-                                $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
+                    foreach ($config['fields'] as $key => $field) {
+                        // loop fields
+                        $i = 0;
+                        $field_value = '';
+                        foreach ($data as $key => $row) {
+                            $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
+                            if ($config['retrieve'] != 'all') {
+                                $field_value = $val;
+                                break; // we don need the others;
                             } else {
-                                // get the other values too                                
-                                $field_value = $field_value . ',"' . $val . '"';
+                                if ($i === 0) {
+                                    $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
+                                } else {
+                                    // get the other values too                                
+                                    $field_value = $field_value . ',"' . $val . '"';
+                                }
                             }
+                            $i++;
                         }
-                        $i++;
+                        if ($config['retrieve'] === 'all') {
+                            $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
+                        }
+                        $result[$field['field_holder']] = $field_value;
                     }
-                    if ($config['retrieve'] === 'all') {
-                        $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
-                    }
-                    $result[$field['field_holder']] = $field_value;
                 }
             }
+        } catch (\Throwable $th) {
+            return false;
         }
         return $result;
     }

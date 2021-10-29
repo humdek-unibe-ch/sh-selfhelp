@@ -1,0 +1,54 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "array",
+	"items": [{
+			"type": "object",
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": ["dynamic", "static"]
+				},
+				"current_user": {
+					"type": "boolean"
+				},
+				"table": {
+					"type": "string"
+				},
+				"retrieve": {
+					"type": "string",
+					"enum": ["first", "last", "all"]
+				},
+				"fields": {
+					"type": "array",
+					"items": [{
+							"type": "object",
+							"properties": {
+								"field_name": {
+									"type": "string"
+								},
+								"field_holder": {
+									"type": "string"
+								},
+								"not_found_text": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"field_name",
+								"field_holder",
+								"not_found_text"
+							]
+						}
+					]
+				}
+			},
+			"required": [
+				"type",
+				"current_user",
+				"table",
+				"retrieve",
+				"fields"
+			]
+		}
+	]
+}

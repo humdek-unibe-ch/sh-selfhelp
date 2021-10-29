@@ -19,6 +19,11 @@ class TextareaView extends FormFieldView
      */
     private $placeholder;
 
+    /**
+     * The type of the text area
+     */
+    private $type_input;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -31,6 +36,7 @@ class TextareaView extends FormFieldView
     {
         parent::__construct($model);
         $this->placeholder = $this->model->get_db_field("placeholder");
+        $this->type_input = $this->model->get_db_field('type_input');        
     }
 
     /* Protected Methods ********************************************************/
@@ -63,6 +69,12 @@ class TextareaView extends FormFieldView
         $style['value']['content'] = $this->get_entry_value($entry_value, $this->model->get_db_field("value", "")); 
         $style['value']['default'] = $this->default_value;
         return $style;
+    }
+
+    public function output_json(){        
+       if($this->type_input == "json"){
+            require __DIR__ . "/tpl_json.php";
+       }
     }
 }
 ?>
