@@ -87,6 +87,7 @@ $(document).ready(function () {
                         $(this).parent().find("> :submit").click();
                     }
                 }
+                setButtonsVisibility(page, pages);
             },
             turned: function (e, page, view) {
                 var book = $(this);
@@ -119,6 +120,7 @@ $(document).ready(function () {
             }
         }
         $(this).turn(config);
+        setButtonsVisibility(pageNumber ? pageNumber : 1, $(this).turn('pages'));
         var book = $(this);
         // check if there is page number in the url
         var pageNumber = window.location.hash.substring(1);
@@ -180,6 +182,19 @@ function updateDepth(book, newPage) {
 
 function getViewNumber(book, page) {
     return parseInt((page || book.turn('page')) / 2 + 1, 10);
+}
+
+function setButtonsVisibility(page, pages) {
+    if (page == 1) {
+        $('#book-previous-button').addClass("invisible");
+    } else {
+        $('#book-previous-button').removeClass("invisible");
+    }
+    if (page == pages) {
+        $('#book-next-button').addClass("invisible");
+    } else {
+        $('#book-next-button').removeClass("invisible");
+    }
 }
 
 function setSlider() {

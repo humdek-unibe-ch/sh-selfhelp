@@ -6,6 +6,9 @@
     - add shcema for `dataConfig`
     - add schema for `json-logic`
 
+### Bugfix
+ - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page
+
 # v4.2.0
 
 ### New Features
