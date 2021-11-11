@@ -119,3 +119,9 @@ ALTER TABLE `formActionsReminders`
 ADD CONSTRAINT `formActionsReminders_fk_id_forms` FOREIGN KEY (`id_forms`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `formActionsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `formActionsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `mailAttachments`
+MODIFY `attachment_name` VARCHAR(1000); 
+
+ALTER TABLE `mailAttachments` 
+ALTER `template_path` SET DEFAULT '';
