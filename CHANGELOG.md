@@ -5,6 +5,7 @@
  - #299 - add JSON Editor.
     - add shcema for `dataConfig`
     - add schema for `json-logic`
+ - #295 - add `moduleFormsActions`. It is similar to Qualtrics actions. Now we can attach notifications, reminders and tasks to form when is loaded(started) or when is finished(submited). 
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page
