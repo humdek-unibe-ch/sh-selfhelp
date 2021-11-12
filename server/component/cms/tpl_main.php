@@ -6,7 +6,8 @@
 <div class="container-fluid mt-3">
     <div class="row">
         <div class="col-auto">
-            <div class="sticky-menu">
+            <!-- <div class="sticky-menu"> -->
+            <div>
                 <?php $this->output_create_new_button(); ?>
                 <?php $this->output_import_button(); ?>
                 <?php $this->output_lists(); ?>

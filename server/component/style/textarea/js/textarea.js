@@ -2,11 +2,10 @@ $(document).ready(function () {
     autosize($('textarea'));
     check_textarea_locked_after_submit();
     $('.json').each(function () {
+        // load the monaco editor for json fields
         require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
         var json = $(this)[0];
-
         require(['vs/editor/editor.main'], function () {
-
             var model = null;
             if ($(json).prev().attr('name').includes('data_config')) {
                 model = setDataConfigSchema(monaco, json);
@@ -30,11 +29,16 @@ $(document).ready(function () {
                 $(json).prev().val(editor.getValue());
                 calcMonacoEditorSize(editor, json);
             });
+            if ($(json).prev().attr('name').includes('data_config')) {
+                showDataConfiBuilder(json, editor);
+            }
         });
     })
 });
 
 function calcMonacoEditorSize(editor, object) {
+    // calculate the size of the editor based on the code
+    // we keep max size 500px
     var contentHeight = editor.getModel().getLineCount() * 19;
     if (contentHeight < 100) {
         contentHeight = 100;
@@ -46,6 +50,7 @@ function calcMonacoEditorSize(editor, object) {
 }
 
 function setDataConfigSchema(monaco, json) {
+    // get the dataConfig scheme
     var schema = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/dataConfig/dataConfig.json";
     var modelUri = monaco.Uri.parse(schema); // a made up unique URI for our model
     var model = monaco.editor.createModel($(json).prev().val(), "json", modelUri);
@@ -71,6 +76,7 @@ function setDataConfigSchema(monaco, json) {
 }
 
 function setConditionSchema(monaco, json) {
+    // get the json ligic schemes
     var schema = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/json-logic/json-logic.json";
     var modelUri = monaco.Uri.parse(schema); // a made up unique URI for our model
     var model = monaco.editor.createModel($(json).prev().val(), "json", modelUri);
@@ -96,9 +102,67 @@ function setConditionSchema(monaco, json) {
 }
 
 function check_textarea_locked_after_submit() {
+    // check if the text are shoud be locked after submit
     $('.selfhelpTextArea').each(function () {
         if ($(this).data('locked_after_submit') && $(this).val()) {
             $(this).prop('readonly', true);
         }
     })
+}
+
+//get the json as object from the json element
+function getJson(json) {
+    try {
+        return JSON.parse($(json).prev().val());
+    } catch (error) {
+        console.log('Error parsing the data_config value!');
+        return null;
+    }
+}
+
+// show the data config builder
+// on click the modal is loaded and show the builder
+// on change it updates the monaco editor and the monaco editor updates the input fields
+function showDataConfiBuilder(json, monacoEditor) {
+    var editor;
+    var defValue = getJson(json);
+    $('.dataConfigBuilderBtn').each(function () {
+        $(this).click(() => {
+            $(".data_config_builder_modal_holder").modal({
+                backdrop: false
+            });
+            if (editor) {
+                // set the latest value if the user changed the JSON manually
+                editor.setValue(getJson(json));
+            }
+        });
+    });
+    var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/dataConfig/dataConfig.json";
+    // get the schema with AJAX call
+    $.ajax({
+        dataType: "json",
+        url: schemaUrl,
+        success: (s) => {
+            // on success prepare the builder
+            editor = new JSONEditor($('.data_config_builder')[0], {
+                theme: 'bootstrap4',
+                iconlib: 'fontawesome5',
+                ajax: true,
+                schema: s,
+                startval: defValue
+            });
+            editor.on('change', () => {
+                //on change format the code and propagate the values
+                monacoEditor.getModel().setValue(JSON.stringify(editor.getValue(), null, 3));
+                calcMonacoEditorSize(monacoEditor, json);
+                monacoEditor.getAction('editor.action.formatDocument').run().then(() => {
+                    calcMonacoEditorSize(monacoEditor, json);
+                });
+                var errors = editor.validate();
+                if (errors.length) {
+                    console.log(errors);
+                }
+            });
+        }
+    });
 }

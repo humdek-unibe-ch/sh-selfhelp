@@ -136,7 +136,8 @@ abstract class BasePage
             "/js/ext/iconselect.js",
             "/js/ext/iscroll.js",
             "/js/ext/turn.js",
-            "/js/ext/jquery-ui.min.js"
+            "/js/ext/jquery-ui.min.js",
+            "/js/ext/jsoneditor.min.js"
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",

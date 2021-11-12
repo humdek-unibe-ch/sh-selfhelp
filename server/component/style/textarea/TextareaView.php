@@ -76,5 +76,20 @@ class TextareaView extends FormFieldView
             require __DIR__ . "/tpl_json.php";
        }
     }
+
+    public function output_data_config_builder(){   
+        $children[] = new BaseStyleComponent("div", array(
+            "css"=>"data_config_builder"
+        ));      
+        $modal = new BaseStyleComponent('modal', array(
+            'title' => "Data Config Builder",
+            "css"=>"data_config_builder_modal_holder",
+            'children' => $children,
+        ));
+        $modal->output_content();
+       if($this->name == "fields[data_config][1][1][content]"){
+            require __DIR__ . "/tpl_data_config_builder.php";
+       }
+    }
 }
 ?>

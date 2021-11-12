@@ -1,54 +1,82 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"type": "array",
-	"items": [{
-			"type": "object",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["dynamic", "static"]
-				},
-				"current_user": {
-					"type": "boolean"
-				},
-				"table": {
-					"type": "string"
-				},
-				"retrieve": {
-					"type": "string",
-					"enum": ["first", "last", "all"]
-				},
-				"fields": {
-					"type": "array",
-					"items": [{
-							"type": "object",
-							"properties": {
-								"field_name": {
-									"type": "string"
-								},
-								"field_holder": {
-									"type": "string"
-								},
-								"not_found_text": {
-									"type": "string"
-								}
-							},
-							"required": [
-								"field_name",
-								"field_holder",
-								"not_found_text"
-							]
-						}
-					]
-				}
-			},
-			"required": [
-				"type",
-				"current_user",
-				"table",
-				"retrieve",
-				"fields"
-			]
-		}
-	]
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Data config JSON",
+    "title": "Data config JSON",
+    "type": "array",
+    "format": "grid",
+    "items": {
+        "type": "object",
+        "title": "Data Source",
+        "description": "Define the data source from which we can load the fields",
+        "properties": {
+            "type": {
+                "type": "string",
+                "title": "Type",
+                "description": "Dynamic is for forms that are created in SelfHelp, static is for upload tables, for example static uploaded data or Qualtrics data",
+                "enum": [
+                    "dynamic",
+                    "static"
+                ]
+            },
+            "current_user": {
+                "type": "boolean",
+                "title": "Data for the logged user",
+                "description": "If true, the loaded data is for the logged user, if false the loaded data is for all users in the system"
+            },
+            "table": {
+                "type": "string",
+                "title": "Table name",
+                "description": "The name of the form that we want to load"
+            },
+            "retrieve": {
+                "type": "string",
+                "enum": [
+                    "first",
+                    "last",
+                    "all"
+                ],
+                "title": "Return",
+                "description": "Return th first record, last record as strong or all records in array for all"
+            },
+            "fields": {
+                "type": "array",
+                "title": "Fields",
+                "format": "table",
+                "description": "Fields list",
+                "items": {
+                    "type": "object",
+                    "title": "Field",
+                    "description": "Field definition",
+                    "properties": {
+                        "field_name": {
+                            "type": "string",
+                            "title": "Field name",
+                            "description": "The field name in the form, in the uploaded table or the Qualtrics variable"
+                        },
+                        "field_holder": {
+                            "type": "string",
+                            "title": "Field holder",
+                            "description": "How we can take the value where we can use it. Always start with `@` and no space"
+                        },
+                        "not_found_text": {
+                            "type": "string",
+                            "title": "Not found",
+                            "description": "This text will be shown if the field is not found"
+                        }
+                    },
+                    "required": [
+                        "field_name",
+                        "field_holder",
+                        "not_found_text"
+                    ]
+                }
+            }
+        },
+        "required": [
+            "type",
+            "table",
+            "retrieve",
+            "fields"
+        ]
+    }
 }

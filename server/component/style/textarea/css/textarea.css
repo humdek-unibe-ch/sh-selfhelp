@@ -2,3 +2,8 @@
     max-height: 500px;
     height: 100px;
 }
+
+.data_config_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}

@@ -39,7 +39,7 @@ class MermaidFormView extends FormUserInputView
      */
     public function __construct($model, $controller)
     {
-        parent::__construct($model, $controller);
+        parent::__construct($model, $controller, null);
         $this->code_text = $this->model->get_db_field('code');
         $this->form_children = $this->model->get_children();
     }

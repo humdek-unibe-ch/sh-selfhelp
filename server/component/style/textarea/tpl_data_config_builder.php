@@ -3,6 +3,4 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="json form-control p-0"></div>
-<?php $this->output_data_config_builder() ?>
-<div id='editor_holder'></div>
+<button type="button" class="w-100 mt-1 btn btn-primary dataConfigBuilderBtn btn-sm">Data Config Builder</button>
