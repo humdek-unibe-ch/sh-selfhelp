@@ -82,7 +82,7 @@ class TextareaView extends FormFieldView
             "css"=>"data_config_builder"
         ));      
         $modal = new BaseStyleComponent('modal', array(
-            'title' => "Data Config Builder",
+            'title' => "Data Config Builder  <code>[on change the JSON is regenerated]</code>",
             "css"=>"data_config_builder_modal_holder",
             'children' => $children,
         ));

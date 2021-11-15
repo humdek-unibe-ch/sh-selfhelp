@@ -43,10 +43,11 @@ function calcMonacoEditorSize(editor, object) {
     if (contentHeight < 100) {
         contentHeight = 100;
     }
-    if (contentHeight < 500) {
-        $(object).height(contentHeight);
-        editor.layout();
+    if (contentHeight > 500) {
+        contentHeight = 500;
     }
+    $(object).height(contentHeight);
+    editor.layout();
 }
 
 function setDataConfigSchema(monaco, json) {
