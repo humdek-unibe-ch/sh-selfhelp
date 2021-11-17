@@ -8,6 +8,10 @@
     z-index: 1000   0;
 }
 
+.data_config_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
 .data_config_builder_modal_holder .btn-group{
     margin-bottom: .25rem;
 }

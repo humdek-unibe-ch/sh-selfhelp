@@ -280,5 +280,51 @@ class AjaxDataSource extends BaseAjax
         }
         return $_SESSION['data_filter'];
     }
+
+    /**
+     * Get an array with the names of all tables; forms for dynamic and upload tables for statis
+     * 
+     * @param $data
+     *  - `type` = static or dynamic
+     * @retval array
+     * array with all names as string
+     */
+    public function get_table_names($data){
+        $sql = "SELECT orig_name
+                FROM view_data_tables
+                WHERE type = :type;";
+        $res_db = $this->db->query_db($sql, array(":type"=>$data['type']));
+        $res = array();
+        foreach ($res_db as $key => $value) {
+            array_push($res, $value['orig_name']);
+        }
+        return json_encode($res);
+    }
+
+    /**
+     * Get an array with the names of all tables; forms for dynamic and upload tables for statis
+     * 
+     * @param $data
+     *  - `type` = static or dynamic
+     *  - `name` = table name
+     * @retval array
+     * array with all field names as string
+     */
+    public function get_table_fields($data){
+        if ($data['type'] == 'static') {
+            $sql = "CALL get_uploadTable_with_filter((SELECT id FROM view_data_tables WHERE type = :type and orig_name = :name), ' LIMIT 0, 1');";
+        } else {
+            $sql = "CALL get_form_data_with_filter((SELECT id FROM view_data_tables WHERE type = :type and orig_name = :name), ' LIMIT 0, 1');";
+        }
+        $res_db = $this->db->query_db_first($sql, array(
+            ":type" => $data['type'],
+            ":name" => $data['name']
+        ));
+        $res = array();
+        foreach ($res_db as $key => $value) {
+            array_push($res, $key);
+        }
+        return json_encode($res);
+    }
 }
 ?>

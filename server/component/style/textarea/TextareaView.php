@@ -80,7 +80,18 @@ class TextareaView extends FormFieldView
     public function output_data_config_builder(){   
         $children[] = new BaseStyleComponent("div", array(
             "css"=>"data_config_builder"
-        ));      
+        ));
+        $children[] = new BaseStyleComponent("div", array(
+            "css" => "modal-footer",
+            "children" => array(
+                    new BaseStyleComponent("button", array(
+                        "label" => "Save",
+                        "url" => "#",
+                        "type" => "primary",
+                        "css" => "closeModal"
+                    )),
+                )
+        ));   
         $modal = new BaseStyleComponent('modal', array(
             'title' => "Data Config Builder  <code>[on change the JSON is regenerated]</code>",
             "css"=>"data_config_builder_modal_holder",
