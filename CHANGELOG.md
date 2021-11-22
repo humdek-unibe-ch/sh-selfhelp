@@ -9,6 +9,7 @@
  - #301 - add for fields `data_config` a UI builder for easier JSON generation 
  - #300 - add UI builder for `conditionalContainer`. Add fields `jquery_builder_json` and `data_config` in style `conditionalContainer`.
  - `conditionContainer` can compare dates to the current time
+ - static data (Qualtrics data) can be seen in the data panel (Admin->Data)
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page

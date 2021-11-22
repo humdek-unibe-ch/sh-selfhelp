@@ -571,22 +571,12 @@ function showConditionBuilder(json, monacoEditor, jquerBuilderJsonInput) {
 
 // ********************************************* CONDITION BUILDER *****************************************
 
-// convert queryBuilder rules to JSON logic that we can use
-function rulesToJsonLogic(rules) {
-
-    rules = JSON.parse(JSON.stringify(rules).replace('"AND"', '"and"').replace('"OR"', '"or"'));
-
-    jsonLogic = {};
-
-    if (!rules) {
-        return jsonLogic;
-    }
-
+//recursive function to convert the jquery json to JSON logic
+function convertRules(rules){
+    var jsonLogic = {};
     jsonLogic[rules.condition] = [];
     rules.rules.forEach(rule => {
-
         var valuePrefix = rule.field == 'user_group' ? '$' : ''; // if the filed is user group we add the $ prefix
-
         // get date and time formats if fields need it
         var flatpickrMomentFormat = 'DD-MM-YYYY HH:mm';
         var momentFormat = 'YYYY-MM-DD HH:mm';
@@ -651,7 +641,18 @@ function rulesToJsonLogic(rules) {
             r[jsonLogicOperators[rule.operator].op] = [rule.field, val]
             jsonLogic[rules.condition].push(r);
         }
+        if(rule['rules']){
+            // recursive loop for groups
+            jsonLogic[rules.condition].push(convertRules(rule));
+        }
     });
+    return jsonLogic;
+}
 
+// convert queryBuilder rules to JSON logic that we can use
+function rulesToJsonLogic(rules) {
+    rules = JSON.parse(JSON.stringify(rules).replace('"AND"', '"and"').replace('"OR"', '"or"'));
+    var jsonLogic = convertRules(rules);
+    jsonLogic = JSON.parse(JSON.stringify(jsonLogic).replace('"AND"', '"and"').replace('"OR"', '"or"'));
     return jsonLogic;
 }
