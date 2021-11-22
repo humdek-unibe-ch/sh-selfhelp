@@ -42,12 +42,18 @@
                 "description": "Return th first record, last record as strong or all records in array for all",
                 "propertyOrder": 3
             },
+            "filter": {
+                "type": "string",
+                "title": "Filter",
+                "description": "Advanced option to filter the data.",                
+                "propertyOrder": 5
+            },
             "fields": {
                 "type": "array",
                 "title": "Fields",
                 "format": "grid",
                 "description": "Fields list",
-                "propertyOrder": 5,
+                "propertyOrder": 6,
                 "items": {
                     "type": "object",
                     "title": "Field",

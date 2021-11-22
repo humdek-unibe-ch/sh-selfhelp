@@ -7,6 +7,8 @@
     - add schema for `json-logic`
  - #295 - add `moduleFormsActions`. It is similar to Qualtrics actions. Now we can attach notifications, reminders and tasks to form when is loaded(started) or when is finished(submited).
  - #301 - add for fields `data_config` a UI builder for easier JSON generation 
+ - #300 - add UI builder for `conditionalContainer`. Add fields `jquery_builder_json` and `data_config` in style `conditionalContainer`.
+ - `conditionContainer` can compare dates to the current time
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page

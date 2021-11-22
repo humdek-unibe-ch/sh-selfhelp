@@ -326,5 +326,22 @@ class AjaxDataSource extends BaseAjax
         }
         return json_encode($res);
     }
+
+    /**
+     * Get an array with the names of all groups
+     * 
+     * @retval array
+     * array with all names as string
+     */
+    public function get_groups(){
+        $sql = "SELECT name
+                FROM groups;";
+        $res_db = $this->db->select_table('groups');
+        $res = array();
+        foreach ($res_db as $key => $value) {
+            array_push($res, $value['name']);
+        }
+        return json_encode($res);
+    }
 }
 ?>

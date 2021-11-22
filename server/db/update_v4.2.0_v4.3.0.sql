@@ -125,3 +125,35 @@ MODIFY `attachment_name` VARCHAR(1000);
 
 ALTER TABLE `mailAttachments` 
 ALTER `template_path` SET DEFAULT '';
+
+-- add field jquery_builder_json
+INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'jquery_builder_json', get_field_type_id('json'), '0');
+-- add json field 'jquery_builder_json' in style conditionalContainer
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('conditionalContainer'), get_field_id('jquery_builder_json'), '', 'This field contains the JSON structure for the jquery builder. The field shoudl be hidden');
+
+-- add json field 'data_config' in style conditionalContainer
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('conditionalContainer'), get_field_id('data_config'), '', 
+'In this ***JSON*** field we can configure a data retrieve params from the DB, either `static` or `dynamic` data. Example: 
+ ```
+ [
+	{
+		"type": "static|dynamic",
+		"table": "table_name | #url_param1",
+        "retrieve": "first | last | all",
+		"fields": [
+			{
+				"field_name": "name | #url_param2",
+				"field_holder": "@field_1",
+				"not_found_text": "my field was not found"				
+			}
+		]
+	}
+]
+```
+If the page supports parameters, then the parameter can be accessed with `#` and the name of the paramer. Example `#url_param_name`. 
+
+In order to inlcude the retrieved data in the input `value`, include the `field_holder` that wa defined in the markdown text.
+
+We can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;);
+
+`It is used for prefil of the default value`');

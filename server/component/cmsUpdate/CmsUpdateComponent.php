@@ -78,6 +78,8 @@ class CmsUpdateComponent extends CmsComponent
             "get_table_names");
         $this->set_request_access($id_cms_page, "AjaxDataSource",
             "get_table_fields");
+        $this->set_request_access($id_cms_page, "AjaxDataSource",
+            "get_groups");
     }
 
     /* Public Methods *********************************************************/

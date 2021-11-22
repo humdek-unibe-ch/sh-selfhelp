@@ -68,6 +68,9 @@ class ConditionalContainerModel extends StyleModel
         if ($condition === null || $condition === "")
             return true;
         $j_condition = json_encode($condition);
+        $j_condition = str_replace('__current_date__', date('Y-m-d'), $j_condition); // replace __current_date__
+        $j_condition = str_replace('__current_date_time__', date('Y-m-d H:i'), $j_condition); // replace __current_date_time__
+        $j_condition = str_replace('__current_time__', date('H:i'), $j_condition); // replace __current_time__
         // replace form field keywords with the actual values.
         $pattern = '~"' . $this->user_input->get_input_value_pattern() . '"~';
         preg_match_all($pattern, $j_condition, $matches, PREG_PATTERN_ORDER);

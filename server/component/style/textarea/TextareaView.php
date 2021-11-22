@@ -77,30 +77,58 @@ class TextareaView extends FormFieldView
        }
     }
 
-    public function output_data_config_builder(){   
-        $children[] = new BaseStyleComponent("div", array(
-            "css"=>"data_config_builder"
-        ));
-        $children[] = new BaseStyleComponent("div", array(
-            "css" => "modal-footer",
-            "children" => array(
-                    new BaseStyleComponent("button", array(
-                        "label" => "Save",
-                        "url" => "#",
-                        "type" => "primary",
-                        "css" => "closeModal"
-                    )),
-                )
-        ));   
-        $modal = new BaseStyleComponent('modal', array(
-            'title' => "Data Config Builder  <code>[on change the JSON is regenerated]</code>",
-            "css"=>"data_config_builder_modal_holder",
-            'children' => $children,
-        ));
-        $modal->output_content();
-       if($this->name == "fields[data_config][1][1][content]"){
+    /**
+     * Render the builder buttons and modal forms if they are needed
+     */
+    public function output_builder()
+    {
+        if ($this->name == "fields[data_config][1][1][content]") {
+            $modal = new BaseStyleComponent('modal', array(
+                    'title' => "Data Config Builder",
+                    "css" => "data_config_builder_modal_holder",
+                    'children' => array(
+                        new BaseStyleComponent("div", array(
+                            "css" => "data_config_builder"
+                        )),
+                        new BaseStyleComponent("div", array(
+                            "css" => "modal-footer",
+                            "children" => array(
+                                new BaseStyleComponent("button", array(
+                                    "label" => "Save",
+                                    "url" => "#",
+                                    "type" => "primary",
+                                    "css" => "saveDataConfig"
+                                )),
+                            )
+                        ))
+                    ),
+                ));
+            $modal->output_content();
             require __DIR__ . "/tpl_data_config_builder.php";
-       }
+        } else if ($this->name == "fields[condition][1][1][content]") {
+            $modal = new BaseStyleComponent('modal', array(
+                    'title' => "Condition Builder",
+                    "css" => "condition_builder_modal_holder",
+                    'children' => array(
+                        new BaseStyleComponent("div", array(
+                            "css" => "condition_builder"
+                        )),
+                        new BaseStyleComponent("div", array(
+                            "css" => "modal-footer",
+                            "children" => array(
+                                new BaseStyleComponent("button", array(
+                                    "label" => "Save",
+                                    "url" => "#",
+                                    "type" => "primary",
+                                    "css" => "saveConditionBuilder"
+                                )),
+                            )
+                        ))
+                    ),
+                ));
+            $modal->output_content();
+            require __DIR__ . "/tpl_condition_builder.php";
+        }
     }
 }
 ?>

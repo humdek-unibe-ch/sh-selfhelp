@@ -112,15 +112,18 @@ abstract class BasePage
         $this->render_footer = true;
         $this->keyword = $keyword;
         $this->components = array();
-        $this->css_includes = array(
-            "/css/ext/bootstrap.min.css",
+        $this->css_includes = array(            
+            "/css/ext/bootstrap.min.css",          
+            // "/css/ext/bootstrap3.3.1.min.css",  
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
             "/css/ext/bootstrap-select.min.css",
             "/css/ext/jquery-confirm.min.css",
             "/css/ext/flatpickr.min.css",
             "/css/ext/iconselect.css",
-            "/css/ext/editor.main.css"
+            "/css/ext/editor.main.css",
+            "/css/ext/query-builder.default.min.css",
+            "/css/ext/query-builder.bootstrap.css",            
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -137,7 +140,9 @@ abstract class BasePage
             "/js/ext/iscroll.js",
             "/js/ext/turn.js",
             "/js/ext/jquery-ui.min.js",
-            "/js/ext/jsoneditor.min.js"
+            "/js/ext/jsoneditor.min.js",
+            "/js/ext/moment.min.js",
+            "/js/ext/query-builder.standalone.min.js",
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",
