@@ -11,6 +11,7 @@
  - `conditionContainer` can compare dates to the current time
  - static data (Qualtrics data) can be seen in the data panel (Admin->Data)
  - #303 - add new style `conditionFailed`. It should be used as a child in style `conditionalContainer`. It is a holder for other styles and it is loaded only if the condition in the `conditionalContainer` is not met.
+ - now the user code could be accessed by `@user_code`. This string is automatically replaced with the user code. It is used in the same way that `@user` replace the user name.
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page

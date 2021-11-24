@@ -384,8 +384,8 @@ class PageDb extends BaseDb
         if($gender === null) $gender = $_SESSION['gender'];
         $locale_cond = $this->get_locale_condition();
         $sql = "SELECT f.id AS id, f.name, ft.name AS type, g.name AS gender,
-            REPLACE(REPLACE(sft.content, '@user', :uname),
-                '@project', :project) AS content, sf.default_value
+            REPLACE(REPLACE(REPLACE(sft.content, '@user_code', :user_code),
+                '@project', :project), '@user', :uname) AS content, sf.default_value
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             LEFT JOIN languages AS l ON l.id = sft.id_languages
@@ -397,9 +397,11 @@ class PageDb extends BaseDb
             WHERE sft.id_sections = :id AND $locale_cond AND content != ''
             ORDER BY g.id DESC";
 
+        $user_code = $this->get_user_code();
         $res_all = $this->query_db($sql, array(
             ":id" => $id,
             ":uname" => $user_name,
+            ":user_code" => $user_code,
             ":project" => $_SESSION['project']
         ));
         $ids = array();
@@ -589,6 +591,24 @@ class PageDb extends BaseDb
             );
         }
         return $res;
+    }
+
+    /**
+     * Getuser code
+     * @retval string
+     * return the user code if it is set
+     */
+    public function get_user_code()
+    {
+        $res = $this->query_db_first('SELECT code
+                                        FROM validation_codes vc
+                                        INNER JOIN users u ON (u.id = vc.id_users)
+                                        WHERE u.id = :id', array(':id' => $_SESSION['id_user']));
+        if ($res && isset($res['code'])) {
+            return $res['code'];
+        } else {
+            return false;
+        }
     }
 
 }
