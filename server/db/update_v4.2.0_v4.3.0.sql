@@ -157,3 +157,11 @@ In order to inlcude the retrieved data in the input `value`, include the `field_
 We can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;);
 
 `It is used for prefil of the default value`');
+
+-- Add new style conditionFailed
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('conditionFailed', '1', (select id from styleGroup where `name` = 'Wrapper' limit 1), '**This style should be used as a child in `conditionalContainer`.** Wrap other styles and later show them if the condtion is not met in a condtional container.');
+
+-- add field children to style conditionFailed
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('conditionFailed'), get_field_id('children'), 0, 'Children that can be added to the style. Each child will be loaded as a page');
+-- add field css to style conditionFailed
+INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('conditionFailed'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');

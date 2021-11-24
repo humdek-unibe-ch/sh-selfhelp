@@ -10,6 +10,7 @@
  - #300 - add UI builder for `conditionalContainer`. Add fields `jquery_builder_json` and `data_config` in style `conditionalContainer`.
  - `conditionContainer` can compare dates to the current time
  - static data (Qualtrics data) can be seen in the data panel (Admin->Data)
+ - #303 - add new style `conditionFailed`. It should be used as a child in style `conditionalContainer`. It is a holder for other styles and it is loaded only if the condition in the `conditionalContainer` is not met.
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page
