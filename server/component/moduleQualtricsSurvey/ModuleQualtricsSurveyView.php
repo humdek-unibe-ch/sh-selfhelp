@@ -169,7 +169,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "type_input" => "json",
                             "name" => "config",
                             "value" => $this->survey['config'],
-                            "css" => "mb-3 fixedHolder",
+                            "css" => "mb-3 fixedHolder qualtricsSurveyConfig",
                             "placeholder" => "Enter JSON configuration",
                         )),
                         new BaseStyleComponent("input", array(

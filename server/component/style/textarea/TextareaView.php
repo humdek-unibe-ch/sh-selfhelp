@@ -128,6 +128,29 @@ class TextareaView extends FormFieldView
                 ));
             $modal->output_content();
             require __DIR__ . "/tpl_condition_builder.php";
+        } else if(strpos($this->css, 'qualtricsSurveyConfig') !== false){
+            $modal = new BaseStyleComponent('modal', array(
+                    'title' => "Qualtrics Survey Config Builder",
+                    "css" => "qualtricsSurveyConfig_builder_modal_holder",
+                    'children' => array(
+                        new BaseStyleComponent("div", array(
+                            "css" => "qualtricsSurveyConfig_builder"
+                        )),
+                        new BaseStyleComponent("div", array(
+                            "css" => "modal-footer",
+                            "children" => array(
+                                new BaseStyleComponent("button", array(
+                                    "label" => "Save",
+                                    "url" => "#",
+                                    "type" => "primary",
+                                    "css" => "savequaltricsSurveyConfigBuilder"
+                                )),
+                            )
+                        ))
+                    ),
+                ));
+            $modal->output_content();
+            require __DIR__ . "/tpl_qualtricsSurveyConfig_builder.php";
         }
     }
 }

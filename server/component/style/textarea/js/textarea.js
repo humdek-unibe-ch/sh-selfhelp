@@ -35,6 +35,8 @@ $(document).ready(function () {
                     model = setDataConfigSchema(monaco, json);
                 } else if ($(json).prev().attr('name').includes('condition')) {
                     model = setConditionSchema(monaco, json);
+                } else if ($(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
+                    model = setConditionSchema(monaco, json);
                 }
                 var editorOptions = {
                     value: $(json).prev().val(),
@@ -55,8 +57,7 @@ $(document).ready(function () {
                 });
                 if ($(json).prev().attr('name').includes('data_config')) {
                     showDataConfiBuilder(json, editor);
-                }
-                if ($(json).prev().attr('name').includes('condition')) {
+                } else if ($(json).prev().attr('name').includes('condition')) {
                     var jquerBuilderJsonInput;
                     $('textarea').each(function () {
                         if ($(this).attr('name') && $(this).attr('name').includes('jquery_builder_json')) {
@@ -64,6 +65,8 @@ $(document).ready(function () {
                         }
                     })
                     showConditionBuilder(json, editor, jquerBuilderJsonInput);
+                } else if ($(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
+                    showQualtricsSurveyConfiBuilder(json, editor);
                 }
             });
         }
@@ -100,7 +103,7 @@ function setDataConfigSchema(monaco, json) {
             schema: {
                 "$schema": schema,
                 "$id": schema,
-                "title": "dataConfig/dataConfig Schema",
+                "title": "Data config Schema",
                 "description": "Data config JSON schema",
                 "$ref": schema
             }
@@ -127,6 +130,31 @@ function setConditionSchema(monaco, json) {
                 "$id": schema,
                 "title": "JSON-Logic Schema",
                 "description": "Build complex rules, serialize them as JSON, share them between front-end and back-end.",
+                "$ref": schema
+            }
+        }]
+    });
+    return model;
+}
+
+function setQualtricsSurveyConfigSchema(monaco, json) {
+    // get the qualtricsSurveyConfig schemes
+    var schema = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/qualtricsSurveyConfig/qualtricsSurveyConfig.json";
+    var modelUri = monaco.Uri.parse(schema); // a made up unique URI for our model
+    var model = monaco.editor.createModel($(json).prev().val(), "json", modelUri);
+
+    // configure the JSON language support with schemas and schema associations
+    let r = monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+        validate: true,
+        enableSchemaRequest: true,
+        schemas: [{
+            uri: "http://selfhelp/qualtricsSurveyConfig.json", // id of the first schema
+            fileMatch: [modelUri.toString()], // associate with our model
+            schema: {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "$id": schema,
+                "title": "Qualtrics Survey Config Schema",
+                "description": "Qualtrics Survey Config Schema",
                 "$ref": schema
             }
         }]
@@ -172,14 +200,14 @@ function showDataConfiBuilder(json, monacoEditor) {
                 editor.setValue(getJson(json));
             }
             $('.data_config_builder_modal_holder').on('hidden.bs.modal', function (e) {
-                
+
             })
             $('.saveDataConfig').each(function () {
                 $(this).attr('data-dismiss', 'modal');
                 // on modal close set the value to the Monaco editor
                 $(this).click(function () {
                     monacoEditor.getModel().setValue(JSON.stringify(editor.getValue(), null, 3));
-                })                
+                })
             });
         });
     });
@@ -572,7 +600,7 @@ function showConditionBuilder(json, monacoEditor, jquerBuilderJsonInput) {
 // ********************************************* CONDITION BUILDER *****************************************
 
 //recursive function to convert the jquery json to JSON logic
-function convertRules(rules){
+function convertRules(rules) {
     var jsonLogic = {};
     jsonLogic[rules.condition] = [];
     rules.rules.forEach(rule => {
@@ -641,7 +669,7 @@ function convertRules(rules){
             r[jsonLogicOperators[rule.operator].op] = [rule.field, val]
             jsonLogic[rules.condition].push(r);
         }
-        if(rule['rules']){
+        if (rule['rules']) {
             // recursive loop for groups
             jsonLogic[rules.condition].push(convertRules(rule));
         }
@@ -656,3 +684,55 @@ function rulesToJsonLogic(rules) {
     jsonLogic = JSON.parse(JSON.stringify(jsonLogic).replace('"AND"', '"and"').replace('"OR"', '"or"'));
     return jsonLogic;
 }
+
+
+
+// ********************************************* QUALTRICS SURVEY CONFIG BUILDER *****************************************
+
+// show the QualtricsSurvey config builder
+// on click the modal is loaded and show the builder
+// on change it updates the monaco editor and the monaco editor updates the input fields
+function showQualtricsSurveyConfiBuilder(json, monacoEditor) {
+    var editor;
+    var defValue = getJson(json);
+    $('.qualtricsConfigBuilderBtn').each(function () {
+        $(this).click(() => {
+            $(".qualtricsSurveyConfig_builder_modal_holder").modal({
+                backdrop: false
+            });
+            if (editor) {
+                // set the latest value if the user changed the JSON manually                
+                editor.setValue(getJson(json));
+            }
+            $('.qualtricsSurveyConfig_builder_modal_holder').on('hidden.bs.modal', function (e) {
+
+            })
+            $('.savequaltricsSurveyConfigBuilder').each(function () {
+                $(this).attr('data-dismiss', 'modal');
+                // on modal close set the value to the Monaco editor
+                $(this).click(function () {
+                    monacoEditor.getModel().setValue(JSON.stringify(editor.getValue(), null, 3));
+                })
+            });
+        });
+    });
+    var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/qualtricsSurveyConfig/qualtricsSurveyConfig.json";
+    // get the schema with AJAX call
+    $.ajax({
+        dataType: "json",
+        url: schemaUrl,
+        success: (s) => {
+            editor = new JSONEditor($('.qualtricsSurveyConfig_builder')[0], {
+                theme: 'bootstrap4',
+                iconlib: 'fontawesome5',
+                ajax: true,
+                schema: s,
+                startval: defValue,
+                show_errors: "always",
+                display_required_only: true
+            });
+        }
+    });
+}
+
+// ********************************************* QUALTRICS SURVEY CONFIG BUILDER *****************************************
