@@ -60,6 +60,7 @@ if (isset($_POST['mobile']) && $_POST['mobile']) {
 }
 
 function mobile_call($services, $router, $db){
+    $debug_start_time = microtime(true);
     $_SESSION['user_language'] = $_POST['locale'];
     $_SESSION['language'] = $_POST['locale'];
     $res = [];
@@ -111,13 +112,22 @@ function mobile_call($services, $router, $db){
         }
         // log user activity on experiment pages
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
-        if($db->query_db_first($sql,
-            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
-        {
+        if ($db->query_db_first(
+            $sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])
+        )) {
             //if transaction logs work as expected this should be removed
             $db->insert("user_activity", array(
                 "id_users" => $_SESSION['id_user'],
                 "url" => $_SERVER['REQUEST_URI'],
+                "exec_time" => (microtime(true) - $debug_start_time)
+            ));
+        } else {
+            $db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+                "id_type" => 2,
+                "exec_time" => (microtime(true) - $debug_start_time)
             ));
         }
     }
@@ -130,6 +140,7 @@ function mobile_call($services, $router, $db){
 
 function web_call($services, $router, $db){
     // call closure or throw 404 status
+    $debug_start_time = microtime(true);    
     if($router->route)
     {
         if($router->route['target'] == "sections")
@@ -156,13 +167,22 @@ function web_call($services, $router, $db){
         }
         // log user activity on experiment pages
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
-        if($db->query_db_first($sql,
-            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])))
-        {
+        if ($db->query_db_first(
+            $sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])
+        )) {
             //if transaction logs work as expected this should be removed
             $db->insert("user_activity", array(
                 "id_users" => $_SESSION['id_user'],
                 "url" => $_SERVER['REQUEST_URI'],
+                "exec_time" => (microtime(true) - $debug_start_time)
+            ));
+        } else {
+            $db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+                "id_type" => 2,
+                "exec_time" => (microtime(true) - $debug_start_time)
             ));
         }
     }

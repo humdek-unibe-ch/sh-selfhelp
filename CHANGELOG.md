@@ -16,6 +16,7 @@
  - add action (Qualtrics and Form) config builder
  - add condition check to scheduled mails from Qualtrics and Form
  - add condition check to scheduled taks from Qualtrics and Form
+ - add field `exec_time` in table `user_activity` and record the time needed from the server to execute the request
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page

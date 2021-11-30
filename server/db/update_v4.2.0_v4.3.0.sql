@@ -165,3 +165,8 @@ INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('conditi
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('conditionFailed'), get_field_id('children'), 0, 'Children that can be added to the style. Each child will be loaded as a page');
 -- add field css to style conditionFailed
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('conditionFailed'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');
+
+-- add exec_time column in user_activity
+
+ALTER TABLE user_activity
+ADD COLUMN exec_time DECIMAL(10,8);
