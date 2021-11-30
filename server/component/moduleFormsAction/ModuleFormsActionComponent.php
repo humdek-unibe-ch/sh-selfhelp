@@ -23,14 +23,18 @@ class ModuleFormsActionComponent extends BaseComponent
      * @param array $services
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
+     * @param number $id_page
+     *  The parent page id
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_page)
     {
         $sid = isset($params['sid']) ? intval($params['sid']) : null;
         $mode = isset($params['mode']) ? $params['mode'] : null;
         $model = new ModuleFormsActionModel($services);
         $controller = new ModuleFormsActionController($model);
         $view = new ModuleFormsActionView($model, $controller, $mode, $sid);
+        $this->set_request_access($id_page, "AjaxDataSource",
+            "get_groups");
         parent::__construct($model, $view, $controller);
     }
 }

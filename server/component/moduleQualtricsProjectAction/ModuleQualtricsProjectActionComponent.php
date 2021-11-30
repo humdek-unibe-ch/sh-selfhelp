@@ -24,7 +24,7 @@ class ModuleQualtricsProjectActionComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_page)
     {
         $pid = isset($params['pid']) ? intval($params['pid']) : null;
         $sid = isset($params['sid']) ? intval($params['sid']) : null;
@@ -32,6 +32,8 @@ class ModuleQualtricsProjectActionComponent extends BaseComponent
         $model = new ModuleQualtricsProjectActionModel($services, $pid);
         $controller = new ModuleQualtricsProjectActionController($model, $pid);
         $view = new ModuleQualtricsProjectActionView($model, $controller, $pid, $mode, $sid);
+        $this->set_request_access($id_page, "AjaxDataSource",
+            "get_groups");
         parent::__construct($model, $view, $controller);
     }
 }

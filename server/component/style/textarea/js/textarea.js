@@ -36,7 +36,7 @@ $(document).ready(function () {
                 } else if ($(json).prev().attr('name').includes('condition')) {
                     model = setConditionSchema(monaco, json);
                 } else if ($(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
-                    model = setConditionSchema(monaco, json);
+                    model = setQualtricsSurveyConfigSchema(monaco, json);
                 }
                 var editorOptions = {
                     value: $(json).prev().val(),
@@ -64,9 +64,19 @@ $(document).ready(function () {
                             jquerBuilderJsonInput = this;
                         }
                     })
-                    showConditionBuilder(json, editor, jquerBuilderJsonInput);
+                    showConditionBuilder(editor, jquerBuilderJsonInput);
                 } else if ($(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
                     showQualtricsSurveyConfiBuilder(json, editor);
+                } else if ($(json).prev().parent().attr('class').includes('actionConfig')) {
+                    showActionConfiBuilder(json, editor);
+                    var jquerBuilderJsonInput;
+                    $('textarea').each(function () {
+                        if ($(this).attr('class') && $(this).attr('class').includes('action_condition_builder')) {
+                            jquerBuilderJsonInput = this;
+                        }
+                    })
+                    showConditionBuilder(editor, jquerBuilderJsonInput);
+                    showActionConditionBuilder(editor, jquerBuilderJsonInput);
                 }
             });
         }
@@ -537,6 +547,15 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
     try {
         if ($(jquerBuilderJsonInput).val()) {
             rules = JSON.parse($(jquerBuilderJsonInput).val());
+        }else{
+            try {
+                var actionConfig = JSON.parse(monacoEditor.getModel().getValue());
+                if(actionConfig && actionConfig['condition_jquerBuilderJson']){
+                    rules = actionConfig['condition_jquerBuilderJson'];
+                }
+            } catch (error) {
+                
+            }
         }
     } catch (error) {
         console.log('Rules cannto be parsed');
@@ -547,7 +566,11 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
         queryStructure['rules'] = rules;
     }
 
-    $('.condition_builder').queryBuilder(queryStructure);
+    if ($('.condition_builder').length > 0) {
+        $('.condition_builder').queryBuilder(queryStructure);
+    } else if ($('.action_condition_builder').length > 0) {
+        $('.action_condition_builder').queryBuilder(queryStructure);
+    }
 
     //When rules changed :
     // $('.condition_builder').each(function () {
@@ -564,7 +587,7 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
 // show the data config builder
 // on click the modal is loaded and show the builder
 // on change it updates the monaco editor and the monaco editor updates the input fields
-function showConditionBuilder(json, monacoEditor, jquerBuilderJsonInput) {
+function showConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
     var editor;
     $('.conditionBuilderBtn').each(function () {
         $(this).click(() => {
@@ -592,9 +615,6 @@ function showConditionBuilder(json, monacoEditor, jquerBuilderJsonInput) {
     // get groups and prepare the consition builder
     getGroups(jquerBuilderJsonInput, monacoEditor);
 
-    // var tree = JSON.parse('{"id":"ab989b98-0123-4456-b89a-b17d339bc6e3","type":"group","children1":{"baabba8b-4567-489a-bcde-f17d33a00d1a":{"type":"rule","properties":{"valueError":[null],"field":"user.firstName","operator":"equal","value":["s"],"valueSrc":["value"],"valueType":["text"]}}}}');
-    // jsonLogicFormat(tree,{});
-
 }
 
 // ********************************************* CONDITION BUILDER *****************************************
@@ -602,6 +622,10 @@ function showConditionBuilder(json, monacoEditor, jquerBuilderJsonInput) {
 //recursive function to convert the jquery json to JSON logic
 function convertRules(rules) {
     var jsonLogic = {};
+    if (!rules || !rules["condition"]) {
+        alert('Wrong condition!');
+        return {};
+    }
     jsonLogic[rules.condition] = [];
     rules.rules.forEach(rule => {
         var valuePrefix = rule.field == 'user_group' ? '$' : ''; // if the filed is user group we add the $ prefix
@@ -736,3 +760,133 @@ function showQualtricsSurveyConfiBuilder(json, monacoEditor) {
 }
 
 // ********************************************* QUALTRICS SURVEY CONFIG BUILDER *****************************************
+
+// ********************************************* Action CONFIG BUILDER *****************************************
+
+// show the action config builder
+// on click the modal is loaded and show the builder
+// on change it updates the monaco editor and the monaco editor updates the input fields
+function showActionConfiBuilder(json, monacoEditor) {
+    var editor;
+    var defValue = getJson(json);
+    console.log(defValue);
+    $('.actionConfigBuilderBtn').each(function () {
+        $(this).click(() => {
+            $(".actionConfig_builder_modal_holder").modal({
+                backdrop: false
+            });
+            if (editor) {
+                // set the latest value if the user changed the JSON manually                
+                editor.setValue(getJson(json));
+            }
+            $('.actionConfig_builder_modal_holder').on('hidden.bs.modal', function (e) {
+
+            })
+            $('.saveActionConfigBuilder').each(function () {
+                $(this).attr('data-dismiss', 'modal');
+                // on modal close set the value to the Monaco editor
+                $(this).click(function () {
+                    var val = editor.getValue();
+                    if(val['condition'] && !(val['condition'] instanceof Object)){
+                        val['condition'] = JSON.parse(val['condition']);
+                    }
+                    if(val['condition_jquerBuilderJson'] && !(val['condition_jquerBuilderJson'] instanceof Object)){
+                        val['condition_jquerBuilderJson'] = JSON.parse(val['condition_jquerBuilderJson']);
+                    }
+                    console.log(val);
+                    monacoEditor.getModel().setValue(JSON.stringify(val, null, 3));
+                })
+            });
+        });
+    });
+    var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/actionConfig/actionConfig.json";
+    // get the schema with AJAX call
+    $.ajax({
+        dataType: "json",
+        url: schemaUrl,
+        success: (s) => {
+            editor = new JSONEditor($('.actionConfig_builder')[0], {
+                theme: 'bootstrap4',
+                iconlib: 'fontawesome5',
+                ajax: true,
+                schema: s,
+                show_errors: "always",
+            });
+            editor.on('change', () => {
+                $('.actionConfig_builder').find('select').each(function () {
+                    $(this).selectpicker();
+                    $(this).selectpicker('refresh');
+                })
+            });
+            getGroupsForActionConfig(editor, defValue, editor);
+        }
+    });
+}
+
+// AJAX call to get the table fields
+function getGroupsForActionConfig(obj, defValue, editor) {
+    $.post(
+        BASE_PATH + '/request/AjaxDataSource/get_groups',
+        {},
+        function (data) {
+            if (data.success) {
+                var groups = [];
+                try {
+                    groups = JSON.parse(data.data);
+                } catch (error) {
+                    console.log("Error while parsing", data.data);
+                }
+                var fc = obj.getEditor('root.group').parent;
+                fc.original_schema.properties.group.items["enum"] = groups;
+                fc.schema.properties.group.items["enum"] = groups;
+                fc.removeObjectProperty('group');
+                //delete the cache
+                delete fc.cached_editors.group;
+                fc.addObjectProperty('group');
+                editor.setValue(defValue);
+            }
+            else {
+                console.log(data);
+            }
+        },
+        'json'
+    );
+}
+
+function showActionConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
+    var editor;
+    $('.actionConfigConditionBuilderBtn').each(function () {
+        $(this).click(() => {
+            $(".action_condition_builder_modal_holder").modal({
+                backdrop: false
+            });
+            if (editor) {
+                // set the latest value if the user changed the JSON manually                
+                // editor.setValue(getJson(json));
+            }
+            $('.action_condition_builder_modal_holder').on('hidden.bs.modal', function (e) {
+                // on modal close set the value to the Monaco editor
+            })
+            $('.saveActionConditionBuilder').each(function () {
+                $(this).attr('data-dismiss', 'modal');
+                $(this).click(function () {
+                    var rules = $('.action_condition_builder').queryBuilder('getRules');
+                    var configVal = {};
+                    try {
+                        configVal = JSON.parse(monacoEditor.getModel().getValue());
+                    } catch (error) {
+                        
+                    }
+                    configVal['condition'] = rulesToJsonLogic(rules);
+                    configVal['condition_jquerBuilderJson'] = rules;
+                    monacoEditor.getModel().setValue(JSON.stringify(configVal, null, 3));
+                })
+            });
+        });
+    });
+
+    // get groups and prepare the consition builder
+    getGroups(jquerBuilderJsonInput, monacoEditor);
+}
+
+// ********************************************* ACTION CONFIG BUILDER *****************************************

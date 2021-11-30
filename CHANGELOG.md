@@ -13,6 +13,9 @@
  - #303 - add new style `conditionFailed`. It should be used as a child in style `conditionalContainer`. It is a holder for other styles and it is loaded only if the condition in the `conditionalContainer` is not met.
  - now the user code could be accessed by `@user_code`. This string is automatically replaced with the user code. It is used in the same way that `@user` replace the user name.
  - add Qualtric Survey config JSON builder
+ - add action (Qualtrics and Form) config builder
+ - add condition check to scheduled mails from Qualtrics and Form
+ - add condition check to scheduled taks from Qualtrics and Form
 
 ### Bugfix
  - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page

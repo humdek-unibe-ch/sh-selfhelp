@@ -1,0 +1,95 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Config",
+    "properties": {
+        "type": {
+            "type": "string",
+            "title": "Action",
+            "propertyOrder": 1,
+            "description": "select action type - [`add_group` and `remove_group` can be used only in shceduled tasks]",
+            "enum": [
+                "add_group",
+                "remove_group",
+                "overwrite_variable"
+            ]
+        },
+        "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "describe what the action does",
+            "propertyOrder": 3,
+            "options": {
+                "dependencies": {
+                    "type": [
+                        "add_group",
+                        "remove_group"
+                    ]
+                }
+            }
+        },
+        "group": {
+            "type": "array",
+            "title": "Group",
+            "format": "select",
+            "description": "select Selfhelp group",
+            "propertyOrder": 2,
+            "uniqueItems": true,
+            "items": {
+                "type": "string"
+            },
+            "options": {
+                "dependencies": {
+                    "type": [
+                        "add_group",
+                        "remove_group"
+                    ]
+                }
+            }
+        },
+        "variable": {
+            "type": "array",
+            "uniqueItems": true,
+            "title": "Variable",
+            "description": "select variable that you want to overwirite from Qualtrics",
+            "format": "select",
+            "minItems": 1,
+            "items": {
+                "type": "string",
+                "enum": [
+                    "notificationTypes",
+                    "send_after",
+                    "send_after_type",
+                    "send_on_day_at",
+                    "recipient",
+                    "subject",
+                    "body"
+                ]
+            },
+            "options": {
+                "grid_columns": 6,
+                "dependencies": {
+                    "type": "overwrite_variable"
+                }
+            }
+        },
+        "condition": {
+            "type": "string",
+            "options": {
+                "hidden": true
+            }
+        },
+        "condition_jquerBuilderJson": {
+            "type": "string",
+            "options": {
+                "hidden": true
+            }
+        }
+    },
+    "required": [
+        "type",
+        "group",
+        "description",
+        "variable"
+    ]
+}

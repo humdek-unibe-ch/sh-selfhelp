@@ -468,7 +468,7 @@ class ModuleFormsActionView extends BaseView
                     "id" => "config",
                     "name" => "schedule_info[config]",
                     "value" => isset($this->action["schedule_info"]['config']) ? $this->action["schedule_info"]['config'] : '',
-                    "css" => "mb-3",
+                    "css" => "mb-3 actionConfig",
                     "placeholder" => "",
                 ))
             )

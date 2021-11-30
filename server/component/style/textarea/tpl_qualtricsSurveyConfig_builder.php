@@ -3,4 +3,4 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<button type="button" class="w-100 mt-1 btn btn-primary qualtricsConfigBuilderBtn btn-sm">Config Builder</button>
+<button type="button" class="w-100 mt-1 btn btn-primary actionBuilderBtn btn-sm">Config Builder</button>

@@ -49,7 +49,7 @@ class DataView extends BaseView
                 $forms = $this->model->get_forms();
             }
             foreach ($forms as $keyForm => $formId) {
-                $formId = isset($formId['form_id']) ? $formId['form_id'] : $formId;
+                $formId = isset($formId['form']) ? $formId['form'] : $formId;
                 $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
                 if (!empty($formFields)) {
                     // loop over the rows, outputting them

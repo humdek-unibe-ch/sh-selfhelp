@@ -5,30 +5,15 @@
 ?>
 <?php
 require_once __DIR__ . "/../globals_untracked.php";
-require_once __DIR__ . "/../ext/PHPMailer.php";
-require_once __DIR__ . "/../ext/PHPMailer_Exception.php";
 require_once __DIR__ . "/../ParsedownExtension.php";
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require_once __DIR__ . "/BasicJob.php";
 
 /**
  * A wrapper class for PHPMailer. It provides a simple email sending method
  * which should be usable throughout this rpoject.
  */
-class Mailer extends PHPMailer
+class Mailer extends BasicJob
 {
-
-    /**
-     * The db instance which grants access to the DB.
-     */
-    private $db;
-
-    /**
-     * The transaction instance that log to DB.
-     */
-    private $transaction;
-
     /**
      * A markdown parser with custom extensions.
      */
@@ -40,18 +25,17 @@ class Mailer extends PHPMailer
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction, $user_input, $router)
+    public function __construct($db, $transaction, $user_input, $router, $condition)
     {
-        $this->db = $db;
-        $this->transaction = $transaction;        
         $this->parsedown = new ParsedownExtension($user_input, $router);
         $this->parsedown->setSafeMode(false);
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';
-        parent::__construct(false);
+        parent::__construct($db, $transaction, $condition);
     }
 
     /* Private Methods *********************************************************/
+    
 
     /**
      * Send mail from the queue     
@@ -64,7 +48,8 @@ class Mailer extends PHPMailer
      * @retval boolean
      *  return if mail was sent successfully
      */
-    private function send_mail_single($mail_info, $sent_by, $user_id){
+    private function send_mail_single($mail_info, $sent_by, $condition, $user_id)
+    {
         $from = array(
             'address' => $mail_info['from_email'],
             'name' => $mail_info['from_name'],
@@ -88,21 +73,35 @@ class Mailer extends PHPMailer
         foreach ($mail_info_recipients as $mail) {
             unset($to['to']);
             $to['to'][] = array('address' => $mail, 'name' => $mail);
-            $user_name = $this->db->query_db_first('SELECT name FROM users WHERE email = :email', array(":email"=>trim($mail)))['name'];
-            $msg_send = str_replace('@user_name', $user_name, $msg);
-            if($msg_html){
-                $msg_html_send = str_replace('@user_name', $user_name, $msg_html);
+            $user_info = $this->db->query_db_first('SELECT name, id FROM users WHERE email = :email', array(":email" => trim($mail)));
+            $user_name = $user_info['name'];
+            if ($this->check_condition($condition, $user_info['id'])) {
+                $msg_send = str_replace('@user_name', $user_name, $msg);
+                if ($msg_html) {
+                    $msg_html_send = str_replace('@user_name', $user_name, $msg_html);
+                }
+                $res = $res && $this->send_mail($from, $to, $subject, $msg_send, $msg_html_send, $attachments, $replyTo);
+                $this->transaction->add_transaction(
+                    $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
+                    $sent_by,
+                    $user_id,
+                    $this->transaction::TABLE_SCHEDULED_JOBS,
+                    $mail_info['id'],
+                    false,
+                    'Sending mail to ' . $mail
+                );
+            } else {
+                $this->transaction->add_transaction(
+                    transactionTypes_send_notification_fail,
+                    $sent_by,
+                    $user_id,
+                    $this->transaction::TABLE_SCHEDULED_JOBS,
+                    $mail_info['id'],
+                    false,
+                    'Sending email to ' . $mail . ' failed because the condition was not meat'
+                );
+                $res = false;
             }
-            $res = $res && $this->send_mail($from, $to, $subject, $msg_send, $msg_html_send, $attachments, $replyTo);
-            $this->transaction->add_transaction(
-                $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
-                $sent_by,
-                $user_id,
-                $this->transaction::TABLE_SCHEDULED_JOBS,
-                $mail_info['id'],
-                false,
-                'Sending mail to ' . $mail
-            );
         }
         return $res;
     }
@@ -169,7 +168,7 @@ class Mailer extends PHPMailer
         return $res;
     }
 
-    /* Public Methods *********************************************************/      
+    /* Public Methods *********************************************************/
 
     /**
      * Insert mail record in the mailQueue table
@@ -211,11 +210,11 @@ class Mailer extends PHPMailer
      * @retval boolean
      *  return if mail was sent successfully
      */
-    public function send_entry($sj_id, $sent_by, $user_id = null)
+    public function send_entry($sj_id, $sent_by, $condition, $user_id = null)
     {
         $mail_info = $this->db->select_by_uid('view_mailQueue', $sj_id);
         if ($mail_info) {
-            return $this->send_mail_single($mail_info, $sent_by, $user_id);
+            return $this->send_mail_single($mail_info, $sent_by, $condition, $user_id);
         } else {
             return false;
         }

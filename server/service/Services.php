@@ -15,6 +15,7 @@ require_once __DIR__ . "/Router.php";
 require_once __DIR__ . "/UserInput.php";
 require_once __DIR__ . "/Transaction.php";
 require_once __DIR__ . "/JobScheduler.php";
+require_once __DIR__ . "/conditions/Condition.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -89,11 +90,14 @@ class Services
 
         $this->transaction = new Transaction($this->db);
 
-        $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router);
-
-        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail);
-
         $this->user_input = new UserInput($this->db);
+
+        $this->condition = new Condition($this->db, $this->user_input);
+
+        $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router, $this->condition);        
+
+        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $this->condition);
+        
 
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
@@ -288,14 +292,25 @@ class Services
     }
 
     /**
-     * Get the service class UserInput.
+     * Get the service class JobScheduler.
      *
      * @retval object
-     *  The UserInput service class.
+     *  The JobScheduler service class.
      */
     public function get_job_scheduler()
     {
         return $this->job_scheduler;
+    }
+
+    /**
+     * Get the service class Condition.
+     *
+     * @retval object
+     *  The Condition service class.
+     */
+    public function get_condition()
+    {
+        return $this->condition;
     }
 
     /**

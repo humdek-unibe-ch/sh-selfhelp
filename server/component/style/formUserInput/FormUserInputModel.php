@@ -182,10 +182,8 @@ class FormUserInputModel extends StyleModel
         if ($sj_id > 0) {
             $result[] = 'Task was queued for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if (($this->job_scheduler->execute_job(array(
-                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
-                    "id" => $sj_id
-                ), transactionBy_by_system))) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
                     $result[] = 'Task was executed for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
                 } else {
                     $result[] = 'ERROR! Task was not executed for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
@@ -235,6 +233,7 @@ class FormUserInputModel extends StyleModel
             "subject" => $schedule_info['subject'],
             "body" => $body,
             "description" => "Schedule email by form: " . $this->get_db_field("name"),
+            "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
             "attachments" => array()
         );
         $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_system);
@@ -244,10 +243,8 @@ class FormUserInputModel extends StyleModel
             }
             $result[] = 'Mail was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if ($this->job_scheduler->execute_job(array(
-                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
-                    "id" => $sj_id
-                ), transactionBy_by_system)) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if ($this->job_scheduler->execute_job($job_entry, transactionBy_by_system)) {
                     $result[] = 'Mail was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
                 } else {
                     $result[] = 'ERROR! Mail was not sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
@@ -356,9 +353,9 @@ class FormUserInputModel extends StyleModel
             // check qualtrics for more groups comming as embeded data
             if (isset($schedule_info['config']['variable'])) {
                 foreach ($schedule_info['config']['variable'] as $key => $variable) {
-                    if (isset($this->survey_response['values'][$variable])) {
-                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $this->survey_response['values'][$variable];
-                        $schedule_info[$variable] = $this->survey_response['values'][$variable];
+                    if (isset($_POST[$variable])) {
+                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $_POST[$variable]['value'];
+                        $schedule_info[$variable] = $_POST[$variable]['value'];
                     }
                 }
             }
@@ -615,16 +612,21 @@ class FormUserInputModel extends StyleModel
 
     /**
      * Check the last record_id for the form. Used for the update form which is not is_log
-     *
      * @retval int
      *  return record_id, if not return false
      */
     public function get_id_record()
     {
+        $own_entries_only = $this->get_db_field("own_entries_only", "1");
         $sql = "CALL get_form_data_with_filter(:fid, 'ORDER BY record_id DESC')";
-        $res = $this->db->query_db_first($sql, array(
+        $params = array(
             ":fid" => $this->get_form_id()
-        ));
+        );
+        if ($own_entries_only) {
+            $sql = "CALL get_form_data_for_user_with_filter(:fid, :id_users, 'ORDER BY record_id DESC')";            
+            $params["id_users"] = $_SESSION['id_user'];
+        }
+        $res = $this->db->query_db_first($sql, $params);
         if($res) return $res['record_id'];
         else return false;
     }
@@ -664,7 +666,7 @@ class FormUserInputModel extends StyleModel
             else
             {      
                 if($id_record == null){
-                    $id_record = $this->get_id_record();
+                    $id_record = $this->get_id_record();                    
                 }          
                 $res = $this->update_entry_with_record_id($id, $value, $id_record);
             }
