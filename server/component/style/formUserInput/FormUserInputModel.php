@@ -44,6 +44,329 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
+     * Calculate the date when the email should be sent when it is on weekday type
+     * @param array $schedule_info
+     * Schedule info from the action
+     * @retval string
+     * the date in sting format for MySQL
+     */
+    private function calc_date_on_weekday($schedule_info)
+    {
+        $now = date('Y-m-d H:i:s', time());
+        $next_weekday = strtotime('next ' . $schedule_info['send_on_day'], strtotime($now));
+        $d = new DateTime();
+        $next_weekday = $d->setTimestamp($next_weekday);
+        $at_time = explode(':', $schedule_info['send_on_day_at']);
+        $next_weekday = $next_weekday->setTime($at_time[0], $at_time[1]);
+        if ($schedule_info['send_on'] > 1) {
+            return date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_on'] - 1 . ' weeks', $next_weekday->getTimestamp()));
+        } else {
+            $next_weekday = $next_weekday->getTimestamp();
+            return date('Y-m-d H:i:s', $next_weekday);
+        }
+    }
+
+    /**
+     * Calculate the date when the email should be sent
+     * @param array $schedule_info
+     * Schedule info from the action
+     * @param string $action_schedule_type_code
+     * type notification or reminder
+     * @retval string
+     * the date in sting format for MySQL
+     */
+    private function calc_date_to_be_sent($schedule_info, $action_schedule_type_code)
+    {
+        $date_to_be_sent = 'undefined';
+        if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately) {
+            // send imediately
+            $date_to_be_sent = date('Y-m-d H:i:s', time());
+        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_on_fixed_datetime) {
+            // send on specific date
+            $date_to_be_sent = date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $schedule_info['custom_time'])->getTimestamp());
+        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period) {
+            // send after time period 
+            $now = date('Y-m-d H:i:s', time());
+            $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
+            if ($schedule_info['send_on_day_at']) {
+                $at_time = explode(':', $schedule_info['send_on_day_at']);
+                $d = new DateTime();
+                $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
+                $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
+                $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
+            }
+        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period_on_day_at_time) {
+            // send on specific weekday after 1,2,3, or more weeks at specific time
+            $date_to_be_sent = $this->calc_date_on_weekday($schedule_info);
+            if ($action_schedule_type_code == qualtricsActionScheduleTypes_reminder) {
+                // we have to check the linked notification and schedule the reminder always after the notification
+                $schedule_info_notification = json_decode($this->db->query_db_first('SELECT schedule_info FROM formActions WHERE id = :id', array(':id' => $schedule_info['linked_action']))['schedule_info'], true);
+                $base_schedule_info = $schedule_info;
+                $base_schedule_info['send_on'] = 1;
+                $schedule_info_notification['send_on'] = 1;
+                $base_reminder_day = $this->calc_date_on_weekday($base_schedule_info);
+                $base_notification_day = $this->calc_date_on_weekday($schedule_info_notification);
+                if ($base_notification_day > $base_reminder_day) {
+                    //reminder will be scheduled before the notification; it should be adjusted to 1 week later
+                    $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+1 weeks', strtotime($date_to_be_sent)));
+                }
+            }
+        }
+        return $date_to_be_sent;
+    }
+
+    /**
+     * Check if the user belongs in group(s)
+     * @param int $uid
+     * user  id
+     * @param string $id_groups
+     * the grousp in coma separated string
+     * @retval bool 
+     * true if the user is in the group(s) or false if not
+     */
+    private function is_user_in_group($uid, $id_groups)
+    {
+        $sql = 'SELECT DISTINCT u.id
+                FROM users AS u
+                INNER JOIN users_groups AS ug ON ug.id_users = u.id
+                INNER JOIN groups g ON g.id = ug.id_groups
+                WHERE u.id = :uid and g.id in (' . $id_groups . ');';
+        $user = $this->db->query_db_first(
+            $sql,
+            array(
+                ":uid" => $uid
+            )
+        );
+        return isset($user['id']);
+    }
+
+    /**
+     * Get all users for selected groups
+     *
+     * @param array $groups
+     *  Array with group ids
+     *  @retval array
+     * return all users for the selected groups or false
+     */
+    private function get_users_from_groups($groups)
+    {
+        $sql = "SELECT u.id
+                    FROM users u
+                    INNER JOIN users_groups g ON (u.id = g.id_users)
+                    WHERE u.id_status = 3 AND g.id_groups IN (" . implode(",", $groups) . ");";
+        return $this->db->query_db($sql);
+    }
+
+    /**
+     * Queue task
+     * @param array $users
+     * user id arrays
+     * @param array $action
+     * the action information
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function queue_task($users, $action)
+    {
+        $schedule_info = json_decode($action['schedule_info'], true);
+        $result = array();
+        $task = array(
+            'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "id_users" => $users,
+            "config" => $schedule_info['config'],
+            "description" => isset($schedule_info['config']['description']) ? $schedule_info['config']['description'] : "Schedule task by form: " . $this->get_db_field("name"),
+        );
+        $sj_id = $this->job_scheduler->schedule_job($task, transactionBy_by_system);
+        if ($sj_id > 0) {
+            $result[] = 'Task was queued for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
+                    $result[] = 'Task was executed for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                } else {
+                    $result[] = 'ERROR! Task was not executed for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                }
+            }
+        } else {
+            $result[] = 'ERROR! Task was not queued for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+        }
+        return array(
+            "result" => $result,
+            "sj_id" => $sj_id
+        );
+    }
+
+    /**
+     * Queue mail
+     *
+     * @param int $user_id
+     * user id
+     * @param array $action
+     * the action information
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function queue_mail($user_id, $action)
+    {
+        //  {
+        // 	"type": "overwrite_variable",
+        // 	"variable": ["send_on_day_at", "var2"]    
+        // }
+
+        $schedule_info = json_decode($action['schedule_info'], true);
+        $result = array();
+        $check_config = $this->check_config($schedule_info);
+        $schedule_info = $check_config['schedule_info'];
+        $result = $check_config['result'];
+        $mail = array();
+        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
+        $mail = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "from_email" => $schedule_info['from_email'],
+            "from_name" => $schedule_info['from_name'],
+            "reply_to" => $schedule_info['reply_to'],
+            "recipient_emails" =>  str_replace('@user', $this->db->select_by_uid('users', $user_id)['email'], $schedule_info['recipient']),
+            "subject" => $schedule_info['subject'],
+            "body" => $body,
+            "description" => "Schedule email by form: " . $this->get_db_field("name"),
+            "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
+            "attachments" => array()
+        );
+        $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_system);
+        if ($sj_id > 0) {
+            if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+                $this->add_reminder($sj_id, $user_id, $action);
+            }
+            $result[] = 'Mail was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if ($this->job_scheduler->execute_job($job_entry, transactionBy_by_system)) {
+                    $result[] = 'Mail was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                } else {
+                    $result[] = 'ERROR! Mail was not sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                }
+            }
+        } else {
+            $result[] = 'ERROR! Mail was not queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+        }
+        return array(
+            "result" => $result,
+            "sj_id" => $sj_id
+        );
+    }
+
+    /**
+     * Queue notification
+     *
+     * @param int $user_id
+     * user id
+     * @param array $action
+     * the action information
+     * @retval string
+     *  log text what actions was done;
+     */
+    private function queue_notification($user_id, $action)
+    {
+        //  {
+        // 	"type": "overwrite_variable",
+        // 	"variable": ["send_on_day_at", "var2"]    
+        // }
+
+        $schedule_info = json_decode($action['schedule_info'], true);
+        $result = array();
+        $check_config = $this->check_config($schedule_info);
+        $schedule_info = $check_config['schedule_info'];
+        $result = $check_config['result'];
+
+        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
+        $notification = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
+            "recipients" => array($user_id),
+            "subject" => $schedule_info['subject'],
+            "url" => isset($schedule_info['url']) ? $schedule_info['url'] : null,
+            "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
+            "body" => $body,
+            "description" => "Schedule notification by form: " . $this->get_db_field("name"),
+        );
+        $sj_id = $this->job_scheduler->schedule_job($notification, transactionBy_by_system);
+        if ($sj_id > 0) {
+            if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+                $this->add_reminder($sj_id, $user_id, $action);
+            }
+            $result[] = 'Notification was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
+                    $result[] = 'Notification was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                } else {
+                    $result[] = 'ERROR! Notification was not sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                }
+            }
+        } else {
+            $result[] = 'ERROR! Notificaton was not queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+        }
+        return array(
+            "result" => $result,
+            "sj_id" => $sj_id
+        );
+    }
+
+    /**
+     * Add a reminder in qualtricsReminders
+     *
+     * @param int $sj_id
+     *  the scheduled job id
+     * @param int $uid
+     * user id
+     * @param array $action
+     * the action info
+     * @retval int
+     *  The id of the new record.
+     */
+    private function add_reminder($sj_id, $uid, $action)
+    {
+        $res = $this->db->insert("formActionsReminders", array(
+            "id_users" => $uid,
+            "id_forms" => $action['id_forms_reminder'],
+            "id_scheduledJobs" => $sj_id
+        ));
+        return $res;
+    }
+
+    /**
+     * Check config field for extra modifications
+     * @param array $schedule_info
+     * the schedule info
+     * @retval array 
+     * return the info from the check
+     */
+    private function check_config($schedule_info)
+    {
+        $result = array();
+        if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
+            // check qualtrics for more groups comming as embeded data
+            if (isset($schedule_info['config']['variable'])) {
+                foreach ($schedule_info['config']['variable'] as $key => $variable) {
+                    if (isset($_POST[$variable])) {
+                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $_POST[$variable]['value'];
+                        $schedule_info[$variable] = $_POST[$variable]['value'];
+                    }
+                }
+            }
+        }
+        return array(
+            "result" => $result,
+            "schedule_info" => $schedule_info
+        );
+    }
+
+    /**
      * Insert a new form field entry to the database.
      *
      * @param int $id
@@ -158,6 +481,31 @@ class FormUserInputModel extends StyleModel
         return $res;
     }
 
+    /**
+     * Get all actions for a form and a trigger_type
+     *
+     * @param string $id_forms
+     *  form id
+     * @param string $trigger_type
+     *  trigger type
+     *  @retval array
+     * return all actions for that survey with this trigger_type
+     */
+    private function get_actions($id_forms, $trigger_type)
+    {
+        $sqlGetActions = "SELECT *
+                FROM view_formActions
+                WHERE id_forms = :id_forms AND trigger_type_code = :trigger_type 
+                AND action_schedule_type <> 'Nothing'";
+        return $this->db->query_db(
+            $sqlGetActions,
+            array(
+                "id_forms" => $id_forms,
+                "trigger_type" => $trigger_type
+            )
+        );
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -264,16 +612,21 @@ class FormUserInputModel extends StyleModel
 
     /**
      * Check the last record_id for the form. Used for the update form which is not is_log
-     *
      * @retval int
      *  return record_id, if not return false
      */
     public function get_id_record()
     {
+        $own_entries_only = $this->get_db_field("own_entries_only", "1");
         $sql = "CALL get_form_data_with_filter(:fid, 'ORDER BY record_id DESC')";
-        $res = $this->db->query_db_first($sql, array(
+        $params = array(
             ":fid" => $this->get_form_id()
-        ));
+        );
+        if ($own_entries_only) {
+            $sql = "CALL get_form_data_for_user_with_filter(:fid, :id_users, 'ORDER BY record_id DESC')";            
+            $params["id_users"] = $_SESSION['id_user'];
+        }
+        $res = $this->db->query_db_first($sql, $params);
         if($res) return $res['record_id'];
         else return false;
     }
@@ -313,7 +666,7 @@ class FormUserInputModel extends StyleModel
             else
             {      
                 if($id_record == null){
-                    $id_record = $this->get_id_record();
+                    $id_record = $this->get_id_record();                    
                 }          
                 $res = $this->update_entry_with_record_id($id, $value, $id_record);
             }
@@ -457,6 +810,115 @@ class FormUserInputModel extends StyleModel
 
     public function set_entry_data($entry_data){
         $this->entry_data = $entry_data;
+    }
+
+    /**
+     * Check if any event should be queued based on the actions
+     *
+     * @retval string
+     *  log text what actions was done;
+     */
+    public function queue_event_from_actions($trigger_type)
+    {
+        $result = array();
+        //get all actions for this form and trigger type
+        $actions = $this->get_actions($this->section_id, $trigger_type);
+        foreach ($actions as $action) {
+            //clear the mail generation data
+            if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) {
+                $schedule_info = json_decode($action['schedule_info'], true);
+                $res = array();
+                if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
+                    $users = array();
+                    array_push($users, $_SESSION['id_user']);
+                    if (isset($schedule_info['target_groups'])) {
+                        $users_from_groups = $this->get_users_from_groups($schedule_info['target_groups']);
+                        if ($users_from_groups) {
+                            foreach ($users_from_groups as $key => $user) {
+                                array_push($users, $user['id']);
+                            }                            
+                            $users = array_unique($users);
+                        }
+                    }
+                    $start_time = microtime(true);
+                    $start_date = date("Y-m-d H:i:s");
+                    $res = $this->queue_task($users, $action);
+                    $res['time'] = [];
+                    $end_time = microtime(true);
+                    $res['time']['exec_time'] = $end_time - $start_time;
+                    $res['time']['start_date'] = $start_date;
+                    array_push($result, $res);
+                } else if (
+                    $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_notification ||
+                    $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder
+                ) {
+                    if ($schedule_info['notificationTypes'] == notificationTypes_email) {
+                        // the notification type is email                        
+                        $start_time = microtime(true);
+                        $start_date = date("Y-m-d H:i:s");
+                        $res = $this->queue_mail($_SESSION['id_user'], $action);
+                        $res['time'] = [];
+                        $end_time = microtime(true);
+                        $res['time']['exec_time'] = $end_time - $start_time;
+                        $res['time']['start_date'] = $start_date;
+                        array_push($result, $res);
+                    } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
+                        // the notification type is push notification                        
+                        $start_time = microtime(true);
+                        $start_date = date("Y-m-d H:i:s");
+                        $res = $this->queue_notification($_SESSION['id_user'], $action);
+                        $res['time'] = [];
+                        $end_time = microtime(true);
+                        $res['time']['exec_time'] = $end_time - $start_time;
+                        $res['time']['start_date'] = $start_date;
+                        array_push($result, $res);
+                    }
+                }
+                if (isset($res['sj_id'])) {
+                    $this->db->insert('scheduledJobs_formActions', array(
+                        "id_scheduledJobs" => $res['sj_id'],
+                        "id_formActions" => $action['id'],
+                    ));
+                }
+            }
+        }
+
+        if (count($result) == 0) {
+            $result[] = "no event";
+        }
+        return $result;
+    }
+
+    /**
+     * Change the status of the queueud mails to deleted
+     * @param array $scheduled_reminders
+     * Arra with reminders that should be deleted
+     */
+    public function delete_reminders($scheduled_reminders)
+    {
+        foreach ($scheduled_reminders as $reminder) {
+            $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_system);
+        }
+    }
+
+    /**
+     * Get the scheduled reminders for the user and this survey
+     * @retval array
+     * all scheduled reminders
+     */
+    public function get_scheduled_reminders()
+    {
+        return $this->db->query_db(
+            'SELECT id_scheduledJobs 
+            FROM view_formActionsReminders 
+            WHERE `user_id` = :uid AND id_forms = :sid AND status_code = :status
+            AND (valid_till IS NULL OR (NOW() BETWEEN session_start_date AND valid_till))',
+            array(
+                ":uid" => $_SESSION['id_user'],
+                ":sid" => $this->section_id,
+                ":status" => scheduledJobsStatus_queued
+            )
+        );
     }
 }
 ?>

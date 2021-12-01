@@ -19,9 +19,9 @@ class Task  extends BasicJob
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction)
+    public function __construct($db, $transaction, $condition)
     {
-        parent::__construct($db, $transaction);
+        parent::__construct($db, $transaction, $condition);
     }
 
     /* Private Methods *********************************************************/

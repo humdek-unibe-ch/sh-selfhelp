@@ -36,18 +36,24 @@ class JobScheduler
     private $notification;
 
     /**
+     * The condition service.
+     */
+    private $condition;
+
+    /**
      * Creating a PHPMailer Instance.
      *
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction, $mail)
+    public function __construct($db, $transaction, $mail, $condition)
     {
         $this->db = $db;
         $this->transaction = $transaction;
         $this->mail = $mail;
-        $this->notification = new Notificaitoner($db, $transaction);
-        $this->task = new Task($db, $transaction);
+        $this->notification = new Notificaitoner($db, $transaction, $condition);
+        $this->task = new Task($db, $transaction, $condition);
+        $this->condition = $condition;
     }
 
     /* Private Methods *********************************************************/
@@ -223,7 +229,7 @@ class JobScheduler
             $id_users = $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null;
             if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email)) {
                 // send email
-                $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $id_users);
+                $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $data['config'],  $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
                 // send notificaiton
                 $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);

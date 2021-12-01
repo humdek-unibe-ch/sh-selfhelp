@@ -1,0 +1,98 @@
+.json{
+    max-height: 500px;
+    height: 100px;
+}
+
+.data_config_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}
+
+.data_config_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
+.data_config_builder_modal_holder .btn-group{
+    margin-bottom: .25rem;
+}
+
+.data_config_builder_modal_holder .btn-group button{
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.condition_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}
+
+.condition_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
+.condition_builder_modal_holder .btn-group{
+    margin-bottom: .25rem;
+}
+
+.condition_builder_modal_holder .btn-group button{
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .btn-group{
+    margin-bottom: .25rem;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .btn-group button{
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.actionConfig_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}
+
+.actionConfig_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
+.actionConfig_builder_modal_holder .btn-group{
+    margin-bottom: .25rem;
+}
+
+.actionConfig_builder_modal_holder .btn-group button{
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.actionConfig_builder .dropdown-toggle {
+    background-color: white !important;
+}
+
+.action_condition_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}
+
+.action_condition_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
+.action_condition_builder_modal_holder .btn-group{
+    margin-bottom: .25rem;
+}
+
+.action_condition_builder_modal_holder .btn-group button{
+    border: solid;
+    border-radius: 5px !important;
+}

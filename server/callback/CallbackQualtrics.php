@@ -467,7 +467,7 @@ class CallbackQualtrics extends BaseCallback
                         if ($users_from_groups) {
                             foreach ($users_from_groups as $key => $user) {
                                 array_push($users, $user['id']);
-                            }                            
+                            }
                             $users = array_unique($users);
                         }
                     }
@@ -585,6 +585,7 @@ class CallbackQualtrics extends BaseCallback
             "subject" => $schedule_info['subject'],
             "body" => $body,
             "description" => "Schedule email by Qualtrics Callback",
+            "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
             "attachments" => $attachments
         );
         $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_qualtrics_callback);
@@ -596,10 +597,8 @@ class CallbackQualtrics extends BaseCallback
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if ($this->job_scheduler->execute_job(array(
-                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
-                    "id" => $sj_id
-                ), transactionBy_by_qualtrics_callback)) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if ($this->job_scheduler->execute_job($job_entry, transactionBy_by_qualtrics_callback)) {
                     $result[] = 'Mail was sent for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
@@ -764,10 +763,8 @@ class CallbackQualtrics extends BaseCallback
                 ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                 ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];
             if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
-                if (($this->job_scheduler->execute_job(array(
-                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
-                    "id" => $sj_id
-                ), transactionBy_by_qualtrics_callback))) {
+                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_qualtrics_callback))) {
                     $result[] = 'Task was executed for user: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE] .
                         ' when survey: ' . $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE] .
                         ' ' . $data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE];

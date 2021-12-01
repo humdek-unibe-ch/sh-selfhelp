@@ -129,8 +129,11 @@ class FormUserInputController extends BaseController
         }
     }
 
-    public function execute(){        
-        if(count($_POST) === 0) return;
+    public function execute(){   
+        if(count($_POST) === 0){
+            $this->model->queue_event_from_actions(qualtricsProjectActionTriggerTypes_started);
+            return;
+        } 
         if(!isset($_POST['__form_name'])
             || $_POST['__form_name'] !== $this->model->get_db_field("name"))
             return;
@@ -190,6 +193,11 @@ class FormUserInputController extends BaseController
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
+                $this->model->queue_event_from_actions(qualtricsProjectActionTriggerTypes_finished);
+                $scheduled_reminders = $this->model->get_scheduled_reminders();
+                if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                 //   $this->model->delete_reminders($scheduled_reminders);
+                }
             }
         }
         $redirect = $this->model->get_db_field("redirect_at_end", "");

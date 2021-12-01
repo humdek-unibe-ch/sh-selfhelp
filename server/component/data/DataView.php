@@ -45,11 +45,11 @@ class DataView extends BaseView
     {
         $forms = $this->model->get_selected_forms();
         if ($forms) {
-            if($forms[0] == 'all'){
+            if ($forms[0] == 'all') {
                 $forms = $this->model->get_forms();
             }
             foreach ($forms as $keyForm => $formId) {
-                $formId = isset($formId['form_id']) ? $formId['form_id'] : $formId;
+                $formId = isset($formId['form']) ? $formId['form'] : $formId;
                 $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
                 if (!empty($formFields)) {
                     // loop over the rows, outputting them
@@ -69,7 +69,7 @@ class DataView extends BaseView
                     }
                     $tableHead = $tableHead . '</tr></thead>';
                     $tableBody = $tableBody . '</tbody>';
-                    $formName = $field['form_name'];
+                    $formName = isset($field['form_name']) ? $field['form_name'] : $field['table_name']; // one is for static the other for dynamic tables
 
                     $card = new BaseStyleComponent("card", array(
                         "css" => "mb-3 card card-success",
@@ -101,7 +101,7 @@ class DataView extends BaseView
         );
         foreach ($forms as $form)
             $options[] = array(
-                "value" => $form['form_id'],
+                "value" => $form['form_id'] . '-' . $form['type'],
                 "text" => $form['form_name']
             );
         $card = new BaseStyleComponent("card", array(
@@ -116,7 +116,7 @@ class DataView extends BaseView
                     "url" => $this->model->get_link_url("data"),
                     "url_cancel" => $this->model->get_link_url("data"),
                     "children" => array(
-                         new BaseStyleComponent("select", array(
+                        new BaseStyleComponent("select", array(
                             "label" => "Select user",
                             "value" => $this->model->get_selected_users(),
                             "name" => "users",
@@ -170,8 +170,8 @@ class DataView extends BaseView
     {
         require __DIR__ . "/tpl_data.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }

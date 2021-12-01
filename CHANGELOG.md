@@ -1,4 +1,27 @@
-# v4.2.0 (latest)
+# v4.3.0 (latest)
+
+### New Features
+ - #302 - add a sub styles `formUserInputLog` where `is_log` is `true` and add a sub style `formUserInputRecord` where `is_log` is always `false`
+ - #299 - add JSON Editor.
+    - add shcema for `dataConfig`
+    - add schema for `json-logic`
+ - #295 - add `moduleFormsActions`. It is similar to Qualtrics actions. Now we can attach notifications, reminders and tasks to form when is loaded(started) or when is finished(submited).
+ - #301 - add for fields `data_config` a UI builder for easier JSON generation 
+ - #300 - add UI builder for `conditionalContainer`. Add fields `jquery_builder_json` and `data_config` in style `conditionalContainer`.
+ - `conditionContainer` can compare dates to the current time
+ - static data (Qualtrics data) can be seen in the data panel (Admin->Data)
+ - #303 - add new style `conditionFailed`. It should be used as a child in style `conditionalContainer`. It is a holder for other styles and it is loaded only if the condition in the `conditionalContainer` is not met.
+ - now the user code could be accessed by `@user_code`. This string is automatically replaced with the user code. It is used in the same way that `@user` replace the user name.
+ - add Qualtric Survey config JSON builder
+ - add action (Qualtrics and Form) config builder
+ - add condition check to scheduled mails from Qualtrics and Form
+ - add condition check to scheduled taks from Qualtrics and Form
+ - add field `exec_time` in table `user_activity` and record the time needed from the server to execute the request
+
+### Bugfix
+ - in style `book`, `next` button is hidden when there are no more pages and `back` is hidden when it is the first page
+
+# v4.2.0
 
 ### New Features
  - add a new style `book`. It holds children that are displayed as pages based on [turn.js](http://www.turnjs.com)

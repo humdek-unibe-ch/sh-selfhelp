@@ -56,12 +56,8 @@ class DataModel extends BaseModel
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
         ));
-        $sql = 'select cast(s.id as unsigned) as form_id, ifnull(sft_if.content, s.name) as form_name 
-                from sections s
-                inner join view_styles st on (s.id_styles = st.style_id)
-                LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = s.id AND sft_if.id_fields = 57
-                where style_group = "Form" and style_type = "component" and style_name <> "showUserInput"
-                order by form_name';
+        $sql = 'SELECT type, id AS form_id, orig_name AS form_name, CONCAT(id,"-",type) AS form
+                FROM view_data_tables';
         return $this->db->query_db($sql);
     }
 
@@ -85,14 +81,23 @@ class DataModel extends BaseModel
      */
     public function getFormFields($formId, $user_ids)
     {
-        if ($user_ids == 'all') {
-            // if no user is selected return data for all
-            $sql = 'call get_form_data(' . $formId . ')';
-            return $this->services->get_db()->query_db($sql);
+        $formInfo = explode('-', $formId);
+        $formId = $formInfo[0];
+        $formType = $formInfo[1];
+        if ($formType == 'dynamic') {
+            if ($user_ids == 'all') {
+                // if no user is selected return data for all
+                $sql = 'call get_form_data(' . $formId . ')';
+                return $this->services->get_db()->query_db($sql);
+            } else {
+                //return for the selected user
+                $sql = 'call get_form_data_for_user(' . $formId . ', ' . $user_ids . ')';
+                return $this->services->get_db()->query_db($sql);
+            }
         } else {
-            //return for the selected user
-            $sql = 'call get_form_data_for_user(' . $formId . ', ' . $user_ids . ')';
-            return $this->services->get_db()->query_db($sql);            
+            // users cannot be filtered for statics
+            $sql = 'call get_uploadTable(' . $formId . ')';
+            return $this->services->get_db()->query_db($sql);
         }
     }
 
@@ -110,16 +115,16 @@ class DataModel extends BaseModel
                 WHERE id_status = :active_status";
         $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
         array_push($arr, array(
-                "value" => 'all',
-                "text" => 'All',
-            ));
+            "value" => 'all',
+            "text" => 'All',
+        ));
         foreach ($users as $val) {
             $value = ('user_' . intval($val['id']));
             //$selected = $this->users && array_search($value, $this->users) !== false ? 'selected' : '';
             array_push($arr, array(
                 "value" => $value,
                 "text" => ("[" . $val['code'] . '] ' . $val['email']) . ' - ' . $val['name'],
-              //  "selected" => $selected
+                //  "selected" => $selected
             ));
         }
         return $arr;

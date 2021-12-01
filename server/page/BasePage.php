@@ -28,6 +28,11 @@ abstract class BasePage
     private $js_includes;
 
     /**
+     * An array of js include paths which shouldbe loaded after the styles' JS
+     */
+    private $js_includes_after;
+
+    /**
      * An array of components assigned to this page.
      */
     private $components;
@@ -107,14 +112,18 @@ abstract class BasePage
         $this->render_footer = true;
         $this->keyword = $keyword;
         $this->components = array();
-        $this->css_includes = array(
-            "/css/ext/bootstrap.min.css",
+        $this->css_includes = array(            
+            "/css/ext/bootstrap.min.css",          
+            // "/css/ext/bootstrap3.3.1.min.css",  
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
             "/css/ext/bootstrap-select.min.css",
             "/css/ext/jquery-confirm.min.css",
             "/css/ext/flatpickr.min.css",
-            "/css/ext/iconselect.css"
+            "/css/ext/iconselect.css",
+            "/css/ext/editor.main.css",
+            "/css/ext/query-builder.default.min.css",
+            "/css/ext/query-builder.bootstrap.css",            
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -130,7 +139,13 @@ abstract class BasePage
             "/js/ext/iconselect.js",
             "/js/ext/iscroll.js",
             "/js/ext/turn.js",
-            "/js/ext/jquery-ui.min.js"
+            "/js/ext/jquery-ui.min.js",
+            "/js/ext/jsoneditor.min.js",
+            "/js/ext/moment.min.js",
+            "/js/ext/query-builder.standalone.min.js",
+        );
+        $this->js_includes_after = array(
+            "/js/ext/loader.js",
         );
         if(DEBUG == 0)
         {
@@ -330,6 +345,19 @@ abstract class BasePage
             $this->get_js_includes()));
         /* sort($this->js_includes); */
         foreach($this->js_includes as $js_include)
+        {
+            $router = $this->services->get_router();
+            $include_path = $router->get_asset_path($js_include);
+            require __DIR__ . '/tpl_js_include.php';
+        }
+    }
+
+    /**
+     * Add page include files and render the js include directives at hte last postion.
+     */
+    private function output_js_includes_after()
+    {
+        foreach($this->js_includes_after as $js_include)
         {
             $router = $this->services->get_router();
             $include_path = $router->get_asset_path($js_include);

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file:///schemas/json-logic/operators/arithmetic/divide.json",
+
+  "title": "/",
+  "description": "Division.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["/"],
+  "properties": {
+    "/": {
+      "$ref": "../../common/binary-args.json"
+    }
+  },
+  "examples": [
+    { "/": [4, 2] }
+  ]
+}

@@ -80,22 +80,6 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     }
 
     /**
-     * get user groups from the database.
-     *
-     *  @retval array
-     *  value int,
-     *  text string
-     */
-    private function get_groups()
-    {
-        $groups = array();
-        foreach ($this->model->get_services()->get_db()->select_table("groups") as $group) {
-            array_push($groups, array("value" => intval($group['id']), "text" => $group['name']));
-        }
-        return $groups;
-    }
-
-    /**
      * get time intervals from 0 to 60
      *
      *  @retval array
@@ -189,7 +173,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "is_required" => false,
                     "live_search" => true,
                     "value" => isset($this->action["schedule_info"]['target_groups']) ? $this->action["schedule_info"]['target_groups'] : '',
-                    "items" => $this->get_groups(),
+                    "items" => $this->model->get_groups(),
                     "css" => "mb-3",
                 )),
                 new BaseStyleComponent("select", array(
@@ -332,7 +316,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "id" => "config",
                     "name" => "schedule_info[config]",
                     "value" => isset($this->action["schedule_info"]['config']) ? $this->action["schedule_info"]['config'] : '',
-                    "css" => "mb-3",
+                    "css" => "mb-3 actionConfig",
                     "placeholder" => "",
                 ))
             )
@@ -676,7 +660,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                             "is_required" => false,
                             "live_search" => true,
                             "value" => explode(',', $this->action['id_groups']),
-                            "items" => $this->get_groups(),
+                            "items" => $this->model->get_groups(),
                             "css" => "mb-3",
                         )),
                         new BaseStyleComponent("select", array(

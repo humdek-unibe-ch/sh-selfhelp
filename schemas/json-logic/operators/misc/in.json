@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file:///schemas/json-logic/operators/misc/in.json",
+
+  "title": "in",
+  "description": "If the second argument is an array, tests that the first argument is a member of the array: {\"in\":[ \"Ringo\", [\"John\", \"Paul\", \"George\", \"Ringo\"] ]}.\nIf the second argument is a string, tests that the first argument is a substring: {\"in\":[\"Spring\", \"Springfield\"]}.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["in"],
+  "properties": {
+    "in": {
+      "$ref": "../../common/binary-args.json"
+    }
+  },
+  "examples": [
+    { "in": ["Spring", "Springfield"] }
+  ]
+}

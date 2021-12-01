@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file:///schemas/json-logic/operators/arithmetic/modulo.json",
+
+  "title": "%",
+  "description": "Module. Finds the remainder after the first argument is divided by the second argument.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["%"],
+  "properties": {
+    "%": {
+      "$ref": "../../common/binary-args.json"
+    }
+  },
+  "examples": [
+    { "%": [101, 2] }
+  ]
+}

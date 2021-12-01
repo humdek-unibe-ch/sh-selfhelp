@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file:///schemas/json-logic/operators/misc/log.json",
+
+  "title": "log",
+  "description": "Logs the first value to console, then passes it through unmodified.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["log"],
+  "properties": {
+    "log": {
+      "$ref": "../../common/any.json"
+    }
+  },
+  "examples": [
+    { "log": "apple" }
+  ]
+}

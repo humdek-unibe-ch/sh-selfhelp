@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file://../common/all-operators.json",
+
+  "title": "All Operators",
+  "description": "Any valid JSON Logic data source, expect primitive types.",
+
+  "oneOf": [
+    { "$ref": "../operators/accessor/variable.json" },
+    { "$ref": "../operators/accessor/missing.json" },
+    { "$ref": "../operators/accessor/missing_some.json" },
+
+    { "$ref": "../operators/arithmetic/add.json" },
+    { "$ref": "../operators/arithmetic/divide.json" },
+    { "$ref": "../operators/arithmetic/modulo.json" },
+    { "$ref": "../operators/arithmetic/multiply.json" },
+    { "$ref": "../operators/arithmetic/subtract.json" },
+
+    { "$ref": "../operators/array/all.json" },
+    { "$ref": "../operators/array/filter.json" },
+    { "$ref": "../operators/array/map.json" },
+    { "$ref": "../operators/array/merge.json" },
+    { "$ref": "../operators/array/none.json" },
+    { "$ref": "../operators/array/reduce.json" },
+    { "$ref": "../operators/array/some.json" },
+
+    { "$ref": "../operators/logic/and.json" },
+    { "$ref": "../operators/logic/equal.json" },
+    { "$ref": "../operators/logic/if.json" },
+    { "$ref": "../operators/logic/not.json" },
+    { "$ref": "../operators/logic/notEqual.json" },
+    { "$ref": "../operators/logic/notnot.json" },
+    { "$ref": "../operators/logic/or.json" },
+    { "$ref": "../operators/logic/strictEqual.json" },
+    { "$ref": "../operators/logic/strictNotEqual.json" },
+
+    { "$ref": "../operators/misc/in.json" },
+    { "$ref": "../operators/misc/log.json" },
+    { "$ref": "../operators/misc/method.json" },
+
+    { "$ref": "../operators/numeric/greater.json" },
+    { "$ref": "../operators/numeric/greaterEqual.json" },
+    { "$ref": "../operators/numeric/less.json" },
+    { "$ref": "../operators/numeric/lessEqual.json" },
+    { "$ref": "../operators/numeric/max.json" },
+    { "$ref": "../operators/numeric/min.json" },
+
+    { "$ref": "../operators/string/cat.json" },
+    { "$ref": "../operators/string/substr.json" }
+  ]
+}
