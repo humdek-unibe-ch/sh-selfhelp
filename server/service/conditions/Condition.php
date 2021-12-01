@@ -73,6 +73,11 @@ class Condition
      */
     public function compute_condition($condition, $id_users = null, $section = 'system')
     {
+        if(!$condition){
+            // there is no condition to check just go on
+            $res['result'] = true;            
+            return $res;
+        }
         $id_users = $id_users ? $id_users : $_SESSION['id_user']; // set default value to $_SESSION['id_user'] if not set
         $res = array("result" => false, "fields" => array());
         if ($condition === null || $condition === "")

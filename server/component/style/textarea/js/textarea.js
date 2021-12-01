@@ -769,7 +769,6 @@ function showQualtricsSurveyConfiBuilder(json, monacoEditor) {
 function showActionConfiBuilder(json, monacoEditor) {
     var editor;
     var defValue = getJson(json);
-    console.log(defValue);
     $('.actionConfigBuilderBtn').each(function () {
         $(this).click(() => {
             $(".actionConfig_builder_modal_holder").modal({
@@ -793,7 +792,6 @@ function showActionConfiBuilder(json, monacoEditor) {
                     if(val['condition_jquerBuilderJson'] && !(val['condition_jquerBuilderJson'] instanceof Object)){
                         val['condition_jquerBuilderJson'] = JSON.parse(val['condition_jquerBuilderJson']);
                     }
-                    console.log(val);
                     monacoEditor.getModel().setValue(JSON.stringify(val, null, 3));
                 })
             });
