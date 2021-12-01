@@ -15,7 +15,7 @@ const jsonLogicOperators = {
     in_one_of: { op: '==' },
 };
 
-dataConfigInitCalls = {};
+var dataConfigInitCalls = {};
 
 $(document).ready(function () {
     autosize($('textarea'));
