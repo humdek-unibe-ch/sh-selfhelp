@@ -121,9 +121,8 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select user_id, form_name, edit_time, user_code, ', @sql, ' , removed as deleted from view_user_input
-		where form_id = ', form_id_param,
-		' group by user_id, form_name, edit_time, user_code, removed');
+		SET @sql = CONCAT('select user_id, form_name, max(edit_time) as edit_time, record_id, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
+		where form_id = ', form_id_param, ' group by user_id, form_name, user_name, record_id, user_code, removed');
 
 		
 		PREPARE stmt FROM @sql;
@@ -159,9 +158,8 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select user_id, form_name, edit_time, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
-		where form_id = ', form_id_param, ' and user_id = ', user_id_param,
-		' group by user_id, form_name, user_name, edit_time, user_code, removed');
+		SET @sql = CONCAT('select user_id, form_name, max(edit_time) as edit_time, record_id, user_name, user_code, ', @sql, ' , removed as deleted from view_user_input
+		where form_id = ', form_id_param, ' and user_id = ', user_id_param, ' group by user_id, form_name, user_name,  record_id, user_code, removed');
 
 		
 		PREPARE stmt FROM @sql;
@@ -754,3 +752,53 @@ END
 //
 
 DELIMITER ;
+DROP VIEW IF EXISTS view_formActions;
+CREATE VIEW view_formActions
+AS
+SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
+fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
+schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
+CASE 
+	WHEN action_type.lookup_value = 'Reminder' THEN f_reminder.form_name 
+    ELSE NULL
+END as form_reminder_name, fa.id_formActions
+FROM formActions fa 
+INNER JOIN view_form f ON (fa.id_forms = f.form_id)
+INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
+INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleTypes)
+LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
+LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
+LEFT JOIN groups g on (fg.id_groups = g.id)
+GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value;
+DROP VIEW IF EXISTS view_formActionsReminders;
+CREATE VIEW view_formActionsReminders
+AS
+SELECT u.id as user_id, u.email, u.name AS user_name, code, sj.id AS id_scheduledJobs,
+sj.status_code as status_code, sj.status AS status, r.id_forms AS id_forms,
+fa.id_formActions,
+	(SELECT sess.date_to_be_executed 
+	FROM scheduledJobs sess 
+    INNER JOIN scheduledJobs_formActions sj_fa2 on (sj_fa2.id_scheduledJobs = sess.id)
+	INNER JOIN formActions fa2 ON (fa2.id = sj_fa2.id_formActions)
+    WHERE fa2.id = fa.id_formActions 
+    ORDER BY sess.date_to_be_executed DESC
+    LIMIT 0, 1) AS session_start_date,
+(SELECT CAST(JSON_EXTRACT(fa2.schedule_info, '$.valid') AS UNSIGNED)
+FROM formActions fa2
+WHERE fa2.id = fa.id_formActions) AS valid,
+(SELECT sess.date_to_be_executed 
+	FROM scheduledJobs sess 
+    INNER JOIN scheduledJobs_formActions sj_fa2 on (sj_fa2.id_scheduledJobs = sess.id)
+	INNER JOIN formActions fa2 ON (fa2.id = sj_fa2.id_formActions)
+    WHERE fa2.id = fa.id_formActions 
+    ORDER BY sess.date_to_be_executed DESC
+    LIMIT 0, 1) + INTERVAL (SELECT CAST(JSON_EXTRACT(fa2.schedule_info, '$.valid') AS UNSIGNED)
+FROM formActions fa2
+WHERE fa2.id = fa.id_formActions) MINUTE AS valid_till
+FROM formActionsReminders r
+INNER JOIN view_users u ON (u.id = r.id_users)
+LEFT JOIN view_scheduledJobs sj ON (sj.id = r.id_scheduledJobs) 
+LEFT JOIN scheduledJobs_formActions sj_fa on (sj_fa.id_scheduledJobs = sj.id)
+LEFT JOIN formActions fa ON (fa.id = sj_fa.id_formActions);
