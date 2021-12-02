@@ -35,7 +35,7 @@ $(document).ready(function () {
                     model = setDataConfigSchema(monaco, json);
                 } else if ($(json).prev().attr('name').includes('condition')) {
                     model = setConditionSchema(monaco, json);
-                } else if ($(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
+                } else if ($(json).prev().parent().attr('class') && $(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
                     model = setQualtricsSurveyConfigSchema(monaco, json);
                 }
                 var editorOptions = {
@@ -65,9 +65,9 @@ $(document).ready(function () {
                         }
                     })
                     showConditionBuilder(editor, jquerBuilderJsonInput);
-                } else if ($(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
+                } else if ($(json).prev().parent().attr('class') && $(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
                     showQualtricsSurveyConfiBuilder(json, editor);
-                } else if ($(json).prev().parent().attr('class').includes('actionConfig')) {
+                } else if ($(json).prev().parent().attr('class') && $(json).prev().parent().attr('class').includes('actionConfig')) {
                     showActionConfiBuilder(json, editor);
                     var jquerBuilderJsonInput;
                     $('textarea').each(function () {
