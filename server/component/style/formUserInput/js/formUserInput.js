@@ -47,6 +47,16 @@ function formSubmitEvent() {
                     // update textarea - the function is in the style js
                     check_textarea_locked_after_submit();
 
+                    // get the form class which includes the sectionId, this is the way we will find it from the returned html and replace it
+                    var searchClasses = [];
+                    $(form).attr('class').trim().split(' ').forEach(element => {
+                        searchClasses.push('.'+element);
+                    });
+                    $(htmlDoc).find(searchClasses.join(',')).each(function () {
+                        // update all children inside the form with the new data
+                        $(form).html(this);
+                    });
+
                     // assign success allerts
                     $(htmlDoc).find('.alert-success').each(function () {
                         $(this).insertBefore($(form)[0]);
