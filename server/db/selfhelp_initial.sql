@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 4.9.7
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 06, 2021 at 09:31 AM
+-- Generation Time: Dec 06, 2021 at 04:09 PM
 -- Server version: 5.7.36
 -- PHP Version: 7.2.34
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -226,32 +227,32 @@ INSERT INTO `actions` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `activitytype`
+-- Table structure for table `activityType`
 --
 
-DROP TABLE IF EXISTS `activitytype`;
-CREATE TABLE IF NOT EXISTS `activitytype` (
+DROP TABLE IF EXISTS `activityType`;
+CREATE TABLE IF NOT EXISTS `activityType` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `activitytype`
+-- Dumping data for table `activityType`
 --
 
-INSERT INTO `activitytype` (`id`, `name`) VALUES
+INSERT INTO `activityType` (`id`, `name`) VALUES
 (0000000001, 'experiment'),
 (0000000002, 'export');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `callbacklogs`
+-- Table structure for table `callbackLogs`
 --
 
-DROP TABLE IF EXISTS `callbacklogs`;
-CREATE TABLE IF NOT EXISTS `callbacklogs` (
+DROP TABLE IF EXISTS `callbackLogs`;
+CREATE TABLE IF NOT EXISTS `callbackLogs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `callback_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `remote_addr` varchar(200) DEFAULT NULL,
@@ -285,11 +286,11 @@ CREATE TABLE IF NOT EXISTS `chat` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `chatrecipiants`
+-- Table structure for table `chatRecipiants`
 --
 
-DROP TABLE IF EXISTS `chatrecipiants`;
-CREATE TABLE IF NOT EXISTS `chatrecipiants` (
+DROP TABLE IF EXISTS `chatRecipiants`;
+CREATE TABLE IF NOT EXISTS `chatRecipiants` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_chat` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_room_users` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
@@ -303,11 +304,11 @@ CREATE TABLE IF NOT EXISTS `chatrecipiants` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `chatroom`
+-- Table structure for table `chatRoom`
 --
 
-DROP TABLE IF EXISTS `chatroom`;
-CREATE TABLE IF NOT EXISTS `chatroom` (
+DROP TABLE IF EXISTS `chatRoom`;
+CREATE TABLE IF NOT EXISTS `chatRoom` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext NOT NULL,
@@ -316,20 +317,20 @@ CREATE TABLE IF NOT EXISTS `chatroom` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `chatroom`
+-- Dumping data for table `chatRoom`
 --
 
-INSERT INTO `chatroom` (`id`, `name`, `description`, `title`) VALUES
+INSERT INTO `chatRoom` (`id`, `name`, `description`, `title`) VALUES
 (0000000001, 'root', 'The main room where every user is part of', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `chatroom_users`
+-- Table structure for table `chatRoom_users`
 --
 
-DROP TABLE IF EXISTS `chatroom_users`;
-CREATE TABLE IF NOT EXISTS `chatroom_users` (
+DROP TABLE IF EXISTS `chatRoom_users`;
+CREATE TABLE IF NOT EXISTS `chatRoom_users` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_chatRoom` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -342,11 +343,11 @@ CREATE TABLE IF NOT EXISTS `chatroom_users` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cmspreferences`
+-- Table structure for table `cmsPreferences`
 --
 
-DROP TABLE IF EXISTS `cmspreferences`;
-CREATE TABLE IF NOT EXISTS `cmspreferences` (
+DROP TABLE IF EXISTS `cmsPreferences`;
+CREATE TABLE IF NOT EXISTS `cmsPreferences` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `callback_api_key` varchar(500) DEFAULT NULL,
   `default_language_id` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
@@ -357,10 +358,10 @@ CREATE TABLE IF NOT EXISTS `cmspreferences` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `cmspreferences`
+-- Dumping data for table `cmsPreferences`
 --
 
-INSERT INTO `cmspreferences` (`id`, `callback_api_key`, `default_language_id`, `fcm_api_key`, `fcm_sender_id`) VALUES
+INSERT INTO `cmsPreferences` (`id`, `callback_api_key`, `default_language_id`, `fcm_api_key`, `fcm_sender_id`) VALUES
 (0000000001, NULL, 0000000002, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -578,11 +579,11 @@ INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `fieldtype`
+-- Table structure for table `fieldType`
 --
 
-DROP TABLE IF EXISTS `fieldtype`;
-CREATE TABLE IF NOT EXISTS `fieldtype` (
+DROP TABLE IF EXISTS `fieldType`;
+CREATE TABLE IF NOT EXISTS `fieldType` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `position` int(11) NOT NULL,
@@ -590,10 +591,10 @@ CREATE TABLE IF NOT EXISTS `fieldtype` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `fieldtype`
+-- Dumping data for table `fieldType`
 --
 
-INSERT INTO `fieldtype` (`id`, `name`, `position`) VALUES
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES
 (0000000001, 'text', 10),
 (0000000002, 'textarea', 30),
 (0000000003, 'checkbox', 60),
@@ -619,11 +620,11 @@ INSERT INTO `fieldtype` (`id`, `name`, `position`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `formactions`
+-- Table structure for table `formActions`
 --
 
-DROP TABLE IF EXISTS `formactions`;
-CREATE TABLE IF NOT EXISTS `formactions` (
+DROP TABLE IF EXISTS `formActions`;
+CREATE TABLE IF NOT EXISTS `formActions` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_forms` int(10) UNSIGNED ZEROFILL NOT NULL,
   `name` varchar(200) NOT NULL,
@@ -642,11 +643,11 @@ CREATE TABLE IF NOT EXISTS `formactions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `formactionsreminders`
+-- Table structure for table `formActionsReminders`
 --
 
-DROP TABLE IF EXISTS `formactionsreminders`;
-CREATE TABLE IF NOT EXISTS `formactionsreminders` (
+DROP TABLE IF EXISTS `formActionsReminders`;
+CREATE TABLE IF NOT EXISTS `formActionsReminders` (
   `id_forms` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -658,11 +659,11 @@ CREATE TABLE IF NOT EXISTS `formactionsreminders` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `formactions_groups`
+-- Table structure for table `formActions_groups`
 --
 
-DROP TABLE IF EXISTS `formactions_groups`;
-CREATE TABLE IF NOT EXISTS `formactions_groups` (
+DROP TABLE IF EXISTS `formActions_groups`;
+CREATE TABLE IF NOT EXISTS `formActions_groups` (
   `id_formActions` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_formActions`,`id_groups`),
@@ -832,11 +833,11 @@ INSERT INTO `lookups` (`id`, `type_code`, `lookup_code`, `lookup_value`, `lookup
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mailattachments`
+-- Table structure for table `mailAttachments`
 --
 
-DROP TABLE IF EXISTS `mailattachments`;
-CREATE TABLE IF NOT EXISTS `mailattachments` (
+DROP TABLE IF EXISTS `mailAttachments`;
+CREATE TABLE IF NOT EXISTS `mailAttachments` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
   `attachment_name` varchar(1000) DEFAULT NULL,
@@ -850,11 +851,11 @@ CREATE TABLE IF NOT EXISTS `mailattachments` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mailqueue`
+-- Table structure for table `mailQueue`
 --
 
-DROP TABLE IF EXISTS `mailqueue`;
-CREATE TABLE IF NOT EXISTS `mailqueue` (
+DROP TABLE IF EXISTS `mailQueue`;
+CREATE TABLE IF NOT EXISTS `mailQueue` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `from_email` varchar(100) NOT NULL,
   `from_name` varchar(100) NOT NULL,
@@ -1242,21 +1243,21 @@ INSERT INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pagetype`
+-- Table structure for table `pageType`
 --
 
-DROP TABLE IF EXISTS `pagetype`;
-CREATE TABLE IF NOT EXISTS `pagetype` (
+DROP TABLE IF EXISTS `pageType`;
+CREATE TABLE IF NOT EXISTS `pageType` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `pagetype`
+-- Dumping data for table `pageType`
 --
 
-INSERT INTO `pagetype` (`id`, `name`) VALUES
+INSERT INTO `pageType` (`id`, `name`) VALUES
 (0000000001, 'intern'),
 (0000000002, 'core'),
 (0000000003, 'experiment'),
@@ -1279,11 +1280,11 @@ CREATE TABLE IF NOT EXISTS `plugins` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricsactions`
+-- Table structure for table `qualtricsActions`
 --
 
-DROP TABLE IF EXISTS `qualtricsactions`;
-CREATE TABLE IF NOT EXISTS `qualtricsactions` (
+DROP TABLE IF EXISTS `qualtricsActions`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_qualtricsProjects` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -1304,11 +1305,11 @@ CREATE TABLE IF NOT EXISTS `qualtricsactions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricsactions_functions`
+-- Table structure for table `qualtricsActions_functions`
 --
 
-DROP TABLE IF EXISTS `qualtricsactions_functions`;
-CREATE TABLE IF NOT EXISTS `qualtricsactions_functions` (
+DROP TABLE IF EXISTS `qualtricsActions_functions`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions_functions` (
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_lookups` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_qualtricsActions`,`id_lookups`),
@@ -1319,11 +1320,11 @@ CREATE TABLE IF NOT EXISTS `qualtricsactions_functions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricsactions_groups`
+-- Table structure for table `qualtricsActions_groups`
 --
 
-DROP TABLE IF EXISTS `qualtricsactions_groups`;
-CREATE TABLE IF NOT EXISTS `qualtricsactions_groups` (
+DROP TABLE IF EXISTS `qualtricsActions_groups`;
+CREATE TABLE IF NOT EXISTS `qualtricsActions_groups` (
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_groups` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_qualtricsActions`,`id_groups`),
@@ -1334,11 +1335,11 @@ CREATE TABLE IF NOT EXISTS `qualtricsactions_groups` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricsprojects`
+-- Table structure for table `qualtricsProjects`
 --
 
-DROP TABLE IF EXISTS `qualtricsprojects`;
-CREATE TABLE IF NOT EXISTS `qualtricsprojects` (
+DROP TABLE IF EXISTS `qualtricsProjects`;
+CREATE TABLE IF NOT EXISTS `qualtricsProjects` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` varchar(1000) DEFAULT NULL,
@@ -1353,11 +1354,11 @@ CREATE TABLE IF NOT EXISTS `qualtricsprojects` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricsreminders`
+-- Table structure for table `qualtricsReminders`
 --
 
-DROP TABLE IF EXISTS `qualtricsreminders`;
-CREATE TABLE IF NOT EXISTS `qualtricsreminders` (
+DROP TABLE IF EXISTS `qualtricsReminders`;
+CREATE TABLE IF NOT EXISTS `qualtricsReminders` (
   `id_qualtricsSurveys` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -1369,11 +1370,11 @@ CREATE TABLE IF NOT EXISTS `qualtricsreminders` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricssurveys`
+-- Table structure for table `qualtricsSurveys`
 --
 
-DROP TABLE IF EXISTS `qualtricssurveys`;
-CREATE TABLE IF NOT EXISTS `qualtricssurveys` (
+DROP TABLE IF EXISTS `qualtricsSurveys`;
+CREATE TABLE IF NOT EXISTS `qualtricsSurveys` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` varchar(1000) DEFAULT NULL,
@@ -1392,11 +1393,11 @@ CREATE TABLE IF NOT EXISTS `qualtricssurveys` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `qualtricssurveysresponses`
+-- Table structure for table `qualtricsSurveysResponses`
 --
 
-DROP TABLE IF EXISTS `qualtricssurveysresponses`;
-CREATE TABLE IF NOT EXISTS `qualtricssurveysresponses` (
+DROP TABLE IF EXISTS `qualtricsSurveysResponses`;
+CREATE TABLE IF NOT EXISTS `qualtricsSurveysResponses` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_surveys` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -1414,11 +1415,11 @@ CREATE TABLE IF NOT EXISTS `qualtricssurveysresponses` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs`
+-- Table structure for table `scheduledJobs`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs` (
+DROP TABLE IF EXISTS `scheduledJobs`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_jobTypes` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_jobStatus` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -1435,11 +1436,11 @@ CREATE TABLE IF NOT EXISTS `scheduledjobs` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs_formactions`
+-- Table structure for table `scheduledJobs_formActions`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs_formactions`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs_formactions` (
+DROP TABLE IF EXISTS `scheduledJobs_formActions`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_formActions` (
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_formActions` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_scheduledJobs`,`id_formActions`),
@@ -1449,11 +1450,11 @@ CREATE TABLE IF NOT EXISTS `scheduledjobs_formactions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs_mailqueue`
+-- Table structure for table `scheduledJobs_mailQueue`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs_mailqueue`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs_mailqueue` (
+DROP TABLE IF EXISTS `scheduledJobs_mailQueue`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_mailQueue` (
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_mailQueue` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_scheduledJobs`,`id_mailQueue`),
@@ -1463,11 +1464,11 @@ CREATE TABLE IF NOT EXISTS `scheduledjobs_mailqueue` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs_notifications`
+-- Table structure for table `scheduledJobs_notifications`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs_notifications`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs_notifications` (
+DROP TABLE IF EXISTS `scheduledJobs_notifications`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_notifications` (
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_notifications` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_scheduledJobs`,`id_notifications`),
@@ -1477,11 +1478,11 @@ CREATE TABLE IF NOT EXISTS `scheduledjobs_notifications` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs_qualtricsactions`
+-- Table structure for table `scheduledJobs_qualtricsActions`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs_qualtricsactions`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs_qualtricsactions` (
+DROP TABLE IF EXISTS `scheduledJobs_qualtricsActions`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_qualtricsActions` (
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_qualtricsActions` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_scheduledJobs`,`id_qualtricsActions`),
@@ -1491,11 +1492,11 @@ CREATE TABLE IF NOT EXISTS `scheduledjobs_qualtricsactions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs_tasks`
+-- Table structure for table `scheduledJobs_tasks`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs_tasks`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs_tasks` (
+DROP TABLE IF EXISTS `scheduledJobs_tasks`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_tasks` (
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_tasks` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_scheduledJobs`,`id_tasks`),
@@ -1505,11 +1506,11 @@ CREATE TABLE IF NOT EXISTS `scheduledjobs_tasks` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scheduledjobs_users`
+-- Table structure for table `scheduledJobs_users`
 --
 
-DROP TABLE IF EXISTS `scheduledjobs_users`;
-CREATE TABLE IF NOT EXISTS `scheduledjobs_users` (
+DROP TABLE IF EXISTS `scheduledJobs_users`;
+CREATE TABLE IF NOT EXISTS `scheduledJobs_users` (
   `id_users` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_scheduledJobs` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_users`,`id_scheduledJobs`),
@@ -2057,11 +2058,11 @@ CREATE TABLE IF NOT EXISTS `sections_navigation` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `stylegroup`
+-- Table structure for table `styleGroup`
 --
 
-DROP TABLE IF EXISTS `stylegroup`;
-CREATE TABLE IF NOT EXISTS `stylegroup` (
+DROP TABLE IF EXISTS `styleGroup`;
+CREATE TABLE IF NOT EXISTS `styleGroup` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` longtext,
@@ -2070,10 +2071,10 @@ CREATE TABLE IF NOT EXISTS `stylegroup` (
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `stylegroup`
+-- Dumping data for table `styleGroup`
 --
 
-INSERT INTO `stylegroup` (`id`, `name`, `description`, `position`) VALUES
+INSERT INTO `styleGroup` (`id`, `name`, `description`, `position`) VALUES
 (0000000001, 'intern', NULL, NULL),
 (0000000002, 'Form', 'A form is a wrapper for input fields. It allows to send content of the input fields to the server and store the data to the database. Several style are available:', 60),
 (0000000003, 'Input', 'An input field must be placed inside a form wrapper. An input field allows a user to enter data and submit these to the server. The chosen form wrapper decides what happens with the submitted data. The following input fields styles are available:', 70),
@@ -2641,21 +2642,21 @@ INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `styletype`
+-- Table structure for table `styleType`
 --
 
-DROP TABLE IF EXISTS `styletype`;
-CREATE TABLE IF NOT EXISTS `styletype` (
+DROP TABLE IF EXISTS `styleType`;
+CREATE TABLE IF NOT EXISTS `styleType` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `styletype`
+-- Dumping data for table `styleType`
 --
 
-INSERT INTO `styletype` (`id`, `name`) VALUES
+INSERT INTO `styleType` (`id`, `name`) VALUES
 (0000000001, 'view'),
 (0000000002, 'component'),
 (0000000003, 'navigation');
@@ -2693,7 +2694,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
   KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
   KEY `transactions_fk_id_users` (`id_users`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2778,18 +2779,16 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000075, '2021-12-01 12:34:42', 35, 42, 2, 'pages', 61, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/formsActions\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":73,\"sid\":361,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/\"}}'),
 (0000000076, '2021-12-01 12:34:48', 35, 42, 2, 'pages', 49, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/qualtrics\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":73,\"sid\":361,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms_preferences\"}}'),
 (0000000077, '2021-12-01 12:34:53', 35, 42, 2, 'pages', 45, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/data\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":73,\"sid\":361,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/formsActions\"}}'),
-(0000000078, '2021-12-01 12:34:58', 35, 42, 2, 'pages', 45, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/data\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":73,\"sid\":361,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\"}}'),
-(0000000079, '2021-12-06 09:30:27', 35, 42, 2, 'pages', 10, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/cms\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":64,\"sid\":180,\"ssid\":180,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/book\"}}'),
-(0000000080, '2021-12-06 09:30:29', 35, 42, 2, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":64,\"sid\":180,\"ssid\":180,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms_update\\/64\\/180\\/180\\/update\\/prop\"}}');
+(0000000078, '2021-12-01 12:34:58', 35, 42, 2, 'pages', 45, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/admin\\/data\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":73,\"sid\":361,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000002\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/qualtrics\"}}');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `uploadcells`
+-- Table structure for table `uploadCells`
 --
 
-DROP TABLE IF EXISTS `uploadcells`;
-CREATE TABLE IF NOT EXISTS `uploadcells` (
+DROP TABLE IF EXISTS `uploadCells`;
+CREATE TABLE IF NOT EXISTS `uploadCells` (
   `id_uploadRows` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_uploadCols` int(10) UNSIGNED ZEROFILL NOT NULL,
   `value` longtext NOT NULL,
@@ -2801,11 +2800,11 @@ CREATE TABLE IF NOT EXISTS `uploadcells` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `uploadcols`
+-- Table structure for table `uploadCols`
 --
 
-DROP TABLE IF EXISTS `uploadcols`;
-CREATE TABLE IF NOT EXISTS `uploadcols` (
+DROP TABLE IF EXISTS `uploadCols`;
+CREATE TABLE IF NOT EXISTS `uploadCols` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -2816,11 +2815,11 @@ CREATE TABLE IF NOT EXISTS `uploadcols` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `uploadrows`
+-- Table structure for table `uploadRows`
 --
 
-DROP TABLE IF EXISTS `uploadrows`;
-CREATE TABLE IF NOT EXISTS `uploadrows` (
+DROP TABLE IF EXISTS `uploadRows`;
+CREATE TABLE IF NOT EXISTS `uploadRows` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `id_uploadTables` int(10) UNSIGNED ZEROFILL NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2831,11 +2830,11 @@ CREATE TABLE IF NOT EXISTS `uploadrows` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `uploadtables`
+-- Table structure for table `uploadTables`
 --
 
-DROP TABLE IF EXISTS `uploadtables`;
-CREATE TABLE IF NOT EXISTS `uploadtables` (
+DROP TABLE IF EXISTS `uploadTables`;
+CREATE TABLE IF NOT EXISTS `uploadTables` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2886,11 +2885,11 @@ INSERT INTO `users` (`id`, `email`, `name`, `password`, `id_genders`, `blocked`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `userstatus`
+-- Table structure for table `userStatus`
 --
 
-DROP TABLE IF EXISTS `userstatus`;
-CREATE TABLE IF NOT EXISTS `userstatus` (
+DROP TABLE IF EXISTS `userStatus`;
+CREATE TABLE IF NOT EXISTS `userStatus` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` varchar(500) NOT NULL,
@@ -2898,10 +2897,10 @@ CREATE TABLE IF NOT EXISTS `userstatus` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `userstatus`
+-- Dumping data for table `userStatus`
 --
 
-INSERT INTO `userstatus` (`id`, `name`, `description`) VALUES
+INSERT INTO `userStatus` (`id`, `name`, `description`) VALUES
 (0000000001, 'interested', 'This user has shown interest in the platform but has not yet met the preconditions to be invited.'),
 (0000000002, 'invited', 'This user was invited to join the platform but has not yet validated the email address.'),
 (0000000003, 'active', 'This user can log in and visit all accessible pages.'),
@@ -2948,7 +2947,7 @@ CREATE TABLE IF NOT EXISTS `user_activity` (
   PRIMARY KEY (`id`),
   KEY `id_users` (`id_users`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_activity`
@@ -2967,9 +2966,7 @@ INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`, `id_type`, `e
 (0000000010, 0000000002, '/selfhelp/admin/data', '2021-12-01 13:34:53', 0000000002, '0.07172108'),
 (0000000011, 0000000002, '/selfhelp/admin/data', '2021-12-01 13:34:58', 0000000002, NULL),
 (0000000012, 0000000002, '/selfhelp/admin/data', '2021-12-01 13:34:58', 0000000002, NULL),
-(0000000013, 0000000002, '/selfhelp/admin/data', '2021-12-01 13:34:58', 0000000002, '0.06854796'),
-(0000000014, 0000000002, '/selfhelp/admin/cms', '2021-12-06 10:30:27', 0000000002, '0.03558588'),
-(0000000015, 0000000002, '/selfhelp/impressum', '2021-12-06 10:30:29', 0000000002, '0.11996722');
+(0000000013, 0000000002, '/selfhelp/admin/data', '2021-12-01 13:34:58', 0000000002, '0.06854796');
 
 -- --------------------------------------------------------
 
@@ -3080,24 +3077,24 @@ ALTER TABLE `chat`
   ADD CONSTRAINT `fk_chat_id_send` FOREIGN KEY (`id_snd`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `chatrecipiants`
+-- Constraints for table `chatRecipiants`
 --
-ALTER TABLE `chatrecipiants`
+ALTER TABLE `chatRecipiants`
   ADD CONSTRAINT `chatRecipiants_fk_id_chat` FOREIGN KEY (`id_chat`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatroom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `chatRecipiants_fk_id_room_users` FOREIGN KEY (`id_room_users`) REFERENCES `chatRoom_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chatRecipiants_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `chatroom_users`
+-- Constraints for table `chatRoom_users`
 --
-ALTER TABLE `chatroom_users`
-  ADD CONSTRAINT `chatRoom_users_fk_id_chatRoom` FOREIGN KEY (`id_chatRoom`) REFERENCES `chatroom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ALTER TABLE `chatRoom_users`
+  ADD CONSTRAINT `chatRoom_users_fk_id_chatRoom` FOREIGN KEY (`id_chatRoom`) REFERENCES `chatRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chatRoom_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `cmspreferences`
+-- Constraints for table `cmsPreferences`
 --
-ALTER TABLE `cmspreferences`
+ALTER TABLE `cmsPreferences`
   ADD CONSTRAINT `fk_cmsPreferences_language` FOREIGN KEY (`default_language_id`) REFERENCES `languages` (`id`);
 
 --
@@ -3111,37 +3108,37 @@ ALTER TABLE `codes_groups`
 -- Constraints for table `fields`
 --
 ALTER TABLE `fields`
-  ADD CONSTRAINT `fields_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `fieldtype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fields_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `formactions`
+-- Constraints for table `formActions`
 --
-ALTER TABLE `formactions`
+ALTER TABLE `formActions`
   ADD CONSTRAINT `formActions_fk_id_formActionScheduleTypes` FOREIGN KEY (`id_formActionScheduleTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `formActions_fk_id_form_reminder` FOREIGN KEY (`id_forms_reminder`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `formActions_fk_id_forms` FOREIGN KEY (`id_forms`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `formActions_fk_id_lookups_formProjectActionTriggerType` FOREIGN KEY (`id_formProjectActionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `formactionsreminders`
+-- Constraints for table `formActionsReminders`
 --
-ALTER TABLE `formactionsreminders`
+ALTER TABLE `formActionsReminders`
   ADD CONSTRAINT `formActionsReminders_fk_id_forms` FOREIGN KEY (`id_forms`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `formActionsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `formActionsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `formActionsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `formactions_groups`
+-- Constraints for table `formActions_groups`
 --
-ALTER TABLE `formactions_groups`
-  ADD CONSTRAINT `formActions_groups_fk_id_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formactions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ALTER TABLE `formActions_groups`
+  ADD CONSTRAINT `formActions_groups_fk_id_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `formActions_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `mailattachments`
+-- Constraints for table `mailAttachments`
 --
-ALTER TABLE `mailattachments`
-  ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailqueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `mailAttachments`
+  ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `modules_pages`
@@ -3157,7 +3154,7 @@ ALTER TABLE `pages`
   ADD CONSTRAINT `pages_fk_id_actions` FOREIGN KEY (`id_actions`) REFERENCES `actions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_id_navigation_section` FOREIGN KEY (`id_navigation_section`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_id_pacgeAccessTypes` FOREIGN KEY (`id_pageAccessTypes`) REFERENCES `lookups` (`id`),
-  ADD CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pagetype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `pages_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `pages_fk_parent` FOREIGN KEY (`parent`) REFERENCES `pages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
@@ -3183,99 +3180,99 @@ ALTER TABLE `pages_sections`
   ADD CONSTRAINT `pages_sections_fk_id_sections` FOREIGN KEY (`id_sections`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `qualtricsactions`
+-- Constraints for table `qualtricsActions`
 --
-ALTER TABLE `qualtricsactions`
+ALTER TABLE `qualtricsActions`
   ADD CONSTRAINT `qualtricsActions_fk_id_lookups_qualtricsProjectActionTriggerType` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsActionScheduleTypes` FOREIGN KEY (`id_qualtricsActionScheduleTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsprojects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricssurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys_reminder` FOREIGN KEY (`id_qualtricsSurveys_reminder`) REFERENCES `qualtricssurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsProjects` FOREIGN KEY (`id_qualtricsProjects`) REFERENCES `qualtricsProjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsActions_fk_id_qualtricsSurveys_reminder` FOREIGN KEY (`id_qualtricsSurveys_reminder`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `qualtricsactions_functions`
+-- Constraints for table `qualtricsActions_functions`
 --
-ALTER TABLE `qualtricsactions_functions`
+ALTER TABLE `qualtricsActions_functions`
   ADD CONSTRAINT `qualtricsActions_functions_fk_id_lookups` FOREIGN KEY (`id_lookups`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `qualtricsActions_functions_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsactions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `qualtricsActions_functions_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `qualtricsactions_groups`
+-- Constraints for table `qualtricsActions_groups`
 --
-ALTER TABLE `qualtricsactions_groups`
+ALTER TABLE `qualtricsActions_groups`
   ADD CONSTRAINT `qualtricsActions_groups_fk_id_groups` FOREIGN KEY (`id_groups`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `qualtricsActions_groups_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsactions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `qualtricsActions_groups_fk_id_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `qualtricsreminders`
+-- Constraints for table `qualtricsReminders`
 --
-ALTER TABLE `qualtricsreminders`
-  ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricssurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ALTER TABLE `qualtricsReminders`
+  ADD CONSTRAINT `qualtricsReminders_fk_id_qualtricsSurveys` FOREIGN KEY (`id_qualtricsSurveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qualtricsReminders_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `qualtricsReminders_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `qualtricssurveys`
+-- Constraints for table `qualtricsSurveys`
 --
-ALTER TABLE `qualtricssurveys`
+ALTER TABLE `qualtricsSurveys`
   ADD CONSTRAINT `qualtricsSurveys_fk_id_qualtricsSurveyTypes` FOREIGN KEY (`id_qualtricsSurveyTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `qualtricssurveysresponses`
+-- Constraints for table `qualtricsSurveysResponses`
 --
-ALTER TABLE `qualtricssurveysresponses`
+ALTER TABLE `qualtricsSurveysResponses`
   ADD CONSTRAINT `qSurveysResponses_fk_id_qualtricsProjectActionTriggerTypes` FOREIGN KEY (`id_qualtricsProjectActionTriggerTypes`) REFERENCES `lookups` (`id`),
-  ADD CONSTRAINT `qSurveysResponses_fk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricssurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `qSurveysResponses_fk_id_surveys` FOREIGN KEY (`id_surveys`) REFERENCES `qualtricsSurveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `qSurveysResponses_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs`
+-- Constraints for table `scheduledJobs`
 --
-ALTER TABLE `scheduledjobs`
+ALTER TABLE `scheduledJobs`
   ADD CONSTRAINT `scheduledJobs_fk_id_jobStatus` FOREIGN KEY (`id_jobStatus`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `scheduledJobs_fk_id_jobTypes` FOREIGN KEY (`id_jobTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs_formactions`
+-- Constraints for table `scheduledJobs_formActions`
 --
-ALTER TABLE `scheduledjobs_formactions`
-  ADD CONSTRAINT `scheduledJobs_formActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `scheduledJobs_formActions_fk_iid_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formactions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `scheduledJobs_formActions`
+  ADD CONSTRAINT `scheduledJobs_formActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_formActions_fk_iid_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs_mailqueue`
+-- Constraints for table `scheduledJobs_mailQueue`
 --
-ALTER TABLE `scheduledjobs_mailqueue`
-  ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailqueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `scheduledJobs_mailQueue`
+  ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_mailQueue_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs_notifications`
+-- Constraints for table `scheduledJobs_notifications`
 --
-ALTER TABLE `scheduledjobs_notifications`
+ALTER TABLE `scheduledJobs_notifications`
   ADD CONSTRAINT `scheduledJobs_notifications_fk_id_notifications` FOREIGN KEY (`id_notifications`) REFERENCES `notifications` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `scheduledJobs_notifications_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `scheduledJobs_notifications_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs_qualtricsactions`
+-- Constraints for table `scheduledJobs_qualtricsActions`
 --
-ALTER TABLE `scheduledjobs_qualtricsactions`
-  ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsactions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `scheduledJobs_qualtricsActions`
+  ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scheduledJobs_qualtricsActions_fk_iid_qualtricsActions` FOREIGN KEY (`id_qualtricsActions`) REFERENCES `qualtricsActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs_tasks`
+-- Constraints for table `scheduledJobs_tasks`
 --
-ALTER TABLE `scheduledjobs_tasks`
-  ADD CONSTRAINT `scheduledJobs_tasks_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ALTER TABLE `scheduledJobs_tasks`
+  ADD CONSTRAINT `scheduledJobs_tasks_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `scheduledJobs_tasks_fk_id_tasks` FOREIGN KEY (`id_tasks`) REFERENCES `tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `scheduledjobs_users`
+-- Constraints for table `scheduledJobs_users`
 --
-ALTER TABLE `scheduledjobs_users`
+ALTER TABLE `scheduledJobs_users`
   ADD CONSTRAINT `scheduledJobs_users_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `scheduledJobs_users_fk_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledjobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `scheduledJobs_users_fk_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `sections`
@@ -3312,8 +3309,8 @@ ALTER TABLE `sections_navigation`
 -- Constraints for table `styles`
 --
 ALTER TABLE `styles`
-  ADD CONSTRAINT `styles_fk_id_group` FOREIGN KEY (`id_group`) REFERENCES `stylegroup` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `styles_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `styletype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `styles_fk_id_group` FOREIGN KEY (`id_group`) REFERENCES `styleGroup` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `styles_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `styleType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `styles_fields`
@@ -3331,23 +3328,23 @@ ALTER TABLE `transactions`
   ADD CONSTRAINT `transactions_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `uploadcells`
+-- Constraints for table `uploadCells`
 --
-ALTER TABLE `uploadcells`
-  ADD CONSTRAINT `uploadCells_fk_id_uploadCols` FOREIGN KEY (`id_uploadCols`) REFERENCES `uploadcols` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `uploadCells_fk_id_uploadRows` FOREIGN KEY (`id_uploadRows`) REFERENCES `uploadrows` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `uploadCells`
+  ADD CONSTRAINT `uploadCells_fk_id_uploadCols` FOREIGN KEY (`id_uploadCols`) REFERENCES `uploadCols` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `uploadCells_fk_id_uploadRows` FOREIGN KEY (`id_uploadRows`) REFERENCES `uploadRows` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `uploadcols`
+-- Constraints for table `uploadCols`
 --
-ALTER TABLE `uploadcols`
-  ADD CONSTRAINT `uploadCols_fk_id_uploadTables` FOREIGN KEY (`id_uploadTables`) REFERENCES `uploadtables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `uploadCols`
+  ADD CONSTRAINT `uploadCols_fk_id_uploadTables` FOREIGN KEY (`id_uploadTables`) REFERENCES `uploadTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `uploadrows`
+-- Constraints for table `uploadRows`
 --
-ALTER TABLE `uploadrows`
-  ADD CONSTRAINT `uploadRows_fk_id_uploadTables` FOREIGN KEY (`id_uploadTables`) REFERENCES `uploadtables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `uploadRows`
+  ADD CONSTRAINT `uploadRows_fk_id_uploadTables` FOREIGN KEY (`id_uploadTables`) REFERENCES `uploadTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`
@@ -3355,7 +3352,7 @@ ALTER TABLE `uploadrows`
 ALTER TABLE `users`
   ADD CONSTRAINT `fk_users_id_genders` FOREIGN KEY (`id_genders`) REFERENCES `genders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_users_id_languages` FOREIGN KEY (`id_languages`) REFERENCES `languages` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_users_id_status` FOREIGN KEY (`id_status`) REFERENCES `userstatus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_users_id_status` FOREIGN KEY (`id_status`) REFERENCES `userStatus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users_groups`
@@ -3368,7 +3365,7 @@ ALTER TABLE `users_groups`
 -- Constraints for table `user_activity`
 --
 ALTER TABLE `user_activity`
-  ADD CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activitytype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_user_activity_fk_id_type` FOREIGN KEY (`id_type`) REFERENCES `activityType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_user_activity_fk_id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
