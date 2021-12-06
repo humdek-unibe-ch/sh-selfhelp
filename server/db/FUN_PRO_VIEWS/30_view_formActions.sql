@@ -17,4 +17,4 @@ INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleType
 LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
 LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
 LEFT JOIN groups g on (fg.id_groups = g.id)
-GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value;
+GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value, f.form_name, form_reminder_name;
