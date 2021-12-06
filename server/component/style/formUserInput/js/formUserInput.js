@@ -48,14 +48,15 @@ function formSubmitEvent() {
                     check_textarea_locked_after_submit();
 
                     // get the form class which includes the sectionId, this is the way we will find it from the returned html and replace it
-                    var searchClasses = [];
-                    $(form).attr('class').trim().split(' ').forEach(element => {
-                        searchClasses.push('.'+element);
-                    });
-                    $(htmlDoc).find(searchClasses.join(',')).each(function () {
-                        // update all children inside the form with the new data
-                        $(form).html(this);
-                    });
+                    // var searchClasses = [];
+                    // $(form).attr('class').trim().split(' ').forEach(element => {
+                    //     searchClasses.push('.'+element);
+                    // });
+                    // console.log(searchClasses);
+                    // $(htmlDoc).find(searchClasses.join(',')).each(function () {
+                    //     // update all children inside the form with the new data
+                    //     $(form).html($(this).html());
+                    // });
 
                     // assign success allerts
                     $(htmlDoc).find('.alert-success').each(function () {
