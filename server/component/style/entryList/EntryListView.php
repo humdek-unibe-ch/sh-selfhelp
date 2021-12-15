@@ -35,6 +35,9 @@ class EntryListView extends StyleView
     private function output_list_row()
     {
         $entry_list = $this->model->get_entry_list();
+        if(!$entry_list){
+           return;
+        }
         for ($i = 0; $i < count($this->model->get_entry_list()); $i++){
             $entry_data = $entry_list[$i];
             require __DIR__ . "/tpl_entryList_row.php";

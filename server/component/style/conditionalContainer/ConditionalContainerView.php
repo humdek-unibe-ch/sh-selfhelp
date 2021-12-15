@@ -90,6 +90,54 @@ class ConditionalContainerView extends StyleView
         return false;
     }
 
+    /**
+     * Render the style view for mobile.
+     */
+    private function output_conditional_content_mobile()
+    {
+        $style = $this->model->get_db_fields();
+        $style['style_name'] = $this->style_name;
+        $style['css'] = $this->css;
+        $children = [];
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                if($child->get_view() instanceof ConditionFailedView){
+                    // do nothhing. This child is shown only if the condition fails
+                }else{
+                    $children[] = $child->output_content_mobile();
+                }                
+            } 
+        }
+        $style['children'] = $children;
+        return $style;
+    }
+
+    /**
+     * Render the style view for mobile.
+     */
+    private function output_conditional_content_mobile_entry($entry_value)
+    {
+        $style = $this->model->get_db_fields();
+        $style['style_name'] = $this->style_name;
+        $style['css'] = $this->css;
+        $children = [];
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                if($child->get_view() instanceof ConditionFailedView){
+                    // do nothhing. This child is shown only if the condition fails
+                }else{
+                    if (method_exists($child, 'output_content_mobile_entry')) {
+                        $children[]  = $child->output_content_mobile_entry($entry_value);
+                    } else {
+                        $children[]  = $child->output_content_mobile();
+                    }
+                }                
+            } 
+        }
+        $style['children'] = $children;
+        return $style;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -146,13 +194,23 @@ class ConditionalContainerView extends StyleView
 
     public function output_content_mobile()
     {
-        if(!$this->is_correct_platform()){
+        if (!$this->is_correct_platform()) {
             // break it is not the correct platform
             return [];
         }
         $res = $this->model->compute_condition($this->condition);
         if ($res['result']) {
-            return parent::output_content_mobile();
+            return $this->output_conditional_content_mobile();
+        } else {
+            foreach ($this->children as $child) {
+                if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                    if ($child->get_view() instanceof ConditionFailedView) {
+                        return $child->output_content_mobile();
+                    } else {
+                        // do nothhing condition failed
+                    }
+                }
+            }
         }
     }
 
@@ -162,15 +220,26 @@ class ConditionalContainerView extends StyleView
      * the data for the entry value
      */
     public function output_content_mobile_entry($entry_value)
-    {        
-        if(!$this->is_correct_platform()){
+    {
+        if (!$this->is_correct_platform()) {
             // break it is not the correct platform
             return [];
         }
         $this->get_entry_values($entry_value);
         $res = $this->model->compute_condition($this->condition);
         if ($res['result']) {
-            return parent::output_content_mobile_entry($entry_value);
+            return $this->output_conditional_content_mobile_entry($entry_value);
+        } else {
+            foreach ($this->children as $child) {
+                if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent
+                ) {
+                    if ($child->get_view() instanceof ConditionFailedView) {
+                        return $child->output_content_mobile_entry($entry_value);
+                    } else {
+                        // do nothhing condition failed
+                    }
+                }
+            }
         }
     }
 

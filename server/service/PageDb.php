@@ -601,9 +601,8 @@ class PageDb extends BaseDb
     public function get_user_code()
     {
         $res = $this->query_db_first('SELECT code
-                                        FROM validation_codes vc
-                                        INNER JOIN users u ON (u.id = vc.id_users)
-                                        WHERE u.id = :id', array(':id' => $_SESSION['id_user']));
+                                        FROM view_users
+                                        WHERE id = :id', array(':id' => $_SESSION['id_user']));
         if ($res && isset($res['code'])) {
             return $res['code'];
         } else {

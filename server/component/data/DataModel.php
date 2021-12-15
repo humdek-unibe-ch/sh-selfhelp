@@ -56,7 +56,7 @@ class DataModel extends BaseModel
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
         ));
-        $sql = 'SELECT type, id AS form_id, orig_name AS form_name, CONCAT(id,"-",type) AS form
+        $sql = 'SELECT type, id AS form_id, orig_name AS form_name, form_id_plus_type AS form
                 FROM view_data_tables';
         return $this->db->query_db($sql);
     }

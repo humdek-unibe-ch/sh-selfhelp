@@ -143,12 +143,12 @@ class StyleModel extends BaseModel implements IStyleModel
                         // if specific filter is used, overwrite it.
                         $filter = $config['filter'];
                     }
-                    $current_user = isset($config['current_user']) && $config['current_user'];
-                    $data = $config['type'] === 'static' ? $this->get_static_data(
-                        $table_id,
-                        $filter,
-                        $current_user
-                    ) : $this->get_dynamic_data($table_id, $filter);
+                    $current_user = true; //default value
+                    if(isset($config['current_user'])){
+                        // get the config value if it is set
+                        $current_user = $config['current_user'];
+                    }
+                    $data = $config['type'] === 'static' ? $this->get_static_data($table_id, $filter, $current_user) : $this->get_dynamic_data($table_id, $filter, $current_user);
                     $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
                     });
@@ -195,7 +195,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @retval array
      * the results rows in array
      */
-    private function get_static_data($table_id, $filter, $current_user)
+    protected function get_static_data($table_id, $filter, $current_user)
     {
         if($current_user){
             $filter = "AND id_users = '" . $_SESSION['id_user'] . "'" . $filter;
@@ -213,17 +213,27 @@ class StyleModel extends BaseModel implements IStyleModel
      * id of the table that we want to retrieve
      * @param string $filter
      * filter used to sort the data
+     * @param boolean $current_user
+     * get the data for the current user if enabled
      * @retval array
      * the results rows in array
      */
-    protected function get_dynamic_data($table_id, $filter)
+    protected function get_dynamic_data($table_id, $filter, $current_user)
     {
         $sql = 'CALL get_form_data_for_user_with_filter(:table_id, :user_id, :filter)';
-        return $this->db->query_db($sql, array(
+        $params = array(
             ":table_id" => $table_id,
             ":user_id" => $_SESSION['id_user'],
             ":filter" => $filter
-        ));
+        );
+        if(!$current_user){
+            $sql = 'CALL get_form_data_with_filter(:table_id, :filter)';
+            $params = array(
+            ":table_id" => $table_id,
+            ":filter" => $filter
+        );
+        }
+        return $this->db->query_db($sql, $params);
     }
 
     /**

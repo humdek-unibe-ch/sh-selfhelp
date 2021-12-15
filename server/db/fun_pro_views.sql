@@ -189,12 +189,12 @@ LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_se
 drop view if exists view_data_tables;
 create view view_data_tables
 as
-select 'dynamic' as type, form_id as id, form_name as orig_name, concat(form_name, '_dynamic') as table_name
+select 'dynamic' as type, form_id as id, form_name as orig_name, concat(form_name, '_dynamic') as table_name, CONCAT(form_id,"-","dynamic") AS form_id_plus_type
 from view_form
 
 union
 
-select 'static' as type, id as id, name as orig_name, concat(name, '_static') as table_name
+select 'static' as type, id as id, name as orig_name, concat(name, '_static') as table_name, CONCAT(FLOOR(id),"-","static") AS form_id_plus_type
 from uploadTables;
 DELIMITER //
 
@@ -582,7 +582,12 @@ AS
 SELECT u.id, u.email, u.name, 
 IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
 us.name AS status,
-us.description, u.blocked, ifnull(vc.code, '-') AS code,
+us.description, u.blocked, 
+CASE
+	WHEN u.name = 'admin' THEN 'admin'
+    WHEN u.name = 'tpf' THEN 'tpf'    
+    ELSE IFNULL(vc.code, '-') 
+END AS code,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,

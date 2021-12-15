@@ -629,7 +629,7 @@ class CmsView extends BaseView
                 "max" => 10,
                 "live_search" => 1,
                 "is_required" => 1, 
-                "items" => $this->model->get_db()->fetch_table_as_select_values('view_form', 'form_id', array('form_name'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'))
             ));
         }
         else if($field['type'] == "select-plugin")
@@ -727,7 +727,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('view_form', 'form_id', array('form_name'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'))
             ));
         }
         else if($field['type'] == "select-plugin")
