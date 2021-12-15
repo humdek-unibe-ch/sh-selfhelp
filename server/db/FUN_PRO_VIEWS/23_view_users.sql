@@ -4,7 +4,12 @@ AS
 SELECT u.id, u.email, u.name, 
 IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
 us.name AS status,
-us.description, u.blocked, ifnull(vc.code, '-') AS code,
+us.description, u.blocked, 
+CASE
+	WHEN u.name = 'admin' THEN 'admin'
+    WHEN u.name = 'tpf' THEN 'tpf'    
+    ELSE IFNULL(vc.code, '-') 
+END AS code,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,

@@ -60,6 +60,10 @@ define('USER_STATUS_INTERESTED', 1);
 define('USER_STATUS_INVITED', 2);
 define('USER_STATUS_ACTIVE', 3);
 
+/* Form types */
+define('FORM_DYNAMIC', 'dynamic');
+define('FORM_STATIC', 'static');
+
 /* Callback status */
 define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');

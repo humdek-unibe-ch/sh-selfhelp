@@ -69,8 +69,8 @@ class CallbackQualtrics extends BaseCallback
      */
     private function getUserId($code)
     {
-        $sql = "select id_users
-                from validation_codes
+        $sql = "select id as id_users
+                from view_users
                 where code  = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         return  !isset($res['id_users']) ? -1 : $res['id_users'];
@@ -103,7 +103,7 @@ class CallbackQualtrics extends BaseCallback
     private function code_exist($code)
     {
         $sql = "select code
-                from validation_codes
+                from view_users
                 where code  = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         return  isset($res['code']);

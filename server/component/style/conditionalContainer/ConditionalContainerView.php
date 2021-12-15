@@ -112,6 +112,32 @@ class ConditionalContainerView extends StyleView
         return $style;
     }
 
+    /**
+     * Render the style view for mobile.
+     */
+    private function output_conditional_content_mobile_entry($entry_value)
+    {
+        $style = $this->model->get_db_fields();
+        $style['style_name'] = $this->style_name;
+        $style['css'] = $this->css;
+        $children = [];
+        foreach ($this->children as $child) {
+            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
+                if($child->get_view() instanceof ConditionFailedView){
+                    // do nothhing. This child is shown only if the condition fails
+                }else{
+                    if (method_exists($child, 'output_content_mobile_entry')) {
+                        $children[]  = $child->output_content_mobile_entry($entry_value);
+                    } else {
+                        $children[]  = $child->output_content_mobile();
+                    }
+                }                
+            } 
+        }
+        $style['children'] = $children;
+        return $style;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -202,7 +228,7 @@ class ConditionalContainerView extends StyleView
         $this->get_entry_values($entry_value);
         $res = $this->model->compute_condition($this->condition);
         if ($res['result']) {
-            return parent::output_content_mobile_entry($entry_value);
+            return $this->output_conditional_content_mobile_entry($entry_value);
         } else {
             foreach ($this->children as $child) {
                 if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent
