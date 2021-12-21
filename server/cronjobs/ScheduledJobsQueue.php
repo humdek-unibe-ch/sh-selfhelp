@@ -55,7 +55,7 @@ class ScheduledJobsQueue
         $router = new Router($this->db, BASE_PATH);
         $router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
         $user_input = new UserInput($this->db);
-        $condition = new Condition($this->db, $this->user_input);
+        $condition = new Condition($this->db, $user_input);
         $mail = new Mailer($this->db, $this->transaction, $user_input, $router, $condition);
         $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $condition);
     }
