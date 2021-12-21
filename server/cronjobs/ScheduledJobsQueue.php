@@ -11,6 +11,7 @@ require_once __DIR__ . "/../service/jobs/Mailer.php";
 require_once __DIR__ . "/../service/Transaction.php";
 require_once __DIR__ . "/../service/Router.php";
 require_once __DIR__ . "/../service/UserInput.php";
+require_once __DIR__ . "/../service/Condition.php";
 require_once __DIR__ . "/../service/JobScheduler.php";
 
 /**
