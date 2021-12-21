@@ -600,10 +600,14 @@ class PageDb extends BaseDb
      */
     public function get_user_code()
     {
+        if(isset($_SESSION['user_code'])){
+            return $_SESSION['user_code'];
+        }
         $res = $this->query_db_first('SELECT code
                                         FROM view_users
                                         WHERE id = :id', array(':id' => $_SESSION['id_user']));
         if ($res && isset($res['code'])) {
+            $_SESSION['user_code'] = $res['code'];
             return $res['code'];
         } else {
             return false;

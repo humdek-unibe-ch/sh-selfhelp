@@ -25,7 +25,7 @@ class Mailer extends BasicJob
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction, $user_input, $router, $condition)
+    public function __construct($db, $transaction, $user_input, $router, $condition = null)
     {
         $this->parsedown = new ParsedownExtension($user_input, $router);
         $this->parsedown->setSafeMode(false);

@@ -95,7 +95,7 @@ class FormUserInputView extends StyleView
      * @param object $controller
      *  The controller instance of the component.
      */
-    public function __construct($model, $controller, $selected_record_id)
+    public function __construct($model, $controller, $selected_record_id = null)
     {
         parent::__construct($model, $controller);
         $this->name = $this->model->get_db_field("name");

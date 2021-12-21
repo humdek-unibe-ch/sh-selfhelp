@@ -1,4 +1,9 @@
-# v4.4.0 (latest)
+# v4.4.1 (latest)
+ - Bugfixing slow user_code loading
+ - bugfix message board error
+ - bugfix cronjob sending mails 
+
+# v4.4.0
  - Fix style `conditionFailed` loading for mobile apps
  - Adjust `entry` styles to use static data for visualizing
 
