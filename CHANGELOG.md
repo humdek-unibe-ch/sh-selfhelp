@@ -1,5 +1,8 @@
-# v4.4.1 (latest)
- - Bugfixing slow user_code loading
+# v4.4.2 (latest)
+ - bug fix search style url loading when there is no BASE_PATH
+
+# v4.4.1
+ - bugfixing slow user_code loading
  - bugfix message board error
  - bugfix cronjob sending mails 
 
