@@ -1,4 +1,7 @@
-# v4.4.2 (latest)
+# v4.4.3 (latest)
+ - bug fix wrong reminder scheduling for surveys and forms
+
+# v4.4.2
  - bug fix search style url loading when there is no BASE_PATH
 
 # v4.4.1

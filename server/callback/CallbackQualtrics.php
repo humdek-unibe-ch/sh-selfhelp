@@ -372,8 +372,8 @@ class CallbackQualtrics extends BaseCallback
                 // we have to check the linked notification and schedule the reminder always after the notification
                 $schedule_info_notification = json_decode($this->db->query_db_first('SELECT schedule_info FROM qualtricsActions WHERE id = :id', array(':id' => $schedule_info['linked_action']))['schedule_info'], true);
                 $base_schedule_info = $schedule_info;
-                $base_schedule_info['send_on'] = 1;
-                $schedule_info_notification['send_on'] = 1;
+                // $base_schedule_info['send_on'] = 1;
+                // $schedule_info_notification['send_on'] = 1;
                 $base_reminder_day = $this->calc_date_on_weekday($base_schedule_info);
                 $base_notification_day = $this->calc_date_on_weekday($schedule_info_notification);
                 if ($base_notification_day > $base_reminder_day) {
