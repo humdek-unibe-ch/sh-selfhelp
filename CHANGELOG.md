@@ -1,4 +1,7 @@
-# v4.4.3 (latest)
+# v4.4.4 (latest)
+ - disable graphs Ajax calls 
+
+# v4.4.3
  - bug fix wrong reminder scheduling for surveys and forms
 
 # v4.4.2
