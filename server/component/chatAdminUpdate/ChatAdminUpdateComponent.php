@@ -57,7 +57,6 @@ class ChatAdminUpdateComponent extends ChatAdminComponent
         $view = new ChatAdminUpdateView($model, $controller, $this->mode,
             $this->did);
         parent::__construct($model, $view, $controller);
-        $this->set_request_access($id_page, "AjaxSearch", "search_user_chat");
     }
 
     /**

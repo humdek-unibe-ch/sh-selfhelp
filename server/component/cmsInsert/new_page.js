@@ -7,6 +7,7 @@ $(document).ready(function() {
     var $header_pos = $('#header-position');
     var $type_component = $('input[name="type"][value="2"]');
     var $type_custom = $('input[name="type"][value="1"]');
+    var $type_ajax = $('input[name="type"][value="5"]');
     var keyword = "";
     var nav = "";
     $('input[name="set-advanced"]').change(function() {
@@ -15,6 +16,7 @@ $(document).ready(function() {
             $url_input.prop("readonly", false);
             $type_component.prop("disabled", false);
             $type_custom.prop("disabled", false);
+            $type_ajax.prop("disabled", false);
             $protocol_list.removeClass("d-none");
             $headless_check.removeClass("d-none");
         }
@@ -23,6 +25,7 @@ $(document).ready(function() {
             $url_input.prop("readonly", true);
             $type_component.prop("disabled", true);
             $type_custom.prop("disabled", true);
+            $type_ajax.prop("disabled", true);
             $protocol_list.addClass("d-none");
             $headless_check.addClass("d-none");
         }

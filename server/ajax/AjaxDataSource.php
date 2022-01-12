@@ -239,19 +239,21 @@ class AjaxDataSource extends BaseAjax
      */
     public function get_data_table($data)
     {
+        $table_name = $this->router->route['params']['table'];
+        $table_prefix = $this->router->route['params']['prefix'];
         $sql = "SELECT * FROM view_data_tables WHERE table_name = :name";
         $source = $this->db->query_db_first($sql,
-            array("name" => $data['name']));
+            array("name" => $table_prefix . $table_name));
         $filter = array();
-        if(isset($_SESSION['data_filter'][$data['name']])
-                && count($_SESSION['data_filter'][$data['name']]) > 0) {
-                $filter = $_SESSION['data_filter'][$data['name']];
+        if(isset($_SESSION['data_filter'][$table_name])
+                && count($_SESSION['data_filter'][$table_name]) > 0) {
+                $filter = $_SESSION['data_filter'][$table_name];
         }
         if($source['type'] === "static") {
             return $this->fetch_data_table_static($source['id'], $filter);
         } else if($source['type'] === "dynamic") {
             return $this->fetch_data_table_dynamic($source['id'], $filter,
-                $data['single_user'] === "true");
+                true);
         }
         return false;
     }

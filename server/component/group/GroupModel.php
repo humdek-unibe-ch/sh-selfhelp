@@ -245,8 +245,8 @@ class GroupModel extends BaseModel
     private function get_core_access($acl, $lvl)
     {
         $res = true;
-        if($lvl == "select")
-            $res &= $acl["request"]["acl"]["select"];
+        // if($lvl == "select")
+            // $res &= $acl["request"]["acl"]["select"];
         $res &= $this->get_access($acl, "core", $lvl);
         return $res;
     }
@@ -717,8 +717,8 @@ class GroupModel extends BaseModel
      */
     public function set_core_access($lvl)
     {
-        if($lvl == "select")
-            $this->gacl["request"]["acl"]["select"] = true;
+        // if($lvl == "select")
+            // $this->gacl["request"]["acl"]["select"] = true;
         $this->set_access("core", $lvl);
     }
 

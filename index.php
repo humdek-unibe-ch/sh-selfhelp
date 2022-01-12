@@ -32,9 +32,9 @@ if(DEBUG == 1) set_error_handler("exception_error_handler");
 $services = new Services();
 
 // custom page creation functions
-function create_request_page($services, $class_name, $method_name)
+function create_request_page($services, $class_name, $method_name, $keyword = null)
 {
-    $ajax = new AjaxRequest($services, $class_name, $method_name);
+    $ajax = new AjaxRequest($services, $class_name, $method_name, $keyword);
     $ajax->print_json();
 }
 function create_exportData_page($services, $select, $option=null, $id=null)
@@ -99,16 +99,17 @@ function mobile_call($services, $router, $db){
             $page = new ComponentPage($services, $router->route['name'],
                 $router->route['params']);
             $page->output();
-        }
-        else if($router->route['target'] == "custom")
-        {
+        } else if ($router->route['target'] == "custom") {
             $function_name = "create_" . $router->route['name'] . "_page";
-            if(is_callable($function_name))
-                call_user_func_array($function_name,
+            if (is_callable($function_name))
+                call_user_func_array(
+                    $function_name,
                     array_merge(array($services), $router->route['params'])
                 );
             else
                 throw new Exception("Cannot call custom function '$function_name'");
+        } else if ($router->route['target'] == "ajax") {
+            create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
         }
         // log user activity on experiment pages
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
@@ -154,16 +155,17 @@ function web_call($services, $router, $db){
             $page = new ComponentPage($services, $router->route['name'],
                 $router->route['params']);
             $page->output();
-        }
-        else if($router->route['target'] == "custom")
-        {
+        } else if ($router->route['target'] == "custom") {
             $function_name = "create_" . $router->route['name'] . "_page";
-            if(is_callable($function_name))
-                call_user_func_array($function_name,
+            if (is_callable($function_name))
+                call_user_func_array(
+                    $function_name,
                     array_merge(array($services), $router->route['params'])
                 );
             else
                 throw new Exception("Cannot call custom function '$function_name'");
+        } else if ($router->route['target'] == "ajax") {
+            create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
         }
         // log user activity on experiment pages
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";

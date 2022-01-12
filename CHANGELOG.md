@@ -1,4 +1,7 @@
-# v4.4.4 (latest)
+# v4.5.0 (latest)
+ - #305 - Add all ajax requests to the page ACL. If you need an ajax request for style `graph` a page with ajax call url should be created.
+
+# v4.4.4
  - disable graphs Ajax calls 
 
 # v4.4.3
