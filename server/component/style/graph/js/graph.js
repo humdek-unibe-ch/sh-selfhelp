@@ -46,11 +46,11 @@ function drawGraph($div, traces, layout, config, post_process = () => {}, regist
                     drawGraph($div, traces, layout, config, post_process);
                 });
             }
+            var urlAjaxRequest = BASE_PATH + '/request/AjaxDataSource/get_data_table/' + data_source.name;
             $.post(
-                BASE_PATH + '/request/AjaxDataSource/get_data_table',
+                urlAjaxRequest,
                 {
-                    name: data_source.name,
-                    single_user: data_source.single_user ? data_source.single_user : false
+                    single_user: data_source.single_user ? data_source.single_user : false // not important after the changes
                 },
                 function(data) {
                     if(data.success)

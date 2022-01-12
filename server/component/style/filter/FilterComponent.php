@@ -29,7 +29,6 @@ class FilterComponent extends BaseComponent
     public function __construct($model, $view, $id_page)
     {
         parent::__construct($model, $view);
-        $this->set_request_access($id_page, "AjaxDataSource", "set_data_filter");
     }
 }
 ?>

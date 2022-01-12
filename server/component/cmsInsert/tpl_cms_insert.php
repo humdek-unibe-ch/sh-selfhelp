@@ -39,6 +39,10 @@
                         <input class="form-check-input" type="radio" name="type" value="1" disabled>
                         <label class="form-check-label">Custom</label>
                     </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="type" value="5" disabled>
+                        <label class="form-check-label">Ajax</label>
+                    </div>
                     <small class="form-text text-muted">The page type specified how the page content will be assembled. It is recommended to either use the type <code>Sections</code> or <code>Navigation</code>. Pages of type <code>Component</code> and <code>Custom</code> require PHP programming and cannot be handled by the CMS.</small>
                 </div>
                 <div id="header-position" class="form-group">

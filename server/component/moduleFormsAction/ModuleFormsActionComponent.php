@@ -33,8 +33,6 @@ class ModuleFormsActionComponent extends BaseComponent
         $model = new ModuleFormsActionModel($services);
         $controller = new ModuleFormsActionController($model);
         $view = new ModuleFormsActionView($model, $controller, $mode, $sid);
-        $this->set_request_access($id_page, "AjaxDataSource",
-            "get_groups");
         parent::__construct($model, $view, $controller);
     }
 }

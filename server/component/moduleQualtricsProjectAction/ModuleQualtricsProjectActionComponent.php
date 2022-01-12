@@ -32,8 +32,6 @@ class ModuleQualtricsProjectActionComponent extends BaseComponent
         $model = new ModuleQualtricsProjectActionModel($services, $pid);
         $controller = new ModuleQualtricsProjectActionController($model, $pid);
         $view = new ModuleQualtricsProjectActionView($model, $controller, $pid, $mode, $sid);
-        $this->set_request_access($id_page, "AjaxDataSource",
-            "get_groups");
         parent::__construct($model, $view, $controller);
     }
 }

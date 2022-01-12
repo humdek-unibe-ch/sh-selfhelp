@@ -31,6 +31,11 @@ class AjaxRequest
      */
     private $method_name = null;
 
+    /**
+     * Keyword of the request url.
+     */
+    private $keyword = null;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -38,17 +43,20 @@ class AjaxRequest
      *
      * @param object $services
      *  The service handler instance which holds all services
+     * @param string $keyword
+     *  The keyword, it will be used to find the url request permissisons
      * @param string $class_name
      *  The name of the calss to be instantiated.
      * @param string $method_name
      *  The name of the method to be called on the instcane of
      *  AjaxRequest::class_name.
      */
-    public function __construct($services, $class_name, $method_name=null)
+    public function __construct($services, $class_name, $method_name=null, $keyword)
     {
         $this->services = $services;
         $this->class_name = $class_name;
         $this->method_name = $method_name;
+        $this->keyword = $keyword;
     }
 
     /* Protected Methods ******************************************************/
@@ -64,7 +72,7 @@ class AjaxRequest
         if(class_exists($this->class_name))
         {
             $instance = new $this->class_name($this->services);
-            if(!$instance->has_access($this->class_name, $this->method_name))
+            if(!$instance->has_access($this->keyword))
                 $data = "Access denied'";
             else if(!method_exists($instance, $this->method_name))
                 $data = "Request '$this->class_name' has no method '$this->method_name'";
