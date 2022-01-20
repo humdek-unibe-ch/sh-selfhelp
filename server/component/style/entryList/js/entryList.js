@@ -8,6 +8,7 @@ $(document).ready(function () {
         dataTableConfig.searching = classes.includes('dt-searching'); //searching
         dataTableConfig.bPaginate = classes.includes('dt-bPaginate'); //bPaginate
         dataTableConfig.bInfo = classes.includes('dt-bInfo'); //bInfo
+        dataTableConfig.order = []; //init no ordering
 
         //check for ordered columns **********************************************************************************
         // dt-order-0-asc dt-order-1-desc
