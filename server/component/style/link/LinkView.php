@@ -74,7 +74,6 @@ class LinkView extends StyleView
         if($this->url == "") return;
         $entry_data = $entry_value;
         $this->url = $this->model->get_entry_value($entry_value, $this->model->get_db_field("url"));
-        if($this->label == "") $this->label = htmlspecialchars($this->url);
         $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
         require __DIR__ . "/tpl_link_entryValue.php";
     }
