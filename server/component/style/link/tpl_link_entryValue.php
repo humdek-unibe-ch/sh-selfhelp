@@ -5,5 +5,5 @@
 ?>
 <a class="<?php echo $this->css; ?>" href="<?php echo $this->url; ?>" <?php echo $target; ?>>
     <?php echo $this->label; ?>
-    <?php $this->output_children(); ?>
+    <?php $this->output_children_entry($entry_data);  ?>
 </a>
