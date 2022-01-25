@@ -1,5 +1,6 @@
 # v4.6.1 (latest)
  - keep user_name or email in the session. Execute the query only once.
+ - bug fix: when input is used in `refContainer` and then in `formUserInputRecord` now properly load if there are entered values
 
 # v4.6.0
  - fix `etryRecord` load. Form id now is successfully extracted from the parameter and remove the dynamic, static suffix

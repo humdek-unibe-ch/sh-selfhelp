@@ -140,7 +140,10 @@ class FormUserInputView extends StyleView
             $style = $child->get_style_instance();
             if(is_a($style, "FormFieldComponent"))
             {
-                if($show_data) $style->enable_show_db_value();
+                if($show_data) {
+                    $style->enable_show_db_value();
+                    $style->set_form_id($this->id_section);
+                }
                 $style->enable_user_input();
             }
             $this->propagate_input_field_settings($child->get_children(),

@@ -253,6 +253,9 @@ class UserInput
             $db_cond["g.name"] = $filter["gender"];
         if(isset($filter["id_section"]))
             $db_cond["ui.id_sections"] = $filter["id_section"];
+        if(isset($filter["id_section_form"])) {
+            $db_cond["ui.id_section_form"] = $filter["id_section_form"];
+        }
         if(isset($filter["id_user"]))
             $db_cond["ui.id_users"] = $filter["id_user"];
         if(isset($filter["id"]))
