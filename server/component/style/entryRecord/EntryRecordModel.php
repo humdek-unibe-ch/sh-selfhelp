@@ -23,12 +23,21 @@ class EntryRecordModel extends StyleModel
      */
     private $entry_record;
 
+    /**
+     * The type of the selected form, dynamic or static
+     */
+    private $form_type;
+
     public function __construct($services, $id, $record_id)
     {
         parent::__construct($services, $id);
-        $this->form_id = $this->get_db_field("formName");
+        $formInfo = explode('-', $this->get_db_field("formName"));
+        $this->form_id = $formInfo[0];        
+        if (isset($formInfo[1])) {
+            $this->form_type = $formInfo[1];
+        }
         $own_entries_only =  $this->get_db_field("own_entries_only", 1);
-        $this->entry_record = $record_id > 0 ? $this->fetch_entry_record($this->form_id, $record_id, $own_entries_only) : null;
+        $this->entry_record = $record_id > 0 ? $this->fetch_entry_record($this->form_id, $record_id, $own_entries_only, $this->form_type) : null;
     }
 
     /* Private Methods *********************************************************/

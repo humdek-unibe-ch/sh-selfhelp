@@ -29,6 +29,11 @@ class EntryListModel extends StyleModel
     private $entry_list;
 
     /**
+     * String with filter the data source; Use SQL syntax
+     */
+    private $filter;
+
+    /**
      * If selected only the entries of the user will be loaded
      */
     private $own_entries_only;
@@ -42,6 +47,7 @@ class EntryListModel extends StyleModel
             $this->form_type = $formInfo[1];
         }
         $this->own_entries_only = $this->get_db_field("own_entries_only", "1");
+        $this->filter = $this->get_db_field("filter", "");
         if ($this->form_id) {
             $this->entry_list = $this->fetch_entry_list();
         }
@@ -57,9 +63,9 @@ class EntryListModel extends StyleModel
     private function fetch_entry_list()
     {
         if ($this->form_type == FORM_STATIC) {
-            return $this->get_static_data($this->form_id, '', $this->own_entries_only);
+            return $this->get_static_data($this->form_id, $this->filter, $this->own_entries_only);
         } else if ($this->form_type == FORM_DYNAMIC) {
-            return $this->get_dynamic_data($this->form_id, ' AND deleted = 0', $this->own_entries_only);
+            return $this->get_dynamic_data($this->form_id, ' AND deleted = 0 ' . $this->filter, $this->own_entries_only);
         }
     }
 

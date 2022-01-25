@@ -1,4 +1,11 @@
-# v4.5.0 (latest)
+# v4.6.0 (latest)
+ - fix `etryRecord` load. Form id now is successfully extracted from the parameter and remove the dynamic, static suffix
+ - add field `filter` to styles `entryRecord` and `entryList`;
+ - add field `css_mobile` to all styles that have fields `css`
+ - add field `children` to style `link`. Now it can be used to define custom clickable obkects.
+ - improve performance for selfhelp mobile calls for guest users
+
+# v4.5.0
  - #305 - Add all ajax requests to the page ACL. If you need an ajax request for style `graph` a page with ajax call url should be created.
 
 # v4.4.4
