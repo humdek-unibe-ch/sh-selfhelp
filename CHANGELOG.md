@@ -1,4 +1,7 @@
-# v4.6.0 (latest)
+# v4.6.1 (latest)
+ - keep user_name or email in the session. Execute the query only once.
+
+# v4.6.0
  - fix `etryRecord` load. Form id now is successfully extracted from the parameter and remove the dynamic, static suffix
  - add field `filter` to styles `entryRecord` and `entryList`;
  - add field `css_mobile` to all styles that have fields `css`
