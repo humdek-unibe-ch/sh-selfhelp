@@ -22,3 +22,17 @@ WHERE field_name = 'css';
 
 -- add field children to style link
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('link'), get_field_id('children'), 0, 'Children that can be added to the style. Each child will be loaded as a page');
+
+DROP VIEW IF EXISTS view_user_codes;
+CREATE VIEW view_user_codes
+AS
+SELECT u.id, u.email, u.name, u.blocked, 
+CASE
+	WHEN u.name = 'admin' THEN 'admin'
+    WHEN u.name = 'tpf' THEN 'tpf'    
+    ELSE IFNULL(vc.code, '-') 
+END AS code,
+u.intern
+FROM users AS u
+LEFT JOIN validation_codes vc ON u.id = vc.id_users
+WHERE u.intern <> 1 AND u.id_status > 0;

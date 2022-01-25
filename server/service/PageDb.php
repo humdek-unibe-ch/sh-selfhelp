@@ -604,7 +604,7 @@ class PageDb extends BaseDb
             return $_SESSION['user_code'];
         }
         $res = $this->query_db_first('SELECT code
-                                        FROM view_users
+                                        FROM view_user_codes
                                         WHERE id = :id', array(':id' => $_SESSION['id_user']));
         if ($res && isset($res['code'])) {
             $_SESSION['user_code'] = $res['code'];

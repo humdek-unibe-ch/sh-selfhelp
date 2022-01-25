@@ -67,13 +67,13 @@ function mobile_call($services, $router, $db){
     if($router->route)
     {
         if ($router->route['target'] == "sections") {
+            $start_time = microtime(true);
             $page = new SectionPage(
                 $services,
                 $router->route['name'],
                 $router->route['params'],
                 true
-            );
-            $start_time = microtime(true);
+            );            
             $start_date = date("Y-m-d H:i:s");
             $res = $page->output_base_content_mobile();
             if (isset($res['navigation'])) {

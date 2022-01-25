@@ -625,8 +625,10 @@ SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value A
 sj.date_create, date_to_be_executed, date_executed, description, 
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails
-    WHEN l_types.lookup_code = 'notification' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
-    WHEN l_types.lookup_code = 'task' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+    -- WHEN l_types.lookup_code = 'notification' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+    -- WHEN l_types.lookup_code = 'task' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+    WHEN l_types.lookup_code = 'notification' THEN ''
+    WHEN l_types.lookup_code = 'task' THEN ''
     ELSE ""
 END AS recipient,
 CASE
@@ -807,3 +809,16 @@ INNER JOIN view_users u ON (u.id = r.id_users)
 LEFT JOIN view_scheduledJobs sj ON (sj.id = r.id_scheduledJobs) 
 LEFT JOIN scheduledJobs_formActions sj_fa on (sj_fa.id_scheduledJobs = sj.id)
 LEFT JOIN formActions fa ON (fa.id = sj_fa.id_formActions);
+DROP VIEW IF EXISTS view_user_codes;
+CREATE VIEW view_user_codes
+AS
+SELECT u.id, u.email, u.name, u.blocked, 
+CASE
+	WHEN u.name = 'admin' THEN 'admin'
+    WHEN u.name = 'tpf' THEN 'tpf'    
+    ELSE IFNULL(vc.code, '-') 
+END AS code,
+u.intern
+FROM users AS u
+LEFT JOIN validation_codes vc ON u.id = vc.id_users
+WHERE u.intern <> 1 AND u.id_status > 0;
