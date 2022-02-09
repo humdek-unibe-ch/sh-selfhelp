@@ -28,6 +28,11 @@ class FormFieldModel extends StyleModel
      */
     private $is_user_input = false;
 
+    /**
+     * The id of the form
+     */
+    private $form_id = null;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -57,6 +62,7 @@ class FormFieldModel extends StyleModel
         $fields = $this->user_input->get_input_fields(array(
             "id_section" => $this->get_db_field('id'),
             "id_user" => $_SESSION['id_user'],
+            "id_section_form" => $this->form_id
         ));
         $field_count = count($fields);
         if($fields && $field_count > 0)
@@ -85,6 +91,16 @@ class FormFieldModel extends StyleModel
     public function get_show_db_value()
     {
         return $this->show_db_value;
+    }
+
+    /**
+     * Set form_id
+     * @param $form_id integer
+     * the id of the form
+     */
+    public function set_form_id($form_id)
+    {
+        $this->form_id = $form_id;
     }
 
     /**

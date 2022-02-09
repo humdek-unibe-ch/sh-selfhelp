@@ -1,4 +1,11 @@
-# v4.6.0 (latest)
+# v4.6.2 (latest)
+ - `@user_code` is replaced with the real user code in the body of the scheduled notifications or emails by Qualtrics Callback
+
+# v4.6.1
+ - keep user_name or email in the session. Execute the query only once.
+ - bug fix: when input is used in `refContainer` and then in `formUserInputRecord` now properly load if there are entered values
+
+# v4.6.0
  - fix `etryRecord` load. Form id now is successfully extracted from the parameter and remove the dynamic, static suffix
  - add field `filter` to styles `entryRecord` and `entryList`;
  - add field `css_mobile` to all styles that have fields `css`

@@ -426,12 +426,17 @@ class PageDb extends BaseDb
      */
     public function fetch_user_name()
     {
+        if (isset($_SESSION['user_name']) && $_SESSION['user_name'] != '') {
+            return $_SESSION['user_name'];
+        }
         $sql = "SELECT name, email FROM users WHERE id = :id";
-        $res = $this->query_db_first($sql,
-            array(":id" => $_SESSION['id_user']));
-        if(!$res) return "unknown";
-        if($res['name'] != "") return $res['name'];
-        else return $res['email'];
+        $res = $this->query_db_first($sql, array(":id" => $_SESSION['id_user']));
+        if ($res && (isset($res['name']) || isset($res['email']))) {
+            $_SESSION['user_name'] = isset($res['name']) ? $res['name'] : $res['email'];
+            return $_SESSION['user_name'];
+        } else {
+            return "unknown";
+        }
     }
 
     /**
@@ -602,6 +607,10 @@ class PageDb extends BaseDb
     {
         if(isset($_SESSION['user_code'])){
             return $_SESSION['user_code'];
+        }
+        if ($_SESSION['id_user'] == 1){
+            // no logged user, no code
+            return false;
         }
         $res = $this->query_db_first('SELECT code
                                         FROM view_user_codes
