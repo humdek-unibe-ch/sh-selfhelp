@@ -36,6 +36,11 @@ class FormUserInputRecordComponent extends BaseComponent
     public function __construct($services, $id, $params)
     {
         $record_id = isset($params['record_id']) ? intval($params['record_id']) : -1;
+        $router = $services->get_router();
+        $router_params = $router->route['params'];
+        if($record_id == -1){
+            $record_id = isset($router_params['record_id']) ? intval($router_params['record_id']) : -1;
+        }
         $model = new FormUserInputModel($services, $id);        
         $controller = null;
         if(!$model->is_cms_page())
