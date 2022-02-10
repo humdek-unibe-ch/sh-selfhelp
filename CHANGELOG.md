@@ -1,5 +1,6 @@
 # v4.6.3 (latest)
  - get router paramas for styles `FormUserInputLog` and `FormUserInputLog` even if they are in conditional container.
+ - fix mobile loading formField values for entry records
 
 # v4.6.2
  - `@user_code` is replaced with the real user code in the body of the scheduled notifications or emails by Qualtrics Callback
