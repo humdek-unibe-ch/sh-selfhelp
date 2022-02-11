@@ -695,11 +695,18 @@ class ModuleQualtricsProjectModel extends BaseModel
     private function sync_followup_survey($survey, $surveyFlow)
     {
         if ($surveyFlow) {
-            /** EMBEDED DATA variables *************************************************************************************************************************************/
+            $followup_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
+            $followup_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
+            $followup_embedded_flow['EmbeddedData'][] = array(
+                "Description" => $survey['participant_variable'],
+                "Type" => "Recipient",
+                "Field" => $survey['participant_variable'],
+                "VariableType" => "String",
+                "DataVisibility" => array(),
+                "AnalyzeText" => false
+            );
             if ($survey['group_variable'] == 1) {
                 //there is a randomization in the survey, prepare the group variable
-                $followup_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
-                $followup_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
                 $followup_embedded_flow['EmbeddedData'][] = array(
                     "Description" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
                     "Type" => "Recipient",
