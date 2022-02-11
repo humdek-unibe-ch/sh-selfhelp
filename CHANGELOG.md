@@ -1,4 +1,7 @@
-# v4.6.3 (latest)
+# v4.6.4 (latest)
+ - Added embedded data `code` for qualtrics surveys from type `follow-up`. The variable is needed fot anonymous types of surveys.
+
+# v4.6.3
  - get router paramas for styles `FormUserInputLog` and `FormUserInputLog` even if they are in conditional container.
  - fix mobile loading formField values for entry records
 
