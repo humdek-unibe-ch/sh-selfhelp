@@ -73,7 +73,7 @@ class UserModel extends BaseModel
     private function fetch_user($uid)
     {
         $sql = "SELECT *
-            FROM view_user_codes            
+            FROM view_users         
             WHERE id = :uid and intern <> 1";
         $res = $this->db->query_db_first($sql, array(":uid" => $uid));
         if($res)

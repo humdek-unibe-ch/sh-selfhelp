@@ -1,4 +1,8 @@
-# v4.6.4 (latest)
+# v4.6.5 (latest)
+ - Bugfix: Lobby chat group can be renamed
+ - Bugfix: Show user info on selected user
+
+# v4.6.4
  - Added embedded data `code` for qualtrics surveys from type `follow-up`. The variable is needed fot anonymous types of surveys.
 
 # v4.6.3
