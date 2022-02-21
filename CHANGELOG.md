@@ -1,4 +1,7 @@
-# v4.6.5 (latest)
+# v4.6.6 (latest)
+  - Bugfix: properly change `@user_name` to the real user name when we send notifications
+
+# v4.6.5
  - Bugfix: Lobby chat group can be renamed
  - Bugfix: Show user info on selected user
 

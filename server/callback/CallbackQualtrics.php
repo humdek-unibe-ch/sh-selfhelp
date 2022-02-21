@@ -573,8 +573,9 @@ class CallbackQualtrics extends BaseCallback
             }
         }
         // *************************************** END CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
-        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
-        $body = str_replace('@user_code', $this->db->select_by_uid('view_users', $user_id)['code'], $schedule_info['body']);
+        $user_info = $this->db->select_by_uid('view_user_codes', $user_id);
+        $body = str_replace('@user_name', $user_info['name'], $schedule_info['body']);
+        $body = str_replace('@user_code', $user_info['code'], $body);
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -672,8 +673,9 @@ class CallbackQualtrics extends BaseCallback
         $schedule_info = $check_config['schedule_info'];
         $result = $check_config['result'];
 
-        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
-        $body = str_replace('@user_code', $this->db->select_by_uid('view_users', $user_id)['code'], $schedule_info['body']);
+        $user_info = $this->db->select_by_uid('view_user_codes', $user_id);
+        $body = str_replace('@user_name', $user_info['name'], $schedule_info['body']);
+        $body = str_replace('@user_code', $user_info['code'], $body);
         $notification = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
