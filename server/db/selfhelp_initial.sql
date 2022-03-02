@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 25, 2022 at 04:58 PM
+-- Generation Time: Mar 02, 2022 at 10:54 AM
 -- Server version: 5.7.36
 -- PHP Version: 7.2.34
 
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `actions` (
   `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `actions`
@@ -968,7 +968,7 @@ CREATE TABLE IF NOT EXISTS `pages` (
   KEY `id_navigation_section` (`id_navigation_section`),
   KEY `id_type` (`id_type`),
   KEY `pages_fk_id_pacgeAccessTypes` (`id_pageAccessTypes`)
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `pages`
@@ -1035,7 +1035,8 @@ INSERT INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navig
 (0000000066, 'ajax_search_anchor_section', '/request/[AjaxSearch:class]/[search_anchor_section:method]', 'GET|POST', 0000000005, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064),
 (0000000067, 'ajax_search_data_source', '/request/[AjaxSearch:class]/[search_data_source:method]', 'GET|POST', 0000000005, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064),
 (0000000068, 'ajax_search_user_chat', '/request/[AjaxSearch:class]/[search_user_chat:method]', 'GET|POST', 0000000005, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064),
-(0000000069, 'ajax_set_data_filter', '/request/[AjaxDataSource:class]/[set_data_filter:method]', 'GET|POST', 0000000005, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064);
+(0000000069, 'ajax_set_data_filter', '/request/[AjaxDataSource:class]/[set_data_filter:method]', 'GET|POST', 0000000005, NULL, NULL, 0, NULL, NULL, 0000000001, 0000000064),
+(0000000070, 'ajax_set_user_language', '/request/[AjaxLanguage:class]/[ajax_set_user_language:method]', 'GET|POST', 0000000005, NULL, NULL, 0, NULL, NULL, 0000000004, 0000000064);
 
 -- --------------------------------------------------------
 
@@ -2778,7 +2779,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `transactions_fk_id_transactionTypes` (`id_transactionTypes`),
   KEY `transactions_fk_id_transactionBy` (`id_transactionBy`),
   KEY `transactions_fk_id_users` (`id_users`)
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `transactions`
@@ -2850,7 +2851,14 @@ INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id
 (0000000063, '2021-03-16 13:36:00', 35, 42, 3, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":85,\"sid\":99,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/admin\\/cms_preferences\",\"requests\":[]}}'),
 (0000000064, '2021-03-16 13:36:06', 35, 42, 1, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":null,\"sid\":null,\"ssid\":null},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":false,\"id_user\":1,\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\",\"requests\":[]}}'),
 (0000000065, '2022-01-25 16:58:01', 35, 42, 3, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":70,\"sid\":68,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/form2\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}'),
-(0000000066, '2022-01-25 16:58:03', 35, 42, 3, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":70,\"sid\":68,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/impressum\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}');
+(0000000066, '2022-01-25 16:58:03', 35, 42, 3, 'pages', 31, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/impressum\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"de-CH\",\"cms_edit_url\":{\"pid\":70,\"sid\":68,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/impressum\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}'),
+(0000000067, '2022-03-02 10:53:29', 35, 42, 3, 'pages', 2, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/home\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":72,\"sid\":66,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/form\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}'),
+(0000000068, '2022-03-02 10:53:29', 35, 42, 3, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/js\\/ext\\/moment.min.js.map\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":72,\"sid\":66,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/form\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}'),
+(0000000069, '2022-03-02 10:53:29', 35, 42, 3, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/server\\/component\\/style\\/qualtricsSurvey\\/js\\/iframeResizer.map\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":72,\"sid\":66,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/form\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}'),
+(0000000070, '2022-03-02 10:53:29', 35, 42, 3, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/min-maps\\/vs\\/loader.js.map\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":72,\"sid\":66,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/form\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}'),
+(0000000071, '2022-03-02 10:53:31', 35, 42, 3, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/request\\/AjaxLanguage\\/set_user_language\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":72,\"sid\":66,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/form\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}');
+INSERT INTO `transactions` (`id`, `transaction_time`, `id_transactionTypes`, `id_transactionBy`, `id_users`, `table_name`, `id_table_name`, `transaction_log`) VALUES
+(0000000072, '2022-03-02 10:53:33', 35, 42, 3, 'pages', 6, '{\"verbal_log\":\"Transaction type: `select` from table: `pages` triggered by_user\",\"url\":\"\\/selfhelp\\/request\\/AjaxLanguage\\/set_user_language\",\"session\":{\"gender\":\"male\",\"user_gender\":\"male\",\"cms_gender\":\"male\",\"language\":\"de-CH\",\"user_language\":\"de-CH\",\"cms_language\":\"all\",\"cms_edit_url\":{\"pid\":72,\"sid\":66,\"ssid\":null,\"did\":null,\"mode\":\"update\",\"type\":\"prop\"},\"active_section_id\":null,\"project\":\"Projekt Name\",\"target_url\":null,\"logged_in\":true,\"id_user\":\"0000000003\",\"requests\":[],\"last_user_page\":\"http:\\/\\/localhost\\/selfhelp\\/home\",\"user_code\":\"tpf\",\"user_name\":\"TPF\"}}');
 
 -- --------------------------------------------------------
 
@@ -3018,7 +3026,7 @@ CREATE TABLE IF NOT EXISTS `user_activity` (
   PRIMARY KEY (`id`),
   KEY `id_users` (`id_users`),
   KEY `id_type` (`id_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `user_activity`
@@ -3031,7 +3039,8 @@ INSERT INTO `user_activity` (`id`, `id_users`, `url`, `timestamp`, `id_type`, `e
 (0000000004, 0000000002, '/selfhelp/admin/data', '2020-11-06 10:46:22', 0000000002, NULL),
 (0000000005, 0000000003, '/selfhelp/admin/data', '2021-03-16 14:34:39', 0000000002, NULL),
 (0000000006, 0000000003, '/selfhelp/home', '2022-01-25 17:58:01', 0000000002, '0.04770803'),
-(0000000007, 0000000003, '/selfhelp/impressum', '2022-01-25 17:58:03', 0000000002, '0.14982700');
+(0000000007, 0000000003, '/selfhelp/impressum', '2022-01-25 17:58:03', 0000000002, '0.14982700'),
+(0000000008, 0000000003, '/selfhelp/home', '2022-03-02 11:53:29', 0000000002, '0.06554914');
 
 -- --------------------------------------------------------
 
@@ -3113,7 +3122,7 @@ CREATE TABLE IF NOT EXISTS `version` (
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v4.6.0');
+(0000000001, 'v4.7.0');
 
 --
 -- Constraints for dumped tables

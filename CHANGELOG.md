@@ -1,3 +1,6 @@
+# v4.7.0 (latest)
+  - Bugfix: add ajax call as open page for changing the language
+
 # v4.6.6 (latest)
   - Bugfix: properly change `@user_name` to the real user name when we send notifications
 

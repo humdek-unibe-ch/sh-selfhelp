@@ -36,7 +36,7 @@ class AjaxLanguage extends BaseAjax
      *   - 'value':     The email of the user.
      *   - 'id':        The id of the user.
      */
-    public function set_user_language($data)
+    public function ajax_set_user_language($data)
     {
         if($data && $data['locale']){
             $_SESSION['user_language'] = $data['locale'];
