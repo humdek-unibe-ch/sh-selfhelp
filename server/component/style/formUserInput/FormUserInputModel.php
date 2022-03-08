@@ -39,7 +39,8 @@ class FormUserInputModel extends StyleModel
 
     /* Private Methods ********************************************************/
 
-    private function get_form_id(){        
+    private function get_form_id()
+    {
         return $this->get_db_field("id");
     }
 
@@ -170,6 +171,9 @@ class FormUserInputModel extends StyleModel
     {
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
+        $check_config = $this->check_config($schedule_info);
+        $schedule_info = $check_config['schedule_info'];
+        $result = $check_config['result'];
         $task = array(
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -350,13 +354,22 @@ class FormUserInputModel extends StyleModel
     {
         $result = array();
         if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
-            // check qualtrics for more groups comming as embeded data
+            // check form for more groups comming as embeded data
             if (isset($schedule_info['config']['variable'])) {
                 foreach ($schedule_info['config']['variable'] as $key => $variable) {
                     if (isset($_POST[$variable])) {
                         $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $_POST[$variable]['value'];
                         $schedule_info[$variable] = $_POST[$variable]['value'];
                     }
+                }
+            }
+        }
+        if (isset($schedule_info['config']['overwrite_variables']) && count($schedule_info['config']['overwrite_variables']) > 0) {
+            // check form for custom varaibles that overwrite some data
+            foreach ($schedule_info['config']['overwrite_variables'] as $key => $var_pairs) {
+                if (isset($_POST[$var_pairs['embeded_variable']])) {
+                    $result[] = 'Overwrite variable `' . $var_pairs['scheduled_variable'] . '` from ' . $schedule_info[$var_pairs['scheduled_variable']] . ' to ' . $_POST[$var_pairs['embeded_variable']]['value'];
+                    $schedule_info[$var_pairs['scheduled_variable']] = $_POST[$var_pairs['embeded_variable']]['value'];
                 }
             }
         }
@@ -523,9 +536,11 @@ class FormUserInputModel extends StyleModel
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             WHERE f.name = 'label' AND sft.id_sections = :id";
-        $label = $this->db->query_db_first($sql,
-            array(":id" => $id_section));
-        if($label) return $label["content"];
+        $label = $this->db->query_db_first(
+            $sql,
+            array(":id" => $id_section)
+        );
+        if ($label) return $label["content"];
         return "";
     }
 
@@ -543,9 +558,11 @@ class FormUserInputModel extends StyleModel
         $sql = "SELECT st.name FROM styles AS st
             LEFT JOIN sections AS s ON s.id_styles = st.id
             WHERE s.id = :id";
-        $style = $this->db->query_db_first($sql,
-            array(":id" => $id_section));
-        if($style) return $style["name"];
+        $style = $this->db->query_db_first(
+            $sql,
+            array(":id" => $id_section)
+        );
+        if ($style) return $style["name"];
         return "";
     }
 
@@ -564,9 +581,11 @@ class FormUserInputModel extends StyleModel
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
             WHERE f.name = 'type_input' AND sft.id_sections = :id";
-        $type = $this->db->query_db_first($sql,
-            array(":id" => $id_section));
-        if($type) return $type["content"];
+        $type = $this->db->query_db_first(
+            $sql,
+            array(":id" => $id_section)
+        );
+        if ($type) return $type["content"];
         return "";
     }
 
@@ -588,7 +607,7 @@ class FormUserInputModel extends StyleModel
             ":fid" => $this->get_form_id(),
             ":uid" => $_SESSION['id_user'],
         ));
-        if($res) return true;
+        if ($res) return true;
         else return false;
     }
 
@@ -606,7 +625,7 @@ class FormUserInputModel extends StyleModel
             ":fid" => $this->get_form_id(),
             ":uid" => $_SESSION['id_user'],
         ));
-        if($res) return true;
+        if ($res) return true;
         else return false;
     }
 
@@ -623,11 +642,11 @@ class FormUserInputModel extends StyleModel
             ":fid" => $this->get_form_id()
         );
         if ($own_entries_only) {
-            $sql = "CALL get_form_data_for_user_with_filter(:fid, :id_users, 'ORDER BY record_id DESC')";            
+            $sql = "CALL get_form_data_for_user_with_filter(:fid, :id_users, 'ORDER BY record_id DESC')";
             $params["id_users"] = $_SESSION['id_user'];
         }
         $res = $this->db->query_db_first($sql, $params);
-        if($res) return $res['record_id'];
+        if ($res) return $res['record_id'];
         else return false;
     }
 
@@ -656,22 +675,20 @@ class FormUserInputModel extends StyleModel
     {
         $count = 0;
         $id_record = null;
-        if($this->is_log() || !$this->has_form_data()) {
+        if ($this->is_log() || !$this->has_form_data()) {
             $id_record = $this->db->insert("user_input_record", array());
         }
-        foreach($user_input as $id => $value)
-        {
-            if($this->is_log() || !$this->has_field_data($id))
+        foreach ($user_input as $id => $value) {
+            if ($this->is_log() || !$this->has_field_data($id))
                 $res = $this->insert_new_entry($id, $value, $id_record, intval($_SESSION['id_user']));
-            else
-            {      
-                if($id_record == null){
-                    $id_record = $this->get_id_record();                    
-                }          
+            else {
+                if ($id_record == null) {
+                    $id_record = $this->get_id_record();
+                }
                 $res = $this->update_entry_with_record_id($id, $value, $id_record);
             }
 
-            if($res === false)
+            if ($res === false)
                 return false;
             else
                 $count += $res;
@@ -699,7 +716,7 @@ class FormUserInputModel extends StyleModel
         $count = 0;
         foreach ($user_input as $id => $value) {
             $res = $this->update_entry_with_record_id($id, $value, $record_id);
-            if ($res === false) {                
+            if ($res === false) {
                 return false;
             } else {
                 $count += $res;
@@ -722,7 +739,7 @@ class FormUserInputModel extends StyleModel
         $subject = $this->get_db_field("email_subject", '');
         $body = $this->get_db_field("email_body", '');
         $email_address = $this->get_db_field("email_address", '');
-        if($entry_data){
+        if ($entry_data) {
             // $entry_data = json_decode($entry_data, true);            
             $body = $this->get_entry_value($entry_data, $body);
             $subject = $this->get_entry_value($entry_data, $subject);
@@ -738,7 +755,7 @@ class FormUserInputModel extends StyleModel
                 }
             }
         }
-        $email_address = str_replace('@email_user', $this->db->select_by_uid('users', $_SESSION['id_user'])['email'], $email_address);     
+        $email_address = str_replace('@email_user', $this->db->select_by_uid('users', $_SESSION['id_user'])['email'], $email_address);
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -765,7 +782,8 @@ class FormUserInputModel extends StyleModel
      * @retval @array
      * the record row
      */
-    public function get_entry_record($form_name, $record_id, $own_entries_only){
+    public function get_entry_record($form_name, $record_id, $own_entries_only)
+    {
         $form_id = $this->db->get_form_id($form_name);
         return $this->fetch_entry_record($form_id, $record_id, $own_entries_only);
     }
@@ -776,7 +794,8 @@ class FormUserInputModel extends StyleModel
      * @param int $record_id
      *  The record_id of the fields to be marked as removed.
      */
-    public function delete_user_input($record_id){        
+    public function delete_user_input($record_id)
+    {
         $this->db->begin_transaction();
         $res = $this->db->update_by_ids('user_input', array('removed' => 1), array('id_user_input_record' => $record_id));
         $this->transaction->add_transaction(
@@ -796,7 +815,8 @@ class FormUserInputModel extends StyleModel
      * the section_id of the field
      * @retval string the fiedl name
      */
-    public function get_form_field_name($field_id){
+    public function get_form_field_name($field_id)
+    {
         $sql = "SELECT *
                 FROM sections s
                 INNER JOIN sections_fields_translation sft ON (s.id = sft.id_sections)
@@ -804,11 +824,12 @@ class FormUserInputModel extends StyleModel
         $res = $this->db->query_db_first($sql, array(
             ":id" => $field_id,
         ));
-        if($res) return $res['content'];
+        if ($res) return $res['content'];
         else return false;
     }
 
-    public function set_entry_data($entry_data){
+    public function set_entry_data($entry_data)
+    {
         $this->entry_data = $entry_data;
     }
 
@@ -836,7 +857,7 @@ class FormUserInputModel extends StyleModel
                         if ($users_from_groups) {
                             foreach ($users_from_groups as $key => $user) {
                                 array_push($users, $user['id']);
-                            }                            
+                            }
                             $users = array_unique($users);
                         }
                     }

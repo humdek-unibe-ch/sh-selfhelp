@@ -1,7 +1,11 @@
-# v4.7.0 (latest)
+# v4.7.1 (latest)
+  - Add variable pairs configuraation for Qualtrics to overwrite data information
+  - Add variable pairs configuraation for Forms to overwrite data information
+
+# v4.7.0
   - Bugfix: add ajax call as open page for changing the language
 
-# v4.6.6 (latest)
+# v4.6.6
   - Bugfix: properly change `@user_name` to the real user name when we send notifications
 
 # v4.6.5

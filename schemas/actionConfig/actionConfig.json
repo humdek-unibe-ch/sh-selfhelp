@@ -47,11 +47,60 @@
                 }
             }
         },
+        "overwrite_variables": {
+            "type": "array",
+            "title": "Overwrite Variable",
+            "format": "select",
+            "description": "Add variable info",
+            "propertyOrder": 3,
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "title": "Variable pair",
+                "description": "Select variable overwrite structure",
+                "properties": {
+                    "scheduled_variable": {
+                        "propertyOrder": 1,
+                        "type": "string",
+                        "title": "Scheduled varaible",
+                        "description": "The schedule variable will be overwritten with the embeded variable set in the next field",
+                        "enum": [
+                            "notificationTypes",
+                            "send_after",
+                            "send_after_type",
+                            "send_on_day_at",
+                            "recipient",
+                            "subject",
+                            "body"
+                        ]
+                    },
+                    "embeded_variable": {
+                        "propertyOrder": 2,
+                        "type": "string",
+                        "title": "Embeded variable",
+                        "description": "This varible name will be searched in the entry data and replaced with the assigned scheduled variable"
+                    }
+                },
+                "required": [
+                    "scheduled_variable",
+                    "embeded_variable"
+                ]
+            },
+            "options": {
+                "dependencies": {
+                    "type": [
+                        "add_group",
+                        "remove_group",
+                        "overwrite_variable"
+                    ]
+                }
+            }
+        },
         "variable": {
             "type": "array",
             "uniqueItems": true,
             "title": "Variable",
-            "description": "select variable that you want to overwirite from Qualtrics",
+            "description": "select variable that you want to overwirite",
             "format": "select",
             "minItems": 1,
             "items": {

@@ -419,7 +419,7 @@ class CallbackQualtrics extends BaseCallback
     {
         foreach ($actions as $key => $action) {
             $schedule_info = json_decode($action['schedule_info'], true);
-            if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
+            if ((isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") || (isset($schedule_info['config']['overwrite_variables']) && count($schedule_info['config']['overwrite_variables']) > 0)) {
                 // data is needed
                 return true;
             }
@@ -642,6 +642,15 @@ class CallbackQualtrics extends BaseCallback
                 }
             }
         }
+        if (isset($schedule_info['config']['overwrite_variables']) && count($schedule_info['config']['overwrite_variables']) > 0) {
+            // check qualtrics for custom varaibles that overwrite some data
+            foreach ($schedule_info['config']['overwrite_variables'] as $key => $var_pairs) {
+                if (isset($this->survey_response['values'][$var_pairs['embeded_variable']])) {
+                    $result[] = 'Overwrite variable `' . $var_pairs['embeded_variable'] . '` from ' . $schedule_info[$var_pairs['scheduled_variable']] . ' to ' . $this->survey_response['values'][$var_pairs['embeded_variable']];
+                    $schedule_info[$var_pairs['scheduled_variable']] = $this->survey_response['values'][$var_pairs['embeded_variable']];
+                }
+            }
+        }
         return array(
             "result" => $result,
             "schedule_info" => $schedule_info
@@ -741,6 +750,9 @@ class CallbackQualtrics extends BaseCallback
 
         $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
+        $check_config = $this->check_config($schedule_info);
+        $schedule_info = $check_config['schedule_info'];
+        $result = $check_config['result'];
         // if ($schedule_info['config']['type'] == "add_group" || $schedule_info['config']['type'] == "remove_group") {
         //     // check qualtrics for more groups comming as embeded data
         //     // disabled for now as it is not used and it shouldbe improved not to be called multiple times for the same response
