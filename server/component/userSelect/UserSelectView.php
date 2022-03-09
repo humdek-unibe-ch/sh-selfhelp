@@ -97,6 +97,11 @@ class UserSelectView extends BaseView
             $title = "User Code";
             $content = "The validation code associated to the user.";
         }
+        else if($key === "user_name")
+        {
+            $title = "User Name";
+            $content = "Selected user name by the user";
+        }
         else if($key === "login")
         {
             $title = "Last Login";
@@ -311,6 +316,7 @@ class UserSelectView extends BaseView
             $id = $user['id'];
             $url = $this->model->get_link_url("userSelect", array("uid" => $id));
             $email = $user['email'];
+            $user_name = $user['name'];
             if ($user['blocked'] == 1) {
                 $state = 'blocked';
             } else {
@@ -359,6 +365,7 @@ class UserSelectView extends BaseView
         {
             $state = $this->selected_user['status'];
             $code = $this->selected_user['code'] ?? "-";
+            $user_name = $this->selected_user['name'];
             $desc = $this->selected_user['description'];
             $groups = $this->selected_user['groups'];
             $last_login = $this->selected_user['last_login'];

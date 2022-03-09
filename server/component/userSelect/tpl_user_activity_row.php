@@ -8,6 +8,7 @@
     <td><?php echo $email; ?></td>
     <td><?php echo $state; ?></td>
     <td><?php echo $code; ?></td>
+    <td><?php echo $user_name; ?></td>
     <td><?php echo $groups; ?></td>
     <td><?php echo $last_login; ?></td>
     <td><?php echo $activity; ?></td>    

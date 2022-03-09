@@ -1,12 +1,15 @@
-# v4.7.1 (latest)
-  - Add variable pairs configuraation for Qualtrics to overwrite data information
-  - Add variable pairs configuraation for Forms to overwrite data information
+# v4.7.2 (latest)
+ - add `user_name` to the user list and selected user view
+
+# v4.7.1
+ - Add variable pairs configuraation for Qualtrics to overwrite data information
+ - Add variable pairs configuraation for Forms to overwrite data information
 
 # v4.7.0
-  - Bugfix: add ajax call as open page for changing the language
+ - Bugfix: add ajax call as open page for changing the language
 
 # v4.6.6
-  - Bugfix: properly change `@user_name` to the real user name when we send notifications
+ - Bugfix: properly change `@user_name` to the real user name when we send notifications
 
 # v4.6.5
  - Bugfix: Lobby chat group can be renamed
