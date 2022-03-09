@@ -1,4 +1,7 @@
-# v4.7.2 (latest)
+# v4.7.3 (latest)
+ - style `book` check required fields only for the current page and already passed pages when save the values
+
+# v4.7.2
  - add `user_name` to the user list and selected user view
 
 # v4.7.1

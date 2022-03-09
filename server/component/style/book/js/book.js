@@ -80,10 +80,25 @@ $(document).ready(function () {
                     // save forms inside book
                     var currentView = book.turn('view');
                     currentView.forEach(p => {
+                        var submitBtn = $(this).find('[page="' + p + '"]').find(':submit');
+                        $(submitBtn).attr("formnovalidate");
+                        if (currentPage <= page) {
+                            $(submitBtn).attr("formnovalidate", 'formnovalidate');
+                        } else {
+                            // if we go backwards we remove this and try to validate
+                            $(submitBtn).removeAttr("formnovalidate");
+                        }
                         $(this).find('[page="' + p + '"]').find(':submit').click();
                     });
                     // save form if it is parrent of the book
                     if (init) {
+                        var submitBtn = $(this).parent().find("> :submit");
+                        if (currentPage <= page) {
+                            $(submitBtn).attr("formnovalidate", 'formnovalidate');
+                        } else {
+                            // if we go backwards we remove this and try to validate
+                            $(submitBtn).removeAttr("formnovalidate");
+                        }
                         $(this).parent().find("> :submit").click();
                     }
                 }
