@@ -1,5 +1,6 @@
-# v4.7.3 (latest)
+# v4.8.0 (latest)
  - style `book` check required fields only for the current page and already passed pages when save the values
+ - add `ajax_set_user_language` page permissions to admin, subject and thearpist group, otherwise these groups has less righs than any newly created group 
 
 # v4.7.2
  - add `user_name` to the user list and selected user view
