@@ -461,7 +461,6 @@ class CallbackQualtrics extends BaseCallback
                 $res = array();
                 if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
                     $users = array();
-                    array_push($users, $user_id);
                     if (isset($schedule_info['target_groups'])) {
                         $users_from_groups = $this->get_users_from_groups($schedule_info['target_groups']);
                         if ($users_from_groups) {
@@ -470,6 +469,8 @@ class CallbackQualtrics extends BaseCallback
                             }
                             $users = array_unique($users);
                         }
+                    } else {
+                        array_push($users, $user_id);
                     }
                     $start_time = microtime(true);
                     $start_date = date("Y-m-d H:i:s");

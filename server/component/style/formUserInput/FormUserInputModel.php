@@ -851,7 +851,6 @@ class FormUserInputModel extends StyleModel
                 $res = array();
                 if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
                     $users = array();
-                    array_push($users, $_SESSION['id_user']);
                     if (isset($schedule_info['target_groups'])) {
                         $users_from_groups = $this->get_users_from_groups($schedule_info['target_groups']);
                         if ($users_from_groups) {
@@ -860,6 +859,8 @@ class FormUserInputModel extends StyleModel
                             }
                             $users = array_unique($users);
                         }
+                    } else {
+                        array_push($users, $_SESSION['id_user']);
                     }
                     $start_time = microtime(true);
                     $start_date = date("Y-m-d H:i:s");

@@ -1,4 +1,9 @@
-# v4.8.1 (latest)
+# v4.8.2 (latest)
+
+### Bugfix
+ - when scheduling `task` based on `QualtricsAction` or `FormAction` for target groups, it does not schedule the task for the person who triggered the action unless the person is in the targeted group
+
+# v4.8.1
 
 ### New Features
  - add variable `custom_time` to the list with variables that can be overwritten in `QaltricsAction` and `FormAction`;
