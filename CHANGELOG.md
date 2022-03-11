@@ -2,6 +2,7 @@
 
 ### Bugfix
  - when scheduling `task` based on `QualtricsAction` or `FormAction` for target groups, it does not schedule the task for the person who triggered the action unless the person is in the targeted group
+ - add scroll to `showUserInput` table
 
 # v4.8.1
 

@@ -19,6 +19,8 @@ $(document).ready(function () {
         dataTableConfig.bPaginate = classes.includes('dt-bPaginate'); //bPaginate
         dataTableConfig.bInfo = classes.includes('dt-bInfo'); //bInfo
 
+        dataTableConfig['scrollX'] = true;
+
         //check for ordered columns **********************************************************************************
         // dt-order-0-asc dt-order-1-desc
         var ordered = classes.filter(function (str) { return str.includes("dt-order"); });
