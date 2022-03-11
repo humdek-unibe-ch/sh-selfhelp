@@ -69,6 +69,7 @@
                             "send_after",
                             "send_after_type",
                             "send_on_day_at",
+                            "custom_time",
                             "recipient",
                             "subject",
                             "body"
@@ -110,6 +111,7 @@
                     "send_after",
                     "send_after_type",
                     "send_on_day_at",
+                    "custom_time",
                     "recipient",
                     "subject",
                     "body"

@@ -1,4 +1,9 @@
-# v4.8.0 (latest)
+# v4.8.1 (latest)
+
+### New Features
+ - add variable `custom_time` to the list with variables that can be overwritten in `QaltricsAction` and `FormAction`;
+
+# v4.8.0
  - style `book` check required fields only for the current page and already passed pages when save the values
  - add `ajax_set_user_language` page permissions to admin, subject and thearpist group, otherwise these groups has less righs than any newly created group 
 
