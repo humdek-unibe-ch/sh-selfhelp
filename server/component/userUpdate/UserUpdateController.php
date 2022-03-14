@@ -47,6 +47,16 @@ class UserUpdateController extends UserController
                 $this->error_msgs[] = "Failed to unblock the user.";
             }
         }
+        else if($mode == "activation_email" && isset($_POST["activation_email"]))
+        {
+            if($this->model->send_activation_email($_POST["activation_email"]))
+                $this->success = true;
+            else
+            {
+                $this->fail = true;
+                $this->error_msgs[] = "Failed to send activation email to the user.";
+            }
+        }
         else if($mode == "clean" && isset($_POST["email"]))
         {
             if($_POST['email'] == $this->selected_user['email'])

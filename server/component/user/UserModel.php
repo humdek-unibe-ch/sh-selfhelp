@@ -82,6 +82,24 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Fetch the user data from the db.
+     *
+     * @param string $email
+     *  The email of the user to fetch.
+     * @retval array
+     *  An array with the following keys:
+     *   'id':          The id of the user.
+     */
+    private function fetch_user_by_email($email)
+    {
+        $sql = "SELECT id
+            FROM users         
+            WHERE email = :email and intern <> 1";
+        $res = $this->db->query_db_first($sql, array(":email" => $email));
+        return $res;
+    }
+
+    /**
      * Fetch the list of groups, associated to a user.
      *
      * @param int $uid
@@ -898,6 +916,25 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Set the user token
+     *
+     * @param int $uid
+     *  The id of the user
+     * @param int $token
+     *  The token which will be used for account activation
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function set_user_token($uid, $token)
+    {
+        return $this->db->update_by_ids('users', 
+            array(
+                "token" => $token, 
+                ),
+            array("id" => $uid));
+    }
+
+    /**
      * Unset the block flag of a user in the db.
      *
      * @param int $uid
@@ -911,6 +948,53 @@ class UserModel extends BaseModel
             return false;
         return $this->db->update_by_ids("users", array("blocked" => 0),
             array("id" => $uid));
+    }
+
+    /**
+     * Send activation email to the selected user
+     *
+     * @param string $email
+     *  The email of the user
+     * @retval bool
+     *  True on success, false on failure.
+     */
+    public function send_activation_email($email)
+    {
+        try {
+            if($email == 'admin' || $email == 'tpf' || $email == 'sysadmin'){
+                // these accounts cannot send activation emails. If you want to reset them they shoudl contact us
+                return false;
+            }
+            $token = $this->login->create_token();
+            $uid = $this->fetch_user_by_email($email)['id'];
+            $this->set_user_token($uid, $token);
+            $url = $this->get_link_url("validate", array(
+                "uid" => $uid,
+                "token" => $token,
+                "mode" => "activate",
+            ));
+            $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
+            $subject = $_SESSION['project'] . " Email Verification";
+            $from = "noreply@" . $_SERVER['HTTP_HOST'];
+            $msg = $this->get_content($url, 'email_activate');
+            $mail = array(
+                "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+                "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+                "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+                "from_email" => $from,
+                "from_name" => $from,
+                "reply_to" => $from,
+                "recipient_emails" => $email,
+                "subject" => $subject,
+                "body" => $msg,
+                "is_html" => 1,
+                "description" => "Activation Email"
+            );
+            $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**

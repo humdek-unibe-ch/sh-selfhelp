@@ -184,6 +184,34 @@ class UserSelectView extends BaseView
     }
 
     /**
+     * Render the card to send activation email to the user.
+     */
+    private function output_user_send_activation_email()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Email activation",
+            "type" => "info",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "This will send an activation email to the user",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Send Activation Email",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "activation_email")),
+                    "type" => "info",
+                )),
+            )
+        ));
+        $card->output_content();
+    }
+
+    /**
      * Render the card to delete a button.
      */
     private function output_user_delete()
@@ -259,6 +287,7 @@ class UserSelectView extends BaseView
         $this->output_user_groups();
         if($this->model->can_modify_user())
         {
+            $this->output_user_send_activation_email();
             if(!$this->selected_user["blocked"])
                 $this->output_user_blocking();
             else

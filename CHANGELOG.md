@@ -1,4 +1,9 @@
-# v4.8.2 (latest)
+# v4.8.3 (latest)
+
+### New Features
+ - An activation eamil can be send from CMS/admin. Go to users then selct the user that you should recieve an activation link and click button `Send Activation Email`;
+
+# v4.8.2
 
 ### Bugfix
  - when scheduling `task` based on `QualtricsAction` or `FormAction` for target groups, it does not schedule the task for the person who triggered the action unless the person is in the targeted group
