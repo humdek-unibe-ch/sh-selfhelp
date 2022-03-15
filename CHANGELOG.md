@@ -1,4 +1,9 @@
-# v4.8.3 (latest)
+# v4.8.4 (latest)
+
+### Bugfix
+ - #307 - When the language is changed it is saved for the user in DB and when the user login somewhere else it will automatically load the selected language
+
+# v4.8.3
 
 ### New Features
  - An activation eamil can be send from CMS/admin. Go to users then selct the user that you should recieve an activation link and click button `Send Activation Email`;

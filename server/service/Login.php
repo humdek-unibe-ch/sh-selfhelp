@@ -138,8 +138,9 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT u.id, u.password, g.name AS gender FROM users AS u
+        $sql = "SELECT u.id, u.password, g.name AS gender, l.locale as locale FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
+            LEFT JOIN languages AS l ON l.id = u.id_languages
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
@@ -148,6 +149,9 @@ class Login
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
             $_SESSION['user_gender'] = $user['gender'];
+            if(isset($user['locale'])){
+                 $_SESSION['user_language'] = $user['locale'];
+            }
             $this->update_timestamp($user['id']);
             return true;
         }
