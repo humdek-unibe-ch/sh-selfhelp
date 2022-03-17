@@ -1,4 +1,7 @@
-# v4.8.4 (latest)
+# v4.9.0 (latest)
+- improve the performance of the functions and procedures which are used to show the user data (dynamic and static);
+
+# v4.8.4 
 
 ### Bugfix
  - #307 - When the language is changed it is saved for the user in DB and when the user login somewhere else it will automatically load the selected language

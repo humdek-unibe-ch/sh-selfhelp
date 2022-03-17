@@ -3129,7 +3129,7 @@ CREATE TABLE IF NOT EXISTS `version` (
 --
 
 INSERT INTO `version` (`id`, `version`) VALUES
-(0000000001, 'v4.8.0');
+(0000000001, 'v4.9.0');
 
 --
 -- Constraints for dumped tables

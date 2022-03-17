@@ -244,9 +244,9 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     private function get_static_table_id($table_name)
     {
-        $sql = 'SELECT * 
-                FROM view_data_tables 
-                WHERE orig_name = :name';
+        $sql = 'SELECT id 
+                FROM uploadTables
+                WHERE name = :name';
         return $this->db->query_db_first($sql, array(
             ":name" => $table_name
         ))['id'];
@@ -260,9 +260,10 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function get_dynamic_table_id($table_name)
     {
-        $sql = 'SELECT * 
-                FROM view_user_input 
-                WHERE form_name = :name';
+        $sql = 'select id_section_form as form_id
+                from user_input ui
+                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+                limit 0,1;';
         return $this->db->query_db_first($sql, array(
             ":name" => $table_name
         ))['form_id'];

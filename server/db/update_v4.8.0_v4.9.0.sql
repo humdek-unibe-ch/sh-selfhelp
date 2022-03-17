@@ -1,3 +1,7 @@
+-- set DB version
+UPDATE version
+SET version = 'v4.9.0';
+
 DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
