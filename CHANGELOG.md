@@ -1,4 +1,8 @@
-# v4.9.0 (latest)
+# v4.9.1 (latest)
+### Bugfix
+ - style `conditionalContainer` compute information about its children only if the condition is fulfiled. Otherwise only load children if any of them are `conditonFailed` style.
+
+# v4.9.0
 - improve the performance of the functions and procedures which are used to show the user data (dynamic and static);
 
 # v4.8.4 

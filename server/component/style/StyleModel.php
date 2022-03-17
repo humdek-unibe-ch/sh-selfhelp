@@ -47,6 +47,10 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     private $params;
 
+    /**
+     * The id of the parent page
+     */    
+    private $id_page;  
 
     /* Constructors ***********************************************************/
 
@@ -63,7 +67,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @param number $id_page
      *  The id of the parent page
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $includeChildren=true)
     {
         parent::__construct($services);
         $this->section_id = $id;
@@ -100,14 +104,13 @@ class StyleModel extends BaseModel implements IStyleModel
 
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
-
-        $db_children = $this->db->fetch_section_children($id);
-        foreach($db_children as $child)
-        {
-            $this->children[$child['name']] = new StyleComponent(
-                $services, intval($child['id']), $params, $id_page);
-        }
         $this->params = $params;
+        $this->id_page = $id_page;
+
+        if($includeChildren){
+            $this->loadChildren();
+        }
+                
     }
 
     /* Private Methods ********************************************************/
@@ -182,6 +185,18 @@ class StyleModel extends BaseModel implements IStyleModel
             return false;
         }
         return $result;
+    }
+
+    /**
+     * Load the children of the section
+     */
+    protected function loadChildren(){
+        $db_children = $this->db->fetch_section_children($this->section_id);
+        foreach($db_children as $child)
+        {
+            $this->children[$child['name']] = new StyleComponent(
+                $this->services, intval($child['id']), $this->params, $this->id_page);
+        }
     }
 
     /**
@@ -263,6 +278,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $sql = 'select id_section_form as form_id
                 from user_input ui
                 inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+                where sft_if.content = :name
                 limit 0,1;';
         return $this->db->query_db_first($sql, array(
             ":name" => $table_name
@@ -565,8 +581,37 @@ class StyleModel extends BaseModel implements IStyleModel
         }
     }
 
+    /**
+     * Get the value which is parsed with all params
+     * @param array $entry_data
+     * Array with the entry row
+     * @param string value
+     * The field value
+     * @retval string
+     * Return the value replaced with the params
+     */
     public function get_entry_value($entry_data, $value){
         return BaseStyleModel::get_entry_value($entry_data, $value);
+    }
+
+    /**
+     * Get style name by id
+     * @param int $style_id
+     * The id of the style
+     * @retval string
+     * Return the name of the style
+     */
+    public function getStyleNameById($style_id)
+    {
+        $style_query = $this->db->query_db_first(
+            'select name from styles where id = :id',
+            array(":id" => $style_id)
+        );
+        if (isset($style_query['name'])) {
+            return $style_query['name'];
+        } else {
+            return false;
+        }
     }
 
 }

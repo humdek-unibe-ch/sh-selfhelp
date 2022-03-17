@@ -45,34 +45,14 @@ class ConditionalContainerView extends StyleView
         parent::__construct($model);
         $this->condition = $this->model->get_db_field('condition');
         $this->debug = $this->model->get_db_field('debug', false);
-        $this->platform = $this->model->get_db_field('platform', pageAccessTypes_mobile_and_web);
-        $this->data_config = $this->model->get_db_field("data_config");
-        if($this->data_config){
-            $this->retrieve_data();
-        }
+        $this->platform = $this->model->get_db_field('platform', pageAccessTypes_mobile_and_web);        
     }
 
     private function get_entry_values($entry_value){
         $cond = json_encode($this->model->get_db_field('condition'));
         $cond = $this->model->get_entry_value($entry_value, $cond);
         $this->condition = json_decode($cond, true);
-    }
-
-    /**
-     * Retrieve data from database - base dont the JSON configuration
-     */
-    private function retrieve_data()
-    {
-        $fields = $this->model->retrieve_data($this->data_config);
-        if ($fields) {
-            foreach ($fields as $field_name => $field_value) {
-                $new_value = $field_value;
-                $condition_string = json_encode($this->condition);
-                $condition_string = str_replace($field_name, $new_value, $condition_string);
-                $this->condition = json_decode($condition_string, true);
-            }
-        }
-    }
+    }    
 
     /**
      * Check if the call is from the platform that was selected for the style
@@ -149,7 +129,7 @@ class ConditionalContainerView extends StyleView
             // break it is not the correct platform
             return;
         }
-        $res = $this->model->compute_condition($this->condition);
+        $res = $this->model->condition_result;
         if($this->debug)
         {
             echo '<pre class="alert alert-warning">';

@@ -15,6 +15,16 @@ class ConditionalContainerModel extends StyleModel
     /* Constructors ***********************************************************/
 
     /**
+     * The result of the computeted condition
+     */    
+    public $condition_result;  
+
+    /**
+     * The DB field data config
+     */
+    private $data_config;
+
+    /**
      * The constructor fetches all profile related fields from the database.
      *
      * @param array $services
@@ -25,7 +35,50 @@ class ConditionalContainerModel extends StyleModel
      */
     public function __construct($services, $id)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, array(), -1, false);
+        $this->data_config = $this->get_db_field("data_config");
+        $condition = $this->get_db_field('condition');
+        if ($this->data_config) {
+            $condition = $this->retrieve_data_form_config($condition);
+        }
+        $this->condition_result = $this->compute_condition($condition);
+        if ($this->condition_result['result']) {
+            $this->loadChildren();
+        } else {
+            $this->checkChildrenConditionFailed();
+        }
+    }
+
+    /* Private Methods ********************************************************/
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data_form_config($condition)
+    {        
+        $fields = $this->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $new_value = $field_value;
+                $condition_string = json_encode($condition);
+                $condition_string = str_replace($field_name, $new_value, $condition_string);
+                $condition = json_decode($condition_string, true);
+            }
+        }
+        return $condition;
+    }
+
+    /**
+     * Check for childeren in the condtionalContainer whcih are conditionFailed and if there are load them
+     */
+    private function checkChildrenConditionFailed()
+    {
+        $db_children = $this->db->fetch_section_children($this->section_id);        
+        foreach ($db_children as $child) {
+            if ($this->getStyleNameById($child['id_styles']) == 'conditionFailed') {
+                $this->children[$child['name']] = new StyleComponent($this->services, intval($child['id']), array(), -1);
+            }
+        }
     }
 
     /* Public Methods *********************************************************/
