@@ -17,7 +17,7 @@ class ConditionalContainerModel extends StyleModel
     /**
      * The result of the computeted condition
      */    
-    public $condition_result;  
+    private $condition_result;  
 
     /**
      * The DB field data config
@@ -33,23 +33,41 @@ class ConditionalContainerModel extends StyleModel
      * @param int $id
      *  The id of the section with the conditional container style.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, array(), -1, false);
+        parent::__construct($services, $id, array(), -1, false, $entry_record);
         $this->data_config = $this->get_db_field("data_config");
         $condition = $this->get_db_field('condition');
         if ($this->data_config) {
             $condition = $this->retrieve_data_form_config($condition);
         }
-        $this->condition_result = $this->compute_condition($condition);
-        if ($this->condition_result['result']) {
-            $this->loadChildren();
-        } else {
-            $this->checkChildrenConditionFailed();
+        if($this->get_entry_record()){
+            $condition = $this->get_entry_values($condition);
+        }
+        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
+        if ($this->is_correct_platform()) {
+            // check conditions if it is for the correct platfform only, otherwise do not load children - improve perfromacne
+            if ($this->condition_result['result']) {
+                $this->loadChildren();
+            } else {
+                $this->checkChildrenConditionFailed();
+            }
         }
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Get entries values if there are any set
+     * @param $condition
+     * The condition value array
+     * @retval array
+     * Return the condition array
+     */
+    private function get_entry_values($condition){
+        $condition = $this->get_entry_value($this->get_entry_record(), json_encode($condition));
+        return json_decode($condition, true);
+    }
 
     /**
      * Retrieve data from database - base dont the JSON configuration
@@ -81,20 +99,34 @@ class ConditionalContainerModel extends StyleModel
         }
     }
 
+    /**
+     * Check if the call is from the platform that was selected for the style
+     * @retval boolean
+     * Returns true if the call is from the correct platform otherwise false
+     */
+    private function is_correct_platform(){
+        $platform = $this->get_db_field('platform', pageAccessTypes_mobile_and_web); 
+        if ($platform == pageAccessTypes_mobile_and_web) {
+            return true;
+        } else if ($platform == pageAccessTypes_mobile && (isset($_POST['mobile']) && $_POST['mobile'])) {
+            return true;
+        } else if ($platform == pageAccessTypes_web && !isset($_POST['mobile'])) {
+            return true;
+        }
+        return false;
+    }
+
     /* Public Methods *********************************************************/
 
     /**
-     * Use the JsonLogic libarary to compute whether the json condition is true
-     * or false.
+     * Get the already computed condtion result
      *
-     * @param array $condition
-     *  An array representing the json condition string.
-     * @retval mixed
-     *  The evaluated condition.
+     * @retval array
+     *  The result array
      */
-    public function compute_condition($condition, $id_users = null)
+    public function get_condition_result()
     {
-        return $this->services->get_condition()->compute_condition($condition, $id_users, $this->get_db_field('id'));
+        return $this->condition_result;
     }
 }
 ?>

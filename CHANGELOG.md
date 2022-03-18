@@ -1,4 +1,8 @@
-# v4.9.1 (latest)
+# v4.9.2 (latest)
+### Bugfix
+ - fix `conditionalContainer` computation for entry records
+
+# v4.9.1
 ### Bugfix
  - style `conditionalContainer` compute information about its children only if the condition is fulfiled. Otherwise only load children if any of them are `conditonFailed` style.
 

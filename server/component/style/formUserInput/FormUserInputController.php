@@ -116,7 +116,7 @@ class FormUserInputController extends BaseController
     private function has_access()
     {
         if ($this->record_id > 0) {
-            $entry_record = $this->model->get_entry_record($this->model->get_db_field("name"), $this->record_id, $this->model->get_db_field("own_entries_only", 1));
+            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $this->record_id, $this->model->get_db_field("own_entries_only", 1));
             if ($entry_record) {
                 return true;
             } else {

@@ -205,7 +205,7 @@ class FormUserInputView extends StyleView
 
         if ($this->selected_record_id > 0) {
             // edit mode; load the entry record value
-            $entry_record = $this->model->get_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
+            $entry_record = $this->model->get_form_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
             if (!$entry_record) {
                 // no data for that record
                 $this->sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
@@ -373,7 +373,7 @@ class FormUserInputView extends StyleView
         $style = parent::output_content_mobile();   
         if ($this->selected_record_id > 0) {
             // edit mode; load the entry record value
-            $entry_record = $this->model->get_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
+            $entry_record = $this->model->get_form_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
         }
         if ($this->selected_record_id > 0) {
             $selected_record_id = new BaseStyleComponent("input", array(

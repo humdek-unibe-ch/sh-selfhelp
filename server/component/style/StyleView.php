@@ -152,6 +152,9 @@ abstract class StyleView extends BaseView
         return $res;
     }
 
+    /**
+     * Render the component view for mobile.
+     */
     public function output_content_mobile()
     {
         $style = $this->model->get_db_fields();
@@ -169,6 +172,9 @@ abstract class StyleView extends BaseView
         return $style;
     }
 
+    /**
+     * Render the component view for mobile if it is an entry.
+     */
     public function output_content_mobile_entry($entry_data)
     {
         $style = $this->model->get_db_fields();
@@ -186,6 +192,15 @@ abstract class StyleView extends BaseView
         return $style;
     }
 
+    /**
+     * Get the value which is parsed with all params
+     * @param array $entry_data
+     * Array with the entry row
+     * @param string value
+     * The field value
+     * @retval string
+     * Return the value replaced with the params
+     */
     public function get_entry_value($entry_data, $value){
         return $this->model->get_entry_value($entry_data, $value);
     }

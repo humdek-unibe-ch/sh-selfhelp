@@ -52,6 +52,11 @@ class StyleModel extends BaseModel implements IStyleModel
      */    
     private $id_page;  
 
+    /**
+     * If an entry record is passed from style entryVie to its children
+     */
+    private $entry_record;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -66,8 +71,12 @@ class StyleModel extends BaseModel implements IStyleModel
      *  The list of get parameters to propagate.
      * @param number $id_page
      *  The id of the parent page
+     * @param boolean $includeChildren
+     * if true loads the children
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1, $includeChildren=true)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $includeChildren=true, $entry_record=null)
     {
         parent::__construct($services);
         $this->section_id = $id;
@@ -106,6 +115,13 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->set_db_fields($fields);
         $this->params = $params;
         $this->id_page = $id_page;
+        if ($this->style_name == 'entryRecord') {
+            //if it is entryView calculate the entry record
+            $this->entry_record = $this->calc_entry_record();
+        } else {
+            // take the inherit entry record
+            $this->entry_record = $entry_record;
+        }
 
         if($includeChildren){
             $this->loadChildren();
@@ -188,6 +204,28 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
+     * Get the entry record;
+     * @retval array;
+     * The entry record;
+     */
+    private function calc_entry_record(){
+        $record_id = isset($this->params['record_id']) ? intval($this->params['record_id']) : -1;
+        if ($record_id > 0) {
+            $formInfo = explode('-', $this->get_db_field("formName"));
+            $form_id = $formInfo[0];
+            if (isset($formInfo[1])) {
+                $form_type = $formInfo[1];
+            } else {
+                return;
+            }
+            $own_entries_only =  $this->get_db_field("own_entries_only", 1);
+            return $this->fetch_entry_record($form_id, $record_id, $own_entries_only, $form_type);
+        } else {
+            return;
+        }
+    }
+
+    /**
      * Load the children of the section
      */
     protected function loadChildren(){
@@ -195,7 +233,19 @@ class StyleModel extends BaseModel implements IStyleModel
         foreach($db_children as $child)
         {
             $this->children[$child['name']] = new StyleComponent(
-                $this->services, intval($child['id']), $this->params, $this->id_page);
+                $this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
+        }
+    }
+
+    /**
+     * Load the children of the section as an entry view
+     */
+    protected function loadChildrenAsEntryView($entry_record){
+        $db_children = $this->db->fetch_section_children($this->section_id);
+        foreach($db_children as $child)
+        {
+            $this->children[$child['name']] = new StyleComponent(
+                $this->services, intval($child['id']), $this->params, $this->id_page, $entry_record);
         }
     }
 
@@ -612,6 +662,15 @@ class StyleModel extends BaseModel implements IStyleModel
         } else {
             return false;
         }
+    }
+
+    /**
+     * Getter function to get the entry record
+     * @retval array 
+     * the entry record
+     */
+    public function get_entry_record(){
+        return $this->entry_record;
     }
 
 }

@@ -57,8 +57,10 @@ class StyleComponent extends BaseComponent
      *  An array of parameter that will be passed to the style component.
      * @param int $id_page
      *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=array())
     {
         $this->id_section = $id;
         $model = null;
@@ -78,7 +80,7 @@ class StyleComponent extends BaseComponent
 
         if($style['type'] == "view")
         {
-            $model = new StyleModel($services, $id, $params, $id_page);
+            $model = new StyleModel($services, $id, $params, $id_page, true, $entry_record);
             $this->style = new BaseStyleComponent($model->get_style_name(),
                 array( "children" => $model->get_children()),
                 $model->get_db_fields());
@@ -87,10 +89,10 @@ class StyleComponent extends BaseComponent
         {
             $className = ucfirst($style['name']) . "Component";
            if (class_exists($className)) {
-                $this->style = new $className($services, $id, $params, $id_page);
+                $this->style = new $className($services, $id, $params, $id_page, $entry_record);
             }
             if ($this->style === null) {
-                $model = new StyleModel($services, $id, $params, $id_page);
+                $model = new StyleModel($services, $id, $params, $id_page, true, $entry_record);
                 $this->style = new BaseStyleComponent(
                     "unknownStyle",
                     array("style_name" => $style['name'])

@@ -782,7 +782,7 @@ class FormUserInputModel extends StyleModel
      * @retval @array
      * the record row
      */
-    public function get_entry_record($form_name, $record_id, $own_entries_only)
+    public function get_form_entry_record($form_name, $record_id, $own_entries_only)
     {
         $form_id = $this->db->get_form_id($form_name);
         return $this->fetch_entry_record($form_id, $record_id, $own_entries_only);

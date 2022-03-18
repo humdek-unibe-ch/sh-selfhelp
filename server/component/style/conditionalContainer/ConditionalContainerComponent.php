@@ -26,9 +26,9 @@ class ConditionalContainerComponent extends BaseComponent
      * @param int $id
      *  The id of the database section item to be rendered.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new ConditionalContainerModel($services, $id);
+        $model = new ConditionalContainerModel($services, $id, $params, $id_page, $entry_record);
         $view = new ConditionalContainerView($model);
         parent::__construct($model, $view);
     }

@@ -6,7 +6,7 @@
 <?php
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/EntryRecordView.php";
-require_once __DIR__ . "/EntryRecordModel.php";
+require_once __DIR__ . "/../StyleModel.php";
 
 /**
  * The class to define the asset select component.
@@ -24,9 +24,8 @@ class EntryRecordComponent extends BaseComponent
      *  class definition BasePage for a list of all services.
      */
     public function __construct($services, $id, $params)
-    {
-        $record_id = isset($params['record_id']) ? intval($params['record_id']) : -1;
-        $model = new EntryRecordModel($services, $id, $record_id);
+    {        
+        $model = new StyleModel($services, $id, $params);
         $view = new EntryRecordView($model);
         parent::__construct($model, $view);
     }
