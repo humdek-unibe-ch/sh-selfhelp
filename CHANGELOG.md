@@ -1,4 +1,11 @@
-# v4.9.2 (latest)
+# v4.9.3 (latest)
+### Bugfix
+ - load all children of the `conditionalContainer` in the CMS
+
+### New Features
+ - add keyword comparison in conditional container
+
+# v4.9.2
 ### Bugfix
  - fix `conditionalContainer` computation for entry records
 

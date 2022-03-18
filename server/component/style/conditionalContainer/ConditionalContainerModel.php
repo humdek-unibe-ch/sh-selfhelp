@@ -47,7 +47,8 @@ class ConditionalContainerModel extends StyleModel
         $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
         if ($this->is_correct_platform()) {
             // check conditions if it is for the correct platfform only, otherwise do not load children - improve perfromacne
-            if ($this->condition_result['result']) {
+            // load children if it is for the cms
+            if ($this->is_cms_page() || $this->condition_result['result']) {
                 $this->loadChildren();
             } else {
                 $this->checkChildrenConditionFailed();

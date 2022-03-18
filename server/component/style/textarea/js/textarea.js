@@ -537,6 +537,12 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
                     noCalendar: true,
                 },
                 operators: ['less', 'less_or_equal', 'greater', 'greater_or_equal', 'between_dates']
+            }, {
+                id: '__keyword__',
+                label: 'Page Keyword',
+                type: 'string',
+                input: 'text',
+                operators: ['equal', 'not_equal']
             }
         ],
         // rules: rules_basic
@@ -547,14 +553,14 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
     try {
         if ($(jquerBuilderJsonInput).val()) {
             rules = JSON.parse($(jquerBuilderJsonInput).val());
-        }else{
+        } else {
             try {
                 var actionConfig = JSON.parse(monacoEditor.getModel().getValue());
-                if(actionConfig && actionConfig['condition_jquerBuilderJson']){
+                if (actionConfig && actionConfig['condition_jquerBuilderJson']) {
                     rules = actionConfig['condition_jquerBuilderJson'];
                 }
             } catch (error) {
-                
+
             }
         }
     } catch (error) {
@@ -624,6 +630,7 @@ function convertRules(rules) {
     var jsonLogic = {};
     if (!rules || !rules["condition"]) {
         alert('Wrong condition!');
+        console.log('sdssd');
         return {};
     }
     jsonLogic[rules.condition] = [];
@@ -786,10 +793,10 @@ function showActionConfiBuilder(json, monacoEditor) {
                 // on modal close set the value to the Monaco editor
                 $(this).click(function () {
                     var val = editor.getValue();
-                    if(val['condition'] && !(val['condition'] instanceof Object)){
+                    if (val['condition'] && !(val['condition'] instanceof Object)) {
                         val['condition'] = JSON.parse(val['condition']);
                     }
-                    if(val['condition_jquerBuilderJson'] && !(val['condition_jquerBuilderJson'] instanceof Object)){
+                    if (val['condition_jquerBuilderJson'] && !(val['condition_jquerBuilderJson'] instanceof Object)) {
                         val['condition_jquerBuilderJson'] = JSON.parse(val['condition_jquerBuilderJson']);
                     }
                     monacoEditor.getModel().setValue(JSON.stringify(val, null, 3));
@@ -873,7 +880,7 @@ function showActionConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
                     try {
                         configVal = JSON.parse(monacoEditor.getModel().getValue());
                     } catch (error) {
-                        
+
                     }
                     configVal['condition'] = rulesToJsonLogic(rules);
                     configVal['condition_jquerBuilderJson'] = rules;

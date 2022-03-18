@@ -92,7 +92,7 @@ class Services
 
         $this->user_input = new UserInput($this->db);
 
-        $this->condition = new Condition($this->db, $this->user_input);
+        $this->condition = new Condition($this->db, $this->user_input, $this->router);
 
         $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router, $this->condition);        
 
