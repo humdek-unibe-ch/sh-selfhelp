@@ -3,7 +3,7 @@
  - load all children of the `conditionalContainer` in the CMS
 
 ### New Features
- - add keyword comparison in conditional container
+ - add page keyword comparison in conditional container
 
 # v4.9.2
 ### Bugfix
