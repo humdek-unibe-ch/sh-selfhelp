@@ -1,4 +1,8 @@
-# v4.9.3 (latest)
+# v4.9.4 (latest)
+### Bugfix
+ - fix cronjob `ScheduledJobsQueue` after the condtion change
+
+# v4.9.3
 ### Bugfix
  - load all children of the `conditionalContainer` in the CMS
 
