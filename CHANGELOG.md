@@ -1,6 +1,10 @@
-# v4.9.4 (latest)
+# v5.0.0 (latest)
+### New Features
+ - #321 - improve installation script
+
+# v4.9.4
 ### Bugfix
- - fix cronjob `ScheduledJobsQueue` after the condtion change
+ - fix cronjob `ScheduledJobsQueue` after the condition change
 
 # v4.9.3
 ### Bugfix
@@ -15,7 +19,7 @@
 
 # v4.9.1
 ### Bugfix
- - style `conditionalContainer` compute information about its children only if the condition is fulfiled. Otherwise only load children if any of them are `conditonFailed` style.
+ - style `conditionalContainer` compute information about its children only if the condition is fulfilled. Otherwise only load children if any of them are `conditonFailed` style.
 
 # v4.9.0
 - improve the performance of the functions and procedures which are used to show the user data (dynamic and static);
@@ -28,7 +32,7 @@
 # v4.8.3
 
 ### New Features
- - An activation eamil can be send from CMS/admin. Go to users then selct the user that you should recieve an activation link and click button `Send Activation Email`;
+ - An activation email can be send from CMS/admin. Go to users then select the user that you should receive an activation link and click button `Send Activation Email`;
 
 # v4.8.2
 
@@ -43,14 +47,14 @@
 
 # v4.8.0
  - style `book` check required fields only for the current page and already passed pages when save the values
- - add `ajax_set_user_language` page permissions to admin, subject and thearpist group, otherwise these groups has less righs than any newly created group 
+ - add `ajax_set_user_language` page permissions to admin, subject and therapist group, otherwise these groups has less rights than any newly created group 
 
 # v4.7.2
  - add `user_name` to the user list and selected user view
 
 # v4.7.1
- - Add variable pairs configuraation for Qualtrics to overwrite data information
- - Add variable pairs configuraation for Forms to overwrite data information
+ - Add variable pairs configuration for Qualtrics to overwrite data information
+ - Add variable pairs configuration for Forms to overwrite data information
 
 # v4.7.0
  - Bugfix: add ajax call as open page for changing the language
@@ -66,7 +70,7 @@
  - Added embedded data `code` for qualtrics surveys from type `follow-up`. The variable is needed fot anonymous types of surveys.
 
 # v4.6.3
- - get router paramas for styles `FormUserInputLog` and `FormUserInputLog` even if they are in conditional container.
+ - get router params for styles `FormUserInputLog` and `FormUserInputLog` even if they are in conditional container.
  - fix mobile loading formField values for entry records
 
 # v4.6.2
@@ -80,7 +84,7 @@
  - fix `etryRecord` load. Form id now is successfully extracted from the parameter and remove the dynamic, static suffix
  - add field `filter` to styles `entryRecord` and `entryList`;
  - add field `css_mobile` to all styles that have fields `css`
- - add field `children` to style `link`. Now it can be used to define custom clickable obkects.
+ - add field `children` to style `link`. Now it can be used to define custom clickable objects.
  - improve performance for selfhelp mobile calls for guest users
 
 # v4.5.0
@@ -112,7 +116,7 @@
  - #299 - add JSON Editor.
     - add shcema for `dataConfig`
     - add schema for `json-logic`
- - #295 - add `moduleFormsActions`. It is similar to Qualtrics actions. Now we can attach notifications, reminders and tasks to form when is loaded(started) or when is finished(submited).
+ - #295 - add `moduleFormsActions`. It is similar to Qualtrics actions. Now we can attach notifications, reminders and tasks to form when is loaded(started) or when is finished(submitted).
  - #301 - add for fields `data_config` a UI builder for easier JSON generation 
  - #300 - add UI builder for `conditionalContainer`. Add fields `jquery_builder_json` and `data_config` in style `conditionalContainer`.
  - `conditionContainer` can compare dates to the current time
@@ -147,7 +151,7 @@
 
 ### New Features
  - add an option to set default date and time for the `input` style. If in value is typed `now`, it will load the current datetime.
- - rename the default label for the leadinf recrod for `showUserInput` from `Date` to `Record Id`.
+ - rename the default label for the leading record for `showUserInput` from `Date` to `Record Id`.
 
 # v4.1.1
 
@@ -189,7 +193,7 @@
  - `formUserInput` can be added to a page with path containing `record_id`. Example: `/courseViewAdvanced/[i:record_id]?`. When the id is loaded the entry will be in edit mode. Also an option for delete will apear.
  - add `icon` to style `tab`.
  - `form` without label does not load the button anymore
- - add field `email_address` to style `formUserInput`. Use `@email_user` to retrive automaticaly the user email. Emails are separated by the MAIL_SEPARATOR. It is `;`. 
+ - add field `email_address` to style `formUserInput`. Use `@email_user` to retrieve automatically the user email. Emails are separated by the MAIL_SEPARATOR. It is `;`. 
 
 # v4.0.3
 
@@ -204,7 +208,7 @@
 # v4.0.1
 
 ### Bugfix
- - fix sending attachmnets for emails
+ - fix sending attachments for emails
 
 # v4.0.0
 

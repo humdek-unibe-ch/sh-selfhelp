@@ -51,10 +51,10 @@ sudo -u $user sed -i "s/__password__/${password}/g" ../db/create_db.sql
 sudo mysql < ../db/create_db.sql
 echo "Creating database $name"
 
-sudo mysql -D $name < ../db/selfhelp_initial.sql
+cat ../db/update_scripts/*.sql  > "../db/install_selfhelp.sql"
+
+sudo mysql -D $name < ../db/install_selfhelp.sql
 echo "Databse $name initialized!"
-cat ../db/FUN_PRO_VIEWS/*.sql | sudo mysql -u $name -p$password -D $name
-echo "Functions, views and proceuderes are created!"
 
 echo "Setting up appache"
 sudo -u $user cp ../../server/apache.default.conf ../../server/apache.conf
@@ -65,5 +65,5 @@ sudo ln -s /home/$user/$name/server/apache.conf $name.conf
 cd ../sites-enabled
 sudo ln -s ../sites-available/$name.conf .
 sudo service apache2 restart
-echo "https://selfhelp.psy.unibe.ch/$name should be online!"
-echo "Installation is done!"
+echo "Installation is completed!"
+
