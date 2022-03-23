@@ -48,36 +48,13 @@ cd gulp
 gulp
 ```
 
-### 5. Merge the DB Update Script with the Initial DB File
+### 5. DB Update Script
 
-If no DB update script was necessary for this release, skip this step.
+Create DB update script in folder `update_scripts` 
 
-In order to keep the initial DB file up to date it must be merged with the DB update script that was created for this release.
-To do this perform the following steps:
- 1. Create a new clean Database by importing the file `server/db/selfhelp_initial.sql`.
- 2. Apply the DB update script
- 3. Verify that the updates were performed correctly
- 4. Export the updated content of the database and save it as `server/db/selfhelp_initial.sql`
- 5. (If required) adapt the file `server/db/privileges_default.sql`
+Use a prefix with number for the update script version. 
 
-### 6. Generate the initial DB file `fun_pro_wiews.sql`
-
-If no view, function or process was changed or created for this release, skip this step.
-
-In order to allow to easily deploy the latest function, processes, and views in the DB the corresponding install script needs to be generated.
-To do this use the following command:
-
-#### Windows:
-```bash
-copy /b server\db\FUN_PRO_VIEW\*.sql server\db\FUN_PRO_VIEWS\fun_pro_views.sql
-```
-
-#### Linux:
-```sh
-cat server/db/FUN_PRO_VIEWS/*.sql > server/db/FUN_PRO_VIEWS/fun_pro_views.sql
-```
-
-### 7. Add and Commit the Changed Files
+### 6. Add and Commit the Changed Files
 
 Add the changed files to git
 ```
@@ -86,7 +63,7 @@ git ct -m "new version __new_version__"
 git push
 ```
 
-### 8. Create a new Tag
+### 7. Create a new Tag
 
 To create and push a new tag
 
@@ -95,7 +72,7 @@ git tag __new_version__
 git push --tags
 ```
 
-### 9. Deploy the Source Code
+### 8. Deploy the Source Code
 
 In order to deploy the new version, `ssh` to the SelfHelp server where the project to update is hosted and perform the following operations:
 
@@ -112,7 +89,7 @@ cd __experiment_name__
 git checkout __new_version__
 ```
 
-### 10. Deploy the DB Update
+### 9. Deploy the DB Update
 
 If no DB update script was necessary for this release, skip this step.
 
