@@ -6,6 +6,7 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
+require_once __DIR__ . "/SimpleStyleComponent.php";
 require_once __DIR__ . "/StyleModel.php";
 
 /**
@@ -81,9 +82,7 @@ class StyleComponent extends BaseComponent
         if($style['type'] == "view")
         {
             $model = new StyleModel($services, $id, $params, $id_page, true, $entry_record);
-            $this->style = new BaseStyleComponent($model->get_style_name(),
-                array( "children" => $model->get_children()),
-                $model->get_db_fields());
+            $this->style = new SimpleStyleComponent($model);
         }
         else if($style['type'] == "component" || $style['type'] == "navigation")
         {

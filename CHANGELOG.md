@@ -1,6 +1,12 @@
 # v5.0.0 (latest)
 ### New Features
  - #321 - improve installation script
+ - #317 - add field `condition` for all styles. Add also `debug`.
+
+### Bugfix 
+ - fix json condition builder for `in_one_of` type used with other condition
+ - autocomplete is not readonly anymore and can be deleted
+ - improve the loading of UserInput by reducing the queries number
 
 # v4.9.4
 ### Bugfix

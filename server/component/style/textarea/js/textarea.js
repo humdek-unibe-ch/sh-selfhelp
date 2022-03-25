@@ -29,6 +29,9 @@ $(document).ready(function () {
             $(json).parent().parent().addClass('d-none'); //hide the label
             return;
         } else {
+            if ($(json).prev().attr('name').includes('condition')) {
+                $(json).addClass('d-none');
+            }
             require(['vs/editor/editor.main'], function () {
                 var model = null;
                 if ($(json).prev().attr('name').includes('data_config')) {
@@ -630,7 +633,6 @@ function convertRules(rules) {
     var jsonLogic = {};
     if (!rules || !rules["condition"]) {
         alert('Wrong condition!');
-        console.log('sdssd');
         return {};
     }
     jsonLogic[rules.condition] = [];
@@ -655,14 +657,15 @@ function convertRules(rules) {
             });
         } else if (rule.operator == 'in_one_of') {
             // add additional OR for one of these groups
-            jsonLogic[rules.condition] = {
+            var in_one_of = {
                 "or": []
-            }
+            };
             rule.value.forEach(val => {
                 var r = {};
                 r[jsonLogicOperators[rule.operator].op] = [true, valuePrefix + val]
-                jsonLogic[rules.condition]['or'].push(r);
+                in_one_of['or'].push(r);
             });
+            jsonLogic[rules.condition].push(in_one_of);
         }
         else if (['field_equal', 'field_not_equal', 'field_greater', 'field_less'].includes(rule.operator)) {
             var r = {};

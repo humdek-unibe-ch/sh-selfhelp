@@ -10,7 +10,6 @@
             type="text"
             value="<?php echo $this->default_value; ?>"
             name="<?php echo $this->name_value_field; ?>"
-            readonly
         />
     </div>
     <div class="col">

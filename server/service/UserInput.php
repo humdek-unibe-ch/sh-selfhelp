@@ -41,6 +41,8 @@ class UserInput
      * @param array $conds
      *  A key => value array of db conditions where the key corresponds to the
      *  db column and the value to the db value.
+     * @param boolean $get_page_info
+     * If true it fetch the info for the page and nav 
      * @retval array
      *  An array of field items where eeach item has the following keys:
      *  - 'id'            A unique id of the field
@@ -59,10 +61,10 @@ class UserInput
      *  - 'timestamp'     The date and time when the value was entered.
      *  - 'id_user_input_record' The new field that keep the rows
      */
-    private function fetch_input_fields($conds = array())
+    private function fetch_input_fields($conds = array(), $get_page_info = false)
     {
-        if( $this->field_attrs === NULL)
-            $this->set_field_attrs();
+        if(!isset($conds['ui.id_section_form']))
+            $field_attrs = $this->get_field_attrs(-1, $get_page_info);
         $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
             g.name AS gender, vc.code, id_user_input_record
             FROM user_input AS ui
@@ -75,6 +77,7 @@ class UserInput
         foreach($conds as $key => $value)
         {
             if($key === "g.name") $gender = $value;
+
             $sql .= " AND " . $key . " = '" . $value . "'";
         }
         $fields_db = $this->db->query_db($sql);
@@ -83,20 +86,23 @@ class UserInput
         foreach($fields_db as $field)
         {
             $id = intval($field["id_sections"]);
-            if(!isset($this->field_attrs[$id])) continue;
-            $field_label = $this->field_attrs[$id]["label"][$gender][$language] ?? "";
+            if (isset($conds['ui.id_section_form'])) {
+                $field_attrs = $this->get_field_attrs($id, $get_page_info);
+            }
+            if(!isset($field_attrs[$id])) continue;
+            $field_label = $field_attrs[$id]["label"][$gender][$language] ?? "";
             if($gender === "female" && $field_label === "")
-                $field_label = $this->field_attrs[$id]["label"]["male"][$language] ?? "";
+                $field_label = $field_attrs[$id]["label"]["male"][$language] ?? "";
             $fields[] = array(
                 "id" => $field['id'],
                 "user_code" => $field['code'],
                 "user_gender" => $field['gender'],
-                "page" => $this->field_attrs[$id]["page"],
-                "nav" => $this->field_attrs[$id]["nav"],
-                "field_name" => $this->field_attrs[$id]["name"],
+                "page" => $field_attrs[$id]["page"],
+                "nav" => $field_attrs[$id]["nav"],
+                "field_name" => $field_attrs[$id]["name"],
                 "field_label" => $field_label,
-                "field_type" => $this->field_attrs[$id]["type"],
-                "form_name" => $this->field_attrs[$id]["form_name"],
+                "field_type" => $field_attrs[$id]["type"],
+                "form_name" => $field_attrs[$id]["form_name"],
                 "value" => $field["value"],
                 "timestamp" => $field["edit_time"],
                 "id_user_input_record" => $field["id_user_input_record"],
@@ -242,11 +248,13 @@ class UserInput
      *   - 'id_section'   Selects all fields with given section id.
      *   - 'id_user'      Selects all fields from a given user id.
      *   - 'removed'      Selects all fields matching the removed flag
+     * @param boolean $get_page_info
+     * If true it fetch the info for the page and nav 
      * @retval array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
-    public function get_input_fields($filter = array())
+    public function get_input_fields($filter = array(), $get_page_info = false)
     {
         $db_cond = array();
         if(isset($filter["gender"]))
@@ -262,13 +270,13 @@ class UserInput
             $db_cond["ui.id"] = $filter["id"];
         if(isset($filter["removed"]))
             $db_cond["ui.removed"] = $filter["removed"] ? '1' : '0';
-        $fields_all = $this->fetch_input_fields($db_cond);
+        if(isset($filter["form_name"]))
+            $db_cond["ui.id_section_form"] = $this->db->get_form_id($filter["form_name"]);
+        $fields_all = $this->fetch_input_fields($db_cond, $get_page_info);
         $fields = array();
         foreach($fields_all as $field)
             if((!isset($filter["field_name"]) || (isset($filter["field_name"])
                         && $field['field_name'] === $filter["field_name"]))
-                && (!isset($filter["form_name"]) || (isset($filter["form_name"])
-                        && $field['form_name'] === $filter["form_name"]))
                 && (!isset($filter["page"]) || (isset($filter["page"])
                         && $field['page'] === $filter["page"]))
                 && (!isset($filter["nav"]) || (isset($filter["nav"])
@@ -444,6 +452,61 @@ class UserInput
                 "type" => $type,
             );
         }
+    }
+
+    /**
+     * @param $id
+     * the id of the input field section
+     * @param boolean $get_page_info
+     * If true it fetch the info for the page and nav 
+     *@retval array
+     * Collect attributes for each existing user input field.
+     * The following attributes are set:
+     *  - 'page'  The name of the parent page of the field.
+     *  - 'nav'   The name of the parent navigation section
+     *  - 'name'  The name of the field
+     *  - 'type'  The type of the field
+     */
+    public function get_field_attrs($id, $get_page_info = false)
+    {
+        $field_attrs = array();
+        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
+            LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
+            LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
+            LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+            LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
+            LEFT JOIN sections AS s ON s.id = ui.id_sections
+            LEFT JOIN styles AS st ON st.id = s.id_styles
+            LEFT JOIN genders AS g ON g.id = sft_il.id_genders
+            LEFT JOIN languages AS l ON l.id = sft_il.id_languages
+            WHERE ui.id_sections = :id or :id = -1";
+        $sections = $this->db->query_db($sql, array(":id"=>$id));
+        foreach($sections as $section)
+        {
+            $id = intval($section['id_sections']);
+            $name = $section['field_name'];
+            $label_name = $section['field_label'] ?? $name;
+            if(isset($field_attrs[$id]))
+            {
+                $field_attrs[$id]["label"][$section['gender']][$section['language']] = $label_name;
+                continue;
+            }
+            $type = $section['input_type'] ?? $section['field_type'];
+            $label = array('male' => array(), 'female' => array());
+            $label[$section['gender']][$section['language']] = $label_name;
+            if($get_page_info){
+                $page = $this->find_section_page($id);
+            }
+            $field_attrs[$id] = array(
+                "page" => ($get_page_info ? $page["page"] : ""),
+                "nav" => ($get_page_info ? $page["nav"] : ""),
+                "name" => $name,
+                "label" => $label,
+                "form_name" => $section['form_name'],
+                "type" => $type,
+            );
+        }
+        return $field_attrs;
     }
 }
 ?>

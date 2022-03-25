@@ -66,8 +66,20 @@ abstract class BaseComponent
      */
     public function output_content()
     {
-        if($this->view)
+        if($this->view){
+            if (method_exists($this->view, 'output_debug')) {
+                $this->view->output_debug();
+            }
+            if (
+                method_exists($this->model, 'get_condition_result') &&
+                !$this->model->get_condition_result()['result']
+                && $this->model->get_style_name() != "conditionalContainer"
+            ) {
+                //condition not meat, do not load unless it is conditional container. Conditional container could have a child conditionFailed
+                return;
+            }
             $this->view->output_content();
+        }
     }
 
     /**

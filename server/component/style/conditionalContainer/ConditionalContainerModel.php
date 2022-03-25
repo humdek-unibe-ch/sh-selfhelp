@@ -12,17 +12,7 @@ require_once __DIR__ . "/../StyleModel.php";
  */
 class ConditionalContainerModel extends StyleModel
 {
-    /* Constructors ***********************************************************/
-
-    /**
-     * The result of the computeted condition
-     */    
-    private $condition_result;  
-
-    /**
-     * The DB field data config
-     */
-    private $data_config;
+    /* Constructors ***********************************************************/     
 
     /**
      * The constructor fetches all profile related fields from the database.
@@ -35,22 +25,11 @@ class ConditionalContainerModel extends StyleModel
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, array(), -1, false, $entry_record);
-        $this->data_config = $this->get_db_field("data_config");
-        $condition = $this->get_db_field('condition');
-        if ($this->data_config) {
-            $condition = $this->retrieve_data_form_config($condition);
-        }
-        if($this->get_entry_record()){
-            $condition = $this->get_entry_values($condition);
-        }
-        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
+        parent::__construct($services, $id, array(), -1, $entry_record);        
         if ($this->is_correct_platform()) {
             // check conditions if it is for the correct platfform only, otherwise do not load children - improve perfromacne
             // load children if it is for the cms
-            if ($this->is_cms_page() || $this->condition_result['result']) {
-                $this->loadChildren();
-            } else {
+            if (!$this->get_condition_result()['result']) {
                 $this->checkChildrenConditionFailed();
             }
         }
@@ -58,17 +37,7 @@ class ConditionalContainerModel extends StyleModel
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Get entries values if there are any set
-     * @param $condition
-     * The condition value array
-     * @retval array
-     * Return the condition array
-     */
-    private function get_entry_values($condition){
-        $condition = $this->get_entry_value($this->get_entry_record(), json_encode($condition));
-        return json_decode($condition, true);
-    }
+    
 
     /**
      * Retrieve data from database - base dont the JSON configuration
@@ -119,15 +88,6 @@ class ConditionalContainerModel extends StyleModel
 
     /* Public Methods *********************************************************/
 
-    /**
-     * Get the already computed condtion result
-     *
-     * @retval array
-     *  The result array
-     */
-    public function get_condition_result()
-    {
-        return $this->condition_result;
-    }
+    
 }
 ?>

@@ -153,6 +153,20 @@ abstract class StyleView extends BaseView
     }
 
     /**
+     * Render the debug information
+     */
+    public function output_debug()
+    {
+        $debug = $this->model->get_db_field('debug', false);
+        if ($debug) {
+            $res = $this->model->get_condition_result();
+            echo '<pre class="alert alert-warning">';
+            var_dump($res);
+            echo "</pre>";
+        }
+    }
+
+    /**
      * Render the component view for mobile.
      */
     public function output_content_mobile()

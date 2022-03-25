@@ -138,7 +138,7 @@ class ExportPage extends BasePage
     private function export_user_input($output)
     {
 
-        $fields = $this->services->get_user_input()->get_input_fields();
+        $fields = $this->services->get_user_input()->get_input_fields(array(), true);
 
         // output the column headings
         if(count($fields) > 0)

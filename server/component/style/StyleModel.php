@@ -57,6 +57,16 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     private $entry_record;
 
+    /**
+     * The result of the computeted condition
+     */    
+    private $condition_result; 
+
+    /**
+     * The DB field data config
+     */
+    private $data_config;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -71,12 +81,10 @@ class StyleModel extends BaseModel implements IStyleModel
      *  The list of get parameters to propagate.
      * @param number $id_page
      *  The id of the parent page
-     * @param boolean $includeChildren
-     * if true loads the children
      * @param array $entry_record
      *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1, $includeChildren=true, $entry_record=null)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=null)
     {
         parent::__construct($services);
         $this->section_id = $id;
@@ -123,7 +131,18 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->entry_record = $entry_record;
         }
 
-        if($includeChildren){
+        $condition = $this->get_db_field('condition');
+        $this->data_config = $this->get_db_field("data_config");
+        if ($this->data_config) {
+            $condition = $this->retrieve_data_form_config($condition);
+        }
+        if($this->get_entry_record()){
+            $condition = $this->get_entry_values($condition);
+        }
+        
+        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
+
+        if($this->is_cms_page() || $this->condition_result['result']){
             $this->loadChildren();
         }
                 
@@ -223,6 +242,18 @@ class StyleModel extends BaseModel implements IStyleModel
         } else {
             return;
         }
+    }
+
+    /**
+     * Get entries values if there are any set
+     * @param $condition
+     * The condition value array
+     * @retval array
+     * Return the condition array
+     */
+    private function get_entry_values($condition){
+        $condition = $this->get_entry_value($this->get_entry_record(), json_encode($condition));
+        return json_decode($condition, true);
     }
 
     /**
@@ -354,6 +385,44 @@ class StyleModel extends BaseModel implements IStyleModel
             }
         }
         return isset($ser_data) ? json_decode($ser_data, true) : $data_config;
+    }
+
+    /**
+     * Retrieve data from database - base dont the JSON configuration
+     */
+    private function retrieve_data_form_config($condition)
+    {        
+        $fields = $this->retrieve_data($this->data_config);
+        if ($fields) {
+            foreach ($fields as $field_name => $field_value) {
+                $new_value = $field_value;
+                $condition_string = json_encode($condition);
+                $condition_string = str_replace($field_name, $new_value, $condition_string);
+                $condition = json_decode($condition_string, true);
+            }
+        }
+        return $condition;
+    }
+
+    /**
+     * Get params starting with $ fot the entry output
+     * @param string $input
+     * The field value that contain params
+     * @retval array 
+     * Array with all params in the field value
+     */
+    private function get_entry_param($input){
+        preg_match_all('~\$\w+\b~', $input, $m);
+        $res = [];
+        foreach ($m as $key => $value) {
+            foreach ($value as $k => $param) {
+                if ($param) {
+                    $param_name = str_replace('$', '', $param);
+                    $res[] = $param_name;
+                }
+            }
+        }
+        return $res;       
     }
 
     /* Protected Methods ******************************************************/
@@ -632,19 +701,6 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
-     * Get the value which is parsed with all params
-     * @param array $entry_data
-     * Array with the entry row
-     * @param string value
-     * The field value
-     * @retval string
-     * Return the value replaced with the params
-     */
-    public function get_entry_value($entry_data, $value){
-        return BaseStyleModel::get_entry_value($entry_data, $value);
-    }
-
-    /**
      * Get style name by id
      * @param int $style_id
      * The id of the style
@@ -671,6 +727,34 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function get_entry_record(){
         return $this->entry_record;
+    }
+
+    /**
+     * Get the already computed condtion result
+     *
+     * @retval array
+     *  The result array
+     */
+    public function get_condition_result()
+    {
+        return $this->condition_result;
+    }    
+
+    /**
+     * Get the value which is parsed with all params
+     * @param array $entry_data
+     * Array with the entry row
+     * @param string value
+     * The field value
+     * @retval string
+     * Return the value replaced with the params
+     */
+    public  function get_entry_value($entry_data, $value){
+        $params = $this->get_entry_param($value);
+        foreach ($params as $key => $param) {
+            $value = isset($entry_data[$param]) ? str_replace('$' . $param, $entry_data[$param], $value) : $value; // if the param is not set, return the original
+        }
+        return $value;
     }
 
 }
