@@ -4,10 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+
+require_once __DIR__ . "/Model.php";
 /**
  * The class to define the basic functionality of a model.
  */
-abstract class BaseModel
+abstract class BaseModel extends Model
 {
     /* Private Properties *****************************************************/
 

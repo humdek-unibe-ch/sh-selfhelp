@@ -136,13 +136,13 @@ class StyleModel extends BaseModel implements IStyleModel
         if ($this->data_config) {
             $condition = $this->retrieve_data_form_config($condition);
         }
-        if($this->get_entry_record()){
+        if($condition != '' && $this->entry_record){
             $condition = $this->get_entry_values($condition);
         }
         
         $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
 
-        if($this->is_cms_page() || $this->condition_result['result']){
+        if ($this->is_cms_page() || $this->condition_result['result']) {
             $this->loadChildren();
         }
                 
@@ -252,7 +252,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * Return the condition array
      */
     private function get_entry_values($condition){
-        $condition = $this->get_entry_value($this->get_entry_record(), json_encode($condition));
+        $condition = $this->get_entry_value($this->entry_record, json_encode($condition));
         return json_decode($condition, true);
     }
 
@@ -265,18 +265,6 @@ class StyleModel extends BaseModel implements IStyleModel
         {
             $this->children[$child['name']] = new StyleComponent(
                 $this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
-        }
-    }
-
-    /**
-     * Load the children of the section as an entry view
-     */
-    protected function loadChildrenAsEntryView($entry_record){
-        $db_children = $this->db->fetch_section_children($this->section_id);
-        foreach($db_children as $child)
-        {
-            $this->children[$child['name']] = new StyleComponent(
-                $this->services, intval($child['id']), $this->params, $this->id_page, $entry_record);
         }
     }
 
@@ -402,28 +390,7 @@ class StyleModel extends BaseModel implements IStyleModel
             }
         }
         return $condition;
-    }
-
-    /**
-     * Get params starting with $ fot the entry output
-     * @param string $input
-     * The field value that contain params
-     * @retval array 
-     * Array with all params in the field value
-     */
-    private function get_entry_param($input){
-        preg_match_all('~\$\w+\b~', $input, $m);
-        $res = [];
-        foreach ($m as $key => $value) {
-            foreach ($value as $k => $param) {
-                if ($param) {
-                    $param_name = str_replace('$', '', $param);
-                    $res[] = $param_name;
-                }
-            }
-        }
-        return $res;       
-    }
+    }    
 
     /* Protected Methods ******************************************************/
 
@@ -725,7 +692,8 @@ class StyleModel extends BaseModel implements IStyleModel
      * @retval array 
      * the entry record
      */
-    public function get_entry_record(){
+    public function get_entry_record()
+    {
         return $this->entry_record;
     }
 
@@ -739,23 +707,6 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         return $this->condition_result;
     }    
-
-    /**
-     * Get the value which is parsed with all params
-     * @param array $entry_data
-     * Array with the entry row
-     * @param string value
-     * The field value
-     * @retval string
-     * Return the value replaced with the params
-     */
-    public  function get_entry_value($entry_data, $value){
-        $params = $this->get_entry_param($value);
-        foreach ($params as $key => $param) {
-            $value = isset($entry_data[$param]) ? str_replace('$' . $param, $entry_data[$param], $value) : $value; // if the param is not set, return the original
-        }
-        return $value;
-    }
-
+    
 }
 ?>

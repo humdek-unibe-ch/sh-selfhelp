@@ -5,12 +5,13 @@
 ?>
 <?php
 require_once __DIR__ . "/IStyleModel.php";
+require_once __DIR__ . "/../Model.php";
 
 /**
  * This class is used to prepare all data related to the base style component
  * such that the data can easily be displayed in the view of the component.
  */
-class BaseStyleModel implements IStyleModel
+class BaseStyleModel extends Model implements IStyleModel
 {
     /* Private Properties *****************************************************/
 

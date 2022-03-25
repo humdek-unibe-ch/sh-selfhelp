@@ -81,7 +81,7 @@ class StyleComponent extends BaseComponent
 
         if($style['type'] == "view")
         {
-            $model = new StyleModel($services, $id, $params, $id_page, true, $entry_record);
+            $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
             $this->style = new SimpleStyleComponent($model);
         }
         else if($style['type'] == "component" || $style['type'] == "navigation")
@@ -91,7 +91,7 @@ class StyleComponent extends BaseComponent
                 $this->style = new $className($services, $id, $params, $id_page, $entry_record);
             }
             if ($this->style === null) {
-                $model = new StyleModel($services, $id, $params, $id_page, true, $entry_record);
+                $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
                 $this->style = new BaseStyleComponent(
                     "unknownStyle",
                     array("style_name" => $style['name'])
