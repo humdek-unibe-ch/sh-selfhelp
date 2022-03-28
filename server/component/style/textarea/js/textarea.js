@@ -189,7 +189,6 @@ function getJson(json) {
     try {
         return JSON.parse($(json).prev().val());
     } catch (error) {
-        console.log('Error parsing the data_config value!');
         return null;
     }
 }

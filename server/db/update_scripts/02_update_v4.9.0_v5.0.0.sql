@@ -26,3 +26,11 @@ VALUES (NULL, 'ajax_get_lookups', '/request/[AjaxDataSource:class]/[get_lookups:
 SET @id_page_data = LAST_INSERT_ID();
 INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
 VALUES ('0000000001', @id_page_data, '1', '0', '0', '0');
+
+-- delete field platoform
+DELETE FROM fields
+WHERE id = get_field_id('platform');
+
+-- delete filedType select-platform
+DELETE FROM fieldType
+WHERE id = get_field_type_id('select-platform');
