@@ -3,6 +3,7 @@
  - #321 - improve installation script
  - #317 - add field `condition` for all styles. Add also `debug`.
  - move field `platform` to be checked in the conditions
+ - gulp files are refreshed everytime when a new version is uploaded
 
 ### Bugfix 
  - fix json condition builder for `in_one_of` type used with other condition
