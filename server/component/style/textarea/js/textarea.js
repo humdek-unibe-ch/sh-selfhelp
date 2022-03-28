@@ -412,32 +412,16 @@ function getTableFieldNames(type, formName, obj, path, init, editor) {
 
 // ********************************************* CONDITION BUILDER *****************************************
 
-// AJAX call to get the table fields
-function getGroups(jquerBuilderJsonInput, monacoEditor) {
-    $.post(
-        BASE_PATH + '/request/AjaxDataSource/get_groups',
-        {},
-        function (data) {
-            if (data.success) {
-                var groups = [];
-                try {
-                    groups = JSON.parse(data.data);
-                } catch (error) {
-                    console.log('Error while parsing JSON', data.data);
-                }
-                prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor);
-            }
-            else {
-                console.log(data);
-            }
-        },
-        'json'
-    );
-}
+
 
 
 // prepare the condition builder and the rules that can be added
-function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
+async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
+
+    var groups = await getGroups();
+
+    var platforms = await getLookups('pageAccessTypes');
+    delete platforms['mobile_and_web']; // remove the combination
 
     var queryStructure = {
         icons: {
@@ -546,6 +530,19 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
                 type: 'string',
                 input: 'text',
                 operators: ['equal', 'not_equal']
+            }, {
+                id: '__platform__',
+                label: 'Platform',
+                type: 'string',
+                input: 'select',
+                operators: ['equal'],
+                values: platforms,
+                plugin: 'selectpicker',
+                plugin_config: {
+                    liveSearch: true,
+                    width: 'auto',
+                    liveSearchStyle: 'contains',
+                }
             }
         ],
         // rules: rules_basic
@@ -554,8 +551,8 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
     var rules = null;
 
     try {
-        if ($(jquerBuilderJsonInput).val()) {
-            rules = JSON.parse($(jquerBuilderJsonInput).val());
+        if ($(jqueryBuilderJsonInput).val()) {
+            rules = JSON.parse($(jqueryBuilderJsonInput).val());
         } else {
             try {
                 var actionConfig = JSON.parse(monacoEditor.getModel().getValue());
@@ -580,17 +577,6 @@ function prepareConditionBuilder(groups, jquerBuilderJsonInput, monacoEditor) {
     } else if ($('.action_condition_builder').length > 0) {
         $('.action_condition_builder').queryBuilder(queryStructure);
     }
-
-    //When rules changed :
-    // $('.condition_builder').each(function () {
-    //     $(this).on('rulesChanged.queryBuilder', function (evt) {
-    //         var rules = $(this).queryBuilder('getRules');
-    //         if (rules) {
-    //             var jsonLogic = rulesToJsonLogic(rules);
-    //             monacoEditor.getModel().setValue(JSON.stringify(jsonLogic, null, 3));
-    //         }
-    //     });
-    // })
 }
 
 // show the data config builder
@@ -621,8 +607,8 @@ function showConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
         });
     });
 
-    // get groups and prepare the consition builder
-    getGroups(jquerBuilderJsonInput, monacoEditor);
+    // get groups and prepare the consition builder    
+    prepareConditionBuilder(jquerBuilderJsonInput, monacoEditor);
 
 }
 
@@ -713,10 +699,14 @@ function convertRules(rules) {
 
 // convert queryBuilder rules to JSON logic that we can use
 function rulesToJsonLogic(rules) {
-    rules = JSON.parse(JSON.stringify(rules).replace('"AND"', '"and"').replace('"OR"', '"or"'));
-    var jsonLogic = convertRules(rules);
-    jsonLogic = JSON.parse(JSON.stringify(jsonLogic).replace('"AND"', '"and"').replace('"OR"', '"or"'));
-    return jsonLogic;
+    if (rules) {
+        rules = JSON.parse(JSON.stringify(rules).replace('"AND"', '"and"').replace('"OR"', '"or"'));
+        var jsonLogic = convertRules(rules);
+        jsonLogic = JSON.parse(JSON.stringify(jsonLogic).replace('"AND"', '"and"').replace('"OR"', '"or"'));
+        return jsonLogic;
+    } else {
+        return null;
+    }
 }
 
 
@@ -831,34 +821,17 @@ function showActionConfiBuilder(json, monacoEditor) {
     });
 }
 
-// AJAX call to get the table fields
-function getGroupsForActionConfig(obj, defValue, editor) {
-    $.post(
-        BASE_PATH + '/request/AjaxDataSource/get_groups',
-        {},
-        function (data) {
-            if (data.success) {
-                var groups = [];
-                try {
-                    groups = JSON.parse(data.data);
-                } catch (error) {
-                    console.log("Error while parsing", data.data);
-                }
-                var fc = obj.getEditor('root.group').parent;
-                fc.original_schema.properties.group.items["enum"] = groups;
-                fc.schema.properties.group.items["enum"] = groups;
-                fc.removeObjectProperty('group');
-                //delete the cache
-                delete fc.cached_editors.group;
-                fc.addObjectProperty('group');
-                editor.setValue(defValue);
-            }
-            else {
-                console.log(data);
-            }
-        },
-        'json'
-    );
+// adjust groups for action config
+async function getGroupsForActionConfig(obj, defValue, editor) {
+    var groups = await getGroups();
+    var fc = obj.getEditor('root.group').parent;
+    fc.original_schema.properties.group.items["enum"] = groups;
+    fc.schema.properties.group.items["enum"] = groups;
+    fc.removeObjectProperty('group');
+    //delete the cache
+    delete fc.cached_editors.group;
+    fc.addObjectProperty('group');
+    editor.setValue(defValue);
 }
 
 function showActionConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
@@ -894,7 +867,60 @@ function showActionConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
     });
 
     // get groups and prepare the consition builder
-    getGroups(jquerBuilderJsonInput, monacoEditor);
+    prepareConditionBuilder(jquerBuilderJsonInput, monacoEditor);
 }
 
 // ********************************************* ACTION CONFIG BUILDER *****************************************
+
+
+//********************************************** FUNCTIONS *****************************************************
+
+async function getGroups() {
+    var groups = [];
+    jQuery.ajax({
+        url: BASE_PATH + '/request/AjaxDataSource/get_groups',
+        async: false,
+        cache: false,
+        dataType: "json",
+        success: function (data) {
+            if (data.success) {
+                try {
+                    groups = JSON.parse(data.data);
+                } catch (error) {
+                    console.log('Error while parsing JSON', data.data);
+                }
+            }
+            else {
+                console.log(data);
+            }
+        }
+    });
+    return groups;
+}
+
+async function getLookups(lookupType) {
+    var lookups = [];
+    jQuery.ajax({
+        url: BASE_PATH + '/request/AjaxDataSource/get_lookups',
+        async: false,
+        cache: false,
+        type: 'post',
+        data: { lookupType: lookupType },
+        dataType: "json",
+        success: function (data) {
+            if (data.success) {
+                try {
+                    lookups = JSON.parse(data.data);
+                } catch (error) {
+                    console.log('Error while parsing JSON', data.data);
+                }
+            }
+            else {
+                console.log(data);
+            }
+        }
+    });
+    return lookups;
+}
+
+//********************************************** FUNCTIONS *****************************************************

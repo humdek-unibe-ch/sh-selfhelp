@@ -92,6 +92,8 @@ class Condition
         $j_condition = str_replace('__current_date__', date('Y-m-d'), $j_condition); // replace __current_date__
         $j_condition = str_replace('__current_date_time__', date('Y-m-d H:i'), $j_condition); // replace __current_date_time__
         $j_condition = str_replace('__current_time__', date('H:i'), $j_condition); // replace __current_time__
+        $platform = (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web;
+        $j_condition = str_replace('__platform__', $platform, $j_condition); // replace platform
         $keyword = $this->router->get_keyword_from_url();
         $j_condition = str_replace('__keyword__', $keyword, $j_condition); // replace __keyword__
         // replace form field keywords with the actual values.

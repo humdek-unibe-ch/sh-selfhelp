@@ -2,6 +2,7 @@
 ### New Features
  - #321 - improve installation script
  - #317 - add field `condition` for all styles. Add also `debug`.
+ - move field `platofrm` to be checked in the conditions
 
 ### Bugfix 
  - fix json condition builder for `in_one_of` type used with other condition

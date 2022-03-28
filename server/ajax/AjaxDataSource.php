@@ -336,12 +336,28 @@ class AjaxDataSource extends BaseAjax
      * array with all names as string
      */
     public function get_groups(){
-        $sql = "SELECT name
-                FROM groups;";
         $res_db = $this->db->select_table('groups');
         $res = array();
         foreach ($res_db as $key => $value) {
             array_push($res, $value['name']);
+        }
+        return json_encode($res);
+    }
+
+    /**
+     * Get an array with all values for the requested loookup type
+     * @param array $data with key "lookupType"
+     * The requested lookup type
+     * 
+     * @retval array
+     * array with all values for this lookup type
+     */
+    public function get_lookups($data)
+    {
+        $lookups = $this->db->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => $data['lookupType']));
+        $res = [];
+        foreach ($lookups as $key => $value) {
+            $res[$value['value']] = $value['text'];
         }
         return json_encode($res);
     }
