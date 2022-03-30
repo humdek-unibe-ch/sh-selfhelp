@@ -803,6 +803,25 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         return $value;
     }  
+
+    /**
+     * Check if the style can have children
+     * @retval boolean
+     * Return true if it can and false if it cannot
+     */
+    public function can_have_children(){
+         $style_query = $this->db->query_db_first(
+            "SELECT style_id
+            FROM view_style_fields
+            WHERE field_name = 'children' AND style_name = :name;",
+            array(":name" => $this->style_name)
+        );
+        if (isset($style_query['style_id'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
 }
 ?>

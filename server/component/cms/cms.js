@@ -129,11 +129,14 @@ function addButtonRemoveStyle(style) {
 }
 
 // add all UI buttons to the styles
-function addUIStyleButtons(style){
+function addUIStyleButtons(style) {
+    var dataStyle = $(style).data('style');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewStyleAbove());
-    $(buttonsHolderAdd).append(addButtonNewChildToStyle());
+    if (dataStyle['can_have_children']) {
+        $(buttonsHolderAdd).append(addButtonNewChildToStyle());
+    }
     $(buttonsHolderAdd).append(addButtonNewStyleBelow());
     $(buttonsHolder).append(buttonsHolderAdd);
     $(buttonsHolder).append(addButtonRemoveStyle());

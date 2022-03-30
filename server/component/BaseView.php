@@ -228,10 +228,6 @@ abstract class BaseView
             array_push($arr, array("value" => $val['lookup_code'], "text" => $val['lookup_value']));
         }
         return $arr;
-    }
-
-    public function output_style_for_cms(){
-        require __DIR__ . "/tpl_style_holder_ui_cms.php";
-    }
+    }    
 }
 ?>

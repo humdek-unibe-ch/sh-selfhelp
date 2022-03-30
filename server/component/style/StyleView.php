@@ -146,5 +146,16 @@ abstract class StyleView extends BaseView
         return $style;
     }
 
+    /**
+     * Render the style in holder for the CMS UI
+     */
+    public function output_style_for_cms()
+    {
+        $data_style = array(
+            'can_have_children' => $this->model->can_have_children()
+        );
+        require __DIR__ . "/tpl_style_holder_ui_cms.php";
+    }
+
 }
 ?>
