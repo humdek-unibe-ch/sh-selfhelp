@@ -23,8 +23,14 @@ class JsonModel extends StyleModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
+     * @param array $params
+     *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params, $id_page, $entry_record)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=array())
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
