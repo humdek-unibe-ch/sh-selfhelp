@@ -229,5 +229,9 @@ abstract class BaseView
         }
         return $arr;
     }
+
+    public function output_style_for_cms(){
+        require __DIR__ . "/tpl_style_holder_ui_cms.php";
+    }
 }
 ?>

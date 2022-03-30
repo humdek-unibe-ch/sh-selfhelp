@@ -48,3 +48,38 @@ textarea
 .fieldsOnTop {
     z-index: 100;
 }
+
+/************************* UI CMS **********************************************************************************************/
+
+.ui-style-btn{
+    cursor: pointer;
+    height: 16px;
+    pointer-events: auto;
+}
+
+.ui-style-holder{
+    border: 2px solid;
+    position: relative;
+    border-color:  var(--secondary)
+}
+
+.ui-buttons-holder{
+    display: none;
+    top: -8px;
+    bottom: -8px;
+    left: -8px;
+    right: -8px;
+    pointer-events: none;
+}
+
+.ui-style-hover .ui-buttons-holder{
+    display: flex !important;
+}
+
+.ui-style-hover .ui-style-holder{
+    border-color:  var(--primary) !important;
+}
+
+.ui-style-hover {
+    border-color:  var(--primary) !important;
+}

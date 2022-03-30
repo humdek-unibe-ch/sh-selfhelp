@@ -500,7 +500,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $default = $field["default_value"] ?? "";
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);
-            else if($field['type'] == "markdown" && ($this->entry_record && count($this->entry_record) == 0))
+            else if($field['type'] == "markdown" && (!$this->entry_record || count($this->entry_record) == 0))
                 $field['content'] = $this->parsedown->text($field['content']);
             else if($field['type'] == "markdown-inline" && ($this->entry_record && count($this->entry_record) == 0))
                 $field['content'] = $this->parsedown->line($field['content']);
