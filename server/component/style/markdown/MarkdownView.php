@@ -78,47 +78,14 @@ class MarkdownView extends StyleView
     }
 
     /**
-     * Render output as an entry
-     * @param array $entry_value
-     * the data for the entry value
+     * Render the login view for mobile.
      */
-    public function output_content_entry($entry_value)
-    {
-        $this->text_md = str_replace('<p>', '', $this->text_md);
-        $this->text_md = str_replace('</p>', '', $this->text_md);
-        $txt = $this->get_entry_value($entry_value, $this->text_md); 
-        $pd = new ParsedownExtension();
-        $md = $pd->text($txt);
-        require __DIR__ . "/tpl_markdown.php";
-    }
-
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();
         if ($this->data_config) {
             $this->retrieve_data();
             $style['text_md']['content'] = $this->text_md;
-        }
-        return $style;
-    }
-
-    /**
-     * Render output as an entry for mobile
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_mobile_entry($entry_value)
-    {
-        $style = parent::output_content_mobile();
-        $this->text_md = str_replace('<p>', '', $this->text_md);
-        $this->text_md = str_replace('</p>', '', $this->text_md);
-        $txt = $this->get_entry_value($entry_value, $this->text_md); 
-        $pd = new ParsedownExtension();
-        $md = $pd->text($txt);
-        $style['text_md']['content'] = $md;
-        if ($this->data_config) {
-            $this->retrieve_data();
-            $style['text_md']['content'] = $md;
         }
         return $style;
     }

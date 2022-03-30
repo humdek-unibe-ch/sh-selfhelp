@@ -27,9 +27,9 @@ class MessageBoardComponent extends BaseComponent
      * @param int $id
      *  The section id of this component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new MessageBoardModel($services, $id);
+        $model = new MessageBoardModel($services, $id, $params, $id_page, $entry_record);
         if($model == null)
             return;
         $controller = null;

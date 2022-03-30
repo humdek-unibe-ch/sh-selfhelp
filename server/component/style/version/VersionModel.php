@@ -21,9 +21,9 @@ class VersionModel extends StyleModel
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /**

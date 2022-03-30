@@ -30,9 +30,9 @@ class RegisterComponent extends BaseComponent
      * @param int $id
      *  The section id of this registe component instance.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new RegisterModel($services, $id);
+        $model = new RegisterModel($services, $id, $params, $id_page, $entry_record);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new RegisterController($model);

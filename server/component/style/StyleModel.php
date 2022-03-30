@@ -84,7 +84,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @param array $entry_record
      *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=null)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=array())
     {
         parent::__construct($services);
         $this->section_id = $id;
@@ -125,30 +125,47 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->id_page = $id_page;
         if ($this->style_name == 'entryRecord') {
             //if it is entryView calculate the entry record
-            $this->entry_record = $this->calc_entry_record();
+            $res = $this->calc_entry_record();
+            $this->entry_record = $res;
         } else {
-            // take the inherit entry record
+            // // take the inherit entry record
             $this->entry_record = $entry_record;
         }
 
-        $condition = $this->get_db_field('condition');
-        $this->data_config = $this->get_db_field("data_config");
-        if ($this->data_config) {
-            $condition = $this->retrieve_data_form_config($condition);
+        if (count($entry_record) > 0) {
+            $this->adjust_entry_records();
         }
-        if($condition != '' && $this->entry_record){
-            $condition = $this->get_entry_values($condition);
-        }
-        
-        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
 
-        if ($this->is_cms_page() || $this->condition_result['result']) {
-            $this->loadChildren();
+        $this->calc_condition();
+
+        if (($this->is_cms_page() || $this->condition_result['result'])) {
+            if ($this->style_name == 'entryList') {
+                // the entryList children are loaded in the entryListModel
+            } else {
+                $this->loadChildren();
+            }
         }
                 
     }
 
     /* Private Methods ********************************************************/
+
+    /** 
+     * Calculate condition if exist and assign the value in the property condition_result;
+    */
+    private function calc_condition(){
+        $condition = $this->get_db_field('condition', '');
+        if ($condition != '') {
+            $this->data_config = $this->get_db_field("data_config");
+            if ($this->data_config) {
+                $condition = $this->retrieve_data_form_config($condition);
+            }
+            if ($this->entry_record) {
+                $condition = $this->get_entry_values($condition);
+            }
+        }        
+        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
+    }
 
     /**
      * Fetch the data from the database base on the JSON configuration
@@ -257,6 +274,28 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
+     * Get params starting with $ fot the entry output
+     * @param string $input
+     * The field value that contain params
+     * @retval array 
+     * Array with all params in the field value
+     */
+    private function get_entry_param($input)
+    {
+        preg_match_all('~\$\w+\b~', $input, $m);
+        $res = [];
+        foreach ($m as $key => $value) {
+            foreach ($value as $k => $param) {
+                if ($param) {
+                    $param_name = str_replace('$', '', $param);
+                    $res[] = $param_name;
+                }
+            }
+        }
+        return $res;
+    }
+
+    /**
      * Load the children of the section
      */
     protected function loadChildren(){
@@ -266,7 +305,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->children[$child['name']] = new StyleComponent(
                 $this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
         }
-    }
+    } 
 
     /**
      * Get staic data from the database
@@ -302,7 +341,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @retval array
      * the results rows in array
      */
-    protected function get_dynamic_data($table_id, $filter, $current_user)
+    protected function get_dynamic_data($table_id, $filter, $current_user=true)
     {
         $sql = 'CALL get_form_data_for_user_with_filter(:table_id, :user_id, :filter)';
         $params = array(
@@ -390,7 +429,28 @@ class StyleModel extends BaseModel implements IStyleModel
             }
         }
         return $condition;
-    }    
+    }
+
+    /**
+     * Adjust the fields content and replace it based on the entry record data
+     */
+    private function adjust_entry_records()
+    {
+        foreach ($this->db_fields as $key => $value) {
+            if ($value['type'] == 'json') {
+                $json_string = json_encode($value['content']);
+                $json_string = $this->get_entry_value($this->entry_record, $json_string);
+                $this->db_fields[$key]['content'] = json_decode($json_string, true);
+            } else {
+                $this->db_fields[$key]['content'] = $this->get_entry_value($this->entry_record, $value['content'], $this->db_fields[$key]['type']);
+                if ($value['type'] == 'markdown') {
+                    $this->db_fields[$key]['content'] = $this->parsedown->text($this->db_fields[$key]['content']);
+                } else if ($value['type'] == 'markdown-inline') {
+                    $this->db_fields[$key]['content'] = $this->parsedown->line($this->db_fields[$key]['content']);
+                }
+            }
+        }
+    }
 
     /* Protected Methods ******************************************************/
 
@@ -440,9 +500,9 @@ class StyleModel extends BaseModel implements IStyleModel
             $default = $field["default_value"] ?? "";
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);
-            else if($field['type'] == "markdown")
+            else if($field['type'] == "markdown" && ($this->entry_record && count($this->entry_record) == 0))
                 $field['content'] = $this->parsedown->text($field['content']);
-            else if($field['type'] == "markdown-inline")
+            else if($field['type'] == "markdown-inline" && ($this->entry_record && count($this->entry_record) == 0))
                 $field['content'] = $this->parsedown->line($field['content']);
             else if($field['type'] == "json")
             {
@@ -698,7 +758,7 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
-     * Get the already computed condtion result
+     * Get the already computed condition result
      *
      * @retval array
      *  The result array
@@ -707,6 +767,43 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         return $this->condition_result;
     }    
+
+    /**
+     * Getter, get the params
+     * @retval array 
+     * the params array
+     */
+    public function get_params(){
+        return $this->params;
+    }
+
+    /**
+     * Getter, get the id_page
+     * @retval int 
+     * Returns the id of the page
+     */
+    public function get_id_page(){
+        return $this->id_page;
+    }      
+
+    /**
+     * Get the value which is parsed with all params
+     * @param array $entry_data
+     * Array with the entry row
+     * @param string value
+     * The field value
+     * @retval string
+     * Return the value replaced with the params
+     */
+    public function get_entry_value($entry_data, $value)
+    {
+        $params = $this->get_entry_param($value);
+        foreach ($params as $key => $param) {
+            $value = isset($entry_data[$param]) ? str_replace('$' . $param, $entry_data[$param], $value) : $value; // if the param is not set, return the original
+        }
+        return $value;
+    }  
     
 }
 ?>
+

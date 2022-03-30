@@ -61,7 +61,7 @@ class StyleComponent extends BaseComponent
      * @param array $entry_record
      *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=array())
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record = array())
     {
         $this->id_section = $id;
         $model = null;

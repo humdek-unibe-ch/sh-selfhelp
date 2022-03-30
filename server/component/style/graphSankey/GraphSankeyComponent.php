@@ -31,9 +31,9 @@ class GraphSankeyComponent extends GraphBaseComponent
      * @param int $id_page
      *  The id of the parent page
      */
-    public function __construct($services, $id, $params, $id_page)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new GraphSankeyModel($services, $id, $params);
+        $model = new GraphSankeyModel($services, $id, $params, $id_page, $entry_record);
         $view = new GraphSankeyView($model);
 
         parent::__construct($model, $view, $id_page);

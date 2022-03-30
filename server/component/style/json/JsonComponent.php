@@ -27,9 +27,9 @@ class JsonComponent extends BaseComponent
      * @param int $id
      *  The section id of this navigation component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new JsonModel($services, $id);
+        $model = new JsonModel($services, $id, $params, $id_page, $entry_record);
         $view = new JsonView($model);
         parent::__construct($model, $view);
     }

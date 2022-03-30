@@ -33,10 +33,10 @@ class FormUserInputComponent extends BaseComponent
      * @param int $id
      *  The section id of this navigation component.
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
         $record_id = isset($params['record_id']) ? intval($params['record_id']) : -1;
-        $model = new FormUserInputModel($services, $id);        
+        $model = new FormUserInputModel($services, $id, $params, $id_page, $entry_record);        
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new FormUserInputController($model, $record_id);

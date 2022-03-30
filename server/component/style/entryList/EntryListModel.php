@@ -51,6 +51,7 @@ class EntryListModel extends StyleModel
         if ($this->form_id) {
             $this->entry_list = $this->fetch_entry_list();
         }
+        $this->loadChildrenEntryList();
     }
 
     /* Private Methods *********************************************************/
@@ -69,7 +70,6 @@ class EntryListModel extends StyleModel
         }
     }
 
-
     /* Public Methods *********************************************************/
 
     /**
@@ -79,5 +79,30 @@ class EntryListModel extends StyleModel
     public function get_entry_list()
     {
         return $this->entry_list;
+    }
+
+    /**
+     * Load the children of the entryList (Loop through all the form records)
+     */
+    public function loadChildrenEntryList()
+    {
+        $entry_list = $this->get_entry_list();
+        $db_children = $this->db->fetch_section_children($this->section_id);
+        if (!$entry_list) {
+            return;
+        }
+        foreach ($entry_list as $key => $entry_record) {            
+            foreach ($db_children as $child) {
+                $new_child = new StyleComponent(
+                    $this->services,
+                    intval($child['id']),
+                    $this->get_params(),
+                    $this->get_id_page(),
+                    $entry_record
+                );
+                array_push($this->children, $new_child);
+            }
+        }
+
     }
 }

@@ -35,16 +35,6 @@ class RefContainerView extends StyleView
         require __DIR__ . "/tpl_ref_container.php";
     }
 
-    /**
-     * Render the style view.
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_entry($entry_value)
-    {
-        $entry_data = $entry_value;
-        require __DIR__ . "/tpl_ref_container_entryValue.php";
-    }
 	
 }
 ?>

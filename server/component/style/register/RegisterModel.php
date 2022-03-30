@@ -30,9 +30,9 @@ class RegisterModel extends StyleModel
      * @param int $id
      *  The section id of the register component instance.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
 
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);

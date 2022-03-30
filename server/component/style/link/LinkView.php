@@ -59,39 +59,9 @@ class LinkView extends StyleView
     public function output_content()
     {
         if($this->url == "") return;
-        if($this->label == "") $this->label = htmlspecialchars($this->url);
         $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
         require __DIR__ . "/tpl_link.php";
     }
-
-    /**
-     * Render output as an entry
-     * @param array $entry_value
-     * the data for the entry value 
-     */
-    public function output_content_entry($entry_value)
-    {        
-        if($this->url == "") return;
-        $entry_data = $entry_value;
-        $this->url = $this->model->get_entry_value($entry_value, $this->model->get_db_field("url"));
-        $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
-        require __DIR__ . "/tpl_link_entryValue.php";
-    }
-
-    /**
-     * Render output as an entry for mobile
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_mobile_entry($entry_value)
-    {
-        $style = parent::output_content_mobile_entry($entry_value);
-        $this->url = $this->model->get_db_field("url");
-        $this->url = $this->get_entry_value($entry_value, $this->url); 
-        $style['url']['content'] = $this->url[0] == '/' ? $this->url : '/' . $this->url;
-        return $style;
-    }
-
 	
 }
 ?>

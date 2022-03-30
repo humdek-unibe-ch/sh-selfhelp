@@ -5,11 +5,10 @@
 ?>
 <?php
 
-require_once __DIR__ . "/Model.php";
 /**
  * The class to define the basic functionality of a model.
  */
-abstract class BaseModel extends Model
+abstract class BaseModel
 {
     /* Private Properties *****************************************************/
 
@@ -162,6 +161,18 @@ abstract class BaseModel extends Model
     {
         return $this->children;
     }
+
+    /**
+     * Set the child components.
+     *
+     * @param array $children
+     *  An array of style components.
+     */
+    public function set_children($children)
+    {
+        $this->children = $children;
+    }
+
 
     /**
      * Get the model services.

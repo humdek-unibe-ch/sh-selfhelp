@@ -9,6 +9,10 @@
  - fix json condition builder for `in_one_of` type used with other condition
  - autocomplete is not readonly anymore and can be deleted
  - improve the loading of UserInput by reducing the queries number
+ - a style `link` can have empty `label`
+
+### Internal
+ - rework the `entryList` and `entryRecord` styles and how they work
 
 # v4.9.4
 ### Bugfix

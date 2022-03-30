@@ -32,9 +32,9 @@ class AccordionListModel extends StyleModel
      * @param int $id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
         $items = $this->get_db_field("items");
         if(isset($items['nav_page']))
         {

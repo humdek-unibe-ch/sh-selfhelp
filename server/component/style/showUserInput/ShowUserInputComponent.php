@@ -29,9 +29,9 @@ class ShowUserInputComponent extends BaseComponent
      * @param int $id
      *  The section id of this navigation component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new ShowUserInputModel($services, $id);
+        $model = new ShowUserInputModel($services, $id, $params, $id_page, $entry_record);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ShowUserInputController($model);

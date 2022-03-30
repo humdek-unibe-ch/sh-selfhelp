@@ -26,9 +26,9 @@ class NestedListComponent extends BaseComponent
      * @param int $id
      *  The section id of this navigation component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new NestedListModel($services, $id);
+        $model = new NestedListModel($services, $id, $params, $id_page, $entry_record);
         $view = new NestedListView($model);
         parent::__construct($model, $view);
     }

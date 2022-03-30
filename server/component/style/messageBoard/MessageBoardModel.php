@@ -63,9 +63,9 @@ class MessageBoardModel extends FormUserInputModel
      * @param int $id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
         $this->form_name = $this->get_db_field("form_name", null);
         $this->name = $this->get_db_field("name");
         $this->reply_input_name = $this->name . "_reply";

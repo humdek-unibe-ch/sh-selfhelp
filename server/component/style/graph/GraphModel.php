@@ -41,9 +41,9 @@ class GraphModel extends StyleModel
      * @param array $params
      *  An array of get parameters.
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, $params);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
         $this->data_source = $this->get_db_field("data-source");
         $this->single_user = $this->get_db_field("single_user");
     }

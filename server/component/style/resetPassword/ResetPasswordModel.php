@@ -22,9 +22,9 @@ class ResetPasswordModel extends EmailFormBaseModel
      * @param int $id
      *  The id of the section associated to the profile page.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Private Methods ********************************************************/

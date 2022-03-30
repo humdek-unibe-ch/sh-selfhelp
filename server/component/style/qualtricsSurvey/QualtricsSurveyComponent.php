@@ -23,9 +23,9 @@ class QualtricsSurveyComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new QualtricsSurveyModel($services, $id);
+        $model = new QualtricsSurveyModel($services, $id, $params, $id_page, $entry_record);
         $view = new QualtricsSurveyView($model);
         parent::__construct($model, $view);
     }

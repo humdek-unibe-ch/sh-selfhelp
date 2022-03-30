@@ -146,18 +146,5 @@ class InputView extends FormFieldView
         return $style;
     }
 
-    /**
-     * Render output as an entry for mobile
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_mobile_entry($entry_value)
-    {
-        $style = parent::output_content_mobile();
-        $style['value']['content'] = $this->get_entry_value($entry_value, $this->value); 
-        $style['value']['default'] = $this->default_value;
-        return $style;
-    }
-
 }
 ?>

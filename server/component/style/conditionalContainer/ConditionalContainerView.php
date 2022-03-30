@@ -72,32 +72,6 @@ class ConditionalContainerView extends StyleView
         return $style;
     }
 
-    /**
-     * Render the style view for mobile.
-     */
-    private function output_conditional_content_mobile_entry($entry_value)
-    {
-        $style = $this->model->get_db_fields();
-        $style['style_name'] = $this->style_name;
-        $style['css'] = $this->css;
-        $children = [];
-        foreach ($this->children as $child) {
-            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
-                if($child->get_view() instanceof ConditionFailedView){
-                    // do nothhing. This child is shown only if the condition fails
-                }else{
-                    if (method_exists($child, 'output_content_mobile_entry')) {
-                        $children[]  = $child->output_content_mobile_entry($entry_value);
-                    } else {
-                        $children[]  = $child->output_content_mobile();
-                    }
-                }                
-            } 
-        }
-        $style['children'] = $children;
-        return $style;
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -116,30 +90,6 @@ class ConditionalContainerView extends StyleView
     }
 
     /**
-     * Render the style view.
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_entry($entry_value)
-    {
-        $entry_data = $entry_value;
-        $this->get_entry_values($entry_value);
-
-        $res = $this->model->get_condition_result();
-        if($this->debug)
-        {
-            echo '<pre class="alert alert-warning">';
-                var_dump($res);
-            echo "</pre>";
-        }
-        if ($this->model->is_cms_page() || $res['result']) {
-            require __DIR__ . "/tpl_container_entryValue.php";
-        } else {
-            require __DIR__ . "/tpl_failed_container_entryValue.php";
-        }
-    }
-
-    /**
      * Render the style view for mobile.
      */
     public function output_content_mobile()
@@ -152,31 +102,6 @@ class ConditionalContainerView extends StyleView
                 if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
                     if ($child->get_view() instanceof ConditionFailedView) {
                         return $child->output_content_mobile();
-                    } else {
-                        // do nothhing condition failed
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Render output as an entry for mobile
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_mobile_entry($entry_value)
-    {
-        $this->get_entry_values($entry_value);
-        $res = $this->model->get_condition_result();
-        if ($res['result']) {
-            return $this->output_conditional_content_mobile_entry($entry_value);
-        } else {
-            foreach ($this->children as $child) {
-                if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent
-                ) {
-                    if ($child->get_view() instanceof ConditionFailedView) {
-                        return $child->output_content_mobile_entry($entry_value);
                     } else {
                         // do nothhing condition failed
                     }
@@ -205,31 +130,6 @@ class ConditionalContainerView extends StyleView
     }
 
     /**
-     * Render the content of all children of this view instance as entries
-     * * Overwrite the basic function as we do not show the style which are in conditionFailed
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_children_entry($entry_data)
-    {
-        foreach ($this->children as $child) {
-            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
-                if ($child->get_view() instanceof ConditionFailedView) {
-                    // do nothhing. This child is shown only if the condition fails
-                } else {
-                    if (method_exists($child, 'output_content_entry')) {
-                        $child->output_content_entry($entry_data);
-                    } else {
-                        $child->output_content();
-                    }
-                }
-            } else {
-                echo "invalid child element of type '" . gettype($child) . "'";
-            };
-        }
-    }
-
-    /**
      * Render the content conditionFailed
      */
     public function output_failed_children()
@@ -244,31 +144,6 @@ class ConditionalContainerView extends StyleView
             } else {
                 echo "invalid child element of type '" . gettype($child) . "'";
             }
-        }
-    }
-
-    /**
-     * Render the content of conditionfailed
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_failed_children_entry($entry_data)
-    {
-        foreach ($this->children as $child) {
-            if ($child instanceof StyleComponent || $child instanceof BaseStyleComponent) {
-                if ($child->get_view() instanceof ConditionFailedView) {
-                    
-                    if (method_exists($child, 'output_content_entry')) {
-                        $child->output_content_entry($entry_data);
-                    } else {
-                        $child->output_content();
-                    }
-                } else {
-                    // do nothhing condition failed
-                }
-            } else {
-                echo "invalid child element of type '" . gettype($child) . "'";
-            };
         }
     }
 }

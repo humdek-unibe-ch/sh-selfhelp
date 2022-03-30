@@ -24,9 +24,9 @@ class JsonModel extends StyleModel
      * @param int $id
      *  The id of the section id of the chat wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Private Methodes *******************************************************/

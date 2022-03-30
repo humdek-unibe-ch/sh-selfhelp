@@ -26,9 +26,9 @@ class TriggerComponent extends BaseComponent
      * @param int $id
      *  The section id of this component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new TriggerModel($services, $id);
+        $model = new TriggerModel($services, $id, $params, $id_page, $entry_record);
         $controller = new TriggerController($model);
         $view = new TriggerView($model, $controller);
         parent::__construct($model, $view, $controller);

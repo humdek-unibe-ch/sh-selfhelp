@@ -85,9 +85,9 @@ class GraphSankeyModel extends GraphModel
      * @param array $params
      *  An array of get parameters.
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, $params);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
         $this->data_types = $this->get_db_field("value_types", array());
         $this->data_cols = $this->get_db_field("form_field_names", array());
         $this->link_color = $this->get_db_field("link_color");

@@ -26,9 +26,9 @@ class UserProgressComponent extends BaseComponent
      * @param int $id
      *  The section id of this component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new UserProgressModel($services, $id);
+        $model = new UserProgressModel($services, $id, $params, $id_page, $entry_record);
         $view = new UserProgressView($model);
         parent::__construct($model, $view);
     }

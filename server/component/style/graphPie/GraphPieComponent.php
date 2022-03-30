@@ -31,9 +31,9 @@ class GraphPieComponent extends GraphBaseComponent
      * @param int $id_page
      *  The id of the parent page
      */
-    public function __construct($services, $id, $params, $id_page)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new GraphPieModel($services, $id, $params);
+        $model = new GraphPieModel($services, $id, $params, $id_page, $entry_record);
         $view = new GraphPieView($model);
 
         parent::__construct($model, $view, $id_page);

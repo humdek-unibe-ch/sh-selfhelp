@@ -25,7 +25,7 @@ class ConditionalContainerModel extends StyleModel
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, array(), -1, $entry_record);        
+        parent::__construct($services, $id, $params, $id_page, $entry_record);        
         if ($this->is_correct_platform()) {
             // check conditions if it is for the correct platfform only, otherwise do not load children - improve perfromacne
             // load children if it is for the cms

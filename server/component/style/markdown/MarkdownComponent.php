@@ -31,12 +31,14 @@ class MarkdownComponent extends BaseComponent
      *  An array of get parameters.
      * @param int $id_page
      *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params, $id_page)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new StyleModel($services, $id, $params);
+        $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
         $view = new MarkdownView($model, $params);
-        parent::__construct($model, $view, $id_page);
+        parent::__construct($model, $view, $id_page, $entry_record);
     }
 }
 ?>

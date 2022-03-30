@@ -29,9 +29,9 @@ class GraphBarModel extends GraphModel
      * @param array $params
      *  An array of get parameters.
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, $params);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Private Methods ********************************************************/

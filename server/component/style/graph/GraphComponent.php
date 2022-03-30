@@ -32,9 +32,9 @@ class GraphComponent extends GraphBaseComponent
      * @param int $id_page
      *  The id of the parent page
      */
-    public function __construct($services, $id, $params, $id_page)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new GraphModel($services, $id, $params);
+        $model = new GraphModel($services, $id, $params, $id_page, $entry_record);
         $code = isset($params['code']) ? $params['code'] : null;
         $view = new GraphView($model, $code);
         parent::__construct($model, $view, $id_page);

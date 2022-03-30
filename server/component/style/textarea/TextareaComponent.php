@@ -27,9 +27,9 @@ class TextareaComponent extends FormFieldComponent
      * @param int $id
      *  The section id of this navigation component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new FormFieldModel($services, $id);
+        $model = new FormFieldModel($services, $id, $params, $id_page, $entry_record);
         $view = new TextareaView($model);
         parent::__construct($model, $view);
     }

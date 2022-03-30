@@ -27,9 +27,9 @@ class RadioComponent extends FormFieldComponent
      * @param int $id
      *  The section id of this navigation component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new RadioModel($services, $id);
+        $model = new RadioModel($services, $id, $params, $id_page, $entry_record);
         $view = new RadioView($model);
         parent::__construct($model, $view);
     }

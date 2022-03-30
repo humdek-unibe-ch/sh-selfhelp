@@ -27,9 +27,9 @@ class RadioModel extends FormFieldModel
      * @param int $id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Public Methods *********************************************************/

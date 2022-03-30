@@ -24,9 +24,9 @@ class SearchComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new StyleModel($services, $id);
+        $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
         $controller = new SearchController($model);
         $view = new SearchView($model, $controller);
         parent::__construct($model, $view);

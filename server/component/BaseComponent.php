@@ -83,30 +83,6 @@ abstract class BaseComponent
     }
 
     /**
-     * Render the component view as entries
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_entry($entry_data)
-    {
-        if ($this->view) {
-            if (
-                method_exists($this->model, 'get_condition_result') &&
-                !$this->model->get_condition_result()['result']
-                && $this->model->get_style_name() != "conditionalContainer"
-            ) {
-                //condition not meat, do not load unless it is conditional container. Conditional container could have a child conditionFailed
-                return;
-            }
-            if (method_exists($this->view, 'output_content_entry')) {
-                $this->view->output_content_entry($entry_data);
-            } else {
-                $this->view->output_content();
-            }
-        }
-    }
-
-    /**
      * Render the component view for mobile
      */
     public function output_content_mobile()
@@ -121,30 +97,6 @@ abstract class BaseComponent
                 return;
             }
             return $this->view->output_content_mobile();
-        }
-    }
-
-    /**
-     * Render the component view for mobile as entries
-     * @param array $entry_value
-     * the data for the entry value
-     */
-    public function output_content_mobile_entry($entry_data)
-    {
-        if ($this->view) {
-            if (
-                method_exists($this->model, 'get_condition_result') &&
-                !$this->model->get_condition_result()['result']
-                && $this->model->get_style_name() != "conditionalContainer"
-            ) {
-                //condition not meat, do not load unless it is conditional container. Conditional container could have a child conditionFailed
-                return;
-            }
-            if (method_exists($this->view, 'output_content_mobile_entry')) {
-                return $this->view->output_content_mobile_entry($entry_data);
-            } else {
-                return $this->view->output_content_mobile();
-            }
         }
     }
 

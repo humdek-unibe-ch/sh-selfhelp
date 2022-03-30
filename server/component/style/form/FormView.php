@@ -114,16 +114,6 @@ class FormView extends StyleView
     }
 
     /**
-     * Render the style view.
-     */
-    public function output_content_entry($entry_value)
-    {
-        $this->entry_data = $entry_value;
-        if($this->url == "") return;
-        require __DIR__ . "/tpl_form.php";
-    }
-
-    /**
      * Render the submit button.
      */
     public function output_submit_button()

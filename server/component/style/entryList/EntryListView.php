@@ -34,14 +34,10 @@ class EntryListView extends StyleView
      */
     private function output_list_row()
     {
-        $entry_list = $this->model->get_entry_list();
-        if(!$entry_list){
-           return;
-        }
-        for ($i = 0; $i < count($this->model->get_entry_list()); $i++){
-            $entry_data = $entry_list[$i];
+        foreach ($this->model->get_children() as $key => $child) {
+            $entry_record = $child;
             require __DIR__ . "/tpl_entryList_row.php";
-        }        
+        }    
     }
 
     /* Public Methods *********************************************************/
@@ -54,16 +50,14 @@ class EntryListView extends StyleView
         require __DIR__ . "/tpl_entryList.php";
     }
 
-    public function output_content_mobile()
+    /**
+     * Render the content of all children of this view instance as entries
+     * @param array $entry_value
+     * the data for the entry value
+     */
+    protected function output_children_entry($entry_record)
     {
-        $style = parent::output_content_mobile();
-        $entry_list = $this->model->get_entry_list();
-        $style['children'] = [];
-        for ($i = 0; $i < count($entry_list); $i++){
-            $entry_data = $entry_list[$i];            
-            $style['children'] = array_merge($style['children'], $this->output_children_mobile_entry($entry_data));
-        }
-        return $style;
+        $entry_record->output_content();
     }
 }
 ?>

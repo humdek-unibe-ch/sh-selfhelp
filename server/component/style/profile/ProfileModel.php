@@ -22,9 +22,9 @@ class ProfileModel extends StyleModel
      * @param int $id
      *  The id of the section to which this style is assigned.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /**

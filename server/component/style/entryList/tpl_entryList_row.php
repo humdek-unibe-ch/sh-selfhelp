@@ -5,6 +5,6 @@
 ?>
 <tr>
     <td>
-        <?php $this->output_children_entry($entry_data); ?>
+        <?php $this->output_children_entry($entry_record); ?>
     </td>
 </tr>
