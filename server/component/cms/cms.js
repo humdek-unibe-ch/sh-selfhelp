@@ -77,27 +77,16 @@ function traverse_page_view($root, $parent) {
 
 // Build custom javascript UI.
 function init_ui_cms() {
-
-    var allStyles = $('.ui-style-holder');
-    Array.from(allStyles).forEach((style) => {
-        addUIStyleButtons(style);
-    });
-
-    $(allStyles).hover(
-        function () {
-            $(this).addClass("ui-style-hover");
-        }, function () {
-            $(this).removeClass("ui-style-hover");
-        }
-    );
+    initChildrenArea();
+    initUIStylesButtons();
+    initSortableElements();
 }
 
 // create a button add nee style above selected style
 function addButtonNewStyleAbove(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn bg-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
     $(icon).click(() => {
-        console.log('click');
-        refresh_cms_ui();
+        moveUp(style);
     })
     return icon;
 }
@@ -105,8 +94,9 @@ function addButtonNewStyleAbove(style) {
 // create a button add nee style bellow the selected style
 function addButtonNewStyleBelow(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn bg-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style below"></i>');
-    $(icon).click(() => {
-        console.log('click');
+    $(icon).click((e) => {
+        e.preventDefault();
+        moveDown(style);
     })
     return icon;
 }
@@ -171,11 +161,11 @@ function addUIStyleButtons(style) {
     var dataStyle = $(style).data('style');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
-    $(buttonsHolderAdd).append(addButtonNewStyleAbove());
+    $(buttonsHolderAdd).append(addButtonNewStyleAbove(style));
     if (dataStyle['can_have_children']) {
         $(buttonsHolderAdd).append(addButtonNewChildToStyle());
     }
-    $(buttonsHolderAdd).append(addButtonNewStyleBelow());
+    $(buttonsHolderAdd).append(addButtonNewStyleBelow(style));
     $(buttonsHolder).append(buttonsHolderAdd);
     $(buttonsHolder).append(addButtonRemoveStyle(dataStyle, style));
     $(style).append(buttonsHolder);
@@ -198,10 +188,10 @@ function confirmation(content, confirmCallback) {
     });
 }
 
-
+// execute ajax call
 function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
     jQuery.ajax({
-        url: window.location.protocol + "//" + window.location.host + url,
+        url: location.href,
         method: method,
         data: data,
         async: true,
@@ -226,8 +216,93 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
 function refresh_cms_ui() {
     $('.popover').remove(); // first remove all tooltips if they are active
     $.get(location.href, function (data) {
-        $('#cms-ui').empty().append($(data).find('#cms-ui').children());        
+        $('#cms-ui').empty().append($(data).find('#cms-ui').children());
         init_ui_cms(); // reload the UI initialization
         $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+    });
+}
+
+// move item up if possible
+function moveUp(item) {
+    item = $(item);
+    var prev = item.prev();
+    if (prev.length == 0)
+        return;
+    prev.css('z-index', 999).css('position', 'relative').animate({ top: item.height() }, 250);
+    item.css('z-index', 1000).css('position', 'relative').animate({ top: '-' + prev.height() }, 300, function () {
+        prev.css('z-index', '').css('top', '').css('position', '');
+        item.css('z-index', '').css('top', '').css('position', '');
+        item.insertBefore(prev);
+    });
+}
+
+// move item down if possible
+function moveDown(item) {
+    item = $(item);
+    var next = item.next();
+    if (next.length == 0)
+        return;
+    next.css('z-index', 999).css('position', 'relative').animate({ top: '-' + item.height() }, 250);
+    item.css('z-index', 1000).css('position', 'relative').animate({ top: next.height() }, 300, function () {
+        next.css('z-index', '').css('top', '').css('position', '');
+        item.css('z-index', '').css('top', '').css('position', '');
+        item.insertAfter(next);
+    });
+}
+
+// add area for the styles with children
+function addChildrenArea(styleHolder) {
+    var style = $(styleHolder).children(":first")[0];
+    var styleHTML = $(style).html();
+    console.log(styleHTML);
+    $(style).html('')
+    var childrenArea = $('<div class="style-children-ui-cms border rounded"></div>');
+    $(childrenArea).html(styleHTML);
+    $(style).append(childrenArea);
+}
+
+// init children area for the styles that can have children
+function initChildrenArea() {
+    var allStylesWithChildren = $('.style-can-have-children');
+    Array.from(allStylesWithChildren).forEach((style) => {
+        addChildrenArea(style);
+    });
+}
+
+// init all style and add buttons to them
+function initUIStylesButtons() {
+    var allStyles = $('.ui-style-holder');
+    Array.from(allStyles).forEach((style) => {
+        addUIStyleButtons(style);
+    });
+}
+
+// init all styles and make them sortable for faster reordering and re-arranging
+function initSortableElements() {
+    var sortableOptions = {
+        scroll: true,
+        bubbleScroll: true,
+        // multiDrag: true, // Enable the plugin
+        // multiDragKey : 'Control',
+        // selectedClass: "bg-danger",
+        group: 'nested',
+        fallbackOnBody: false,
+        sort:true,
+        animation: 150,
+        swapThreshold: 0.65,
+        ghostClass: 'drag-ghost'
+    }
+    var pageStyles = $('#section-page-view .card-body');
+    Array.from(pageStyles).forEach((style) => {
+        new Sortable(style,sortableOptions);
+    });
+    var sectionStyles = $('#section-section-view .card-body');
+    Array.from(sectionStyles).forEach((style) => {
+        new Sortable(style,sortableOptions);
+    });
+    var childrenStyles = $('.style-children-ui-cms');
+    Array.from(childrenStyles).forEach((style) => {
+        console.log(style);
+        new Sortable(style, sortableOptions);
     });
 }

@@ -72,14 +72,33 @@ textarea
     pointer-events: none;
 }
 
-.ui-style-hover .ui-buttons-holder{
+.ui-style-holder:hover{
+    border-color:  var(--primary) !important;
+}
+
+.ui-style-holder:hover > .ui-buttons-holder{
     display: flex !important;
 }
 
-.ui-style-hover .ui-style-holder{
-    border-color:  var(--primary) !important;
+.grabbable {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
 }
 
-.ui-style-hover {
-    border-color:  var(--primary) !important;
+ /* (Optional) Apply a "closed-hand" cursor during drag operation. */
+.grabbable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.style-children-ui-cms{
+    min-height: 50px;
+}
+
+.drag-ghost{
+    opacity: 0.4;
+    background-color:  var(--primary) !important;
 }
