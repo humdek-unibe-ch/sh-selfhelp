@@ -11,7 +11,7 @@ $(document).ready(function () {
         }
     );
 
-    ui_cms();
+    init_ui_cms();
 
     $('.children-list.sortable').each(function (idx) {
         var $input = $(this).prev();
@@ -76,7 +76,7 @@ function traverse_page_view($root, $parent) {
 //******************************************* JS UI for CMS ***********************************************
 
 // Build custom javascript UI.
-function ui_cms() {
+function init_ui_cms() {
 
     var allStyles = $('.ui-style-holder');
     Array.from(allStyles).forEach((style) => {
@@ -97,6 +97,7 @@ function addButtonNewStyleAbove(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn bg-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
     $(icon).click(() => {
         console.log('click');
+        refresh_cms_ui();
     })
     return icon;
 }
@@ -120,10 +121,47 @@ function addButtonNewChildToStyle(style) {
 }
 
 // create a button remove the selected style
-function addButtonRemoveStyle(style) {
+function addButtonRemoveStyle(dataStyle, style) {
     var icon = $('<i class="fas fa-minus-circle ui-style-btn text-danger bg-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the style"></i>');
     $(icon).click(() => {
-        console.log('click');
+        var parents = $(style).parents('.ui-style-holder');
+        var parent
+        if (parents) {
+            parent = parents[0];
+        }
+        var removeUrl = '';
+        parentData = $(parent).data('style');
+        var relation = '';
+        if (parentData) {
+            dataStyle['remove_style_from_style_url'] = dataStyle['remove_style_from_style_url'].replace(':parent_id', parentData['id_sections'])
+            removeUrl = dataStyle['remove_style_from_style_url'];
+            relation = 'section_children';
+        } else {
+            removeUrl = dataStyle['remove_style_from_page_url']
+            relation = 'page_children';
+        }
+        confirmation('Do you really want to remove <code>' + dataStyle['section_name'] + '</code>?', () => {
+            console.log(removeUrl);
+            executeAjaxCall(
+                'post',
+                removeUrl,
+                {
+                    "remove-section-link": dataStyle['id_sections'],
+                    "mode": "delete",
+                    "relation": relation
+                },
+                () => {
+                    console.log('deleted');
+                    refresh_cms_ui();
+                },
+                () => {
+                    console.log('error');
+                    $.alert({
+                        title: 'Error!',
+                        content: 'The style was not deleted!',
+                    });
+                });
+        });
     })
     return icon;
 }
@@ -139,6 +177,57 @@ function addUIStyleButtons(style) {
     }
     $(buttonsHolderAdd).append(addButtonNewStyleBelow());
     $(buttonsHolder).append(buttonsHolderAdd);
-    $(buttonsHolder).append(addButtonRemoveStyle());
+    $(buttonsHolder).append(addButtonRemoveStyle(dataStyle, style));
     $(style).append(buttonsHolder);
+}
+
+// confirmation function
+// takes confirmation message and confirmCallback which is executed on confirmation
+function confirmation(content, confirmCallback) {
+    $.confirm({
+        title: 'CMS UI',
+        content: content,
+        buttons: {
+            confirm: function () {
+                confirmCallback();
+            },
+            cancel: function () {
+
+            }
+        }
+    });
+}
+
+
+function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
+    jQuery.ajax({
+        url: window.location.protocol + "//" + window.location.host + url,
+        method: method,
+        data: data,
+        async: true,
+        cache: false,
+        dataType: "html",
+        success: function (data) {
+            if (data) {
+                callbackSuccess();
+            }
+            else {
+                callbackError();
+            }
+        },
+        error: function (e) {
+            console.log(e);
+            callbackError();
+        }
+    });
+}
+
+// refresh the CMS_UI
+function refresh_cms_ui() {
+    $('.popover').remove(); // first remove all tooltips if they are active
+    $.get(location.href, function (data) {
+        $('#cms-ui').empty().append($(data).find('#cms-ui').children());        
+        init_ui_cms(); // reload the UI initialization
+        $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+    });
 }

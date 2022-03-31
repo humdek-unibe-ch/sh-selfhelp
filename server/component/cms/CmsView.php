@@ -375,6 +375,7 @@ class CmsView extends BaseView
                 "children" => $children,
                 "type" => $type,
                 "url_edit" => $url_edit,
+                "id" => "cms-properties"
             )
         ));
     }
@@ -429,6 +430,7 @@ class CmsView extends BaseView
                 "children" => $children,
                 "type" => $type,
                 "url_edit" => $url_edit,
+                "id" => "cms-properties"
             )
         ));
     }

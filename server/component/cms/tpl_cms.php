@@ -9,7 +9,7 @@
         <?php $this->output_breadcrumb(); ?>
     </div>
 </div>
-<div class="row">
+<div id="cms-ui" class="row">
     <div class="col fieldsOnTop">
         <?php $this->output_fields(); ?>
     </div>

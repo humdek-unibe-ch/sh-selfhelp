@@ -6,7 +6,7 @@
 <div class="ui-style-holder m-3 rounded" data-style='<?php echo json_encode($data_style); ?>' 
 data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="<div>
         Style: <code><?php echo $this->style_name; ?></code>
-        Name: <code><?php echo $this->model->get_section_name(); ?></code>
+        Name: <code><?php echo $data_style['section_name'] ?></code>
     </div>">
     <div>
         Style: <code><?php echo $this->style_name; ?></code>

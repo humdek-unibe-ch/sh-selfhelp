@@ -148,11 +148,32 @@ abstract class StyleView extends BaseView
 
     /**
      * Render the style in holder for the CMS UI
+     * and prepare the needed data as data-style attribute in order to be used in javascript
      */
     public function output_style_for_cms()
     {
+        $params = $this->model->get_services()->get_router()->route['params'];
+        // prepare the remove id if the style is in page --> this will be checked in javascript
+        $remove_style_from_page_url = $this->model->get_link_url("cmsUpdate", array(
+            "pid" => isset($params['pid']) ? $params['pid'] : -1,
+            "mode" => "update",
+            "type" => "prop",
+            "did" => null
+        ));
+        // prepare the remove id if the style is in another style --> this will be checked in javascript
+        $remove_style_from_style_url = $this->model->get_link_url("cmsUpdate", array(
+            "pid" => isset($params['pid']) ? $params['pid'] : -1,
+            "mode" => "update",
+            "type" => "prop",
+            "did" => null,
+            "sid" => ":parent_id"
+        ));
         $data_style = array(
-            'can_have_children' => $this->model->can_have_children()
+            'can_have_children' => $this->model->can_have_children(),
+            'id_sections' => $this->id_section,
+            'remove_style_from_page_url' => $remove_style_from_page_url,
+            'remove_style_from_style_url' => $remove_style_from_style_url,
+            'section_name' => $this->model->get_section_name()
         );
         require __DIR__ . "/tpl_style_holder_ui_cms.php";
     }
