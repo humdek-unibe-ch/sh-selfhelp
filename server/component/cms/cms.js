@@ -111,10 +111,10 @@ function addButtonNewChildToStyle(style) {
 }
 
 // create a button remove the selected style
-function addButtonRemoveStyle(dataStyle, style) {
+function addButtonRemoveStyle(styleData) {
     var icon = $('<i class="fas fa-minus-circle ui-style-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the style"></i>');
     $(icon).click(() => {
-        removeStyle(dataStyle, style);
+        removeStyle(styleData);
     })
     return icon;
 }
@@ -139,18 +139,18 @@ function addButtonMoveStyleDown(style) {
 
 // add all UI buttons to the styles
 function addUIStyleButtons(style) {
-    var dataStyle = $(style).data('style');
+    var styleData = $(style).data('style');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderUpDown = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewStyleAbove(style));
-    if (dataStyle['can_have_children']) {
+    if (styleData['can_have_children']) {
         $(buttonsHolderAdd).append(addButtonNewChildToStyle());
     }
     $(buttonsHolderAdd).append(addButtonNewStyleBelow(style));
     $(buttonsHolder).append(buttonsHolderAdd);
-    $(buttonsHolder).append(addButtonRemoveStyle(dataStyle, style));
+    $(buttonsHolder).append(addButtonRemoveStyle(styleData));
     $(style).append(buttonsHolder);
     $(buttonsHolderUpDown).append(buttonsHolderUpDownButtons);
     $(buttonsHolderUpDownButtons).append(addButtonMoveStyleUp(style));
@@ -178,7 +178,7 @@ function confirmation(content, confirmCallback) {
 // execute ajax call
 function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
     jQuery.ajax({
-        url: location.href,
+        url: url,
         method: method,
         data: data,
         async: true,
@@ -234,6 +234,7 @@ function moveDown(style) {
         next.css('z-index', '').css('top', '').css('position', '');
         style.css('z-index', '').css('top', '').css('position', '');
         style.insertAfter(next);
+        reorderStylesFromRoot('');
     });
 }
 
@@ -241,7 +242,6 @@ function moveDown(style) {
 function addChildrenArea(styleHolder) {
     var style = $(styleHolder).children(":first")[0];
     var styleHTML = $(style).html();
-    console.log(styleHTML);
     $(style).html('')
     var childrenArea = $('<div class="style-children-ui-cms border rounded"></div>');
     $(childrenArea).html(styleHTML);
@@ -277,49 +277,82 @@ function initSortableElements() {
         sort: true,
         animation: 150,
         swapThreshold: 0.65,
-        ghostClass: 'drag-ghost'
+        ghostClass: 'drag-ghost',
+        onSort: function (evt) {
+            var order = [];
+            $(evt.from).children('.ui-style-holder').each(function (idx) {
+                var style = this;
+                var styleData = $(style).data('style');
+                order[styleData['order_position']] = idx * 10;
+            });
+            if (evt.from == evt.to) {
+                var styleData = $(evt.item).data('style');
+                console.log(styleData);
+                console.log(order);
+                reorderStylesFromRoot(styleData, order.join());
+            }
+        }
     }
+
+    // **************************** SECTION PAGE ***********************************
     var pageStyles = $('#section-page-view .card-body');
-    Array.from(pageStyles).forEach((style) => {
-        new Sortable(style, sortableOptions);
+    Array.from(pageStyles).forEach((styleHolder) => {
+        $(styleHolder).children('.ui-style-holder').each(function (idx) {
+            prepareStyleInfo(this, idx);
+        });
+        new Sortable(styleHolder, sortableOptions);
     });
+    // **************************** SECTION VIEW ***********************************
     var sectionStyles = $('#section-section-view .card-body');
     Array.from(sectionStyles).forEach((style) => {
+        $(style).children('.ui-style-holder').each(function (idx) {
+            prepareStyleInfo(this, idx);
+        });
         new Sortable(style, sortableOptions);
     });
+    // **************************** NESTED CHILDREN ***********************************
     var childrenStyles = $('.style-children-ui-cms');
     Array.from(childrenStyles).forEach((style) => {
-        console.log(style);
+        $(style).children('.ui-style-holder').each(function (idx) {
+            prepareStyleInfo(this, idx);
+        });
         new Sortable(style, sortableOptions);
     });
 }
 
-function removeStyle(dataStyle, style) {
+// prepare style info. Calculate parents data, adjust relations and urls
+function prepareStyleInfo(style, idx) {
+    var styleData = $(style).data('style');
+    styleData['order_position'] = idx;
     var parents = $(style).parents('.ui-style-holder');
     var parent
     if (parents) {
         parent = parents[0];
     }
-    var removeUrl = '';
     parentData = $(parent).data('style');
-    var relation = '';
     if (parentData) {
-        dataStyle['remove_style_from_style_url'] = dataStyle['remove_style_from_style_url'].replace(':parent_id', parentData['id_sections'])
-        removeUrl = dataStyle['remove_style_from_style_url'];
-        relation = 'section_children';
+        styleData['update_url'] = styleData['style_from_style_url'].replace(':parent_id', parentData['id_sections'])
+        styleData['relation'] = 'section_children';
     } else {
-        removeUrl = dataStyle['remove_style_from_page_url']
-        relation = 'page_children';
+        styleData['update_url'] = styleData['style_from_page_url']
+        styleData['relation'] = 'page_children';
     }
-    confirmation('Do you really want to remove <code>' + dataStyle['section_name'] + '</code>?', () => {
-        console.log(removeUrl);
+
+    $(style).children('.badge').text(idx); // for debugging
+
+    $(style).attr('data-style', JSON.stringify(styleData));
+}
+
+// remove style from page or another style depending on the parameters
+function removeStyle(styleData) {
+    confirmation('Do you really want to remove <code>' + styleData['section_name'] + '</code>?', () => {
         executeAjaxCall(
             'post',
-            removeUrl,
+            styleData['update_url'],
             {
-                "remove-section-link": dataStyle['id_sections'],
+                "remove-section-link": styleData['id_sections'],
                 "mode": "delete",
-                "relation": relation
+                "relation": styleData['relation']
             },
             () => {
                 console.log('deleted');
@@ -333,4 +366,37 @@ function removeStyle(dataStyle, style) {
                 });
             });
     });
+}
+
+// reorder style
+function reorderStylesFromRoot(styleData, order) {
+    executeAjaxCall(
+        'post',
+        styleData['update_url'],
+        {
+            "mode": "update",
+            "fields": {
+                sections: {
+                    1: {
+                        1: {
+                            id: "",
+                            type: "style-list",
+                            relation: styleData['relation'],
+                            content: order
+                        }
+                    }
+                }
+            }
+        },
+        () => {
+            console.log('re-ordered');
+            refresh_cms_ui();
+        },
+        () => {
+            console.log('error');
+            $.alert({
+                title: 'Error!',
+                content: 'The style was not re-ordered!',
+            });
+        });
 }

@@ -154,14 +154,14 @@ abstract class StyleView extends BaseView
     {
         $params = $this->model->get_services()->get_router()->route['params'];
         // prepare the remove id if the style is in page --> this will be checked in javascript
-        $remove_style_from_page_url = $this->model->get_link_url("cmsUpdate", array(
+        $style_from_page_url = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "update",
             "type" => "prop",
             "did" => null
         ));
         // prepare the remove id if the style is in another style --> this will be checked in javascript
-        $remove_style_from_style_url = $this->model->get_link_url("cmsUpdate", array(
+        $style_from_style_url = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "update",
             "type" => "prop",
@@ -171,8 +171,8 @@ abstract class StyleView extends BaseView
         $data_style = array(
             'can_have_children' => $this->model->can_have_children(),
             'id_sections' => $this->id_section,
-            'remove_style_from_page_url' => $remove_style_from_page_url,
-            'remove_style_from_style_url' => $remove_style_from_style_url,
+            'style_from_page_url' => $style_from_page_url,
+            'style_from_style_url' => $style_from_style_url,
             'section_name' => $this->model->get_section_name()
         );
         require __DIR__ . "/tpl_style_holder_ui_cms.php";
