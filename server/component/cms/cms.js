@@ -86,7 +86,7 @@ function init_ui_cms() {
 function addButtonNewStyleAbove(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
     $(icon).click(() => {
-        moveUp(style);
+        moveStyleUp(style);
     })
     return icon;
 }
@@ -114,44 +114,25 @@ function addButtonNewChildToStyle(style) {
 function addButtonRemoveStyle(dataStyle, style) {
     var icon = $('<i class="fas fa-minus-circle ui-style-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the style"></i>');
     $(icon).click(() => {
-        var parents = $(style).parents('.ui-style-holder');
-        var parent
-        if (parents) {
-            parent = parents[0];
-        }
-        var removeUrl = '';
-        parentData = $(parent).data('style');
-        var relation = '';
-        if (parentData) {
-            dataStyle['remove_style_from_style_url'] = dataStyle['remove_style_from_style_url'].replace(':parent_id', parentData['id_sections'])
-            removeUrl = dataStyle['remove_style_from_style_url'];
-            relation = 'section_children';
-        } else {
-            removeUrl = dataStyle['remove_style_from_page_url']
-            relation = 'page_children';
-        }
-        confirmation('Do you really want to remove <code>' + dataStyle['section_name'] + '</code>?', () => {
-            console.log(removeUrl);
-            executeAjaxCall(
-                'post',
-                removeUrl,
-                {
-                    "remove-section-link": dataStyle['id_sections'],
-                    "mode": "delete",
-                    "relation": relation
-                },
-                () => {
-                    console.log('deleted');
-                    refresh_cms_ui();
-                },
-                () => {
-                    console.log('error');
-                    $.alert({
-                        title: 'Error!',
-                        content: 'The style was not deleted!',
-                    });
-                });
-        });
+        removeStyle(dataStyle, style);
+    })
+    return icon;
+}
+
+// create a new button for moving the style up
+function addButtonMoveStyleUp(style) {
+    var icon = $('<i class="fas fa-arrow-alt-circle-up ui-style-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the style up"></i>');
+    $(icon).click(() => {
+        moveStyleUp(style);
+    })
+    return icon;
+}
+
+// create a new button for moving the style down
+function addButtonMoveStyleDown(style) {
+    var icon = $('<i class="fas fa-arrow-alt-circle-down ui-style-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the style down"></i>');
+    $(icon).click(() => {
+        moveDown(style);
     })
     return icon;
 }
@@ -160,6 +141,8 @@ function addButtonRemoveStyle(dataStyle, style) {
 function addUIStyleButtons(style) {
     var dataStyle = $(style).data('style');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
+    var buttonsHolderUpDown = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
+    var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewStyleAbove(style));
     if (dataStyle['can_have_children']) {
@@ -169,6 +152,10 @@ function addUIStyleButtons(style) {
     $(buttonsHolder).append(buttonsHolderAdd);
     $(buttonsHolder).append(addButtonRemoveStyle(dataStyle, style));
     $(style).append(buttonsHolder);
+    $(buttonsHolderUpDown).append(buttonsHolderUpDownButtons);
+    $(buttonsHolderUpDownButtons).append(addButtonMoveStyleUp(style));
+    $(buttonsHolderUpDownButtons).append(addButtonMoveStyleDown(style));
+    $(style).append(buttonsHolderUpDown);
 }
 
 // confirmation function
@@ -222,31 +209,31 @@ function refresh_cms_ui() {
     });
 }
 
-// move item up if possible
-function moveUp(item) {
-    item = $(item);
-    var prev = item.prev();
+// move style up if possible
+function moveStyleUp(style) {
+    style = $(style);
+    var prev = style.prev();
     if (prev.length == 0)
         return;
-    prev.css('z-index', 999).css('position', 'relative').animate({ top: item.height() }, 250);
-    item.css('z-index', 1000).css('position', 'relative').animate({ top: '-' + prev.height() }, 300, function () {
+    prev.css('z-index', 999).css('position', 'relative').animate({ top: style.height() }, 250);
+    style.css('z-index', 1000).css('position', 'relative').animate({ top: '-' + prev.height() }, 300, function () {
         prev.css('z-index', '').css('top', '').css('position', '');
-        item.css('z-index', '').css('top', '').css('position', '');
-        item.insertBefore(prev);
+        style.css('z-index', '').css('top', '').css('position', '');
+        style.insertBefore(prev);
     });
 }
 
-// move item down if possible
-function moveDown(item) {
-    item = $(item);
-    var next = item.next();
+// move style down if possible
+function moveDown(style) {
+    style = $(style);
+    var next = style.next();
     if (next.length == 0)
         return;
-    next.css('z-index', 999).css('position', 'relative').animate({ top: '-' + item.height() }, 250);
-    item.css('z-index', 1000).css('position', 'relative').animate({ top: next.height() }, 300, function () {
+    next.css('z-index', 999).css('position', 'relative').animate({ top: '-' + style.height() }, 250);
+    style.css('z-index', 1000).css('position', 'relative').animate({ top: next.height() }, 300, function () {
         next.css('z-index', '').css('top', '').css('position', '');
-        item.css('z-index', '').css('top', '').css('position', '');
-        item.insertAfter(next);
+        style.css('z-index', '').css('top', '').css('position', '');
+        style.insertAfter(next);
     });
 }
 
@@ -287,22 +274,63 @@ function initSortableElements() {
         // selectedClass: "bg-danger",
         group: 'nested',
         fallbackOnBody: false,
-        sort:true,
+        sort: true,
         animation: 150,
         swapThreshold: 0.65,
         ghostClass: 'drag-ghost'
     }
     var pageStyles = $('#section-page-view .card-body');
     Array.from(pageStyles).forEach((style) => {
-        new Sortable(style,sortableOptions);
+        new Sortable(style, sortableOptions);
     });
     var sectionStyles = $('#section-section-view .card-body');
     Array.from(sectionStyles).forEach((style) => {
-        new Sortable(style,sortableOptions);
+        new Sortable(style, sortableOptions);
     });
     var childrenStyles = $('.style-children-ui-cms');
     Array.from(childrenStyles).forEach((style) => {
         console.log(style);
         new Sortable(style, sortableOptions);
+    });
+}
+
+function removeStyle(dataStyle, style) {
+    var parents = $(style).parents('.ui-style-holder');
+    var parent
+    if (parents) {
+        parent = parents[0];
+    }
+    var removeUrl = '';
+    parentData = $(parent).data('style');
+    var relation = '';
+    if (parentData) {
+        dataStyle['remove_style_from_style_url'] = dataStyle['remove_style_from_style_url'].replace(':parent_id', parentData['id_sections'])
+        removeUrl = dataStyle['remove_style_from_style_url'];
+        relation = 'section_children';
+    } else {
+        removeUrl = dataStyle['remove_style_from_page_url']
+        relation = 'page_children';
+    }
+    confirmation('Do you really want to remove <code>' + dataStyle['section_name'] + '</code>?', () => {
+        console.log(removeUrl);
+        executeAjaxCall(
+            'post',
+            removeUrl,
+            {
+                "remove-section-link": dataStyle['id_sections'],
+                "mode": "delete",
+                "relation": relation
+            },
+            () => {
+                console.log('deleted');
+                refresh_cms_ui();
+            },
+            () => {
+                console.log('error');
+                $.alert({
+                    title: 'Error!',
+                    content: 'The style was not deleted!',
+                });
+            });
     });
 }
