@@ -102,3 +102,7 @@ textarea
     opacity: 0.4;
     background-color:  var(--primary) !important;
 }
+
+.ui-icon-button-white {
+    background-image: radial-gradient(at center, white 40%, transparent 40%);
+}

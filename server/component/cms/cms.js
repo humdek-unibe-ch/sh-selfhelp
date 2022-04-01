@@ -84,7 +84,7 @@ function init_ui_cms() {
 
 // create a button add nee style above selected style
 function addButtonNewStyleAbove(style) {
-    var icon = $('<i class="fas fa-plus-circle ui-style-btn bg-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
+    var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
     $(icon).click(() => {
         moveUp(style);
     })
@@ -93,7 +93,7 @@ function addButtonNewStyleAbove(style) {
 
 // create a button add nee style bellow the selected style
 function addButtonNewStyleBelow(style) {
-    var icon = $('<i class="fas fa-plus-circle ui-style-btn bg-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style below"></i>');
+    var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style below"></i>');
     $(icon).click((e) => {
         e.preventDefault();
         moveDown(style);
@@ -103,7 +103,7 @@ function addButtonNewStyleBelow(style) {
 
 // create a new button add new child to selected style. Only styles witch can have children will have this button
 function addButtonNewChildToStyle(style) {
-    var icon = $('<i class="fas fa-sign-in-alt ui-style-btn bg-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child style"></i>');
+    var icon = $('<i class="fas fa-sign-in-alt ui-style-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child style"></i>');
     $(icon).click(() => {
         console.log('click');
     })
@@ -112,7 +112,7 @@ function addButtonNewChildToStyle(style) {
 
 // create a button remove the selected style
 function addButtonRemoveStyle(dataStyle, style) {
-    var icon = $('<i class="fas fa-minus-circle ui-style-btn text-danger bg-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the style"></i>');
+    var icon = $('<i class="fas fa-minus-circle ui-style-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the style"></i>');
     $(icon).click(() => {
         var parents = $(style).parents('.ui-style-holder');
         var parent
