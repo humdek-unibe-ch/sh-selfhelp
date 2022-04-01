@@ -96,7 +96,7 @@ function addButtonNewStyleBelow(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style below"></i>');
     $(icon).click((e) => {
         e.preventDefault();
-        moveDown(style);
+        moveStyleDown(style);
     })
     return icon;
 }
@@ -132,7 +132,7 @@ function addButtonMoveStyleUp(style) {
 function addButtonMoveStyleDown(style) {
     var icon = $('<i class="fas fa-arrow-alt-circle-down ui-style-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the style down"></i>');
     $(icon).click(() => {
-        moveDown(style);
+        moveStyleDown(style);
     })
     return icon;
 }
@@ -220,11 +220,22 @@ function moveStyleUp(style) {
         prev.css('z-index', '').css('top', '').css('position', '');
         style.css('z-index', '').css('top', '').css('position', '');
         style.insertBefore(prev);
+        scrollToStyle(style);
+        reorderStylesFromRoot($(style).data('style'), getChildrenOrder($(style).parent()));
     });
 }
 
+// scroll to the style only if the difference is higher than 500px
+function scrollToStyle(style) {
+    if (Math.abs($(document).scrollTop() - $(style).offset().top) > 500) {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $(style).offset().top
+        }, 1000);
+    }
+}
+
 // move style down if possible
-function moveDown(style) {
+function moveStyleDown(style) {
     style = $(style);
     var next = style.next();
     if (next.length == 0)
@@ -234,7 +245,8 @@ function moveDown(style) {
         next.css('z-index', '').css('top', '').css('position', '');
         style.css('z-index', '').css('top', '').css('position', '');
         style.insertAfter(next);
-        reorderStylesFromRoot('');
+        scrollToStyle(style);
+        reorderStylesFromRoot($(style).data('style'), getChildrenOrder($(style).parent()));
     });
 }
 
@@ -264,6 +276,17 @@ function initUIStylesButtons() {
     });
 }
 
+// return the children order based
+function getChildrenOrder(parent) {
+    var order = [];
+    $(parent).children('.ui-style-holder').each(function (idx) {
+        var style = this;
+        var styleData = $(style).data('style');
+        order[styleData['order_position']] = idx * 10;
+    });
+    return order.join();
+}
+
 // init all styles and make them sortable for faster reordering and re-arranging
 function initSortableElements() {
     var sortableOptions = {
@@ -279,17 +302,8 @@ function initSortableElements() {
         swapThreshold: 0.65,
         ghostClass: 'drag-ghost',
         onSort: function (evt) {
-            var order = [];
-            $(evt.from).children('.ui-style-holder').each(function (idx) {
-                var style = this;
-                var styleData = $(style).data('style');
-                order[styleData['order_position']] = idx * 10;
-            });
             if (evt.from == evt.to) {
-                var styleData = $(evt.item).data('style');
-                console.log(styleData);
-                console.log(order);
-                reorderStylesFromRoot(styleData, order.join());
+                reorderStylesFromRoot($(evt.item).data('style'), getChildrenOrder(evt.from));
             }
         }
     }
