@@ -1,6 +1,10 @@
-# v4.9.4 (latest)
+# v4.9.5 (latest)
 ### Bugfix
- - fix cronjob `ScheduledJobsQueue` after the condtion change
+ - BMZ calculations add default trace name for the user
+
+# v4.9.4
+### Bugfix
+ - fix cronjob `ScheduledJobsQueue` after the condition change
 
 # v4.9.3
 ### Bugfix

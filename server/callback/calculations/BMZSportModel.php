@@ -328,7 +328,7 @@ class BMZSportModel extends BaseModel
     private function gen_empty_trace()
     {
         return array(
-            "name" => '',
+            "name" => 'Ihr Motivprofil',
             "data_source" => array(
                 "name" => '',
                 "map" => array(
