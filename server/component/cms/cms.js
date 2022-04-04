@@ -251,13 +251,15 @@ function moveStyleDown(style) {
 }
 
 // add area for the styles with children
-function addChildrenArea(styleHolder) {
+function addChildrenArea(styleHolder) {    
     var style = $(styleHolder).children(":first")[0];
-    var styleHTML = $(style).html();
-    $(style).html('')
-    var childrenArea = $('<div class="style-children-ui-cms border rounded"></div>');
-    $(childrenArea).html(styleHTML);
-    $(style).append(childrenArea);
+    // console.log(style);
+    // var styleHTML = $(style).html();
+    // $(style).html('')
+    // var childrenArea = $('<div class="style-children-ui-cms border rounded"></div>');
+    // $(childrenArea).html(styleHTML);  
+    // $(style).append(childrenArea);  
+    // $(style).wrapInner('<div class="style-children-ui-cms border rounded"></div>');
 }
 
 // init children area for the styles that can have children
@@ -295,21 +297,32 @@ function initSortableElements() {
         // multiDrag: true, // Enable the plugin
         // multiDragKey : 'Control',
         // selectedClass: "bg-danger",
-        group: 'nested',
+        group: "styles",
         fallbackOnBody: false,
         sort: true,
         animation: 150,
         swapThreshold: 0.65,
         ghostClass: 'drag-ghost',
-        onSort: function (evt) {
+        onEnd: function (evt) {
             if (evt.from == evt.to) {
+                // re-arrange
                 reorderStylesFromRoot($(evt.item).data('style'), getChildrenOrder(evt.from));
+            } else {
+                // move from one parent to another
+                console.log('Old parent', $(evt.item).data('style')['parent_id']);
+                $(evt.to).children('.ui-style-holder').each(function (idx) {
+                    // re-index the new group
+                    prepareStyleInfo(this, idx);
+                });
+                console.log('New parent', $(evt.item).data('style')['parent_id'], $(evt.item).data('style')['parent']);
+                console.log("New style ", $(evt.item).data('style')['id_sections'], " should have position: ", $(evt.item).data('style')['order_position'] * 10);
+                console.log(getChildrenOrder(evt.to));
             }
         }
     }
 
     // **************************** SECTION PAGE ***********************************
-    var pageStyles = $('#section-page-view .card-body');
+    var pageStyles = $('#section-page-view > .card-body');
     Array.from(pageStyles).forEach((styleHolder) => {
         $(styleHolder).children('.ui-style-holder').each(function (idx) {
             prepareStyleInfo(this, idx);
@@ -317,20 +330,34 @@ function initSortableElements() {
         new Sortable(styleHolder, sortableOptions);
     });
     // **************************** SECTION VIEW ***********************************
-    var sectionStyles = $('#section-section-view .card-body');
+    var sectionStyles = $('#section-section-view >.card-body > .ui-style-holder > style-can-have-children');
     Array.from(sectionStyles).forEach((style) => {
         $(style).children('.ui-style-holder').each(function (idx) {
+            console.log(idx);
             prepareStyleInfo(this, idx);
         });
         new Sortable(style, sortableOptions);
     });
     // **************************** NESTED CHILDREN ***********************************
-    var childrenStyles = $('.style-children-ui-cms');
-    Array.from(childrenStyles).forEach((style) => {
+    var childrenStyles = $('.style-children-ui-cms');        
+    Array.from(childrenStyles).forEach((style) => {        
         $(style).children('.ui-style-holder').each(function (idx) {
             prepareStyleInfo(this, idx);
         });
         new Sortable(style, sortableOptions);
+        // loadNestedChildren(style, sortableOptions);
+    });
+}
+
+function loadNestedChildren(children, sortableOptions){
+    var childrenStyles = $(children).children('.style-can-have-children');
+    Array.from(childrenStyles).forEach((style) => {        
+        $(style).children('.ui-style-holder').each(function (idx) {
+            console.log(this);
+            prepareStyleInfo(this, idx);
+        });
+        new Sortable(style, sortableOptions);
+        loadNestedChildren(style, sortableOptions);
     });
 }
 
@@ -345,11 +372,15 @@ function prepareStyleInfo(style, idx) {
     }
     parentData = $(parent).data('style');
     if (parentData) {
+        styleData['parent'] = "section";
         styleData['update_url'] = styleData['style_from_style_url'].replace(':parent_id', parentData['id_sections'])
         styleData['relation'] = 'section_children';
+        styleData['parent_id'] = parentData['id_sections'];
     } else {
         styleData['update_url'] = styleData['style_from_page_url']
         styleData['relation'] = 'page_children';
+        styleData['parent'] = "page";
+        styleData['parent_id'] = styleData['id_pages'];
     }
 
     $(style).children('.badge').text(idx); // for debugging
@@ -384,33 +415,34 @@ function removeStyle(styleData) {
 
 // reorder style
 function reorderStylesFromRoot(styleData, order) {
-    executeAjaxCall(
-        'post',
-        styleData['update_url'],
-        {
-            "mode": "update",
-            "fields": {
-                sections: {
-                    1: {
-                        1: {
-                            id: "",
-                            type: "style-list",
-                            relation: styleData['relation'],
-                            content: order
-                        }
-                    }
-                }
-            }
-        },
-        () => {
-            console.log('re-ordered');
-            refresh_cms_ui();
-        },
-        () => {
-            console.log('error');
-            $.alert({
-                title: 'Error!',
-                content: 'The style was not re-ordered!',
-            });
-        });
+    console.log(order);
+    // executeAjaxCall(
+    //     'post',
+    //     styleData['update_url'],
+    //     {
+    //         "mode": "update",
+    //         "fields": {
+    //             sections: {
+    //                 1: {
+    //                     1: {
+    //                         id: "",
+    //                         type: "style-list",
+    //                         relation: styleData['relation'],
+    //                         content: order
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     () => {
+    //         console.log('re-ordered');
+    //         refresh_cms_ui();
+    //     },
+    //     () => {
+    //         console.log('error');
+    //         $.alert({
+    //             title: 'Error!',
+    //             content: 'The style was not re-ordered!',
+    //         });
+    //     });
 }

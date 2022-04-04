@@ -86,6 +86,18 @@ abstract class StyleView extends BaseView
      */
     protected function output_children()
     {
+        if(method_exists($this->model, "is_cms_page") && $this->model->is_cms_page()){
+            require __DIR__ . "/tpl_style_children_holder_ui_cms.php";
+        }else{
+            $this->output_children_content();
+        }        
+    }
+
+     /**
+     * Render the content of all children of this view instance.
+     */
+    protected function output_children_content()
+    {
         foreach($this->children as $child)
             if($child instanceof StyleComponent
                     || $child instanceof BaseStyleComponent)
@@ -171,6 +183,7 @@ abstract class StyleView extends BaseView
         $data_style = array(
             'can_have_children' => $this->model->can_have_children(),
             'id_sections' => $this->id_section,
+            'id_pages' => isset($params['pid']) ? $params['pid'] : -1,
             'style_from_page_url' => $style_from_page_url,
             'style_from_style_url' => $style_from_style_url,
             'section_name' => $this->model->get_section_name()

@@ -8,6 +8,7 @@
     <span>
         Style: <code><?php echo $this->style_name; ?></code>
         Name: <code><?php echo $this->model->get_section_name(); ?></code>
+        Children: <code><?php echo $data_style['can_have_children'] ?></code>
     </span>
     <div class="p-3 <?php echo ($data_style['can_have_children'] ? 'style-can-have-children' : ''); ?>">
         <?php $this->output_content(); ?>
