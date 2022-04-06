@@ -454,6 +454,21 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
+     * Checks whether the current page is a CMS page which is edited by the user.
+     * Either in update, delete or insert mode
+     *
+     * @retval bool
+     *  true if the current page is a CMS page, false otherwise.
+     */
+    public function is_cms_page_editing()
+    {
+        return ($this->is_link_active("cmsUpdate") ||
+                $this->is_link_active("cmsInsert") ||
+                $this->is_link_active("cmsDelete")
+        );
+    }
+
+    /**
      * Returns the content of a data field given a specific key. If the key does
      * not exist an empty string is returned.
      *

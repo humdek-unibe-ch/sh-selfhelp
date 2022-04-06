@@ -79,6 +79,7 @@ abstract class BaseComponent
                 return;
             }
             if (method_exists($this->model, 'is_cms_page') && $this->model->is_cms_page() && 
+            method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing() && 
                 method_exists($this->view, 'output_style_for_cms') && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
                 // load the page in the CMS 
                 // wrap each style in UI CMS Holder that keep the information for the style

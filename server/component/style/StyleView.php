@@ -86,9 +86,11 @@ abstract class StyleView extends BaseView
      */
     protected function output_children()
     {
-        if(method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() && $this->model->get_services()->get_user_input()->is_new_ui_enabled()){
+        if (method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() &&
+            method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
+            $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
             require __DIR__ . "/tpl_style_children_holder_ui_cms.php";
-        }else{
+        } else {
             $this->output_children_content();
         }        
     }
