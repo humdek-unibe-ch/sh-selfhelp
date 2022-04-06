@@ -63,11 +63,10 @@ class EntryListModel extends StyleModel
      */
     private function fetch_entry_list()
     {
-        if ($this->form_type == FORM_STATIC) {
-            return $this->get_static_data($this->form_id, $this->filter, $this->own_entries_only);
-        } else if ($this->form_type == FORM_DYNAMIC) {
-            return $this->get_dynamic_data($this->form_id, ' AND deleted = 0 ' . $this->filter, $this->own_entries_only);
+        if ($this->form_type == FORM_DYNAMIC){
+            $this->filter = ' AND deleted = 0 ' . $this->filter; // do not show the deleted records
         }
+        return $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);
     }
 
     /* Public Methods *********************************************************/

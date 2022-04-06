@@ -225,25 +225,22 @@ class AjaxDataSource extends BaseAjax
     /* Public Methods *********************************************************/
 
     /**
-     * The search function which can be called by an AJAx call.
+     * The search function which can be called by an AJAX call.
+     * 
+     * This page should be created so the acl could be assigned. -> example for the url --> /request/[AjaxDataSource:class]/[get_data_table:method]/[sample_static:table] 
+     * the table is the chosen data source
      *
-     * @param $data
-     *  The POST data of the ajax call:
-     *   - 'name':        the name of the data to fetch.
-     *   - 'single_user': flag to indicate whether to use dynamic data of a
-     *                    single user or of all users
      * @retval array
      *  An array of user items where each item has the following keys:
      *   - 'value':     The email of the user.
      *   - 'id':        The id of the user.
      */
-    public function get_data_table($data)
+    public function get_data_table()
     {
         $table_name = $this->router->route['params']['table'];
-        $table_prefix = $this->router->route['params']['prefix'];
         $sql = "SELECT * FROM view_data_tables WHERE table_name = :name";
         $source = $this->db->query_db_first($sql,
-            array("name" => $table_prefix . $table_name));
+            array("name" => $table_name));
         $filter = array();
         if(isset($_SESSION['data_filter'][$table_name])
                 && count($_SESSION['data_filter'][$table_name]) > 0) {
@@ -313,15 +310,8 @@ class AjaxDataSource extends BaseAjax
      * array with all field names as string
      */
     public function get_table_fields($data){
-        if ($data['type'] == 'static') {
-            $sql = "CALL get_uploadTable_with_filter((SELECT id FROM view_data_tables WHERE type = :type and orig_name = :name), ' LIMIT 0, 1');";
-        } else {
-            $sql = "CALL get_form_data_with_filter((SELECT id FROM view_data_tables WHERE type = :type and orig_name = :name), ' LIMIT 0, 1');";
-        }
-        $res_db = $this->db->query_db_first($sql, array(
-            ":type" => $data['type'],
-            ":name" => $data['name']
-        ));
+        $form_id = $this->user_input->get_form_id($data['name'], $data['type']); 
+        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, $data['type'], null, true);
         $res = array();
         foreach ($res_db as $key => $value) {
             array_push($res, $key);

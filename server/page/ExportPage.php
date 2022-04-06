@@ -160,8 +160,7 @@ class ExportPage extends BasePage
     private function export_user_input_form($output, $form_id)
     {
         $fileName = null;  
-        $sql = 'call get_form_data(' . $form_id . ')';
-        $fields = $this->services->get_db()->query_db($sql);
+        $fields = $this->services->get_user_input()->get_data($form_id, '', false);
 
         // output the column headings
         if(count($fields) > 0)

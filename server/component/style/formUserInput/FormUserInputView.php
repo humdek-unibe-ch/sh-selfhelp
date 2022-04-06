@@ -327,7 +327,9 @@ class FormUserInputView extends StyleView
             $style['children'][] = $selected_record_id->output_content_mobile();
             $style = $this->propagate_input_fields_mobile($style, $entry_record);
         }
-        $style['label']['content'] = $this->selected_record_id > 0 ? 'Update' : $style['label']['content'];
+        if (isset($style['label'])) {
+            $style['label']['content'] = $this->selected_record_id > 0 ? 'Update' : $style['label']['content'];
+        }
         if ($this->selected_record_id > 0) {
             $form_delete = new BaseStyleComponent("card", array(
                 "css" => "mobile-mt-3 mobile-mb-3",

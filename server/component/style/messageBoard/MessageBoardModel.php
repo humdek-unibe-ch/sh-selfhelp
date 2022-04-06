@@ -378,6 +378,6 @@ class MessageBoardModel extends FormUserInputModel
      * the avatar
      */
     public function get_avatar($user_id){
-        return $this->db->get_avatar($user_id);
+        return $this->user_input->get_avatar($user_id);
     }
 }

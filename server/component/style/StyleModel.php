@@ -180,13 +180,13 @@ class StyleModel extends BaseModel implements IStyleModel
         try {
             foreach ($data_config as $key => $config) {
                 // loop configs; DB requests
-                $table_id = $config['type'] === 'static' ? $this->get_static_table_id($config['table']) : $this->get_dynamic_table_id($config['table']);
+                $table_id = $this->user_input->get_form_id($config['table'], $config['type']);
                 $data = null;
                 if ($table_id) {
                     if ($config['type'] === 'static') {
-                        $filter = "ORDER BY row_id ASC";
+                        $filter = "ORDER BY record_id ASC";
                         if ($config['retrieve'] === 'last') {
-                            $filter = "ORDER BY row_id DESC";
+                            $filter = "ORDER BY record_id DESC";
                         }
                     } else {
                         $filter = "ORDER BY edit_time ASC";
@@ -203,7 +203,7 @@ class StyleModel extends BaseModel implements IStyleModel
                         // get the config value if it is set
                         $current_user = $config['current_user'];
                     }
-                    $data = $config['type'] === 'static' ? $this->get_static_data($table_id, $filter, $current_user) : $this->get_dynamic_data($table_id, $filter, $current_user);
+                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type']);
                     $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
                     });
@@ -255,7 +255,9 @@ class StyleModel extends BaseModel implements IStyleModel
                 return;
             }
             $own_entries_only =  $this->get_db_field("own_entries_only", 1);
-            return $this->fetch_entry_record($form_id, $record_id, $own_entries_only, $form_type);
+            $filter = " AND deleted = 0 AND record_id = " . $record_id;
+            $data = $this->user_input->get_data($form_id, $filter, $own_entries_only, $form_type);
+            return $data && count($data) > 0 ? $data[0] : false; // return the first record
         } else {
             return;
         }
@@ -305,93 +307,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->children[$child['name']] = new StyleComponent(
                 $this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
         }
-    } 
-
-    /**
-     * Get staic data from the database
-     * @param int $table_id
-     * id of the table that we want to retrieve
-     * @param string $filter
-     * filter used to sort the data
-     * @param boolean $current_user
-     * get the data for the current user if enabled
-     * @retval array
-     * the results rows in array
-     */
-    protected function get_static_data($table_id, $filter, $current_user)
-    {
-        if($current_user){
-            $filter = "AND id_users = '" . $_SESSION['id_user'] . "'" . $filter;
-        }
-        $sql = 'CALL get_uploadTable_with_filter(:table_id, :filter)';
-        return $this->db->query_db($sql, array(
-            ":table_id" => $table_id,
-            ":filter" => $filter
-        ));
-    }
-
-    /**
-     * Get dynamic data from the database
-     * @param int $table_id
-     * id of the table that we want to retrieve
-     * @param string $filter
-     * filter used to sort the data
-     * @param boolean $current_user
-     * get the data for the current user if enabled
-     * @retval array
-     * the results rows in array
-     */
-    protected function get_dynamic_data($table_id, $filter, $current_user=true)
-    {
-        $sql = 'CALL get_form_data_for_user_with_filter(:table_id, :user_id, :filter)';
-        $params = array(
-            ":table_id" => $table_id,
-            ":user_id" => $_SESSION['id_user'],
-            ":filter" => $filter
-        );
-        if(!$current_user){
-            $sql = 'CALL get_form_data_with_filter(:table_id, :filter)';
-            $params = array(
-            ":table_id" => $table_id,
-            ":filter" => $filter
-        );
-        }
-        return $this->db->query_db($sql, $params);
-    }
-
-    /**
-     * Get the static table id based on name
-     * @param string $table_name
-     * table name
-     * @retval int table id
-     */
-    private function get_static_table_id($table_name)
-    {
-        $sql = 'SELECT id 
-                FROM uploadTables
-                WHERE name = :name';
-        return $this->db->query_db_first($sql, array(
-            ":name" => $table_name
-        ))['id'];
-    }
-
-    /**
-     * Get the dynamic table id based on name
-     * @param string $table_name
-     * table name
-     * @retval int table id
-     */
-    protected function get_dynamic_table_id($table_name)
-    {
-        $sql = 'select id_section_form as form_id
-                from user_input ui
-                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-                where sft_if.content = :name
-                limit 0,1;';
-        return $this->db->query_db_first($sql, array(
-            ":name" => $table_name
-        ))['form_id'];
-    }
+    }           
 
     /**
      * Parse the page params and if they are needed in the config they are replaced with their values
@@ -516,49 +432,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 "default" => $default,
             );
         }
-    }
-
-    /**
-     * Fetch the record data
-     * @param int $form_id
-     * the form id of the form that we want to fetcht
-     * @param int $record_id
-     * the record id of the form entry
-     * @param int $own_entries_only
-     * If true it loads only records created by the same user
-     * @param int $form_type
-     * Dynamic or static form, it loads different table based on this value
-     * @retval array
-     * the result of the fetched form row
-     */
-    protected function fetch_entry_record($form_id, $record_id, $own_entries_only = 1, $form_type = FORM_DYNAMIC)
-    {
-        if ($form_type == FORM_DYNAMIC) {
-            $filter = " AND deleted = 0 AND record_id = " . $record_id;
-            $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
-            $params = array(
-                ":form_id" => $form_id,
-                ":user_id" => $_SESSION['id_user']
-            );
-            if (!$own_entries_only) {
-                $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
-                $params = array(
-                    ":form_id" => $form_id
-                );
-            }
-        } else if ($form_type == FORM_STATIC) {
-            $filter = " AND row_id = " . $record_id;
-            $params = array(
-                ":form_id" => $form_id,
-            );
-            if ($own_entries_only) {
-                $filter = $filter . ' AND id_users = ' . intval($_SESSION['id_user']);
-            } 
-            $sql = 'CALL get_uploadTable_with_filter(:form_id, :filter)';
-        }
-        $params[':filter'] = $filter;
-        return $this->db->query_db_first($sql, $params);
-    }
+    }    
 
     /* Public Methods *********************************************************/
 

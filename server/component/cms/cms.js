@@ -86,7 +86,8 @@ function init_ui_cms() {
 function addButtonNewStyleAbove(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
     $(icon).click(() => {
-        moveStyleUp(style);
+        // moveStyleUp(style);
+        $('#myModal').modal();
     })
     return icon;
 }
@@ -96,7 +97,7 @@ function addButtonNewStyleBelow(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style below"></i>');
     $(icon).click((e) => {
         e.preventDefault();
-        moveStyleDown(style);
+        // moveStyleDown(style);
     })
     return icon;
 }
@@ -251,7 +252,7 @@ function moveStyleDown(style) {
 }
 
 // add area for the styles with children
-function addChildrenArea(styleHolder) {    
+function addChildrenArea(styleHolder) {
     var style = $(styleHolder).children(":first")[0];
     // console.log(style);
     // var styleHTML = $(style).html();
@@ -339,8 +340,8 @@ function initSortableElements() {
         new Sortable(style, sortableOptions);
     });
     // **************************** NESTED CHILDREN ***********************************
-    var childrenStyles = $('.style-children-ui-cms');        
-    Array.from(childrenStyles).forEach((style) => {        
+    var childrenStyles = $('.style-children-ui-cms');
+    Array.from(childrenStyles).forEach((style) => {
         $(style).children('.ui-style-holder').each(function (idx) {
             prepareStyleInfo(this, idx);
         });
@@ -349,9 +350,9 @@ function initSortableElements() {
     });
 }
 
-function loadNestedChildren(children, sortableOptions){
+function loadNestedChildren(children, sortableOptions) {
     var childrenStyles = $(children).children('.style-can-have-children');
-    Array.from(childrenStyles).forEach((style) => {        
+    Array.from(childrenStyles).forEach((style) => {
         $(style).children('.ui-style-holder').each(function (idx) {
             console.log(this);
             prepareStyleInfo(this, idx);

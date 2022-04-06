@@ -463,7 +463,8 @@ class FormUserInputModel extends StyleModel
     {
         $this->db->begin_transaction();
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
-        $entry_record = $this->fetch_entry_record($this->get_form_id(), $record_id, $own_entries_only);
+        $filter = " AND deleted = 0 AND record_id = " . $record_id;
+        $entry_record = $this->user_input->get_data($this->get_form_id(), $filter, $own_entries_only, FORM_DYNAMIC, null, true);
         $field_name = $this->get_form_field_name($id);
         $res = false;
         $tran_type = '';
@@ -658,15 +659,7 @@ class FormUserInputModel extends StyleModel
     public function get_id_record()
     {
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
-        $sql = "CALL get_form_data_with_filter(:fid, 'ORDER BY record_id DESC')";
-        $params = array(
-            ":fid" => $this->get_form_id()
-        );
-        if ($own_entries_only) {
-            $sql = "CALL get_form_data_for_user_with_filter(:fid, :id_users, 'ORDER BY record_id DESC')";
-            $params["id_users"] = $_SESSION['id_user'];
-        }
-        $res = $this->db->query_db_first($sql, $params);
+        $res = $this->user_input->get_data($this->get_form_id(),'ORDER BY record_id DESC',$own_entries_only, FORM_DYNAMIC, null, true);
         if ($res) return $res['record_id'];
         else return false;
     }
@@ -805,8 +798,9 @@ class FormUserInputModel extends StyleModel
      */
     public function get_form_entry_record($form_name, $record_id, $own_entries_only)
     {
-        $form_id = $this->db->get_form_id($form_name);
-        return $this->fetch_entry_record($form_id, $record_id, $own_entries_only);
+        $form_id = $this->user_input->get_form_id($form_name);
+        $filter = " AND deleted = 0 AND record_id = " . $record_id;
+        return $this->$this->user_input->get_data($form_id, $filter, $own_entries_only);
     }
 
     /**

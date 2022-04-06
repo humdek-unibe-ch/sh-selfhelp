@@ -84,20 +84,10 @@ class DataModel extends BaseModel
         $formInfo = explode('-', $formId);
         $formId = $formInfo[0];
         $formType = $formInfo[1];
-        if ($formType == 'dynamic') {
-            if ($user_ids == 'all') {
-                // if no user is selected return data for all
-                $sql = 'call get_form_data(' . $formId . ')';
-                return $this->services->get_db()->query_db($sql);
-            } else {
-                //return for the selected user
-                $sql = 'call get_form_data_for_user(' . $formId . ', ' . $user_ids . ')';
-                return $this->services->get_db()->query_db($sql);
-            }
+        if ($user_ids == 'all') {
+            return $this->user_input->get_data($formId, '', false, $formType);
         } else {
-            // users cannot be filtered for statics
-            $sql = 'call get_uploadTable(' . $formId . ')';
-            return $this->services->get_db()->query_db($sql);
+            return $this->user_input->get_data_for_user($formId, $user_ids, '', $formType);
         }
     }
 

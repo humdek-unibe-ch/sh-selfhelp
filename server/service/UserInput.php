@@ -271,7 +271,7 @@ class UserInput
         if(isset($filter["removed"]))
             $db_cond["ui.removed"] = $filter["removed"] ? '1' : '0';
         if(isset($filter["form_name"]))
-            $db_cond["ui.id_section_form"] = $this->db->get_form_id($filter["form_name"]);
+            $db_cond["ui.id_section_form"] = $this->get_form_id($filter["form_name"]);
         $fields_all = $this->fetch_input_fields($db_cond, $get_page_info);
         $fields = array();
         foreach($fields_all as $field)
@@ -508,5 +508,147 @@ class UserInput
         }
         return $field_attrs;
     }
+
+    /**
+     * Get the UI preferences row for the user. If it is not set returns false
+     * @retval array or false
+     * return the UI preferences row or false if it is not set
+     */
+    public function get_ui_preferences()
+    {
+        $ui_pref = $this->get_data($this->get_form_id('ui-preferences', FORM_DYNAMIC), '');
+        return $ui_pref ? $ui_pref[0] : false;
+    }
+
+    /**
+     * Check if we should load the new UI or load the old UI
+     */
+    public function is_new_ui_enabled()
+    {
+        $ui_pref = $this->get_ui_preferences();
+        if (!$ui_pref || (isset($ui_pref['old_ui'])  && $ui_pref['old_ui'] == 0)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Get the id of the table or the form based on the required type
+     * @param string $name
+     * The name of the form or table     
+     * @param int $form_type
+     * Dynamic or static form, it loads different table based on this value
+     * @retval array
+     * the result of the fetched form row
+     */
+    public function get_form_id($name, $form_type = FORM_DYNAMIC)
+    {
+        if ($form_type == FORM_DYNAMIC) {
+            $sql = 'select id_section_form as id
+                from user_input ui
+                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+                where sft_if.content = :name
+                limit 0,1;';
+        } else if ($form_type == FORM_STATIC) {
+            $sql = 'SELECT id 
+                FROM uploadTables
+                WHERE name = :name';
+        }
+        return $this->db->query_db_first($sql, array(
+            ":name" => $name
+        ))['id'];
+    }
+
+    /**
+     * Fetch the record data
+     * @param int $form_id
+     * the form id of the form that we want to fetcht
+     * @param string $filter
+     * filter string that is added to the having clause
+     * @param boolean $own_entries_only
+     * If true it loads only records created by the same user. 
+     * @param string $form_type
+     * Dynamic or static form, it loads different table based on this value
+     * @param int $user_id
+     * Show the data for that user
+     * @param boolean $db_first
+     * If true it returns the first row. 
+     * @retval array
+     * the result of the fetched data
+     */
+    public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_DYNAMIC, $user_id = null, $db_first = false)
+    {
+        if (!$user_id) {
+            $user_id =  $_SESSION['id_user']; // if the user is not defined we set the session user if needed
+        }
+        if ($form_type == FORM_DYNAMIC) {
+            $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
+            $params = array(
+                ":form_id" => $form_id,
+                ":user_id" => $user_id
+            );
+            if (!$own_entries_only) {                
+                $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
+                $params = array(
+                    ":form_id" => $form_id
+                );
+            }
+        } else if ($form_type == FORM_STATIC) {
+            $params = array(
+                ":form_id" => $form_id,
+            );
+            if ($own_entries_only) {
+                $filter = ' AND id_users = ' . intval($user_id) . ' ' . $filter;
+            }
+            $sql = 'CALL get_uploadTable_with_filter(:form_id, :filter)';
+        }
+        $params[':filter'] = $filter;
+        if ($db_first) {
+            return $this->db->query_db_first($sql, $params);
+        } else {
+            return $this->db->query_db($sql, $params);
+        }        
+    }
+
+    /**
+     * Fetch the record data for a given user
+     * @param int $form_id
+     * the form id of the form that we want to fetcht
+     * @param int $user_id
+     * Show the data for that user
+     * @param string $filter
+     * filter string that is added to the having clause
+     * @param string $form_type
+     * Dynamic or static form, it loads different table based on this value
+     * @param boolean $db_first
+     * If true it returns the first row. 
+     * @retval array
+     * the result of the fetched data
+     */
+    public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_DYNAMIC, $db_first = false)
+    {        
+        return $this->get_data($form_id, $filter, true, $form_type, $user_id, $db_first);
+    }
+
+    /**
+     * Get the avatar of the current user
+     *
+     * @param int $user_id
+     * 
+     * @retval string
+     *  The avatar image of the current user or emty string.
+     */
+    public function get_avatar($user_id)
+    {
+        $form_id = $this->get_form_id('avatar');
+        if ($form_id) {
+            $avatar = $this->get_data_for_user($form_id, $user_id, '', FORM_DYNAMIC, true);
+            return $avatar ? $avatar['avatar'] : '';
+        } else {
+            return '';
+        }
+    }
+
 }
 ?>

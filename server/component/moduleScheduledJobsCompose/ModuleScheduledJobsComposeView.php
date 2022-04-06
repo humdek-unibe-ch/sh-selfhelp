@@ -211,7 +211,7 @@ class ModuleScheduledJobsComposeView extends BaseView
     {
         // maoduel queue back button
         $mailQueueuButton = new BaseStyleComponent("button", array(
-            "label" => "Mail Queueu",
+            "label" => "Scheduled Jobs",
             "url" => $this->model->get_link_url("moduleScheduledJobs"),
             "type" => "secondary",
             "css" => "d-block mb-3",

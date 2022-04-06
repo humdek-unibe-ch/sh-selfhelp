@@ -34,3 +34,96 @@ WHERE id = get_field_id('platform');
 -- delete filedType select-platform
 DELETE FROM fieldType
 WHERE id = get_field_type_id('select-platform');
+
+-- add UI preferences to the profile page 
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000012, 'profile-ui-preferences-card', NULL);
+SET @id_section_pnc = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnc, 0000000022, 0000000002, 0000000001, 'UI Vorlieben'),
+(@id_section_pnc, 0000000022, 0000000003, 0000000001, 'UI Preferences'),
+(@id_section_pnc, 0000000023, 0000000001, 0000000001, 'mb-3 mt-3'),
+(@id_section_pnc, 0000000028, 0000000001, 0000000001, 'light'),
+(@id_section_pnc, 0000000046, 0000000001, 0000000001, '1'),
+(@id_section_pnc, 0000000047, 0000000001, 0000000001, '0'),
+(@id_section_pnc, 0000000048, 0000000001, 0000000001, ''),
+(@id_section_pnc, 0000000091, 0000000001, 0000000001, '{"and":[{"==":[true,"$admin"]}]}'),
+(@id_section_pnc, 00000000180, 0000000001, 0000000001, '{"condition":"AND","rules":[{"id":"user_group","field":"user_group","type":"string","input":"select","operator":"in","value":["admin"]}],"valid":true}');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (get_style_id('formUserInputRecord'), 'profile-preferences-ui-formUserInputRecord', NULL);
+SET @id_section_pnf = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnf, 0000000008, 0000000002, 0000000001, 'Ändern'),
+(@id_section_pnf, 0000000008, 0000000003, 0000000001, 'Change'),
+(@id_section_pnf, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnf, 0000000028, 0000000001, 0000000001, 'primary'),
+(@id_section_pnf, 0000000057, 0000000001, 0000000001, 'ui-preferences'),
+(@id_section_pnf, 0000000087, 0000000001, 0000000001, '0'),
+(@id_section_pnf, 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Vorlieben wurden erfolgreich gespeichert'),
+(@id_section_pnf, 0000000035, 0000000003, 0000000001, 'The preferences settings were successfully saved');
+
+INSERT INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-ui-preferences-old-ui', NULL);
+SET @id_section_pnci = LAST_INSERT_ID();
+INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+(@id_section_pnci, 0000000008, 0000000002, 0000000001, 'Enable old UI'),
+(@id_section_pnci, 0000000008, 0000000003, 0000000001, 'Enable old UI'),
+(@id_section_pnci, 0000000023, 0000000001, 0000000001, ''),
+(@id_section_pnci, 0000000054, 0000000001, 0000000001, 'checkbox'),
+(@id_section_pnci, 0000000055, 0000000002, 0000000001, ''),
+(@id_section_pnci, 0000000055, 0000000003, 0000000001, ''),
+(@id_section_pnci, 0000000056, 0000000001, 0000000001, '1'),
+(@id_section_pnci, 0000000057, 0000000001, 0000000001, 'old_ui'),
+(@id_section_pnci, 0000000058, 0000000001, 0000000001, '0');
+
+INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
+((SELECT id FROM sections WHERE name = "profile-col1-div"), @id_section_pnc, 0),
+(@id_section_pnc, @id_section_pnf, 0),
+(@id_section_pnf, @id_section_pnci, 0);
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
+
+CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, filter_param VARCHAR(1000) )
+BEGIN
+    SET @@group_concat_max_len = 32000;
+    SET @sql = NULL;
+    SELECT
+    GROUP_CONCAT(DISTINCT
+        CONCAT(
+            'max(case when col.name = "',
+                col.name,
+                '" then value end) as `',
+            replace(col.name, ' ', ''), '`'
+        )
+    ) INTO @sql
+    FROM  uploadTables t
+	INNER JOIN uploadRows r on (t.id = r.id_uploadTables)
+	INNER JOIN uploadCells cell on (cell.id_uploadRows = r.id)
+	INNER JOIN uploadCols col on (col.id = cell.id_uploadCols)
+    WHERE t.id = table_id_param;
+
+    IF (@sql is null) THEN
+        SELECT table_name from view_uploadTables where 1=2;
+    ELSE
+        BEGIN
+            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', @sql, 
+                ' from uploadTables t
+					inner join uploadRows r on (t.id = r.id_uploadTables)
+					inner join uploadCells cell on (cell.id_uploadRows = r.id)
+					inner join uploadCols col on (col.id = cell.id_uploadCols)
+					where t.id = ', table_id_param,
+					' group by t.name, t.timestamp, r.id HAVING 1 ', filter_param);
+			IF LOCATE('id_users', @sql) THEN
+				-- get user_name if there is id_users column
+				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id)');
+			END IF;
+
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        END;
+    END IF;
+END
+//
+
+DELIMITER ;

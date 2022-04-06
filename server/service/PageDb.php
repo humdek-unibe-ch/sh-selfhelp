@@ -437,46 +437,7 @@ class PageDb extends BaseDb
         } else {
             return "unknown";
         }
-    }
-
-    /**
-     * Get the avatar of the current user
-     *
-     * @param int $user_id
-     * 
-     * @retval string
-     *  The avatar image of the current user or emty string.
-     */
-    public function get_avatar($user_id)
-    {
-        $form_id = $this->get_form_id('avatar');
-        if ($form_id) {
-            $sql = 'CALL get_form_data_for_user(:table_id, :user_id)';
-            $avatar = $this->query_db_first($sql, array(
-                ":table_id" => $form_id,
-                ":user_id" => $user_id
-            ));
-            return $avatar ? $avatar['avatar'] : '';
-        } else {
-            return '';
-        }
-    }
-
-    /**
-     * Get the form id
-     * @param string $form_name
-     * the form name
-     * @retval int
-     * Return the form id
-     */
-    public function get_form_id($form_name)
-    {
-        $sql_get_form_id = "SELECT form_id
-                            FROM view_form
-                            WHERE form_name = :form_name;";
-        $form = $this->query_db_first($sql_get_form_id, array(":form_name" => $form_name));
-        return $form['form_id'];
-    }
+    }    
 
     /**
      * Fetch the list of languages

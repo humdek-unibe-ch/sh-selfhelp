@@ -72,16 +72,11 @@ class SaveDataModel extends BaseModel
     private function insert_into_db($survey_code, $data)
     {
         $table_name = $survey_code; //suevey code id is used as table name
-        $sql_chack_table = "SELECT id FROM uploadTables WHERE name = :name";
-        $id_table = $this->db->query_db_first($sql_chack_table, array(":name" => $table_name))['id'];  
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
         if($id_table){
             // if table exist; check if the entry exist already; if the repsonse was delayed and qualtrics sent multiple callbacks
             $filter = "AND survey_response_id = '" . $this->qualtrics_survey_response_id ."'";
-            $sql_check_entry = 'CALL get_uploadTable_with_filter(:id_table, :filter)';
-            $entry = $this->db->query_db($sql_check_entry, array(
-                ":id_table" => $id_table,
-                ":filter" => $filter
-            ));
+            $entry = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
             if($entry){
                 return "Response: " . $this->qualtrics_survey_response_id . ' was already added to DB';
             }

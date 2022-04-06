@@ -116,6 +116,9 @@ abstract class BaseModel
             array("nav" => $id));
     }
 
+    /* Protected Methods *********************************************************/
+    
+
     /* Public Methods *********************************************************/
 
     /**
@@ -278,5 +281,6 @@ abstract class BaseModel
         }
         return $groups;
     }
+    
 }
 ?>

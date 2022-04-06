@@ -2145,6 +2145,6 @@ class CmsModel extends BaseModel
             "id_genders" => $id_gender,
         );
         return $this->db->insert("sections_fields_translation", $insert, $update);
-    }
+    }    
 }
 ?>
