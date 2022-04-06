@@ -921,7 +921,7 @@ class CmsModel extends BaseModel
      * @param int $id
      *  The parent section id (in case of a navigation page this is the field
      *  id_navigation_section).
-     * @param array $order
+     * @param string $order
      *  An indexed list of values where the index is the current position and
      *  the value the new poition number.
      * @retval bool
@@ -948,7 +948,7 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  The id of the parent page.
-     * @param array $order
+     * @param string $order
      *  An indexed list of values where the index is the current position and
      *  the value the new poition number.
      * @retval bool
@@ -1001,7 +1001,7 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  The id of the parent section.
-     * @param array $order
+     * @param string $order
      *  An indexed list of values where the index is the current position and
      *  the value the new poition number.
      * @retval bool
