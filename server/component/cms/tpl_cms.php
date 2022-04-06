@@ -20,3 +20,5 @@
         <?php $this->output_page_overview(); ?>
     </div>
 </div>
+
+<?php $this->output_modal_add_section(); ?>

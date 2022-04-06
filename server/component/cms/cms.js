@@ -85,9 +85,9 @@ function init_ui_cms() {
 // create a button add nee style above selected style
 function addButtonNewStyleAbove(style) {
     var icon = $('<i class="fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
-    $(icon).click(() => {
+    $(icon).click((e) => {
         // moveStyleUp(style);
-        $('#myModal').modal();
+        showAddSection(e, 'above');
     })
     return icon;
 }
@@ -446,4 +446,12 @@ function reorderStylesFromRoot(styleData, order) {
     //             content: 'The style was not re-ordered!',
     //         });
     //     });
+}
+
+// show modal for add section
+function showAddSection(e, type) {
+    $('#myModal').modal();
+    console.log(e.clientX + ' , ' + e.clientY, $('#ui-add-style').outerHeight());
+    $('#ui-add-style').css({ top: e.clientY - $('#ui-add-style').outerHeight() / 2, left: e.clientX + 10 });
+    $('#nav-new-section-tab').tab("show"); //always show the first tab when modal is opened for consistency 
 }

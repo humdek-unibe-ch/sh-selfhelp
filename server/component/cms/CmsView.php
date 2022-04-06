@@ -980,5 +980,46 @@ class CmsView extends BaseView
     {
         echo 'mobile';
     }
+
+    /**
+     * Render the modal for the new UI for add section if it is needed
+     */
+    public function output_modal_add_section()
+    {
+        if (
+            method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() &&
+            method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
+            $this->model->get_services()->get_user_input()->is_new_ui_enabled()
+        ) {
+            require __DIR__ . "/tpl_modal_add_section.php";
+        }
+    }
+
+    /**
+     * Render output new section
+     */
+    public function output_add_new_section()
+    {
+        $styles = $this->model->get_style_list();
+        require __DIR__ . "/tpl_add_new_section.php";
+    }
+
+    /**
+     * Render output add unassigned section
+     */
+    public function output_add_unassigned_section()
+    {
+        $unassigned_sections = $this->model->fetch_unassigned_sections();
+        require __DIR__ . "/tpl_add_unassigned_section.php";
+    }
+
+    /**
+     * Render output add reference section
+     */
+    public function output_add_reference_section()
+    {
+        $reference_sections = $this->model->get_reference_sections();
+        require __DIR__ . "/tpl_add_reference_section.php";
+    }
 }
 ?>

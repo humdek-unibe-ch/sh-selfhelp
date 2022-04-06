@@ -151,6 +151,7 @@ class CmsModel extends BaseModel
         $this->navigation_hierarchy = array();
         $this->all_accessible_sections = array();
         $this->all_reference_sections = array();
+        $this->set_all_reference_sections();
     }
 
     /* Private Methods ********************************************************/
@@ -274,7 +275,7 @@ class CmsModel extends BaseModel
      *  A prepared hierarchical array of unassigned section items such that it
      *  can be passed to a list style.
      */
-    private function fetch_unassigned_sections()
+    public function fetch_unassigned_sections()
     {
         if($this->relation === "page_nav" || $this->relation === "section_nav")
             $where = "AND st.id = :sid";
@@ -758,22 +759,16 @@ class CmsModel extends BaseModel
         LEFT JOIN pages AS pp ON pp.id = ps.id_pages
         LEFT JOIN pages AS pn ON pn.id = psn.id_pages
         WHERE st.name = 'refContainer' ";
-        $root_sections = $this->db->query_db($sql);
-        foreach($root_sections as $section)
+        $ref_sections = $this->db->query_db($sql);
+        $sections = array();
+        foreach($ref_sections as $section)
         {
-            // if(!$this->acl->has_access_select($_SESSION['id_user'],
-            //         $section['pid']))
-            //     continue;
             $id = intval($section['id']);
-            $this->all_reference_sections[$id] = $this->add_list_item(
+            $sections[$id] = $this->add_list_item(
                 array($id, intval($section['id_styles'])), $section['name'],
                 array(), "");
-            $this->set_section_children($id);
         }
-        $name = array();
-        foreach($this->all_reference_sections as $key => $row)
-            $name[$key] = $row['title'];
-        array_multisort($name, SORT_ASC, $this->all_reference_sections);
+        $this->all_reference_sections = $sections;
     }
 
     /**
