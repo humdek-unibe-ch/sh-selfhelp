@@ -70,9 +70,9 @@ INSERT INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_langu
 (@id_section_pnci, 0000000054, 0000000001, 0000000001, 'checkbox'),
 (@id_section_pnci, 0000000055, 0000000002, 0000000001, ''),
 (@id_section_pnci, 0000000055, 0000000003, 0000000001, ''),
-(@id_section_pnci, 0000000056, 0000000001, 0000000001, '1'),
+(@id_section_pnci, 0000000056, 0000000001, 0000000001, '0'),
 (@id_section_pnci, 0000000057, 0000000001, 0000000001, 'old_ui'),
-(@id_section_pnci, 0000000058, 0000000001, 0000000001, '0');
+(@id_section_pnci, 0000000058, 0000000001, 0000000001, '1');
 
 INSERT INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 ((SELECT id FROM sections WHERE name = "profile-col1-div"), @id_section_pnc, 0),

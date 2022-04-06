@@ -526,7 +526,7 @@ class UserInput
     public function is_new_ui_enabled()
     {
         $ui_pref = $this->get_ui_preferences();
-        if (!$ui_pref || (isset($ui_pref['old_ui'])  && $ui_pref['old_ui'] == 0)) {
+        if (!$ui_pref || (isset($ui_pref['old_ui'])  && $ui_pref['old_ui'] != 1)) {
             return true;
         } else {
             return false;
