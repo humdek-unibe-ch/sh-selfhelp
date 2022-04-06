@@ -22,6 +22,11 @@ class UserInput
      */
     private $field_attrs = NULL;
 
+    /**
+     * Array that contains the ui preference settings for the user
+     */
+    private $ui_pref;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -516,8 +521,12 @@ class UserInput
      */
     public function get_ui_preferences()
     {
-        $ui_pref = $this->get_data($this->get_form_id('ui-preferences', FORM_DYNAMIC), '');
-        return $ui_pref ? $ui_pref[0] : false;
+        if (!isset($this->ui_pref)) {
+            // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
+            $ui_pref = $this->get_data($this->get_form_id('ui-preferences', FORM_DYNAMIC), '');
+            $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
+        }
+        return $this->ui_pref;
     }
 
     /**
