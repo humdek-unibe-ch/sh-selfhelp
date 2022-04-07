@@ -964,7 +964,7 @@ class CmsView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/cms.js");
+        $local = array(__DIR__ . "/cms.js",__DIR__ . "/cms_ui.js");
         return parent::get_js_includes($local);
     }
 

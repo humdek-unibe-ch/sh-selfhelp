@@ -161,9 +161,9 @@ class CmsExportModel extends BaseModel
             "database" => $this->db->query_db_first('SELECT version FROM version')['version']
         );
         if ($this->type == 'section') {
-            $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/section.json')));
+            $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../../schemas/section.json')));
         } else {
-            $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/page.json')));
+            // $schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../schemas/page.json')));
         }
         try {
             $validate = json_decode(json_encode($this->json), FALSE);

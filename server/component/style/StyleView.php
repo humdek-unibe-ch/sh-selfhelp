@@ -185,9 +185,9 @@ abstract class StyleView extends BaseView
         $data_section = array(
             'can_have_children' => $this->model->can_have_children(),
             'id_sections' => $this->id_section,
-            'id_pages' => isset($params['pid']) ? $params['pid'] : -1,
-            'section_from_page_url' => $style_from_page_url,
-            'section_from_style_url' => $style_from_style_url,
+            'id_pages' => intval(isset($params['pid']) ? $params['pid'] : -1),
+            'page_url' => $style_from_page_url,
+            'section_url' => $style_from_style_url,
             'section_name' => $this->model->get_section_name()
         );
         require __DIR__ . "/tpl_style_holder_ui_cms.php";
