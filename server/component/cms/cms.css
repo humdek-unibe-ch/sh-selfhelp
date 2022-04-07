@@ -53,7 +53,8 @@ textarea
 
 .ui-style-btn{
     cursor: pointer;
-    height: 16px;
+    height: 36px;
+    padding: 10px;
     pointer-events: auto;
 }
 
@@ -65,10 +66,10 @@ textarea
 
 .ui-buttons-holder{
     display: none;
-    top: -8px;
-    bottom: -8px;
-    left: -8px;
-    right: -8px;
+    top: -18px;
+    bottom: -18px;
+    left: -18px;
+    right: -18px;
     pointer-events: none;
 }
 
@@ -104,5 +105,5 @@ textarea
 }
 
 .ui-icon-button-white {
-    background-image: radial-gradient(at center, white 40%, transparent 40%);
+    background-image: radial-gradient(at center, white 20%, transparent 20%);
 }
