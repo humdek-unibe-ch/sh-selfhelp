@@ -3,11 +3,11 @@ $(document).ready(function () {
         function () {
             var ids = $(this).attr('id').split('-');
             var id = ids[ids.length - 1];
-            $('.style-section-' + id).addClass("highlight-hover");
+            $('.section-section-' + id).addClass("highlight-hover");
         }, function () {
             var ids = $(this).attr('id').split('-');
             var id = ids[ids.length - 1];
-            $('.style-section-' + id).removeClass("highlight-hover");
+            $('.section-section-' + id).removeClass("highlight-hover");
         }
     );
 
@@ -32,7 +32,7 @@ $(document).ready(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
     var $root = $('<div/>');
-    $('#section-page-view>.card-body').children('[class*="style-section"]').each(function () {
+    $('#section-page-view>.card-body').children('[class*="section-section"]').each(function () {
         traverse_page_view($root, $(this));
         $('.cms-page-overview').append($root);
     })
@@ -43,12 +43,12 @@ function traverse_page_view($root, $parent) {
     var $children = $parent.children();
     var add_leaf = false;
     var has_child = false;
-    var has_style_child = false;
-    var is_style_child = false;
-    if ($parent.is('[class*=style-section]')) {
+    var has_section_child = false;
+    var is_section_child = false;
+    if ($parent.is('[class*=section-section]')) {
         var css = "";
         $parent.attr('class').split(' ').map(function (className) {
-            if (className.startsWith('style-section')
+            if (className.startsWith('section-section')
                 || className === "row"
                 || className === "col"
                 || className === "highlight"
@@ -62,13 +62,13 @@ function traverse_page_view($root, $parent) {
             add_leaf = true;
     }
     else
-        is_style_child = true;
+        is_section_child = true;
     $children.each(function () {
-        has_style_child |= traverse_page_view($new_root, $(this));
+        has_section_child |= traverse_page_view($new_root, $(this));
     });
-    if (add_leaf | (!has_style_child && !is_style_child))
+    if (add_leaf | (!has_section_child && !is_section_child))
         $new_root.append('<div class="page-view-element-leaf"></div>');
-    return has_child | has_style_child;
+    return has_child | has_section_child;
 }
 
 
@@ -78,85 +78,84 @@ function traverse_page_view($root, $parent) {
 // Build custom javascript UI.
 function init_ui_cms() {
     initChildrenArea();
-    initUIStylesButtons();
+    initUISectionsButtons();
     initSortableElements();
 }
 
-// create a button add nee style above selected style
-function addButtonNewStyleAbove(style) {
-    var icon = $('<i class="fa-lg fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style above"></i>');
+// create a button add nee section above selected section
+function addButtonNewSectionAbove(section) {
+    var icon = $('<i class="fa-lg fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section above"></i>');
     $(icon).click((e) => {
-        // moveStyleUp(style);
         showAddSection(e, 'above');
     })
     return icon;
 }
 
-// create a button add nee style bellow the selected style
-function addButtonNewStyleBelow(style) {
-    var icon = $('<i class="fa-lg fas fa-plus-circle ui-style-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new style below"></i>');
+// create a button add nee section bellow the selected section
+function addButtonNewSectionBelow(section) {
+    var icon = $('<i class="fa-lg fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section below"></i>');
     $(icon).click((e) => {
         e.preventDefault();
-        // moveStyleDown(style);
+        // moveSectionDown(section);
     })
     return icon;
 }
 
-// create a new button add new child to selected style. Only styles witch can have children will have this button
-function addButtonNewChildToStyle(style) {
-    var icon = $('<i class="fa-lg fas fa-sign-in-alt ui-style-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child style"></i>');
+// create a new button add new child to selected section. Only sections witch can have children will have this button
+function addButtonNewChildToSection(section) {
+    var icon = $('<i class="fa-lg fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child section"></i>');
     $(icon).click(() => {
         console.log('click');
     })
     return icon;
 }
 
-// create a button remove the selected style
-function addButtonRemoveStyle(styleData) {
-    var icon = $('<i class="fa-lg fas fa-minus-circle ui-style-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the style"></i>');
+// create a button remove the selected section
+function addButtonRemoveSection(sectionData) {
+    var icon = $('<i class="fa-lg fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the section"></i>');
     $(icon).click(() => {
-        removeStyle(styleData);
+        removeSection(sectionData);
     })
     return icon;
 }
 
-// create a new button for moving the style up
-function addButtonMoveStyleUp(style) {
-    var icon = $('<i class="fa-lg fas fa-arrow-alt-circle-up ui-style-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the style up"></i>');
+// create a new button for moving the section up
+function addButtonMoveSectionUp(section) {
+    var icon = $('<i class="fa-lg fas fa-arrow-alt-circle-up ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section up"></i>');
     $(icon).click(() => {
-        moveStyleUp(style);
+        moveSectionUp(section);
     })
     return icon;
 }
 
-// create a new button for moving the style down
-function addButtonMoveStyleDown(style) {
-    var icon = $('<i class="fa-lg fas fa-arrow-alt-circle-down ui-style-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the style down"></i>');
+// create a new button for moving the section down
+function addButtonMoveSectionDown(section) {
+    var icon = $('<i class="fa-lg fas fa-arrow-alt-circle-down ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section down"></i>');
     $(icon).click(() => {
-        moveStyleDown(style);
+        moveSectionDown(section);
     })
     return icon;
 }
 
-// add all UI buttons to the styles
-function addUIStyleButtons(style) {
-    var styleData = $(style).data('style');
+// add all UI buttons to the sections
+function addUISectionButtons(section) {
+    var sectionData = $(section).data('section');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderUpDown = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
-    $(buttonsHolderAdd).append(addButtonNewStyleAbove(style));
-    if (styleData['can_have_children']) {
-        $(buttonsHolderAdd).append(addButtonNewChildToStyle());
+    $(buttonsHolderAdd).append(addButtonNewSectionAbove(sectionData));
+    if (sectionData['can_have_children']) {
+        $(buttonsHolderAdd).append(addButtonNewChildToSection());
     }
-    $(buttonsHolderAdd).append(addButtonNewStyleBelow(style));
+    $(buttonsHolderAdd).append(addButtonNewSectionBelow(section));
     $(buttonsHolder).append(buttonsHolderAdd);
-    $(buttonsHolder).append(addButtonRemoveStyle(styleData));
-    $(style).append(buttonsHolder);
+    $(buttonsHolder).append(addButtonRemoveSection(sectionData));
+    $(section).append(buttonsHolder);
     $(buttonsHolderUpDown).append(buttonsHolderUpDownButtons);
-    $(buttonsHolderUpDownButtons).append(addButtonMoveStyleUp(style));
-    $(buttonsHolderUpDownButtons).append(addButtonMoveStyleDown(style));
-    $(style).append(buttonsHolderUpDown);
+    $(buttonsHolderUpDownButtons).append(addButtonMoveSectionUp(section));
+    $(buttonsHolderUpDownButtons).append(addButtonMoveSectionDown(section));
+    $(section).append(buttonsHolderUpDown);
 }
 
 // confirmation function
@@ -210,87 +209,87 @@ function refresh_cms_ui() {
     });
 }
 
-// move style up if possible
-function moveStyleUp(style) {
-    style = $(style);
-    var prev = style.prev();
+// move section up if possible
+function moveSectionUp(section) {
+    section = $(section);
+    var prev = section.prev();
     if (prev.length == 0)
         return;
-    prev.css('z-index', 999).css('position', 'relative').animate({ top: style.height() }, 250);
-    style.css('z-index', 1000).css('position', 'relative').animate({ top: '-' + prev.height() }, 300, function () {
+    prev.css('z-index', 999).css('position', 'relative').animate({ top: section.height() }, 250);
+    section.css('z-index', 1000).css('position', 'relative').animate({ top: '-' + prev.height() }, 300, function () {
         prev.css('z-index', '').css('top', '').css('position', '');
-        style.css('z-index', '').css('top', '').css('position', '');
-        style.insertBefore(prev);
-        scrollToStyle(style);
-        reorderStylesFromRoot($(style).data('style'), getChildrenOrder($(style).parent()));
+        section.css('z-index', '').css('top', '').css('position', '');
+        section.insertBefore(prev);
+        scrollToSection(section);
+        reorderSectionsFromRoot($(section).data('section'), getChildrenOrder($(section).parent()));
     });
 }
 
-// scroll to the style only if the difference is higher than 500px
-function scrollToStyle(style) {
-    if (Math.abs($(document).scrollTop() - $(style).offset().top) > 500) {
+// scroll to the section only if the difference is higher than 500px
+function scrollToSection(section) {
+    if (Math.abs($(document).scrollTop() - $(section).offset().top) > 500) {
         $([document.documentElement, document.body]).animate({
-            scrollTop: $(style).offset().top
+            scrollTop: $(section).offset().top
         }, 1000);
     }
 }
 
-// move style down if possible
-function moveStyleDown(style) {
-    style = $(style);
-    var next = style.next();
+// move section down if possible
+function moveSectionDown(section) {
+    section = $(section);
+    var next = section.next();
     if (next.length == 0)
         return;
-    next.css('z-index', 999).css('position', 'relative').animate({ top: '-' + style.height() }, 250);
-    style.css('z-index', 1000).css('position', 'relative').animate({ top: next.height() }, 300, function () {
+    next.css('z-index', 999).css('position', 'relative').animate({ top: '-' + section.height() }, 250);
+    section.css('z-index', 1000).css('position', 'relative').animate({ top: next.height() }, 300, function () {
         next.css('z-index', '').css('top', '').css('position', '');
-        style.css('z-index', '').css('top', '').css('position', '');
-        style.insertAfter(next);
-        scrollToStyle(style);
-        reorderStylesFromRoot($(style).data('style'), getChildrenOrder($(style).parent()));
+        section.css('z-index', '').css('top', '').css('position', '');
+        section.insertAfter(next);
+        scrollToSection(section);
+        reorderSectionsFromRoot($(section).data('section'), getChildrenOrder($(section).parent()));
     });
 }
 
-// add area for the styles with children
-function addChildrenArea(styleHolder) {
-    var style = $(styleHolder).children(":first")[0];
-    // console.log(style);
-    // var styleHTML = $(style).html();
-    // $(style).html('')
-    // var childrenArea = $('<div class="style-children-ui-cms border rounded"></div>');
-    // $(childrenArea).html(styleHTML);  
-    // $(style).append(childrenArea);  
-    // $(style).wrapInner('<div class="style-children-ui-cms border rounded"></div>');
+// add area for the sections with children
+function addChildrenArea(sectionHolder) {
+    var section = $(sectionHolder).children(":first")[0];
+    // console.log(section);
+    // var sectionHTML = $(section).html();
+    // $(section).html('')
+    // var childrenArea = $('<div class="section-children-ui-cms border rounded"></div>');
+    // $(childrenArea).html(sectionHTML);  
+    // $(section).append(childrenArea);  
+    // $(section).wrapInner('<div class="section-children-ui-cms border rounded"></div>');
 }
 
-// init children area for the styles that can have children
+// init children area for the sections that can have children
 function initChildrenArea() {
-    var allStylesWithChildren = $('.style-can-have-children');
-    Array.from(allStylesWithChildren).forEach((style) => {
-        addChildrenArea(style);
+    var allSectionsWithChildren = $('.section-can-have-children');
+    Array.from(allSectionsWithChildren).forEach((section) => {
+        addChildrenArea(section);
     });
 }
 
-// init all style and add buttons to them
-function initUIStylesButtons() {
-    var allStyles = $('.ui-style-holder');
-    Array.from(allStyles).forEach((style) => {
-        addUIStyleButtons(style);
+// init all section and add buttons to them
+function initUISectionsButtons() {
+    var allSections = $('.ui-section-holder');
+    Array.from(allSections).forEach((section) => {
+        addUISectionButtons(section);
     });
 }
 
 // return the children order based
 function getChildrenOrder(parent) {
     var order = [];
-    $(parent).children('.ui-style-holder').each(function (idx) {
-        var style = this;
-        var styleData = $(style).data('style');
-        order[styleData['order_position']] = idx * 10;
+    $(parent).children('.ui-section-holder').each(function (idx) {
+        var section = this;
+        var sectionData = $(section).data('section');
+        order[sectionData['order_position']] = idx * 10;
     });
     return order.join();
 }
 
-// init all styles and make them sortable for faster reordering and re-arranging
+// init all sections and make them sortable for faster reordering and re-arranging
 function initSortableElements() {
     var sortableOptions = {
         scroll: true,
@@ -298,7 +297,7 @@ function initSortableElements() {
         // multiDrag: true, // Enable the plugin
         // multiDragKey : 'Control',
         // selectedClass: "bg-danger",
-        group: "styles",
+        group: "sections",
         fallbackOnBody: false,
         sort: true,
         animation: 150,
@@ -307,98 +306,98 @@ function initSortableElements() {
         onEnd: function (evt) {
             if (evt.from == evt.to) {
                 // re-arrange
-                reorderStylesFromRoot($(evt.item).data('style'), getChildrenOrder(evt.from));
+                reorderSectionsFromRoot($(evt.item).data('section'), getChildrenOrder(evt.from));
             } else {
                 // move from one parent to another
-                console.log('Old parent', $(evt.item).data('style')['parent_id']);
-                $(evt.to).children('.ui-style-holder').each(function (idx) {
+                console.log('Old parent', $(evt.item).data('section')['parent_id']);
+                $(evt.to).children('.ui-section-holder').each(function (idx) {
                     // re-index the new group
-                    prepareStyleInfo(this, idx);
+                    prepareSectionInfo(this, idx);
                 });
-                console.log('New parent', $(evt.item).data('style')['parent_id'], $(evt.item).data('style')['parent']);
-                console.log("New style ", $(evt.item).data('style')['id_sections'], " should have position: ", $(evt.item).data('style')['order_position'] * 10);
+                console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section')['parent']);
+                console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
                 console.log(getChildrenOrder(evt.to));
             }
         }
     }
 
     // **************************** SECTION PAGE ***********************************
-    var pageStyles = $('#section-page-view > .card-body');
-    Array.from(pageStyles).forEach((styleHolder) => {
-        $(styleHolder).children('.ui-style-holder').each(function (idx) {
-            prepareStyleInfo(this, idx);
+    var pageSections = $('#section-page-view > .card-body');
+    Array.from(pageSections).forEach((sectionHolder) => {
+        $(sectionHolder).children('.ui-section-holder').each(function (idx) {
+            prepareSectionInfo(this, idx);
         });
-        new Sortable(styleHolder, sortableOptions);
+        new Sortable(sectionHolder, sortableOptions);
     });
     // **************************** SECTION VIEW ***********************************
-    var sectionStyles = $('#section-section-view >.card-body > .ui-style-holder > style-can-have-children');
-    Array.from(sectionStyles).forEach((style) => {
-        $(style).children('.ui-style-holder').each(function (idx) {
+    var sectionSections = $('#section-section-view >.card-body > .ui-section-holder > section-can-have-children');
+    Array.from(sectionSections).forEach((section) => {
+        $(section).children('.ui-section-holder').each(function (idx) {
             console.log(idx);
-            prepareStyleInfo(this, idx);
+            prepareSectionInfo(this, idx);
         });
-        new Sortable(style, sortableOptions);
+        new Sortable(section, sortableOptions);
     });
     // **************************** NESTED CHILDREN ***********************************
-    var childrenStyles = $('.style-children-ui-cms');
-    Array.from(childrenStyles).forEach((style) => {
-        $(style).children('.ui-style-holder').each(function (idx) {
-            prepareStyleInfo(this, idx);
+    var childrenSections = $('.section-children-ui-cms');
+    Array.from(childrenSections).forEach((section) => {
+        $(section).children('.ui-section-holder').each(function (idx) {
+            prepareSectionInfo(this, idx);
         });
-        new Sortable(style, sortableOptions);
-        // loadNestedChildren(style, sortableOptions);
+        new Sortable(section, sortableOptions);
+        // loadNestedChildren(section, sortableOptions);
     });
 }
 
 function loadNestedChildren(children, sortableOptions) {
-    var childrenStyles = $(children).children('.style-can-have-children');
-    Array.from(childrenStyles).forEach((style) => {
-        $(style).children('.ui-style-holder').each(function (idx) {
+    var childrenSections = $(children).children('.section-can-have-children');
+    Array.from(childrenSections).forEach((section) => {
+        $(section).children('.ui-section-holder').each(function (idx) {
             console.log(this);
-            prepareStyleInfo(this, idx);
+            prepareSectionInfo(this, idx);
         });
-        new Sortable(style, sortableOptions);
-        loadNestedChildren(style, sortableOptions);
+        new Sortable(section, sortableOptions);
+        loadNestedChildren(section, sortableOptions);
     });
 }
 
-// prepare style info. Calculate parents data, adjust relations and urls
-function prepareStyleInfo(style, idx) {
-    var styleData = $(style).data('style');
-    styleData['order_position'] = idx;
-    var parents = $(style).parents('.ui-style-holder');
+// prepare section info. Calculate parents data, adjust relations and urls
+function prepareSectionInfo(section, idx) {
+    var sectionData = $(section).data('section');
+    sectionData['order_position'] = idx;
+    var parents = $(section).parents('.ui-section-holder');
     var parent
     if (parents) {
         parent = parents[0];
     }
-    parentData = $(parent).data('style');
+    parentData = $(parent).data('section');
     if (parentData) {
-        styleData['parent'] = "section";
-        styleData['update_url'] = styleData['style_from_style_url'].replace(':parent_id', parentData['id_sections'])
-        styleData['relation'] = 'section_children';
-        styleData['parent_id'] = parentData['id_sections'];
+        sectionData['parent'] = "section";
+        sectionData['update_url'] = sectionData['section_from_section_url'].replace(':parent_id', parentData['id_sections'])
+        sectionData['relation'] = 'section_children';
+        sectionData['parent_id'] = parentData['id_sections'];
     } else {
-        styleData['update_url'] = styleData['style_from_page_url']
-        styleData['relation'] = 'page_children';
-        styleData['parent'] = "page";
-        styleData['parent_id'] = styleData['id_pages'];
+        sectionData['update_url'] = sectionData['section_from_page_url']
+        sectionData['relation'] = 'page_children';
+        sectionData['parent'] = "page";
+        sectionData['parent_id'] = sectionData['id_pages'];
     }
 
-    $(style).children('.badge').text(idx); // for debugging
+    $(section).children('.badge').text(idx); // for debugging
 
-    $(style).attr('data-style', JSON.stringify(styleData));
+    $(section).attr('data-section', JSON.stringify(sectionData));
 }
 
-// remove style from page or another style depending on the parameters
-function removeStyle(styleData) {
-    confirmation('Do you really want to remove <code>' + styleData['section_name'] + '</code>?', () => {
+// remove section from page or another section depending on the parameters
+function removeSection(sectionData) {
+    confirmation('Do you really want to remove <code>' + sectionData['section_name'] + '</code>?', () => {
         executeAjaxCall(
             'post',
-            styleData['update_url'],
+            sectionData['update_url'],
             {
-                "remove-section-link": styleData['id_sections'],
+                "remove-section-link": sectionData['id_sections'],
                 "mode": "delete",
-                "relation": styleData['relation']
+                "relation": sectionData['relation']
             },
             () => {
                 console.log('deleted');
@@ -408,18 +407,18 @@ function removeStyle(styleData) {
                 console.log('error');
                 $.alert({
                     title: 'Error!',
-                    content: 'The style was not deleted!',
+                    content: 'The section was not deleted!',
                 });
             });
     });
 }
 
-// reorder style
-function reorderStylesFromRoot(styleData, order) {
+// reorder section
+function reorderSectionsFromRoot(sectionData, order) {
     console.log(order);
     // executeAjaxCall(
     //     'post',
-    //     styleData['update_url'],
+    //     sectionData['update_url'],
     //     {
     //         "mode": "update",
     //         "fields": {
@@ -427,8 +426,8 @@ function reorderStylesFromRoot(styleData, order) {
     //                 1: {
     //                     1: {
     //                         id: "",
-    //                         type: "style-list",
-    //                         relation: styleData['relation'],
+    //                         type: "section-list",
+    //                         relation: sectionData['relation'],
     //                         content: order
     //                     }
     //                 }
@@ -443,15 +442,30 @@ function reorderStylesFromRoot(styleData, order) {
     //         console.log('error');
     //         $.alert({
     //             title: 'Error!',
-    //             content: 'The style was not re-ordered!',
+    //             content: 'The section was not re-ordered!',
     //         });
     //     });
 }
 
+// add already existing section
+// sectionId - int - the id of the section which will be added
+// parentData - array - the parent data where the section will be added
+// position - int - the position where it will be added 
+function addSection(sectionId, parentData, position) {
+    console.log('Add section', sectionId, parentData, position);
+}
+
+// add already existing section
+// sectionId - int - the id of the section which will be the new section
+// parentData - array - the parent data where the section will be added
+// position - int - the position where it will be added 
+function addNewSection(sectionId, parentData, position) {
+    console.log('Add new section', sectionId, parentData, position);
+}
+
 // show modal for add section
-function showAddSection(e, type) {
-    $('#myModal').modal();
-    console.log(e.clientX + ' , ' + e.clientY, $('#ui-add-style').outerHeight());
-    $('#ui-add-style').css({ top: e.clientY - $('#ui-add-style').outerHeight() / 2, left: e.clientX + 10 });
+function showAddSection(e, parentData, position) {
+    $('#ui-add-section-modal').modal();
+    $('#ui-add-section').css({ top: e.clientY - $('#ui-add-section').outerHeight() / 2, left: e.clientX + 10 });
     $('#nav-new-section-tab').tab("show"); //always show the first tab when modal is opened for consistency 
 }

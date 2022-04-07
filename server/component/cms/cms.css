@@ -51,14 +51,14 @@ textarea
 
 /************************* UI CMS **********************************************************************************************/
 
-.ui-style-btn{
+.ui-section-btn{
     cursor: pointer;
     height: 36px;
     padding: 10px;
     pointer-events: auto;
 }
 
-.ui-style-holder{
+.ui-section-holder{
     border: 2px solid;
     position: relative;
     border-color:  var(--secondary)
@@ -73,11 +73,11 @@ textarea
     pointer-events: none;
 }
 
-.ui-style-holder:hover{
+.ui-section-holder:hover{
     border-color:  var(--primary) !important;
 }
 
-.ui-style-holder:hover > .ui-buttons-holder{
+.ui-section-holder:hover > .ui-buttons-holder{
     display: flex !important;
 }
 
@@ -95,7 +95,7 @@ textarea
     cursor: -webkit-grabbing;
 }
 
-.style-children-ui-cms{
+.section-children-ui-cms{
     min-height: 50px;
 }
 
