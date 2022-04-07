@@ -991,7 +991,7 @@ class CmsView extends BaseView
             method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
             $this->model->get_services()->get_user_input()->is_new_ui_enabled()
         ) {
-            require __DIR__ . "/tpl_modal_add_section.php";
+            require __DIR__ . "/tpl_new_ui/tpl_modal_add_section.php";
         }
     }
 
@@ -1001,7 +1001,7 @@ class CmsView extends BaseView
     public function output_add_new_section()
     {
         $styles = $this->model->get_style_list();
-        require __DIR__ . "/tpl_add_new_section.php";
+        require __DIR__ . "/tpl_new_ui/tpl_add_new_section.php";
     }
 
     /**
@@ -1010,7 +1010,7 @@ class CmsView extends BaseView
     public function output_add_unassigned_section()
     {
         $unassigned_sections = $this->model->fetch_unassigned_sections();
-        require __DIR__ . "/tpl_add_unassigned_section.php";
+        require __DIR__ . "/tpl_new_ui/tpl_add_unassigned_section.php";
     }
 
     /**
@@ -1019,7 +1019,7 @@ class CmsView extends BaseView
     public function output_add_reference_section()
     {
         $reference_sections = $this->model->get_reference_sections();
-        require __DIR__ . "/tpl_add_reference_section.php";
+        require __DIR__ . "/tpl_new_ui/tpl_add_reference_section.php";
     }
 }
 ?>
