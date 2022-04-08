@@ -1736,10 +1736,12 @@ class CmsModel extends BaseModel
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
      * @retval int
      *  The id of the newly created section or false on failure.
      */
-    public function insert_new_section($name, $id_style, $relation)
+    public function insert_new_section($name, $id_style, $relation, $position = null)
     {
         $res = true;
         if(!$this->acl->has_access_update($_SESSION['id_user'],
@@ -1749,7 +1751,7 @@ class CmsModel extends BaseModel
             "id_styles" => $id_style
         ));
         if(!$new_id) return false;
-        $res &= $this->insert_section_link($new_id, $relation);
+        $res &= $this->insert_section_link($new_id, $relation, $position);
         if($res) {
             return $new_id;
         }
@@ -1765,10 +1767,12 @@ class CmsModel extends BaseModel
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
      * @retval bool
      *  True if the insert operation is successful, false otherwise.
      */
-    public function insert_section_link($id, $relation)
+    public function insert_section_link($id, $relation, $position = null)
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
@@ -1778,7 +1782,7 @@ class CmsModel extends BaseModel
             return $this->db->insert("pages_sections", array(
                 "id_pages" => $this->get_active_page_id(),
                 "id_sections" => $id,
-                "position" => $this->get_last_position($sections)
+                "position" => $position ? $position : $this->get_last_position($sections)
             ));
         }
         else if($relation == "section_children")
@@ -1788,7 +1792,7 @@ class CmsModel extends BaseModel
             return $this->db->insert("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id,
-                "position" => $this->get_last_position($sections)
+                "position" => $position ? $position : $this->get_last_position($sections)
             ));
         }
         else if($relation == "page_nav" || $relation == "section_nav")
@@ -1802,7 +1806,7 @@ class CmsModel extends BaseModel
                 "parent" => $id_parent,
                 "child" => $id,
                 "id_pages" => $this->id_page,
-                "position" => $this->get_last_position($sections)
+                "position" => $position ? $position : $this->get_last_position($sections)
             ));
         }
     }

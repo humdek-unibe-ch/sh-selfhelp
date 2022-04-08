@@ -19,6 +19,5 @@
     <div class="col-auto">
         <?php $this->output_page_overview(); ?>
     </div>
+    <?php $this->output_modal_add_section(); ?>
 </div>
-
-<?php $this->output_modal_add_section(); ?>

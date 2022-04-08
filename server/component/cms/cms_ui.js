@@ -6,6 +6,7 @@ $(document).ready(function () {
 
 // Build custom javascript UI.
 function init_ui_cms() {
+    $('.ui-select-picker').selectpicker();
     initChildrenArea();
     initUISectionsButtons();
     initSortableElements();
@@ -13,36 +14,45 @@ function init_ui_cms() {
 
 // create a button add nee section above selected section
 function addButtonNewSectionAbove(sectionData) {
-    var icon = $('<i class="fa-lg fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section above"></i>');
-    $(icon).click((e) => {
+    var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section above"></i>');
+    $(icon).click(() => {
         var position = (sectionData.order_position * 10) - 5; // get the style position and insert above
-        showAddSection(sectionData, position);
+        showAddSection(sectionData, true, position);
     })
     return icon;
 }
 
 // create a button add new section bellow the selected section
-function addButtonNewSectionBelow(section) {
-    var icon = $('<i class="fa-lg fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section below"></i>');
-    $(icon).click((e) => {
-        e.preventDefault();
-        // moveSectionDown(section);
+function addButtonNewSectionBelow(sectionData) {
+    var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section below"></i>');
+    $(icon).click(() => {
+        var position = (sectionData.order_position * 10) + 5; // get the style position and insert bellow
+        showAddSection(sectionData, true, position);
     })
     return icon;
 }
 
 // create a new button add new child to selected section. Only sections witch can have children will have this button
-function addButtonNewChildToSection(section) {
-    var icon = $('<i class="fa-lg fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child section"></i>');
+function addButtonNewChildToSection(sectionData) {
+    var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child section"></i>');
     $(icon).click(() => {
-        console.log('click');
+        showAddSection(sectionData, false, 0);
+    })
+    return icon;
+}
+
+// create a new button add new child to selected section. Only sections witch can have children will have this button
+function addButtonNewChild(sectionData) {
+    var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
+    $(icon).click(() => {
+        showAddSection(sectionData, false, 0);
     })
     return icon;
 }
 
 // create a button remove the selected section
 function addButtonRemoveSection(sectionData) {
-    var icon = $('<i class="fa-lg fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the section"></i>');
+    var icon = $('<i class="fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the section"></i>');
     $(icon).click(() => {
         removeSection(sectionData);
     })
@@ -51,7 +61,7 @@ function addButtonRemoveSection(sectionData) {
 
 // create a new button for moving the section up
 function addButtonMoveSectionUp(section) {
-    var icon = $('<i class="fa-lg fas fa-arrow-alt-circle-up ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section up"></i>');
+    var icon = $('<i class="fas fa-arrow-alt-circle-up ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section up"></i>');
     $(icon).click(() => {
         moveSectionUp(section);
     })
@@ -60,7 +70,7 @@ function addButtonMoveSectionUp(section) {
 
 // create a new button for moving the section down
 function addButtonMoveSectionDown(section) {
-    var icon = $('<i class="fa-lg fas fa-arrow-alt-circle-down ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section down"></i>');
+    var icon = $('<i class="fas fa-arrow-alt-circle-down ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section down"></i>');
     $(icon).click(() => {
         moveSectionDown(section);
     })
@@ -76,8 +86,18 @@ function addUISectionButtons(section) {
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewSectionAbove(sectionData));
     if (sectionData['can_have_children']) {
-        $(buttonsHolderAdd).append(addButtonNewChildToSection());
+        // $(buttonsHolderAdd).append(addButtonNewChildToSection(sectionData));
     }
+
+    // add the new section button for sections without any child
+    if (sectionData['can_have_children']) {
+        var childrenHolder = $(section).find('.section-children-ui-cms').first();
+        if ($(childrenHolder).children().length == 0) {
+            $(childrenHolder).addClass('d-flex');
+            $(childrenHolder).append(addButtonNewChild(sectionData));
+        }
+    }
+
     $(buttonsHolderAdd).append(addButtonNewSectionBelow(sectionData));
     $(buttonsHolder).append(buttonsHolderAdd);
     $(buttonsHolder).append(addButtonRemoveSection(sectionData));
@@ -303,11 +323,12 @@ function prepareSectionInfo(section, idx) {
     parentData = $(parent).data('section');
     if (parentData) {
         sectionData['parent'] = "section";
-        sectionData['update_url'] = sectionData['section_url'].replace(':parent_id', parentData['id_sections'])
+        sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections'])
         sectionData['relation'] = 'section_children';
         sectionData['parent_id'] = parentData['id_sections'];
+        sectionData['insert_sibling_section_url'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections'])
     } else {
-        sectionData['update_url'] = sectionData['page_url']
+        sectionData['update_url'] = sectionData['update_page_url']
         sectionData['relation'] = 'page_children';
         sectionData['parent'] = "page";
         sectionData['parent_id'] = sectionData['id_pages'];
@@ -315,7 +336,7 @@ function prepareSectionInfo(section, idx) {
 
     $(section).children('.badge').text(idx); // for debugging
 
-    $(section).attr('data-section', JSON.stringify(sectionData));
+    $(section).attr('data-section', sectionData);
 }
 
 // remove section from page or another section depending on the parameters
@@ -346,57 +367,69 @@ function removeSection(sectionData) {
 // reorder section
 function reorderSectionsFromRoot(sectionData, order) {
     console.log(order);
-    // executeAjaxCall(
-    //     'post',
-    //     sectionData['update_url'],
-    //     {
-    //         "mode": "update",
-    //         "fields": {
-    //             sections: {
-    //                 1: {
-    //                     1: {
-    //                         id: "",
-    //                         type: "section-list",
-    //                         relation: sectionData['relation'],
-    //                         content: order
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     },
-    //     () => {
-    //         console.log('re-ordered');
-    //         refresh_cms_ui();
-    //     },
-    //     () => {
-    //         console.log('error');
-    //         $.alert({
-    //             title: 'Error!',
-    //             content: 'The section was not re-ordered!',
-    //         });
-    //     });
+    executeAjaxCall(
+        'post',
+        sectionData['update_url'],
+        {
+            "mode": "update",
+            "fields": {
+                sections: {
+                    1: {
+                        1: {
+                            id: "",
+                            type: "section-list",
+                            relation: sectionData['relation'],
+                            content: order
+                        }
+                    }
+                }
+            }
+        },
+        () => {
+            console.log('re-ordered');
+            refresh_cms_ui();
+        },
+        () => {
+            console.log('error');
+            $.alert({
+                title: 'Error!',
+                content: 'The section was not re-ordered!',
+            });
+        });
 }
 
 // add already existing section
 // sectionId - int - the id of the section which will be added
 // sectionData - array - the section data with info how the section will be added
+// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
 // position - int - the position where it will be added 
-function addSection(sectionId, sectionData, position) {
+function addSection(sectionId, sectionData, addSibling, position) {
     console.log('Add section', sectionId, sectionData, position);
+    if (sectionId == sectionData['id_sections']) {
+        $.alert({
+            title: 'CMS UI',
+            content: "It is not possible to insert a section inside the same section!"
+        });
+    } else {        
+        insertSection(sectionData, sectionId, addSibling, position);
+    }
 }
 
 // add already existing section
 // styleId - int - the id of the style which will be created as a new section
 // sectionData - array - the section data with info how the section will be added
+// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
 // position - int - the position where it will be added 
-function addNewSection(styleId, sectionData, position) {
-    console.log('Add new section', styleId, sectionData, position);
+function addNewSection(styleId, sectionData, addSibling, position, styleName) {
+    console.log('Add new section', styleId, sectionData, position, styleName);
+    createSection(sectionData, styleId, addSibling, position, styleName);
 }
 
 // show modal for add section
 // sectionData - array - the section data with info how the section will be added
 // position - int - the position where it will be added 
-function showAddSection(sectionData, position) {
+// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
+function showAddSection(sectionData, addSibling, position) {
     $('#ui-add-section-modal').modal();
     $('#ui-add-section').css({ top: window.event.clientY - $('#ui-add-section').outerHeight() / 2, left: window.event.clientX + 10 });
     $('#nav-new-section-tab').tab("show"); //always show the first tab when modal is opened for consistency 
@@ -404,7 +437,7 @@ function showAddSection(sectionData, position) {
     $('#ui-new-section-btn').off('click').on('click', () => {
         if ($('#ui-new-section-select').val()) {
             var styleId = parseInt($('#ui-new-section-select').val());
-            addNewSection(styleId, sectionData, position);
+            addNewSection(styleId, sectionData, addSibling, position, $('#ui-new-section-select  option:selected').text());
             $('#ui-add-section-modal').modal('hide');
         } else {
             $.alert({
@@ -413,11 +446,11 @@ function showAddSection(sectionData, position) {
             });
         }
     });
-    
+
     $('#ui-unassigned-section-btn').off('click').on('click', () => {
         if ($('#ui-unassigned-section-select').val()) {
             var sectionId = parseInt($('#ui-unassigned-section-select').val());
-            addSection(sectionId, sectionData, position);
+            addSection(sectionId, sectionData, addSibling, position);
             $('#ui-add-section-modal').modal('hide');
         } else {
             $.alert({
@@ -430,7 +463,7 @@ function showAddSection(sectionData, position) {
     $('#ui-reference-section-btn').off('click').on('click', () => {
         if ($('#ui-reference-section-select').val()) {
             var sectionId = parseInt($('#ui-reference-section-select').val());
-            addSection(sectionId, sectionData, position);
+            addSection(sectionId, sectionData, addSibling, position);
             $('#ui-add-section-modal').modal('hide');
         } else {
             $.alert({
@@ -439,4 +472,81 @@ function showAddSection(sectionData, position) {
             });
         }
     })
+}
+
+
+// insert existing section
+// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
+function insertSection(sectionData, sectionId, addSibling, position) {
+    executeAjaxCall(
+        'post',
+        getAddSectionUrl(sectionData, addSibling),
+        {
+            mode: "insert",
+            relation: sectionData['relation'],
+            "add-section-link": sectionId,
+            position: position
+        },
+        () => {
+            console.log('Section inserted');
+            refresh_cms_ui();
+        },
+        () => {
+            console.log('error');
+            $.alert({
+                title: 'Error!',
+                content: 'The section was not inserted!',
+            });
+        });
+}
+
+// create new section
+// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
+function createSection(sectionData, styleId, addSibling, position, styleName) {
+    var timestamp = Math.round((new Date()).getTime() / 1000);
+    executeAjaxCall(
+        'post',
+        getAddSectionUrl(sectionData, addSibling),
+        {
+            mode: "insert",
+            relation: sectionData['relation'],
+            "add-section-link": "",
+            "section-name-prefix": timestamp,
+            "section-name": timestamp + '-' + styleName,
+            "section-style": styleId,
+            position: position
+        },
+        () => {
+            console.log('Section inserted');
+            refresh_cms_ui();
+        },
+        () => {
+            console.log('error');
+            $.alert({
+                title: 'Error!',
+                content: 'The section was not inserted!',
+            });
+        });
+}
+
+/**
+ * get the url used for adding a section based on the parameters
+ * 
+ * @param {Array} sectionData 
+ * the section data with info how the section will be added
+ * @param {boolean} addSibling 
+ * if true we add a sibling we use the same parent if false we use the section as parent
+ * @returns {string}
+ * return the url string
+ */
+function getAddSectionUrl(sectionData, addSibling) {
+    var url = sectionData['insert_section_url'];
+    if (addSibling) {
+        if (sectionData["parent"] == 'page') {
+            url = sectionData['insert_page_url'];
+        } else {
+            url = sectionData['insert_sibling_section_url'];
+        }
+    }
+    return url;
 }

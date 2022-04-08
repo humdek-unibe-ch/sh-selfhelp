@@ -167,14 +167,12 @@ abstract class StyleView extends BaseView
     public function output_style_for_cms()
     {
         $params = $this->model->get_services()->get_router()->route['params'];
-        // prepare the remove id if the style is in page --> this will be checked in javascript
         $style_from_page_url = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "update",
             "type" => "prop",
             "did" => null
         ));
-        // prepare the remove id if the style is in another style --> this will be checked in javascript
         $style_from_style_url = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "update",
@@ -182,14 +180,39 @@ abstract class StyleView extends BaseView
             "did" => null,
             "sid" => ":parent_id"
         ));
+        $insert_sibling_section = $this->model->get_link_url("cmsUpdate", array(
+            "pid" => isset($params['pid']) ? $params['pid'] : -1,
+            "mode" => "insert",
+            "type" => "section_children",
+            "did" => null,
+            "sid" => ":parent_id"
+        ));
+        $insert_section_in_page = $this->model->get_link_url("cmsUpdate", array(
+            "pid" => isset($params['pid']) ? $params['pid'] : -1,
+            "mode" => "insert",
+            "type" => "page_children",
+            "did" => null
+        ));
         $data_section = array(
             'can_have_children' => $this->model->can_have_children(),
             'id_sections' => $this->id_section,
             'id_pages' => intval(isset($params['pid']) ? $params['pid'] : -1),
-            'page_url' => $style_from_page_url,
-            'section_url' => $style_from_style_url,
-            'section_name' => $this->model->get_section_name()
+            'update_page_url' => $style_from_page_url,
+            'update_section_url' => $style_from_style_url,
+            'section_name' => $this->model->get_section_name(),
+            'insert_sibling_section_url' => $insert_sibling_section,
+            'insert_section_in_page' => $insert_section_in_page,
         );
+        if ($data_section['can_have_children']) {
+            $insert_section_in_section = $this->model->get_link_url("cmsUpdate", array(
+                "pid" => isset($params['pid']) ? $params['pid'] : -1,
+                "mode" => "insert",
+                "type" => "section_children",
+                "did" => null,
+                "sid" => $this->id_section
+            ));
+            $data_section['insert_section_url'] = $insert_section_in_section;
+        }
         require __DIR__ . "/tpl_style_holder_ui_cms.php";
     }
 

@@ -90,6 +90,9 @@ class CmsUpdateController extends BaseController
             && isset($_POST['relation']) && $_POST['relation'] != ""
         ) {
             $this->insert();
+            if(isset($_POST['position'])){
+
+            }
         } else if ($_POST['mode'] == "delete" && isset($_POST['delete_all_unassigned_sections'])) {
             if ($_POST['delete_all_unassigned_sections'] == 'DELETE_ALL') {
                 if ($this->model->delete_all_unassigned_sections()) {
@@ -181,20 +184,23 @@ class CmsUpdateController extends BaseController
      */
     private function insert()
     {
-        if(isset($_POST['add-section-link'])
-                && $_POST['add-section-link'] != "")
-            $this->insert_section_link(intval($_POST['add-section-link']),
-                $_POST['relation']);
-
-        else if(isset($_POST['section-name']) && isset($_POST['section-style']))
-        {
+        if (
+            isset($_POST['add-section-link']) && $_POST['add-section-link'] != ""
+        ) {
+            $this->insert_section_link(intval($_POST['add-section-link']), $_POST['relation'], isset($_POST['position']) ? $_POST['position'] : null);
+            return $_POST['add-section-link'];
+        } else if (isset($_POST['section-name']) && isset($_POST['section-style'])) {
             $section_name = htmlspecialchars($_POST['section-name']);
             $section_style_id = intval($_POST['section-style']);
             $relation = $_POST['relation'];
-            $id = $this->insert_new_section($section_name, $section_style_id,
-                $relation);
+            $id = $this->insert_new_section(
+                $section_name,
+                $section_style_id,
+                $relation,
+                isset($_POST['position']) ? $_POST['position'] : null
+            );
+            return $id;
         }
-
     }
 
     /**
@@ -206,10 +212,12 @@ class CmsUpdateController extends BaseController
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
      */
-    private function insert_section_link($id, $relation)
+    private function insert_section_link($id, $relation, $position = null)
     {
-        if($this->model->insert_section_link($id, $relation))
+        if($this->model->insert_section_link($id, $relation, $position))
         {
             $this->insert_success = true;
             $this->model->set_mode("select");
@@ -229,10 +237,13 @@ class CmsUpdateController extends BaseController
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
+     * 
      */
-    private function insert_new_section($name, $id_style, $relation)
+    private function insert_new_section($name, $id_style, $relation, $position = null)
     {
-        $new_id = $this->model->insert_new_section($name, $id_style, $relation);
+        $new_id = $this->model->insert_new_section($name, $id_style, $relation, $position);
         if($new_id != null) {
             $style = new StyleComponent($this->model->get_services(), $new_id);
             $style->cms_post_create_callback($this->model, $name,
