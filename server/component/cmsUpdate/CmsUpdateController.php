@@ -85,14 +85,11 @@ class CmsUpdateController extends BaseController
             if($res && $style != null) {
                 $style->cms_post_update_callback($model, $_POST["fields"]);
             }
-        } else if (
-            $_POST['mode'] == "insert"
-            && isset($_POST['relation']) && $_POST['relation'] != ""
-        ) {
+        } else if ($_POST['mode'] == "insert" && isset($_POST['relation']) && $_POST['relation'] != "") {
             $this->insert();
-            if(isset($_POST['position'])){
-
-            }
+            $this->delete();
+        } else if ($_POST['mode'] == "change_parent" && isset($_POST['relation']) && $_POST['relation'] != "") {
+            $this->insert();
         } else if ($_POST['mode'] == "delete" && isset($_POST['delete_all_unassigned_sections'])) {
             if ($_POST['delete_all_unassigned_sections'] == 'DELETE_ALL') {
                 if ($this->model->delete_all_unassigned_sections()) {

@@ -56,7 +56,10 @@ function addButtonNewChild(sectionData) {
 function addButtonRemoveSection(sectionData) {
     var icon = $('<i class="fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the section"></i>');
     $(icon).click(() => {
-        removeSection(sectionData);
+        console.log(sectionData);
+        confirmation('Do you really want to remove <code>' + sectionData['section_name'] + '</code>?', () => {
+            removeSection(sectionData);
+        });
     })
     return icon;
 }
@@ -262,13 +265,23 @@ function initSortableElements() {
             } else {
                 // move from one parent to another
                 console.log('Old parent', $(evt.item).data('section')['parent_id']);
+                var remove_data = Object.assign({}, $(evt.item).data('section'));
+                console.log(remove_data);
                 $(evt.to).children('.ui-section-holder').each(function (idx) {
                     // re-index the new group
                     prepareSectionInfo(this, idx);
                 });
-                console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section')['parent']);
+                console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section'));
                 console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
                 console.log(getChildrenOrder(evt.to));
+                removeSection(remove_data, () => {
+                    var sectionData = $(evt.item).data('section');
+                    var sectionId = $(evt.item).data('section')['id_sections'];
+                    var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
+                    sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', sectionData['parent_id'])
+                    insertSection(sectionData, sectionId, true, position);
+                });
+
             }
         }
     }
@@ -326,10 +339,14 @@ function prepareSectionInfo(section, idx) {
     parentData = $(parent).data('section');
     if (parentData) {
         sectionData['parent'] = "section";
-        sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections'])
+        if (sectionData['update_section_url']) {
+            sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections']);
+        }
         sectionData['relation'] = 'section_children';
         sectionData['parent_id'] = parentData['id_sections'];
-        sectionData['insert_sibling_section_url'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections'])
+        if (sectionData['insert_sibling_section_url']) {
+            sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections']);
+        }
     } else {
         sectionData['update_url'] = sectionData['update_page_url']
         sectionData['relation'] = 'page_children';
@@ -340,31 +357,34 @@ function prepareSectionInfo(section, idx) {
     $(section).children('.badge').text(idx); // for debugging
 
     $(section).attr('data-section', sectionData);
+    return sectionData;
 }
 
 // remove section from page or another section depending on the parameters
-function removeSection(sectionData) {
-    confirmation('Do you really want to remove <code>' + sectionData['section_name'] + '</code>?', () => {
-        executeAjaxCall(
-            'post',
-            sectionData['update_url'],
-            {
-                "remove-section-link": sectionData['id_sections'],
-                "mode": "delete",
-                "relation": sectionData['relation']
-            },
-            () => {
-                console.log('deleted');
+function removeSection(sectionData, callback) {
+    executeAjaxCall(
+        'post',
+        sectionData['update_url'],
+        {
+            "remove-section-link": sectionData['id_sections'],
+            "mode": "delete",
+            "relation": sectionData['relation']
+        },
+        () => {
+            console.log('deleted');
+            if (callback) {
+                callback();
+            } else {
                 refresh_cms_ui();
-            },
-            () => {
-                console.log('error');
-                $.alert({
-                    title: 'Error!',
-                    content: 'The section was not deleted!',
-                });
+            }
+        },
+        () => {
+            console.log('error');
+            $.alert({
+                title: 'Error!',
+                content: 'The section was not deleted!',
             });
-    });
+        });
 }
 
 // reorder section
@@ -413,7 +433,7 @@ function addSection(sectionId, sectionData, addSibling, position) {
             title: 'CMS UI',
             content: "It is not possible to insert a section inside the same section!"
         });
-    } else {        
+    } else {
         insertSection(sectionData, sectionId, addSibling, position);
     }
 }
@@ -488,7 +508,8 @@ function insertSection(sectionData, sectionId, addSibling, position) {
             mode: "insert",
             relation: sectionData['relation'],
             "add-section-link": sectionId,
-            position: position
+            position: position,
+            ajax: true
         },
         () => {
             console.log('Section inserted');
@@ -548,7 +569,7 @@ function getAddSectionUrl(sectionData, addSibling) {
         if (sectionData["parent"] == 'page') {
             url = sectionData['insert_page_url'];
         } else {
-            url = sectionData['insert_sibling_section_url'];
+            url = sectionData['insert_sibling_section_url_modified'];
         }
     }
     return url;
