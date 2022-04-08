@@ -36,6 +36,7 @@ function addButtonNewSectionBelow(sectionData) {
 function addButtonNewChildToSection(sectionData) {
     var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child section"></i>');
     $(icon).click(() => {
+        sectionData['relation'] = 'section_children'; // this insert always in section
         showAddSection(sectionData, false, 0);
     })
     return icon;
@@ -45,6 +46,7 @@ function addButtonNewChildToSection(sectionData) {
 function addButtonNewChild(sectionData) {
     var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
+        sectionData['relation'] = 'section_children'; // this insert always in section
         showAddSection(sectionData, false, 0);
     })
     return icon;
@@ -280,11 +282,12 @@ function initSortableElements() {
         new Sortable(sectionHolder, sortableOptions);
     });
     // **************************** SECTION VIEW ***********************************
-    var sectionSections = $('#section-section-view >.card-body > .ui-section-holder > section-can-have-children');
+    var sectionSections = $('#section-section-view > .card-body');
     Array.from(sectionSections).forEach((section) => {
         $(section).children('.ui-section-holder').each(function (idx) {
             console.log(idx);
             prepareSectionInfo(this, idx);
+            $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in specific section
         });
         new Sortable(section, sortableOptions);
     });

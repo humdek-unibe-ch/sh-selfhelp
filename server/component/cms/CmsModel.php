@@ -1018,6 +1018,33 @@ class CmsModel extends BaseModel
         return $res;
     }
 
+    /**
+     * Adjust the hierarchy after an element is removed
+     *
+     * @param int $id_section
+     *  The id of the section the link is pointing to.
+     * @param string $relation
+     *  The database relation to know whether the link targets the navigation
+     *  or children list and whether the parent is a page or a section.
+     * 
+     */
+    public function adjust_hierarchy($id_section, $relation)
+    {
+        $sql = "SET @row_number = -1;  
+                UPDATE sections_hierarchy
+                SET position = (@row_number:=@row_number + 1) * 10
+                WHERE parent = :id_section
+                ORDER by position;";
+        if ($relation == "page_children") {
+            $sql = "SET @row_number = -1;  
+                UPDATE pages_sections
+                SET position = (@row_number:=@row_number + 1) * 10
+                WHERE parent = :id_section
+                ORDER by position;";
+        }
+        $this->db->execute_update_db($sql, array(":id_section" => $id_section));
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -1779,21 +1806,25 @@ class CmsModel extends BaseModel
         if($relation == "page_children")
         {
             $sections = $this->db->fetch_page_sections_by_id($this->id_page);
-            return $this->db->insert("pages_sections", array(
+            $res = $this->db->insert("pages_sections", array(
                 "id_pages" => $this->get_active_page_id(),
                 "id_sections" => $id,
                 "position" => $position ? $position : $this->get_last_position($sections)
             ));
+            $this->adjust_hierarchy($this->get_active_page_id(), $relation);
+            return $res;
         }
         else if($relation == "section_children")
         {
             $sections = $this->db->fetch_section_children(
                 $this->get_active_section_id());
-            return $this->db->insert("sections_hierarchy", array(
+            $res = $this->db->insert("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id,
                 "position" => $position ? $position : $this->get_last_position($sections)
             ));
+            $this->adjust_hierarchy($this->get_active_section_id(), $relation);
+            return $res;
         }
         else if($relation == "page_nav" || $relation == "section_nav")
         {
@@ -1875,24 +1906,29 @@ class CmsModel extends BaseModel
      */
     public function remove_section_association($id_section, $relation)
     {
-        if(!$this->acl->has_access_update($_SESSION['id_user'],
-            $this->get_active_page_id())) return false;
-        if($relation == "page_children")
-            return $this->db->remove_by_ids("pages_sections", array(
+        if (!$this->acl->has_access_update(
+            $_SESSION['id_user'],
+            $this->get_active_page_id()
+        )) return false;
+        if ($relation == "page_children") {
+            $res = $this->db->remove_by_ids("pages_sections", array(
                 "id_pages" => $this->id_page,
                 "id_sections" => $id_section
             ));
-        else if($relation == "section_children")
-            return $this->db->remove_by_ids("sections_hierarchy", array(
+            $this->adjust_hierarchy($this->id_page, $relation);
+            return $res;
+        } else if ($relation == "section_children") {
+            $res = $this->db->remove_by_ids("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id_section
             ));
-        else if($relation == "page_nav" || $relation == "section_nav")
-        {
-            if($relation == "page_nav")
-                $id_parent = $this->page_info["id_navigation_section"];
-            else if($relation == "section_nav")
-                $id_parent = $this->get_active_section_id();
+            $this->adjust_hierarchy($this->get_active_section_id(), $relation);
+            return $res;
+        } else if ($relation == "page_nav" || $relation == "section_nav") {
+            if ($relation == "page_nav")
+            $id_parent = $this->page_info["id_navigation_section"];
+            else if ($relation == "section_nav")
+            $id_parent = $this->get_active_section_id();
             return $this->db->remove_by_ids("sections_navigation", array(
                 "parent" => $id_parent,
                 "child" => $id_section
