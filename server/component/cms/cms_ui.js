@@ -6,10 +6,15 @@ $(document).ready(function () {
 
 // Build custom javascript UI.
 function init_ui_cms() {
-    $('.ui-select-picker').selectpicker();
-    initChildrenArea();
-    initUISectionsButtons();
-    initSortableElements();
+    try {
+        $('.ui-select-picker').selectpicker();
+        initChildrenArea();
+        initUISectionsButtons();
+        initSortableElements();
+    } catch (error) {
+        console.log(error);
+        refresh_cms_ui();
+    }
 }
 
 // create a button add nee section above selected section
@@ -44,7 +49,7 @@ function addButtonNewChildToSection(sectionData) {
 
 // create a new button add new child to selected section. Only sections witch can have children will have this button
 function addButtonNewChild(sectionData) {
-    var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
+    var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
         sectionData['relation'] = 'section_children'; // this insert always in section
         showAddSection(sectionData, false, 0);
@@ -258,30 +263,36 @@ function initSortableElements() {
         animation: 150,
         swapThreshold: 0.65,
         ghostClass: 'drag-ghost',
+        filter:".ui-add-child",
         onEnd: function (evt) {
-            if (evt.from == evt.to) {
-                // re-arrange
-                reorderSectionsFromRoot($(evt.item).data('section'), getChildrenOrder(evt.from));
-            } else {
-                // move from one parent to another
-                console.log('Old parent', $(evt.item).data('section')['parent_id']);
-                var remove_data = Object.assign({}, $(evt.item).data('section'));
-                console.log(remove_data);
-                $(evt.to).children('.ui-section-holder').each(function (idx) {
-                    // re-index the new group
-                    prepareSectionInfo(this, idx);
-                });
-                console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section'));
-                console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
-                console.log(getChildrenOrder(evt.to));
-                removeSection(remove_data, () => {
-                    var sectionData = $(evt.item).data('section');
-                    var sectionId = $(evt.item).data('section')['id_sections'];
-                    var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
-                    sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', sectionData['parent_id'])
-                    insertSection(sectionData, sectionId, true, position);
-                });
+            try {
+                if (evt.from == evt.to) {
+                    // re-arrange
+                    reorderSectionsFromRoot($(evt.item).data('section'), getChildrenOrder(evt.from));
+                } else {
+                    // move from one parent to another
+                    console.log('Old parent', $(evt.item).data('section')['parent_id']);
+                    var remove_data = Object.assign({}, $(evt.item).data('section'));
+                    console.log(remove_data);
+                    $(evt.to).children('.ui-section-holder').each(function (idx) {
+                        // re-index the new group
+                        prepareSectionInfo(this, idx);
+                    });
+                    console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section'));
+                    console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
+                    console.log(getChildrenOrder(evt.to));
+                    removeSection(remove_data, () => {
+                        var sectionData = $(evt.item).data('section');
+                        var sectionId = $(evt.item).data('section')['id_sections'];
+                        var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
+                        sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', sectionData['parent_id'])
+                        insertSection(sectionData, sectionId, true, position);
+                    });
 
+                }
+            } catch (error) {
+                console.log(error);
+                refresh_cms_ui(); // refresh the UI on error
             }
         }
     }
@@ -574,3 +585,7 @@ function getAddSectionUrl(sectionData, addSibling) {
     }
     return url;
 }
+
+
+// add catcher and on error reload the ui
+// block the UI until page is refreshed, otherwise we can get errors when we do fast changes
