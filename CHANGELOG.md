@@ -14,7 +14,11 @@
 ### Internal
  - rework the `entryList` and `entryRecord` styles and how they work
 
-# v4.9.5 (latest)
+# v4.9.6
+### New Features
+ - style `qualtricsSurvey` can accept url parameters in the same way a normal Qualtrics survey can do. Ex: `url?code=test&session=1`;
+
+# v4.9.5
 ### Bugfix
  - BMZ calculations add default trace name for the user
 

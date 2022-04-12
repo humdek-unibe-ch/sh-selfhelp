@@ -140,12 +140,15 @@ class QualtricsSurveyModel extends StyleModel
     /* Public Methods *********************************************************/
 
     /**
-     * Generate the quatrics survey link based on the selected action id
+     * Generate the quatrics survey link 
+     * Check for additional url parameters and assign them if there are some in the same way it is done in Qualtrics
      * 
      * @retval string return the link which used in the iFrame
      */
     public function get_survey_link()
-    {
+    {        
+        $url_components = parse_url($this->router->get_url('#self')); // get the requested url
+        $extra_qualtrics_params = isset($url_components['query'])? $url_components['query'] : ''; // check if the url contains url parameters (the same format as Qualtrics)
         $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id, participant_variable FROM qualtricsSurveys WHERE id = :id', array(':id' => $this->survey_id));
         $survey_link = '';
         if ($survey_info) {
@@ -154,6 +157,11 @@ class QualtricsSurveyModel extends StyleModel
                 $user_code = $this->db->get_user_code();
                 if ($user_code) {
                     $survey_link =  $survey_link . '?' . $survey_info['participant_variable'] . '=' . $user_code;
+                    if($extra_qualtrics_params != ''){
+                        $survey_link = $survey_link . '&' . $extra_qualtrics_params; // assign the extra parameters after the user_code variable
+                    }
+                }else if($extra_qualtrics_params != ''){
+                    $survey_link = $survey_link . '?' . $extra_qualtrics_params; // assign the extra parameters 
                 }
             }
         }
