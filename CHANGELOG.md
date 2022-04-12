@@ -1,4 +1,9 @@
-# v4.9.5 (latest)
+# v4.9.6 (latest)
+### New Features
+ - style `qualtricsSurvey` can accept url parameters in the same way a normal Qualtrics survey can do. Ex: `url?code=test&session=1`;
+
+
+# v4.9.5
 ### Bugfix
  - BMZ calculations add default trace name for the user
 
@@ -32,7 +37,7 @@
 # v4.8.3
 
 ### New Features
- - An activation eamil can be send from CMS/admin. Go to users then selct the user that you should recieve an activation link and click button `Send Activation Email`;
+ - An activation email can be send from CMS/admin. Go to users then select the user that you should receive an activation link and click button `Send Activation Email`;
 
 # v4.8.2
 
@@ -47,14 +52,14 @@
 
 # v4.8.0
  - style `book` check required fields only for the current page and already passed pages when save the values
- - add `ajax_set_user_language` page permissions to admin, subject and thearpist group, otherwise these groups has less righs than any newly created group 
+ - add `ajax_set_user_language` page permissions to admin, subject and therapist group, otherwise these groups has less rights than any newly created group 
 
 # v4.7.2
  - add `user_name` to the user list and selected user view
 
 # v4.7.1
- - Add variable pairs configuraation for Qualtrics to overwrite data information
- - Add variable pairs configuraation for Forms to overwrite data information
+ - Add variable pairs configuration for Qualtrics to overwrite data information
+ - Add variable pairs configuration for Forms to overwrite data information
 
 # v4.7.0
  - Bugfix: add ajax call as open page for changing the language
