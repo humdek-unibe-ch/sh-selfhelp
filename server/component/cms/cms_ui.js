@@ -37,12 +37,13 @@ function addButtonNewSectionBelow(sectionData) {
     return icon;
 }
 
-// create a new button add new child to selected section. Only sections witch can have children will have this button
-function addButtonNewChildToSection(sectionData) {
-    var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new child section"></i>');
+// create a new button got to section
+function addButtonGoToSection(sectionData) {
+    var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go to section: <code>' + sectionData['section_name'] + '</code>"></i>');
     $(icon).click(() => {
-        sectionData['relation'] = 'section_children'; // this insert always in section
-        showAddSection(sectionData, false, 0);
+        // showAddSection(sectionData, false, 0);
+        console.log(sectionData['go_to_section_url']);
+        window.location.replace(sectionData['go_to_section_url']);
     })
     return icon;
 }
@@ -95,9 +96,7 @@ function addUISectionButtons(section) {
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewSectionAbove(sectionData));
-    if (sectionData['can_have_children']) {
-        // $(buttonsHolderAdd).append(addButtonNewChildToSection(sectionData));
-    }
+    $(buttonsHolderAdd).append(addButtonGoToSection(sectionData));
 
     // add the new section button for sections without any child
     if (sectionData['can_have_children']) {
@@ -263,7 +262,7 @@ function initSortableElements() {
         animation: 150,
         swapThreshold: 0.65,
         ghostClass: 'drag-ghost',
-        filter:".ui-add-child",
+        filter: ".ui-add-child",
         onEnd: function (evt) {
             try {
                 if (evt.from == evt.to) {
