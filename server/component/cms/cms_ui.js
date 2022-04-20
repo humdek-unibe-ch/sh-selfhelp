@@ -7,6 +7,7 @@ $(document).ready(function () {
 // Build custom javascript UI.
 function init_ui_cms() {
     try {
+        collapseMenu();
         $('.ui-select-picker').selectpicker();
         initChildrenArea();
         initUISectionsButtons();
@@ -41,8 +42,6 @@ function addButtonNewSectionBelow(sectionData) {
 function addButtonGoToSection(sectionData) {
     var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go to section: <code>' + sectionData['section_name'] + '</code>"></i>');
     $(icon).click(() => {
-        // showAddSection(sectionData, false, 0);
-        console.log(sectionData['go_to_section_url']);
         window.location.replace(sectionData['go_to_section_url']);
     })
     return icon;
@@ -588,3 +587,36 @@ function getAddSectionUrl(sectionData, addSibling) {
 
 // add catcher and on error reload the ui
 // block the UI until page is refreshed, otherwise we can get errors when we do fast changes
+
+function collapseMenu() {
+    $('#body-row .collapse').collapse('hide');
+
+    // Collapse/Expand icon
+    $('#collapse-icon').addClass('fa-angle-double-left');
+
+    // Collapse click
+    $('[data-toggle=sidebar-colapse]').click(function () {
+        SidebarCollapse();
+    });
+}
+
+function SidebarCollapse() {
+    $('.menu-collapsed').toggleClass('d-none');
+    $('.sidebar-submenu').toggleClass('d-none');
+    $('.submenu-icon').toggleClass('d-none');
+    $('#sidebar-container').toggleClass('sidebar-expanded sidebar-collapsed');
+
+    // Treating d-flex/d-none on separators with title
+    var SeparatorTitle = $('.sidebar-separator-title');
+    if (SeparatorTitle.hasClass('d-flex')) {
+        SeparatorTitle.removeClass('d-flex');
+    } else {
+        SeparatorTitle.addClass('d-flex');
+    }
+
+    // Collapse/Expand icon
+    $('#collapse-icon').toggleClass('fa-angle-double-left fa-angle-double-right');
+}
+
+
+

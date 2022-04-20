@@ -36,22 +36,30 @@ class CmsView extends BaseView
         $_SESSION['active_section_id'] = $this->model->get_active_section_id();
         $this->page_info = $this->model->get_page_info();
         $this->create_settings_card();
-        $this->add_local_component("new_page", new BaseStyleComponent("button",
+        $this->add_local_component("new_page", new BaseStyleComponent("link",
             array(
-                "label" => "Create New Page",
                 "url" => $this->model->get_link_url("cmsInsert"),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
+                "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                "children" => array(
+                    new BaseStyleComponent("markdownInline", array(
+                        "text_md_inline" => '<div data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Create New Page"><span id="collapse-icon" class="fas fa-file"></span><span id="collapse-text" class="ml-1 menu-collapsed">Create New Page</span></div>',
+                        "css" => ""
+                    ))
+                )
             )
         ));
-        $this->add_local_component("import", new BaseStyleComponent("button",
+        $this->add_local_component("import", new BaseStyleComponent("link",
             array(
-                "label" => "Import Section",
                 "url" => $this->model->get_link_url("cmsImport", array(
                     "type" => "section"
                 )),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
+                "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                "children" => array(
+                    new BaseStyleComponent("markdownInline", array(
+                        "text_md_inline" => '<div data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"><span id="collapse-icon" class="fas fa-file-import"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                        "css" => ""
+                    ))
+                )
             )
         ));
         $this->add_local_component("new_child_page",
@@ -143,12 +151,15 @@ class CmsView extends BaseView
         $pages = $this->model->get_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
         $this->add_list_component("page-list", "Page Index", $pages, "page",
-            $expand_pages, $this->model->get_active_page_id());
+            $expand_pages, $this->model->get_active_page_id(), ' ');
 
         $page_sections = $this->model->get_page_sections();
-        $this->add_list_component("page-section-list", "Page Sections",
-            $page_sections, "sections-page", true,
-            $this->model->get_active_section_id());
+        if(!$this->model->get_services()->get_user_input()->is_new_ui_enabled()){
+            // if it is old UI show sections            
+            $this->add_list_component("page-section-list", "Page Sections",
+                $page_sections, "sections-page", true,
+                $this->model->get_active_section_id());
+        }
 
         $this->add_list_component("navigation-hierarchy-list",
             "Navigation Hierarchy", $this->model->get_navigation_hierarchy(),
@@ -319,8 +330,8 @@ class CmsView extends BaseView
         ));
         $this->add_local_component($name, new BaseStyleComponent("card",
             array(
-                "css" => "mb-3",
-                "is_expanded" => $is_expanded_root,
+                "css" => "mt-3 mb-3 ui-card-list menu-collapsed",
+                "is_expanded" =>  $this->model->get_services()->get_user_input()->is_new_ui_enabled() || $is_expanded_root, // if the new UI is enabled always expand the page index
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content),
@@ -776,7 +787,7 @@ class CmsView extends BaseView
 
         $this->add_local_component("settings-card", new BaseStyleComponent("card",
             array(
-                "css" => "mb-3",
+                "css" => "mb-3 menu-collapsed",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "CMS Settings",
@@ -973,7 +984,11 @@ class CmsView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_main.php";
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            require __DIR__ . "/tpl_new_ui/tpl_main.php";
+        } else {
+            require __DIR__ . "/tpl_main.php";
+        }
     }
 	
 	public function output_content_mobile()

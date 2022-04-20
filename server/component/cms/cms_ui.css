@@ -56,3 +56,53 @@
 .ui-icon-button-white {
     background-image: radial-gradient(at center, white 20%, transparent 20%);
 }
+
+.ui-card-list .card-body {
+    max-height: 400px;
+    overflow: auto;
+    padding: 0.4rem !important;
+}
+
+
+.sticky-offset {
+    top: 56px;
+}
+
+#body-row {
+    margin-left:0;
+    margin-right:0;
+}
+#sidebar-container {
+    min-height: 100vh;   
+    padding: 0;
+}
+
+/* Sidebar sizes when expanded and expanded */
+.sidebar-expanded {
+    width: 230px;
+}
+.sidebar-collapsed {
+    width: 70px;
+}
+
+/* Menu item*/
+.ui-side-menu-button {
+    cursor: pointer;
+}
+
+/* Closed submenu icon */
+#collapseBtn[aria-expanded="false"] .submenu-icon::after {
+  content: " \f0d7";
+  font-family: FontAwesome;
+  display: inline;
+  text-align: right;
+  padding-left: 10px;
+}
+/* Opened submenu icon */
+#collapseBtn[aria-expanded="true"] .submenu-icon::after {
+  content: " \f0da";
+  font-family: FontAwesome;
+  display: inline;
+  text-align: right;
+  padding-left: 10px;
+}

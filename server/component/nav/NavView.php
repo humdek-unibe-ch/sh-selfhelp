@@ -229,7 +229,11 @@ class NavView extends BaseView
         $home = $this->model->get_home();
         $login_is_active = $this->model->get_login_active();
         $login = $this->model->get_login();
-        require __DIR__ . "/tpl_nav.php";
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            require __DIR__ . "/../cms/tpl_new_ui/tpl_nav.php";
+        }else{
+            require __DIR__ . "/tpl_nav.php";
+        }        
     }    
 
     public function output_content_mobile()
