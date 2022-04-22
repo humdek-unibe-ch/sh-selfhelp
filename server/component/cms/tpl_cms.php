@@ -9,7 +9,7 @@
         <?php $this->output_breadcrumb(); ?>
     </div>
 </div>
-<div id="cms-ui" class="row">
+<div class="row">
     <div class="col fieldsOnTop">
         <?php $this->output_fields(); ?>
     </div>
@@ -19,5 +19,4 @@
     <div class="col-auto">
         <?php $this->output_page_overview(); ?>
     </div>
-    <?php $this->output_modal_add_section(); ?>
 </div>

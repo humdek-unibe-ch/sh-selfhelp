@@ -42,7 +42,7 @@ class CmsView extends BaseView
                 "css" => "ui-side-menu-button list-group-item list-group-item-action",
                 "children" => array(
                     new BaseStyleComponent("markdownInline", array(
-                        "text_md_inline" => '<div data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Create New Page"><span id="collapse-icon" class="fas fa-file"></span><span id="collapse-text" class="ml-1 menu-collapsed">Create New Page</span></div>',
+                        "text_md_inline" => '<div><span id="collapse-icon" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Create New Page" class="fas fa-file"></span><span id="collapse-text" class="ml-1 menu-collapsed">Create New Page</span></div>',
                         "css" => ""
                     ))
                 )
@@ -56,7 +56,20 @@ class CmsView extends BaseView
                 "css" => "ui-side-menu-button list-group-item list-group-item-action",
                 "children" => array(
                     new BaseStyleComponent("markdownInline", array(
-                        "text_md_inline" => '<div data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"><span id="collapse-icon" class="fas fa-file-import"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                        "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-import" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                        "css" => ""
+                    ))
+                )
+            )
+        ));
+        $this->add_local_component("page_preview", new BaseStyleComponent("link",
+            array(
+                "url" => $this->model->get_link_url($this->page_info['keyword'], array("nav" => $this->model->get_active_root_section_id())),
+                "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                "open_in_new_tab" => true,
+                "children" => array(
+                    new BaseStyleComponent("markdownInline", array(
+                        "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-eye" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Page Preview"></span><span id="collapse-text" class="ml-1 menu-collapsed">Page Preview</span></div>',
                         "css" => ""
                     ))
                 )
@@ -250,7 +263,7 @@ class CmsView extends BaseView
                 "title" => "Page View",
                 "is_collapsible" => true,
                 "is_expanded" => ($this->model->get_active_section_id() == null),
-                "css" => "mb-3 section-view",
+                "css" => "mb-3 section-view w-100",
                 "children" => $page_components,
             ))
         );
@@ -369,8 +382,12 @@ class CmsView extends BaseView
         }
         else
         {
-            foreach($fields as $field)
-                $children[] = $this->create_field_item($field);
+            foreach($fields as $field){
+                $new_field_item = $this->create_field_item($field);
+                if($new_field_item){
+                    $children[] = $new_field_item;
+                }
+            }
             $type = "light";
             if($this->model->has_access("update",
                     $this->model->get_active_page_id()))
@@ -379,7 +396,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3",
+                "css" => "mb-3 ui-card-properties properties-collapsed",
                 "is_collapsible" => false,
                 "is_expanded" => true,
                 "title" => "Page Properties",
@@ -424,8 +441,12 @@ class CmsView extends BaseView
         }
         else
         {
-            foreach($fields as $field)
-                $children[] = $this->create_field_item($field);
+            foreach($fields as $field){
+                $new_field_item = $this->create_field_item($field);
+                if($new_field_item){
+                    $children[] = $new_field_item;
+                }
+            }
             $type = "light";
             if($this->model->has_access("update",
                     $this->model->get_active_page_id()))
@@ -434,7 +455,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3",
+                "css" => "mb-3 ui-card-properties properties-collapsed",
                 "is_collapsible" => false,
                 "title" => "Section Properties",
                 "children" => $children,
@@ -463,7 +484,10 @@ class CmsView extends BaseView
         ));
 
         foreach($fields as $field) {
-            $form_items[] = $this->create_field_form_item($field);
+            $new_field = $this->create_field_form_item($field);
+            if($new_field){
+                $form_items[] = $new_field;
+            }
         }
 
 
@@ -483,11 +507,15 @@ class CmsView extends BaseView
      *
      * @param array $field
      *  the field array with keys as definde in CmsModel::add_property_item.
-     * @retval object
+     * @retval object or false
      *  A descriptionItem component.
      */
     private function create_field_form_item($field)
     {
+        if ($field['type'] == "style-list" && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // children are not needed for the new UI
+            return false;
+        }
         $children = array();
         $field_name_prefix = "fields[" . $field['name'] . "]["
             . $field['id_language'] . "]" . "[" . $field['id_gender'] . "]";
@@ -570,9 +598,7 @@ class CmsView extends BaseView
                     array("value" => "none", "text" => "none"),
                 ),
             ));
-        }
-        else if($field['type'] == "style-list")
-        {
+        } else if ($field['type'] == "style-list") {
             $children[] = new BaseStyleComponent("input", array(
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
@@ -671,11 +697,15 @@ class CmsView extends BaseView
      *
      * @param array $field
      *  the field array with keys as definde in CmsModel::add_property_item.
-     * @retval object
+     * @retval object or false
      *  A descriptionItem component.
      */
     private function create_field_item($field)
     {
+        if ($field['type'] == "style-list" && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // children are not needed for the new UI
+            return false;
+        }
         $children = array();
         if($field['type'] == "style-list")
         {
@@ -787,7 +817,7 @@ class CmsView extends BaseView
 
         $this->add_local_component("settings-card", new BaseStyleComponent("card",
             array(
-                "css" => "mb-3 menu-collapsed",
+                "css" => "mb-3 menu-collapsed ui-card-list",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "CMS Settings",
@@ -829,8 +859,13 @@ class CmsView extends BaseView
      */
     private function output_breadcrumb()
     {
-        if($this->model->get_active_page_id() != null)
-            require __DIR__ . "/tpl_breadcrumb.php";
+        if($this->model->get_active_page_id() != null){
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                require __DIR__ . "/tpl_new_ui/tpl_breadcrumb.php";
+            } else {
+                require __DIR__ . "/tpl_breadcrumb.php";
+            }
+        }            
     }
 
     /**
@@ -859,6 +894,14 @@ class CmsView extends BaseView
     }
 
     /**
+     * Render the page preview button.
+     */
+    private function output_page_preview_button()
+    {
+        $this->output_local_component("page_preview");
+    }
+
+    /**
      * Render the import page/section button.
      */
     private function output_import_button()
@@ -874,20 +917,23 @@ class CmsView extends BaseView
     {
         $this->output_local_component("page-fields");
         $this->output_local_component("section-fields");
-        if($this->model->can_create_new_child_page())
-            $this->output_local_component("new_child_page");
-        if ($this->model->can_export_section()) {
-            $this->output_local_component("export_section");
-        }
-        if($this->model->can_delete_page())
-        {
-            if($this->model->get_active_section_id() == null) {
-                $this->output_local_component("delete_page");
+        if (!$this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // if not new UI output these
+            if($this->model->can_create_new_child_page())
+                $this->output_local_component("new_child_page");
+            if ($this->model->can_export_section()) {
+                $this->output_local_component("export_section");
             }
-            else if($this->model->can_delete_section()) {
-                $this->output_local_component("delete_section");
-            }
-        }        
+            if($this->model->can_delete_page())
+            {
+                if($this->model->get_active_section_id() == null) {
+                    $this->output_local_component("delete_page");
+                }
+                else if($this->model->can_delete_section()) {
+                    $this->output_local_component("delete_section");
+                }
+            }     
+        }   
     }
 
     /**
@@ -906,10 +952,15 @@ class CmsView extends BaseView
      */
     private function output_page_content()
     {
-        if($this->model->get_active_page_id() == null)
+        if ($this->model->get_active_page_id() == null)
             require __DIR__ . "/tpl_intro_cms.php";
-        else
-            require __DIR__ . "/tpl_cms.php";
+        else {
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                require __DIR__ . "/tpl_new_ui/tpl_cms.php";
+            } else {
+                require __DIR__ . "/tpl_cms.php";
+            }
+        }
     }
 
     /**
@@ -942,12 +993,21 @@ class CmsView extends BaseView
      */
     private function output_page_preview()
     {
-        if($this->model->is_navigation_main())
+        if ($this->model->is_navigation_main())
             require __DIR__ . "/tpl_intro_nav.php";
-        else
-        {
-            $this->output_local_component("section-view");
-            $this->output_local_component("page-view");
+        else {
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                // show section if a section is selected otherwise show the whole page
+                $section_view = $this->get_local_component('section-view');
+                if ($section_view != null) {
+                    $this->output_local_component("section-view");
+                } else {
+                    $this->output_local_component("page-view");
+                }
+            } else {
+                $this->output_local_component("section-view");
+                $this->output_local_component("page-view");
+            }
         }
     }
 
@@ -962,7 +1022,10 @@ class CmsView extends BaseView
      */
     public function get_css_includes($local = array())
     {
-        $local = array(__DIR__ . "/cms.css", __DIR__ . "/cms_ui.css");
+        $local = array(__DIR__ . "/cms.css");
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            array_push($local, __DIR__ . "/cms_ui.css");
+        }
         return parent::get_css_includes($local);
     }
 
@@ -975,7 +1038,10 @@ class CmsView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/cms.js",__DIR__ . "/cms_ui.js");
+        $local = array(__DIR__ . "/cms.js");
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            array_push($local, __DIR__ . "/cms_ui.js");
+        }
         return parent::get_js_includes($local);
     }
 

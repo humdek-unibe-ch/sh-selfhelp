@@ -1,19 +1,19 @@
 /************************* UI CMS **********************************************************************************************/
 
-.ui-section-btn{
+.ui-section-btn {
     cursor: pointer;
     height: 36px;
     padding: 10px;
     pointer-events: auto;
 }
 
-.ui-section-holder{
+.ui-section-holder {
     border: 2px solid;
     position: relative;
-    border-color:  var(--secondary)
+    border-color: var(--secondary)
 }
 
-.ui-buttons-holder{
+.ui-buttons-holder {
     display: none;
     top: -18px;
     bottom: -18px;
@@ -22,39 +22,47 @@
     pointer-events: none;
 }
 
-.ui-section-holder:hover{
-    border-color:  var(--primary) !important;
+.ui-section-holder:hover {
+    border-color: var(--primary) !important;
 }
 
-.ui-section-holder:hover > .ui-buttons-holder{
+.ui-section-holder:hover>.ui-buttons-holder {
     display: flex !important;
 }
 
 .grabbable {
-    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: move;
+    /* fallback if grab cursor is unsupported */
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
 }
 
- /* (Optional) Apply a "closed-hand" cursor during drag operation. */
+/* (Optional) Apply a "closed-hand" cursor during drag operation. */
 .grabbable:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
 
-.section-children-ui-cms{
+.section-children-ui-cms {
     min-height: 50px;
 }
 
-.drag-ghost{
+.drag-ghost {
     opacity: 0.4;
-    background-color:  var(--primary) !important;
+    background-color: var(--primary) !important;
 }
 
 .ui-icon-button-white {
     background-image: radial-gradient(at center, white 20%, transparent 20%);
+}
+
+.ui-card-list {
+    border-radius: 0;
+    margin: 0 1px !important;
+    outline: 1px solid rgb(223 223 223);
+    border: none;
 }
 
 .ui-card-list .card-body {
@@ -63,26 +71,41 @@
     padding: 0.4rem !important;
 }
 
+.ui-card-list .card-header {
+    background-color: var(--white);
+}
+
+.ui-card-list .card-header:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.ui-card-properties {
+    border-radius: 0;
+    margin: 0 1px !important;
+    outline: 1px solid rgb(223 223 223);
+    border: none;
+}
+
+.ui-card-properties .card-body {
+    max-height: 800px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.4rem !important;
+}
+
+.ui-breadcrumb {
+    border-top: 1px solid rgba(0, 0, 0, .125);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+    background-color: var(--white);
+}
 
 .sticky-offset {
     top: 56px;
 }
 
-#body-row {
-    margin-left:0;
-    margin-right:0;
-}
-#sidebar-container {
-    min-height: 100vh;   
-    padding: 0;
-}
-
-/* Sidebar sizes when expanded and expanded */
-.sidebar-expanded {
-    width: 230px;
-}
-.sidebar-collapsed {
-    width: 70px;
+.ui-sidebar {
+    background-color: #e9ecef;
 }
 
 /* Menu item*/
@@ -90,19 +113,25 @@
     cursor: pointer;
 }
 
-/* Closed submenu icon */
-#collapseBtn[aria-expanded="false"] .submenu-icon::after {
-  content: " \f0d7";
-  font-family: FontAwesome;
-  display: inline;
-  text-align: right;
-  padding-left: 10px;
+#ui-cms>.section-view {
+    margin: 0 !important;
+    border: none;
 }
-/* Opened submenu icon */
-#collapseBtn[aria-expanded="true"] .submenu-icon::after {
-  content: " \f0da";
-  font-family: FontAwesome;
-  display: inline;
-  text-align: right;
-  padding-left: 10px;
+
+#ui-cms>.section-view>.card-header {
+    display: none !important;
+}
+
+.ui-border-filler {
+    border-right: 1px solid rgba(0, 0, 0, .125);
+    border-left: 1px solid rgba(0, 0, 0, .125);
+}
+
+.sidebar-expanded {
+    min-width: 190px;
+}
+
+#ui-middle > .sticky-top > .alert{
+    margin: 0;
+    border-radius: 0;
 }

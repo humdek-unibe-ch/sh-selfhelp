@@ -8,6 +8,7 @@ $(document).ready(function () {
 function init_ui_cms() {
     try {
         collapseMenu();
+        collapseProperties();
         $('.ui-select-picker').selectpicker();
         initChildrenArea();
         initUISectionsButtons();
@@ -161,7 +162,7 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
 function refresh_cms_ui() {
     $('.popover').remove(); // first remove all tooltips if they are active
     $.get(location.href, function (data) {
-        $('#cms-ui').empty().append($(data).find('#cms-ui').children());
+        $('#ui-cms').empty().append($(data).find('#ui-cms').children());
         init_ui_cms(); // reload the UI initialization
         $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
     });
@@ -587,35 +588,39 @@ function getAddSectionUrl(sectionData, addSibling) {
 
 // add catcher and on error reload the ui
 // block the UI until page is refreshed, otherwise we can get errors when we do fast changes
-
 function collapseMenu() {
-    $('#body-row .collapse').collapse('hide');
 
     // Collapse/Expand icon
     $('#collapse-icon').addClass('fa-angle-double-left');
 
     // Collapse click
-    $('[data-toggle=sidebar-colapse]').click(function () {
-        SidebarCollapse();
+    $('[data-toggle=sidebar-collapse]').click(function () {
+        sidebarCollapse();
     });
 }
 
-function SidebarCollapse() {
+function sidebarCollapse() {
     $('.menu-collapsed').toggleClass('d-none');
-    $('.sidebar-submenu').toggleClass('d-none');
-    $('.submenu-icon').toggleClass('d-none');
     $('#sidebar-container').toggleClass('sidebar-expanded sidebar-collapsed');
-
-    // Treating d-flex/d-none on separators with title
-    var SeparatorTitle = $('.sidebar-separator-title');
-    if (SeparatorTitle.hasClass('d-flex')) {
-        SeparatorTitle.removeClass('d-flex');
-    } else {
-        SeparatorTitle.addClass('d-flex');
-    }
 
     // Collapse/Expand icon
     $('#collapse-icon').toggleClass('fa-angle-double-left fa-angle-double-right');
+}
+
+function propertiesCollapse() {
+    $('.properties-collapsed').toggleClass('d-none');
+    $('#properties-container').toggleClass('sidebar-expanded sidebar-collapsed');
+    // Collapse/Expand icon
+    $('#collapse-properties-icon').toggleClass('fa-angle-double-right fa-angle-double-left');
+}
+
+function collapseProperties() {
+    // Collapse/Expand icon
+    $('#collapse-properties-icon').addClass('fa-angle-double-right');
+    // Collapse click
+    $('[data-toggle=properties-collapse]').click(function () {
+        propertiesCollapse();
+    });
 }
 
 
