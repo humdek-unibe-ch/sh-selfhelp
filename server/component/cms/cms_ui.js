@@ -6,9 +6,10 @@ $(document).ready(function () {
 
 // Build custom javascript UI.
 function init_ui_cms() {
-    try {
-        collapseMenu();
-        collapseProperties();
+    try {        
+        initSaveProperties();
+        initCollapseMenu();
+        initCollapseProperties();        
         $('.ui-select-picker').selectpicker();
         initChildrenArea();
         initUISectionsButtons();
@@ -308,7 +309,6 @@ function initSortableElements() {
     var sectionSections = $('#section-section-view > .card-body');
     Array.from(sectionSections).forEach((section) => {
         $(section).children('.ui-section-holder').each(function (idx) {
-            console.log(idx);
             prepareSectionInfo(this, idx);
             $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in specific section
         });
@@ -588,7 +588,7 @@ function getAddSectionUrl(sectionData, addSibling) {
 
 // add catcher and on error reload the ui
 // block the UI until page is refreshed, otherwise we can get errors when we do fast changes
-function collapseMenu() {
+function initCollapseMenu() {
 
     // Collapse/Expand icon
     $('#collapse-icon').addClass('fa-angle-double-left');
@@ -614,7 +614,7 @@ function propertiesCollapse() {
     $('#collapse-properties-icon').toggleClass('fa-angle-double-right fa-angle-double-left');
 }
 
-function collapseProperties() {
+function initCollapseProperties() {
     // Collapse/Expand icon
     $('#collapse-properties-icon').addClass('fa-angle-double-right');
     // Collapse click
@@ -623,5 +623,10 @@ function collapseProperties() {
     });
 }
 
-
+function initSaveProperties(){
+    $('#save-properties').click((e)=>{
+        e.stopPropagation();
+        console.log('Save properties');
+    });
+}
 

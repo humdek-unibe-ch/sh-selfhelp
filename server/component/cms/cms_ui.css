@@ -85,13 +85,18 @@
     margin: 0 1px !important;
     outline: 1px solid rgb(223 223 223);
     border: none;
+    max-width: 100%;
+}
+
+.ui-card-properties .card-header {
+    display: none !important;
 }
 
 .ui-card-properties .card-body {
-    max-height: 800px;
+    max-height: 600px;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0.4rem !important;
+    padding: 0 !important;
 }
 
 .ui-breadcrumb {
@@ -129,9 +134,14 @@
 
 .sidebar-expanded {
     min-width: 190px;
+    max-width: 300px;
 }
 
-#ui-middle > .sticky-top > .alert{
+.properties-expanded{
+    max-width: 400px;
+}
+
+#ui-middle>.sticky-top>.alert {
     margin: 0;
     border-radius: 0;
 }
@@ -140,8 +150,16 @@
     display: none !important;
 }
 
-.ui-cms-body{
+.ui-cms-body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+}
+
+#collapsePropertiesBtn {
+    height: 50px;
+}
+
+.properties-collapsed {
+    display: flex;
 }
