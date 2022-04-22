@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-auto">
         <input
-            class="input-autocomplete-value"
+            class="input-autocomplete-value form-control"
             type="text"
             value="<?php echo $this->default_value; ?>"
             name="<?php echo $this->name_value_field; ?>"
