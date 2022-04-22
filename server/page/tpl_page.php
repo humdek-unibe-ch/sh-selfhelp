@@ -23,7 +23,7 @@
     $this->output_js_includes_after();
 ?>   
 </head>
-<body>
+<body class="ui-cms-body">
 <?php
     $this->output_warnings();
     $this->output_base_content();

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="d-flex">
+<div class="d-flex flex-grow-1">
     <div id="sidebar-container" class="sidebar-expanded ">
         <div class="d-flex h-100 flex-column">
             <ul class="list-group sticky-top">
