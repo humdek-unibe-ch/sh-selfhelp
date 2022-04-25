@@ -116,6 +116,7 @@
 /* Menu item*/
 .ui-side-menu-button {
     cursor: pointer;
+    height: 50px;
 }
 
 #ui-cms>.section-view {
@@ -137,7 +138,7 @@
     max-width: 300px;
 }
 
-.properties-expanded{
+.properties-expanded {
     max-width: 400px;
 }
 
@@ -162,4 +163,38 @@
 
 .properties-collapsed {
     display: flex;
+}
+
+.toggle.ui-toggle {
+    border-radius: 0px;
+    width: 100% !important;
+    min-height: 50px;
+    border-top: none;
+    border-bottom: none;
+}
+
+.toggle.ui-toggle .toggle-handle {
+    border-color: #ffc107;
+    border: solid 1.2px #ffc107;
+}
+
+.toggle.ui-toggle .toggle-handle:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.ui-toggle > .toggle-group > .toggle-on, .toggle-off {
+    display: flex;
+    align-items: center;
+    /* justify-content: center; */
+    padding: .75rem 1.25rem !important;    
+}
+
+.ui-toggle > .toggle-group >  .toggle-off {
+    background-color: var(--white);
+    color: #495057;
+}
+
+.ui-toggle > .toggle-group >  .toggle-off:hover {
+    background-color: #f8f9fa;
 }

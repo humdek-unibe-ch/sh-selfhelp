@@ -6,10 +6,11 @@ $(document).ready(function () {
 
 // Build custom javascript UI.
 function init_ui_cms() {
-    try {        
+    try {
+        initEditToggle();
         initSaveProperties();
         initCollapseMenu();
-        initCollapseProperties();        
+        initCollapseProperties();
         $('.ui-select-picker').selectpicker();
         initChildrenArea();
         initUISectionsButtons();
@@ -623,10 +624,16 @@ function initCollapseProperties() {
     });
 }
 
-function initSaveProperties(){
-    $('#save-properties').click((e)=>{
+function initSaveProperties() {
+    $('#save-properties').click((e) => {
         e.stopPropagation();
         console.log('Save properties');
     });
+}
+
+function initEditToggle() {
+    $('#ui-edit-toggle').change(function () {
+        console.log('Toggle: ' + $(this).prop('checked'))
+    })
 }
 
