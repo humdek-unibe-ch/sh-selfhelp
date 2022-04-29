@@ -127,3 +127,8 @@ END
 //
 
 DELIMITER ;
+
+-- change field submit_and_send_email that does not depend on the locale
+UPDATE fields
+SET display = 0
+WHERE id = get_field_id('submit_and_send_email');
