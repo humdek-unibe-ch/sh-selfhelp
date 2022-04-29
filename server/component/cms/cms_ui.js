@@ -7,6 +7,9 @@ $(document).ready(function () {
 // Build custom javascript UI.
 function init_ui_cms() {
     try {
+        $(window).scroll(function () {
+            adjustPropertiesHeight();
+        });
         initEditToggle();
         initSaveProperties();
         initCollapseMenu();
@@ -15,6 +18,7 @@ function init_ui_cms() {
         initChildrenArea();
         initUISectionsButtons();
         initSortableElements();
+        adjustPropertiesHeight();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -610,7 +614,7 @@ function sidebarCollapse() {
 
 function propertiesCollapse() {
     $('.properties-collapsed').toggleClass('d-none');
-    $('#properties-container').toggleClass('sidebar-expanded sidebar-collapsed');
+    $('#properties').toggleClass('properties-expanded sidebar-collapsed');
     // Collapse/Expand icon
     $('#collapse-properties-icon').toggleClass('fa-angle-double-right fa-angle-double-left');
 }
@@ -635,5 +639,25 @@ function initEditToggle() {
     $('#ui-edit-toggle').change(function () {
         console.log('Toggle: ' + $(this).prop('checked'))
     })
+}
+
+function adjustPropertiesHeight() {    
+    // with button down
+    var saveBtnHeight = $('.ui-card-properties form > button').first().outerHeight();
+    var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top + (saveBtnHeight ? saveBtnHeight : 0);
+    if(saveBtnHeight){
+        $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px - 1rem)" });
+    }else{
+        $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
+    }    
+    console.log(usedSpace, saveBtnHeight);
+
+    // without button
+    // var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top;
+    // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
+    // console.log(usedSpace);
+
+    //adjust left side bar
+    // $('#sidebar-container').first().css({ "height": "calc(100vh - " + $('.ui-card-properties')[0].getBoundingClientRect().top + "px)" });
 }
 

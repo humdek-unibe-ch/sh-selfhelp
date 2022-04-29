@@ -494,7 +494,7 @@ class CmsView extends BaseView
         $params = $this->model->get_current_url_params();
         return new BaseStyleComponent("form", array(
             "url" => $_SERVER['REQUEST_URI'],
-            "label" => "Submit Changes",
+            "label" => "Save",
             "type" => "warning",
             "children" => $form_items,
             "url_cancel" => $this->model->get_link_url("cmsSelect", $params),
