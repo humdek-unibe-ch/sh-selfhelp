@@ -125,6 +125,7 @@ abstract class BasePage
             "/css/ext/query-builder.default.min.css",
             "/css/ext/query-builder.bootstrap.css",            
             "/css/ext/bootstrap4-toggle.min.css",      
+            "/css/ext/simplemde.min.css",   
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -145,6 +146,7 @@ abstract class BasePage
             "/js/ext/moment.min.js",
             "/js/ext/query-builder.standalone.min.js",
             "/js/ext/bootstrap4-toggle.min.js",
+            "/js/ext/simplemde.min.js",
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",

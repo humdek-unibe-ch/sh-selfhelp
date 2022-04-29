@@ -29,6 +29,7 @@ $(document).ready(function () {
             $(json).parent().parent().addClass('d-none'); //hide the label
             return;
         } else {
+            // if ($(json).prev().attr('name').includes('condition') || $(json).prev().attr('name').includes('data_config')) {
             if ($(json).prev().attr('name').includes('condition')) {
                 $(json).addClass('d-none');
             }

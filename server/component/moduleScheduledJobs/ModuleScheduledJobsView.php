@@ -360,7 +360,6 @@ class ModuleScheduledJobsView extends BaseView
     {
         if (empty($local)) {
             $local = array(
-                __DIR__ . "/../js/simplemde.min.js",
                 __DIR__ . "/js/moduleScheduledJobs.js"
             );
         }
@@ -377,7 +376,6 @@ class ModuleScheduledJobsView extends BaseView
     public function get_css_includes($local = array())
     {
         $local = array(
-            __DIR__ . "/../css/simplemde.min.css",
             __DIR__ . "/css/moduleScheduledJobs.css"
         );
         return parent::get_css_includes($local);

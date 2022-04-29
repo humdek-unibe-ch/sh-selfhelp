@@ -60,12 +60,30 @@
 
 .ui-card-list {
     border-radius: 0;
-    margin: 0 1px !important;
-    outline: 1px solid rgb(223 223 223);
-    border: none;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    margin: 0px !important;
 }
 
-.ui-card-list .card-body {
+#sidebar-container {
+    border-right: 1px solid rgba(0, 0, 0, .125);
+}
+
+#properties {    
+    border-left: 1px solid rgba(0, 0, 0, .125);
+}
+
+#collapsePropertiesBtn{
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+#collapseBtn{
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+#sidebar-container .ui-card-list .card-body {
     max-height: 400px;
     overflow: auto;
     padding: 0.4rem !important;
@@ -82,23 +100,29 @@
 
 .ui-card-properties {
     border-radius: 0;
-    margin: 0 1px !important;
-    outline: 1px solid rgb(223 223 223);
-    border: none;
     max-width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, .125) !important;
+    border-left: none;
+    border-right: none;
+    border-top: none;
 }
 
-.ui-card-properties .card-header {
+.properties-fields {
+    outline: #ebebeb 1px solid;
+    border: none !important;
+}
+
+.ui-card-properties>.card-header {
     display: none !important;
 }
 
-.ui-card-properties .card-body {
+.ui-card-properties>.card-body {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 !important;
 }
 
-.ui-card-properties form > button {
+.ui-card-properties form>button {
     position: fixed;
     bottom: 0.5rem;
     right: 0.5rem;
@@ -106,6 +130,10 @@
     font-size: .875rem;
     line-height: 1.5;
     border-radius: 0.2rem;
+}
+
+.ui-card-properties form>a {
+    display: none;
 }
 
 /* .ui-card-properties form > .btn {
@@ -126,6 +154,10 @@
 .ui-side-menu-button {
     cursor: pointer;
     height: 50px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-left: none;
+    border-right: none;
+    border-top: none;
 }
 
 #ui-cms>.section-view {
@@ -141,23 +173,17 @@
     display: none !important;
 }
 
-.ui-border-filler {
-    border-right: 1px solid rgba(0, 0, 0, .125);
-    border-left: 1px solid rgba(0, 0, 0, .125);
-}
-
 .sidebar-expanded {
     min-width: 190px;
     max-width: 300px;
 }
 
-.sidebar-collapsed{
+.sidebar-collapsed {
     min-width: 62px;
 }
 
 .properties-expanded {
-    max-width: 400px;
-    min-width: 240px;
+    min-width: 420px;
 }
 
 #ui-middle>.sticky-top>.alert {
@@ -165,7 +191,7 @@
     border-radius: 0;
 }
 
-#ui-middle>.sticky-top ol{
+#ui-middle>.sticky-top ol {
     margin-bottom: 0;
 }
 
@@ -191,8 +217,10 @@
     border-radius: 0px;
     width: 100% !important;
     min-height: 50px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-left: none;
+    border-right: none;
     border-top: none;
-    border-bottom: none;
 }
 
 .toggle.ui-toggle .toggle-handle {
@@ -225,7 +253,25 @@
     z-index: 1021;
 }
 
-#left-side-scroll-area{
+#left-side-scroll-area {
     max-height: calc(100vh - 50px);
     overflow: auto;
+}
+
+.input-autocomplete-value {
+    max-width: 70px;
+}
+
+.data_config {
+    display: none;
+}
+
+.style-markdown {
+    max-height: 300px;
+}
+
+.CodeMirror,
+.CodeMirror-scroll {
+    max-height: 300px;
+    min-height: 0px;
 }

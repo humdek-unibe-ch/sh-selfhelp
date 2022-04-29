@@ -22,7 +22,7 @@
                     <?php $this->output_lists(); ?>
                 </div>
             </ul>
-            <div class="flex-grow-1 ui-border-filler"></div>
+            <div class="flex-grow-1"></div>
         </div>
     </div>
 
@@ -41,7 +41,7 @@
                 </div>
                 <?php $this->output_fields(); ?>
             </ul>
-            <div class="flex-grow-1 ui-border-filler"></div>
+            <div class="flex-grow-1"></div>
         </div>
     </div>
 </div>

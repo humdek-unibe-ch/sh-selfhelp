@@ -19,6 +19,7 @@ function init_ui_cms() {
         initUISectionsButtons();
         initSortableElements();
         adjustPropertiesHeight();
+        initMarkdownFields();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -641,15 +642,15 @@ function initEditToggle() {
     })
 }
 
-function adjustPropertiesHeight() {    
+function adjustPropertiesHeight() {
     // with button down
     var saveBtnHeight = $('.ui-card-properties form > button').first().outerHeight();
     var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top + (saveBtnHeight ? saveBtnHeight : 0);
-    if(saveBtnHeight){
+    if (saveBtnHeight) {
         $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px - 1rem)" });
-    }else{
+    } else {
         $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
-    }    
+    }
     console.log(usedSpace, saveBtnHeight);
 
     // without button
@@ -657,5 +658,20 @@ function adjustPropertiesHeight() {
     // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
     // console.log(usedSpace);
 
+}
+
+function initMarkdownFields() {
+    var markdowns = $('.style-markdown');
+    Array.from(markdowns).forEach((md) => {
+        new SimpleMDE({
+            element: md,
+            autoDownloadFontAwesome: false,
+            spellChecker: false,
+            toolbar: ["bold", "italic", "heading", "quote", "unordered-list", "ordered-list", "link", "image", "table", "preview", "guide"],
+            renderingConfig: {
+                singleLineBreaks: false
+            }
+        });
+    });
 }
 

@@ -640,23 +640,9 @@ class ModuleFormsActionView extends BaseView
         if (empty($local)) {
             $local = array(
                 __DIR__ . "/js/formAction.js",                
-                __DIR__ . "/../js/simplemde.min.js"
             );
         }
         return parent::get_js_includes($local);
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        $local = array(__DIR__ . "/../css/simplemde.min.css");
-        return parent::get_css_includes($local);
     }
 
     /**
