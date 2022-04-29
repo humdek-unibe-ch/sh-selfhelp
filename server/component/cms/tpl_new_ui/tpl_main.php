@@ -13,8 +13,9 @@
                         <span id="collapse-text" class="ml-1 menu-collapsed">Collapse sidebar</span>
                     </div>
                 </div>
-                <input data-style="ui-toggle" id="ui-edit-toggle" type="checkbox" data-toggle="toggle" data-onstyle="warning" data-on="<i class='fa fa-fw fa-edit' data-trigger='hover focus' data-toggle='popover' data-placement='top' data-content='Toggle Edit'></i> <span class='ml-1  menu-collapsed'>Disable edit</span>" data-off="<i class='fa fa-edit fa-fw' data-trigger='hover focus' data-toggle='popover' data-placement='top' data-content='Toggle Edit'></i> <span class=' ml-1 menu-collapsed'>Edit</span>">
                 <div id="left-side-scroll-area">
+                <input data-style="ui-toggle" id="ui-edit-toggle" type="checkbox" data-toggle="toggle" data-onstyle="warning" data-on="<i class='fa fa-fw fa-edit' data-trigger='hover focus' data-toggle='popover' data-placement='top' data-content='Toggle Edit'></i> <span class='ml-1  menu-collapsed'>Disable edit</span>" data-off="<i class='fa fa-edit fa-fw' data-trigger='hover focus' data-toggle='popover' data-placement='top' data-content='Toggle Edit'></i> <span class=' ml-1 menu-collapsed'>Edit</span>">
+                
                     <?php $this->output_page_preview_button(); ?>
                     <?php $this->output_create_new_button(); ?>
                     <?php $this->output_import_button(); ?>

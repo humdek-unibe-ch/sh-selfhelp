@@ -657,7 +657,5 @@ function adjustPropertiesHeight() {
     // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
     // console.log(usedSpace);
 
-    //adjust left side bar
-    // $('#sidebar-container').first().css({ "height": "calc(100vh - " + $('.ui-card-properties')[0].getBoundingClientRect().top + "px)" });
 }
 
