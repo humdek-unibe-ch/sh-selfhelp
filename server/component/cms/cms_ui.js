@@ -625,6 +625,8 @@ function getAddSectionUrl(sectionData, addSibling) {
 // block the UI until page is refreshed, otherwise we can get errors when we do fast changes
 function initCollapseMenu() {
 
+    $('[data-toggle=sidebar-collapse]').off('click');
+
     // Collapse/Expand icon
     $('#collapse-icon').addClass('fa-angle-double-left');
 
@@ -652,6 +654,7 @@ function propertiesCollapse() {
 
 function initCollapseProperties() {
     // Collapse/Expand icon
+    $('[data-toggle=properties-collapse]').off('click');
     if (collapsedProperties) {
         $('#collapse-properties-icon').addClass('fa-angle-double-left');
         $('.properties-collapsed').addClass('d-none');
