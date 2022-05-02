@@ -9,28 +9,7 @@ $(document).ready(function () {
 // Build custom javascript UI.
 function init_ui_cms() {
     try {
-        $(window).scroll(function () {
-            adjustPropertiesHeight();
-        });
         initEditToggle();
-        initSaveProperties();
-        initCollapseMenu();
-        initCollapseProperties();
-        $('.ui-select-picker').selectpicker();
-        initChildrenArea();
-        initUISectionsButtons();
-        initSortableElements();
-        adjustPropertiesHeight();
-        initMarkdownFields();
-        initCards();
-    } catch (error) {
-        console.log(error);
-        refresh_cms_ui();
-    }
-}
-
-function reinit_ui() {
-    try {
         $(window).scroll(function () {
             adjustPropertiesHeight();
         });
@@ -45,11 +24,11 @@ function reinit_ui() {
         initMarkdownFields();
         initCards();
         initJsonFieldsNewUI();
-        console.log(collapsedProperties);
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();
         }
+        initSaveBtn();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -58,15 +37,15 @@ function reinit_ui() {
 
 function initCards() {
     $('div.card-header.collapsible').on('click', function () {
-        toggle_collapsible_card($(this));
+        toggle_collapsible_card($(this)); // this function is in style cards card.js 
     });
 }
 
 function initJsonFieldsNewUI() {
-    if (typeof monaco != "undefined") {
-        monaco.editor.getModels().forEach(model => model.dispose()); // first clear the loaded editors
-    }
-    initJsonFields(); // this function is style textarea.js
+    // if (typeof monaco != "undefined") {
+    //     monaco.editor.getModels().forEach(model => model.dispose()); // first clear the loaded editors
+    // }
+    // initJsonFields(); // this function is style textarea.js
 }
 
 // create a button add nee section above selected section
@@ -208,13 +187,20 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
     });
 }
 
-// refresh the CMS_UI
-function refresh_cms_ui() {
+// load specific ids, sent in array
+function update_new_data(data, elements) {
     $('.popover').remove(); // first remove all tooltips if they are active
+    elements.forEach(element => {
+        $(element).empty().append($(data).find(element).children());
+    });
+    init_ui_cms(); // reload the UI initialization
+    $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+}
+
+// refresh the CMS_UI
+function refresh_cms_ui(elements) {
     $.get(location.href, function (data) {
-        $('#ui-cms').empty().append($(data).find('#ui-cms').children());
-        init_ui_cms(); // reload the UI initialization
-        $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+        update_new_data(data, elements);
     });
 }
 
@@ -341,7 +327,7 @@ function initSortableElements() {
                 }
             } catch (error) {
                 console.log(error);
-                refresh_cms_ui(); // refresh the UI on error
+                refresh_cms_ui(['#ui-middle', '#properties']); // refresh the UI on error
             }
         }
     }
@@ -434,7 +420,7 @@ function removeSection(sectionData, callback) {
             if (callback) {
                 callback();
             } else {
-                refresh_cms_ui();
+                refresh_cms_ui(['#ui-middle', '#properties']);
             }
         },
         () => {
@@ -469,7 +455,7 @@ function reorderSectionsFromRoot(sectionData, order) {
         },
         () => {
             console.log('re-ordered');
-            refresh_cms_ui();
+            refresh_cms_ui(['#ui-middle', '#properties']);
         },
         () => {
             console.log('error');
@@ -572,7 +558,7 @@ function insertSection(sectionData, sectionId, addSibling, position) {
         },
         () => {
             console.log('Section inserted');
-            refresh_cms_ui();
+            refresh_cms_ui(['#ui-middle', '#properties']);
         },
         () => {
             console.log('error');
@@ -601,7 +587,7 @@ function createSection(sectionData, styleId, addSibling, position, styleName) {
         },
         () => {
             console.log('Section inserted');
-            refresh_cms_ui();
+            refresh_cms_ui(['#ui-middle', '#properties']);
         },
         () => {
             console.log('error');
@@ -687,6 +673,7 @@ function initSaveProperties() {
 }
 
 function initEditToggle() {
+    $('#ui-edit-toggle').off('change');
     var editLink = $('.ui-card-properties a:first').attr('href')
     if (editLink) {
         // we are in view mode -> edit link exists
@@ -695,17 +682,19 @@ function initEditToggle() {
         // we are in edit mode
         $('#ui-edit-toggle').bootstrapToggle('on');
     }
+    var toggleLink = getEditToggleLink();
     $('#ui-edit-toggle').change(function () {
         executeAjaxCall(
             'get',
-            getEditToggleLink(),
+            toggleLink,
             {},
             (data) => {
                 $('.popover').remove(); // first remove all tooltips if they are active
                 $('#ui-middle').empty().append($(data).find('#ui-middle').children());
                 $('#properties').empty().append($(data).find('#properties').children());
-                reinit_ui(); // reload the UI initialization
+                init_ui_cms(); // reload the UI initialization
                 $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+                history.pushState({}, null, toggleLink);
             },
             () => {
                 console.log('error');
@@ -741,17 +730,47 @@ function adjustPropertiesHeight() {
 }
 
 function initMarkdownFields() {
-    var markdowns = $('.style-markdown');
-    Array.from(markdowns).forEach((md) => {
-        new SimpleMDE({
-            element: md,
-            autoDownloadFontAwesome: false,
-            spellChecker: false,
-            toolbar: ["bold", "italic", "heading", "quote", "unordered-list", "ordered-list", "link", "image", "table", "preview", "guide"],
-            renderingConfig: {
-                singleLineBreaks: false
+    // var markdowns = $('.style-markdown');
+    // Array.from(markdowns).forEach((md) => {
+    //     new SimpleMDE({
+    //         element: md,
+    //         autoDownloadFontAwesome: false,
+    //         spellChecker: false,
+    //         toolbar: ["bold", "italic", "heading", "quote", "unordered-list", "ordered-list", "link", "image", "table", "preview", "guide"],
+    //         renderingConfig: {
+    //             singleLineBreaks: false
+    //         }
+    //     });
+    // });
+}
+
+function initSaveBtn() {
+    var saveForm = $('.ui-card-properties form').first()
+    // btnSave.click(function (e) {
+    //     e.preventDefault();
+    //     var href = $(btnSave).attr('href');
+    //     $(btnSave).attr('href', '#');
+    //     e.stopPropagation();
+    //     // $.redirectPost(href, { });
+    //     console.log('save');
+    // });
+
+    $(saveForm).submit(function (e) {
+
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+
+        var form = $(this);
+        var actionUrl = form.attr('action');
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: form.serialize(), // serializes the form's elements.
+            success: function (data) {
+                update_new_data(data, ['#ui-middle', '#section-sidebar-content>card-body', '#section-sidebar-properties>card-body']);
+                // refresh_cms_ui(['#ui-middle','#section-sidebar-content>card-body','#section-sidebar-properties>card-body']);
             }
         });
+
     });
 }
 

@@ -134,6 +134,9 @@ function setConditionSchema(monaco, json) {
     // get the json ligic schemes
     var schema = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/json-logic/json-logic.json";
     var modelUri = monaco.Uri.parse(schema); // a made up unique URI for our model
+    if (typeof monaco != "undefined") {
+        monaco.editor.getModels().forEach(model => model.dispose()); // first clear the loaded editors
+    }
     var model = monaco.editor.createModel($(json).prev().val(), "json", modelUri);
 
     // configure the JSON language support with schemas and schema associations

@@ -568,7 +568,8 @@ class CmsView extends BaseView
                     "is_expanded" => false,
                     "is_collapsible" => true,
                     "title" => "Content",
-                    "children" => $content_fields
+                    "children" => $content_fields,
+                    "id" => "sidebar-content"
                 ));
                 $form_items[] = $card_content_fields;
             }
@@ -580,7 +581,8 @@ class CmsView extends BaseView
                     "is_expanded" => false,
                     "is_collapsible" => true,
                     "title" => "Properties",
-                    "children" => $properties
+                    "children" => $properties,
+                    "id" => "sidebar-properties"
                 ));
                 $form_items[] = $card_properties_fields;
             }
