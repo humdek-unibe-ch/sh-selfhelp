@@ -353,11 +353,67 @@ class CmsView extends BaseView
     }
 
     /**
+     * Creates the view of section and page fields.
+     *
+     * @param array $fields
+     *  The fields array where each field is defined in
+     * @param boolean $is_new_ui = false
+     * If true, the fields are loaded for the new UI
+     *  CmsModel::add_property_item.
+     * @retval array
+     *  Return array with fields to be displayed.
+     */
+    private function get_children_fields_view_mode($fields, $is_new_ui){
+        $children = [];
+        $content_fields = [];
+            $properties = [];
+            foreach ($fields as $field) {
+                $new_field_item = $this->create_field_item($field);
+                if ($new_field_item) {
+                    if ($is_new_ui && $field['type']) {
+                        if ($field['locale'] != "all") {
+                            $content_fields[] = $new_field_item;
+                        } else {
+                            $properties[] = $new_field_item;
+                        }
+                    } else {
+                        $children[] = $new_field_item;
+                    }
+                }
+            }
+            if (count($content_fields) > 0) {
+                // if there are content fields we put them in a card
+                $card_content_fields = new BaseStyleComponent("card", array(
+                    "css" => "ui-card-list",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "title" => "Content",
+                    "children" => $content_fields
+                ));
+                $children[] = $card_content_fields;
+            }
+
+            if (count($properties) > 0) {
+                // if there are content fields we put them in a card
+                $card_properties_fields = new BaseStyleComponent("card", array(
+                    "css" => "ui-card-list properties-fields",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "title" => "Properties",
+                    "children" => $properties
+                ));
+                $children[] = $card_properties_fields;
+            }
+            return $children;
+    }
+
+    /**
      * Add the page property list to the local component list. The page property
      * list is wrapped by a collapsible card component.
      */
     private function add_page_property_list()
     {
+        $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
         $children = array();
         $children[] = new BaseStyleComponent("template", array(
             "path" => __DIR__ . "/tpl_page_properties.php",
@@ -377,17 +433,14 @@ class CmsView extends BaseView
         $url_edit = "";
         if($this->model->get_mode() == "update")
         {
-            $children[] = $this->model->get_services()->get_user_input()->is_new_ui_enabled() ? $this->create_field_form_new_ui($fields) : $this->create_field_form($fields);
+            $children[] =  $this->create_field_form($fields, $is_new_ui);
             $type = "warning";
         }
         else
         {
-            foreach($fields as $field){
-                $new_field_item = $this->create_field_item($field);
-                if($new_field_item){
-                    $children[] = $new_field_item;
-                }
-            }
+            $fields_view_mode = $this->get_children_fields_view_mode($fields, $is_new_ui);
+            $children = array_merge($children, $fields_view_mode);
+
             $type = "light";
             if($this->model->has_access("update",
                     $this->model->get_active_page_id()))
@@ -413,6 +466,7 @@ class CmsView extends BaseView
      */
     private function add_section_field_list()
     {
+        $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
         $children = array();
         $section_info = $this->model->get_section_info();
         if (!$this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
@@ -439,17 +493,13 @@ class CmsView extends BaseView
         }
         else if($this->model->get_mode() == "update")
         {
-            $children[] = $this->model->get_services()->get_user_input()->is_new_ui_enabled() ? $this->create_field_form_new_ui($fields) : $this->create_field_form($fields);
+            $children[] = $this->create_field_form($fields, $is_new_ui);
             $type = "warning";
         }
         else
         {
-            foreach($fields as $field){
-                $new_field_item = $this->create_field_item($field);
-                if($new_field_item){
-                    $children[] = $new_field_item;
-                }
-            }
+            $fields_view_mode = $this->get_children_fields_view_mode($fields, $is_new_ui);
+            $children = array_merge($children, $fields_view_mode);
             $type = "light";
             if($this->model->has_access("update",
                     $this->model->get_active_page_id()))
@@ -473,99 +523,71 @@ class CmsView extends BaseView
      *
      * @param array $fields
      *  The fields array where each field is defined in
+     * @param boolean $is_new_ui = false
+     * If true, the fields are loaded for the new UI
      *  CmsModel::add_property_item.
      * @retval object
      *  A form component.
      */
-    private function create_field_form($fields)
+    private function create_field_form($fields, $is_new_ui = false)
     {
-        $form_items = array();
-        $form_items[] = new BaseStyleComponent("input", array(
-            "value" => "update",
-            "name" => "mode",
-            "type_input" => "hidden",
-        ));
-
-        foreach($fields as $field) {
-            $new_field = $this->create_field_form_item($field);
-            if($new_field){
-                $form_items[] = $new_field;
-            }
-        }
-
-
-        $params = $this->model->get_current_url_params();
-        return new BaseStyleComponent("form", array(
-            "url" => $_SERVER['REQUEST_URI'],
-            "label" => "Save",
-            "type" => "warning",
-            "children" => $form_items,
-            "url_cancel" => $this->model->get_link_url("cmsSelect", $params),
-        ));
-
-    }
-
-    /**
-     * Creates a the field form that allows to update section and page fields for the new UI.
-     *
-     * @param array $fields
-     *  The fields array where each field is defined in
-     *  CmsModel::add_property_item.
-     * @retval object
-     *  A form component.
-     */
-    private function create_field_form_new_ui($fields)
-    {
-        $form_items = array();
-        $form_items[] = new BaseStyleComponent("input", array(
-            "value" => "update",
-            "name" => "mode",
-            "type_input" => "hidden",
-        ));
-
         $content_fields = [];
         $properties = [];
 
-        foreach ($fields as $field) {
-            if ($field['locale'] != "all") {
-                // it is a content field
-                $new_field = $this->create_field_form_item($field);
-                if ($new_field) {
-                    $content_fields[] = $new_field;
+        $form_items = array();
+        $form_items[] = new BaseStyleComponent("input", array(
+            "value" => "update",
+            "name" => "mode",
+            "type_input" => "hidden",
+        ));
+
+        if ($is_new_ui) {
+            foreach ($fields as $field) {
+                if ($field['locale'] != "all") {
+                    // it is a content field
+                    $new_field = $this->create_field_form_item($field);
+                    if ($new_field) {
+                        $content_fields[] = $new_field;
+                    }
+                } else {
+                    // it is a property field
+                    $new_field = $this->create_field_form_item($field);
+                    if ($new_field) {
+                        $properties[] = $new_field;
+                    }
                 }
-            } else {
-                // it is a property field
+            }
+            if (count($content_fields) > 0) {
+                // if there are content fields we put them in a card
+                $card_content_fields = new BaseStyleComponent("card", array(
+                    "css" => "ui-card-list",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "title" => "Content",
+                    "children" => $content_fields
+                ));
+                $form_items[] = $card_content_fields;
+            }
+
+            if (count($properties) > 0) {
+                // if there are content fields we put them in a card
+                $card_properties_fields = new BaseStyleComponent("card", array(
+                    "css" => "ui-card-list properties-fields",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "title" => "Properties",
+                    "children" => $properties
+                ));
+                $form_items[] = $card_properties_fields;
+            }
+        } else {
+            foreach ($fields as $field) {
                 $new_field = $this->create_field_form_item($field);
                 if ($new_field) {
-                    $properties[] = $new_field;
+                    $form_items[] = $new_field;
                 }
             }
         }
-
-        if(count($content_fields) > 0){
-            // if there are content fields we put them in a card
-            $card_content_fields = new BaseStyleComponent("card", array(
-                "css" => "ui-card-list",
-                "is_expanded" => false,
-                "is_collapsible" => true,
-                "title" => "Content",
-                "children" => $content_fields
-            ));
-            $form_items[] = $card_content_fields;
-        }
-
-        if(count($properties) > 0){
-            // if there are content fields we put them in a card
-            $card_properties_fields = new BaseStyleComponent("card", array(
-                "css" => "ui-card-list properties-fields",
-                "is_expanded" => false,
-                "is_collapsible" => true,
-                "title" => "Properties",
-                "children" => $properties
-            ));
-            $form_items[] = $card_properties_fields;
-        }
-
 
         $params = $this->model->get_current_url_params();
         return new BaseStyleComponent("form", array(
@@ -575,7 +597,6 @@ class CmsView extends BaseView
             "children" => $form_items,
             "url_cancel" => $this->model->get_link_url("cmsSelect", $params),
         ));
-
     }
 
     /**
