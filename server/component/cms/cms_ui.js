@@ -1,3 +1,5 @@
+var collapsedProperties = false;
+
 $(document).ready(function () {
     init_ui_cms();
 });
@@ -20,10 +22,51 @@ function init_ui_cms() {
         initSortableElements();
         adjustPropertiesHeight();
         initMarkdownFields();
+        initCards();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
     }
+}
+
+function reinit_ui() {
+    try {
+        $(window).scroll(function () {
+            adjustPropertiesHeight();
+        });
+        initSaveProperties();
+        initCollapseMenu();
+        initCollapseProperties();
+        $('.ui-select-picker').selectpicker();
+        initChildrenArea();
+        initUISectionsButtons();
+        initSortableElements();
+        adjustPropertiesHeight();
+        initMarkdownFields();
+        initCards();
+        initJsonFieldsNewUI();
+        console.log(collapsedProperties);
+        if (collapsedProperties) {
+            propertiesCollapse();
+            propertiesCollapse();
+        }
+    } catch (error) {
+        console.log(error);
+        refresh_cms_ui();
+    }
+}
+
+function initCards() {
+    $('div.card-header.collapsible').on('click', function () {
+        toggle_collapsible_card($(this));
+    });
+}
+
+function initJsonFieldsNewUI() {
+    if (typeof monaco != "undefined") {
+        monaco.editor.getModels().forEach(model => model.dispose()); // first clear the loaded editors
+    }
+    initJsonFields(); // this function is style textarea.js
 }
 
 // create a button add nee section above selected section
@@ -152,7 +195,7 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
         dataType: "html",
         success: function (data) {
             if (data) {
-                callbackSuccess();
+                callbackSuccess(data);
             }
             else {
                 callbackError();
@@ -614,6 +657,7 @@ function sidebarCollapse() {
 }
 
 function propertiesCollapse() {
+    collapsedProperties = !collapsedProperties;
     $('.properties-collapsed').toggleClass('d-none');
     $('#properties').toggleClass('properties-expanded sidebar-collapsed');
     // Collapse/Expand icon
@@ -622,7 +666,13 @@ function propertiesCollapse() {
 
 function initCollapseProperties() {
     // Collapse/Expand icon
-    $('#collapse-properties-icon').addClass('fa-angle-double-right');
+    if (collapsedProperties) {
+        $('#collapse-properties-icon').addClass('fa-angle-double-left');
+        $('.properties-collapsed').addClass('d-none');
+        $('#properties').addClass('sidebar-collapsed');
+    } else {
+        $('#collapse-properties-icon').addClass('fa-angle-double-right');
+    }
     // Collapse click
     $('[data-toggle=properties-collapse]').click(function () {
         propertiesCollapse();
@@ -637,9 +687,40 @@ function initSaveProperties() {
 }
 
 function initEditToggle() {
+    var editLink = $('.ui-card-properties a:first').attr('href')
+    if (editLink) {
+        // we are in view mode -> edit link exists
+        $('#ui-edit-toggle').bootstrapToggle('off');
+    } else {
+        // we are in edit mode
+        $('#ui-edit-toggle').bootstrapToggle('on');
+    }
     $('#ui-edit-toggle').change(function () {
-        console.log('Toggle: ' + $(this).prop('checked'))
+        executeAjaxCall(
+            'get',
+            getEditToggleLink(),
+            {},
+            (data) => {
+                $('.popover').remove(); // first remove all tooltips if they are active
+                $('#ui-middle').empty().append($(data).find('#ui-middle').children());
+                $('#properties').empty().append($(data).find('#properties').children());
+                reinit_ui(); // reload the UI initialization
+                $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+            },
+            () => {
+                console.log('error');
+                $.alert({
+                    title: 'Error!',
+                    content: 'Something went wrong!',
+                });
+            });
     })
+}
+
+function getEditToggleLink() {
+    var editLink = $('.ui-card-properties a:first').attr('href');
+    var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
+    return editLink ? editLink : cancelLink;
 }
 
 function adjustPropertiesHeight() {
@@ -651,7 +732,6 @@ function adjustPropertiesHeight() {
     } else {
         $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
     }
-    console.log(usedSpace, saveBtnHeight);
 
     // without button
     // var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top;

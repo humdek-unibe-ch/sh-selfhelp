@@ -415,19 +415,23 @@ class CmsView extends BaseView
     {
         $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
         $children = array();
-        $children[] = new BaseStyleComponent("template", array(
-            "path" => __DIR__ . "/tpl_page_properties.php",
-            "items" => array(
-                "keyword_title" => "Name:",
-                "keyword" => $this->page_info['keyword'],
-                "url_title" => "Url:",
-                "url" => $this->page_info['url'],
-                "protocol_title" => "Protocol:",
-                "protocol" => $this->page_info['protocol'],
-                "page_access_title" => "Page Access:",
-                "page_access" => $this->model->get_db()->get_lookup_value_by_id($this->page_info['id_pageAccessTypes'])
-            ),
-        ));
+        if ($is_new_ui) {
+            // show page properties and make them editable
+        } else {
+            $children[] = new BaseStyleComponent("template", array(
+                "path" => __DIR__ . "/tpl_page_properties.php",
+                "items" => array(
+                    "keyword_title" => "Name:",
+                    "keyword" => $this->page_info['keyword'],
+                    "url_title" => "Url:",
+                    "url" => $this->page_info['url'],
+                    "protocol_title" => "Protocol:",
+                    "protocol" => $this->page_info['protocol'],
+                    "page_access_title" => "Page Access:",
+                    "page_access" => $this->model->get_db()->get_lookup_value_by_id($this->page_info['id_pageAccessTypes'])
+                ),
+            ));
+        }
         $fields = $this->model->get_page_properties();
 
         $url_edit = "";

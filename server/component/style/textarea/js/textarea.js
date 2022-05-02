@@ -20,6 +20,10 @@ var dataConfigInitCalls = {};
 $(document).ready(function () {
     autosize($('textarea'));
     check_textarea_locked_after_submit();
+    initJsonFields();
+});
+
+function initJsonFields() {
     $('.json').each(function () {
         // load the monaco editor for json fields
         require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
@@ -85,7 +89,7 @@ $(document).ready(function () {
             });
         }
     })
-});
+}
 
 function calcMonacoEditorSize(editor, object) {
     // calculate the size of the editor based on the code

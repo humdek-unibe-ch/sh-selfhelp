@@ -36,7 +36,9 @@
                 <div id="collapsePropertiesBtn" data-toggle="properties-collapse" class="ui-side-menu-button list-group-item list-group-item-action rounded-0 pt-0 pb-0 pr-2 d-flex align-items-center">
                     <div class="d-flex align-items-center w-100">
                         <span id="collapse-properties-icon" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Toggle Properties" class="fas"></span>
-                        <span class="ml-1 properties-collapsed flex-grow-1 align-items-center justify-content-between">Collapse properties <button id="save-properties" type="button" class="btn btn-warning btn-sm">Save</button></span>
+                        <span class="ml-1 properties-collapsed flex-grow-1 align-items-center justify-content-between">Collapse properties 
+                            <!-- <button id="save-properties" type="button" class="btn btn-warning btn-sm">Save</button> -->
+                            </span>
                     </div>
                 </div>
                 <?php $this->output_fields(); ?>
