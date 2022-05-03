@@ -725,6 +725,8 @@ function adjustPropertiesHeight() {
         $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
     }
 
+    console.log(usedSpace, saveBtnHeight);
+
     // without button
     // var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top;
     // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });

@@ -105,6 +105,7 @@
     border-left: none;
     border-right: none;
     border-top: none;
+    margin-bottom: 0 !important;
 }
 
 .properties-fields {
@@ -176,6 +177,10 @@
 .sidebar-expanded {
     min-width: 190px;
     max-width: 300px;
+}
+
+.sidebar-expanded #collapseBtn{
+    justify-content: flex-end;
 }
 
 .sidebar-collapsed {
