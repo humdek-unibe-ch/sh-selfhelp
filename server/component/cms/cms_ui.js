@@ -1,4 +1,5 @@
 var collapsedProperties = false;
+var unsavedChanges = false;
 
 $(document).ready(function () {
     init_ui_cms();
@@ -9,6 +10,7 @@ $(document).ready(function () {
 // Build custom javascript UI.
 function init_ui_cms() {
     try {
+        unsavedChanges = false;
         initEditToggle();
         $(window).scroll(function () {
             adjustPropertiesHeight();
@@ -29,6 +31,7 @@ function init_ui_cms() {
             propertiesCollapse();
         }
         initSaveBtn();
+        initUnsavedChangesListener();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -692,11 +695,7 @@ function initEditToggle() {
             toggleLink,
             {},
             (data) => {
-                $('.popover').remove(); // first remove all tooltips if they are active
-                $('#ui-middle').empty().append($(data).find('#ui-middle').children());
-                $('#properties').empty().append($(data).find('#properties').children());
-                init_ui_cms(); // reload the UI initialization
-                $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+                update_new_data(data, ["#ui-middle", '#properties']);
                 history.pushState({}, null, toggleLink);
             },
             () => {
@@ -776,6 +775,17 @@ function initSaveBtn() {
             }
         });
 
+    });
+}
+
+function initUnsavedChangesListener() {
+    $(window).bind('beforeunload', function (e) {
+        if (unsavedChanges) {
+            return false;
+        }
+    });
+    $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
+        unsavedChanges = true;
     });
 }
 
