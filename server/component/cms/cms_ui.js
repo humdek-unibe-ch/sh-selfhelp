@@ -750,6 +750,7 @@ function initMarkdownFields() {
 
 function initSaveBtn() {
     var saveForm = $('.ui-card-properties form').first()
+    $(saveForm).off('submit');
     // btnSave.click(function (e) {
     //     e.preventDefault();
     //     var href = $(btnSave).attr('href');
