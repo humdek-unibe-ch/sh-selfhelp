@@ -763,6 +763,10 @@ function initSaveBtn() {
     $(saveForm).submit(function (e) {
 
         e.preventDefault(); // avoid to execute the actual submit of the form.
+        if (!unsavedChanges) {
+            // if there is no changes do not try to save
+            return;
+        }
 
         var form = $(this);
         var actionUrl = form.attr('action');

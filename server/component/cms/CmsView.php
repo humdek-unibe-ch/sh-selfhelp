@@ -303,7 +303,7 @@ class CmsView extends BaseView
             array(
                 "type" => $type,
                 "children" => array(
-                    new BaseStyleComponent("plaintext", array("text" => $msg))
+                    new BaseStyleComponent("plaintext", array("text" => "[".date("H:i:s")."] " . $msg))
                 ),
                 "is_dismissable" => true
             )
