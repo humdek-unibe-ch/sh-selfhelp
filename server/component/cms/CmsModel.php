@@ -370,59 +370,6 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch the 'all' language content of a specific page field.
-     *
-     * @param int $id_page
-     *  The id of the page the field is part of.
-     * @param int $id_field
-     *  The id of the field from which the translations shall be fetched.
-     * @retval array
-     *  An array with one database item.
-     */
-    private function fetch_page_field_independent($id_page, $id_field)
-    {
-        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
-            FROM languages AS l
-            LEFT JOIN pages_fields_translation AS pft
-            ON l.id = pft.id_languages AND pft.id_pages = :pid
-            AND pft.id_fields = :fid
-            WHERE l.locale = 'all'";
-
-        return $this->db->query_db($sql,
-            array(":pid" => $id_page, ":fid" => $id_field));
-    }
-
-    /**
-     * Fetch all translations of the content of a specific page field,
-     * except the 'all' language.
-     *
-     * @param int $id_page
-     *  The id of the page the field is part of.
-     * @param int $id_field
-     *  The id of the field from which the translations shall be fetched.
-     * @retval array
-     *  An array of database items.
-     */
-    private function fetch_page_field_languages($id_page, $id_field)
-    {
-        if($_SESSION['cms_language'] === "all")
-            $where = "WHERE l.locale <> :lang";
-        else
-            $where = "WHERE l.locale = :lang";
-        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
-            FROM languages AS l
-            LEFT JOIN pages_fields_translation AS pft
-            ON l.id = pft.id_languages AND pft.id_pages = :pid
-            AND pft.id_fields = :fid $where";
-
-        return $this->db->query_db($sql, array(
-            ":pid" => $id_page,
-            ":fid" => $id_field,
-            ":lang" => $_SESSION['cms_language'],
-        ));
-    }
-
-    /**
      * Fetch all fields that are associated to a page.
      *
      * @param int $id
@@ -432,14 +379,21 @@ class CmsModel extends BaseModel
      */
     private function fetch_page_fields($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
-            pf.default_value, pf.help
-            FROM pages AS p
-            LEFT JOIN pages_fields AS pf ON pf.id_pages = p.id
-            LEFT JOIN fields AS f ON f.id = pf.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE p.id = :id
-            ORDER BY ft.position, f.display, f.name";
+        $lang = isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : 1;
+        $sql = "SELECT 1*p.id AS id_pages, 1*f.id AS id, f.display, f.name, ft.name AS type,
+        pf.default_value, pf.help, l.locale AS locale, 1*l.id AS id_language,
+        'male' AS gender, ".MALE_GENDER_ID." AS id_gender,
+        (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND id_fields = f.id AND id_languages = l.id LIMIT 0,1) AS content,
+        'page_field' AS relation, 0 as hidden
+        FROM pages AS p
+        LEFT JOIN pageType pt ON (pt.id = p.id_type)
+        LEFT JOIN pageType_fields AS pf ON (pf.id_pageType = pt.id)
+        LEFT JOIN fields AS f ON f.id = pf.id_fields
+        LEFT JOIN fieldType AS ft ON ft.id = f.id_type        
+        JOIN languages AS l ON ((l.id = 1 AND f.display = 0) OR (f.display = 1 AND l.id > 1))
+        WHERE p.id = :id
+        HAVING (id_language = 1 OR id_language IN (".$lang."))
+        ORDER BY ft.position, f.display, f.name";
         return $this->db->query_db($sql, array(":id" => $id));
     }
 
@@ -512,45 +466,6 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch all translations of the content of a specific section field,
-     * except the 'all' language.
-     *
-     * @param int $id_section
-     *  The id of the section the field is part of.
-     * @param int $id_field
-     *  The id of the field from which the translations shall be fetched.
-     * @retval array
-     *  An array of database items.
-     */
-    private function fetch_section_field_languages($id_section, $id_field)
-    {
-        $data = array(
-            ":sid" => $id_section,
-            ":fid" => $id_field,
-            ":lang" => $_SESSION['cms_language'],
-        );
-
-        if($_SESSION['cms_language'] === "all")
-            $where = "WHERE l.locale <> :lang";
-        else
-            $where = "WHERE l.locale = :lang";
-        if($_SESSION['cms_gender'] !== "both")
-        {
-            $where .= " AND g.name = :gender";
-            $data[":gender"] = $_SESSION['cms_gender'];
-        }
-        $sql = "SELECT l.locale AS locale, l.id AS id_language, sft.content,
-            g.name AS gender, g.id AS id_gender
-            FROM languages AS l
-            JOIN genders AS g
-            LEFT JOIN sections_fields_translation AS sft
-            ON l.id = sft.id_languages AND sft.id_sections = :sid
-            AND sft.id_fields = :fid AND sft.id_genders = g.id $where";
-
-        return $this->db->query_db($sql, $data);
-    }
-
-    /**
      * Fetch the children of a section from the database and return a
      * heirarchical array such that it can be passed to a list style.
      *
@@ -585,10 +500,7 @@ class CmsModel extends BaseModel
         $gender = isset($_SESSION['cms_gender']) ? $_SESSION['cms_gender'] : 1;
         $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.name AS type,
         sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
-        CASE
-            WHEN sft.content = '' THEN sf.default_value
-            ELSE sft.content
-        END AS content,
+        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1) AS content,
         g.name AS gender, 1*g.id AS id_gender,
         CASE
             WHEN ft.name = 'style-list' THEN 'section_children'
@@ -599,7 +511,6 @@ class CmsModel extends BaseModel
         LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
         LEFT JOIN fields AS f ON f.id = sf.id_fields
         LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-        LEFT JOIN sections_fields_translation AS sft ON  sft.id_sections = s.id AND sft.id_fields = f.id
         JOIN genders g on (g.id = 1 or (f.display = 1))
         JOIN languages AS l ON ((l.id = 1 AND f.display = 0) OR (f.display = 1 AND l.id > 1))
         WHERE s.id = :id AND sf.disabled = 0
@@ -1449,73 +1360,7 @@ class CmsModel extends BaseModel
     public function get_page_properties()
     {
         $res = array();
-        $page_title = $this->fetch_page_field_languages($this->id_page,
-            LABEL_FIELD_ID);
-        foreach($page_title as $content)
-        {
-            $res[] = $this->add_property_item(
-                LABEL_FIELD_ID,
-                intval($content['id_language']),
-                MALE_GENDER_ID,
-                "title",
-                "The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header",
-                $content['locale'],
-                "text",
-                "page_field",
-                $content['content'],
-                ""
-            );
-        }
-
-        /** IT SHOULD BE REWORKED *************************************************************************************************************************************** */
-        $page_title = $this->fetch_page_field_languages($this->id_page,
-            TYPE_INPUT_FIELD_ID);
-        foreach($page_title as $content)
-        {
-            $res[] = $this->add_property_item(
-                TYPE_INPUT_FIELD_ID,
-                intval($content['id_language']),
-                MALE_GENDER_ID,
-                "icon",
-                "The icon which will be used for menus. For mobile icons use prefix `mobile-`",
-                $content['locale'],
-                "text",
-                "page_field",
-                $content['content'],
-                ""
-            );
-        }
-        /** END IT SHOULD BE REWORKED *************************************************************************************************************************************** */
-
-        $fields = $this->fetch_page_fields($this->id_page);
-        foreach($fields as $field)
-        {
-            $relation = "page_field";
-            $id = intval($field['id']);
-            if($field['display'] == '1')
-            {
-                $contents = $this->fetch_page_field_languages(
-                    $this->id_page, $id);
-            }
-            else
-                $contents = $this->fetch_page_field_independent($this->id_page,
-                    $id);
-            foreach($contents as $content)
-            {
-                $res[] = $this->add_property_item(
-                    $id,
-                    intval($content['id_language']),
-                    MALE_GENDER_ID,
-                    $field['name'],
-                    $field['help'],
-                    $content['locale'],
-                    $field['type'],
-                    "page_field",
-                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
-                    ""
-                );
-            }
-        }
+        $res = $this->fetch_page_fields($this->id_page);
         if($this->is_navigation())
         {
             // add navigation section fields
@@ -1609,46 +1454,6 @@ class CmsModel extends BaseModel
             $id_section = $this->get_active_section_id();
         $res = array();
         $res = $this->fetch_style_fields_by_section_id($id_section);
-        // foreach($fields as $field)
-        // {
-        //     $relation = "section_field";
-        //     $id = intval($field['id']);
-        //     if($field['display'] == '1')
-        //     {
-        //         $contents = $this->fetch_section_field_languages(
-        //             $id_section, $id);
-        //     }
-        //     else if($field['type'] == "style-list")
-        //     {
-        //         $relation = "section_children";
-        //         $contents = array(array(
-        //             "id_language" => $id,
-        //             "id_gender" => MALE_GENDER_ID,
-        //             "locale" => "",
-        //             "content" => $this->fetch_section_hierarchy($id_section, false),
-        //             "gender" => "",
-        //         ));
-        //     }
-        //     else
-        //         $contents = $this->fetch_section_field_independent($id_section,
-        //             $id);
-        //     foreach($contents as $content)
-        //     {
-        //         $res[] = $this->add_property_item(
-        //             $id,
-        //             intval($content['id_language']),
-        //             intval($content['id_gender']),
-        //             $field['name'],
-        //             $field['help'],
-        //             $content['locale'],
-        //             $field['type'],
-        //             $relation,
-        //             ($content['content'] == "") ? $field['default_value'] : $content['content'],
-        //             $content['gender'],
-        //             $field['hidden']
-        //         );
-        //     }
-        // }
         if($this->is_navigation_root_item())
             $res[] = $this->add_property_item(
                 null,

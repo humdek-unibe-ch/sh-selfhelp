@@ -117,7 +117,7 @@ class ProfileModel extends StyleModel
             LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE $locale_cond AND f.name = 'label' AND keyword = 'profile-link'
+            WHERE $locale_cond AND f.name = 'title' AND keyword = 'profile-link'
             ORDER BY p.nav_position";
         $profile_page = $this->db->query_db_first($sql, array());
         return $profile_page["title"] . ' (' . $this->db->fetch_user_name() . ')';

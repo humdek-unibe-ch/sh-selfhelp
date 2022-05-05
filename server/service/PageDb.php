@@ -247,7 +247,7 @@ class PageDb extends BaseDb
                 FROM pages_fields_translation AS pft
                 LEFT JOIN languages AS l ON l.id = pft.id_languages
                 LEFT JOIN fields AS f ON f.id = pft.id_fields
-                WHERE pft.id_pages = :id AND $locale_cond AND f.name = 'label'";
+                WHERE pft.id_pages = :id AND $locale_cond AND f.name = 'title'";
             $info = $this->query_db_first($sql,
                 array(":id" => $page_info["id"]));
             if($info)

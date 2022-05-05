@@ -133,4 +133,94 @@ UPDATE fields
 SET display = 0
 WHERE id = get_field_id('submit_and_send_email');
 
--- add filed tittle and field icon to page
+-- create table pageType_fields
+CREATE TABLE `pageType_fields` (
+  `id_pageType` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `default_value` varchar(100) DEFAULT NULL,
+  `help` longtext
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Indexes for table `pageType_fields`
+ALTER TABLE `pageType_fields`
+  ADD PRIMARY KEY (`id_pageType`,`id_fields`),
+  ADD KEY `id_pageType` (`id_pageType`),
+  ADD KEY `id_fields` (`id_fields`);
+
+-- Constraints for table `pageType_fields`
+ALTER TABLE `pageType_fields`
+  ADD CONSTRAINT `fk_pageType_fields_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_pageType_fields_id_pageType` FOREIGN KEY (`id_pageType`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- add page type maintenance (it is unique and only one page should be from this type)
+INSERT INTO `pageType` (`id`, `name`) VALUES (NULL, 'maintenance');
+
+-- add page maintenance
+INSERT INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
+VALUES (NULL, 'maintenance', '/maintenance', 'GET|POST', '0000000001', NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'maintenance'));
+
+SET @id_page_data = LAST_INSERT_ID();
+
+INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
+VALUES ('0000000001', @id_page_data, '1', '0', '1', '0');
+
+-- get the content from home page and move it to the new maintance page
+UPDATE pages_fields_translation
+SET id_pages = @id_page_data
+WHERE id_fields IN (get_field_id('maintenance'), get_field_id('maintenance_date'), get_field_id('maintenance_time'));
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+SELECT (SELECT id FROM pageType WHERE `name` = 'maintenance'), id_fields, default_value, `help`
+FROM pages_fields
+WHERE id_fields IN (get_field_id('maintenance'), get_field_id('maintenance_date'), get_field_id('maintenance_time'));
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+SELECT (SELECT id FROM pageType WHERE `name` = 'intern'), id_fields, default_value, `help`
+FROM pages_fields
+WHERE id_fields = (get_field_id('description'));
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+SELECT (SELECT id FROM pageType WHERE `name` = 'core'), id_fields, default_value, `help`
+FROM pages_fields
+WHERE id_fields = (get_field_id('description'));
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+SELECT (SELECT id FROM pageType WHERE `name` = 'experiment'), id_fields, default_value, `help`
+FROM pages_fields WHERE id_fields = (get_field_id('description'));
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+SELECT (SELECT id FROM pageType WHERE `name` = 'open'), id_fields, default_value, `help`
+FROM pages_fields
+WHERE id_fields = (get_field_id('description'));
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'open'), get_field_id('title'), '', 'The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'intern'), get_field_id('title'), '', 'The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'core'), get_field_id('title'), '', 'The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'experiment'), get_field_id('title'), '', 'The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'open'), get_field_id('icon'), '', 'The icon which will be used for menus. For mobile icons use prefix `mobile-`');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'intern'), get_field_id('icon'), '', 'The icon which will be used for menus. For mobile icons use prefix `mobile-`');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'core'), get_field_id('icon'), '', 'The icon which will be used for menus. For mobile icons use prefix `mobile-`');
+
+INSERT INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
+VALUES ((SELECT id FROM pageType WHERE `name` = 'experiment'), get_field_id('icon'), '', 'The icon which will be used for menus. For mobile icons use prefix `mobile-`');
+
+UPDATE pages_fields_translation
+SET id_fields = get_field_id('icon')
+WHERE id_fields = get_field_id('type_input');
+
+UPDATE pages_fields_translation
+SET id_fields = get_field_id('title')
+WHERE id_fields = get_field_id('label');

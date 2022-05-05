@@ -53,7 +53,7 @@ class NavModel extends BaseModel
             LEFT JOIN pages_fields_translation AS pft_icon ON pft_icon.id_pages = p.id
             LEFT JOIN languages AS l_icon ON l_icon.id = pft_icon.id_languages
             LEFT JOIN fields AS f_icon ON f_icon.id = pft_icon.id_fields
-            WHERE ($locale_cond AND f.name = 'label') AND ($locale_cond2 AND f_icon.name = 'type_input') AND p.id_pageAccessTypes != 62
+            WHERE ($locale_cond AND f.name = 'title') AND ($locale_cond2 AND f_icon.name = 'icon') AND p.id_pageAccessTypes != 62
             ORDER BY p.nav_position";
         $pages_db = $this->db->query_db($sql, array());
         return $this->prepare_pages($pages_db);
@@ -79,7 +79,7 @@ class NavModel extends BaseModel
             LEFT JOIN pages_fields_translation AS pft_icon ON pft_icon.id_pages = p.id
             LEFT JOIN languages AS l_icon ON l_icon.id = pft_icon.id_languages
             LEFT JOIN fields AS f_icon ON f_icon.id = pft_icon.id_fields
-            WHERE ($locale_cond AND f.name = 'label') AND ($locale_cond2 AND f_icon.name = 'type_input') AND p.id_pageAccessTypes != 63
+            WHERE ($locale_cond AND f.name = 'title') AND ($locale_cond2 AND f_icon.name = 'icon') AND p.id_pageAccessTypes != 63
             ORDER BY p.nav_position";
         $pages_db = $this->db->query_db($sql, array());
         return $this->prepare_pages($pages_db);
