@@ -238,50 +238,52 @@ class CmsView extends BaseView
             }
         }
 
-        $page_components = array();
-        if($this->model->get_active_root_section_id() == null)
-            foreach($page_sections as $section)
-                $page_components[] = new StyleComponent(
-                    $this->model->get_services(),
-                    intval($section['id']), array(),
-                    $this->model->get_cms_page_id());
-        else
-            $page_components[] = new StyleComponent(
-                $this->model->get_services(),
-                $this->model->get_active_root_section_id(), array(),
-                $this->model->get_cms_page_id());
-        if(count($page_components) == 0)
-        {
-            $text = new BaseStyleComponent("plaintext", array(
-                "text" => "No CMS view available for this page."
-            ));
-            $page_components[] = $text;
-        }
-        $this->add_local_component("page-view",
-            new BaseStyleComponent("card", array(
-                "id" => "page-view",
-                "title" => "Page View",
-                "is_collapsible" => true,
-                "is_expanded" => ($this->model->get_active_section_id() == null),
-                "css" => "mb-3 section-view w-100",
-                "children" => $page_components,
-            ))
-        );
-        if($this->model->get_active_section_id() != null)
-            $this->add_local_component("section-view",
-                new BaseStyleComponent("card", array(
-                    "css" => "mb-3 section-view",
-                    "is_collapsible" => true,
-                    "title" => "Section View",
-                    "id" => "section-view",
-                    "children" => array(new StyleComponent(
-                        $this->model->get_services(),
-                        $this->model->get_active_section_id(),
-                        array(),
-                        $this->model->get_cms_page_id()
-                    ))
-                ))
-            );
+        // $page_components = array();
+        // if($this->model->get_active_root_section_id() == null)
+        //     foreach($page_sections as $section)
+        //         $page_components[] = new StyleComponent(
+        //             $this->model->get_services(),
+        //             intval($section['id']), array(),
+        //             $this->model->get_cms_page_id());
+        // else
+        //     $page_components[] = new StyleComponent(
+        //         $this->model->get_services(),
+        //         $this->model->get_active_root_section_id(), array(),
+        //         $this->model->get_cms_page_id());
+        // if(count($page_components) == 0)
+        // {
+        //     $text = new BaseStyleComponent("plaintext", array(
+        //         "text" => "No CMS view available for this page."
+        //     ));
+        //     $page_components[] = $text;
+        // }
+        // $this->add_local_component("page-view",
+        //     new BaseStyleComponent("card", array(
+        //         "id" => "page-view",
+        //         "title" => "Page View",
+        //         "is_collapsible" => true,
+        //         "is_expanded" => ($this->model->get_active_section_id() == null),
+        //         "css" => "mb-3 section-view w-100",
+        //         "children" => $page_components,
+        //     ))
+        // );
+        // if($this->model->get_active_section_id() != null)
+        //     $this->add_local_component("section-view",
+        //         new BaseStyleComponent("card", array(
+        //             "css" => "mb-3 section-view",
+        //             "is_collapsible" => true,
+        //             "title" => "Section View",
+        //             "id" => "section-view",
+        //             "children" => array(new StyleComponent(
+        //                 $this->model->get_services(),
+        //                 $this->model->get_active_section_id(),
+        //                 array(),
+        //                 $this->model->get_cms_page_id()
+        //             ))
+        //         ))
+        //     );
+
+        // debug
     }
 
     /* Private Methods ********************************************************/
@@ -907,37 +909,46 @@ class CmsView extends BaseView
     private function create_settings_card()
     {
         $languages = $this->model->get_db()->fetch_languages();
-        $options = array(array("value" => "all", "text" => "All Languages"));
-        foreach($languages as $language)
-            $options[] = array(
-                "value" => $language['locale'],
+        $genders = $this->model->get_db()->fetch_genders();
+        foreach ($languages as $language) {
+            $languages_options[] = array(
+                "value" => $language['id'],
                 "text" => $language['language']
             );
-        $tpl_items = array(
-            "checked_male" => ($_SESSION['cms_gender'] === "male") ? "checked" : "",
-            "checked_female" => ($_SESSION['cms_gender'] === "female") ? "checked" : "",
-            "checked_both" => ($_SESSION['cms_gender'] === "both") ? "checked" : "",
-        );
-
-        $this->add_local_component("settings-card", new BaseStyleComponent("card",
+        }
+        foreach ($genders as $gender) {
+            $gender_options[] = array(
+                "value" => $gender['id'],
+                "text" => $gender['name']
+            );
+        }
+        $this->add_local_component("settings-card", new BaseStyleComponent(
+            "card",
             array(
                 "css" => "mb-3 menu-collapsed ui-card-list",
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "CMS Settings",
                 "children" => array(new BaseStyleComponent("form", array(
-                    "url" => $this->model->get_link_url("cmsSelect",
-                        $this->model->get_current_url_params()),
+                    "url" => $this->model->get_link_url(
+                        "cmsSelect",
+                        $this->model->get_current_url_params()
+                    ),
+                    "label" => "Save",
                     "children" => array(
                         new BaseStyleComponent("select", array(
                             "label" => "Select CMS Content Language",
-                            "value" => $_SESSION['cms_language'],
-                            "name" => "cms_language",
-                            "items" => $options,
+                            "value" => explode(',', $_SESSION['cms_language']),
+                            "name" => "cms_language[]",
+                            "items" => $languages_options,
+                            "is_multiple" => true,
                         )),
-                        new BaseStyleComponent("template", array(
-                            "path" => __DIR__ . "/tpl_gender_radio.php",
-                            "items" => $tpl_items,
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select CMS Content Gender",
+                            "value" => explode(',', $_SESSION['cms_gender']),
+                            "name" => "cms_gender[]",
+                            "items" => $gender_options,
+                            "is_multiple" => true,
                         ))
                     )
                 ))),

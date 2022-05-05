@@ -581,15 +581,30 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, sf.hidden, f.name, ft.name AS type,
-            sf.default_value, sf.help
-            FROM sections AS s
-            LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
-            LEFT JOIN fields AS f ON f.id = sf.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE s.id = :id AND sf.disabled = 0
-            ORDER BY ft.position, f.display, f.name";
+        $lang = isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : 1;
+        $gender = isset($_SESSION['cms_gender']) ? $_SESSION['cms_gender'] : 1;
+        $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.name AS type,
+        sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
+        CASE
+            WHEN sft.content = '' THEN sf.default_value
+            ELSE sft.content
+        END AS content,
+        g.name AS gender, 1*g.id AS id_gender,
+        CASE
+            WHEN ft.name = 'style-list' THEN 'section_children'
+            ELSE 'section_field'
+        END AS relation
+        FROM sections AS s
+        LEFT JOIN styles AS st ON st.id = s.id_styles
+        LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
+        LEFT JOIN fields AS f ON f.id = sf.id_fields
+        LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+        LEFT JOIN sections_fields_translation AS sft ON  sft.id_sections = s.id AND sft.id_fields = f.id
+        JOIN genders g on (g.id = 1 or (f.display = 1))
+        JOIN languages AS l ON ((l.id = 1 AND f.display = 0) OR (f.display = 1 AND l.id > 1))
+        WHERE s.id = :id AND sf.disabled = 0
+        HAVING id_gender IN (".$gender.") AND (id_language = 1 OR id_language IN (".$lang."))
+        ORDER BY ft.position, f.display, f.name";
         return $this->db->query_db($sql, array(":id" => $id));
     }
 
@@ -1593,47 +1608,47 @@ class CmsModel extends BaseModel
         if($id_section == null)
             $id_section = $this->get_active_section_id();
         $res = array();
-        $fields = $this->fetch_style_fields_by_section_id($id_section);
-        foreach($fields as $field)
-        {
-            $relation = "section_field";
-            $id = intval($field['id']);
-            if($field['display'] == '1')
-            {
-                $contents = $this->fetch_section_field_languages(
-                    $id_section, $id);
-            }
-            else if($field['type'] == "style-list")
-            {
-                $relation = "section_children";
-                $contents = array(array(
-                    "id_language" => $id,
-                    "id_gender" => MALE_GENDER_ID,
-                    "locale" => "",
-                    "content" => $this->fetch_section_hierarchy($id_section, false),
-                    "gender" => "",
-                ));
-            }
-            else
-                $contents = $this->fetch_section_field_independent($id_section,
-                    $id);
-            foreach($contents as $content)
-            {
-                $res[] = $this->add_property_item(
-                    $id,
-                    intval($content['id_language']),
-                    intval($content['id_gender']),
-                    $field['name'],
-                    $field['help'],
-                    $content['locale'],
-                    $field['type'],
-                    $relation,
-                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
-                    $content['gender'],
-                    $field['hidden']
-                );
-            }
-        }
+        $res = $this->fetch_style_fields_by_section_id($id_section);
+        // foreach($fields as $field)
+        // {
+        //     $relation = "section_field";
+        //     $id = intval($field['id']);
+        //     if($field['display'] == '1')
+        //     {
+        //         $contents = $this->fetch_section_field_languages(
+        //             $id_section, $id);
+        //     }
+        //     else if($field['type'] == "style-list")
+        //     {
+        //         $relation = "section_children";
+        //         $contents = array(array(
+        //             "id_language" => $id,
+        //             "id_gender" => MALE_GENDER_ID,
+        //             "locale" => "",
+        //             "content" => $this->fetch_section_hierarchy($id_section, false),
+        //             "gender" => "",
+        //         ));
+        //     }
+        //     else
+        //         $contents = $this->fetch_section_field_independent($id_section,
+        //             $id);
+        //     foreach($contents as $content)
+        //     {
+        //         $res[] = $this->add_property_item(
+        //             $id,
+        //             intval($content['id_language']),
+        //             intval($content['id_gender']),
+        //             $field['name'],
+        //             $field['help'],
+        //             $content['locale'],
+        //             $field['type'],
+        //             $relation,
+        //             ($content['content'] == "") ? $field['default_value'] : $content['content'],
+        //             $content['gender'],
+        //             $field['hidden']
+        //         );
+        //     }
+        // }
         if($this->is_navigation_root_item())
             $res[] = $this->add_property_item(
                 null,

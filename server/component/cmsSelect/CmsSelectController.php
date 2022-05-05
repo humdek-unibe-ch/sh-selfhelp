@@ -22,22 +22,13 @@ class CmsSelectController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(isset($_POST['cms_language']))
-        {
-            $is_data_ok = false;
-            foreach($this->model->get_db()->fetch_languages() as $language)
-                if($_POST['cms_language'] === $language['locale'])
-                {
-                    $is_data_ok = true;
-                    break;
-                }
-            if($is_data_ok || $_POST['cms_language'] === "all")
-                $_SESSION['cms_language'] = $_POST['cms_language'];
+        if (isset($_POST['cms_language'])) {
+            $cms_lang = implode(', ', $_POST['cms_language']);
+            $_SESSION['cms_language'] = $cms_lang;
         }
-        if(isset($_POST['cms_gender']))
-        {
-            if(in_array($_POST['cms_gender'], array("both", "female", "male")))
-                $_SESSION['cms_gender'] = $_POST['cms_gender'];
+        if (isset($_POST['cms_gender'])) {
+            $cms_gender = implode(', ', $_POST['cms_gender']);
+            $_SESSION['cms_gender'] = $cms_gender;
         }
     }
 }

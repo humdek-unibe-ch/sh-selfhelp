@@ -451,7 +451,21 @@ class PageDb extends BaseDb
      */
     public function fetch_languages()
     {
-        $sql = "SELECT * FROM languages where id > 1;";
+        $sql = "SELECT 1*id as id, locale, language, csv_separator FROM languages where id > 1;";
+        return $this->query_db($sql);
+    }
+
+    /**
+     * Fetch the list of genders
+     *
+     * @retval array
+     *  A list of db items where each item has the keys
+     *   'id':      The id of the gender.
+     *   'name':   
+     */
+    public function fetch_genders()
+    {
+        $sql = "SELECT 1*id as id, name FROM genders";
         return $this->query_db($sql);
     }
 
