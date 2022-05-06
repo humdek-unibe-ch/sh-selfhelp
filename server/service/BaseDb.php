@@ -650,5 +650,30 @@ class BaseDb {
         $sql = "SELECT callback_api_key FROM cmsPreferences;";
         return $this->query_db_first($sql)['callback_api_key'];
     }
+
+    /**
+     * Fetch the user data from the db.
+     *
+     * @param int $lid
+     *  The id of the language to fetch.
+     * @retval array
+     *  An array with the following keys:
+     *   'id':      The id of the language.
+     *   'locale':  
+     *   'language':
+     *   'csv_separator'
+     */
+    public function fetch_language($lid)
+    {
+        $sql = "SELECT * FROM languages WHERE id = :lid";
+        $res = $this->query_db_first($sql, array(":lid" => $lid));
+        if(!$res) return null;
+        return array(
+            "lid" => $lid,
+            "locale" => $res['locale'],
+            "language" => $res['language'],
+            "csv_separator" => $res['csv_separator']
+        );
+    }
 }
 ?>

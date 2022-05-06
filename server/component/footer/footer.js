@@ -1,11 +1,11 @@
 $(document).ready(function () {
 
     $('#defaultLanguage select').on('change', function () {
-        var locale = $(this).val();
-        console.log(locale);
+        var id_languages = $(this).val();
+        console.log(id_languages);
         $.post(
             BASE_PATH + '/request/AjaxLanguage/ajax_set_user_language',
-            { locale: locale},
+            { id_languages: id_languages},
             function (data) {
                 if (data.success) {
                     location.reload();

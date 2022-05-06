@@ -32,6 +32,7 @@ function init_ui_cms() {
         }
         initSaveBtn();
         initUnsavedChangesListener();
+        initSmallButtons();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -792,5 +793,10 @@ function initUnsavedChangesListener() {
     $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
         unsavedChanges = true;
     });
+}
+
+function initSmallButtons(){
+    $( ".style-section-cms-settings form > button" ).addClass( "btn-sm" );
+    $( ".ui-card-properties form > button" ).addClass( "btn-sm" );
 }
 

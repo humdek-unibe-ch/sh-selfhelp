@@ -61,8 +61,8 @@ if (isset($_POST['mobile']) && $_POST['mobile']) {
 
 function mobile_call($services, $router, $db){
     $debug_start_time = microtime(true);
-    $_SESSION['user_language'] = $_POST['locale'];
-    $_SESSION['language'] = $_POST['locale'];
+    $_SESSION['user_language'] = $_POST['id_languages'];
+    $_SESSION['language'] = $_POST['id_languages'];
     $res = [];
     if($router->route)
     {

@@ -95,6 +95,11 @@ abstract class BasePage
      */
     protected $pageAccessType;
 
+    /**
+     * Page object containing all the info for the page
+     */
+    protected $page;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -310,6 +315,7 @@ abstract class BasePage
         $this->id_page = intval($info['id']);
         $this->pageAccessType = $db->get_lookup_code_by_id(intval($info['id_pageAccessTypes']));
         $this->required_access_level = $info['access_level'];
+        $this->page = $info;
         if($info['is_headless']) $this->disable_navigation();
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
@@ -395,15 +401,17 @@ abstract class BasePage
         $msg = null;
         $date = null;
         $time = null;
-        $fields = $this->services->get_db()->fetch_page_fields('home');
-        foreach($fields as $field)
-        {
-            if($field['name'] === "maintenance")
-                $msg = $field['content'];
-            else if($field['name'] === "maintenance_date")
-                $date = $field['content'];
-            else if($field['name'] === "maintenance_time")
-                $time = $field['content'];
+        $maintenance_fields = $this->services->get_db()->fetch_page_info('maintenance');
+        if ($maintenance_fields) {
+            if (isset($maintenance_fields['maintenance'])) {
+                $msg = $maintenance_fields['maintenance'];
+            }
+            if (isset($maintenance_fields['maintenance_date'])) {
+                $date = $maintenance_fields['maintenance_date'];
+            }
+            if (isset($maintenance_fields['maintenance_time'])) {
+                $time = $maintenance_fields['maintenance_time'];
+            }
         }
         if($msg && $date && $time)
         {
@@ -536,10 +544,15 @@ abstract class BasePage
     {
         $description = "";
         $db = $this->services->get_db();
-        $fields = $db->fetch_page_fields('home');
-        foreach($fields as $field)
-            if($field['name'] === "description")
-                $description = $field['content'];
+        if (isset($this->page['description'])) {
+            // if the page has description assign it
+            $description = $this->page['description'];
+        } else {
+            // get home description and use it
+            $home_id = $db->fetch_page_id_by_keyword('home');
+            $fields = $db->fetch_pages($home_id, $_SESSION['language']);
+            $description = isset($fields['description']) ? $fields['description'] : '';
+        }        
         require __DIR__ . "/tpl_meta.php";
     }
 

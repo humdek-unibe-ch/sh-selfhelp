@@ -56,9 +56,9 @@ class ExportPage extends BasePage
      */
     private function get_separator()
     {
-        $sql = "SELECT csv_separator FROM languages WHERE locale = :locale";
+        $sql = "SELECT csv_separator FROM languages WHERE :id = :id_languages";
         $res = $this->services->get_db()->query_db_first($sql, array(
-            ':locale' => $_SESSION['language']
+            ':id' => $_SESSION['language']
         ));
         if($res)
             return $res['csv_separator'];

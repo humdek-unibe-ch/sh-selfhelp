@@ -50,7 +50,7 @@ class FooterView extends BaseView
         $options = [];
         foreach ($languages as $language)
             array_push($options, array(
-                "value" => $language['locale'],
+                "value" => $language['id'],
                 "text" => $language['title']
             ));
         if (count($options) > 1) {

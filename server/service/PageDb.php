@@ -76,7 +76,7 @@ class PageDb extends BaseDb
      */
     public function get_locale_condition()
     {
-        return "(l.locale = '".$_SESSION['language']."' OR l.locale = 'all')";
+        return "(pft.id_languages= '".$_SESSION['language']."' OR pft.id_languages = 1)";
     }
 
     /**
@@ -205,53 +205,24 @@ class PageDb extends BaseDb
      */
     public function fetch_page_info($keyword)
     {
-        if(array_key_exists($keyword, $this->pages_info))
+        if (!$keyword) {
+            return;
+        }
+        if (array_key_exists($keyword, $this->pages_info)) {
+            // already have the info - return it
             return $this->pages_info[$keyword];
-
-        $page_info = array(
-            "title" => "unknown",
-            "keyword" => $keyword,
-            "action" => "unknown",
-            "access_level" => "select",
-            "url" => "",
-            "id" => 0,
-            "id_navigation_section" => null,
-            "parent" => null,
-            "id_type" => 1,
-            "protocol" => "",
-            "is_headless" => false,
-        );
-        $sql = "SELECT p.id, p.keyword, p.url, p.id_navigation_section,
-            p.protocol, a.name AS action, parent, is_headless, id_type, id_pageAccessTypes
-            FROM pages AS p
-            LEFT JOIN actions AS a ON a.id = p.id_actions
-            WHERE keyword=:keyword";
-        $info = $this->query_db_first($sql, array(":keyword" => $keyword));
-        if($info)
-        {
-            $page_info["url"] = $info["url"];
-            $page_info["id_type"] = intval($info["id_type"]);
-            $page_info["id_pageAccessTypes"] = intval($info["id_pageAccessTypes"]);
-            $page_info["parent"] = $info["parent"];
-            $page_info["id"] = intval($info["id"]);
-            $page_info["action"] = $info["action"];
-            $page_info["protocol"] = $info["protocol"];
-            $page_info["id_navigation_section"] = intval($info["id_navigation_section"]);
-            $page_info["is_headless"] = ($info['is_headless'] == '1') ? true : false;
-            $protocols = explode("|", $info["protocol"]);
-            if(in_array("DELETE", $protocols)) $page_info["access_level"] = "delete";
-            else if(in_array("PATCH", $protocols)) $page_info["access_level"] = "update";
-            else if(in_array("PUT", $protocols)) $page_info["access_level"] = "insert";
-            $locale_cond = $this->get_locale_condition();
-            $sql = "SELECT pft.content AS title
-                FROM pages_fields_translation AS pft
-                LEFT JOIN languages AS l ON l.id = pft.id_languages
-                LEFT JOIN fields AS f ON f.id = pft.id_fields
-                WHERE pft.id_pages = :id AND $locale_cond AND f.name = 'title'";
-            $info = $this->query_db_first($sql,
-                array(":id" => $page_info["id"]));
-            if($info)
-                $page_info["title"] = $info["title"];
+        }
+        $page_id = $this->fetch_page_id_by_keyword($keyword);
+        $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
+        if ($page_info) {
+            $protocols = explode("|", $page_info["protocol"]);
+            if (in_array("DELETE", $protocols)) {
+                $page_info["access_level"] = "delete";
+            } else if (in_array("PATCH", $protocols)) {
+                $page_info["access_level"] = "update";
+            } else if (in_array("PUT", $protocols)) {
+                $page_info["access_level"] = "insert";
+            }
         }
         $this->pages_info[$keyword] = $page_info;
         return $page_info;
@@ -307,20 +278,6 @@ class PageDb extends BaseDb
             WHERE p.keyword = :keyword
             ORDER BY ps.position, id";
         return $this->query_db($sql, array(":keyword" => $keyword));
-    }
-
-    /**
-     * Fetch the content of the page fields from the database given a page id.
-     *
-     * @param int $id
-     *  The page id.
-     * @retval array
-     *  The db result array.
-     */
-    public function fetch_page_fields_by_id($id)
-    {
-        $keyword = $this->fetch_page_keyword_by_id($id);
-        return $this->fetch_page_fields($keyword);
     }
 
     /**
@@ -382,7 +339,7 @@ class PageDb extends BaseDb
     {
         $user_name = $this->fetch_user_name();
         if($gender === null) $gender = $_SESSION['gender'];
-        $locale_cond = $this->get_locale_condition();
+        $locale_cond = str_replace('pft.','sft.',$this->get_locale_condition());
         $sql = "SELECT f.id AS id, f.name, ft.name AS type, g.name AS gender,
             REPLACE(REPLACE(REPLACE(sft.content, '@user_code', :user_code),
                 '@project', :project), '@user', :uname) AS content, sf.default_value
@@ -566,6 +523,7 @@ class PageDb extends BaseDb
         $res = array();
         foreach ($this->fetch_languages() as $language) {
             $res[] = array(
+                "id" => $language["id"],
                 "locale" => $language["locale"],
                 "title" => $language["language"]                
             );
@@ -595,6 +553,37 @@ class PageDb extends BaseDb
             return $res['code'];
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Get pages from table pages
+     * @param int $page_id
+     * The page id, if it is -1 returns all pages
+     * @param int $language_id
+     * the language that we need page fields translated
+     * @param string $filter 
+     * sql filter if there are some
+     * @param string $order_by 
+     * sql ordering if there is some
+     * @retval array
+     * array with the returned page or pages
+     */
+    public function fetch_pages($page_id, $language_id, $filter = '', $order_by = '')
+    {    
+        $sql = 'CALL get_page_fields(:page_id, :language_id, :filter, :order_by)';
+        $params = array(
+            ":page_id" => $page_id,
+            ":language_id" => $language_id,
+            ":filter" => $filter,
+            ":order_by" => $order_by
+        );
+        if ($page_id == -1) {
+            // return all
+            return $this->query_db($sql, $params);
+        } else {
+            // return the page as single
+            return $this->query_db_first($sql, $params);
         }
     }
 

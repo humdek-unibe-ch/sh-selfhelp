@@ -8,7 +8,7 @@ define('REDIRECT_ON_LOGIN', true);
 define('PROJECT_NAME', '__experiment_name__');
 define('DEBUG', 0);
 define('CORS', true);
-define('LANGUAGE', 'de-CH');
+define('LANGUAGE', 2); // German
 define('BASE_PATH', '/' . PROJECT_NAME);
 
 define('DBSERVER', 'localhost');

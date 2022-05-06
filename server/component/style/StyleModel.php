@@ -88,14 +88,7 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         parent::__construct($services);
         $this->section_id = $id;
-        if($this->is_cms_page())
-        {
-            if($_SESSION['cms_gender'] !== "both")
-                $_SESSION['gender'] = $_SESSION['cms_gender'];
-            if($_SESSION['cms_language'] !== "all")
-                $_SESSION['language'] = $_SESSION['cms_language'];
-        }
-        else
+        if(!$this->is_cms_page())
         {
             $_SESSION['gender'] = $_SESSION['user_gender'];
             $_SESSION['language'] = $_SESSION['user_language'];
@@ -116,8 +109,8 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->style_type = $style['type'];
         $this->section_name = $style['name'];
 
-        $fields = $this->db->fetch_page_fields($this->get_style_name());
-        $this->set_db_fields($fields);
+        // $fields = $this->db->fetch_page_fields($this->get_style_name());
+        // $this->set_db_fields($fields);
 
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);

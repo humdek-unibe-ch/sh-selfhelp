@@ -138,9 +138,8 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT u.id, u.password, g.name AS gender, l.locale as locale FROM users AS u
+        $sql = "SELECT u.id, u.password, g.name AS gender, id_languages FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
-            LEFT JOIN languages AS l ON l.id = u.id_languages
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
@@ -149,8 +148,8 @@ class Login
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
             $_SESSION['user_gender'] = $user['gender'];
-            if(isset($user['locale'])){
-                 $_SESSION['user_language'] = $user['locale'];
+            if(isset($user['id_languages'])){
+                 $_SESSION['user_language'] = $user['id_languages'];
             }
             $this->update_timestamp($user['id']);
             return true;
@@ -213,11 +212,11 @@ class Login
     }
 
     /**
-     * Return the default language if ii is set in the preferences, otherwise set the session one.
+     * Return the default language if it is set in the preferences, otherwise set the default in config.
      */
     public function get_default_language(){
         $pref = $this->db->fetch_cmsPreferences();
-        return !empty($pref) && $pref[0]['locale'] ? $pref[0]['locale'] : LANGUAGE;
+        return !empty($pref) && $pref[0]['default_language_id'] ? $pref[0]['default_language_id'] : LANGUAGE;
     }
 
     /**

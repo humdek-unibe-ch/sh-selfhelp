@@ -30,6 +30,12 @@ class CmsSelectController extends BaseController
             $cms_gender = implode(', ', $_POST['cms_gender']);
             $_SESSION['cms_gender'] = $cms_gender;
         }
+        if (isset($_POST['gender'])) {            
+            $_SESSION['gender'] = $_POST['gender'];
+        }
+        if (isset($_POST['language'])) {            
+            $_SESSION['language'] = $_POST['language'];
+        }
     }
 }
 ?>

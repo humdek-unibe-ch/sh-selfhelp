@@ -238,50 +238,50 @@ class CmsView extends BaseView
             }
         }
 
-        // $page_components = array();
-        // if($this->model->get_active_root_section_id() == null)
-        //     foreach($page_sections as $section)
-        //         $page_components[] = new StyleComponent(
-        //             $this->model->get_services(),
-        //             intval($section['id']), array(),
-        //             $this->model->get_cms_page_id());
-        // else
-        //     $page_components[] = new StyleComponent(
-        //         $this->model->get_services(),
-        //         $this->model->get_active_root_section_id(), array(),
-        //         $this->model->get_cms_page_id());
-        // if(count($page_components) == 0)
-        // {
-        //     $text = new BaseStyleComponent("plaintext", array(
-        //         "text" => "No CMS view available for this page."
-        //     ));
-        //     $page_components[] = $text;
-        // }
-        // $this->add_local_component("page-view",
-        //     new BaseStyleComponent("card", array(
-        //         "id" => "page-view",
-        //         "title" => "Page View",
-        //         "is_collapsible" => true,
-        //         "is_expanded" => ($this->model->get_active_section_id() == null),
-        //         "css" => "mb-3 section-view w-100",
-        //         "children" => $page_components,
-        //     ))
-        // );
-        // if($this->model->get_active_section_id() != null)
-        //     $this->add_local_component("section-view",
-        //         new BaseStyleComponent("card", array(
-        //             "css" => "mb-3 section-view",
-        //             "is_collapsible" => true,
-        //             "title" => "Section View",
-        //             "id" => "section-view",
-        //             "children" => array(new StyleComponent(
-        //                 $this->model->get_services(),
-        //                 $this->model->get_active_section_id(),
-        //                 array(),
-        //                 $this->model->get_cms_page_id()
-        //             ))
-        //         ))
-        //     );
+        $page_components = array();
+        if($this->model->get_active_root_section_id() == null)
+            foreach($page_sections as $section)
+                $page_components[] = new StyleComponent(
+                    $this->model->get_services(),
+                    intval($section['id']), array(),
+                    $this->model->get_cms_page_id());
+        else
+            $page_components[] = new StyleComponent(
+                $this->model->get_services(),
+                $this->model->get_active_root_section_id(), array(),
+                $this->model->get_cms_page_id());
+        if(count($page_components) == 0)
+        {
+            $text = new BaseStyleComponent("plaintext", array(
+                "text" => "No CMS view available for this page."
+            ));
+            $page_components[] = $text;
+        }
+        $this->add_local_component("page-view",
+            new BaseStyleComponent("card", array(
+                "id" => "page-view",
+                "title" => "Page View",
+                "is_collapsible" => true,
+                "is_expanded" => ($this->model->get_active_section_id() == null),
+                "css" => "mb-3 section-view w-100",
+                "children" => $page_components,
+            ))
+        );
+        if($this->model->get_active_section_id() != null)
+            $this->add_local_component("section-view",
+                new BaseStyleComponent("card", array(
+                    "css" => "mb-3 section-view",
+                    "is_collapsible" => true,
+                    "title" => "Section View",
+                    "id" => "section-view",
+                    "children" => array(new StyleComponent(
+                        $this->model->get_services(),
+                        $this->model->get_active_section_id(),
+                        array(),
+                        $this->model->get_cms_page_id()
+                    ))
+                ))
+            );
 
         // debug
     }
@@ -929,6 +929,7 @@ class CmsView extends BaseView
                 "is_expanded" => false,
                 "is_collapsible" => true,
                 "title" => "CMS Settings",
+                "id" => "cms-settings",
                 "children" => array(new BaseStyleComponent("form", array(
                     "url" => $this->model->get_link_url(
                         "cmsSelect",
@@ -937,18 +938,32 @@ class CmsView extends BaseView
                     "label" => "Save",
                     "children" => array(
                         new BaseStyleComponent("select", array(
-                            "label" => "Select CMS Content Language",
+                            "label" => "Select CMS Content Field Language",
                             "value" => explode(',', $_SESSION['cms_language']),
                             "name" => "cms_language[]",
                             "items" => $languages_options,
                             "is_multiple" => true,
                         )),
                         new BaseStyleComponent("select", array(
-                            "label" => "Select CMS Content Gender",
+                            "label" => "Select CMS Content Field Gender",
                             "value" => explode(',', $_SESSION['cms_gender']),
                             "name" => "cms_gender[]",
                             "items" => $gender_options,
                             "is_multiple" => true,
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select CMS Preview Language",
+                            "value" => $_SESSION['language'],
+                            "name" => "language",
+                            "items" => $languages_options,
+                            "is_multiple" => false,
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select CMS Preview Gender",
+                            "value" => $_SESSION['gender'],
+                            "name" => "gender",
+                            "items" => $gender_options,
+                            "is_multiple" => false,
                         ))
                     )
                 ))),

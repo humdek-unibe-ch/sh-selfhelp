@@ -191,9 +191,8 @@ class UserModel extends BaseModel
         $sql = "SELECT content FROM pages_fields_translation AS pft
             LEFT JOIN pages AS p ON p.id = pft.id_pages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
             WHERE p.keyword = 'email' AND f.name = :field
-            AND l.locale = :lang";
+            AND pft.id_languages = :lang";
         $res = $this->db->query_db_first($sql, array(
             ':lang' => $_SESSION['language'],
             ':field' => $email_type,

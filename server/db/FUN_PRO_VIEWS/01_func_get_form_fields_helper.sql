@@ -22,7 +22,7 @@ BEGIN
 	left join user_input_record record  on (ui.id_user_input_record = record.id)
 	LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 	LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-    where form.id = form_id_param;
+    WHERE form.id = form_id_param;
 	
     RETURN @sql;
 END

@@ -36,14 +36,10 @@ class AjaxLanguage extends BaseAjax
      */
     public function ajax_set_user_language($data)
     {
-        if ($data && $data['locale']) {
-            $_SESSION['user_language'] = $data['locale'];
-            $_SESSION['language'] = $data['locale'];
-            $sql = "SELECT id
-            FROM languages
-            WHERE locale = :locale;";
-            $id_language = $this->db->query_db_first($sql, array(":locale" => $_SESSION['user_language']))['id']; //get the id of the selected language
-            $this->db->update_by_ids('users', array("id_languages" => $id_language), array('id' => $_SESSION['id_user'])); // set the language in the user table
+        if ($data && $data['id_languages']) {
+            $_SESSION['user_language'] = $data['id_languages'];
+            $_SESSION['language'] = $data['id_languages'];            
+            $this->db->update_by_ids('users', array("id_languages" => $data['id_languages']), array('id' => $_SESSION['id_user'])); // set the language in the user table
             return true;
         } else {
             return true;

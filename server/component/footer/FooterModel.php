@@ -37,14 +37,7 @@ class FooterModel extends BaseModel
      */
     public function get_pages()
     {
-        $locale_cond = $this->db->get_locale_condition();
-        $sql = "SELECT p.id, p.keyword, pft.content AS title FROM pages AS p
-            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE p.footer_position > 0 AND $locale_cond AND f.name = 'title'
-            ORDER BY p.footer_position";
-        $pages_db = $this->db->query_db($sql, array());
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND footer_position > 0', 'ORDER BY footer_position');
         $pages = array();
         foreach($pages_db as $item)
         {
