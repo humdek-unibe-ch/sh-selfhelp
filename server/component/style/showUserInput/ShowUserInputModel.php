@@ -57,18 +57,6 @@ class ShowUserInputModel extends StyleModel
     }
 
     /**
-     * Get the input data of the current user from the database of a given from.
-     *It uses the store procedure
-     * @param string $form_name
-     *  The name of the form from which the data will be fetched.
-     * @retval array
-     *  See UserInput::fetch_input_fields()
-     */
-    public function get_user_data_sp($form_name){
-        return $this->get_dynamic_data($this->get_dynamic_table_id($form_name), '');
-    }
-
-    /**
      * Mark this user input as removed in the database.
      *
      * @param int $id

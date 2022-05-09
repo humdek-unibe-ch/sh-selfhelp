@@ -51,9 +51,9 @@ class Login
             session_name(PROJECT_NAME);
         }
         session_start();
-        if(!isset($_SESSION['gender'])) $_SESSION['gender'] = "male";
-        if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = "male";
-        if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = 1;
+        if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
+        if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
+        if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->get_default_language();
         if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
@@ -138,7 +138,7 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT u.id, u.password, g.name AS gender, id_languages FROM users AS u
+        $sql = "SELECT u.id, u.password, g.name AS gender, g.id AS id_gender, id_languages FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
@@ -146,8 +146,8 @@ class Login
         {
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
-            $_SESSION['gender'] = $user['gender'];
-            $_SESSION['user_gender'] = $user['gender'];
+            $_SESSION['gender'] = $user['id_gender'];
+            $_SESSION['user_gender'] = $user['id_gender'];
             if(isset($user['id_languages'])){
                  $_SESSION['user_language'] = $user['id_languages'];
             }

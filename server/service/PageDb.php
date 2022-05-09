@@ -69,17 +69,6 @@ class PageDb extends BaseDb
     }
 
     /**
-     * Get the locale condition to fetch the correct language.
-     *
-     * @retval string
-     *  A valid mysql condition string.
-     */
-    public function get_locale_condition()
-    {
-        return "(pft.id_languages= '".$_SESSION['language']."' OR pft.id_languages = 1)";
-    }
-
-    /**
      * Fetch all pages that are not internal.
      *
      * @retval array
@@ -281,30 +270,6 @@ class PageDb extends BaseDb
     }
 
     /**
-     * Fetch the content of the page fields from the database given a page
-     * keyword.
-     *
-     * @param string $keyword
-     *  The router keyword of the page.
-     * @retval array
-     *  The db result array where each entry has the following fields
-     *   'name': the name of the page field
-     *   'content': the content of the page field
-     */
-    public function fetch_page_fields($keyword)
-    {
-        $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.id AS id, f.name, pft.content, ft.name AS type
-            FROM pages_fields_translation AS pft
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            LEFT JOIN pages AS p ON p.id = pft.id_pages
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE p.keyword = :keyword AND $locale_cond";
-        return $this->query_db($sql, array(":keyword" => $keyword));
-    }
-
-    /**
      * Fetch all section ids that are associated to a parent section.
      *
      * @param int $id
@@ -328,35 +293,34 @@ class PageDb extends BaseDb
      *
      * @param int $id
      *  The id of the section.
-     * @param in $gender
-     *  The name of the gender of which the fields are fetched.
      * @retval array
      *  The db result array where each entry has the following fields
      *   'name': the name of the section field
      *   'content': the content of the section field
      */
-    public function fetch_section_fields($id, $gender=null)
+    public function fetch_section_fields($id)
     {
         $user_name = $this->fetch_user_name();
-        if($gender === null) $gender = $_SESSION['gender'];
-        $locale_cond = str_replace('pft.','sft.',$this->get_locale_condition());
-        $sql = "SELECT f.id AS id, f.name, ft.name AS type, g.name AS gender,
-            REPLACE(REPLACE(REPLACE(sft.content, '@user_code', :user_code),
-                '@project', :project), '@user', :uname) AS content, sf.default_value
-            FROM sections_fields_translation AS sft
-            LEFT JOIN fields AS f ON f.id = sft.id_fields
-            LEFT JOIN languages AS l ON l.id = sft.id_languages
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            LEFT JOIN genders AS g ON g.id = sft.id_genders
-            LEFT JOIN sections AS s ON s.id = sft.id_sections
-            LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
-            AND sf.id_fields = f.id
-            WHERE sft.id_sections = :id AND $locale_cond AND content != ''
-            ORDER BY g.id DESC";
-
         $user_code = $this->get_user_code();
+        $sql = "SELECT f.id AS id, f.name, ft.`name` AS type, g.`name` AS gender, 1*g.id AS id_genders,
+                REPLACE(REPLACE(REPLACE(sft.content, '@user_code', :user_code),
+                '@project', :project), '@user', :uname) AS content, sf.default_value, st.`name` AS style, s.`name` AS `section_name`, t.`name` AS `type`
+                FROM sections AS s 
+                LEFT JOIN sections_fields_translation AS sft ON s.id = sft.id_sections 
+                LEFT JOIN fields AS f ON f.id = sft.id_fields
+                LEFT JOIN languages AS l ON l.id = sft.id_languages
+                LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+                LEFT JOIN genders AS g ON g.id = sft.id_genders
+                LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles AND sf.id_fields = f.id
+                LEFT JOIN styles AS st ON st.id = s.id_styles
+                LEFT JOIN styleType AS t ON t.id = st.id_type
+                WHERE sft.id_sections = :id AND (sft.id_languages = :id_language OR sft.id_languages = 1) AND (sft.id_genders = 1 OR sft.id_genders = :gender)
+                ORDER BY g.id DESC";
+        
         $res_all = $this->query_db($sql, array(
             ":id" => $id,
+            ":id_language" => $_SESSION['language'],
+            ":gender" => $_SESSION['gender'],
             ":uname" => $user_name,
             ":user_code" => $user_code,
             ":project" => $_SESSION['project']
@@ -365,8 +329,6 @@ class PageDb extends BaseDb
         $res = array();
         foreach($res_all as $item)
         {
-            if($item['gender'] !== $gender && $item['gender'] !== "male")
-                continue;
             if(in_array($item['id'], $ids))
                 continue;
             $ids[] = $item['id'];
@@ -585,6 +547,21 @@ class PageDb extends BaseDb
             // return the page as single
             return $this->query_db_first($sql, $params);
         }
+    }
+
+    /**
+     * Get the info for the selected section
+     * @param int $id
+     * the section id
+     * @retval object with the section info from DB
+     */
+    public function get_style_component_info($id){
+        $sql = "SELECT s.name, t.name AS type
+            FROM styles AS s
+            LEFT JOIN styleType AS t ON t.id = s.id_type
+            LEFT JOIN sections AS sec ON sec.id_styles = s.id
+            WHERE sec.id = :id";
+        return $this->query_db_first($sql, array(":id" => $id));
     }
 
 }

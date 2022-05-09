@@ -68,6 +68,7 @@ class UserInput
      */
     private function fetch_input_fields($conds = array(), $get_page_info = false)
     {
+        // rework
         if(!isset($conds['ui.id_section_form']))
             $field_attrs = $this->get_field_attrs(-1, $get_page_info);
         $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
@@ -261,6 +262,7 @@ class UserInput
      */
     public function get_input_fields($filter = array(), $get_page_info = false)
     {
+        // rework
         $db_cond = array();
         if(isset($filter["gender"]))
             $db_cond["g.name"] = $filter["gender"];

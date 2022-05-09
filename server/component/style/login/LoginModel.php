@@ -27,9 +27,6 @@ class LoginModel extends StyleModel
     public function __construct($services, $id)
     {
         parent::__construct($services, $id);
-
-        $fields = $this->db->fetch_section_fields($id);
-        $this->set_db_fields($fields);
     }
 
     /* Public Methods *********************************************************/

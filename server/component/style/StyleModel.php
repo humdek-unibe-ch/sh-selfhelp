@@ -96,24 +96,12 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->db_fields['id'] = array(
             "content" => $id,
             "type" => "internal",
-        );
-
-        $sql = "SELECT s.id, sec.name, s.name AS style, t.name AS type
-            FROM styles AS s
-            LEFT JOIN styleType AS t ON t.id = s.id_type
-            LEFT JOIN sections AS sec ON sec.id_styles = s.id
-            WHERE sec.id = :id";
-        $style = $this->db->query_db_first($sql, array(":id" => $id));
-        if(!$style) return;
-        $this->style_name = $style['style'];
-        $this->style_type = $style['type'];
-        $this->section_name = $style['name'];
-
-        // $fields = $this->db->fetch_page_fields($this->get_style_name());
-        // $this->set_db_fields($fields);
-
+        );        
         $fields = $this->db->fetch_section_fields($id);
         $this->set_db_fields($fields);
+        if(!$this->style_name){
+            return;
+        }
         $this->params = $params;
         $this->id_page = $id_page;
         if ($this->style_name == 'entryRecord') {
@@ -406,6 +394,11 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         foreach($fields as $field)
         {
+            // set style info
+            $this->style_name = $field['style'];
+            $this->style_type = $field['type'];
+            $this->section_name = $field['section_name'];
+
             $default = $field["default_value"] ?? "";
             if($field['name'] == "url")
                 $field['content'] = $this->get_url($field['content']);

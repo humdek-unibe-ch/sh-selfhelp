@@ -40,8 +40,6 @@ class RegisterModel extends StyleModel
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
 
-        $fields = $this->db->fetch_section_fields($id);
-        $this->set_db_fields($fields);
         $this->user_model = new UserModel($services, GUEST_USER_ID);
     }
 
