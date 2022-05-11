@@ -105,7 +105,7 @@ class CmsUpdateController extends BaseController
         } else if ($_POST['mode'] == "delete" && $_POST['relation'] != "") {
             $this->delete();
         }
-
+        $this->model->get_db()->clear_cache();
     }
 
     /* Private Methods ********************************************************/

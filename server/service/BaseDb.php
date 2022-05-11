@@ -11,6 +11,7 @@
  */
 
 require_once __DIR__ . "/ExtendedPdo.php";
+require_once __DIR__ . "/Cache.php";
 
 class BaseDb {
 
@@ -25,6 +26,11 @@ class BaseDb {
     protected $_transactionDepth = 0;
 
     /**
+     * The cache instance
+     */
+    protected $cache;
+
+    /**
      * Open connection to mysql database
      *
      * @param string $server:   address of server
@@ -34,6 +40,7 @@ class BaseDb {
      * @param string $names:    charset (optional, default: utf8)
      */
     public function __construct($server, $dbname, $username, $password, $names="utf8") {
+        $this->cache = new Cache();
         try {
             $this->dbh = new ExtendedPdo(
                 "mysql:host=$server;dbname=$dbname;charset=$names",

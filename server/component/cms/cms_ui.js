@@ -776,7 +776,7 @@ function initSaveBtn() {
             url: actionUrl,
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
-                update_new_data(data, ['#ui-middle', '#section-sidebar-content>card-body', '#section-sidebar-properties>card-body']);
+                update_new_data(data, ['#ui-middle', '#section-sidebar-content>card-body', '#section-sidebar-properties>card-body', '#nav-menu']);
                 // refresh_cms_ui(['#ui-middle','#section-sidebar-content>card-body','#section-sidebar-properties>card-body']);
             }
         });

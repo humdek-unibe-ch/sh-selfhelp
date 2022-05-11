@@ -228,39 +228,38 @@ WHERE id_fields = get_field_id('label');
 DELIMITER //
 DROP FUNCTION IF EXISTS get_page_fields_helper //
 
-CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT) RETURNS TEXT
+CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
+-- page_id -1 returns all pages
 BEGIN 
 	SET @@group_concat_max_len = 32000;
 	SET @sql = NULL;
 	SELECT
 	  GROUP_CONCAT(DISTINCT
 		CONCAT(
-		  'max(case when f.`name` = "',
+		  'MAX(CASE WHEN f.`name` = "',
 		  f.`name`,
-		  '" then pft.content end) as `',
+		  '" THEN IF(IFNULL((SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' LIMIT 0,1), "") = "", (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',default_language_id,' LIMIT 0,1),(SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' LIMIT 0,1))  end) as `',
 		  replace(f.`name`, ' ', ''), '`'
 		)
 	  ) INTO @sql
-	from  pages AS p
-	LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id AND (language_id = pft.id_languages OR pft.id_languages = 1)
-	LEFT JOIN fields AS f ON f.id = pft.id_fields
+	FROM  pages AS p
+	LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
+	LEFT JOIN fields AS f ON f.id = ptf.id_fields
     WHERE p.id = page_id OR page_id = -1;
 	
     RETURN @sql;
 END
 //
 
-DELIMITER ;
-
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_page_fields //
 
-CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, default_language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
 BEGIN  
 	-- page_id -1 returns all pages
     SET @@group_concat_max_len = 32000;
-	SELECT get_page_fields_helper(page_id, language_id) INTO @sql;	
+	SELECT get_page_fields_helper(page_id, language_id, default_language_id) INTO @sql;	
 	
     IF (@sql is null) THEN	
         SELECT * FROM pages WHERE 1=2;
@@ -271,9 +270,9 @@ BEGIN
 			@sql, 
 			'FROM pages p
             LEFT JOIN actions AS a ON a.id = p.id_actions
-			LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id   
-			LEFT JOIN fields AS f ON pft.id_fields = f.id
-			WHERE (p.id = ', page_id, ' OR -1 = ', page_id, ') AND ( IFNULL(id_languages, 1) = 1 OR id_languages=', language_id, ') 
+			LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
+			LEFT JOIN fields AS f ON f.id = ptf.id_fields
+			WHERE (p.id = ', page_id, ' OR -1 = ', page_id, ')
             GROUP BY p.id, p.keyword, p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.name HAVING 1 ', filter_param
         );
         
@@ -294,4 +293,9 @@ END
 //
 
 DELIMITER ;
+
+-- set the language to be 2 not 1 for admin pages. If other language is needed it can be added. Now it falls back to the default language
+UPDATE pages_fields_translation
+SET id_languages = 2
+WHERE id_fields = 22 AND id_languages = 1
 

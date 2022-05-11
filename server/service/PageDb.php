@@ -49,6 +49,8 @@ class PageDb extends BaseDb
      */
     function __construct($server, $dbname, $username, $password ) {
         parent::__construct( $server, $dbname, $username, $password );
+        $this->cache->clear_cache();
+        // $this->cache->clear_cache($this->cache::CACHE_TYPE_PAGES, 80);
     }
 
     /* Public Methods *********************************************************/
@@ -197,10 +199,10 @@ class PageDb extends BaseDb
         if (!$keyword) {
             return;
         }
-        if (array_key_exists($keyword, $this->pages_info)) {
-            // already have the info - return it
-            return $this->pages_info[$keyword];
-        }
+        // if (array_key_exists($keyword, $this->pages_info)) {
+        //     // already have the info - return it
+        //     return $this->pages_info[$keyword];
+        // }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
         $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
         if ($page_info) {
@@ -259,14 +261,23 @@ class PageDb extends BaseDb
      */
     public function fetch_page_sections($keyword)
     {
-        $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner,
+        $page_id = $this->fetch_page_id_by_keyword($keyword); // convert the query to use page id  for the caching
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $page_id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner,
             ps.position
             FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
             LEFT JOIN sections AS s ON ps.id_sections = s.id
-            WHERE p.keyword = :keyword
+            WHERE p.id = :page_id
             ORDER BY ps.position, id";
-        return $this->query_db($sql, array(":keyword" => $keyword));
+            $res =  $this->query_db($sql, array(":page_id" => $page_id));
+            $this->cache->set($key, $res);
+            return $res;
+        }
     }
 
     /**
@@ -278,13 +289,21 @@ class PageDb extends BaseDb
      *  The db result array where each entry has an 'id' field.
      */
     public function fetch_section_children($id)
-    {
-        $sql = "SELECT s.id, s.name, s.id_styles, sh.position
+    {    
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT s.id, s.name, s.id_styles, sh.position
             FROM sections_hierarchy AS sh
             LEFT JOIN sections AS s ON s.id = sh.child
             WHERE sh.parent = :id
             ORDER BY sh.position, s.id";
-        return $this->query_db($sql, array(":id" => $id));
+            $res =  $this->query_db($sql, array(":id" => $id));
+            $this->cache->set($key, $res);            
+            return $res;
+        }
     }
 
     /**
@@ -300,9 +319,15 @@ class PageDb extends BaseDb
      */
     public function fetch_section_fields($id)
     {
-        $user_name = $this->fetch_user_name();
-        $user_code = $this->get_user_code();
-        $sql = "SELECT f.id AS id, f.name, ft.`name` AS type, g.`name` AS gender, 1*g.id AS id_genders,
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        $res = array();
+        if ($get_result !== false) {
+            $res = $get_result;
+        } else {
+            $user_name = $this->fetch_user_name();
+            $user_code = $this->get_user_code();
+            $sql = "SELECT f.id AS id, f.name, ft.`name` AS type, g.`name` AS gender, 1*g.id AS id_genders,
                 REPLACE(REPLACE(REPLACE(sft.content, '@user_code', :user_code),
                 '@project', :project), '@user', :uname) AS content, sf.default_value, st.`name` AS style, s.`name` AS `section_name`, t.`name` AS `type`
                 FROM sections AS s 
@@ -314,26 +339,46 @@ class PageDb extends BaseDb
                 LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles AND sf.id_fields = f.id
                 LEFT JOIN styles AS st ON st.id = s.id_styles
                 LEFT JOIN styleType AS t ON t.id = st.id_type
-                WHERE sft.id_sections = :id AND (sft.id_languages = :id_language OR sft.id_languages = 1) AND (sft.id_genders = 1 OR sft.id_genders = :gender)
+                WHERE s.id = :id AND (sft.id_languages = :id_language OR IFNULL(sft.id_languages, 1) = 1) AND (IFNULL(sft.id_genders, 1) = 1 OR sft.id_genders = :gender)
+                -- WHERE s.id = :id AND (sft.id_languages = :id_language OR IFNULL(sft.id_languages, 1) = 1) AND ((IFNULL(sft.id_genders, 1) = 1 AND f.display = 0) OR (sft.id_genders = :gender AND  f.display = 1))
                 ORDER BY g.id DESC";
-        
-        $res_all = $this->query_db($sql, array(
-            ":id" => $id,
-            ":id_language" => $_SESSION['language'],
-            ":gender" => $_SESSION['gender'],
-            ":uname" => $user_name,
-            ":user_code" => $user_code,
-            ":project" => $_SESSION['project']
-        ));
-        $ids = array();
-        $res = array();
-        foreach($res_all as $item)
-        {
-            if(in_array($item['id'], $ids))
-                continue;
-            $ids[] = $item['id'];
-            $res[] = $item;
+
+            $sql = "SELECT f.id AS id, f.name, ft.`name` AS type,
+            REPLACE(REPLACE(REPLACE(CASE
+                WHEN f.display = 0 then (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1)
+                ELSE IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 0,1), 
+                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 0,1), 
+                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
+                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
+            END, '@user_code', :user_code), '@project', :project), '@user', :uname) content,
+            sf.default_value, st.`name` AS style, s.`name` AS `section_name`, t.`name` AS `type`, f.display, s.id as section_id
+            FROM sections AS s 
+            LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
+            LEFT JOIN fields AS f ON f.id = sf.id_fields
+            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            LEFT JOIN styles AS st ON st.id = s.id_styles
+            LEFT JOIN styleType AS t ON t.id = st.id_type
+            WHERE s.id = :id ";
+
+            $res = $this->query_db($sql, array(
+                ":id" => $id,
+                ":id_language" => $_SESSION['language'],
+                ":gender" => $_SESSION['gender'],
+                ":uname" => $user_name,
+                ":user_code" => $user_code,
+                ":project" => $_SESSION['project'],
+                ":def_lang" => LANGUAGE,
+                ":def_gender" => MALE_GENDER_ID
+            ));
+            
+            
+            $this->cache->set($key, $res);            
         }
+        // $res_converted = array();
+        // foreach ($res as $item) {
+        //         $ids[] = $item['id'];
+        //         $res_converted[] = $item;
+        //     }
         return $res;
     }
 
@@ -532,20 +577,29 @@ class PageDb extends BaseDb
      * array with the returned page or pages
      */
     public function fetch_pages($page_id, $language_id, $filter = '', $order_by = '')
-    {    
-        $sql = 'CALL get_page_fields(:page_id, :language_id, :filter, :order_by)';
-        $params = array(
-            ":page_id" => $page_id,
-            ":language_id" => $language_id,
-            ":filter" => $filter,
-            ":order_by" => $order_by
-        );
-        if ($page_id == -1) {
-            // return all
-            return $this->query_db($sql, $params);
-        } else {
-            // return the page as single
-            return $this->query_db_first($sql, $params);
+    {
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $page_id, [__FUNCTION__, $language_id, $filter, $order_by]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {    
+            $sql = 'CALL get_page_fields(:page_id, :language_id, :default_language_id, :filter, :order_by)';
+            $params = array(
+                ":page_id" => $page_id,
+                ":language_id" => $language_id,
+                ":default_language_id" => $this->get_default_language(),
+                ":filter" => $filter,
+                ":order_by" => $order_by
+            );
+            if ($page_id == -1) {
+                // return all
+                $res = $this->query_db($sql, $params);
+            } else {
+                // return the page as single
+                $res = $this->query_db_first($sql, $params);
+            }
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 
@@ -555,13 +609,48 @@ class PageDb extends BaseDb
      * the section id
      * @retval object with the section info from DB
      */
-    public function get_style_component_info($id){
-        $sql = "SELECT s.name, t.name AS type
+    public function get_style_component_info($id)
+    {        
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT s.name, t.name AS type
             FROM styles AS s
             LEFT JOIN styleType AS t ON t.id = s.id_type
             LEFT JOIN sections AS sec ON sec.id_styles = s.id
             WHERE sec.id = :id";
-        return $this->query_db_first($sql, array(":id" => $id));
+            $res = $this->query_db_first($sql, array(":id" => $id));
+            $this->cache->set($key, $res);
+            return $res;
+        }
+    }
+
+    /**
+     * Return the default language if it is set in the preferences, otherwise set the default in config.
+     */
+    public function get_default_language()
+    {
+        if (isset($_SESSION['default_language_id'])) {
+            return $_SESSION['default_language_id'];
+        }
+        $pref = $this->fetch_cmsPreferences();
+        $default_language_id = !empty($pref) && $pref[0]['default_language_id'] ? $pref[0]['default_language_id'] : LANGUAGE;
+        $_SESSION['default_language_id'] = $default_language_id;
+        return $_SESSION['default_language_id'];
+    }
+
+    /**
+     * Clear the cache, if no parameter is given it will clear all the cache. If parameters are given it will clear the cache based on their values
+     * @param string $type = null
+     * The type od the stored data - the types are defined as constants in the Cache class
+     * @param int $id = null
+     * the id of the object
+     */
+    public function clear_cache($type = null, $id = null)
+    {
+        $this->cache->clear_cache($type, $id);
     }
 
 }

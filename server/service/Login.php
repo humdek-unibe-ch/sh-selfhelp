@@ -54,7 +54,7 @@ class Login
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
-        if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->get_default_language();
+        if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->db->get_default_language();
         if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
         if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
@@ -209,15 +209,7 @@ class Login
             array(':id' => $uid));
         if($email != $user['email']) return false;
         return $this->db->remove_by_fk("users", "id", $uid);
-    }
-
-    /**
-     * Return the default language if it is set in the preferences, otherwise set the default in config.
-     */
-    public function get_default_language(){
-        $pref = $this->db->fetch_cmsPreferences();
-        return !empty($pref) && $pref[0]['default_language_id'] ? $pref[0]['default_language_id'] : LANGUAGE;
-    }
+    }    
 
     /**
      * Get the target URL to redirec after login. This is either
