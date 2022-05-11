@@ -323,35 +323,17 @@ class PageDb extends BaseDb
         $get_result = $this->cache->get($key);
         $res = array();
         if ($get_result !== false) {
-            $res = $get_result;
+            return $get_result;
         } else {
-            $user_name = $this->fetch_user_name();
-            $user_code = $this->get_user_code();
-            $sql = "SELECT f.id AS id, f.name, ft.`name` AS type, g.`name` AS gender, 1*g.id AS id_genders,
-                REPLACE(REPLACE(REPLACE(sft.content, '@user_code', :user_code),
-                '@project', :project), '@user', :uname) AS content, sf.default_value, st.`name` AS style, s.`name` AS `section_name`, t.`name` AS `type`
-                FROM sections AS s 
-                LEFT JOIN sections_fields_translation AS sft ON s.id = sft.id_sections 
-                LEFT JOIN fields AS f ON f.id = sft.id_fields
-                LEFT JOIN languages AS l ON l.id = sft.id_languages
-                LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-                LEFT JOIN genders AS g ON g.id = sft.id_genders
-                LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles AND sf.id_fields = f.id
-                LEFT JOIN styles AS st ON st.id = s.id_styles
-                LEFT JOIN styleType AS t ON t.id = st.id_type
-                WHERE s.id = :id AND (sft.id_languages = :id_language OR IFNULL(sft.id_languages, 1) = 1) AND (IFNULL(sft.id_genders, 1) = 1 OR sft.id_genders = :gender)
-                -- WHERE s.id = :id AND (sft.id_languages = :id_language OR IFNULL(sft.id_languages, 1) = 1) AND ((IFNULL(sft.id_genders, 1) = 1 AND f.display = 0) OR (sft.id_genders = :gender AND  f.display = 1))
-                ORDER BY g.id DESC";
-
             $sql = "SELECT f.id AS id, f.name, ft.`name` AS type,
-            REPLACE(REPLACE(REPLACE(CASE
-                WHEN f.display = 0 then (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1)
+            CASE
+                WHEN f.display = 0 then IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1), sf.default_value)
                 ELSE IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 0,1), 
                 IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 0,1), 
                 IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
                 IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
-            END, '@user_code', :user_code), '@project', :project), '@user', :uname) content,
-            sf.default_value, st.`name` AS style, s.`name` AS `section_name`, t.`name` AS `type`, f.display, s.id as section_id
+            END AS content,
+            sf.default_value, st.`name` AS style, s.`name` AS `section_name`, f.display, s.id as section_id
             FROM sections AS s 
             LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
             LEFT JOIN fields AS f ON f.id = sf.id_fields
@@ -364,22 +346,13 @@ class PageDb extends BaseDb
                 ":id" => $id,
                 ":id_language" => $_SESSION['language'],
                 ":gender" => $_SESSION['gender'],
-                ":uname" => $user_name,
-                ":user_code" => $user_code,
-                ":project" => $_SESSION['project'],
                 ":def_lang" => LANGUAGE,
                 ":def_gender" => MALE_GENDER_ID
             ));
             
-            
-            $this->cache->set($key, $res);            
+            $this->cache->set($key, $res);  
+             return $res;          
         }
-        // $res_converted = array();
-        // foreach ($res as $item) {
-        //         $ids[] = $item['id'];
-        //         $res_converted[] = $item;
-        //     }
-        return $res;
     }
 
     /**

@@ -31,7 +31,7 @@ class CmsUpdateComponent extends CmsComponent
      * CmsUpdateController class and passes the view, controller, an d model
      * instance to the constructor of the parent class.
      *
-     * @param array $services
+     * @param object $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      * @param array $params

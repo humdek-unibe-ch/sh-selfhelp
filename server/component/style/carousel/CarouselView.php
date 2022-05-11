@@ -105,7 +105,7 @@ class CarouselView extends StyleView
      */
     private function output_carousel_items()
     {
-        if($this->sources === "") return;
+        if($this->sources == "") return;
         $first = true;
         foreach($this->sources as $item)
         {

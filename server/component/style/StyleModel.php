@@ -115,7 +115,7 @@ class StyleModel extends BaseModel implements IStyleModel
 
         if (count($entry_record) > 0) {
             $this->adjust_entry_records();
-        }
+        }        
 
         $this->calc_condition();
 
@@ -398,6 +398,13 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->style_name = $field['style'];
             $this->style_type = $field['type'];
             $this->section_name = $field['section_name'];
+
+            // set global variables if they are used - moved from the query replacement, otherwise the info cannot be cached
+            $user_name = $this->db->fetch_user_name();
+            $user_code = $this->db->get_user_code();
+            $field['content'] = str_replace('@user_code', $user_code, $field['content']);
+            $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
+            $field['content'] = str_replace('@user', $user_name, $field['content']);
 
             $default = $field["default_value"] ?? "";
             if($field['name'] == "url")
