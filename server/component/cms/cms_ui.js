@@ -793,10 +793,14 @@ function initUnsavedChangesListener() {
     $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
         unsavedChanges = true;
     });
+    
+    $('.ui-card-properties textarea').on('change', function () { //triggers change in all input fields including text type
+        unsavedChanges = true;
+    });
 }
 
-function initSmallButtons(){
-    $( ".style-section-cms-settings form > button" ).addClass( "btn-sm" );
-    $( ".ui-card-properties form > button" ).addClass( "btn-sm" );
+function initSmallButtons() {
+    $(".style-section-cms-settings form > button").addClass("btn-sm");
+    $(".ui-card-properties form > button").addClass("btn-sm");
 }
 

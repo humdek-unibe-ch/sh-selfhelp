@@ -349,9 +349,9 @@ class PageDb extends BaseDb
                 ":def_lang" => LANGUAGE,
                 ":def_gender" => MALE_GENDER_ID
             ));
-            
-            $this->cache->set($key, $res);  
-             return $res;          
+
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 

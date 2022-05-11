@@ -66,25 +66,25 @@ function initJsonFields() {
                 if ($(json).prev().attr('name').includes('data_config')) {
                     showDataConfiBuilder(json, editor);
                 } else if ($(json).prev().attr('name').includes('condition')) {
-                    var jquerBuilderJsonInput;
+                    var jqueryBuilderJsonInput;
                     $('textarea').each(function () {
                         if ($(this).attr('name') && $(this).attr('name').includes('jquery_builder_json')) {
-                            jquerBuilderJsonInput = this;
+                            jqueryBuilderJsonInput = this;
                         }
                     })
-                    showConditionBuilder(editor, jquerBuilderJsonInput);
+                    showConditionBuilder(editor, jqueryBuilderJsonInput);
                 } else if ($(json).prev().parent().attr('class') && $(json).prev().parent().attr('class').includes('qualtricsSurveyConfig')) {
                     showQualtricsSurveyConfiBuilder(json, editor);
                 } else if ($(json).prev().parent().attr('class') && $(json).prev().parent().attr('class').includes('actionConfig')) {
                     showActionConfiBuilder(json, editor);
-                    var jquerBuilderJsonInput;
+                    var jqueryBuilderJsonInput;
                     $('textarea').each(function () {
                         if ($(this).attr('class') && $(this).attr('class').includes('action_condition_builder')) {
-                            jquerBuilderJsonInput = this;
+                            jqueryBuilderJsonInput = this;
                         }
                     })
-                    showConditionBuilder(editor, jquerBuilderJsonInput);
-                    showActionConditionBuilder(editor, jquerBuilderJsonInput);
+                    showConditionBuilder(editor, jqueryBuilderJsonInput);
+                    showActionConditionBuilder(editor, jqueryBuilderJsonInput);
                 }
             });
         }
@@ -571,7 +571,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
             }
         }
     } catch (error) {
-        console.log('Rules cannto be parsed');
+        console.log('Rules cannot be parsed');
     }
 
     if (rules) {
@@ -589,7 +589,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
 // show the data config builder
 // on click the modal is loaded and show the builder
 // on change it updates the monaco editor and the monaco editor updates the input fields
-function showConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
+function showConditionBuilder(monacoEditor, jqueryBuilderJsonInput) {
     var editor;
     $('.conditionBuilderBtn').each(function () {
         $(this).click(() => {
@@ -607,7 +607,8 @@ function showConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
                 $(this).attr('data-dismiss', 'modal');
                 $(this).click(function () {
                     var rules = $('.condition_builder').queryBuilder('getRules');
-                    $(jquerBuilderJsonInput).val(JSON.stringify(rules));
+                    $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
+                    $(jqueryBuilderJsonInput).trigger('change');
                     monacoEditor.getModel().setValue(JSON.stringify(rulesToJsonLogic(rules), null, 3));
                 })
             });
@@ -615,7 +616,7 @@ function showConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
     });
 
     // get groups and prepare the consition builder    
-    prepareConditionBuilder(jquerBuilderJsonInput, monacoEditor);
+    prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor);
 
 }
 
@@ -841,7 +842,7 @@ async function getGroupsForActionConfig(obj, defValue, editor) {
     editor.setValue(defValue);
 }
 
-function showActionConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
+function showActionConditionBuilder(monacoEditor, jqueryBuilderJsonInput) {
     var editor;
     $('.actionConfigConditionBuilderBtn').each(function () {
         $(this).click(() => {
@@ -874,7 +875,7 @@ function showActionConditionBuilder(monacoEditor, jquerBuilderJsonInput) {
     });
 
     // get groups and prepare the consition builder
-    prepareConditionBuilder(jquerBuilderJsonInput, monacoEditor);
+    prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor);
 }
 
 // ********************************************* ACTION CONFIG BUILDER *****************************************
