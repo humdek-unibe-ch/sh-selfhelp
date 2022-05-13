@@ -794,7 +794,7 @@ class CmsView extends BaseView
             "locale" => $field['locale'],
             "help" => $field['help'],
             "display" => isset($field['display']) ? $field['display'] : 0,
-            "css" => ($field['hidden']  == 1 ? 'd-none' : ''),
+            "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
         ));
     }
@@ -899,7 +899,7 @@ class CmsView extends BaseView
             "alt" => "field is not set",
             "help" => $field['help'],
             "display" => isset($field['display']) ? $field['display'] : 0,
-            "css" => ($field['hidden']  == 1 ? 'd-none' : ''),
+            "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
         ));
     }
