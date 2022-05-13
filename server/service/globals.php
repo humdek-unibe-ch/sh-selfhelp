@@ -69,11 +69,21 @@ define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');
 define('CALLBACK_SUCCESS', 'callback_success');
 
-/* Emtry modes */
+/* Entry modes */
 define('INSERT', 'insert');
 define('UPDATE', 'update');
 define('DELETE', 'delete');
 define('SELECT', 'select');
+
+/* relations */
+define('RELATION_PAGE_FIELD', 'page_field');
+define('RELATION_SECTION_FIELD', 'section_field');
+define('RELATION_SECTION_CHILDREN', 'section_children');
+define('RELATION_PAGE_CHILDREN', 'page_children');
+define('RELATION_PAGE_NAV', 'page_nav');
+define('RELATION_SECTION_NAV', 'section_nav');
+define('RELATION_PAGE', 'page'); // used when we work with page columns/fields from the `page` table in the DB
+define('RELATION_SECTION', 'section'); // used when we work with section columns/fields from the `section` table in the DB
 
 /* mail separator */
 define('MAIL_SEPARATOR', ';');

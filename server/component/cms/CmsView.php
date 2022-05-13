@@ -549,7 +549,7 @@ class CmsView extends BaseView
 
         if ($is_new_ui) {
             foreach ($fields as $field) {
-                if ($field['locale'] != "all") {
+                if (isset($field['display']) && $field['display'] == 1) {
                     // it is a content field
                     $new_field = $this->create_field_form_item($field);
                     if ($new_field) {

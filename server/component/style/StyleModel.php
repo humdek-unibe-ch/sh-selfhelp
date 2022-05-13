@@ -417,7 +417,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = json_decode($field['content'], true);
                 /* $field['content'] = $this->json_style_parse($field['content']); */
             } else if ($this->user_input->is_new_ui_enabled() && $this->is_link_active("cmsUpdate") && $field['name'] == "css") {
-                // if it is the new css and in edit mode remove the custom css for better visibility
+                // if it is the new UI and in edit mode remove the custom css for better visibility
                 $field['content'] = '';
             }
             $this->db_fields[$field['name']] = array(

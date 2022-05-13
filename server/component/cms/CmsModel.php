@@ -277,7 +277,7 @@ class CmsModel extends BaseModel
      */
     public function fetch_unassigned_sections()
     {
-        if($this->relation === "page_nav" || $this->relation === "section_nav")
+        if($this->relation === RELATION_PAGE_NAV || $this->relation === RELATION_SECTION_NAV)
             $where = "AND st.id = :sid";
         else
             $where = "AND st.id != :sid";
@@ -384,7 +384,7 @@ class CmsModel extends BaseModel
         pf.default_value, pf.help, l.locale AS locale, 1*l.id AS id_language,
         'male' AS gender, ".MALE_GENDER_ID." AS id_gender,
         (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND id_fields = f.id AND id_languages = l.id LIMIT 0,1) AS content,
-        'page_field' AS relation, 0 as hidden
+        :relation AS relation, 0 as hidden
         FROM pages AS p
         LEFT JOIN pageType pt ON (pt.id = p.id_type)
         LEFT JOIN pageType_fields AS pf ON (pf.id_pageType = pt.id)
@@ -394,7 +394,9 @@ class CmsModel extends BaseModel
         WHERE p.id = :id
         HAVING (id_language = 1 OR id_language IN (".$lang."))
         ORDER BY ft.position, f.display, f.name";
-        return $this->db->query_db($sql, array(":id" => $id));
+        return $this->db->query_db($sql, array(
+            ":id" => $id, ":relation" => RELATION_PAGE_FIELD
+        ));
     }
 
     /**
@@ -503,8 +505,8 @@ class CmsModel extends BaseModel
         (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1) AS content,
         g.name AS gender, 1*g.id AS id_gender,
         CASE
-            WHEN ft.name = 'style-list' THEN 'section_children'
-            ELSE 'section_field'
+            WHEN ft.name = 'style-list' THEN " . RELATION_SECTION_CHILDREN . "
+            ELSE " . RELATION_SECTION_FIELD . "
         END AS relation
         FROM sections AS s
         LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -961,7 +963,7 @@ class CmsModel extends BaseModel
                 SET position = (@row_number:=@row_number + 1) * 10
                 WHERE parent = :id_section
                 ORDER by position;";
-        if ($relation == "page_children") {
+        if ($relation == RELATION_PAGE_CHILDREN) {
             $sql = "SET @row_number = -1;  
                 UPDATE pages_sections
                 SET position = (@row_number:=@row_number + 1) * 10
@@ -1360,7 +1362,19 @@ class CmsModel extends BaseModel
     public function get_page_properties()
     {
         $res = array();
-        $res = $this->fetch_page_fields($this->id_page);
+        $res[] = $this->add_property_item(
+                null,
+                ALL_LANGUAGE_ID,
+                MALE_GENDER_ID,
+                "name",
+                "",
+                "",
+                "text",
+                RELATION_PAGE_FIELD,
+                'cool name',
+                ""
+            );
+        $res = array_merge($res, $this->fetch_page_fields($this->id_page));
         if($this->is_navigation())
         {
             // add navigation section fields
@@ -1378,7 +1392,7 @@ class CmsModel extends BaseModel
                 "",
                 "",
                 "style-list",
-                "page_children",
+                RELATION_PAGE_CHILDREN,
                 $this->page_sections_static,
                 ""
             );
@@ -1391,7 +1405,7 @@ class CmsModel extends BaseModel
                 "",
                 "",
                 "style-list",
-                "page_nav",
+                RELATION_PAGE_NAV,
                 $this->fetch_navigation_items(
                     $this->page_info['id_navigation_section'], false),
                 ""
@@ -1463,7 +1477,7 @@ class CmsModel extends BaseModel
                 "",
                 "",
                 "style-list",
-                "section_nav",
+                RELATION_SECTION_NAV,
                 $this->fetch_navigation_items($id_section, false),
                 ""
             );
@@ -1623,7 +1637,7 @@ class CmsModel extends BaseModel
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
-        if($relation == "page_children")
+        if($relation == RELATION_PAGE_CHILDREN)
         {
             $sections = $this->db->fetch_page_sections_by_id($this->id_page);
             $res = $this->db->insert("pages_sections", array(
@@ -1634,7 +1648,7 @@ class CmsModel extends BaseModel
             $this->adjust_hierarchy($this->get_active_page_id(), $relation);
             return $res;
         }
-        else if($relation == "section_children")
+        else if($relation == RELATION_SECTION_CHILDREN)
         {
             $sections = $this->db->fetch_section_children(
                 $this->get_active_section_id());
@@ -1646,11 +1660,11 @@ class CmsModel extends BaseModel
             $this->adjust_hierarchy($this->get_active_section_id(), $relation);
             return $res;
         }
-        else if($relation == "page_nav" || $relation == "section_nav")
+        else if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
         {
-            if($relation == "page_nav")
+            if($relation == RELATION_PAGE_NAV)
                 $id_parent = $this->page_info["id_navigation_section"];
-            else if($relation == "section_nav")
+            else if($relation == RELATION_SECTION_NAV)
                 $id_parent = $this->get_active_section_id();
             $sections = $this->db->fetch_nav_children($id_parent);
             return $this->db->insert("sections_navigation", array(
@@ -1730,24 +1744,24 @@ class CmsModel extends BaseModel
             $_SESSION['id_user'],
             $this->get_active_page_id()
         )) return false;
-        if ($relation == "page_children") {
+        if ($relation == RELATION_PAGE_CHILDREN) {
             $res = $this->db->remove_by_ids("pages_sections", array(
                 "id_pages" => $this->id_page,
                 "id_sections" => $id_section
             ));
             $this->adjust_hierarchy($this->id_page, $relation);
             return $res;
-        } else if ($relation == "section_children") {
+        } else if ($relation == RELATION_SECTION_CHILDREN) {
             $res = $this->db->remove_by_ids("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id_section
             ));
             $this->adjust_hierarchy($this->get_active_section_id(), $relation);
             return $res;
-        } else if ($relation == "page_nav" || $relation == "section_nav") {
-            if ($relation == "page_nav")
+        } else if ($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV) {
+            if ($relation == RELATION_PAGE_NAV)
             $id_parent = $this->page_info["id_navigation_section"];
-            else if ($relation == "section_nav")
+            else if ($relation == RELATION_SECTION_NAV)
             $id_parent = $this->get_active_section_id();
             return $this->db->remove_by_ids("sections_navigation", array(
                 "parent" => $id_parent,
@@ -1828,21 +1842,21 @@ class CmsModel extends BaseModel
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
-        if($relation == "page_field")
+        if($relation == RELATION_PAGE_FIELD)
             return $this->update_page_fields_db($id, $id_language, $content);
-        else if($relation == "section_field")
+        else if($relation == RELATION_SECTION_FIELD)
             return $this->update_section_fields_db($id, $id_language, $id_gender,
                 $content);
-        else if($relation == "section_children")
+        else if($relation == RELATION_SECTION_CHILDREN)
             return $this->update_section_children_order_db(
                 $this->get_active_section_id(), $content);
-        else if($relation == "page_children")
+        else if($relation == RELATION_PAGE_CHILDREN)
             return $this->update_page_children_order_db(
                 $this->id_page, $content);
-        else if($relation == "page_nav")
+        else if($relation == RELATION_PAGE_NAV)
             return $this->update_nav_order_db(
                 $this->page_info['id_navigation_section'], $content);
-        else if($relation == "section_nav")
+        else if($relation == RELATION_SECTION_NAV)
             return $this->update_nav_order_db(
                 $this->get_active_section_id(), $content);
     }

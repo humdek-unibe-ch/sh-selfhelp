@@ -227,7 +227,7 @@ class CmsUpdateView extends BaseView
         $url_cancel = $this->model->get_link_url("cmsSelect", $params);
         $url = $this->model->get_link_url("cmsUpdate", $params);
         $relation = $this->model->get_relation();
-        if($relation == "page_nav" || $relation == "section_nav")
+        if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
             $child = "navigation";
         else
             $child = "children";
@@ -250,7 +250,7 @@ class CmsUpdateView extends BaseView
     public function output_content_delete_unassigned_sections(){
         $relation = $this->model->get_relation();
         $params = $this->model->get_current_url_params();
-        $params["type"] = 'page_children';
+        $params["type"] = RELATION_PAGE_CHILDREN;
         $params["mode"] = "insert";
         $url_cancel = $this->model->get_link_url("cmsUpdate", $params);    
         $params["type"] = 'unassigned_sections';    
@@ -298,7 +298,7 @@ class CmsUpdateView extends BaseView
         $params["mode"] = "update";
         $url_cancel = $this->model->get_link_url("cmsSelect", $params);
         $url = $this->model->get_link_url("cmsUpdate", $params);
-        if($relation == "page_nav" || $relation == "section_nav")
+        if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
             $child = "navigation";
         else
             $child = "children";
@@ -328,7 +328,7 @@ class CmsUpdateView extends BaseView
                 $relation = $this->model->get_relation();
                 $params = $this->model->get_current_url_params();
                 $params["type"] = $relation;
-                $params["type"] = 'page_children';
+                $params["type"] = RELATION_PAGE_CHILDREN;
                 $params["mode"] = "insert";
                 $url = $this->model->get_link_url("cmsUpdate", $params);
                 require __DIR__ . "/tpl_cms_delete_unassigned_sections_success.php";

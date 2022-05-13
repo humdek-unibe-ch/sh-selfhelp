@@ -250,7 +250,7 @@ class CmsUpdateController extends BaseController
         {
             $this->insert_success = true;
             $sid = $this->model->get_active_root_section_id();
-            if($relation == "page_nav" || $relation == "section_nav")
+            if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
             {
                 $sid = $new_id;
                 $new_id = null;

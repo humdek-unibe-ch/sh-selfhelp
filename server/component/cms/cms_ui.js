@@ -1,5 +1,13 @@
 var collapsedProperties = false;
 var unsavedChanges = false;
+const RELATION_PAGE_FIELD = 'page_field';
+const RELATION_SECTION_FIELD = 'section_field';
+const RELATION_SECTION_CHILDREN = 'section_children';
+const RELATION_PAGE_CHILDREN = 'page_children';
+const RELATION_PAGE_NAV = 'page_nav';
+const RELATION_SECTION_NAV = 'section_nav';
+const RELATION_PAGE = 'page'; // used when we work with page columns/fields from the `page` table in the DB
+const RELATION_SECTION = 'section';  // used when we work with section columns/fields from the `section` table in the DB
 
 $(document).ready(function () {
     init_ui_cms();
@@ -85,7 +93,7 @@ function addButtonGoToSection(sectionData) {
 function addButtonNewChild(sectionData) {
     var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
-        sectionData['relation'] = 'section_children'; // this insert always in section
+        sectionData['relation'] = RELATION_SECTION_CHILDREN; // this insert always in section
         showAddSection(sectionData, false, 0);
     })
     return icon;
@@ -391,14 +399,14 @@ function prepareSectionInfo(section, idx) {
         if (sectionData['update_section_url']) {
             sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections']);
         }
-        sectionData['relation'] = 'section_children';
+        sectionData['relation'] = RELATION_SECTION_CHILDREN;
         sectionData['parent_id'] = parentData['id_sections'];
         if (sectionData['insert_sibling_section_url']) {
             sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections']);
         }
     } else {
         sectionData['update_url'] = sectionData['update_page_url']
-        sectionData['relation'] = 'page_children';
+        sectionData['relation'] = RELATION_PAGE_CHILDREN;
         sectionData['parent'] = "page";
         sectionData['parent_id'] = sectionData['id_pages'];
     }

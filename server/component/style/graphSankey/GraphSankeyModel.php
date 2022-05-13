@@ -531,7 +531,7 @@ class GraphSankeyModel extends GraphModel
             $raw_data = json_encode($this->prepare_sankey_data(
                 $data, $this->data_cols, $this->data_types));
             $cms_model->update_db($this->db->fetch_field_id_by_name("raw"),
-                ALL_LANGUAGE_ID, MALE_GENDER_ID, $raw_data, "section_field");
+                ALL_LANGUAGE_ID, MALE_GENDER_ID, $raw_data, RELATION_SECTION_FIELD);
         }
     }
 }

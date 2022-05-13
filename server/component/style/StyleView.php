@@ -190,14 +190,14 @@ abstract class StyleView extends BaseView
         $insert_sibling_section = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "insert",
-            "type" => "section_children",
+            "type" => RELATION_SECTION_CHILDREN,
             "did" => null,
             "sid" => ":parent_id"
         ));
         $insert_section_in_page = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "insert",
-            "type" => "page_children",
+            "type" => RELATION_PAGE_CHILDREN,
             "did" => null
         ));
         $data_section = array(
@@ -215,7 +215,7 @@ abstract class StyleView extends BaseView
             $insert_section_in_section = $this->model->get_link_url("cmsUpdate", array(
                 "pid" => isset($params['pid']) ? $params['pid'] : -1,
                 "mode" => "insert",
-                "type" => "section_children",
+                "type" => RELATION_SECTION_CHILDREN,
                 "did" => null,
                 "sid" => $this->id_section
             ));
