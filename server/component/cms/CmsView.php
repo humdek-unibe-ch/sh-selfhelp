@@ -646,6 +646,8 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
+                "is_required" => isset($field['is_required']) ? $field['is_required'] : 0,
+                "format" => isset($field['format']) ? $field['format'] : '',
             ));
         if($field['type'] === "checkbox")
             $children[] = new BaseStyleComponent("input", array(
@@ -788,10 +790,10 @@ class CmsView extends BaseView
         }
 
         return new BaseStyleComponent("descriptionItem", array(
-            "gender" => $field['gender'],
+            "gender" => isset($field['gender']) ? $field['gender'] : '',
             "title" => $field['name'],
             "type_input" => $field['type'],
-            "locale" => $field['locale'],
+            "locale" => isset($field['gender']) ? $field['locale'] : '',
             "help" => $field['help'],
             "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
@@ -893,9 +895,9 @@ class CmsView extends BaseView
             ));
         
         return new BaseStyleComponent("descriptionItem", array(
-            "gender" => $field['gender'],
+            "gender" => isset($field['gender']) ? $field['gender'] : '',
             "title" => $field['name'],
-            "locale" => $field['locale'],
+            "locale" => isset($field['gender']) ? $field['locale'] : '',
             "alt" => "field is not set",
             "help" => $field['help'],
             "display" => isset($field['display']) ? $field['display'] : 0,

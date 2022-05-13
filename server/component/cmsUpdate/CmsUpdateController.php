@@ -304,6 +304,8 @@ class CmsUpdateController extends BaseController
      */
     private function update($fields)
     {
+        $page_fields = array();
+        $section_fields = array();
         foreach($fields as $name => $languages)
         {
             if(!is_array($languages))
@@ -311,7 +313,7 @@ class CmsUpdateController extends BaseController
                 if(DEBUG == 1)
                     echo "Error: A field must be an array in CmsController::update_fields()";
                 continue;
-            }
+            }            
             foreach($languages as $id_language => $genders)
             {
                 if(!is_array($genders))
@@ -339,8 +341,21 @@ class CmsUpdateController extends BaseController
                     if($this->check_content($type, $content))
                     {
                         $content = $this->secure_field($type, $content);
-                        $res = $this->model->update_db($id, $id_language,
-                            $id_gender, $content, $relation);
+                        if ($relation == RELATION_PAGE) {
+                            $page_fields[$name] = $content;
+                            $res = true;
+                        }else if($relation == RELATION_SECTION){
+                            $section_fields[$name] = $content;
+                            $res = true;
+                        } else {
+                            $res = $this->model->update_db(
+                                $id,
+                                $id_language,
+                                $id_gender,
+                                $content,
+                                $relation
+                            );
+                        }
                     }
                     else
                         $this->bad_fields[$name][$id_language] = $field;
@@ -350,6 +365,15 @@ class CmsUpdateController extends BaseController
                     else if($res === false)
                         $this->update_fail_count++;
                 }
+            }
+        }
+        if (count($page_fields) > 0) {
+            // update page fields
+            $res = $this->model->update_page($page_fields);
+            if ($res && $res > 0) {
+                $this->update_success_count = $this->update_success_count + $res;
+            } else {
+                $this->update_fail_count++;
             }
         }
         if($this->update_success_count >= 0 && $this->update_fail_count == 0) {

@@ -231,9 +231,15 @@ class CmsModel extends BaseModel
      *  The content of the field.
      * @param string $gender
      *  The gender the content is associated with.
+     * @param int $hidden
+     *  1 the field is hidden 0 not
+     * @param int $is_required
+     *  1 the field needs a value, 2 it does not need a value
+     * @param string $pattern
+     * if there is some special pattern for the field
      */
     private function add_property_item($id, $id_language, $id_gender, $name,
-        $help, $locale, $type, $relation, $content, $gender="", $hidden=0)
+        $help, $locale, $type, $relation, $content, $gender="", $hidden=0, $is_required=0, $pattern='')
     {
         return array(
             "id" => $id,
@@ -247,6 +253,8 @@ class CmsModel extends BaseModel
             "content" => $content,
             "gender" => $gender,
             "hidden" => $hidden,
+            "is_required" => $is_required,
+            "format" => $pattern
         );
     }
 
@@ -1376,7 +1384,10 @@ class CmsModel extends BaseModel
                 "text",
                 RELATION_PAGE,
                 $this->page_info['keyword'],
-                ""
+                "",
+                0,
+                1,
+                "[a-zA-Z0-9_-]+"
             );
         $res = array_merge($res, $this->fetch_page_fields($this->id_page));
         if($this->is_navigation())
@@ -1847,7 +1858,7 @@ class CmsModel extends BaseModel
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
         if($relation == RELATION_PAGE_FIELD)
-            return $this->update_page_fields_db($id, $id_language, $content);
+            return $this->update_page_fields_db($id, $id_language, $content);        
         else if($relation == RELATION_SECTION_FIELD)
             return $this->update_section_fields_db($id, $id_language, $id_gender,
                 $content);
@@ -2019,5 +2030,22 @@ class CmsModel extends BaseModel
         );
         return $this->db->insert("sections_fields_translation", $insert, $update);
     }    
+
+    /**
+     * Update the page table
+     *
+     * @param array page_fields
+     * it contains the column and the value that should be assigned
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_page($page_fields)
+    {        
+        return $this->db->update_by_ids(
+            "pages",
+            $page_fields,
+            array("id" => $this->id_page)
+        );
+    }
 }
 ?>
