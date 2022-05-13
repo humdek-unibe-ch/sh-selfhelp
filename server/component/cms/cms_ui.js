@@ -794,7 +794,7 @@ function initUnsavedChangesListener() {
         unsavedChanges = true;
     });
     
-    $('.ui-card-properties textarea').on('change', function () { //triggers change in all input fields including text type
+    $('.ui-card-properties textarea').on('change', function () { //triggers change in all textareas
         unsavedChanges = true;
     });
 }
