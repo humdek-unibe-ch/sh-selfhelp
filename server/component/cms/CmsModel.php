@@ -505,8 +505,8 @@ class CmsModel extends BaseModel
         (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1) AS content,
         g.name AS gender, 1*g.id AS id_gender,
         CASE
-            WHEN ft.name = 'style-list' THEN " . RELATION_SECTION_CHILDREN . "
-            ELSE " . RELATION_SECTION_FIELD . "
+            WHEN ft.name = 'style-list' THEN :RELATION_SECTION_CHILDREN
+            ELSE :RELATION_SECTION_FIELD
         END AS relation
         FROM sections AS s
         LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -516,9 +516,13 @@ class CmsModel extends BaseModel
         JOIN genders g on (g.id = 1 or (f.display = 1))
         JOIN languages AS l ON ((l.id = 1 AND f.display = 0) OR (f.display = 1 AND l.id > 1))
         WHERE s.id = :id AND sf.disabled = 0
-        HAVING id_gender IN (".$gender.") AND (id_language = 1 OR id_language IN (".$lang."))
+        HAVING id_gender IN (" . $gender . ") AND (id_language = 1 OR id_language IN (" . $lang . "))
         ORDER BY ft.position, f.display, f.name";
-        return $this->db->query_db($sql, array(":id" => $id));
+        return $this->db->query_db($sql, array(
+            ":id" => $id,
+            ":RELATION_SECTION_CHILDREN" => RELATION_SECTION_CHILDREN,
+            ":RELATION_SECTION_FIELD" => RELATION_SECTION_FIELD,
+        ));
     }
 
     /**
@@ -1366,12 +1370,12 @@ class CmsModel extends BaseModel
                 null,
                 ALL_LANGUAGE_ID,
                 MALE_GENDER_ID,
-                "name",
-                "",
+                "keyword",
+                "The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b>",
                 "",
                 "text",
-                RELATION_PAGE_FIELD,
-                'cool name',
+                RELATION_PAGE,
+                $this->page_info['keyword'],
                 ""
             );
         $res = array_merge($res, $this->fetch_page_fields($this->id_page));

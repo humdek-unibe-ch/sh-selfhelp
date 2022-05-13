@@ -793,6 +793,7 @@ class CmsView extends BaseView
             "type_input" => $field['type'],
             "locale" => $field['locale'],
             "help" => $field['help'],
+            "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ''),
             "children" => $children
         ));
@@ -897,6 +898,7 @@ class CmsView extends BaseView
             "locale" => $field['locale'],
             "alt" => "field is not set",
             "help" => $field['help'],
+            "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ''),
             "children" => $children
         ));
