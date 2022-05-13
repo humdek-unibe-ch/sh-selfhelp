@@ -7,6 +7,7 @@
     <span class="badge badge-secondary"></span>
     <span>
         Name: <code><?php echo $this->model->get_section_name(); ?></code>
+        Style: <code><?php echo $this->model->get_style_name(); ?></code>
         Id: <code><?php echo $this->id_section ?></code>
     </span>
     <div class="p-1 <?php echo ($data_section['can_have_children'] ? 'section-can-have-children' : ''); ?>">

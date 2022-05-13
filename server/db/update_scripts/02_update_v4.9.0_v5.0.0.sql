@@ -297,5 +297,8 @@ DELIMITER ;
 -- set the language to be 2 not 1 for admin pages. If other language is needed it can be added. Now it falls back to the default language
 UPDATE pages_fields_translation
 SET id_languages = 2
-WHERE id_fields = 22 AND id_languages = 1
+WHERE id_fields = 22 AND id_languages = 1;
 
+-- make sectio name not-unique
+ALTER TABLE sections
+DROP INDEX `name`;

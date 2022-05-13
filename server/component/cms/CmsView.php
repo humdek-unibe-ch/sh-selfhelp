@@ -373,7 +373,7 @@ class CmsView extends BaseView
                 $new_field_item = $this->create_field_item($field);
                 if ($new_field_item) {
                     if ($is_new_ui && $field['type']) {
-                        if ($field['locale'] != "all") {
+                        if (isset($field['display']) && $field['display'] == 1) {
                             $content_fields[] = $new_field_item;
                         } else {
                             $properties[] = $new_field_item;
@@ -765,7 +765,7 @@ class CmsView extends BaseView
                 "max" => 10,
                 "live_search" => 1,
                 "is_required" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'id', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
             ));
         } else if ($field['type'] == "select-formName") {
             $children[] = new BaseStyleComponent("select", array(
@@ -791,7 +791,7 @@ class CmsView extends BaseView
 
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
-            "title" => $field['name'],
+            "title" => isset($field['label']) ? $field['label'] : $field['name'],
             "type_input" => $field['type'],
             "locale" => isset($field['gender']) ? $field['locale'] : '',
             "help" => $field['help'],
@@ -896,7 +896,7 @@ class CmsView extends BaseView
         
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
-            "title" => $field['name'],
+            "title" => isset($field['label']) ? $field['label'] : $field['name'],
             "locale" => isset($field['gender']) ? $field['locale'] : '',
             "alt" => "field is not set",
             "help" => $field['help'],

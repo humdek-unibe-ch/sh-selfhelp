@@ -594,6 +594,7 @@ function createSection(sectionData, styleId, addSibling, position, styleName) {
             "add-section-link": "",
             "section-name-prefix": timestamp,
             "section-name": timestamp + '-' + styleName,
+            // "section-name": '', // create without name
             "section-style": styleId,
             position: position
         },

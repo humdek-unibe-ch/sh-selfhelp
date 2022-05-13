@@ -209,7 +209,9 @@ class CmsModel extends BaseModel
 
     /**
      * Add a new list item.
-     *
+     * 
+     * @param array $field
+     * filed object with properties described under
      * @param int $id
      *  The id of the field.
      * @param int $id_language
@@ -226,7 +228,7 @@ class CmsModel extends BaseModel
      *  The type of the field as defined in the db table fieldType.
      * @param string $relation
      *  A string indication to what the field content relates. By this string
-     *  the differnet db access actions are decided.
+     *  the different db access actions are decided.
      * @param mixed $content
      *  The content of the field.
      * @param string $gender
@@ -237,24 +239,26 @@ class CmsModel extends BaseModel
      *  1 the field needs a value, 2 it does not need a value
      * @param string $pattern
      * if there is some special pattern for the field
+     * @param string $label
+     * if the value is set it will be used as label
      */
-    private function add_property_item($id, $id_language, $id_gender, $name,
-        $help, $locale, $type, $relation, $content, $gender="", $hidden=0, $is_required=0, $pattern='')
+    private function add_property_item($field)
     {
         return array(
-            "id" => $id,
-            "id_language" => $id_language,
-            "id_gender" => $id_gender,
-            "name" => $name,
-            "help" => $this->parsedown->text($help),
-            "locale" => $locale,
-            "type" => $type,
-            "relation" => $relation,
-            "content" => $content,
-            "gender" => $gender,
-            "hidden" => $hidden,
-            "is_required" => $is_required,
-            "format" => $pattern
+            "id" => isset($field['id'])?$field['id']:null,
+            "id_language" => isset($field['id_language'])?$field['id_language']:ALL_LANGUAGE_ID,
+            "id_gender" => isset($field['id_gender'])?$field['id_gender']:MALE_GENDER_ID,
+            "name" => $field['name'],
+            "help" => isset($field['help']) ?  $this->parsedown->text($field['help']) : '',
+            "locale" => isset($field['locale'])?$field['locale']:'',
+            "type" => $field['type'],
+            "relation" => $field['relation'],
+            "content" => $field['content'],
+            "gender" => isset($field['gender'])?$field['gender']:'',
+            "hidden" => isset($field['hidden'])?$field['hidden']:0,
+            "is_required" => isset($field['is_required'])?$field['is_required']:0,
+            "format" => isset($field['format'])?$field['format']:'',
+            "label" => isset($field['label'])?$field['label']:''
         );
     }
 
@@ -515,7 +519,7 @@ class CmsModel extends BaseModel
         CASE
             WHEN ft.name = 'style-list' THEN :RELATION_SECTION_CHILDREN
             ELSE :RELATION_SECTION_FIELD
-        END AS relation
+        END AS relation, s.name AS section_name, st.name AS style_name
         FROM sections AS s
         LEFT JOIN styles AS st ON st.id = s.id_styles
         LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
@@ -1375,20 +1379,37 @@ class CmsModel extends BaseModel
     {
         $res = array();
         $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "keyword",
-                "The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b>",
-                "",
-                "text",
-                RELATION_PAGE,
-                $this->page_info['keyword'],
-                "",
-                0,
-                1,
-                "[a-zA-Z0-9_-]+"
-            );
+            array(
+                "name" => "keyword",
+                "help" => "The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b>",
+                "type" => "text",
+                "relation" => RELATION_PAGE,
+                "content" => $this->page_info['keyword'],
+                "is_required" => 1,
+                "format" => "[a-zA-Z0-9_-]+",
+                "label" => "Keyword",
+            )
+        );
+        $res[] = $this->add_property_item(
+            array(
+                "name" => "id_pageAccessTypes",
+                "help" => "Select for what content the page will be loaded",
+                "type" => "select-platform",
+                "relation" => RELATION_PAGE,
+                "content" => $this->page_info['id_pageAccessTypes'],
+                "label" => "Page Access Type",
+            )
+        );
+        $res[] = $this->add_property_item(
+            array(
+                "name" => "is_headless",
+                "help" => "A headless page will <b>not</b> render any header or footer.",
+                "type" => "checkbox",
+                "relation" => RELATION_PAGE,
+                "content" => $this->page_info['is_headless'],
+                "label" => "Headless Page",
+            )
+        );
         $res = array_merge($res, $this->fetch_page_fields($this->id_page));
         if($this->is_navigation())
         {
@@ -1398,33 +1419,26 @@ class CmsModel extends BaseModel
             foreach($section_fields as $section_field)
                 $res[] = $section_field;
         }
-        if($this->page_info['action'] === "sections")
+        if ($this->page_info['action'] === "sections") {
             $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "sections",
-                "",
-                "",
-                "style-list",
-                RELATION_PAGE_CHILDREN,
-                $this->page_sections_static,
-                ""
+                array(
+                    "name" => "sections",
+                    "type" => "style-list",
+                    "relation" => RELATION_PAGE_CHILDREN,
+                    "content" => $this->page_sections_static,
+                )
             );
-        if($this->is_navigation())
+        }
+        if ($this->is_navigation()) {
             $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "navigation",
-                "",
-                "",
-                "style-list",
-                RELATION_PAGE_NAV,
-                $this->fetch_navigation_items(
-                    $this->page_info['id_navigation_section'], false),
-                ""
+                array(
+                    "name" => "navigation",
+                    "type" => "style-list",
+                    "relation" => RELATION_PAGE_NAV,
+                    "content" => $this->fetch_navigation_items($this->page_info['id_navigation_section'], false)
+                )
             );
+        }
         return $res;
     }
 
@@ -1482,20 +1496,30 @@ class CmsModel extends BaseModel
         if($id_section == null)
             $id_section = $this->get_active_section_id();
         $res = array();
-        $res = $this->fetch_style_fields_by_section_id($id_section);
-        if($this->is_navigation_root_item())
+        $fields = $this->fetch_style_fields_by_section_id($id_section);
+        $res[] = $this->add_property_item(
+            array(
+                "name" => "name",
+                "help" => "Section name. <b>Note that the section name can contain only numbers, letters, - and _ characters</b>",
+                "type" => "text",
+                "relation" => RELATION_SECTION,
+                "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
+                "is_required" => 0,
+                "format" => "[a-zA-Z0-9_-]+",
+                "label" => "Section name",
+            )
+        );        
+        $res = array_merge($res, $fields);
+        if ($this->is_navigation_root_item()) {
             $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "navigation",
-                "",
-                "",
-                "style-list",
-                RELATION_SECTION_NAV,
-                $this->fetch_navigation_items($id_section, false),
-                ""
+                array(
+                    "name" => "navigation",
+                    "type" => "style-list",
+                    "relation" => RELATION_SECTION_NAV,
+                    "content" => $this->fetch_navigation_items($id_section, false)
+                )
             );
+        }
         return $res;
     }
 
@@ -2034,7 +2058,7 @@ class CmsModel extends BaseModel
     /**
      * Update the page table
      *
-     * @param array page_fields
+     * @param array $page_fields
      * it contains the column and the value that should be assigned
      * @retval bool
      *  True if the update operation is successful, false otherwise.
@@ -2047,5 +2071,23 @@ class CmsModel extends BaseModel
             array("id" => $this->id_page)
         );
     }
+
+    /**
+     * Update the section table
+     *
+     * @param array $section_fields
+     * it contains the column and the value that should be assigned
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_section($section_fields)
+    {        
+        return $this->db->update_by_ids(
+            "sections",
+            $section_fields,
+            array("id" => $this->id_root_section)
+        );
+    }
 }
 ?>
+
