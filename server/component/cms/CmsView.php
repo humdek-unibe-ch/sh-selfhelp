@@ -387,6 +387,7 @@ class CmsView extends BaseView
                 // if there are content fields we put them in a card
                 $card_content_fields = new BaseStyleComponent("card", array(
                     "css" => "ui-card-list",
+                    "id" => "ui-card-content",
                     "is_expanded" => false,
                     "is_collapsible" => true,
                     "title" => "Content",
@@ -399,6 +400,7 @@ class CmsView extends BaseView
                 // if there are content fields we put them in a card
                 $card_properties_fields = new BaseStyleComponent("card", array(
                     "css" => "ui-card-list properties-fields",
+                    "id" => "ui-card-properties",
                     "is_expanded" => false,
                     "is_collapsible" => true,
                     "title" => "Properties",
@@ -455,7 +457,8 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3 ui-card-properties properties-collapsed",
+                "css" => "mb-3 ui-card-properties properties-collapsed",  
+                "id" => "ui-fields-holder",
                 "is_collapsible" => false,
                 "is_expanded" => true,
                 "title" => "Page Properties",
@@ -515,6 +518,7 @@ class CmsView extends BaseView
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3 ui-card-properties properties-collapsed",
+                "id" => "ui-fields-holder",
                 "is_collapsible" => false,
                 "title" => "Section Properties",
                 "children" => $children,
@@ -567,11 +571,11 @@ class CmsView extends BaseView
                 // if there are content fields we put them in a card
                 $card_content_fields = new BaseStyleComponent("card", array(
                     "css" => "ui-card-list",
+                    "id" => "ui-card-content",
                     "is_expanded" => false,
                     "is_collapsible" => true,
                     "title" => "Content",
-                    "children" => $content_fields,
-                    "id" => "sidebar-content"
+                    "children" => $content_fields
                 ));
                 $form_items[] = $card_content_fields;
             }
@@ -580,11 +584,11 @@ class CmsView extends BaseView
                 // if there are content fields we put them in a card
                 $card_properties_fields = new BaseStyleComponent("card", array(
                     "css" => "ui-card-list properties-fields",
+                    "id" => "ui-card-properties",
                     "is_expanded" => false,
                     "is_collapsible" => true,
                     "title" => "Properties",
-                    "children" => $properties,
-                    "id" => "sidebar-properties"
+                    "children" => $properties
                 ));
                 $form_items[] = $card_properties_fields;
             }

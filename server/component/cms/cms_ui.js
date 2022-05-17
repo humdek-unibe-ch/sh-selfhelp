@@ -705,7 +705,18 @@ function initEditToggle() {
             toggleLink,
             {},
             (data) => {
-                update_new_data(data, ["#ui-middle", '#properties']);
+                data = $(data);
+                var content_collapsed = $('#section-ui-card-content > .collapsed')[0];
+                var properties_collapsed = $('#section-ui-card-properties > .collapsed')[0];
+                if(!content_collapsed){
+                    // open content card
+                    toggle_collapsible_card($(data).find('#section-ui-card-content > .card-header')); //function is defined in card.js
+                }
+                if(!properties_collapsed){
+                    // open properties card
+                    toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
+                }
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder']);                
                 history.pushState({}, null, toggleLink);
             },
             () => {
@@ -785,8 +796,7 @@ function initSaveBtn() {
             url: actionUrl,
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
-                update_new_data(data, ['#ui-middle', '#section-sidebar-content>card-body', '#section-sidebar-properties>card-body', '#nav-menu']);
-                // refresh_cms_ui(['#ui-middle','#section-sidebar-content>card-body','#section-sidebar-properties>card-body']);
+                update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
             }
         });
 

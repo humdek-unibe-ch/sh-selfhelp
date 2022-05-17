@@ -299,6 +299,6 @@ UPDATE pages_fields_translation
 SET id_languages = 2
 WHERE id_fields = 22 AND id_languages = 1;
 
--- make sectio name not-unique
+-- make section name not-unique
 ALTER TABLE sections
 DROP INDEX `name`;
