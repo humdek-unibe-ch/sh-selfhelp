@@ -7,6 +7,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title><?php echo $title; ?></title>
+<link rel="icon" type="image/x-icon" href="<?php echo BASE_PATH . '/favicon.ico'; ?>">
 <meta http-equiv="Content-Security-Policy" content="<?php echo $this->get_csp_rules(); ?>" />
 <meta http-equiv="WebKit-CSP" content="<?php echo $this->get_csp_rules(); ?>" />
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
