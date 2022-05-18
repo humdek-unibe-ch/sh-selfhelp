@@ -798,6 +798,13 @@ class CmsView extends BaseView
                 "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
             ));
         }
+        else if($field['type'] == "condition")
+        {
+            $children[] = new BaseStyleComponent("conditionBuilder", array(
+                "value" => $field['content'],
+                "name" => $field_name_content
+            ));
+        }
 
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
@@ -897,6 +904,13 @@ class CmsView extends BaseView
                 "name" => $field['name'],
                 "disabled" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
+            ));
+        }
+        else if($field['type'] == "condition")
+        {
+            // do not show the whole condition as it takes a lof of space. 
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => $field['content'] && $field['content'] != 'null' ? 'exists' : $field['content']
             ));
         }
         else if($field['content'] != null)

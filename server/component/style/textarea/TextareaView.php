@@ -48,7 +48,7 @@ class TextareaView extends FormFieldView
     {
         if($this->entry_data){
             // if entry data; reset the value
-            $this->value = $this->get_entry_value($this->entry_data, $this->model->get_db_field("value", "")); 
+            $this->value = $this->model->get_entry_value($this->entry_data, $this->model->get_db_field("value", "")); 
         }
         if($this->value === null)
             $this->value = $this->default_value;

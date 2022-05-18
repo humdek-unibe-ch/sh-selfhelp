@@ -40,16 +40,8 @@ class ConditionalContainerView extends StyleView
         parent::__construct($model);
         $this->condition = $this->model->get_db_field('condition');
         $this->debug = $this->model->get_db_field('debug', false);        
-    }
-
-    private function get_entry_values($entry_value){
-        $cond = json_encode($this->model->get_db_field('condition'));
-        $cond = $this->model->get_entry_value($entry_value, $cond);
-        $this->condition = json_decode($cond, true);
-    }    
-
+    }   
     
-
     /**
      * Render the style view for mobile.
      */

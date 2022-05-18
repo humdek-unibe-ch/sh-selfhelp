@@ -126,7 +126,7 @@ class InputView extends FormFieldView
         else if($this->value === null)
             $this->value = $this->default_value;
         if($this->entry_data){
-            $this->value = $this->get_entry_value($this->entry_data, $this->value); 
+            $this->value = $this->model->get_entry_value($this->entry_data, $this->value); 
         }
         if(
         $this->type == 'date' || $this->type == 'datetime') {

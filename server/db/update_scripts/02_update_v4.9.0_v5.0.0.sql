@@ -10,7 +10,7 @@ WHERE field_name = 'css' and style_name <> 'conditionalContainer';
 
 -- add filed jquery_builder_json to all styles that have css field
 INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `help`)
-SELECT style_id, get_field_id('jquery_builder_json'), 'This field contains the JSON structure for the jquery builder. The field shoudl be hidden' 
+SELECT style_id, get_field_id('jquery_builder_json'), 'This field contains the JSON structure for the jquery builder. The field should be hidden' 
 FROM view_style_fields
 WHERE field_name = 'css' and style_name <> 'conditionalContainer';
 
@@ -302,3 +302,19 @@ WHERE id_fields = 22 AND id_languages = 1;
 -- make section name not-unique
 ALTER TABLE sections
 DROP INDEX `name`;
+
+-- Add new field type `condition` 
+INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'condition', '6');
+
+-- Add new style `conditionBuilder`
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('conditionBuilder', '1', (select id from styleGroup where `name` = 'intern' limit 1), 'Internal style used for the condition field');
+
+-- make field `condition` from type `condition`
+UPDATE `fields`
+SET id_type = (SELECT id FROM fieldType WHERE `name` = 'condition' LIMIT 0,1)
+WHERE `name` = 'condition';
+
+--  hide all fields `jquery_builder_json`
+UPDATE styles_fields
+SET hidden = 1
+WHERE id_fields = get_field_id('jquery_builder_json')

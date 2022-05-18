@@ -33,7 +33,8 @@ function init_ui_cms() {
         adjustPropertiesHeight();
         initMarkdownFields();
         initCards();
-        initJsonFieldsNewUI();
+        // initJsonFieldsNewUI();
+        initConditionBuilder();
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();
