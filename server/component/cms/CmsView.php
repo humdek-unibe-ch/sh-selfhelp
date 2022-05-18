@@ -551,6 +551,12 @@ class CmsView extends BaseView
             "type_input" => "hidden",
         ));
 
+        $form_items[] = new BaseStyleComponent("input", array(
+            "value" => $this->model->get_id_root_section(),
+            "name" => "id_section",
+            "type_input" => "hidden",
+        ));
+
         if ($is_new_ui) {
             foreach ($fields as $field) {
                 if (isset($field['display']) && $field['display'] == 1) {
@@ -719,7 +725,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
                 "is_editable" => true,
-                "items" => $field['content'],
+                "items" => ($field['relation'] == RELATION_PAGE_CHILDREN ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
             ));
         }
         else if($field['type'] == "data-source")
@@ -841,7 +847,7 @@ class CmsView extends BaseView
                     $params_delete);
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_editable" => true,
-                "items" => $field['content'],
+                "items" => ($field['relation'] == RELATION_PAGE_CHILDREN ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
                 "label_add" => "Add",
                 "url_add" => $insert_target,
                 "url_delete" => $delete_target,
@@ -897,8 +903,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content']
             ));
-        
-        return new BaseStyleComponent("descriptionItem", array(
+        $ar = array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
             "title" => isset($field['label']) ? $field['label'] : $field['name'],
             "locale" => isset($field['gender']) ? $field['locale'] : '',
@@ -907,7 +912,8 @@ class CmsView extends BaseView
             "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
-        ));
+        );
+        return new BaseStyleComponent("descriptionItem", $ar);
     }
 
     /**

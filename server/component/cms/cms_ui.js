@@ -156,6 +156,11 @@ function addUISectionButtons(section) {
     $(buttonsHolderUpDownButtons).append(addButtonMoveSectionUp(section));
     $(buttonsHolderUpDownButtons).append(addButtonMoveSectionDown(section));
     $(section).append(buttonsHolderUpDown);
+
+    $(section).off('click').on('click', function (e) {
+        e.stopPropagation();
+        loadSectionFields(sectionData['go_to_section_url']);
+    })
 }
 
 // confirmation function
@@ -708,15 +713,15 @@ function initEditToggle() {
                 data = $(data);
                 var content_collapsed = $('#section-ui-card-content > .collapsed')[0];
                 var properties_collapsed = $('#section-ui-card-properties > .collapsed')[0];
-                if(!content_collapsed){
+                if (!content_collapsed) {
                     // open content card
                     toggle_collapsible_card($(data).find('#section-ui-card-content > .card-header')); //function is defined in card.js
                 }
-                if(!properties_collapsed){
+                if (!properties_collapsed) {
                     // open properties card
                     toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
                 }
-                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder']);                
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder']);
                 history.pushState({}, null, toggleLink);
             },
             () => {
@@ -793,7 +798,7 @@ function initSaveBtn() {
         var actionUrl = form.attr('action');
         $.ajax({
             type: "POST",
-            url: actionUrl,
+            url: window.location.href,
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
                 update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
@@ -812,7 +817,7 @@ function initUnsavedChangesListener() {
     $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
         unsavedChanges = true;
     });
-    
+
     $('.ui-card-properties textarea').on('change', function () { //triggers change in all textareas
         unsavedChanges = true;
     });
@@ -823,3 +828,33 @@ function initSmallButtons() {
     $(".ui-card-properties form > button").addClass("btn-sm");
 }
 
+function loadSectionFields(sectionUrl) {
+    console.log(sectionUrl);
+    executeAjaxCall(
+        'get',
+        sectionUrl,
+        {},
+        (data) => {
+            data = $(data);
+            // rework to keep the toggles as variable
+            var content_collapsed = $('#section-ui-card-content > .collapsed')[0];
+            var properties_collapsed = $('#section-ui-card-properties > .collapsed')[0];
+            if (!content_collapsed && $('#section-ui-card-content')[0]) {
+                // open content card
+                toggle_collapsible_card($(data).find('#section-ui-card-content > .card-header')); //function is defined in card.js
+            }
+            if (!properties_collapsed) {
+                // open properties card
+                toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
+            }
+            update_new_data(data, ['#section-ui-fields-holder']);
+            // history.pushState({}, null, sectionUrl);
+        },
+        () => {
+            console.log('error');
+            $.alert({
+                title: 'Error!',
+                content: 'Something went wrong!',
+            });
+        });
+}

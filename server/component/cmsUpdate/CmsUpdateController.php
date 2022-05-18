@@ -370,18 +370,19 @@ class CmsUpdateController extends BaseController
         if (count($page_fields) > 0) {
             // update page fields in table pages
             $res = $this->model->update_page($page_fields);
-            if ($res && $res > 0) {
+            if ($res && $res >= 0) {
                 $this->update_success_count = $this->update_success_count + $res;
-            } else {
+            } else if ($res === false) {
                 $this->update_fail_count++;
             }
         }
         if (count($section_fields) > 0) {
             // update section fields in table sections
             $res = $this->model->update_section($section_fields);
-            if ($res && $res > 0) {
+            if ($res && $res >= 0) {
                 $this->update_success_count = $this->update_success_count + $res;
-            } else {
+            } else if ($res === false) {
+                // only on false count as failed
                 $this->update_fail_count++;
             }
         }

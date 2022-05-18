@@ -36,6 +36,10 @@ class CmsSelectController extends BaseController
         if (isset($_POST['language'])) {            
             $_SESSION['language'] = $_POST['language'];
         }
+        if (isset($_POST['language']) || isset($_POST['gender'])) {            
+            // clear the cache if the content view is changed
+            $this->model->get_db()->clear_cache();
+        }
     }
 }
 ?>

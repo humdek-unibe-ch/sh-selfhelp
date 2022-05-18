@@ -4,6 +4,10 @@
  - #317 - add field `condition` for all styles. Add also `debug`.
  - move field `platform` to be checked in the conditions
  - gulp files are refreshed every time when a new version is uploaded
+ - add option for `section_name` change
+ - add option for `keyword` change
+ - add option for `page_access_type` change
+ - add option for page `is_headless` change
 
 ### Bugfix 
  - fix json condition builder for `in_one_of` type used with other condition

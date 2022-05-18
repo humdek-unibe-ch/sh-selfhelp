@@ -493,7 +493,7 @@ class CmsModel extends BaseModel
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
      */
-    private function fetch_section_hierarchy($id, $recursion=true)
+    public function fetch_section_hierarchy($id, $recursion=true)
     {
         $db_sections = $this->db->fetch_section_children($id);
         return $this->prepare_section_list($db_sections, $recursion);
@@ -1423,6 +1423,7 @@ class CmsModel extends BaseModel
             $res[] = $this->add_property_item(
                 array(
                     "name" => "sections",
+                    "label" => "Sections",
                     "type" => "style-list",
                     "relation" => RELATION_PAGE_CHILDREN,
                     "content" => $this->page_sections_static,
@@ -2038,6 +2039,10 @@ class CmsModel extends BaseModel
     public function update_section_fields_db($id, $id_language, $id_gender,
         $content, $id_section = null)
     {
+        if ($id_section === null && isset($_POST['id_section'])) {
+            // if the id is coming in the post parameter set it
+            $id_section = $_POST['id_section'];
+        }
         if($id_section === null)
             $id_section = $this->get_active_section_id();
         if($id_section == null && $this->is_navigation())
@@ -2081,12 +2086,22 @@ class CmsModel extends BaseModel
      *  True if the update operation is successful, false otherwise.
      */
     public function update_section($section_fields)
-    {        
+    {
         return $this->db->update_by_ids(
             "sections",
             $section_fields,
-            array("id" => $this->id_root_section)
+            array("id" => ($this->id_root_section ? $this->id_root_section : (isset($_POST['id_section']) ? $_POST['id_section'] : $this->id_root_section)))
         );
+    }
+
+    /**
+     * Get the id of the root section
+     * @return int 
+     * Return the id of the root section
+     */
+    public function get_id_root_section()
+    {
+        return $this->id_root_section;
     }
 }
 ?>
