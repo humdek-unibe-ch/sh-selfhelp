@@ -74,8 +74,10 @@ abstract class BaseComponent
                 method_exists($this->model, 'get_condition_result') &&
                 !$this->model->get_condition_result()['result']
                 && $this->model->get_style_name() != "conditionalContainer"
+                && !(method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing())
             ) {
                 //condition not meat, do not load unless it is conditional container. Conditional container could have a child conditionFailed
+                // load in CMS edit mode but not if it is in cms view mode
                 return;
             }
             if (method_exists($this->model, 'is_cms_page') && $this->model->is_cms_page() && 

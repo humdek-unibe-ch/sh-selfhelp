@@ -31,13 +31,9 @@ class ConditionalContainerModel extends StyleModel
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, $params, $id_page, $entry_record);        
-        if ($this->is_correct_platform()) {
-            // check conditions if it is for the correct platfform only, otherwise do not load children - improve perfromacne
-            // load children if it is for the cms
-            if (!$this->get_condition_result()['result']) {
-                $this->checkChildrenConditionFailed();
-            }
+        parent::__construct($services, $id, $params, $id_page, $entry_record);                
+        if (!$this->get_condition_result()['result']) {
+            $this->checkChildrenConditionFailed();
         }
     }
 
@@ -73,23 +69,6 @@ class ConditionalContainerModel extends StyleModel
                 $this->children[$child['name']] = new StyleComponent($this->services, intval($child['id']), array(), -1);
             }
         }
-    }
-
-    /**
-     * Check if the call is from the platform that was selected for the style
-     * @retval boolean
-     * Returns true if the call is from the correct platform otherwise false
-     */
-    private function is_correct_platform(){
-        $platform = $this->get_db_field('platform', pageAccessTypes_mobile_and_web); 
-        if ($platform == pageAccessTypes_mobile_and_web) {
-            return true;
-        } else if ($platform == pageAccessTypes_mobile && (isset($_POST['mobile']) && $_POST['mobile'])) {
-            return true;
-        } else if ($platform == pageAccessTypes_web && !isset($_POST['mobile'])) {
-            return true;
-        }
-        return false;
     }
 
     /* Public Methods *********************************************************/

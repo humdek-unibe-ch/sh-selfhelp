@@ -416,6 +416,8 @@ class StyleModel extends BaseModel implements IStyleModel
             else if ($field['type'] == "json") {
                 $field['content'] = json_decode($field['content'], true);
                 /* $field['content'] = $this->json_style_parse($field['content']); */
+            } else if ($field['type'] == "condition") {
+                $field['content'] = json_decode($field['content'], true);
             } else if ($this->user_input->is_new_ui_enabled() && $this->is_link_active("cmsUpdate") && $field['name'] == "css") {
                 // if it is the new UI and in edit mode remove the custom css for better visibility
                 $field['content'] = '';

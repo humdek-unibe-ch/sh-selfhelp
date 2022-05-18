@@ -34,7 +34,7 @@ function init_ui_cms() {
         initMarkdownFields();
         initCards();
         // initJsonFieldsNewUI();
-        initConditionBuilder();
+        initConditionBuilder(); // this function is in style conditionBuilder - conditionBuilder.js
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();
