@@ -323,7 +323,7 @@ function checkAllDataConfigInitCalls(editor) {
         for (let key in editor.editors) {
             if (editor.editors.hasOwnProperty(key) && key !== 'root' &&
                 (key.includes('table') || key.includes('type') || key.includes('field_name'))) {
-                editor.watch(key, dataConfigWatcherCallback.bind(editor, key)); // add watch events to all exisitng keys containing [table, type, field_name]
+                editor.watch(key, dataConfigWatcherCallback.bind(editor, key)); // add watch events to all existing keys containing [table, type, field_name]
             }
         }
     }

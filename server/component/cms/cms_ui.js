@@ -54,10 +54,13 @@ function initCards() {
 }
 
 function initJsonFieldsNewUI() {
+    console.log('init');
     // if (typeof monaco != "undefined") {
-    //     monaco.editor.getModels().forEach(model => model.dispose()); // first clear the loaded editors
+        // monaco.editor.getModels().forEach(model => model.dispose());
+        console.log('init');
+        initJsonFields(); // this function is style textarea.js
     // }
-    // initJsonFields(); // this function is style textarea.js
+
 }
 
 // create a button add nee section above selected section
