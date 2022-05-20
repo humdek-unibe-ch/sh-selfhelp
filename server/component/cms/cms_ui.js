@@ -33,9 +33,10 @@ function init_ui_cms() {
         adjustPropertiesHeight();
         initMarkdownFields();
         initCards();
-        // initJsonFieldsNewUI();
         initConditionBuilder(); // this function is in style conditionBuilder - conditionBuilder.js
         initDataConfigBuilder(); // this function is in style dataConfigBuilder - dataConfigBuilder.js
+        initJsonFields(); // this function is in style textarea - textarea.js
+        $('select').selectpicker();
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();
@@ -53,16 +54,6 @@ function initCards() {
     $('div.card-header.collapsible').on('click', function () {
         toggle_collapsible_card($(this)); // this function is in style cards card.js 
     });
-}
-
-function initJsonFieldsNewUI() {
-    console.log('init');
-    // if (typeof monaco != "undefined") {
-        // monaco.editor.getModels().forEach(model => model.dispose());
-        console.log('init');
-        initJsonFields(); // this function is style textarea.js
-    // }
-
 }
 
 // create a button add nee section above selected section
@@ -164,6 +155,7 @@ function addUISectionButtons(section) {
 
     $(section).off('click').on('click', function (e) {
         e.stopPropagation();
+        // e.preventDefault();
         loadSectionFields(sectionData['go_to_section_url']);
     })
 }
