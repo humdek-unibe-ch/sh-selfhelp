@@ -25,7 +25,7 @@ BEGIN
         SELECT table_name from view_uploadTables where 1=2;
     ELSE
         BEGIN
-            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', @sql, 
+            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
                 ' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
 					inner join uploadCells cell on (cell.id_uploadRows = r.id)

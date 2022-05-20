@@ -805,6 +805,13 @@ class CmsView extends BaseView
                 "name" => $field_name_content
             ));
         }
+        else if($field['type'] == "data-config")
+        {
+            $children[] = new BaseStyleComponent("dataConfigBuilder", array(
+                "value" => $field['content'],
+                "name" => $field_name_content
+            ));
+        }
 
         return new BaseStyleComponent("descriptionItem", array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
@@ -911,6 +918,13 @@ class CmsView extends BaseView
             // do not show the whole condition as it takes a lof of space. 
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content'] && $field['content'] != 'null' ? 'exists' : $field['content']
+            ));
+        }
+        else if($field['type'] == "data-config")
+        {
+            // do not show the whole condition as it takes a lof of space. 
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => $field['content'] && $field['content'] != '[]' ? 'exists' : $field['content']
             ));
         }
         else if($field['content'] != null)

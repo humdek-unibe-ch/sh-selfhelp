@@ -3,24 +3,6 @@
     height: 100px;
 }
 
-.data_config_builder_modal_holder .modal-dialog{
-    max-width: 80% !important;
-    z-index: 1000   0;
-}
-
-.data_config_builder_modal_holder .modal-dialog .modal-header{
-    background: #007bff;
-}
-
-.data_config_builder_modal_holder .btn-group{
-    margin-bottom: .25rem;
-}
-
-.data_config_builder_modal_holder .btn-group button{
-    border: solid;
-    border-radius: 5px !important;
-}
-
 .condition_builder_modal_holder .modal-dialog{
     max-width: 80% !important;
     z-index: 1000   0;

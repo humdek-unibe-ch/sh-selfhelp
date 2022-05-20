@@ -9,6 +9,7 @@
  - add option for `page_access_type` change
  - add option for page `is_headless` change
  - add new style `conditionBuilder`
+ - add new style `dataConfigBuilder`
 
 ### Bugfix 
  - fix json condition builder for `in_one_of` type used with other condition

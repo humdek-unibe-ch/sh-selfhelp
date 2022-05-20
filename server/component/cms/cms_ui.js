@@ -35,6 +35,7 @@ function init_ui_cms() {
         initCards();
         // initJsonFieldsNewUI();
         initConditionBuilder(); // this function is in style conditionBuilder - conditionBuilder.js
+        initDataConfigBuilder(); // this function is in style dataConfigBuilder - dataConfigBuilder.js
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();
@@ -754,8 +755,6 @@ function adjustPropertiesHeight() {
         $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
     }
 
-    console.log(usedSpace, saveBtnHeight);
-
     // without button
     // var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top;
     // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
@@ -804,7 +803,7 @@ function initSaveBtn() {
             type: "POST",
             url: window.location.href,
             data: form.serialize(), // serializes the form's elements.
-            success: function (data) {
+            success: function (data) {   
                 update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
             }
         });

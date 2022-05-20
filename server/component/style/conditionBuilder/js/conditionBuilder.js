@@ -44,34 +44,6 @@ function initConditionBuilder() {
     prepareConditionBuilder(jqueryBuilderJsonInput);
 }
 
-function setConditionSchema(monaco, json) {
-    // get the json logic schemes
-    var schema = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/json-logic/json-logic.json";
-    var modelUri = monaco.Uri.parse(schema); // a made up unique URI for our model
-    if (typeof monaco != "undefined") {
-        monaco.editor.getModels().forEach(model => model.dispose()); // first clear the loaded editors
-    }
-    var model = monaco.editor.createModel($(json).prev().val(), "json", modelUri);
-
-    // configure the JSON language support with schemas and schema associations
-    let r = monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: true,
-        enableSchemaRequest: true,
-        schemas: [{
-            uri: "http://selfhelp/json-logic.json", // id of the first schema
-            fileMatch: [modelUri.toString()], // associate with our model
-            schema: {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "$id": schema,
-                "title": "JSON-Logic Schema",
-                "description": "Build complex rules, serialize them as JSON, share them between front-end and back-end.",
-                "$ref": schema
-            }
-        }]
-    });
-    return model;
-}
-
 // ********************************************* CONDITION BUILDER *****************************************
 
 
