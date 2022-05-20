@@ -379,5 +379,8 @@ END
 
 DELIMITER ;
 
--- Add new style `actionBuilder`
+-- Add new style `actionConfigBuilder`
 INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('actionConfigBuilder', '1', (select id from styleGroup where `name` = 'intern' limit 1), 'Internal style used for the configuration of an action');
+
+-- Add new style `qualtricsSurveyConfigBuilder`
+INSERT INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtricsSurveyConfigBuilder', '1', (select id from styleGroup where `name` = 'intern' limit 1), 'Internal style used for the configuration of an Qulatrics Survey');

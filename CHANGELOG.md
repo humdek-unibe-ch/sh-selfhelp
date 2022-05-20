@@ -20,6 +20,7 @@
  - add new internal style `conditionBuilder`
  - add new internal style `dataConfigBuilder`
  - add new internal style `actionConfigBuilder`
+ - add new internal style `qualtricsSurveyConfigBuilder`
 
 # v4.9.6
 ### New Features

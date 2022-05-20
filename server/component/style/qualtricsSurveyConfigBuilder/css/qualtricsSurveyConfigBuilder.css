@@ -1,0 +1,17 @@
+.qualtricsSurveyConfig_builder_modal_holder .modal-dialog{
+    max-width: 80% !important;
+    z-index: 1000   0;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .modal-dialog .modal-header{
+    background: #007bff;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .btn-group{
+    margin-bottom: .25rem;
+}
+
+.qualtricsSurveyConfig_builder_modal_holder .btn-group button{
+    border: solid;
+    border-radius: 5px !important;
+}

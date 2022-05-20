@@ -164,7 +164,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter participant variable name",
                         )),
-                        new BaseStyleComponent("textarea", array(
+                        new BaseStyleComponent("QualtricsSurveyConfigBuilder", array(
                             "label" => "Config:",
                             "type_input" => "json",
                             "name" => "config",
