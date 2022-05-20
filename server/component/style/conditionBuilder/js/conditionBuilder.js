@@ -41,7 +41,7 @@ function initConditionBuilder() {
     });
 
     // get groups and prepare the condition builder    
-    prepareConditionBuilder(jqueryBuilderJsonInput);
+    prepareConditionBuilder($(jqueryBuilderJsonInput).val());
 }
 
 // ********************************************* CONDITION BUILDER *****************************************
@@ -50,7 +50,7 @@ function initConditionBuilder() {
 
 
 // prepare the condition builder and the rules that can be added
-async function prepareConditionBuilder(jqueryBuilderJsonInput) {
+async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
 
     var groups = await getGroups();
 
@@ -185,8 +185,8 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
     var rules = null;
 
     try {
-        if ($(jqueryBuilderJsonInput).val()) {
-            rules = JSON.parse($(jqueryBuilderJsonInput).val());
+        if (jqueryBuilderJsonInput) {
+            rules = JSON.parse(jqueryBuilderJsonInput);
         } else {
             try {
                 var actionConfig = JSON.parse(monacoEditor.getModel().getValue());
@@ -208,6 +208,11 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
 
     if ($('.condition_builder').length > 0) {
         $('.condition_builder').queryBuilder(queryStructure);
+    } else if ($('.action_condition_builder').length > 0) {
+        $('.action_condition_builder').queryBuilder(queryStructure);
+        if (queryStructure['rules']) {
+            $('.action_condition_builder').queryBuilder('setRules', queryStructure.rules);
+        }
     }
 }
 

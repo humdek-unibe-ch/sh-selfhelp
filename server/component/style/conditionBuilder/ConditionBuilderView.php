@@ -53,13 +53,6 @@ class ConditionBuilderView extends FormFieldView
 
     /* Public Methods *********************************************************/
 
-    public function output_json()
-    {
-        if ($this->type_input == "json") {
-            require __DIR__ . "/tpl_json.php";
-        }
-    }
-
     /**
      * Render the builder buttons and modal forms if they are needed
      */

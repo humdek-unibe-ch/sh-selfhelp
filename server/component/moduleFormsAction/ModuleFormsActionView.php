@@ -462,7 +462,7 @@ class ModuleFormsActionView extends BaseView
                     "css" => "mb-3",
                     "placeholder" => "@user_name can be used for showing the user",
                 )),
-                new BaseStyleComponent("textarea", array(
+                new BaseStyleComponent("ActionConfigBuilder", array(
                     "label" => "Config",
                     "type_input" => "json",
                     "id" => "config",

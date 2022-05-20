@@ -7,9 +7,9 @@
 require_once __DIR__ . "/../formField/FormFieldView.php";
 
 /**
- * The view class of the ConditionBuilder style component.
+ * The view class of the actionConfigBuilderBuilder style component.
  */
-class DataConfigBuilderView extends FormFieldView
+class ActionConfigBuilderView extends FormFieldView
 {
     /* Private Properties *****************************************************/
 
@@ -59,15 +59,32 @@ class DataConfigBuilderView extends FormFieldView
     public function output_builder()
     {
         $modal = new BaseStyleComponent('modal', array(
-            'title' => "Data Config Builder",
-            'id' => "data_config_builder_modal_holder",
-            "css" => "data_config_builder_modal_holder",
-            'children' => array(
-                new BaseStyleComponent("div", array(
-                    "css" => "d-flex flex-column justify-content-between data_config_builder_holder",
-                    "children" => array(
+                'title' => "Action Config Builder",
+                "css" => "actionConfig_builder_modal_holder",
+                'children' => array(
+                    new BaseStyleComponent("div", array(
+                        "css" => "actionConfig_builder"
+                    )),
+                    new BaseStyleComponent("div", array(
+                        "css" => "modal-footer",
+                        "children" => array(
+                            new BaseStyleComponent("button", array(
+                                "label" => "Save",
+                                "url" => "#",
+                                "type" => "primary",
+                                "css" => "saveActionConfigBuilder"
+                            )),
+                        )
+                    ))
+                ),
+            ));
+            $modal->output_content();
+            $modalCondition = new BaseStyleComponent('modal', array(
+                    'title' => "Action Condition Builder",
+                    "css" => "action_condition_builder_modal_holder",
+                    'children' => array(
                         new BaseStyleComponent("div", array(
-                            "css" => "data_config_builder"
+                            "css" => "action_condition_builder"
                         )),
                         new BaseStyleComponent("div", array(
                             "css" => "modal-footer",
@@ -75,17 +92,15 @@ class DataConfigBuilderView extends FormFieldView
                                 new BaseStyleComponent("button", array(
                                     "label" => "Save",
                                     "url" => "#",
-                                    "type" => "secondary",
-                                    "css" => "saveDataConfig btn-sm"
+                                    "type" => "primary",
+                                    "css" => "saveActionConditionBuilder"
                                 )),
                             )
                         ))
                     ),
-                )),
-            )
-        ));
-        $modal->output_content();
-        require __DIR__ . "/tpl_dataConfig_builder.php";
+                ));
+            $modalCondition->output_content();
+            require __DIR__ . "/tpl_action_config_builder.php";
     }
 }
 ?>
