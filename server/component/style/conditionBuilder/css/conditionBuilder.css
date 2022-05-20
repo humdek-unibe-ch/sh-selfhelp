@@ -16,3 +16,7 @@
     border: solid;
     border-radius: 5px !important;
 }
+
+.condition_builder .bootstrap-select {
+    width: auto !important;
+}

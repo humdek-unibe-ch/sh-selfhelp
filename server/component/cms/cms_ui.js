@@ -31,7 +31,7 @@ function init_ui_cms() {
         initUISectionsButtons();
         initSortableElements();
         adjustPropertiesHeight();
-        initMarkdownFields();
+        initMarkdownFields(); // this function is in style textarea - textarea.js
         initCards();
         initConditionBuilder(); // this function is in style conditionBuilder - conditionBuilder.js
         initDataConfigBuilder(); // this function is in style dataConfigBuilder - dataConfigBuilder.js
@@ -52,7 +52,13 @@ function init_ui_cms() {
 
 function initCards() {
     $('div.card-header.collapsible').on('click', function () {
+        setTimeout(() => {
+            $('.CodeMirror-sizer').each(function () {
+                $(this).css('min-height', '32px'); // ugly hack for hidden fields to properly get height
+            })
+        }, 100);
         toggle_collapsible_card($(this)); // this function is in style cards card.js 
+
     });
 }
 
@@ -754,21 +760,6 @@ function adjustPropertiesHeight() {
 
 }
 
-function initMarkdownFields() {
-    // var markdowns = $('.style-markdown');
-    // Array.from(markdowns).forEach((md) => {
-    //     new SimpleMDE({
-    //         element: md,
-    //         autoDownloadFontAwesome: false,
-    //         spellChecker: false,
-    //         toolbar: ["bold", "italic", "heading", "quote", "unordered-list", "ordered-list", "link", "image", "table", "preview", "guide"],
-    //         renderingConfig: {
-    //             singleLineBreaks: false
-    //         }
-    //     });
-    // });
-}
-
 function initSaveBtn() {
     var saveForm = $('.ui-card-properties form').first()
     $(saveForm).off('submit');
@@ -795,7 +786,7 @@ function initSaveBtn() {
             type: "POST",
             url: window.location.href,
             data: form.serialize(), // serializes the form's elements.
-            success: function (data) {   
+            success: function (data) {
                 update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
             }
         });

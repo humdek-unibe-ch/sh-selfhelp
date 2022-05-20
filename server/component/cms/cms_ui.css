@@ -263,21 +263,3 @@
     max-width: 70px;
 }
 
-.data_config {
-    display: none;
-}
-
-.style-markdown {
-    max-height: 300px;
-}
-
-.CodeMirror,
-.CodeMirror-scroll {
-    max-height: 300px;
-    min-height: 0px;
-}
-
-.condition_builder .bootstrap-select {
-    width: auto !important;
-}
-

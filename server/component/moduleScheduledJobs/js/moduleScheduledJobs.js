@@ -43,7 +43,7 @@ $(document).ready(function () {
     $('select').selectpicker();
 
     if ($('textarea[name="body"]')[0]) {
-        var simplemde = new SimpleMDE({
+        var simplemde = new EasyMDE({
             autoDownloadFontAwesome: false,
             spellChecker: false,
             renderingConfig: {

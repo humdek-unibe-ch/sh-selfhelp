@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('recipients').selectpicker();
 
-    new SimpleMDE({
+    new EasyMDE({
         element: $('textarea[name="body"]')[0],
         autoDownloadFontAwesome: false,
         spellChecker: false,

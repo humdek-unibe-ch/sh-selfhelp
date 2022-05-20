@@ -126,7 +126,7 @@ $(document).ready(function () {
     adjustRequiredFields();
     $('select').selectpicker();
     if ($('textarea[name="schedule_info[body]"]')[0]) {
-        var simplemde = new SimpleMDE({
+        var simplemde = new EasyMDE({
             autoDownloadFontAwesome: false,
             spellChecker: false,
             renderingConfig: {
