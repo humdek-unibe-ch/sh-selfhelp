@@ -59,48 +59,48 @@ class ActionConfigBuilderView extends FormFieldView
     public function output_builder()
     {
         $modal = new BaseStyleComponent('modal', array(
-                'title' => "Action Config Builder",
-                "css" => "actionConfig_builder_modal_holder",
-                'children' => array(
-                    new BaseStyleComponent("div", array(
-                        "css" => "actionConfig_builder"
-                    )),
-                    new BaseStyleComponent("div", array(
-                        "css" => "modal-footer",
-                        "children" => array(
-                            new BaseStyleComponent("button", array(
-                                "label" => "Save",
-                                "url" => "#",
-                                "type" => "primary",
-                                "css" => "saveActionConfigBuilder"
-                            )),
-                        )
-                    ))
-                ),
-            ));
-            $modal->output_content();
-            $modalCondition = new BaseStyleComponent('modal', array(
-                    'title' => "Action Condition Builder",
-                    "css" => "action_condition_builder_modal_holder",
-                    'children' => array(
-                        new BaseStyleComponent("div", array(
-                            "css" => "action_condition_builder"
+            'title' => "Action Config Builder",
+            "css" => "actionConfig_builder_modal_holder",
+            'children' => array(
+                new BaseStyleComponent("div", array(
+                    "css" => "actionConfig_builder"
+                )),
+                new BaseStyleComponent("div", array(
+                    "css" => "modal-footer",
+                    "children" => array(
+                        new BaseStyleComponent("button", array(
+                            "label" => "Save",
+                            "url" => "#",
+                            "type" => "secondary",
+                            "css" => "saveActionConfigBuilder btn-sm"
                         )),
-                        new BaseStyleComponent("div", array(
-                            "css" => "modal-footer",
-                            "children" => array(
-                                new BaseStyleComponent("button", array(
-                                    "label" => "Save",
-                                    "url" => "#",
-                                    "type" => "primary",
-                                    "css" => "saveActionConditionBuilder"
-                                )),
-                            )
-                        ))
-                    ),
-                ));
-            $modalCondition->output_content();
-            require __DIR__ . "/tpl_action_config_builder.php";
+                    )
+                ))
+            ),
+        ));
+        $modal->output_content();
+        $modalCondition = new BaseStyleComponent('modal', array(
+            'title' => "Action Condition Builder",
+            "css" => "action_condition_builder_modal_holder",
+            'children' => array(
+                new BaseStyleComponent("div", array(
+                    "css" => "action_condition_builder"
+                )),
+                new BaseStyleComponent("div", array(
+                    "css" => "modal-footer",
+                    "children" => array(
+                        new BaseStyleComponent("button", array(
+                            "label" => "Save",
+                            "url" => "#",
+                            "type" => "secondary",
+                            "css" => "saveActionConditionBuilder btn-sm"
+                        )),
+                    )
+                ))
+            ),
+        ));
+        $modalCondition->output_content();
+        require __DIR__ . "/tpl_action_config_builder.php";
     }
 }
 ?>

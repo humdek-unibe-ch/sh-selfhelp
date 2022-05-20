@@ -1,5 +1,4 @@
-.data_config_builder
-.card-title.level-1 {
+.data_config_builder .card-title.level-1 {
     display: flex !important;
     align-items: center;
     flex-direction: row-reverse;
@@ -7,8 +6,7 @@
     padding: 0.5rem 15px 0.5rem 0.5rem;
 }
 
-.data_config_builder 
-.card-title.level-3 {
+.data_config_builder .card-title.level-3 {
     display: flex !important;
     align-items: center;
     flex-direction: row-reverse;
@@ -47,11 +45,11 @@
     font-size: .875rem;
 }
 
-.data_config_builder .json-editor-btn-add {
+.json-editor-btn-add {
     background-color: var(--success);
 }
 
-.data_config_builder .json-editor-btn-delete,
+.json-editor-btn-delete,
 .json-editor-btn-subtract {
     background-color: var(--danger);
 }
@@ -66,7 +64,11 @@
 }
 
 .data_config_builder .btn:focus,
-.btn:active, .btn:target, .btn:hover, .btn:focus-visible, .btn:focus-within {
+.btn:active,
+.btn:target,
+.btn:hover,
+.btn:focus-visible,
+.btn:focus-within {
     outline: none !important;
     box-shadow: none !important;
 }
@@ -120,20 +122,21 @@
     padding-left: 0.25rem;
 }
 
-#Data-Source{
+#Data-Source {
     padding: 0;
 }
 
-.data_config_builder > .je-noindent > .row{
+.data_config_builder>.je-noindent>.row {
     margin: 0;
 }
 
-#Data-Source > .je-object__container > p{
+#Data-Source>.je-object__container>p {
     border-top: 1px solid;
     margin-right: -15px;
     font-style: italic;
 }
-#Field > .je-object__container > p{
+
+#Field>.je-object__container>p {
     border-top: 1px solid;
     margin-right: -15px;
     font-style: italic;

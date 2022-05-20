@@ -4,4 +4,3 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="json form-control p-0"></div>
-<?php $this->output_builder() ?>
