@@ -739,7 +739,9 @@ function initEditToggle() {
 
 function getEditToggleLink() {
     var editLink = $('.ui-card-properties a:first').attr('href');
-    var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
+    // var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
+    var cancelLink = location.href.replace('_update', '').replace('/update/prop', '');
+    console.log(cancelLink);
     return editLink ? editLink : cancelLink;
 }
 
