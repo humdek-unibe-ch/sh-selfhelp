@@ -784,7 +784,7 @@ function initDeleteBtn() {
                     // after deletion go to the page
                     redirect_url = delData['cms_url'];
                 } else {
-                    refresh = true;
+                    refresh = true; 
                 }
                 executeAjaxCall(
                     'post',
