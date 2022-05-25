@@ -88,6 +88,7 @@ class CmsInsertController extends BaseController
                 $this->fail = true;
                 $this->error_msgs[] = "Failed to create new page.";
             }
+            $this->model->get_db()->clear_cache();
         }
     }
 

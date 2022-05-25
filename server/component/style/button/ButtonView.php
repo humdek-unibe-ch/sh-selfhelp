@@ -34,6 +34,16 @@ class ButtonView extends StyleView
      */
     private $type;
 
+    /**
+     * Id used for html element
+     */
+    private $id;
+
+    /**
+     * Data object used to pass some data in html if it is needed later in JS
+     */
+    private $data;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -48,6 +58,8 @@ class ButtonView extends StyleView
         $this->label = $this->model->get_db_field("label");
         $this->url = $this->model->get_db_field("url");
         $this->type = $this->model->get_db_field("type", "primary");
+        $this->id = $this->model->get_db_field("id", null);
+        $this->data = $this->model->get_db_field("data", null);
     }
 
     /* Public Methods *********************************************************/

@@ -44,6 +44,7 @@ function init_ui_cms() {
         initSaveBtn();
         initUnsavedChangesListener();
         initSmallButtons();
+        initDeleteBtn();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -168,10 +169,11 @@ function addUISectionButtons(section) {
 
 // confirmation function
 // takes confirmation message and confirmCallback which is executed on confirmation
-function confirmation(content, confirmCallback) {
+function confirmation(content, confirmCallback, type) {
     $.confirm({
         title: 'CMS UI',
         content: content,
+        type: type,
         buttons: {
             confirm: function () {
                 confirmCallback();
@@ -748,11 +750,14 @@ function getEditToggleLink() {
 function adjustPropertiesHeight() {
     // with button down
     var saveBtnHeight = $('.ui-card-properties form > button').first().outerHeight();
-    var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top + (saveBtnHeight ? saveBtnHeight : 0);
-    if (saveBtnHeight) {
-        $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px - 1rem)" });
-    } else {
-        $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
+    var uiCardProperties = $('.ui-card-properties');
+    if (uiCardProperties && saveBtnHeight) {
+        var usedSpace = uiCardProperties[0].getBoundingClientRect().top + (saveBtnHeight ? saveBtnHeight : 0);
+        if (saveBtnHeight) {
+            $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px - 1rem)" });
+        } else {
+            $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
+        }
     }
 
     // without button
@@ -760,6 +765,65 @@ function adjustPropertiesHeight() {
     // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
     // console.log(usedSpace);
 
+}
+
+function initDeleteBtn() {
+    $('#new-ui-delete').off('click').on('click', function () {
+        console.log('delete');
+        var delData = $('#new-ui-delete').data('data');
+        console.log(delData);
+        confirmation('<p>This will delete the page <code>' + delData['name'] + '</code> and all the data associated to this page.<p>Children elements are not affected.</p></p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the page.</p> <input id="deleteValue" type="text" class="form-control" >', () => {
+            console.log($("#deleteValue").val());
+            if ($("#deleteValue").val() == delData['name']) {
+                var redirect_url = null;
+                var refresh = false;
+                if (delData['relation'] == RELATION_PAGE) {
+                    redirect_url = delData['cms_url'];
+                } else if (location.href.includes('/' + delData['id'] + '/')) {
+                    // we want to delete from the section itself
+                    // after deletion go to the page
+                    redirect_url = delData['cms_url'];
+                } else {
+                    refresh = true;
+                }
+                executeAjaxCall(
+                    'post',
+                    delData['del_url'],
+                    {
+                        "name": delData['name']
+                    },
+                    () => {
+                        console.log('deleted');
+                        if (refresh) {
+                            refresh_cms_ui(['#ui-middle', '#properties']);
+                        }
+                    },
+                    () => {
+                        console.log('error');
+                        $.alert({
+                            title: 'Error!',
+                            content: 'The ' + delData['relation'] + ' was not deleted!',
+                        });
+                    });
+                if (delData['relation'] == RELATION_PAGE) {
+                    location.href = delData['cms_url'];
+                } else if (location.href.includes('/' + delData['id'] + '/')) {
+                    // we want to delete from the section itself
+                    // after deletion go to the page
+                    location.href = delData['cms_url'];
+                }
+                if (redirect_url) {
+                    location.href = redirect_url;
+                }
+            } else {
+                $.alert({
+                    title: 'CMS UI',
+                    type: "red",
+                    content: 'Failed to delete the page: The verification text does not match with the page keyword.',
+                });
+            }
+        }, "red");
+    })
 }
 
 function initSaveBtn() {

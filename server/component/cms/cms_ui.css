@@ -129,7 +129,7 @@
     right: 0.5rem;    
 }
 
-.ui-card-properties form>a {
+.ui-card-properties form>.form-cancel-btn {
     display: none;
 }
 

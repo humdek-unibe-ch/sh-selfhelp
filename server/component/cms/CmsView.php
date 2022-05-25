@@ -606,6 +606,26 @@ class CmsView extends BaseView
                 }
             }
         }
+        $section_info = $this->model->get_section_info();
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            $form_items[] = new BaseStyleComponent("div", array(
+                "css" => "w-100 p-2",
+                "children" => array(new BaseStyleComponent("button", array(
+                    "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),
+                    "url" => '#',
+                    "type" => "danger",
+                    "css" => "w-100 ",
+                    "id" => "new-ui-delete",
+                    "data" => array(
+                        "name" => $this->model->get_id_root_section() ? $section_info['name'] : $this->model->get_page_info()['keyword'],
+                        "id" => $this->model->get_id_root_section() ? $this->model->get_id_root_section() : $this->model->get_active_page_id(),
+                        "del_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsDelete", $this->model->get_current_url_params()) : $this->model->get_link_url("cmsDelete", array("pid" => $this->model->get_active_page_id())),
+                        "cms_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsUpdate", array("pid" => $this->model->get_active_page_id(), "mode" => UPDATE, "type" => "prop")) : $this->model->get_link_url("cmsSelect", array("pid" => null)),
+                        "relation" => $this->model->get_id_root_section() ? RELATION_SECTION : RELATION_PAGE
+                    )
+                )))
+            ));
+        }
 
         $params = $this->model->get_current_url_params();
         return new BaseStyleComponent("form", array(
