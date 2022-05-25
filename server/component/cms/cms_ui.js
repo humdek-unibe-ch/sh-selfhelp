@@ -45,6 +45,7 @@ function init_ui_cms() {
         initUnsavedChangesListener();
         initSmallButtons();
         initDeleteBtn();
+        initExportBtn();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -784,7 +785,7 @@ function initDeleteBtn() {
                     // after deletion go to the page
                     redirect_url = delData['cms_url'];
                 } else {
-                    refresh = true; 
+                    refresh = true;
                 }
                 executeAjaxCall(
                     'post',
@@ -793,7 +794,6 @@ function initDeleteBtn() {
                         "name": delData['name']
                     },
                     () => {
-                        console.log('deleted');
                         if (refresh) {
                             refresh_cms_ui(['#ui-middle', '#properties']);
                         }
@@ -823,6 +823,44 @@ function initDeleteBtn() {
                 });
             }
         }, "red");
+    })
+}
+
+function initExportBtn() {
+    $('#new-ui-export').off('click').on('click', function (e) {
+        e.preventDefault();
+        console.log('export');
+        executeAjaxCall(
+            'post',
+            $('#new-ui-export').attr('href'),
+            {},
+            (data) => {
+                const jsonExportData = $(data).find('#jsonExportData').val();
+                try {
+                    var originalData = JSON.parse(jsonExportData);
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(new Blob([JSON.stringify(originalData, null, 2)], {
+                        type: "text/plain"
+                    }));
+                    a.setAttribute("download", originalData['file_name'] + ".json");
+                    $(a).addClass('d-none');
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } catch (error) {
+                    $.alert({
+                        title: 'Error!',
+                        content: 'Error while exporting!',
+                    });
+                }
+            },
+            () => {
+                console.log('error');
+                $.alert({
+                    title: 'Error!',
+                    content: 'Error while exporting!',
+                });
+            });
     })
 }
 

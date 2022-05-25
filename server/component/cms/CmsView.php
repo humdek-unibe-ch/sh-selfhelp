@@ -611,6 +611,18 @@ class CmsView extends BaseView
             $form_items[] = new BaseStyleComponent("div", array(
                 "css" => "w-100 p-2",
                 "children" => array(new BaseStyleComponent("button", array(
+                    "label" => "Export " . ($this->model->get_id_root_section() ? 'section' : 'page'),
+                    "url" => $this->model->get_link_url(
+                            "cmsExport",
+                            array(
+                                "type" => "section",
+                                "id" => $this->model->get_active_section_id()
+                            )
+                        ),
+                    "css" => "w-100 mb-2",
+                    "id" => "new-ui-export"
+                )),
+                new BaseStyleComponent("button", array(
                     "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),
                     "url" => '#',
                     "type" => "danger",
