@@ -7,14 +7,14 @@
 
 use Swaggest\JsonSchema\Schema;
 
-require_once __DIR__ . "/../BaseModel.php";
+require_once __DIR__ . "/../cms/CmsModel.php";
 require_once __DIR__ . "/../../service/ext/swaggest_json_schema_0.12.31.0_require/vendor/autoload.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class CmsImportModel extends BaseModel
+class CmsImportModel extends CmsModel
 {
 
     /* Public Properties *****************************************************/
@@ -40,7 +40,7 @@ class CmsImportModel extends BaseModel
      */
     public function __construct($services, $type)
     {
-        parent::__construct($services);
+        parent::__construct($services, null, null, null);
         $this->type = $type;
     }
 
@@ -52,11 +52,13 @@ class CmsImportModel extends BaseModel
      * the section info
      * @param integer $parent
      * the parent_id if the section is a child
+     * @param integer $position
+     * the position where the section should be inserted
      * @retval integer 
      * returns the inserted section_id
      * If there is an error throw an exception which rollback the inserts
      */
-    private function insert_section($section, $parent = null)
+    private function insert_section($section, $parent = null, $position = null)
     {
         $section_style_id = $this->db->query_db_first('SELECT id FROM styles WHERE name = :name', array(":name" => $section['style_name']))['id'];
         $id_sections = $this->db->insert("sections", array(
@@ -85,7 +87,7 @@ class CmsImportModel extends BaseModel
             if (!$this->db->insert("sections_hierarchy", array(
                 "parent" => $parent,
                 "child" => $id_sections,
-                "position" => $section['position']
+                "position" => $position ? $position :  $section['position']
             ))) {
                 throw new Exception('Cannot insert child section:  ' . $section['section_name']);
             }
@@ -123,12 +125,17 @@ class CmsImportModel extends BaseModel
 
     /**
      * Import section based on the json input file
+     * @param int $parent_id = null
+     * If we want to import the section directly with a parent
+     * @param integer $position
+     * the position where the section should be inserted
      */
-    public function import_section()
+    public function import_section($parent_id = null, $position = null)
     {
         try {
             $this->db->begin_transaction();
-            $section_id = $this->insert_section($this->json['section']);
+            $section_id = $this->insert_section($this->json['section'], $parent_id, $position);
+            $this->adjust_hierarchy($parent_id, RELATION_SECTION);
             $this->db->commit();
             return true;
         } catch (Exception $e) {

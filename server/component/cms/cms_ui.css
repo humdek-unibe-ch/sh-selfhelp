@@ -263,3 +263,6 @@
     max-width: 70px;
 }
 
+#ui-add-section-modal .modal-dialog{
+    max-width: 80% !important;
+}

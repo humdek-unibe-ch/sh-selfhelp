@@ -1244,6 +1244,7 @@ class CmsView extends BaseView
     {
         $local = array(__DIR__ . "/cms.js");
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            array_push($local, __DIR__ . "/../cmsImport/js/import.js");
             array_push($local, __DIR__ . "/cms_ui.js");
         }
         return parent::get_js_includes($local);
@@ -1276,6 +1277,7 @@ class CmsView extends BaseView
             method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
             $this->model->get_services()->get_user_input()->is_new_ui_enabled()
         ) {
+            $import_url = $this->model->get_link_url("cmsImport", array("type" => RELATION_SECTION));
             require __DIR__ . "/tpl_new_ui/tpl_modal_add_section.php";
         }
     }

@@ -46,6 +46,8 @@ function init_ui_cms() {
         initSmallButtons();
         initDeleteBtn();
         initExportBtn();
+        initImport(); // CMS import import.js
+        initImportBtn();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -211,19 +213,23 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
 }
 
 // load specific ids, sent in array
-function update_new_data(data, elements) {
+function update_new_data(data, elements, callback) {
     $('.popover').remove(); // first remove all tooltips if they are active
     elements.forEach(element => {
         $(element).empty().append($(data).find(element).children());
     });
+    if (callback) {
+        callback();
+    }
     init_ui_cms(); // reload the UI initialization
     $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
 }
 
 // refresh the CMS_UI
-function refresh_cms_ui(elements) {
+function refresh_cms_ui(elements, callback) {
+    console.log('refresh', elements);
     $.get(location.href, function (data) {
-        update_new_data(data, elements);
+        update_new_data(data, elements, callback);
     });
 }
 
@@ -563,8 +569,38 @@ function showAddSection(sectionData, addSibling, position) {
             });
         }
     })
-}
 
+    // the import button
+    $("#cmsImportJson").off('submit');
+    $('#cmsImportJson').submit(function (e) {
+        $('#ui-add-section-modal').modal('hide');
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        var form = $(this);
+        var actionUrl = form.attr('action');
+        var data = form.serializeArray();
+        var parent_id = sectionData['id_sections'];
+        if (addSibling) {
+            parent_id = sectionData['parent_id'];
+        }
+        data.push({ name: 'parent_id', value: parent_id });
+        data.push({ name: 'position', value: position });
+        console.log(position);
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: data, // serializes the form's elements.
+            success: function (data) {
+                // update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
+                refresh_cms_ui(['#ui-middle'], () => {
+                    $($(data).find('[id^="section-controller-success"]').get().reverse()).each(function(){
+                        $('#ui-middle .sticky-top').prepend(this);
+                    })
+                });
+            }
+        });
+
+    });
+}
 
 // insert existing section
 // addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
@@ -947,4 +983,8 @@ function loadSectionFields(sectionUrl) {
                 content: 'Something went wrong!',
             });
         });
+}
+
+function initImportBtn() {
+
 }

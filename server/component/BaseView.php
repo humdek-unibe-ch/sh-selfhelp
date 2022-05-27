@@ -229,5 +229,19 @@ abstract class BaseView
         }
         return $arr;
     }    
+
+    /**
+     * render the app version
+     */
+    public function get_app_version(){
+        echo rtrim(shell_exec("git describe --tags"));
+    }
+
+    /**
+     * render the db version
+     */
+    public function get_db_version(){
+        echo $this->model->get_services()->get_db()->query_db_first('SELECT version FROM version')['version'];
+    }
 }
 ?>

@@ -28,7 +28,7 @@
                 <input id='json' name='json' type="hidden" />
                 <input id='dbVersion' type="hidden" value='<?php $this->get_db_version(); ?>' />
                 <input id='appVersion' type="hidden" value='<?php $this->get_app_version(); ?>' />
-                <button id="importBtn" type="submit" class="btn btn-primary">Import</button>
+                <button id="ui-import-section-btn" type="submit" class="btn btn-primary">Import</button>
                 <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
             </form>
         </div>
