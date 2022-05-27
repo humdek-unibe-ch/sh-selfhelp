@@ -592,6 +592,9 @@ function showAddSection(sectionData, addSibling, position) {
             success: function (data) {
                 // update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
                 refresh_cms_ui(['#ui-middle'], () => {
+                    $($(data).find('[id^="section-controller-fail"]').get().reverse()).each(function(){
+                        $('#ui-middle .sticky-top').prepend(this);
+                    })
                     $($(data).find('[id^="section-controller-success"]').get().reverse()).each(function(){
                         $('#ui-middle .sticky-top').prepend(this);
                     })

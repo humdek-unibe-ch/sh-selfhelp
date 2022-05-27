@@ -98,9 +98,10 @@ abstract class BaseView
     {
         if($this->controller === null) return;
         if(!$this->controller->has_failed()) return;
-        foreach($this->controller->get_error_msgs() as $msg)
+        foreach($this->controller->get_error_msgs() as $idx =>$msg)
         {
             $alert = new BaseStyleComponent("alert", array(
+                "id" => "controller-fail-" . $idx,
                 "type" => "danger",
                 "is_dismissable" => true,
                 "children" => array(new BaseStyleComponent("plaintext", array(
