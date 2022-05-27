@@ -47,7 +47,6 @@ function init_ui_cms() {
         initDeleteBtn();
         initExportBtn();
         initImport(); // CMS import import.js
-        initImportBtn();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -165,7 +164,11 @@ function addUISectionButtons(section) {
 
     $(section).off('click').on('click', function (e) {
         e.stopPropagation();
-        // e.preventDefault();
+        
+        // mark the selected section
+        $(".ui-marked-section").removeClass("ui-marked-section");
+        $(this).addClass('ui-marked-section');
+
         loadSectionFields(sectionData['go_to_section_url']);
     })
 }
@@ -783,7 +786,6 @@ function getEditToggleLink() {
     var editLink = $('.ui-card-properties a:first').attr('href');
     // var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
     var cancelLink = location.href.replace('_update', '').replace('/update/prop', '');
-    console.log(cancelLink);
     return editLink ? editLink : cancelLink;
 }
 
@@ -958,7 +960,6 @@ function initSmallButtons() {
 }
 
 function loadSectionFields(sectionUrl) {
-    console.log(sectionUrl);
     executeAjaxCall(
         'get',
         sectionUrl,
@@ -986,8 +987,4 @@ function loadSectionFields(sectionUrl) {
                 content: 'Something went wrong!',
             });
         });
-}
-
-function initImportBtn() {
-
 }

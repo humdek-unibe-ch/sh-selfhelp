@@ -23,7 +23,7 @@
 }
 
 .ui-section-holder:hover {
-    border-color: var(--primary) !important;
+    border-color: var(--primary);
 }
 
 .ui-section-holder:hover>.ui-buttons-holder {
@@ -71,15 +71,15 @@
     border-right: 1px solid rgba(0, 0, 0, .125);
 }
 
-#properties {    
+#properties {
     border-left: 1px solid rgba(0, 0, 0, .125);
 }
 
-#collapsePropertiesBtn{
+#collapsePropertiesBtn {
     border-top: 1px solid rgba(0, 0, 0, .125);
 }
 
-#collapseBtn{
+#collapseBtn {
     border-top: 1px solid rgba(0, 0, 0, .125);
 }
 
@@ -123,10 +123,10 @@
     padding: 0 !important;
 }
 
-.ui-card-properties form > button {
+.ui-card-properties form>button {
     position: fixed;
     bottom: 0.5rem;
-    right: 0.5rem;    
+    right: 0.5rem;
 }
 
 .ui-card-properties form>.form-cancel-btn {
@@ -175,7 +175,7 @@
     max-width: 300px;
 }
 
-.sidebar-expanded #collapseBtn{
+.sidebar-expanded #collapseBtn {
     justify-content: flex-end;
 }
 
@@ -263,6 +263,14 @@
     max-width: 70px;
 }
 
-#ui-add-section-modal .modal-dialog{
+#ui-add-section-modal .modal-dialog {
     max-width: 80% !important;
+}
+
+.ui-marked-section {
+    border-color: var(--success);
+}
+
+.ui-marked-section:hover {
+    border-color: var(--success);
 }
