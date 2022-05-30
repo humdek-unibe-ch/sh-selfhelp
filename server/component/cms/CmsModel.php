@@ -1442,6 +1442,7 @@ class CmsModel extends BaseModel
             $res[] = $this->add_property_item(
                 array(
                     "name" => "navigation",
+                    "label" => "Navigation",
                     "type" => "style-list",
                     "relation" => RELATION_PAGE_NAV,
                     "content" => $this->fetch_navigation_items($this->page_info['id_navigation_section'], false)

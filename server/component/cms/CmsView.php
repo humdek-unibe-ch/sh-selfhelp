@@ -766,7 +766,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_sortable" => true,
                 "is_editable" => true,
-                "items" => ($field['relation'] == RELATION_PAGE_CHILDREN ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
+                "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
             ));
         }
         else if($field['type'] == "data-source")
@@ -902,7 +902,7 @@ class CmsView extends BaseView
                     $params_delete);
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_editable" => true,
-                "items" => ($field['relation'] == RELATION_PAGE_CHILDREN ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
+                "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
                 "label_add" => "Add",
                 "url_add" => $insert_target,
                 "url_delete" => $delete_target,
