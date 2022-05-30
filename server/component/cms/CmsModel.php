@@ -167,17 +167,14 @@ class CmsModel extends BaseModel
      *  The children of the list item which is an array of list items.
      * @param string $url
      *  The target url of the list item.
-     * @param string $update_url = ''
-     *  The target update_url of the list item.
      */
-    private function add_list_item($id, $title, $children, $url, $update_url = '')
+    private function add_list_item($id, $title, $children, $url)
     {
         return array(
             "id" => $id,
             "title" => $title,
             "children" => $children,
-            "url" => $url,
-            "update_url" => $update_url
+            "url" => $url
         );
     }
 
@@ -379,7 +376,7 @@ class CmsModel extends BaseModel
             else
                 $children = array();
             $res[] = $this->add_list_item($id_item, $item_db['name'], $children,
-                $this->get_item_url($this->id_page, $id_item), $this->get_item_update_url($this->id_page, $id_item));
+                $this->get_item_url($this->id_page, $id_item));
         }
         return $res;
     }
@@ -453,8 +450,7 @@ class CmsModel extends BaseModel
                     $this->id_root_section,
                     $section['name'],
                     $this->fetch_section_hierarchy($this->id_root_section),
-                    $this->get_item_url($this->id_page, $this->id_root_section, $this->id_root_section),
-                    $this->get_item_update_url($this->id_page, $this->id_root_section, $this->id_root_section)
+                    $this->get_item_url($this->id_page, $this->id_root_section, $this->id_root_section)
                 );
             }
         }
@@ -577,28 +573,12 @@ class CmsModel extends BaseModel
     private function get_item_url($pid, $sid=null, $ssid=null)
     {
         if($sid == $ssid) $ssid = null;
-        return $this->router->generate("cmsSelect",
-            array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
-    }
-
-    /**
-     * Generate and return the update_url of a list item.
-     *
-     * @param int $pid
-     *  The page id.
-     * @param int $sid
-     *  The root section id or the active section id if no root section is
-     *  available.
-     * @param int $ssid
-     *  The active section id.
-     * @return string
-     *  The generated url.
-     */
-    private function get_item_update_url($pid, $sid=null, $ssid=null)
-    {
-        if($sid == $ssid) $ssid = null;
-        return $this->router->generate("cmsUpdate",
-            array("pid" => $pid, "sid" => $sid, "ssid" => $ssid, "mode" => UPDATE, "type" => "prop"));
+        if ($this->get_services()->get_user_input()->is_new_ui_enabled() && $this->is_link_active("cmsUpdate")) {
+            return $this->router->generate("cmsUpdate", array("pid" => $pid, "sid" => $sid, "ssid" => $ssid, "mode" => UPDATE, "type" => "prop"));
+        }else{
+            return $this->router->generate("cmsSelect",
+                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
+        }
     }
 
     /**
@@ -637,8 +617,7 @@ class CmsModel extends BaseModel
             if(!$this->has_access($this->mode, $id))
                 continue;
             $url = $this->get_item_url($id);
-            array_push($res, $this->add_list_item($id, $item['keyword'], array(),
-                $url, $this->get_item_update_url($id)));
+            array_push($res, $this->add_list_item($id, $item['keyword'], array(),$url));
         }
         return $res;
     }
@@ -676,8 +655,7 @@ class CmsModel extends BaseModel
                 $id,
                 $item['name'],
                 $children,
-                $this->get_item_url($this->id_page, $id_root, $id_child),
-                $this->get_item_update_url($this->id_page, $id_root, $id_child)
+                $this->get_item_url($this->id_page, $id_root, $id_child)
             );
         }
         return $res;

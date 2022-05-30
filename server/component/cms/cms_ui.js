@@ -769,7 +769,7 @@ function initEditToggle() {
                     // open properties card
                     toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
                 }
-                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder']);
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-index"]);
                 history.pushState({}, null, toggleLink);
             },
             () => {

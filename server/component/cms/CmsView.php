@@ -350,6 +350,7 @@ class CmsView extends BaseView
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content),
+                "id" => "ui-page-index"
             )
         ));
     }
@@ -1081,11 +1082,7 @@ class CmsView extends BaseView
         {
             $label = $item["title"];
             $url = $item["url"];
-            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled() && $this->model->is_link_active("cmsUpdate")) {
-                // for the new UI in edit mode set the edit url links
-                $url = $item["update_url"];
-            }            
-            if($url == null || $item["url"] == null)
+            if($url == null)
                 require __DIR__ . "/tpl_breadcrumb_item_active.php";
             else
                 require __DIR__ . "/tpl_breadcrumb_item.php";
