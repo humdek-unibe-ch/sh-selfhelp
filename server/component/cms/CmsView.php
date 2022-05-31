@@ -1154,8 +1154,8 @@ class CmsView extends BaseView
      */
     private function output_lists()
     {
-        $this->output_local_component("page-list");
         $this->output_local_component("navigation-hierarchy-list");
+        $this->output_local_component("page-list");        
         $this->output_local_component("page-section-list");
         $this->output_local_component("settings-card");
     }
