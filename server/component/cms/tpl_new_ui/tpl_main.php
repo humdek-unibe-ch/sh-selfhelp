@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="d-flex flex-grow-1">
-    <div id="sidebar-container" class="sidebar-expanded ">
+    <div id="sidebar-container" class="sidebar-expanded">
         <div class="d-flex h-100 flex-column">
             <ul class="list-group sticky-top">
                 <div id="collapseBtn" data-toggle="sidebar-collapse" class="ui-side-menu-button list-group-item list-group-item-action rounded-0 d-flex">

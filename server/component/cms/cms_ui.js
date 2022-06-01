@@ -47,6 +47,9 @@ function init_ui_cms() {
         initDeleteBtn();
         initExportBtn();
         initImport(); // CMS import import.js
+        initSortableNavElements();
+        loadCustomCSSClasses();
+        initRemoveNavButtons();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
@@ -164,7 +167,7 @@ function addUISectionButtons(section) {
 
     $(section).off('click').on('click', function (e) {
         e.stopPropagation();
-        
+
         // mark the selected section
         $(".ui-marked-section").removeClass("ui-marked-section");
         $(this).addClass('ui-marked-section');
@@ -595,10 +598,10 @@ function showAddSection(sectionData, addSibling, position) {
             success: function (data) {
                 // update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
                 refresh_cms_ui(['#ui-middle'], () => {
-                    $($(data).find('[id^="section-controller-fail"]').get().reverse()).each(function(){
+                    $($(data).find('[id^="section-controller-fail"]').get().reverse()).each(function () {
                         $('#ui-middle .sticky-top').prepend(this);
                     })
-                    $($(data).find('[id^="section-controller-success"]').get().reverse()).each(function(){
+                    $($(data).find('[id^="section-controller-success"]').get().reverse()).each(function () {
                         $('#ui-middle .sticky-top').prepend(this);
                     })
                 });
@@ -743,7 +746,9 @@ function initSaveProperties() {
 
 function initEditToggle() {
     $('#ui-edit-toggle').off('change');
+    console.log($('.ui-card-properties a:first'));
     var editLink = $('.ui-card-properties a:first').attr('href')
+    console.log(editLink);
     if (editLink) {
         // we are in view mode -> edit link exists
         $('#ui-edit-toggle').bootstrapToggle('off');
@@ -769,7 +774,7 @@ function initEditToggle() {
                     // open properties card
                     toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
                 }
-                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-index"]);
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", "#section-ui-navigation-hierarchy-list"]);
                 history.pushState({}, null, toggleLink);
             },
             () => {
@@ -786,6 +791,8 @@ function getEditToggleLink() {
     var editLink = $('.ui-card-properties a:first').attr('href');
     // var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
     var cancelLink = location.href.replace('_update', '').replace('/update/prop', '');
+    console.log(editLink);
+    console.log(cancelLink);
     return editLink ? editLink : cancelLink;
 }
 
@@ -932,7 +939,7 @@ function initSaveBtn() {
             url: window.location.href,
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
-                update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu']);
+                update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu', "#section-ui-navigation-hierarchy-list"]);
             }
         });
 
@@ -987,4 +994,66 @@ function loadSectionFields(sectionUrl) {
                 content: 'Something went wrong!',
             });
         });
+}
+
+function initSortableNavElements() {
+    $('.children-list.sortable').each(function (idx) {
+        var $input = $(this).prev();
+        var $list = $(this);
+        $list.sortable("destroy");
+        $list.children('li').each(function (idx) {
+            $(this).children('.badge').text(idx); //reset badge values used for reordering
+        });
+        $list.sortable({
+            animation: 150,
+            onSort: function (evt) {
+                var order = [];
+                $list.children('li').each(function (idx) {
+                    order[$(this).children('.badge').text()] = idx * 10;
+                });
+                $input.val(order);
+            },
+            onUpdate: function () {
+                unsavedChanges = true;
+            }
+        });
+    });
+}
+
+function loadCustomCSSClasses() {
+    $('.ui-children-list > a').removeClass('btn-secondary').addClass('btn-sm btn-primary rounded-top');
+}
+
+function initRemoveNavButtons() {
+    $('.ui-children-list > li > a').off('click').on('click', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var url_params = url.split('/');
+        var url_params = url_params.slice(-3);
+        var listElement = $(this).parent();
+        console.log('click', url_params);
+        confirmation('Do you really want to remove <code>' + $(listElement).find('span').eq(1).html() + '</code>?', () => {
+            executeAjaxCall(
+                'post',
+                url,
+                {
+                    "remove-section-link": url_params[2],
+                    "mode": url_params[0],
+                    "relation": url_params[1]
+                },
+                (data) => {
+                    console.log('removed');
+                    $(listElement).remove();
+                    refresh_cms_ui(['#section-ui-navigation-hierarchy-list', '#section-ui-page-list']);
+                },
+                () => {
+                    console.log('error');
+                    $.alert({
+                        title: 'Error!',
+                        content: 'The section was not deleted!',
+                    });
+                });
+        });
+
+    })
 }

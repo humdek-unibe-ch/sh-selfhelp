@@ -350,7 +350,7 @@ class CmsView extends BaseView
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content),
-                "id" => "ui-page-index"
+                "id" => "ui-" . $name
             )
         ));
     }
@@ -668,8 +668,9 @@ class CmsView extends BaseView
      */
     private function create_field_form_item($field)
     {
-        if ($field['type'] == "style-list" && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
-            // children are not needed for the new UI
+        if ($field['type'] == "style-list" && $this->model->get_services()->get_user_input()->is_new_ui_enabled() && 
+            $field['relation'] != RELATION_SECTION_NAV && $field['relation'] != RELATION_PAGE_NAV) {                
+            // children are not needed for the new UI unless they are showing the navigation pages and sections
             return false;
         }
         $children = array();
@@ -763,11 +764,47 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => "hidden",
             ));
-            $children[] = new BaseStyleComponent("sortableList", array(
-                "is_sortable" => true,
-                "is_editable" => true,
-                "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
-            ));
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                $params = $this->model->get_current_url_params();
+                $params['type'] = $field['relation'];
+                $params_insert = $params;
+                $params_insert['mode'] = "insert";
+                $insert_target = "";
+                if ($this->model->has_access(
+                    "insert",
+                    $this->model->get_active_page_id()
+                ))
+                    $insert_target = $this->model->get_link_url(
+                        "cmsUpdate",
+                        $params_insert
+                    );
+                $delete_target = "";
+                $params_delete = $params;
+                $params_delete['mode'] = "delete";
+                $params_delete['did'] = ":did";
+                if ($this->model->has_access(
+                    "delete",
+                    $this->model->get_active_page_id()
+                ))
+                    $delete_target = $this->model->get_link_url(
+                        "cmsUpdate",
+                        $params_delete
+                    );
+                $children[] = new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => true,
+                    "is_editable" => true,
+                    "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
+                    "url_add" => $insert_target,
+                    "url_delete" => $delete_target,
+                    "css" => 'ui-children-list'
+                ));
+            } else {
+                 $children[] = new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => true,
+                    "is_editable" => true,
+                    "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
+                ));
+            }
         }
         else if($field['type'] == "data-source")
         {

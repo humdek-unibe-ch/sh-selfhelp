@@ -75,6 +75,7 @@ class SortableListView extends StyleView
         $this->insert_label = $this->model->get_db_field('label_add', "Add");
         $this->delete_target = $this->model->get_db_field('url_delete');
         $this->id_active = $this->model->get_db_field('id_active', null);
+
     }
 
     /* Private Methods ********************************************************/

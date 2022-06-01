@@ -185,6 +185,13 @@ class CmsUpdateController extends BaseController
             isset($_POST['add-section-link']) && $_POST['add-section-link'] != ""
         ) {
             $this->insert_section_link(intval($_POST['add-section-link']), $_POST['relation'], isset($_POST['position']) ? $_POST['position'] : null);
+            header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
+                "type" => "prop",
+                "mode" => "update",
+                "pid" => $this->model->get_active_page_id(),
+                "sid" => $_POST['add-section-link'],
+                "ssid" => null
+            )));
             return $_POST['add-section-link'];
         } else if (isset($_POST['section-name']) && isset($_POST['section-style'])) {
             $section_name = htmlspecialchars($_POST['section-name']);
