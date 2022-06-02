@@ -71,7 +71,7 @@ function initMarkdownFields() {
             }
         });
         editor.codemirror.on("change", () => {
-            unsavedChanges = true;
+            unsavedChanges.push(this);
         });    
     });
 }

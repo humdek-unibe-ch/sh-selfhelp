@@ -1,5 +1,5 @@
 var collapsedProperties = false;
-var unsavedChanges = false;
+var unsavedChanges = [];
 const RELATION_PAGE_FIELD = 'page_field';
 const RELATION_SECTION_FIELD = 'section_field';
 const RELATION_SECTION_CHILDREN = 'section_children';
@@ -18,7 +18,7 @@ $(document).ready(function () {
 // Build custom javascript UI.
 function init_ui_cms() {
     try {
-        unsavedChanges = false;
+        unsavedChanges = [];
         initEditToggle();
         $(window).scroll(function () {
             adjustPropertiesHeight();
@@ -145,7 +145,7 @@ function addUISectionButtons(section) {
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewSectionAbove(sectionData));
-    $(buttonsHolderAdd).append(addButtonGoToSection(sectionData));
+    // $(buttonsHolderAdd).append(addButtonGoToSection(sectionData));
 
     // add the new section button for sections without any child
     if (sectionData['can_have_children']) {
@@ -173,6 +173,11 @@ function addUISectionButtons(section) {
         $(this).addClass('ui-marked-section');
 
         loadSectionFields(sectionData['go_to_section_url']);
+    })
+
+    $(section).off('dblclick').on('dblclick', function (e) {
+        e.stopPropagation();
+        window.location.replace(sectionData['go_to_section_url']);
     })
 }
 
@@ -746,9 +751,7 @@ function initSaveProperties() {
 
 function initEditToggle() {
     $('#ui-edit-toggle').off('change');
-    console.log($('.ui-card-properties a:first'));
     var editLink = $('.ui-card-properties a:first').attr('href')
-    console.log(editLink);
     if (editLink) {
         // we are in view mode -> edit link exists
         $('#ui-edit-toggle').bootstrapToggle('off');
@@ -791,8 +794,6 @@ function getEditToggleLink() {
     var editLink = $('.ui-card-properties a:first').attr('href');
     // var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
     var cancelLink = location.href.replace('_update', '').replace('/update/prop', '');
-    console.log(editLink);
-    console.log(cancelLink);
     return editLink ? editLink : cancelLink;
 }
 
@@ -927,7 +928,7 @@ function initSaveBtn() {
     $(saveForm).submit(function (e) {
 
         e.preventDefault(); // avoid to execute the actual submit of the form.
-        if (!unsavedChanges) {
+        if (unsavedChanges.length == 0) {
             // if there is no changes do not try to save
             return;
         }
@@ -948,16 +949,23 @@ function initSaveBtn() {
 
 function initUnsavedChangesListener() {
     $(window).bind('beforeunload', function (e) {
-        if (unsavedChanges) {
+        if (unsavedChanges.length > 0) {
+            console.log(unsavedChanges);
             return false;
         }
     });
     $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
-        unsavedChanges = true;
+        if ($(this).attr('name').includes('jquery_builder_json')) {
+            return;
+        }
+        unsavedChanges.push(this);
     });
 
     $('.ui-card-properties textarea').on('change', function () { //triggers change in all textareas
-        unsavedChanges = true;
+        if ($(this).attr('name').includes('jquery_builder_json')) {
+            return;
+        }
+        unsavedChanges.push(this);
     });
 }
 
@@ -1014,7 +1022,7 @@ function initSortableNavElements() {
                 $input.val(order);
             },
             onUpdate: function () {
-                unsavedChanges = true;
+                unsavedChanges.push(this);
             }
         });
     });
