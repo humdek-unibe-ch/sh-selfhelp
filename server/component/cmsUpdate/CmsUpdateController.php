@@ -376,7 +376,21 @@ class CmsUpdateController extends BaseController
         }
         if (count($page_fields) > 0) {
             // update page fields in table pages
-            $res = $this->model->update_page($page_fields);
+            $position = null;
+            if(isset($_POST['set-position']))
+            {
+                $position = array();
+                foreach(explode(',', $_POST['set-position']) as $item){
+                    $position[] = filter_var($item, FILTER_SANITIZE_NUMBER_INT);
+                }
+                if ($_POST['nav_position'] == "") {
+                    // the page has no nav position apply one
+                    $page_fields['nav_position'] = 999;
+                } 
+            } else {
+                $page_fields['nav_position'] = null;
+            }
+            $res = $this->model->update_page($page_fields, $position);
             if ($res && $res >= 0) {
                 $this->update_success_count = $this->update_success_count + $res;
             } else if ($res === false) {

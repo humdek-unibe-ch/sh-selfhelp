@@ -626,5 +626,17 @@ class PageDb extends BaseDb
         $this->cache->clear_cache($type, $id);
     }
 
+    /**
+     * Get simple info for page
+     * @param int $page_id
+     * the id of the page
+     * @retval array
+     * Array with the info for the page
+     */
+    public function get_page_simple($page_id){
+        $sql = "SELECT keyword, nav_position FROM pages WHERE id = :page_id";
+        return $this->query_db_first($sql, array(":page_id" => $page_id));
+    }
+
 }
 ?>

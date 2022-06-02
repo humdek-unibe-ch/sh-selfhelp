@@ -48,20 +48,23 @@ class CmsView extends BaseView
                 )
             )
         ));
-        $this->add_local_component("import", new BaseStyleComponent("link",
-            array(
-                "url" => $this->model->get_link_url("cmsImport", array(
-                    "type" => "section"
-                )),
-                "css" => "ui-side-menu-button list-group-item list-group-item-action",
-                "children" => array(
-                    new BaseStyleComponent("markdownInline", array(
-                        "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-upload fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
-                        "css" => ""
-                    ))
+        if (!$this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // show import section only for the old UI
+            $this->add_local_component("import", new BaseStyleComponent("link",
+                array(
+                    "url" => $this->model->get_link_url("cmsImport", array(
+                        "type" => "section"
+                    )),
+                    "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                    "children" => array(
+                        new BaseStyleComponent("markdownInline", array(
+                            "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-upload fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                            "css" => ""
+                        ))
+                    )
                 )
-            )
-        ));
+            ));
+        }
         $this->add_local_component("page_preview", new BaseStyleComponent("link",
             array(
                 "url" => $this->model->get_link_url($this->page_info['keyword'], array("nav" => $this->model->get_active_root_section_id())),
@@ -313,6 +316,56 @@ class CmsView extends BaseView
     }
 
     /**
+     * Get the page header items for page reordering
+     * @retval array
+     * The items needed for the page header reordering
+     */
+    private function get_page_header()
+    {        
+        $current_page = $this->model->get_active_page_id();
+        $pages = $this->model->get_pages_header($this->model->get_parent_page_id($current_page));
+        $page_info = $this->model->get_db()->get_page_simple($current_page);
+        $position_value = "";
+        foreach ($pages as $idx => $page) {
+            $position_value .= (string)($idx * 10) . ",";
+            if ($current_page != intval($page["id"])) {
+                $pages[$idx]["css"] = "fixed text-muted";
+            }
+        }
+        $position_value = rtrim($position_value, ",");
+        $page_header = array();
+
+        $page_header[] = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_new_ui/tpl_page_header_position.php",
+            "items" => array(
+                "position_value" => $position_value,
+                "checked" => isset($page_info['nav_position']) ? "checked" : ""
+            ),
+        ));
+        if ($page_info['nav_position']=="") {
+            // the page is not in nav, add it to the list
+            $pages[] = array("id" => $current_page, "title" => $page_info['keyword']);
+        }
+        $page_header[] = new BaseStyleComponent("div", array(
+            "css" => "d-none",
+            "id" => "page-order-wrapper",
+            "children" => array(
+                new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => true,
+                    "is_editable" => true,
+                    "items" => $pages,
+                )),
+                new BaseStyleComponent("input", array(
+                    "value" => $page_info['nav_position'],
+                    "name" => "nav_position",
+                    "type_input" => "hidden"
+                ))
+            )
+        ));
+        return $page_header;
+    }
+
+    /**
      * Helper function to create a nested list style component, wrapped by a
      * card style component. The created component is added to the local
      * components list.
@@ -366,50 +419,66 @@ class CmsView extends BaseView
      * @retval array
      *  Return array with fields to be displayed.
      */
-    private function get_children_fields_view_mode($fields, $is_new_ui){
+    private function get_children_fields_view_mode($fields, $is_new_ui)
+    {
         $children = [];
         $content_fields = [];
-            $properties = [];
-            foreach ($fields as $field) {
-                $new_field_item = $this->create_field_item($field);
-                if ($new_field_item) {
-                    if ($is_new_ui && $field['type']) {
-                        if (isset($field['display']) && $field['display'] == 1) {
-                            $content_fields[] = $new_field_item;
-                        } else {
-                            $properties[] = $new_field_item;
-                        }
+        $properties = [];
+        foreach ($fields as $field) {
+            $new_field_item = $this->create_field_item($field);
+            if ($new_field_item) {
+                if ($is_new_ui && $field['type']) {
+                    if (isset($field['display']) && $field['display'] == 1) {
+                        $content_fields[] = $new_field_item;
                     } else {
-                        $children[] = $new_field_item;
+                        $properties[] = $new_field_item;
                     }
+                } else {
+                    $children[] = $new_field_item;
                 }
             }
-            if (count($content_fields) > 0) {
-                // if there are content fields we put them in a card
-                $card_content_fields = new BaseStyleComponent("card", array(
-                    "css" => "ui-card-list",
-                    "id" => "ui-card-content",
-                    "is_expanded" => false,
-                    "is_collapsible" => true,
-                    "title" => "Content",
-                    "children" => $content_fields
+        }
+        if (count($content_fields) > 0) {
+            // if there are content fields we put them in a card
+            $card_content_fields = new BaseStyleComponent("card", array(
+                "css" => "ui-card-list",
+                "id" => "ui-card-content",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Content",
+                "children" => $content_fields
+            ));
+            $children[] = $card_content_fields;
+        }
+
+        if (count($properties) > 0) {
+            // if there are content fields we put them in a card
+            if (!$this->model->get_id_root_section()) {
+                // if there is no root section it is page
+                // add page reordering and header positions                
+                $properties[] = new BaseStyleComponent("descriptionItem", array(
+                    "gender" => '',
+                    "title" => 'Header Position',
+                    "type_input" => 'checkbox',
+                    "locale" => '',
+                    "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                    "display" => 0,
+                    "css" => 'mb-0 d-none',
+                    "children" => $this->get_page_header()
                 ));
-                $children[] = $card_content_fields;
             }
 
-            if (count($properties) > 0) {
-                // if there are content fields we put them in a card
-                $card_properties_fields = new BaseStyleComponent("card", array(
-                    "css" => "ui-card-list properties-fields",
-                    "id" => "ui-card-properties",
-                    "is_expanded" => false,
-                    "is_collapsible" => true,
-                    "title" => "Properties",
-                    "children" => $properties
-                ));
-                $children[] = $card_properties_fields;
-            }
-            return $children;
+            $card_properties_fields = new BaseStyleComponent("card", array(
+                "css" => "ui-card-list properties-fields",
+                "id" => "ui-card-properties",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Properties",
+                "children" => $properties
+            ));
+            $children[] = $card_properties_fields;
+        }
+        return $children;
     }
 
     /**
@@ -573,6 +642,20 @@ class CmsView extends BaseView
                         $properties[] = $new_field;
                     }
                 }
+            }
+            if (!$this->model->get_id_root_section()) {
+                // if there is no root section it is page
+                // add page reordering and header positions                
+                $properties[] = new BaseStyleComponent("descriptionItem", array(
+                    "gender" => '',
+                    "title" => 'Header Position',
+                    "type_input" => 'checkbox',
+                    "locale" => '',
+                    "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                    "display" => 0,
+                    "css" => 'mb-0',
+                    "children" => $this->get_page_header()
+                ));
             }
             if (count($content_fields) > 0) {
                 // if there are content fields we put them in a card

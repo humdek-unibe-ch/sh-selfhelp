@@ -2074,17 +2074,23 @@ class CmsModel extends BaseModel
      * Update the page table
      *
      * @param array $page_fields
-     * it contains the column and the value that should be assigned
+     *  It contains the column and the value that should be assigned
+     * @param string $position
+     *  The position string if the new page should appear in the navbar, null otherwise.
      * @retval bool
      *  True if the update operation is successful, false otherwise.
      */
-    public function update_page($page_fields)
+    public function update_page($page_fields, $position = null)
     {        
-        return $this->db->update_by_ids(
+        $res = $this->db->update_by_ids(
             "pages",
             $page_fields,
             array("id" => $this->id_page)
         );
+        if($position){
+            $this->update_page_order($position, $this->get_parent_page_id($this->id_page));
+        }
+        return $res;
     }
 
     /**
@@ -2112,6 +2118,19 @@ class CmsModel extends BaseModel
     public function get_id_root_section()
     {
         return $this->id_root_section;
+    }
+
+    /**
+     * Get the parent page id if there is one
+     * @param int $page_id 
+     * the page id that we want to get parent
+     * @retval int or null
+     * return the parent id or null
+     */
+    public function get_parent_page_id($page_id)
+    {
+        $sql = "SELECT parent FROM pages WHERE id = :page_id";
+        return $this->db->query_db_first($sql, array("page_id" => $page_id))['parent'];
     }
 }
 ?>
