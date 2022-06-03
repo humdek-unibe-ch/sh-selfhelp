@@ -78,11 +78,11 @@ class PageDb extends BaseDb
      */
     public function fetch_accessible_pages()
     {
-        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action
+        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action, nav_position
             FROM pages AS p
             LEFT JOIN actions AS a ON p.id_actions = a.id
             WHERE p.id_type != :type
-            ORDER BY p.keyword";
+            ORDER BY -nav_position desc, p.keyword";
         return $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
     }
 

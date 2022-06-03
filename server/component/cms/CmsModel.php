@@ -200,8 +200,9 @@ class CmsModel extends BaseModel
                 continue;
             $root_idx = $this->get_item_index(intval($item['parent']),
                 $root_items);
+            $title = ($item['nav_position'] != '' ? '<i class="fas fa-bars"></i> ' : '') . $item['keyword']; // add menu icon for the pages that are in the menu
             array_push($root_items[$root_idx]['children'],
-                $this->add_list_item($id, $item['keyword'], array(),
+                $this->add_list_item($id, $title, array(),
                     $this->get_item_url($id)));
         }
         return $root_items;
@@ -617,7 +618,8 @@ class CmsModel extends BaseModel
             if(!$this->has_access($this->mode, $id))
                 continue;
             $url = $this->get_item_url($id);
-            array_push($res, $this->add_list_item($id, $item['keyword'], array(),$url));
+            $title = ($item['nav_position'] != '' ? '<i class="fas fa-bars"></i> ' : '') . $item['keyword']; // add menu icon for the pages that are in the menu
+            array_push($res, $this->add_list_item($id, $title, array(),$url));
         }
         return $res;
     }
