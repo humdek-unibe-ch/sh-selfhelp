@@ -277,7 +277,7 @@ class PageDb extends BaseDb
             return $get_result;
         } else {
             $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner,
-            ps.position
+            ps.position, p.id AS parent_id, '" . RELATION_PAGE_CHILDREN . "' AS relation
             FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
             LEFT JOIN sections AS s ON ps.id_sections = s.id
@@ -304,7 +304,7 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT s.id, s.name, s.id_styles, sh.position
+            $sql = "SELECT s.id, s.name, s.id_styles, sh.position, sh.parent AS parent_id, '" . RELATION_SECTION_CHILDREN . "' AS relation
             FROM sections_hierarchy AS sh
             LEFT JOIN sections AS s ON s.id = sh.child
             WHERE sh.parent = :id

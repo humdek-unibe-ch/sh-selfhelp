@@ -49,6 +49,9 @@ abstract class StyleView extends BaseView
     public function __construct($model = null, $controller = null)
     {
         parent::__construct($model, $controller);
+        if($this->id_section == 3072){
+            $asd=2;
+        }
         $this->style_name = $model->get_style_name();
         $this->children = array();
         if($model != null)
@@ -178,7 +181,7 @@ abstract class StyleView extends BaseView
             "mode" => "update",
             "type" => "prop",
             "did" => null,
-            "sid" => ":parent_id"
+            "sid" => $this->model->get_parent_id()
         ));
         $go_to_section_url = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
@@ -192,7 +195,7 @@ abstract class StyleView extends BaseView
             "mode" => "insert",
             "type" => RELATION_SECTION_CHILDREN,
             "did" => null,
-            "sid" => ":parent_id"
+            "sid" => $this->model->get_parent_id()
         ));
         $insert_section_in_page = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
@@ -205,11 +208,14 @@ abstract class StyleView extends BaseView
             'id_sections' => $this->id_section,
             'id_pages' => intval(isset($params['pid']) ? $params['pid'] : -1),
             'update_page_url' => $style_from_page_url,
-            'update_section_url' => $style_from_style_url,
+            'update_section_url' => $style_from_style_url,  
+            'update_url' => $this->model->get_relation() == RELATION_PAGE_CHILDREN ? $style_from_page_url : $style_from_style_url,
             'section_name' => $this->model->get_section_name(),
             'insert_sibling_section_url' => $insert_sibling_section,
             'insert_section_in_page' => $insert_section_in_page,
-            "go_to_section_url" => $go_to_section_url
+            'go_to_section_url' => $go_to_section_url,
+            'parent_id' => $this->model->get_parent_id(),
+            'relation' => $this->model->get_relation()
         );
         if ($data_section['can_have_children']) {
             $insert_section_in_section = $this->model->get_link_url("cmsUpdate", array(

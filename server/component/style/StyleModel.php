@@ -67,6 +67,16 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     private $data_config;
 
+    /**
+     * The parent id if it exists
+     */
+    private $parent_id;
+
+    /**
+     * The relation if the component. Does it belong ot a page or a section, etc
+     */
+    private $relation;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -88,6 +98,12 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         parent::__construct($services);
         $this->section_id = $id;
+        if(isset($params['parent_id'])){
+            $this->parent_id = $params['parent_id'];
+        }
+        if(isset($params['relation'])){
+            $this->relation = $params['relation'];
+        }
         if(!$this->is_cms_page())
         {
             $_SESSION['gender'] = $_SESSION['user_gender'];
@@ -285,8 +301,9 @@ class StyleModel extends BaseModel implements IStyleModel
         $db_children = $this->db->fetch_section_children($this->section_id);
         foreach($db_children as $child)
         {
-            $this->children[$child['name']] = new StyleComponent(
-                $this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
+            $this->params['parent_id'] = $child['parent_id'];
+            $this->params['relation'] = $child['relation'];
+            $this->children[$child['name']] = new StyleComponent($this->services, intval($child['id']), $this->params, $this->id_page, $this->entry_record);
         }
     }           
 
@@ -677,6 +694,24 @@ class StyleModel extends BaseModel implements IStyleModel
         } else {
             return false;
         }
+    }
+
+    /**
+     * Getter - get the parent id
+     * @retval int 
+     * the parent id
+     */
+    public function get_parent_id(){
+        return $this->parent_id;
+    }
+
+    /**
+     * Getter - get the relation
+     * @retval string
+     * Return the relation
+     */
+    public function get_relation(){
+        return $this->relation;
     }
     
 }

@@ -43,6 +43,16 @@ class StyleComponent extends BaseComponent
      */
     private $is_style_known;
 
+    /**
+     * The parent id if it exists
+     */
+    private $parent_id;
+
+    /**
+     * The relation if the component. Does it belong ot a page or a section, etc
+     */
+    private $relation;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -64,6 +74,12 @@ class StyleComponent extends BaseComponent
     public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record = array())
     {
         $this->id_section = $id;
+        if(isset($params['parent_id'])){
+            $this->parent_id = $params['parent_id'];
+        }
+        if(isset($params['relation'])){
+            $this->relation = $params['relation'];
+        }
         $model = null;
         $this->is_style_known = true;
         // get style name and type

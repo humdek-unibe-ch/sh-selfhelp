@@ -246,7 +246,7 @@ class CmsView extends BaseView
             foreach($page_sections as $section)
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
-                    intval($section['id']), array(),
+                    intval($section['id']), $section,
                     $this->model->get_cms_page_id());
         else
             $page_components[] = new StyleComponent(
@@ -258,7 +258,18 @@ class CmsView extends BaseView
             $text = new BaseStyleComponent("plaintext", array(
                 "text" => "No CMS view available for this page."
             ));
-            $page_components[] = $text;
+            $new_section = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
+            "items" => array(
+                "data_section" => array(
+                    "can_have_children" => true,
+                    "relation"=> RELATION_PAGE_CHILDREN
+                ),
+                "page_keyword" => $this->page_info["keyword"],
+                "page_id" => intval($this->page_info['id'])
+            ),
+        ));
+            $page_components[] = $new_section;
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
@@ -270,8 +281,9 @@ class CmsView extends BaseView
                 "children" => $page_components,
             ))
         );
-        if($this->model->get_active_section_id() != null)
-            $this->add_local_component("section-view",
+        if ($this->model->get_active_section_id() != null)
+            $this->add_local_component(
+                "section-view",
                 new BaseStyleComponent("card", array(
                     "css" => "mb-3 section-view",
                     "is_collapsible" => true,
@@ -280,7 +292,7 @@ class CmsView extends BaseView
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
                         $this->model->get_active_section_id(),
-                        array(),
+                        $this->model->get_section_path()[count($this->model->get_section_path())-1],
                         $this->model->get_cms_page_id()
                     ))
                 ))

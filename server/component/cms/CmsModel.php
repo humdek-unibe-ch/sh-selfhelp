@@ -167,14 +167,20 @@ class CmsModel extends BaseModel
      *  The children of the list item which is an array of list items.
      * @param string $url
      *  The target url of the list item.
+     * @param int $parent_id
+     * the parent id of the section
+     * @param string $relation
+     * the relation of the section. Is it attached to page or another section, etc
      */
-    private function add_list_item($id, $title, $children, $url)
+    private function add_list_item($id, $title, $children, $url, $parent_id = null, $relation = null)
     {
         return array(
             "id" => $id,
             "title" => $title,
             "children" => $children,
-            "url" => $url
+            "url" => $url,
+            "parent_id" => $parent_id,
+            "relation" => $relation,
         );
     }
 
@@ -657,7 +663,9 @@ class CmsModel extends BaseModel
                 $id,
                 $item['name'],
                 $children,
-                $this->get_item_url($this->id_page, $id_root, $id_child)
+                $this->get_item_url($this->id_page, $id_root, $id_child),
+                $item['parent_id'],
+                $item['relation']
             );
         }
         return $res;

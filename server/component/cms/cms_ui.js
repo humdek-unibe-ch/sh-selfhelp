@@ -74,6 +74,7 @@ function addButtonNewSectionAbove(sectionData) {
     var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section above"></i>');
     $(icon).click(() => {
         var position = (sectionData.order_position * 10) - 5; // get the style position and insert above
+        console.log(sectionData);
         showAddSection(sectionData, true, position);
     })
     return icon;
@@ -102,7 +103,6 @@ function addButtonGoToSection(sectionData) {
 function addButtonNewChild(sectionData) {
     var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
-        sectionData['relation'] = RELATION_SECTION_CHILDREN; // this insert always in section
         showAddSection(sectionData, false, 0);
     })
     return icon;
@@ -153,7 +153,13 @@ function addUISectionButtons(section) {
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
         if ($(childrenHolder).children().length == 0) {
             $(childrenHolder).addClass('d-flex');
-            $(childrenHolder).append(addButtonNewChild(sectionData));
+            var newSectionData = {...sectionData};
+            if ($(section).hasClass('ui-section-holder-page')) {
+                newSectionData['relation'] = RELATION_PAGE_CHILDREN; // this insert always in page
+            } else {
+                newSectionData['relation'] = RELATION_SECTION_CHILDREN; // this insert always in section
+            }
+            $(childrenHolder).append(addButtonNewChild(newSectionData));
         }
     }
 
@@ -356,13 +362,21 @@ function initSortableElements() {
                     });
                     console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section'));
                     console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
-                    console.log(getChildrenOrder(evt.to));
-                    removeSection(remove_data, () => {
-                        var sectionData = $(evt.item).data('section');
+                    console.log($(evt.to).closest('.ui-section-holder').data('section'));
+                    console.log(getChildrenOrder(evt.to)); 
+                    var newSectionData = $(evt.to).closest('.ui-section-holder').data('section');
+                    var sectionData = $(evt.item).data('section');
+                    if (newSectionData){
+                        newSectionData['relation'] = RELATION_SECTION_CHILDREN;
+                        newSectionData['insert_sibling_section_url'] = newSectionData['insert_section_url'];
+                    }else{
+                        newSectionData = sectionData;
+                        newSectionData['relation'] = RELATION_PAGE_CHILDREN;
+                    }
+                    removeSection(remove_data, () => {                        
                         var sectionId = $(evt.item).data('section')['id_sections'];
                         var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
-                        sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', sectionData['parent_id'])
-                        insertSection(sectionData, sectionId, true, position);
+                        insertSection(newSectionData, sectionId, true, position);
                     });
 
                 }
@@ -378,6 +392,9 @@ function initSortableElements() {
     Array.from(pageSections).forEach((sectionHolder) => {
         $(sectionHolder).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
+            if ($(this).hasClass('ui-section-holder-page')) {
+                $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in the page
+            }
         });
         new Sortable(sectionHolder, sortableOptions);
     });
@@ -417,30 +434,30 @@ function loadNestedChildren(children, sortableOptions) {
 function prepareSectionInfo(section, idx) {
     var sectionData = $(section).data('section');
     sectionData['order_position'] = idx;
-    var parents = $(section).parents('.ui-section-holder');
-    var parent
-    if (parents) {
-        parent = parents[0];
-    }
-    parentData = $(parent).data('section');
-    if (parentData) {
-        sectionData['parent'] = "section";
-        if (sectionData['update_section_url']) {
-            sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections']);
-        }
-        sectionData['relation'] = RELATION_SECTION_CHILDREN;
-        sectionData['parent_id'] = parentData['id_sections'];
-        if (sectionData['insert_sibling_section_url']) {
-            sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections']);
-        }
-    } else {
-        sectionData['update_url'] = sectionData['update_page_url']
-        sectionData['relation'] = RELATION_PAGE_CHILDREN;
-        sectionData['parent'] = "page";
-        sectionData['parent_id'] = sectionData['id_pages'];
-    }
+    // var parents = $(section).parents('.ui-section-holder');
+    // var parent
+    // if (parents) {
+    //     parent = parents[0];
+    // }
+    // parentData = $(parent).data('section');
+    // if (parentData) {
+    //     // sectionData['parent'] = "section";
+    //     if (sectionData['update_section_url']) {
+    //         // sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections']);
+    //     }
+    //     // sectionData['relation'] = RELATION_SECTION_CHILDREN;
+    //     // sectionData['parent_id'] = parentData['id_sections'];
+    //     // if (sectionData['insert_sibling_section_url']) {
+    //     //     sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections']);
+    //     // }
+    // } else {
+    //     // sectionData['update_url'] = sectionData['update_page_url']
+    //     // sectionData['relation'] = RELATION_PAGE_CHILDREN;
+    //     // sectionData['parent'] = "page";
+    //     // sectionData['parent_id'] = sectionData['id_pages'];
+    // }
 
-    $(section).children('.badge').text(idx); // for debugging
+    $(section).children('.badge').text(idx + 1); // for debugging
 
     $(section).attr('data-section', sectionData);
     return sectionData;
@@ -476,6 +493,7 @@ function removeSection(sectionData, callback) {
 // reorder section
 function reorderSectionsFromRoot(sectionData, order) {
     console.log(order);
+    console.log(sectionData);
     executeAjaxCall(
         'post',
         sectionData['update_url'],
@@ -686,12 +704,13 @@ function createSection(sectionData, styleId, addSibling, position, styleName) {
 function getAddSectionUrl(sectionData, addSibling) {
     var url = sectionData['insert_section_url'];
     if (addSibling) {
-        if (sectionData["parent"] == 'page') {
+        if (sectionData["relation"] == RELATION_PAGE_CHILDREN) {
             url = sectionData['insert_page_url'];
         } else {
-            url = sectionData['insert_sibling_section_url_modified'];
+            url = sectionData['insert_sibling_section_url'];
         }
     }
+    console.log(url);
     return url;
 }
 
