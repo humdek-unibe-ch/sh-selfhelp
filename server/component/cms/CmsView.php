@@ -324,7 +324,7 @@ class CmsView extends BaseView
     {        
         $current_page = $this->model->get_active_page_id();
         $pages = $this->model->get_pages_header($this->model->get_parent_page_id($current_page));
-        $page_info = $this->model->get_db()->get_page_simple($current_page);
+        $page_info = $this->model->get_db()->fetch_page_by_id($current_page);
         $position_value = "";
         foreach ($pages as $idx => $page) {
             $position_value .= (string)($idx * 10) . ",";

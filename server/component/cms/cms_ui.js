@@ -942,7 +942,7 @@ function initSaveBtn() {
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
                 update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu',
-                    "#section-ui-navigation-hierarchy-list", "#header-position", ".style-section-page-order-wrapper"]);
+                    "#section-ui-navigation-hierarchy-list", "#header-position", ".style-section-page-order-wrapper", "#section-ui-page-list"]);
             }
         });
 

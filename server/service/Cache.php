@@ -16,6 +16,8 @@ class Cache
     /* CACHE TYPES */
     const CACHE_TYPE_PAGES = 'CACHE_PAGES';
     const CACHE_TYPE_SECTIONS = 'CACHE_SECTIONS';
+    const CACHE_TYPE_FIELDS = 'CACHE_FIELDS';
+    const CACHE_TYPE_STYLES = 'CACHE_STYLES';
 
     const CACHE_ALL = 'ALL'; // it is used when we want all IDs and not a single record
 
@@ -58,7 +60,7 @@ class Cache
      * The key has a fixed structure --> type-id-hash
      * @param string $type
      * The type od the stored data - the types are defined as constants in the Cache class
-     * @param int $id
+     * @param string $id
      * the id of the object
      * @param array $extra_params
      * If there are some extra params they are converted to a hash

@@ -13,25 +13,6 @@ require_once __DIR__ . '/BaseDb.php';
  */
 class PageDb extends BaseDb
 {
-    /**
-     * Caching page properties to reduce DB requests.
-     */
-    private $pages = array();
-
-    /**
-     * Caching page keyword ID maps to reduce DB requests.
-     */
-    private $page_keywords = array();
-
-    /**
-     * Caching page ID keyword maps to reduce DB requests.
-     */
-    private $page_ids = array();
-
-    /**
-     * Caching extended page properties to reduce DB requests.
-     */
-    private $pages_info = array();
 
     /* Constructors ***********************************************************/
 
@@ -78,12 +59,18 @@ class PageDb extends BaseDb
      */
     public function fetch_accessible_pages()
     {
-        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action, nav_position
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $this->cache::CACHE_ALL, [__FUNCTION__, INTERNAL_PAGE_ID]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action, nav_position
             FROM pages AS p
             LEFT JOIN actions AS a ON p.id_actions = a.id
             WHERE p.id_type != :type
             ORDER BY -nav_position desc, p.keyword";
-        return $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
+            return $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
+        }
     }
 
     /**
@@ -95,10 +82,16 @@ class PageDb extends BaseDb
      */
     public function fetch_field_id_by_name($name)
     {
-        $sql = "SELECT id FROM fields WHERE name = :name";
-        $res = $this->query_db_first($sql, array('name' => $name));
-        if(!$res) return false;
-        return $res['id'];
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_FIELDS, $name, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT id FROM fields WHERE name = :name";
+            $res = $this->query_db_first($sql, array('name' => $name));
+            if (!$res) return false;
+            return $res['id'];
+        }
     }
 
     /**
@@ -111,12 +104,15 @@ class PageDb extends BaseDb
      */
     public function fetch_page_id_by_keyword($keyword)
     {
-        if(!array_key_exists($keyword, $this->page_ids)) {
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $keyword, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
             $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
             $id = $this->query_db_first($sql, array(":keyword" => $keyword));
-            $this->page_ids[$keyword] = intval($id['id']);
+            return intval($id['id']);
         }
-        return $this->page_ids[$keyword];
     }
 
     /**
@@ -129,12 +125,15 @@ class PageDb extends BaseDb
      */
     public function fetch_page_keyword_by_id($id)
     {
-        if(!array_key_exists($id, $this->page_keywords)) {
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
             $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
             $keyword = $this->query_db_first($sql, array(":id" => $id));
-            $this->page_keywords[$id] = $keyword['keyword'];
+            return $keyword['keyword'];
         }
-        return $this->page_keywords[$id];
     }
 
     /**
@@ -147,12 +146,15 @@ class PageDb extends BaseDb
      */
     public function fetch_page_by_id($id)
     {
-        if(!array_key_exists($id, $this->pages)) {
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
             $sql = "SELECT p.* FROM pages AS p WHERE id=:id";
             $page = $this->query_db_first($sql, array(":id" => $id));
-            $this->pages[$id] = $page;
+            return $page;
         }
-        return $this->pages[$id];
     }
 
     /**
@@ -179,11 +181,17 @@ class PageDb extends BaseDb
      */
     public function fetch_section_info_by_id($id)
     {
-        $sql = "SELECT s.id, s.name, s.id_styles, st.name AS style
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT s.id, s.name, s.id_styles, st.name AS style
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             WHERE s.id = :id";
-        return $this->query_db_first($sql, array(":id" => $id));
+            return $this->query_db_first($sql, array(":id" => $id));
+        }
     }
 
     /**
@@ -199,10 +207,6 @@ class PageDb extends BaseDb
         if (!$keyword) {
             return;
         }
-        // if (array_key_exists($keyword, $this->pages_info)) {
-        //     // already have the info - return it
-        //     return $this->pages_info[$keyword];
-        // }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
         $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
         if ($page_info) {
@@ -215,7 +219,6 @@ class PageDb extends BaseDb
                 $page_info["access_level"] = "insert";
             }
         }
-        $this->pages_info[$keyword] = $page_info;
         return $page_info;
     }
 
@@ -229,12 +232,18 @@ class PageDb extends BaseDb
      */
     public function fetch_nav_children($id)
     {
-        $sql = "SELECT sn.child AS id, s.name, sn.position
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT sn.child AS id, s.name, sn.position
             FROM sections_navigation AS sn
             LEFT JOIN sections AS s ON sn.child = s.id
             WHERE sn.parent = :id
             ORDER BY sn.position";
-        return $this->query_db($sql, array(":id" => $id));
+            return $this->query_db($sql, array(":id" => $id));
+        }
     }
 
     /**
@@ -446,10 +455,16 @@ class PageDb extends BaseDb
      */
     public function fetch_style_id_by_name($name)
     {
-        $sql = "SELECT * FROM styles WHERE name = :name;";
-        $res = $this->query_db_first($sql, array( ":name" => $name));
-        if(!$res) return false;
-        return $res['id'];
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_STYLES, $name, [__FUNCTION__]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT * FROM styles WHERE name = :name;";
+            $res = $this->query_db_first($sql, array(":name" => $name));
+            if (!$res) return false;
+            return $res['id'];
+        }
     }
 
     /**
@@ -624,18 +639,6 @@ class PageDb extends BaseDb
     public function clear_cache($type = null, $id = null)
     {
         $this->cache->clear_cache($type, $id);
-    }
-
-    /**
-     * Get simple info for page
-     * @param int $page_id
-     * the id of the page
-     * @retval array
-     * Array with the info for the page
-     */
-    public function get_page_simple($page_id){
-        $sql = "SELECT keyword, nav_position FROM pages WHERE id = :page_id";
-        return $this->query_db_first($sql, array(":page_id" => $page_id));
     }
 
 }
