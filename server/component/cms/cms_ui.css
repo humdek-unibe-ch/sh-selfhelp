@@ -274,3 +274,7 @@
 .ui-marked-section:hover {
     border-color: var(--success);
 }
+
+.ui-nav-help {
+    max-width: 420px;
+}

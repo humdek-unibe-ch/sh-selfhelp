@@ -328,6 +328,23 @@ class CmsView extends BaseView
     }
 
     /**
+     * Get the nav help card content
+     */
+    private function get_nav_help_card(){
+        return new BaseStyleComponent("card", array(
+                "css" => "ui-card-list properties-fields ui-nav-help",
+                "title"=>"Help",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "children" => array(
+                    new BaseStyleComponent("template", array(
+                        "path" => __DIR__ . "/tpl_intro_nav.php"
+                    ))
+                )
+            ));
+    }
+
+    /**
      * Get the page header items for page reordering
      * @retval array
      * The items needed for the page header reordering
@@ -489,6 +506,9 @@ class CmsView extends BaseView
                 "children" => $properties
             ));
             $children[] = $card_properties_fields;
+            if($this->model->is_navigation_main()){
+                $children[] = $this->get_nav_help_card();
+            }
         }
         return $children;
     }
@@ -701,6 +721,9 @@ class CmsView extends BaseView
                     $form_items[] = $new_field;
                 }
             }
+        }
+        if($this->model->is_navigation_main()){
+            $form_items[] = $this->get_nav_help_card();
         }
         $section_info = $this->model->get_section_info();
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
@@ -1338,7 +1361,7 @@ class CmsView extends BaseView
      */
     private function output_page_preview()
     {
-        if ($this->model->is_navigation_main())
+        if ($this->model->is_navigation_main() && !$this->model->get_services()->get_user_input()->is_new_ui_enabled())
             require __DIR__ . "/tpl_intro_nav.php";
         else {
             if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
