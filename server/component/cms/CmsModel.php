@@ -2142,6 +2142,17 @@ class CmsModel extends BaseModel
         $sql = "SELECT parent FROM pages WHERE id = :page_id";
         return $this->db->query_db_first($sql, array("page_id" => $page_id))['parent'];
     }
+
+    /**
+     * Get all styles
+     * @return array
+     * Return all styles' names in array
+     */
+    public function get_styles()
+    {
+        $sql = "SELECT name FROM styles;";
+        return $this->db->query_db($sql, array());
+    }
 }
 ?>
 

@@ -31,11 +31,6 @@ function init_ui_cms() {
         initUISectionsButtons();
         initSortableElements();
         adjustPropertiesHeight();
-        initMarkdownFields(); // this function is in style textarea - textarea.js
-        initCards();
-        initConditionBuilder(); // this function is in style conditionBuilder - conditionBuilder.js
-        initDataConfigBuilder(); // this function is in style dataConfigBuilder - dataConfigBuilder.js
-        initJsonFields(); // this function is in style textarea - textarea.js
         $('select').selectpicker();
         if (collapsedProperties) {
             propertiesCollapse();
@@ -46,27 +41,26 @@ function init_ui_cms() {
         initSmallButtons();
         initDeleteBtn();
         initExportBtn();
-        initImport(); // CMS import import.js
         initSortableNavElements();
         loadCustomCSSClasses();
         initRemoveNavButtons();
         initPageOrder();
+        initStyles();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
     }
 }
 
-function initCards() {
-    $('div.card-header.collapsible').on('click', function () {
-        setTimeout(() => {
-            $('.CodeMirror-sizer').each(function () {
-                $(this).css('min-height', '32px'); // ugly hack for hidden fields to properly get height
-            })
-        }, 100);
-        toggle_collapsible_card($(this)); // this function is in style cards card.js 
-
-    });
+function initStyles() {
+    // load dynamically all init functions form the styles that have init functions
+    var styles = $("#properties").data('styles');
+    styles.forEach((style) => {
+        var styleName = style['name'].substr(0, 1).toUpperCase() + style['name'].substr(1);
+        if (window['init' + styleName]) {
+            window['init' + styleName]();
+        }
+    })
 }
 
 // create a button add nee section above selected section
@@ -153,7 +147,7 @@ function addUISectionButtons(section) {
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
         if ($(childrenHolder).children().length == 0) {
             $(childrenHolder).addClass('d-flex');
-            var newSectionData = {...sectionData};
+            var newSectionData = { ...sectionData };
             if ($(section).hasClass('ui-section-holder-page')) {
                 newSectionData['relation'] = RELATION_PAGE_CHILDREN; // this insert always in page
             } else {
@@ -363,17 +357,17 @@ function initSortableElements() {
                     console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section'));
                     console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
                     console.log($(evt.to).closest('.ui-section-holder').data('section'));
-                    console.log(getChildrenOrder(evt.to)); 
+                    console.log(getChildrenOrder(evt.to));
                     var newSectionData = $(evt.to).closest('.ui-section-holder').data('section');
                     var sectionData = $(evt.item).data('section');
-                    if (newSectionData){
+                    if (newSectionData) {
                         newSectionData['relation'] = RELATION_SECTION_CHILDREN;
                         newSectionData['insert_sibling_section_url'] = newSectionData['insert_section_url'];
-                    }else{
+                    } else {
                         newSectionData = sectionData;
                         newSectionData['relation'] = RELATION_PAGE_CHILDREN;
                     }
-                    removeSection(remove_data, () => {                        
+                    removeSection(remove_data, () => {
                         var sectionId = $(evt.item).data('section')['id_sections'];
                         var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
                         insertSection(newSectionData, sectionId, true, position);

@@ -2,10 +2,18 @@ $(document).ready(function() {
     toggle_collapsible_card($('.style-'
         + window.location.hash.substring(1)
         + ".card:not(.no-anchor-expand) > .card-header.collapsible.collapsed"));
-    $('div.card-header.collapsible').on('click', function() {
-        toggle_collapsible_card($(this));
-    });
 });
+
+function initCard(){
+    $('div.card-header.collapsible').off('click').on('click', function () {
+        setTimeout(() => {
+            $('.CodeMirror-sizer').each(function () {
+                $(this).css('min-height', '32px'); // ugly hack for hidden fields to properly get height
+            })
+        }, 100);
+        toggle_collapsible_card($(this)); // this function is in style cards card.js 
+    });
+}
 
 function toggle_collapsible_card(elem) {
     var $header = elem;

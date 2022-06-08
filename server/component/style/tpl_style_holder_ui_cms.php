@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="ui-section-holder ml-1 mr-1 mt-2 mb-2 rounded grabbable" draggable="true" data-section='<?php echo json_encode($data_section); ?>'>
+<div class="ui-section-holder p-1 ml-1 mr-1 mt-2 mb-2 rounded grabbable" draggable="true" data-section='<?php echo json_encode($data_section); ?>'>
     <span class="badge badge-secondary"></span>
     <span>
         Name: <code><?php echo $this->model->get_section_name(); ?></code>

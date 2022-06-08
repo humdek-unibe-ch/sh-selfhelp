@@ -1,4 +1,8 @@
 $(document).ready(() => {
+    initGraph();
+});
+
+function initGraph(){
     $('div.graph-base').each(function () {
         let $plot = $(this).children('div.graph-plot:first');
         var raw = parseGraphData($(this).children('div.graph-data:first'));
@@ -11,7 +15,7 @@ $(document).ready(() => {
             }
         });
     });
-});
+}
 
 /**
  * Draw a plotly graph

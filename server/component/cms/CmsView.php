@@ -1472,5 +1472,17 @@ class CmsView extends BaseView
         $reference_sections = $this->model->get_reference_sections();
         require __DIR__ . "/tpl_new_ui/tpl_add_reference_section.php";
     }
+
+    /**
+     * Get all styles
+     * @return array
+     * Return all styles' names in array
+     */
+    public function get_styles()
+    {
+        $res = $this->model->get_styles();
+        $res[] = array("name" => "import"); // add custom init function from cms
+        return $res;
+    }
 }
 ?>

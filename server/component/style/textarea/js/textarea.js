@@ -3,10 +3,14 @@ const mdInit = 'mdInit'
 
 $(document).ready(function () {
     autosize($('textarea'));
-    check_textarea_locked_after_submit();
+    check_textarea_locked_after_submit();    
+    initTextarea();
+});
+
+function initTextarea() {
     initJsonFields();
     initMarkdownFields();
-});
+}
 
 function initJsonFields() {
     $('.json').each(function () {

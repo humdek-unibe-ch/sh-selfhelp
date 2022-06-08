@@ -30,7 +30,7 @@
         <?php $this->output_page_content(); ?>
     </div>
 
-    <div id="properties" class="properties-expanded">
+    <div id="properties" class="properties-expanded" data-styles="<?php echo htmlspecialchars(json_encode($this->get_styles()), ENT_QUOTES, 'UTF-8'); ?>">
         <div class="d-flex h-100 flex-column">
             <ul class="list-group sticky-top">
                 <div id="collapsePropertiesBtn" data-toggle="properties-collapse" class="ui-side-menu-button list-group-item list-group-item-action rounded-0 pt-0 pb-0 pr-2 d-flex align-items-center">
