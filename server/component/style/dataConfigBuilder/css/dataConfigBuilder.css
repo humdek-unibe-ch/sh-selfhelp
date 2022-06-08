@@ -141,3 +141,15 @@
     margin-right: -15px;
     font-style: italic;
 }
+
+#data_config_builder_modal_holder .bootstrap-select {
+    border: 1px solid;
+}
+
+#data_config_builder_modal_holder select {
+    border: 1px solid;
+}
+
+#data_config_builder_modal_holder input {
+    border: 1px solid;
+}

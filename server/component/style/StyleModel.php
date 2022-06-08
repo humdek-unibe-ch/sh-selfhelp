@@ -365,6 +365,36 @@ class StyleModel extends BaseModel implements IStyleModel
             }
         }
     }
+    
+    /**
+     * Check if there is dynamic data that should be calculated. If there are it is calculated and returned
+     * @param object $field
+     * The field which we are checking
+     * @param object $data_config
+     * The data config as json object
+     * @param $user_name
+     * the user_name
+     * @param $user_code
+     * the user_code
+     * @return string
+     * Return the field content
+     */
+    private function calc_dynamic_values($field, $data_config, $user_name, $user_code){
+        // replace the field content with the global variables
+        $field['content'] = str_replace('@user_code', $user_code, $field['content']);
+        $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
+        $field['content'] = str_replace('@user', $user_name, $field['content']);
+        if($data_config && $field['name'] != 'data_config'){
+            // if there is data_config set and the field is nto data_config, try to get dynamic data
+            $fields = $this->retrieve_data($data_config);
+            if ($fields) {
+                foreach ($fields as $field_name => $field_value) {
+                    $field['content']= str_replace($field_name, $field_value, $field['content']);
+                }
+            }
+        }
+        return $field['content'];
+    }
 
     /* Protected Methods ******************************************************/
 
@@ -409,19 +439,26 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function set_db_fields($fields)
     {
+        $user_name = $this->db->fetch_user_name();
+        $user_code = $this->db->get_user_code();
+        $data_config_key = array_search('data_config', array_column($fields, 'name'));
+        $data_config = $data_config_key ? $fields[$data_config_key]['content'] : null;
+        if ($data_config) {
+            // if data_config is set replace if there are any globals
+            $data_config = str_replace('@user_code', $user_code, $data_config);
+            $data_config = str_replace('@project', $_SESSION['project'], $data_config);
+            $data_config = str_replace('@user', $user_name, $data_config);
+            $data_config = json_decode($data_config, true);
+        }
         foreach($fields as $field)
         {
             // set style info
             $this->style_name = $field['style'];
             $this->style_type = $field['type'];
             $this->section_name = $field['section_name'];
-
-            // set global variables if they are used - moved from the query replacement, otherwise the info cannot be cached
-            $user_name = $this->db->fetch_user_name();
-            $user_code = $this->db->get_user_code();
-            $field['content'] = str_replace('@user_code', $user_code, $field['content']);
-            $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
-            $field['content'] = str_replace('@user', $user_name, $field['content']);
+            
+            // load dynamic data if needed
+            $field['content'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code);
 
             $default = $field["default_value"] ?? "";
             if ($field['name'] == "url")
