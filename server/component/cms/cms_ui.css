@@ -7,8 +7,23 @@
     pointer-events: auto;
 }
 
+.ui-menu-btn {
+    cursor: pointer;
+    pointer-events: auto;
+    height: 36px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: -10px;
+}
+
+.ui-menu-holder {
+    border: 1.5px solid;
+    border-color: var(--primary);
+    height: 27px;
+}
+
 .ui-section-holder {
-    border: 2px solid;
+    border: 1.5px solid;
     position: relative;
     border-color: var(--secondary)
 }
@@ -28,6 +43,7 @@
 
 .ui-section-holder:hover>.ui-buttons-holder {
     display: flex !important;
+    z-index: 1050;
 }
 
 .grabbable {

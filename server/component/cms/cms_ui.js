@@ -132,10 +132,11 @@ function addButtonMoveSectionDown(section) {
     return icon;
 }
 
-// add all UI buttons to the sections
-function addUISectionButtons(section) {
+// add all UI buttons to the sections    
+function addUISectionButtons(section, hideUIButtons) {
     var sectionData = $(section).data('section');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
+    var buttonsMenuHolder = $('<div class="ml-5  d-flex flex-column justify-content-between"> </div>');
     var buttonsHolderUpDown = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
@@ -144,6 +145,7 @@ function addUISectionButtons(section) {
 
     // add the new section button for sections without any child
     if (sectionData['can_have_children']) {
+        console.log('create button');
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
         if ($(childrenHolder).children().length == 0) {
             $(childrenHolder).addClass('d-flex');
@@ -160,26 +162,51 @@ function addUISectionButtons(section) {
     $(buttonsHolderAdd).append(addButtonNewSectionBelow(sectionData));
     $(buttonsHolder).append(buttonsHolderAdd);
     $(buttonsHolder).append(addButtonRemoveSection(sectionData));
-    $(section).append(buttonsHolder);
     $(buttonsHolderUpDown).append(buttonsHolderUpDownButtons);
     $(buttonsHolderUpDownButtons).append(addButtonMoveSectionUp(section));
+    $(buttonsMenuHolder).append(addMenu(section, sectionData));
+    console.log($(section).height());
+    if ($(section).height() > 500) {
+        // add menu down too. It is a big section
+        $(buttonsMenuHolder).append(addMenu(section, sectionData));
+    }
     $(buttonsHolderUpDownButtons).append(addButtonMoveSectionDown(section));
-    $(section).append(buttonsHolderUpDown);
+    $(section).append($('<div class="ui-buttons-holder position-absolute justify-content-between"></div>').append(buttonsMenuHolder));
+    if (!hideUIButtons) {
+        $(section).append(buttonsHolder);        
+        $(section).append(buttonsHolderUpDown);
+    }    
+}
 
-    $(section).off('click').on('click', function (e) {
-        e.stopPropagation();
+function addMenu(section, sectionData) {
+    var menu = $('<div class="d-flex bg-white mt-1 mb-1 p-1 rounded ui-menu-holder"></div>');
+    $(menu).append(addBtnShowSectionFields(section, sectionData))
+    $(menu).append(addBtnGoToSection(sectionData))
+    return menu
+}
 
+function addBtnShowSectionFields(section, sectionData) {
+    var icon = $('<i class="fas fa-eye ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Show Section Fields"></i>');
+    $(icon).click(() => {
         // mark the selected section
         $(".ui-marked-section").removeClass("ui-marked-section");
-        $(this).addClass('ui-marked-section');
-
-        loadSectionFields(sectionData['go_to_section_url']);
+        loadSectionFields(sectionData['go_to_section_url'], () => {
+            setTimeout(() => {
+                $(section).addClass('ui-marked-section');
+                $(section).find('.ui-menu-holder').addClass('ui-marked-section');
+            }, 0);
+        });
     })
+    return icon;
+}
 
-    $(section).off('dblclick').on('dblclick', function (e) {
-        e.stopPropagation();
+function addBtnGoToSection(sectionData) {
+    var icon = $('<i class="far fa-object-group ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go To Section <code>' + sectionData['section_name'] + '</code>"></i>');
+    $(icon).click(() => {
+        // load the selected section. The view will be from the section afterthat
         window.location.replace(sectionData['go_to_section_url']);
     })
+    return icon;
 }
 
 // confirmation function
@@ -309,8 +336,19 @@ function initChildrenArea() {
 // init all section and add buttons to them
 function initUISectionsButtons() {
     var allSections = $('.ui-section-holder');
+    var sectionIdx = 0;
     Array.from(allSections).forEach((section) => {
-        addUISectionButtons(section);
+        var hideUIButtons = false;
+        var sectionData = $(section).data('section');
+        console.log($(section).data('section'))        
+        if(!sectionData['id_sections']){ 
+            // it is a page           
+            hideUIButtons = true;
+        }else if(sectionData['params']['sid'] == sectionData['id_sections'] ){
+            hideUIButtons = true;
+        }
+        addUISectionButtons(section, hideUIButtons);
+        sectionIdx++;
     });
 }
 
@@ -387,7 +425,7 @@ function initSortableElements() {
         $(sectionHolder).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
             if ($(this).hasClass('ui-section-holder-page')) {
-                $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in the page
+                // $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in the page
             }
         });
         new Sortable(sectionHolder, sortableOptions);
@@ -397,7 +435,7 @@ function initSortableElements() {
     Array.from(sectionSections).forEach((section) => {
         $(section).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
-            $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in specific section
+            // $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in specific section
         });
         new Sortable(section, sortableOptions);
     });
@@ -989,7 +1027,7 @@ function initSmallButtons() {
     $(".ui-card-properties form > button").addClass("btn-sm");
 }
 
-function loadSectionFields(sectionUrl) {
+function loadSectionFields(sectionUrl, callback) {
     executeAjaxCall(
         'get',
         sectionUrl,
@@ -1007,7 +1045,7 @@ function loadSectionFields(sectionUrl) {
                 // open properties card
                 toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
             }
-            update_new_data(data, ['#section-ui-fields-holder']);
+            update_new_data(data, ['#section-ui-fields-holder'], callback);
             // history.pushState({}, null, sectionUrl);
         },
         () => {

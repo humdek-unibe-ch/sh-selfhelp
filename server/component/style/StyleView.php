@@ -215,7 +215,8 @@ abstract class StyleView extends BaseView
             'insert_section_in_page' => $insert_section_in_page,
             'go_to_section_url' => $go_to_section_url,
             'parent_id' => $this->model->get_parent_id(),
-            'relation' => $this->model->get_relation()
+            'relation' => $this->model->get_relation(),
+            'params' => $params
         );
         if ($data_section['can_have_children']) {
             $insert_section_in_section = $this->model->get_link_url("cmsUpdate", array(
