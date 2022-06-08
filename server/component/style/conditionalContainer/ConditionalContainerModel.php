@@ -39,25 +39,6 @@ class ConditionalContainerModel extends StyleModel
 
     /* Private Methods ********************************************************/
 
-    
-
-    /**
-     * Retrieve data from database - base dont the JSON configuration
-     */
-    private function retrieve_data_form_config($condition)
-    {        
-        $fields = $this->retrieve_data($this->data_config);
-        if ($fields) {
-            foreach ($fields as $field_name => $field_value) {
-                $new_value = $field_value;
-                $condition_string = json_encode($condition);
-                $condition_string = str_replace($field_name, $new_value, $condition_string);
-                $condition = json_decode($condition_string, true);
-            }
-        }
-        return $condition;
-    }
-
     /**
      * Check for childeren in the condtionalContainer whcih are conditionFailed and if there are load them
      */

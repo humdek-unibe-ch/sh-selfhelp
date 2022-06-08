@@ -40,27 +40,9 @@ class MarkdownView extends StyleView
         parent::__construct($model);
         $this->text_md = $this->model->get_db_field('text_md');
         $this->data_config = $this->model->get_db_field("data_config");
-        if ($this->data_config) {
-            $this->retrieve_data();
-        }
     }
 
     /** Private Methods */
-
-    /**
-     * Retrieve data from database - base dont the JSON configuration
-     */
-    private function retrieve_data()
-    {
-        $fields = $this->model->retrieve_data($this->data_config);
-        if ($fields) {
-            foreach ($fields as $field_name => $field_value) {
-                $this->text_md = str_replace($field_name, $field_value, $this->text_md);
-            }
-        } else {
-            $this->text_md = '';
-        }
-    }
 
     /* Public Methods *********************************************************/
 
@@ -77,17 +59,5 @@ class MarkdownView extends StyleView
         require __DIR__ . "/tpl_markdown.php";
     }
 
-    /**
-     * Render the login view for mobile.
-     */
-    public function output_content_mobile()
-    {
-        $style = parent::output_content_mobile();
-        if ($this->data_config) {
-            $this->retrieve_data();
-            $style['text_md']['content'] = $this->text_md;
-        }
-        return $style;
-    }
 }
 ?>

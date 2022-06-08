@@ -760,15 +760,6 @@ class FormUserInputModel extends StyleModel
             $data_config = $this->get_entry_value($entry_data, $data_config);
             $email_address = $this->get_entry_value($entry_data, $email_address);
         }
-        if ($data_config) {
-            $fields = $this->retrieve_data($data_config);
-            if ($fields) {
-                foreach ($fields as $field_name => $field_value) {
-                    $subject = str_replace($field_name, $field_value, $subject);
-                    $body = str_replace($field_name, $field_value, $body);
-                }
-            }
-        }
         $email_address = str_replace('@email_user', $this->db->select_by_uid('users', $_SESSION['id_user'])['email'], $email_address);
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),

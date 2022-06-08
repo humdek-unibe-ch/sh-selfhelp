@@ -153,10 +153,6 @@ class StyleModel extends BaseModel implements IStyleModel
     private function calc_condition(){
         $condition = $this->get_db_field('condition', '');
         if ($condition != '') {
-            $this->data_config = $this->get_db_field("data_config");
-            if ($this->data_config) {
-                $condition = $this->retrieve_data_form_config($condition);
-            }
             if ($this->entry_record) {
                 $condition = $this->get_entry_values($condition);
             }
@@ -326,23 +322,6 @@ class StyleModel extends BaseModel implements IStyleModel
             }
         }
         return isset($ser_data) ? json_decode($ser_data, true) : $data_config;
-    }
-
-    /**
-     * Retrieve data from database - base dont the JSON configuration
-     */
-    private function retrieve_data_form_config($condition)
-    {        
-        $fields = $this->retrieve_data($this->data_config);
-        if ($fields) {
-            foreach ($fields as $field_name => $field_value) {
-                $new_value = $field_value;
-                $condition_string = json_encode($condition);
-                $condition_string = str_replace($field_name, $new_value, $condition_string);
-                $condition = json_decode($condition_string, true);
-            }
-        }
-        return $condition;
     }
 
     /**
