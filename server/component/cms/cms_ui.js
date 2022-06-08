@@ -424,9 +424,6 @@ function initSortableElements() {
     Array.from(pageSections).forEach((sectionHolder) => {
         $(sectionHolder).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
-            if ($(this).hasClass('ui-section-holder-page')) {
-                // $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in the page
-            }
         });
         new Sortable(sectionHolder, sortableOptions);
     });
@@ -435,7 +432,6 @@ function initSortableElements() {
     Array.from(sectionSections).forEach((section) => {
         $(section).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
-            // $(this).find('>.ui-buttons-holder').slice(0, 2).addClass("d-none").removeClass('ui-buttons-holder'); // do not show the frame buttons when we are in specific section
         });
         new Sortable(section, sortableOptions);
     });
@@ -446,7 +442,6 @@ function initSortableElements() {
             prepareSectionInfo(this, idx);
         });
         new Sortable(section, sortableOptions);
-        // loadNestedChildren(section, sortableOptions);
     });
 }
 
