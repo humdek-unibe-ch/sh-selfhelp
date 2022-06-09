@@ -188,9 +188,9 @@ abstract class StyleView extends BaseView
             "mode" => "update",
             "type" => "prop",
             "did" => null,
-            "sid" => $_SESSION['id_section'],
+            "sid" => $_SESSION['active_section_id'],
         );
-        if ($_SESSION['id_section'] != $this->id_section) {
+        if ($_SESSION['active_section_id'] != $this->id_section) {
             // add extra params for navigation container children
             $go_to_section_url_params['ssid'] = $this->id_section;
         }

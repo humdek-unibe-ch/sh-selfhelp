@@ -34,6 +34,8 @@ class CmsView extends BaseView
     {
         parent::__construct($model, $controller);
         $_SESSION['active_section_id'] = $this->model->get_active_section_id();
+        $_SESSION['id_root_section'] = $this->model->get_id_root_section();
+        $_SESSION['id_page'] = $this->model->get_active_page_id();
         $this->page_info = $this->model->get_page_info();
         $this->create_settings_card();
         $this->add_local_component("new_page", new BaseStyleComponent("link",
@@ -281,10 +283,7 @@ class CmsView extends BaseView
                 "children" => $page_components,
             ))
         );
-        if ($this->model->get_active_section_id() != null){
-            $_SESSION['id_root_section'] = $this->model->get_id_root_section();
-            $_SESSION['id_page'] = $this->model->get_active_page_id();
-            $_SESSION['id_section'] = $this->model->get_active_section_id();
+        if ($this->model->get_active_section_id() != null){            
             $this->add_local_component(
                 "section-view",
                 new BaseStyleComponent("card", array(
