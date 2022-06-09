@@ -147,7 +147,8 @@ function addUISectionButtons(section, hideUIButtons) {
     if (sectionData['can_have_children']) {
         console.log('create button');
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
-        if ($(childrenHolder).children().length == 0) {
+        console.log($(childrenHolder).children().filter(":visible").length);
+        if ($(childrenHolder).children().filter(":visible").length == 0) {
             $(childrenHolder).addClass('d-flex');
             var newSectionData = { ...sectionData };
             if ($(section).hasClass('ui-section-holder-page')) {

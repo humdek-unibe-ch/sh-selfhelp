@@ -4,7 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <form id="section-<?php echo $this->id_section; ?>" action="<?php echo $this->url ?>" method="post" class="<?php echo $this->css; ?>">
-    <?php $this->output_children(); ?>
+    <div class="section-children-ui-cms">
+        <?php $this->output_children(); ?>
+    </div>    
     <?php $this->output_submit_button(); ?>
     <?php $this->output_submit_and_send_button(); ?>
     <?php $this->output_cancel(); ?>
