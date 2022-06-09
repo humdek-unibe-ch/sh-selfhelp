@@ -61,11 +61,13 @@ class FilterToggleGroupView extends FilterView
         $this->is_vertical = $this->model->get_db_field("is_vertical", false);
         $this->is_fluid = $this->model->get_db_field("is_fluid", false);
         $values = array();
-        foreach($this->values as $value) {
-            array_push($values, array(
-                "op" => "=",
-                "val" => $value
-            ));
+        if ($this->values) {
+            foreach ($this->values as $value) {
+                array_push($values, array(
+                    "op" => "=",
+                    "val" => $value
+                ));
+            }
         }
         $this->values = $values;
         $this->set_filter_value($this->values);

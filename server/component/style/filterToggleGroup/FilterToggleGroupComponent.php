@@ -33,7 +33,7 @@ class FilterToggleGroupComponent extends FilterComponent
      */
     public function __construct($services, $id, $params, $id_page)
     {
-        $model = new StyleModel($services, $id, $id_page);
+        $model = new StyleModel($services, $id, $params, $id_page);
         $view = new FilterToggleGroupView($model);
 
         parent::__construct($model, $view, $id_page);
