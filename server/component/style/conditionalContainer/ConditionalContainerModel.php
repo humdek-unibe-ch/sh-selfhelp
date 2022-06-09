@@ -40,7 +40,7 @@ class ConditionalContainerModel extends StyleModel
     /* Private Methods ********************************************************/
 
     /**
-     * Check for childeren in the condtionalContainer whcih are conditionFailed and if there are load them
+     * Check for children in the conditionalContainer which are conditionFailed and if there are load them
      */
     private function checkChildrenConditionFailed()
     {

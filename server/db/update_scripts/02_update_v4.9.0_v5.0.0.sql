@@ -413,3 +413,8 @@ FROM view_style_fields
 WHERE field_name = 'css' AND style_id NOT IN (SELECT style_id
 FROM view_style_fields
 WHERE field_name = 'data_config');
+
+-- deprecate style `conditionFailed`
+UPDATE styles
+SET id_group = 1
+WHERE name = "conditionFailed";
