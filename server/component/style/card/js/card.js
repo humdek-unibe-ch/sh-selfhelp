@@ -2,6 +2,7 @@ $(document).ready(function() {
     toggle_collapsible_card($('.style-'
         + window.location.hash.substring(1)
         + ".card:not(.no-anchor-expand) > .card-header.collapsible.collapsed"));
+    initCard();
 });
 
 function initCard(){
