@@ -484,14 +484,17 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_db_field($key, $default="")
     {
         $field = $this->get_db_field_full($key);
-        if($field == "")
-        {
-            if(isset($field['default']) && $field['default'] != "")
-                return $field['default'];
-            else
-                return $default;
+        if (isset($field['content'])) {
+            if ($field['content'] == "") {
+                if (isset($field['default']) && $field['default'] != "")
+                    return $field['default'];
+                else
+                    return $default;
+            }
+            return $field['content'];
+        } else {
+            return $default;
         }
-        return $field['content'];
     }
 
     /**

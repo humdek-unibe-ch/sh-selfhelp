@@ -95,7 +95,7 @@ function addButtonGoToSection(sectionData) {
 
 // create a new button add new child to selected section. Only sections witch can have children will have this button
 function addButtonNewChild(sectionData) {
-    var icon = $('<button type="button" class="btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
+    var icon = $('<button type="button" class="ui-add-first-child btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
         showAddSection(sectionData, false, 0);
     })
@@ -153,7 +153,8 @@ function addUISectionButtons(section, hideUIButtons) {
                 newSectionData['relation'] = RELATION_PAGE_CHILDREN; // this insert always in page
             } else {
                 newSectionData['relation'] = RELATION_SECTION_CHILDREN; // this insert always in section
-            }
+            }            
+            $(childrenHolder).find('.ui-add-first-child').remove();
             $(childrenHolder).append(addButtonNewChild(newSectionData));
         }
     }
