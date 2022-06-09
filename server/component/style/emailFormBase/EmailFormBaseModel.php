@@ -59,9 +59,9 @@ abstract class EmailFormBaseModel extends StyleModel
      * @param int $id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params=array())
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params);
         $this->email_user = $this->get_db_field("email_user");
         $this->subject_user = $this->get_db_field("subject_user");
         $this->attachments_user = $this->get_db_field(

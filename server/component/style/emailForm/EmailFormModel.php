@@ -49,9 +49,9 @@ class EmailFormModel extends EmailFormBaseModel
      * @param int $id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params=array())
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params);
         $this->admins = $this->get_db_field("admins", array());
         $this->email_admins = $this->get_db_field("email_admins");
         $this->do_store = $this->get_db_field('do_store', false);

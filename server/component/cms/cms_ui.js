@@ -145,10 +145,8 @@ function addUISectionButtons(section, hideUIButtons) {
 
     // add the new section button for sections without any child
     if (sectionData['can_have_children']) {
-        console.log('create button');
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
-        console.log($(childrenHolder).children().filter(":visible").length);
-        if ($(childrenHolder).children().filter(":visible").length == 0) {
+        if (sectionData['children'] == 0) {
             $(childrenHolder).addClass('d-flex');
             var newSectionData = { ...sectionData };
             if ($(section).hasClass('ui-section-holder-page')) {
@@ -340,7 +338,7 @@ function initUISectionsButtons() {
     var sectionIdx = 0;
     Array.from(allSections).forEach((section) => {
         var hideUIButtons = false;
-        var sectionData = $(section).data('section');
+        var sectionData = $(section).data('section');        
         if(!sectionData['id_sections']){ 
             // it is a page           
             hideUIButtons = true;

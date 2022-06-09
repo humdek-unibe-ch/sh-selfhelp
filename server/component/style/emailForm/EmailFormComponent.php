@@ -29,9 +29,9 @@ class EmailFormComponent extends BaseComponent
      * @param int $id
      *  The section id of this component.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params=array())
     {
-        $model = new EmailFormModel($services, $id);
+        $model = new EmailFormModel($services, $id, $params);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new EmailFormBaseController($model);
