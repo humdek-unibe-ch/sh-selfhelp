@@ -43,7 +43,7 @@
 
 .ui-section-holder:hover>.ui-buttons-holder {
     display: flex !important;
-    z-index: 1050;
+    z-index: 100;
 }
 
 .grabbable {
