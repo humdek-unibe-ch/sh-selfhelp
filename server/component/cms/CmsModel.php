@@ -579,12 +579,14 @@ class CmsModel extends BaseModel
      */
     private function get_item_url($pid, $sid=null, $ssid=null)
     {
-        if($sid == $ssid) $ssid = null;
+        if ($sid == $ssid) $ssid = null;
         if ($this->get_services()->get_user_input()->is_new_ui_enabled() && $this->is_link_active("cmsUpdate")) {
             return $this->router->generate("cmsUpdate", array("pid" => $pid, "sid" => $sid, "ssid" => $ssid, "mode" => UPDATE, "type" => "prop"));
-        }else{
-            return $this->router->generate("cmsSelect",
-                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
+        } else {
+            return $this->router->generate(
+                "cmsSelect",
+                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid)
+            );
         }
     }
 
@@ -1519,7 +1521,7 @@ class CmsModel extends BaseModel
         $fields = $this->fetch_style_fields_by_section_id($id_section);
         $res[] = $this->add_property_item(
             array(
-                "name" => "name",
+                "name" => "section_name",
                 "help" => "Section name. <b>Note that the section name can contain only numbers, letters, - and _ characters</b>",
                 "type" => "text",
                 "relation" => RELATION_SECTION,
@@ -2058,7 +2060,7 @@ class CmsModel extends BaseModel
      */
     public function update_section_fields_db($id, $id_language, $id_gender,
         $content, $id_section = null)
-    {
+    {        
         if ($id_section === null && isset($_POST['id_section'])) {
             // if the id is coming in the post parameter set it
             $id_section = $_POST['id_section'];
@@ -2066,7 +2068,7 @@ class CmsModel extends BaseModel
         if($id_section === null)
             $id_section = $this->get_active_section_id();
         if($id_section == null && $this->is_navigation())
-            $id_section = $this->page_info['id_navigation_section'];
+            $id_section = $this->page_info['id_navigation_section'];        
         $update = array(
             "content" => $content
         );
@@ -2113,10 +2115,15 @@ class CmsModel extends BaseModel
      */
     public function update_section($section_fields)
     {
+        if(isset($section_fields['section_name'])){
+            $section_fields['name'] = $section_fields['section_name']; // use the real column name form the DB, it was used section_name otherwise it was overwritten by styles which have field `name`
+            unset($section_fields['section_name']);
+        }
         return $this->db->update_by_ids(
             "sections",
             $section_fields,
-            array("id" => ($this->id_root_section ? $this->id_root_section : (isset($_POST['id_section']) ? $_POST['id_section'] : $this->id_root_section)))
+            array("id" => isset($_POST['id_section']) ? $_POST['id_section'] : $this->id_root_section)
+            // array("id" => ($this->id_root_section ? $this->id_root_section : (isset($_POST['id_section']) ? $_POST['id_section'] : $this->id_root_section)))
         );
     }
 

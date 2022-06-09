@@ -165,7 +165,6 @@ function addUISectionButtons(section, hideUIButtons) {
     $(buttonsHolderUpDown).append(buttonsHolderUpDownButtons);
     $(buttonsHolderUpDownButtons).append(addButtonMoveSectionUp(section));
     $(buttonsMenuHolder).append(addMenu(section, sectionData));
-    console.log($(section).height());
     if ($(section).height() > 500) {
         // add menu down too. It is a big section
         $(buttonsMenuHolder).append(addMenu(section, sectionData));
@@ -189,7 +188,8 @@ function addBtnShowSectionFields(section, sectionData) {
     var icon = $('<i class="fas fa-eye ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Show Section Fields"></i>');
     $(icon).click(() => {
         // mark the selected section
-        $(".ui-marked-section").removeClass("ui-marked-section");
+        console.log(sectionData);
+        $(".ui-marked-section").removeClass("ui-marked-section");        
         loadSectionFields(sectionData['go_to_section_url'], () => {
             setTimeout(() => {
                 $(section).addClass('ui-marked-section');
@@ -340,7 +340,6 @@ function initUISectionsButtons() {
     Array.from(allSections).forEach((section) => {
         var hideUIButtons = false;
         var sectionData = $(section).data('section');
-        console.log($(section).data('section'))        
         if(!sectionData['id_sections']){ 
             // it is a page           
             hideUIButtons = true;

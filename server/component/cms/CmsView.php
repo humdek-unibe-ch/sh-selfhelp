@@ -281,7 +281,10 @@ class CmsView extends BaseView
                 "children" => $page_components,
             ))
         );
-        if ($this->model->get_active_section_id() != null)
+        if ($this->model->get_active_section_id() != null){
+            $_SESSION['id_root_section'] = $this->model->get_id_root_section();
+            $_SESSION['id_page'] = $this->model->get_active_page_id();
+            $_SESSION['id_section'] = $this->model->get_active_section_id();
             $this->add_local_component(
                 "section-view",
                 new BaseStyleComponent("card", array(
@@ -297,6 +300,7 @@ class CmsView extends BaseView
                     ))
                 ))
             );
+        }
 
         // debug
     }
@@ -654,7 +658,7 @@ class CmsView extends BaseView
         ));
 
         $form_items[] = new BaseStyleComponent("input", array(
-            "value" => $this->model->get_id_root_section(),
+            "value" => $this->model->get_active_section_id(),
             "name" => "id_section",
             "type_input" => "hidden",
         ));

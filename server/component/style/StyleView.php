@@ -181,15 +181,20 @@ abstract class StyleView extends BaseView
             "mode" => "update",
             "type" => "prop",
             "did" => null,
-            "sid" => $this->model->get_parent_id()
+            "sid" => $this->model->get_parent_id()            
         ));
-        $go_to_section_url = $this->model->get_link_url("cmsUpdate", array(
+        $go_to_section_url_params =array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "update",
             "type" => "prop",
             "did" => null,
-            "sid" => $this->id_section
-        ));
+            "sid" => $_SESSION['id_section'],
+        );
+        if ($_SESSION['id_section'] != $this->id_section) {
+            // add extra params for navigation container children
+            $go_to_section_url_params['ssid'] = $this->id_section;
+        }
+        $go_to_section_url = $this->model->get_link_url("cmsUpdate", $go_to_section_url_params);
         $insert_sibling_section = $this->model->get_link_url("cmsUpdate", array(
             "pid" => isset($params['pid']) ? $params['pid'] : -1,
             "mode" => "insert",
