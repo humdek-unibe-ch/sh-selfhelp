@@ -187,7 +187,7 @@ class ShowUserInputView extends StyleView
         $header = array($this->label);
         foreach($fields as $field)
         {
-            $header[] = $field['field_label'];
+            $header[] = ($field['field_label'] == '' ? $field['field_name']: $field['field_label']);
             if(isset($field['id_user_input_record'])){
                 // new visualization based on row id
                 if(!isset($rows[$field['id_user_input_record']]))

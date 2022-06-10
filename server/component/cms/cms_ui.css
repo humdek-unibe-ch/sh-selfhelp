@@ -25,7 +25,11 @@
 .ui-section-holder {
     border: 1.5px solid;
     position: relative;
-    border-color: var(--secondary)
+    border-color: var(--secondary);
+}
+
+#ui-middle{
+    width: calc(100% - 720px);
 }
 
 .ui-buttons-holder {
