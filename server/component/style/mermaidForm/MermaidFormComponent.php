@@ -48,6 +48,10 @@ class MermaidFormComponent extends BaseComponent
         $view = new MermaidFormView($model, $controller);
 
         parent::__construct($model, $view, $controller);
+        if ($this->controller && !isset($_POST[ENTRY_RECORD_ID])) {
+            // dont execute it if it is from entry; It will be handled later
+            $this->controller->execute();
+        }
     }
 }
 ?>
