@@ -68,10 +68,14 @@ class MermaidFormModel extends FormUserInputModel
       $arrFields = [];
       foreach ($children as $child) {
          if (is_a($child, "StyleComponent")) {
-            $name = $child->get_style_instance()->get_view()
-               ->get_name_base();
-            $value = $child->get_style_instance()->get_model()
-               ->get_form_field_value();
+            $name = null;
+            if (method_exists($child->get_style_instance()->get_view(), "get_name_base")) {
+               $name = $child->get_style_instance()->get_view()->get_name_base();
+            }
+            $value = null;
+            if (method_exists($child->get_style_instance()->get_model(), "get_form_field_value")) {
+               $value = $child->get_style_instance()->get_model()->get_form_field_value();
+            }
             if ($this->is_cms_page()) {
                $arrFields[$name] = array(
                   "value" => '',
@@ -79,12 +83,13 @@ class MermaidFormModel extends FormUserInputModel
                );
             } else {
                $arrFields[$name] = array(
-                  "value" => $this->replaceQuotes($value), //remove quotes here otherwose we break json encode
+                  "value" => $this->replaceQuotes($value), //remove quotes here otherwise we break json encode
                   "label" => ''
                );
             }
-            $arrFields[$name]['label'] = $child->get_style_instance()
-               ->get_view()->get_label();
+            if(method_exists($child->get_style_instance()->get_view(), "get_label")){
+               $arrFields[$name]['label'] = $child->get_style_instance()->get_view()->get_label();
+            }
             if ($arrFields[$name]['label'] != '') {
                //if label is assigne, it will be used as a title and it will be vizualized everytime, then 2 new lines
                $arrFields[$name]['value'] = $arrFields[$name]['label'] . '&lt;br&gt;&lt;br&gt;' . ($arrFields[$name]['value'] == '' ? '...' : $arrFields[$name]['value']);
