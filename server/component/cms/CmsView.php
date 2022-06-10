@@ -265,6 +265,7 @@ class CmsView extends BaseView
             "items" => array(
                 "data_section" => array(
                     "can_have_children" => true,
+                    "children" => 0,
                     "relation"=> RELATION_PAGE_CHILDREN
                 ),
                 "page_keyword" => $this->page_info["keyword"],

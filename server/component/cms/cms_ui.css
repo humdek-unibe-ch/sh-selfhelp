@@ -294,3 +294,8 @@
 .ui-nav-help {
     max-width: 420px;
 }
+
+.ui-dotted-border {
+    border: 1.5px dotted !important;
+    border-color: var(--secondary) !important;
+}

@@ -147,7 +147,7 @@ function addUISectionButtons(section, hideUIButtons) {
     if (sectionData['can_have_children']) {
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
         if (sectionData['children'] == 0) {
-            $(childrenHolder).addClass('d-flex');
+            $(childrenHolder).addClass('d-flex rounded ui-dotted-border');
             var newSectionData = { ...sectionData };
             if ($(section).hasClass('ui-section-holder-page')) {
                 newSectionData['relation'] = RELATION_PAGE_CHILDREN; // this insert always in page
@@ -436,7 +436,6 @@ function initSortableElements() {
     });
     // **************************** NESTED CHILDREN ***********************************
     var childrenSections = $('#ui-cms .section-children-ui-cms');
-    console.log(childrenSections);
     Array.from(childrenSections).forEach((section) => {
         $(section).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
@@ -453,7 +452,7 @@ function loadNestedChildren(children, sortableOptions) {
             prepareSectionInfo(this, idx);
         });
         new Sortable(section, sortableOptions);
-        loadNestedChildren(section, sortableOptions);
+        // loadNestedChildren(section, sortableOptions);
     });
 }
 

@@ -1003,7 +1003,7 @@ class CmsModel extends BaseModel
             $sql = "SET @row_number = -1;  
                 UPDATE pages_sections
                 SET position = (@row_number:=@row_number + 1) * 10
-                WHERE parent = :id_section
+                WHERE id_pages = :id_section
                 ORDER by position;";
         }
         $this->db->execute_update_db($sql, array(":id_section" => $id_section));
