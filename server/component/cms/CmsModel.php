@@ -523,7 +523,7 @@ class CmsModel extends BaseModel
         $gender = isset($_SESSION['cms_gender']) ? $_SESSION['cms_gender'] : 1;
         $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.name AS type,
         sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
-        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1) AS content,
+        IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1), sf.default_value) AS content,
         g.name AS gender, 1*g.id AS id_gender,
         CASE
             WHEN ft.name = 'style-list' THEN :RELATION_SECTION_CHILDREN
