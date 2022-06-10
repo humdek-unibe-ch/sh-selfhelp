@@ -435,7 +435,8 @@ function initSortableElements() {
         new Sortable(section, sortableOptions);
     });
     // **************************** NESTED CHILDREN ***********************************
-    var childrenSections = $('.section-children-ui-cms');
+    var childrenSections = $('#ui-cms .section-children-ui-cms');
+    console.log(childrenSections);
     Array.from(childrenSections).forEach((section) => {
         $(section).children('.ui-section-holder').each(function (idx) {
             prepareSectionInfo(this, idx);
