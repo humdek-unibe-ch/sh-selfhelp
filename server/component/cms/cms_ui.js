@@ -405,6 +405,7 @@ function initSortableElements() {
                         newSectionData = sectionData;
                         newSectionData['relation'] = RELATION_PAGE_CHILDREN;
                     }
+                    console.log('New section Data', newSectionData);
                     removeSection(remove_data, () => {
                         var sectionId = $(evt.item).data('section')['id_sections'];
                         var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
@@ -732,7 +733,7 @@ function getAddSectionUrl(sectionData, addSibling) {
     var url = sectionData['insert_section_url'];
     if (addSibling) {
         if (sectionData["relation"] == RELATION_PAGE_CHILDREN) {
-            url = sectionData['insert_page_url'];
+            url = sectionData['insert_section_in_page'];
         } else {
             url = sectionData['insert_sibling_section_url'];
         }
