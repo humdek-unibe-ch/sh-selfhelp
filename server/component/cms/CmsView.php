@@ -731,6 +731,12 @@ class CmsView extends BaseView
         }
         $section_info = $this->model->get_section_info();
         if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            $export_btn = new BaseStyleComponent("button", array(
+                "label" => "Export " . ($this->model->get_id_root_section() ? 'section' : 'page'),
+                "url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsExport", array("type" => "section", "id" => $this->model->get_active_section_id())) : null,
+                "css" => "w-100 mb-2 btn-sm",
+                "id" => "new-ui-export"
+            ));
             $form_items[] = new BaseStyleComponent("div", array(
                 "css" => "w-100 p-2",
                 "children" => array(
@@ -740,18 +746,7 @@ class CmsView extends BaseView
                         "css" => "w-100 mb-2 btn-sm",
                         "id" => "new-ui-create-child-page"
                     )),
-                    new BaseStyleComponent("button", array(
-                        "label" => "Export " . ($this->model->get_id_root_section() ? 'section' : 'page'),
-                        "url" => $this->model->get_link_url(
-                            "cmsExport",
-                            array(
-                                "type" => "section",
-                                "id" => $this->model->get_active_section_id()
-                            )
-                        ),
-                        "css" => "w-100 mb-2 btn-sm",
-                        "id" => "new-ui-export"
-                    )),
+                    $export_btn,
                     new BaseStyleComponent("button", array(
                         "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),
                         "url" => '#',
