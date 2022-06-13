@@ -807,13 +807,15 @@ function initEditToggle() {
         // we are in edit mode
         $('#ui-edit-toggle').bootstrapToggle('on');
     }
-    var toggleLink = getEditToggleLink();
+    var toggleLink = getEditToggleLink();   
+    console.log('toggle link', toggleLink); 
     $('#ui-edit-toggle').change(function () {
         executeAjaxCall(
             'get',
             toggleLink,
             {},
             (data) => {
+                history.pushState({href: toggleLink}, null, toggleLink); 
                 data = $(data);
                 var content_collapsed = $('#section-ui-card-content > .collapsed')[0];
                 var properties_collapsed = $('#section-ui-card-properties > .collapsed')[0];
@@ -824,9 +826,8 @@ function initEditToggle() {
                 if (!properties_collapsed) {
                     // open properties card
                     toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
-                }
-                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", "#section-ui-navigation-hierarchy-list"]);
-                history.pushState({}, null, toggleLink);
+                }                           
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", "#section-ui-navigation-hierarchy-list"]);                    
             },
             () => {
                 console.log('error');

@@ -97,6 +97,10 @@
     border-left: 1px solid rgba(0, 0, 0, .125);
 }
 
+#properties .section-children-ui-cms{
+    border: none !important;
+}
+
 #collapsePropertiesBtn {
     border-top: 1px solid rgba(0, 0, 0, .125);
 }
