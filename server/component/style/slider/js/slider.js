@@ -1,10 +1,14 @@
 $(document).ready(function () {
+    initSlider();
+    check_slider_locked_after_submit();
+});
+
+function initSlider(){
     new ResizeSensor(jQuery('.selfhelp-slider'), function () {
         position_slider_legend();
     });
     position_slider_legend();
-    check_slider_locked_after_submit();
-});
+}
 
 function position_slider_legend() {
     $('.slider-legend').each(function () {
