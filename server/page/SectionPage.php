@@ -162,6 +162,8 @@ class SectionPage extends BasePage
                 $arr = $_SESSION['cms_edit_url'];
             if (isset($this->nav_section_id)) {
                 $arr['sid'] = $this->nav_section_id;
+            } else {
+                $arr['sid'] = null;
             }
             $url = $router->generate('cmsSelect', $arr);
             require __DIR__ . "/tpl_cms_edit.php";
