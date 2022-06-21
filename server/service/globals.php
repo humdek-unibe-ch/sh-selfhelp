@@ -19,6 +19,8 @@ define('STATIC_PATH', BASE_PATH . '/' . STATIC_FOLDER);
 define('STATIC_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . '/' . STATIC_FOLDER);
 define('STYLE_PATH', '/server/component/style');
 define('STYLE_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . STYLE_PATH);
+define('PLUGIN_PATH', '/server/plugins');
+define('PLUGIN_SERVER_PATH', $_SERVER['DOCUMENT_ROOT'] . PLUGIN_PATH);
 define('SERVICE_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/service');
 define('EMAIL_PATH', $_SERVER['DOCUMENT_ROOT'] . '/server/email');
 define('NAME_PATTERN', '[a-zA-Z0-9_-]+'); // pattern used for naming

@@ -8,10 +8,19 @@ spl_autoload_register(function ($class_name) {
     $folder = str_replace("Component", "", $class_name);
     $folder = lcfirst(str_replace("View", "", $folder));
     $file = "/" . $folder . "/" . $class_name . ".php";
-    if(file_exists(__DIR__ . "/style" . $file))
+    if (file_exists(__DIR__ . "/style" . $file))
         require_once __DIR__ . "/style" . $file;
-    else if(file_exists(__DIR__ . $file))
+    else if (file_exists(__DIR__ . $file))
         require_once __DIR__ . $file;
+    else {
+        // check plugins
+        $plugin_path = __DIR__ . '/../plugins/' . $folder . '/server/component';
+        if (file_exists($plugin_path . "/style" . $file)) {
+            require_once $plugin_path . "/style" . $file;
+        } else if (file_exists($plugin_path . $file)) {
+            require_once $plugin_path . $file;
+        }
+    }
 });
 /**
  * The class to define the basic functionality of a component.
