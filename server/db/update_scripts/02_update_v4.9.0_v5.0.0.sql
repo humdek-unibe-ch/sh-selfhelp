@@ -428,11 +428,23 @@ ALTER TABLE plugins MODIFY COLUMN name VARCHAR(100);
 -- make plugins name unique
 ALTER TABLE plugins ADD UNIQUE KEY `plugins_name` (`name`);
 
+-- make fieldType name unique
+ALTER TABLE fieldType ADD UNIQUE KEY `fieldType_name` (`name`);
+
+-- make fields name unique
+ALTER TABLE fields ADD UNIQUE KEY `fields_name` (`name`);
+
 -- if the style book exists add the entry into the pluing table
 INSERT IGNORE INTO plugins (name, version) 
 SELECT 'book', 'v1.0.0'
 FROM styles
 WHERE name = 'book';
+
+-- if the style mermaidForm exists add the entry into the pluing table
+INSERT IGNORE INTO plugins (name, version) 
+SELECT 'mermaidForm', 'v1.0.0'
+FROM styles
+WHERE name = 'mermaidForm';
 
 
 -- deprecate style `trigger`. From now on the new plugins autoloads
