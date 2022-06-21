@@ -23,6 +23,10 @@
  - add new internal style `actionConfigBuilder`
  - add new internal style `qualtricsSurveyConfigBuilder`
 
+### Changes
+ - deprecate style `trigger`. From now on, the new plugins autoload based on their name
+ - deprecate style `conditionFailed`. Now all styles have conditions.
+
 # v4.9.6
 ### New Features
  - style `qualtricsSurvey` can accept url parameters in the same way a normal Qualtrics survey can do. Ex: `url?code=test&session=1`;

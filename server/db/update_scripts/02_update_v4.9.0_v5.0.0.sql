@@ -433,3 +433,9 @@ INSERT IGNORE INTO plugins (name, version)
 SELECT 'book', 'v1.0.0'
 FROM styles
 WHERE name = 'book';
+
+
+-- deprecate style `trigger`. From now on the new plugins autoloads
+UPDATE styles
+SET id_group = 1
+WHERE name = "trigger";
