@@ -43,7 +43,6 @@ function activate($this) {
 }
 
 function activate_with_hash() {
-    console.log(window.location.hash.substring(1));
     activate($('button.tab-button:not(.active):not(.no-anchor-expand).style-'
         + window.location.hash.substring(1)));
 }
