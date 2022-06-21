@@ -254,6 +254,9 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
 
 // load specific ids, sent in array
 function update_new_data(data, elements, callback) {
+    if(!elements){
+        return;
+    }
     $('.popover').remove(); // first remove all tooltips if they are active
     elements.forEach(element => {
         $(element).empty().append($(data).find(element).children());

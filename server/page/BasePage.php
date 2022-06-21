@@ -137,7 +137,6 @@ abstract class BasePage
             "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
-            "/js/ext/mermaid.min.js",
             "/js/ext/plotly.min.js",
             "/js/ext/bootstrap-select.min.js",
             "/js/ext/jquery-confirm.min.js",
@@ -164,8 +163,10 @@ abstract class BasePage
             $this->css_includes);
         $this->add_main_include_files(JS_SERVER_PATH, "/js/", "js",
             $this->js_includes);
-        if(DEBUG == 1)
-            $this->collect_style_includes();
+        if(DEBUG == 1) {
+            $this->collect_style_includes();            
+        }
+        $this->collect_plugin_includes();
         $this->services = $services;
         $this->fetch_page_info($keyword);
         if($this->id_navigation_section != null)
@@ -223,6 +224,60 @@ abstract class BasePage
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/js',
                     STYLE_PATH . '/' . $file . '/js/', 'js',
+                    $js_includes
+                );
+            }
+            closedir($handle);
+        }
+        sort($js_includes);
+        sort($css_includes);
+        $this->js_includes = array_merge($this->js_includes, $js_includes);
+        $this->css_includes = array_merge($this->css_includes, $css_includes);
+    }
+
+    /**
+     * Iterate through all plugins and collect all js and css files.
+     */
+    private function collect_plugin_includes()
+    {
+        $js_includes = array();
+        $css_includes = array();
+        if(DEBUG){
+            $css_location = '/css/';
+            $js_location = '/js/';
+            $plugin_server_path = PLUGIN_SERVER_PATH;
+            $extra_path = '/server/component/style/';
+        }else{
+            $extra_path = '';
+            // $plugin_path = PLUGIN_PATH . '/css/ext';
+            $css_location = '/css/ext/';
+            $js_location = '/js/ext/';
+        }
+        if($handle = opendir(PLUGIN_SERVER_PATH)) {
+            $this->add_main_include_files(
+                PLUGIN_SERVER_PATH . $css_location,
+                PLUGIN_PATH . $css_location, 'css',
+                $this->css_includes
+            );
+            $this->add_main_include_files(
+                PLUGIN_SERVER_PATH . $js_location,
+                PLUGIN_PATH . $js_location, 'js',
+                $this->js_includes
+            );
+            while(false !== ($file = readdir($handle)))
+            {
+                if(filetype(PLUGIN_SERVER_PATH . '/' . $file) !== "dir"
+                        || $file === "." || $file === ".."
+                        || $file === "js" || $file === "css" )
+                    continue;
+                $this->add_main_include_files(
+                    PLUGIN_SERVER_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '') . $css_location,
+                    PLUGIN_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '')  . $css_location, 'css',
+                    $css_includes
+                );
+                $this->add_main_include_files(
+                    PLUGIN_SERVER_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '') . $js_location,
+                    PLUGIN_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '')  . $js_location, 'js',
                     $js_includes
                 );
             }
