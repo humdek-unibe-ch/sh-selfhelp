@@ -434,17 +434,26 @@ ALTER TABLE fieldType ADD UNIQUE KEY `fieldType_name` (`name`);
 -- make fields name unique
 ALTER TABLE fields ADD UNIQUE KEY `fields_name` (`name`);
 
--- if the style book exists add the entry into the pluing table
+-- make styleGroup name unique
+ALTER TABLE styleGroup ADD UNIQUE KEY `styleGroup_name` (`name`);
+
+-- if the style book exists add the entry into the plugin table
 INSERT IGNORE INTO plugins (name, version) 
 SELECT 'book', 'v1.0.0'
 FROM styles
 WHERE name = 'book';
 
--- if the style mermaidForm exists add the entry into the pluing table
+-- if the style mermaidForm exists add the entry into the plugin table
 INSERT IGNORE INTO plugins (name, version) 
 SELECT 'mermaidForm', 'v1.1.0'
 FROM styles
 WHERE name = 'mermaidForm';
+
+-- if the style graph exists add the entry into the plugin table
+INSERT IGNORE INTO plugins (name, version) 
+SELECT 'plotly-graphs', 'v1.0.0'
+FROM styles
+WHERE name = 'graph';
 
 -- deprecate style `trigger`. From now on the new plugins autoloads
 UPDATE styles
