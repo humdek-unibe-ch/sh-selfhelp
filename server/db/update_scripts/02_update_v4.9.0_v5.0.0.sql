@@ -442,10 +442,9 @@ WHERE name = 'book';
 
 -- if the style mermaidForm exists add the entry into the pluing table
 INSERT IGNORE INTO plugins (name, version) 
-SELECT 'mermaidForm', 'v1.0.0'
+SELECT 'mermaidForm', 'v1.1.0'
 FROM styles
 WHERE name = 'mermaidForm';
-
 
 -- deprecate style `trigger`. From now on the new plugins autoloads
 UPDATE styles
