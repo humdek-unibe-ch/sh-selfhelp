@@ -1,4 +1,8 @@
 # v5.0.0 (latest)
+
+### BREAKING CHANGES
+ - after updating an older version to 5.0.0 please check the impressum and if needed install the required plugins
+
 ### New Features
  - #321 - improve installation script
  - #317 - add field `condition` for all styles. Add also `debug`.
@@ -26,6 +30,9 @@
 ### Changes
  - deprecate style `trigger`. From now on, the new plugins autoload based on their name
  - deprecate style `conditionFailed`. Now all styles have conditions.
+ - move style `mermaidForm`to a separate plugin
+ - move style `book`to a separate plugin
+ - move styles `graph`, `graphBar`, `graphLegend`, `graphPie`, `graphsSankey` to a separate plugin `plotly-graphs`
 
 # v4.9.6
 ### New Features
