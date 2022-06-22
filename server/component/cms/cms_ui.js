@@ -146,7 +146,6 @@ function addUISectionButtons(section, hideUIButtons) {
     // add the new section button for sections without any child
     if (sectionData['can_have_children']) {
         var childrenHolder = $(section).find('.section-children-ui-cms').first();
-        console.log(sectionData);
         if (sectionData['children'] == 0) {
             $(childrenHolder).addClass('d-flex rounded ui-dotted-border');
             var newSectionData = { ...sectionData };
