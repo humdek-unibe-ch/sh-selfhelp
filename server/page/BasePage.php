@@ -8,6 +8,7 @@ require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
+require_once __DIR__ . "/../component/style/StyleView.php";
 
 /**
  * This abstract class serves as staring point for pages.
@@ -113,6 +114,7 @@ abstract class BasePage
      */
     public function __construct($services, $keyword)
     {
+        $this->services = $services;
         $this->render_nav = true;
         $this->render_footer = true;
         $this->keyword = $keyword;
@@ -137,7 +139,6 @@ abstract class BasePage
             "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
-            "/js/ext/plotly.min.js",
             "/js/ext/bootstrap-select.min.js",
             "/js/ext/jquery-confirm.min.js",
             "/js/ext/flatpickr.min.js",
@@ -166,8 +167,9 @@ abstract class BasePage
         if(DEBUG == 1) {
             $this->collect_style_includes();            
         }
-        $this->collect_plugin_includes();
-        $this->services = $services;
+        if($this->is_cms_page()){
+            $this->collect_plugin_includes();
+        }        
         $this->fetch_page_info($keyword);
         if($this->id_navigation_section != null)
             $this->services->set_nav(new Navigation(
@@ -183,7 +185,7 @@ abstract class BasePage
         $_SESSION['requests'] = array();
     }
 
-    /* Private Metods *********************************************************/
+    /* Private Methods *********************************************************/
 
     /**
      * render the git version
@@ -245,11 +247,7 @@ abstract class BasePage
         if(DEBUG){
             $css_location = '/css/';
             $js_location = '/js/';
-            $plugin_server_path = PLUGIN_SERVER_PATH;
-            $extra_path = '/server/component/style/';
         }else{
-            $extra_path = '';
-            // $plugin_path = PLUGIN_PATH . '/css/ext';
             $css_location = '/css/ext/';
             $js_location = '/js/ext/';
         }
@@ -264,22 +262,46 @@ abstract class BasePage
                 PLUGIN_PATH . $js_location, 'js',
                 $this->js_includes
             );
-            while(false !== ($file = readdir($handle)))
-            {
-                if(filetype(PLUGIN_SERVER_PATH . '/' . $file) !== "dir"
-                        || $file === "." || $file === ".."
-                        || $file === "js" || $file === "css" )
+            while (false !== ($file = readdir($handle))) {
+                if (filetype(PLUGIN_SERVER_PATH . '/' . $file) !== "dir" || $file === "." || $file === ".." || $file === "js" || $file === "css") {
                     continue;
-                $this->add_main_include_files(
-                    PLUGIN_SERVER_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '') . $css_location,
-                    PLUGIN_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '')  . $css_location, 'css',
-                    $css_includes
-                );
-                $this->add_main_include_files(
-                    PLUGIN_SERVER_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '') . $js_location,
-                    PLUGIN_PATH . '/' . $file . $extra_path . (DEBUG ? $file : '')  . $js_location, 'js',
-                    $js_includes
-                );
+                }
+                if (DEBUG) {
+                    $component_path = PLUGIN_SERVER_PATH . '/' . $file . '/server/component/style';
+                    $plugin_path = PLUGIN_PATH . '/' . $file . '/server/component/style';
+                    if (file_exists($component_path) && $handle2 = opendir($component_path)) {
+                        while (false !== ($dir = readdir($handle2))) {
+                            if (filetype($component_path . '/' . $dir) !== "dir" || $dir === "." || $dir === ".." || $dir === "js" || $dir === "css") {
+                                continue;
+                            }
+                            $this->add_main_include_files(
+                                $component_path . '/' . $dir    . $css_location,
+                                $plugin_path  . '/' . $dir    . $css_location,
+                                'css',
+                                $css_includes
+                            );
+                            $this->add_main_include_files(
+                                $component_path . '/' . $dir    . $js_location,
+                                $plugin_path . '/' . $dir   . $js_location,
+                                'js',
+                                $js_includes
+                            );
+                        }
+                    }
+                } else {
+                    $this->add_main_include_files(
+                        PLUGIN_SERVER_PATH . '/' . $file    . $css_location,
+                        PLUGIN_PATH . '/' . $file    . $css_location,
+                        'css',
+                        $css_includes
+                    );
+                    $this->add_main_include_files(
+                        PLUGIN_SERVER_PATH . '/' . $file    . $js_location,
+                        PLUGIN_PATH . '/' . $file   . $js_location,
+                        'js',
+                        $js_includes
+                    );
+                }
             }
             closedir($handle);
         }
@@ -626,10 +648,27 @@ abstract class BasePage
         if(array_key_exists($key, $this->components))
             throw new Exception("Component $key already exists.");
         $this->components[$key] = $component;
-        $this->css_includes = array_merge($this->css_includes,
-            $component->get_css_includes());
-        $this->js_includes = array_merge($this->js_includes,
-            $component->get_js_includes());
+        $this->css_includes = array_merge($this->css_includes, $component->get_css_includes());
+        $this->js_includes = array_merge($this->js_includes, $component->get_js_includes());
+        if ($component->get_view() instanceof  StyleView) {
+            $this->add_children_js_css($component->get_view()->get_children());
+        }
+    }
+
+    /**
+     * Load recursively all js and css needed for all children
+     * @param array $children
+     * The children from which we want to load the js and css
+     */
+    public function add_children_js_css($children)
+    {
+        foreach ($children as $key => $child) {
+            $this->js_includes = array_merge($this->js_includes, $child->get_js_includes());
+            $this->css_includes = array_merge($this->css_includes, $child->get_css_includes());
+            if ($child->get_view() instanceof  StyleView) {
+                $this->add_children_js_css($child->get_view()->get_children());
+            }
+        }
     }
 
     /**
@@ -694,6 +733,23 @@ abstract class BasePage
         $component = $this->get_component($key);
         if($component != null)
             return $component->output_content_mobile();
+    }
+
+    /**
+     * Checks whether the current page is a CMS page.
+     *
+     * @retval bool
+     *  true if the current page is a CMS page, false otherwise.
+     */
+    public function is_cms_page()
+    {
+        return ($this->services->get_router()->is_active("cms")
+            || $this->services->get_router()->is_active("cmsSelect")
+            || $this->services->get_router()->is_active("cmsUpdate")
+            || $this->services->get_router()->is_active("cmsInsert")
+            || $this->services->get_router()->is_active("cmsDelete")
+        );
+
     }
 }
 ?>

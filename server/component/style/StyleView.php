@@ -237,5 +237,14 @@ abstract class StyleView extends BaseView
         require __DIR__ . "/tpl_style_holder_ui_cms.php";
     }
 
+    /**
+     * get the view children
+     * @return array
+     * Return an array with the children
+     */
+    public function get_children(){
+        return $this->children;
+    }
+
 }
 ?>

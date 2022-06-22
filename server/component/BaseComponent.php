@@ -14,11 +14,19 @@ spl_autoload_register(function ($class_name) {
         require_once __DIR__ . $file;
     else {
         // check plugins
-        $plugin_path = __DIR__ . '/../plugins/' . $folder . '/server/component';
-        if (file_exists($plugin_path . "/style" . $file)) {
-            require_once $plugin_path . "/style" . $file;
-        } else if (file_exists($plugin_path . $file)) {
-            require_once $plugin_path . $file;
+        if($handle = opendir(PLUGIN_SERVER_PATH)) {
+            while(false !== ($dir = readdir($handle))){
+                if(filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir"){
+                    $plugin_path = __DIR__ . '/../plugins/' . $dir . '/server/component';
+                    if (file_exists($plugin_path . "/style" . $file)) {
+                        require_once $plugin_path . "/style" . $file;
+                        break;
+                    } else if (file_exists($plugin_path . $file)) {
+                        require_once $plugin_path . $file;
+                        break;
+                    }
+                }
+            }
         }
     }
 });
