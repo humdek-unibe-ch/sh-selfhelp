@@ -1,4 +1,8 @@
 $(document).ready(function() {
+    initAutocomplete();
+});
+
+function initAutocomplete(){
     var prefix = "autocomplete";
     $('div.input-autocomplete').each(function() {
         var $target = $(this).children('div.input-autocomplete-search-target');
@@ -81,4 +85,4 @@ $(document).ready(function() {
             }, 'json');
         });
     });
-});
+}
