@@ -1525,7 +1525,8 @@ class CmsModel extends BaseModel
                 "help" => "Section name. <b>Note that the section name can contain only numbers, letters, - and _ characters</b>",
                 "type" => "text",
                 "relation" => RELATION_SECTION,
-                "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
+                // "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
+                "content" => $fields[0]['section_name'],
                 "is_required" => 0,
                 "format" => "[a-zA-Z0-9_-]+",
                 "label" => "Section name",

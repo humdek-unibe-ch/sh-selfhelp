@@ -73,7 +73,7 @@ class MessageBoardModel extends FormUserInputModel
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
         $this->form_name = $this->get_db_field("form_name", null);
-        $this->name = $this->get_db_field("name");
+        $this->name = $this->get_db_field("name", $this->form_name . '_replies');
         $this->reply_input_name = $this->name . "_reply";
         $this->link_input_name = $this->name . "_link";
         $this->score_input_name = $this->form_name . "_publish";
