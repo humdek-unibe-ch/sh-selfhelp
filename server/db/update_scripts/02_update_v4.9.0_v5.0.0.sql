@@ -460,9 +460,15 @@ UPDATE styles
 SET id_group = 1
 WHERE name = "trigger";
 
--- if the style graph exists add the entry into the plugin table
+-- if the style messageBoard exists add the entry into the plugin table
 INSERT IGNORE INTO plugins (name, version) 
 SELECT 'messageBoard', 'v1.0.0'
 FROM styles
 WHERE name = 'messageBoard';
+
+-- if the style calendar exists add the entry into the plugin table
+INSERT IGNORE INTO plugins (name, version) 
+SELECT 'calendar', 'v1.0.0'
+FROM styles
+WHERE name = 'calendar';
 
