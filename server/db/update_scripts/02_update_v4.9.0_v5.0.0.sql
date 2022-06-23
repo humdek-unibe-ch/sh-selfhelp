@@ -472,3 +472,8 @@ SELECT 'calendar', 'v1.0.0'
 FROM styles
 WHERE name = 'calendar';
 
+-- deprecate style `quiz`. It could be done with conditions. If needed can be moved and expaned as a separate plugin
+UPDATE styles
+SET id_group = 1
+WHERE name = "quiz";
+
