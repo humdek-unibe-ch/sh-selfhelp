@@ -50,7 +50,7 @@ class VersionModel extends StyleModel
      */
     public function get_plugins()
     {
-        $plugins = $this->db->query_db('SELECT * FROM plugins');
+        $plugins = $this->db->query_db('SELECT * FROM plugins ORDER BY `name`');
         $plugins_md = '';
         foreach ($plugins as $key => $plugin) {
             $git_command = 'cd server/plugins/' . $plugin['name'] . ' && git describe --tags';
