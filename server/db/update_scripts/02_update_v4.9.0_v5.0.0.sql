@@ -477,3 +477,9 @@ UPDATE styles
 SET id_group = 1
 WHERE name = "quiz";
 
+-- if the style search exists add the entry into the plugin table
+INSERT IGNORE INTO plugins (name, version) 
+SELECT 'search', 'v1.0.0'
+FROM styles
+WHERE name = 'search';
+
