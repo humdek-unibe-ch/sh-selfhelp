@@ -1,3 +1,7 @@
 $(document).ready(() => {
-    filterInit('toggle-group', filterToggleActionHandler);
+    initFilterToggleGroup();
 });
+
+function initFilterToggleGroup(){
+    filterInit('toggle-group', filterToggleActionHandler);
+}

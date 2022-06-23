@@ -1,7 +1,10 @@
 $(document).ready(() => {
-    filterInit('toggle', filterToggleActionHandler);
+    initFilterToggle();
 });
 
+function initFilterToggle(){
+    filterInit('toggle', filterToggleActionHandler);
+}
 
 function filterToggleActionHandler($filter, filter_data, event) {
     $filter.find('button.filter-toggle-switch').each(function(idx) {
