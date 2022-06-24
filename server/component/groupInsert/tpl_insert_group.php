@@ -50,14 +50,6 @@
                             <li><code>delete</code> allows to delete assets and user data.</li>
                         </ul>
                     </li>
-                    <li><strong>Chat Management</strong>
-                        <ul>
-                            <li><code>select</code> grants read access to the chat management page.</li>
-                            <li><code>insert</code> allows to create new chat rooms.</li>
-                            <li><code>update</code> allows to add users to chat rooms, and remove users from chat rooms.</li>
-                            <li><code>delete</code> allows to delete chat rooms.</li>
-                        </ul>
-                    </li>
                 </ul>
             </div>
         </div>

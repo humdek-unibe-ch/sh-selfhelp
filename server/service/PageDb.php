@@ -566,7 +566,7 @@ class PageDb extends BaseDb
      */
     public function fetch_pages($page_id, $language_id, $filter = '', $order_by = '')
     {
-        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $page_id, [__FUNCTION__, $language_id, $filter, $order_by]);
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_PAGES, $page_id, [__FUNCTION__, $language_id, $this->get_default_language(), $filter, $order_by]);
         $get_result = $this->cache->get($key);
         if ($get_result !== false) {
             return $get_result;

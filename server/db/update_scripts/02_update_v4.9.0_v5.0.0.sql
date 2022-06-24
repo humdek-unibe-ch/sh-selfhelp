@@ -299,10 +299,6 @@ UPDATE pages_fields_translation
 SET id_languages = 2
 WHERE id_fields = 22 AND id_languages = 1;
 
--- make section name not-unique
-ALTER TABLE sections
-DROP INDEX `name`;
-
 -- Add new field type `condition` 
 INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'condition', '6');
 
@@ -482,4 +478,10 @@ INSERT IGNORE INTO plugins (name, version)
 SELECT 'search', 'v1.0.0'
 FROM styles
 WHERE name = 'search';
+
+-- chat refactoring and move as a plugin
+SET foreign_key_checks = 0;
+DROP TABLE chatRoom_users;
+DROP TABLE chatRoom;
+SET foreign_key_checks = 1;
 

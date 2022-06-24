@@ -17,7 +17,7 @@ if(defined(CORS) && CORS){
 }
 
 /**
- * Helper function to show stacktrace also of wranings.
+ * Helper function to show stacktrace also of warnings.
  */
 function exception_error_handler($severity, $message, $file, $line) {
     if (!(error_reporting() & $severity)) {

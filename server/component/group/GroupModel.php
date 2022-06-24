@@ -696,19 +696,6 @@ class GroupModel extends BaseModel
     }
 
     /**
-     * Set the access level for the chat administration page.
-     *
-     * @param string $lvl
-     *  The level of access to be set e.g. select, insert, update, or delete.
-     */
-    public function set_chat_access($lvl)
-    {
-        $this->gacl["admin-link"]["acl"]["select"] = true;
-        $this->gacl["chatAdmin" . ucfirst($lvl)]["acl"]["select"] = true;
-        $this->gacl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl] = true;
-    }
-
-    /**
      * Set the access level for all pages that are targeted by the core content
      * collection.
      *
