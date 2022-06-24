@@ -255,24 +255,25 @@ class CmsView extends BaseView
                 $this->model->get_services(),
                 $this->model->get_active_root_section_id(), array(),
                 $this->model->get_cms_page_id());
-        if(count($page_components) == 0)
-        {
+        if (count($page_components) == 0) {
             $text = new BaseStyleComponent("plaintext", array(
                 "text" => "No CMS view available for this page."
             ));
-            $new_section = new BaseStyleComponent("template", array(
-            "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
-            "items" => array(
-                "data_section" => array(
-                    "can_have_children" => true,
-                    "children" => 0,
-                    "relation"=> RELATION_PAGE_CHILDREN
-                ),
-                "page_keyword" => $this->page_info["keyword"],
-                "page_id" => intval($this->page_info['id'])
-            ),
-        ));
-            $page_components[] = $new_section;
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                $new_section = new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
+                    "items" => array(
+                        "data_section" => array(
+                            "can_have_children" => true,
+                            "children" => 0,
+                            "relation" => RELATION_PAGE_CHILDREN
+                        ),
+                        "page_keyword" => $this->page_info["keyword"],
+                        "page_id" => intval($this->page_info['id'])
+                    ),
+                ));
+                $page_components[] = $new_section;
+            }
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
