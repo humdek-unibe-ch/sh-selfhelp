@@ -111,7 +111,7 @@ class ModuleFormsActionView extends BaseView
                     "id" => "type",
                     "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes)),
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("descriptionItem", array(
@@ -126,9 +126,9 @@ class ModuleFormsActionView extends BaseView
                 new BaseStyleComponent("select", array(
                     "label" => "When",
                     "is_required" => true,
-                    "value" => isset($this->action["schedule_info"][qualtricScheduleTypes]) ? $this->action["schedule_info"][qualtricScheduleTypes] : '',
-                    "name" => "schedule_info[qualtricScheduleTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => qualtricScheduleTypes)),
+                    "value" => isset($this->action["schedule_info"][actionScheduleTypes]) ? $this->action["schedule_info"][actionScheduleTypes] : '',
+                    "name" => "schedule_info[actionScheduleTypes]",
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => actionScheduleTypes)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("template", array(
@@ -155,7 +155,7 @@ class ModuleFormsActionView extends BaseView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_after_type']) ? $this->action["schedule_info"]['send_after_type'] : '',
                     "name" => "schedule_info[send_after_type]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => timePeriod)),
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => timePeriod)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("select", array(
@@ -174,7 +174,7 @@ class ModuleFormsActionView extends BaseView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_on_day']) ? $this->action["schedule_info"]['send_on_day'] : '',
                     "name" => "schedule_info[send_on_day]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => weekdays)),
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => weekdays)),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("template", array(
@@ -193,7 +193,7 @@ class ModuleFormsActionView extends BaseView
                     "id" => "linked_action",
                     "value" => isset($this->action["schedule_info"]['linked_action']) ? $this->action["schedule_info"]['linked_action'] : '',
                     "name" => "schedule_info[linked_action]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('formActions', 'id', array('name')),
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('formActions', 'id', array('name')),
                     "disabled" => true
                 )),
                 new BaseStyleComponent("descriptionItem", array(
@@ -306,7 +306,7 @@ class ModuleFormsActionView extends BaseView
                     "id" => "type",
                     "value" => isset($this->action["schedule_info"][notificationTypes]) ? $this->action["schedule_info"][notificationTypes] : '',
                     "name" => "schedule_info[notificationTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes))
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => notificationTypes))
                 )),
                 new BaseStyleComponent("input", array(
                     "label" => "Valid after scheduled time (in minutes). [It is used for surveys with multiple sessions and reminders]",
@@ -331,9 +331,9 @@ class ModuleFormsActionView extends BaseView
                 new BaseStyleComponent("select", array(
                     "label" => "When",
                     "is_required" => true,
-                    "value" => isset($this->action["schedule_info"][qualtricScheduleTypes]) ? $this->action["schedule_info"][qualtricScheduleTypes] : '',
-                    "name" => "schedule_info[qualtricScheduleTypes]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => qualtricScheduleTypes))
+                    "value" => isset($this->action["schedule_info"][actionScheduleTypes]) ? $this->action["schedule_info"][actionScheduleTypes] : '',
+                    "name" => "schedule_info[actionScheduleTypes]",
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => actionScheduleTypes))
                 )),
                 new BaseStyleComponent("template", array(
                     "path" => __DIR__ . "/tpl_datepicker.php",
@@ -359,7 +359,7 @@ class ModuleFormsActionView extends BaseView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_after_type']) ? $this->action["schedule_info"]['send_after_type'] : '',
                     "name" => "schedule_info[send_after_type]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => timePeriod))
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => timePeriod))
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "Send on",
@@ -376,7 +376,7 @@ class ModuleFormsActionView extends BaseView
                     "is_required" => true,
                     "value" => isset($this->action["schedule_info"]['send_on_day']) ? $this->action["schedule_info"]['send_on_day'] : '',
                     "name" => "schedule_info[send_on_day]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => weekdays))
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => weekdays))
                 )),
                 new BaseStyleComponent("template", array(
                     "path" => __DIR__ . "/tpl_timepicker.php",
@@ -393,7 +393,7 @@ class ModuleFormsActionView extends BaseView
                     "id" => "linked_action",
                     "value" => isset($this->action["schedule_info"]['linked_action']) ? $this->action["schedule_info"]['linked_action'] : '',
                     "name" => "schedule_info[linked_action]",
-                    "items" => $this->model->get_db()->fetch_table_as_select_values('view_formActions', 'id', array('action_name'), 'WHERE action_schedule_type_code=:type', array(":type" => qualtricsActionScheduleTypes_notification)),
+                    "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('view_formActions', 'id', array('action_name'), 'WHERE action_schedule_type_code=:type', array(":type" => actionScheduleJobs_notification)),
                     "live_search" => 1
                 )),
                 new BaseStyleComponent("input", array(
@@ -590,7 +590,7 @@ class ModuleFormsActionView extends BaseView
                             "value" => $this->action['id_formProjectActionTriggerTypes'],
                             "is_required" => true,
                             "name" => "id_formProjectActionTriggerTypes",
-                            "items" => $this->get_lookups(qualtricsProjectActionTriggerTypes),
+                            "items" => $this->get_lookups(actionTriggerTypes),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "For group(s)",
@@ -606,8 +606,8 @@ class ModuleFormsActionView extends BaseView
                             "label" => "Schedule",
                             "name" => "id_formActionScheduleTypes",
                             "id" => "id_formActionScheduleTypes",
-                            "value" => isset($this->action['id_formActionScheduleTypes']) ? $this->action['id_formActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(qualtricsActionScheduleTypes, 'nothing'),
-                            "items" => $this->get_lookups(qualtricsActionScheduleTypes),
+                            "value" => isset($this->action['id_formActionScheduleTypes']) ? $this->action['id_formActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(actionScheduleJobs, 'nothing'),
+                            "items" => $this->get_lookups(actionScheduleJobs),
                             "css" => "mb-3",
                         )),
                         $this->get_schedule_info_card(),
@@ -689,8 +689,8 @@ class ModuleFormsActionView extends BaseView
                     "label" => "Schedule",
                     "name" => "id_formActionScheduleTypes",
                     "id" => "id_formActionScheduleTypes",
-                    "value" => isset($this->action['id_formActionScheduleTypes']) ? $this->action['id_formActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(qualtricsActionScheduleTypes, 'nothing'),
-                    "items" => $this->get_lookups(qualtricsActionScheduleTypes),
+                    "value" => isset($this->action['id_formActionScheduleTypes']) ? $this->action['id_formActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(actionScheduleJobs, 'nothing'),
+                    "items" => $this->get_lookups(actionScheduleJobs),
                     "css" => "mb-3",
                     "disabled" => true
                 )),

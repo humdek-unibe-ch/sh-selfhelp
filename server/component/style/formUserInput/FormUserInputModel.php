@@ -85,13 +85,13 @@ class FormUserInputModel extends StyleModel
     private function calc_date_to_be_sent($schedule_info, $action_schedule_type_code)
     {
         $date_to_be_sent = 'undefined';
-        if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately) {
+        if ($schedule_info[actionScheduleTypes] == actionScheduleTypes) {
             // send imediately
             $date_to_be_sent = date('Y-m-d H:i:s', time());
-        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_on_fixed_datetime) {
+        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes) {
             // send on specific date
             $date_to_be_sent = date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $schedule_info['custom_time'])->getTimestamp());
-        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period) {
+        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes) {
             // send after time period 
             $now = date('Y-m-d H:i:s', time());
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
@@ -102,10 +102,10 @@ class FormUserInputModel extends StyleModel
                 $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
                 $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
             }
-        } else if ($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_after_period_on_day_at_time) {
+        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes_after_period_on_day_at_time) {
             // send on specific weekday after 1,2,3, or more weeks at specific time
             $date_to_be_sent = $this->calc_date_on_weekday($schedule_info);
-            if ($action_schedule_type_code == qualtricsActionScheduleTypes_reminder) {
+            if ($action_schedule_type_code == actionScheduleJobs_reminder) {
                 // we have to check the linked notification and schedule the reminder always after the notification
                 $schedule_info_notification = json_decode($this->db->query_db_first('SELECT schedule_info FROM formActions WHERE id = :id', array(':id' => $schedule_info['linked_action']))['schedule_info'], true);
                 $base_schedule_info = $schedule_info;
@@ -191,7 +191,7 @@ class FormUserInputModel extends StyleModel
         $sj_id = $this->job_scheduler->schedule_job($task, transactionBy_by_system);
         if ($sj_id > 0) {
             $result[] = 'Task was queued for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
-            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+            if (($schedule_info[actionScheduleTypes] == actionScheduleTypes_immediately)) {
                 $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
                 if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
                     $result[] = 'Task was executed for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
@@ -248,11 +248,11 @@ class FormUserInputModel extends StyleModel
         );
         $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_system);
         if ($sj_id > 0) {
-            if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+            if ($action['action_schedule_type_code'] == actionScheduleJobs_reminder) {
                 $this->add_reminder($sj_id, $user_id, $action);
             }
             $result[] = 'Mail was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
-            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+            if (($schedule_info[actionScheduleTypes] == actionScheduleTypes_immediately)) {
                 $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
                 if ($this->job_scheduler->execute_job($job_entry, transactionBy_by_system)) {
                     $result[] = 'Mail was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
@@ -306,11 +306,11 @@ class FormUserInputModel extends StyleModel
         );
         $sj_id = $this->job_scheduler->schedule_job($notification, transactionBy_by_system);
         if ($sj_id > 0) {
-            if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder) {
+            if ($action['action_schedule_type_code'] == actionScheduleJobs_reminder) {
                 $this->add_reminder($sj_id, $user_id, $action);
             }
             $result[] = 'Notification was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
-            if (($schedule_info[qualtricScheduleTypes] == qualtricScheduleTypes_immediately)) {
+            if (($schedule_info[actionScheduleTypes] == actionScheduleTypes_immediately)) {
                 $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
                 if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
                     $result[] = 'Notification was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
@@ -328,7 +328,7 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
-     * Add a reminder in qualtricsReminders
+     * Add a reminder in formActionsReminders
      *
      * @param int $sj_id
      *  the scheduled job id
@@ -855,7 +855,7 @@ class FormUserInputModel extends StyleModel
             if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) {
                 $schedule_info = json_decode($action['schedule_info'], true);
                 $res = array();
-                if ($action['action_schedule_type_code'] == qualtricsActionScheduleTypes_task) {
+                if ($action['action_schedule_type_code'] == actionScheduleJobs_task) {
                     $users = array();
                     if (isset($schedule_info['target_groups'])) {
                         $users_from_groups = $this->get_users_from_groups($schedule_info['target_groups']);
@@ -877,8 +877,8 @@ class FormUserInputModel extends StyleModel
                     $res['time']['start_date'] = $start_date;
                     array_push($result, $res);
                 } else if (
-                    $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_notification ||
-                    $action['action_schedule_type_code'] == qualtricsActionScheduleTypes_reminder
+                    $action['action_schedule_type_code'] == actionScheduleJobs_notification ||
+                    $action['action_schedule_type_code'] == actionScheduleJobs_reminder
                 ) {
                     if ($schedule_info['notificationTypes'] == notificationTypes_email) {
                         // the notification type is email                        

@@ -5,8 +5,20 @@
 ?>
 <?php
 spl_autoload_register(function ($class_name) {
-    if (strpos($class_name, "Callback") === 0)
-        require_once __DIR__ . '/' . $class_name . ".php";
+    if (strpos($class_name, "Callback") === 0) {
+        if (file_exists(__DIR__ . '/' . $class_name . ".php")) {
+            require_once __DIR__ . '/' . $class_name . ".php";
+        } else if ($handle = opendir(PLUGIN_SERVER_PATH)) {
+            while (false !== ($dir = readdir($handle))) {
+                if (filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir") {
+                    $plugin_path = __DIR__ . '/../plugins/' . $dir . '/server/callback/';
+                    if (file_exists($plugin_path . $class_name . ".php")) {
+                        require_once $plugin_path . $class_name . ".php";
+                    }
+                }
+            }
+        }
+    }
 });
 
 /**

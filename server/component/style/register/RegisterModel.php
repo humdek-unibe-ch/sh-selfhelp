@@ -142,13 +142,13 @@ class RegisterModel extends StyleModel
     }
 
     /**
-     * Register auto created user from qualtrics callback
+     * Register auto created user from callback
      * @param string $email 
      * email adress
      * @param string $code
      * the vlaidation code
      */
-    public function register_user_from_qualtrics_callback($email, $code)
+    public function register_user_from_callback($email, $code)
     {
         if($this->check_validation_code($code))
         {

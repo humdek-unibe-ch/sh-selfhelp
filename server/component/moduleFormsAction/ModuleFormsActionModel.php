@@ -4,12 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../moduleQualtricsProjectAction/ModuleQualtricsProjectActionModel.php";
+require_once __DIR__ . "/../BaseModel.php";
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class ModuleFormsActionModel extends ModuleQualtricsProjectActionModel
+class ModuleFormsActionModel extends BaseModel
 {
 
     /* Constructors ***********************************************************/
@@ -23,7 +23,7 @@ class ModuleFormsActionModel extends ModuleQualtricsProjectActionModel
      */
     public function __construct($services)
     {
-        parent::__construct($services, -1);
+        parent::__construct($services);
     }
 
     /**
@@ -57,7 +57,7 @@ class ModuleFormsActionModel extends ModuleQualtricsProjectActionModel
                 FROM formActions
                 WHERE id_formActionScheduleTypes = :id_formActionScheduleTypes";
         $fetch_notifivations = $this->db->query_db($sql, array(
-            ":id_formActionScheduleTypes" => $this->db->get_lookup_id_by_value(qualtricsActionScheduleTypes, qualtricsActionScheduleTypes_notification)
+            ":id_formActionScheduleTypes" => $this->db->get_lookup_id_by_value(actionScheduleJobs, actionScheduleJobs_notification)
         ));
         foreach ($fetch_notifivations as $notification) {
             array_push($notifications, array("value" => $notification['id'], "text" => $notification['name']));

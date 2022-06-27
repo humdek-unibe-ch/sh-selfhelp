@@ -12,8 +12,28 @@ require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
 
+// load plugin globals
+loadPluginGlobals();
+
 if(defined(CORS) && CORS){
     cors();
+}
+
+/**
+ * Load plugins globals
+ */
+function loadPluginGlobals()
+{
+    if ($handle = opendir(PLUGIN_SERVER_PATH)) {
+        while (false !== ($dir = readdir($handle))) {
+            if (filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir") {
+                $plugin_path = __DIR__ . '/server/plugins/' . $dir . '/server/service/';
+                if (file_exists($plugin_path .  "globals.php")) {
+                    require_once $plugin_path . "globals.php";
+                }
+            }
+        }
+    }
 }
 
 /**

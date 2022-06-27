@@ -131,7 +131,7 @@ class FormUserInputController extends BaseController
 
     public function execute(){   
         if(count($_POST) === 0){
-            $this->model->queue_event_from_actions(qualtricsProjectActionTriggerTypes_started);
+            $this->model->queue_event_from_actions(actionTriggerTypes_started);
             return;
         } 
         if(!isset($_POST['__form_name'])
@@ -193,7 +193,7 @@ class FormUserInputController extends BaseController
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
-                $this->model->queue_event_from_actions(qualtricsProjectActionTriggerTypes_finished);
+                $this->model->queue_event_from_actions(actionTriggerTypes_finished);
                 $scheduled_reminders = $this->model->get_scheduled_reminders();
                 if ($scheduled_reminders && count($scheduled_reminders) > 0) {
                  //   $this->model->delete_reminders($scheduled_reminders);

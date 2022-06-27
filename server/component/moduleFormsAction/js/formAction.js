@@ -19,7 +19,7 @@ function setRequired(elements, val) {
 function adjustRequiredFields() {
     setRequiredIfDisplayed($('select[name="schedule_info[id_formActionScheduleTypes]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[custom_time]"]'));
-    if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
+    if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
         // reuqired only for weekdays
         setRequiredIfDisplayed($('input[name="schedule_info[send_on_day_at]"]'));
     } else {
@@ -27,7 +27,7 @@ function adjustRequiredFields() {
     }
     setRequiredIfDisplayed($('select[name="id_forms_reminder"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[notificationTypes]"]'));
-    setRequiredIfDisplayed($('select[name="schedule_info[qualtricScheduleTypes]"]'));
+    setRequiredIfDisplayed($('select[name="schedule_info[actionScheduleTypes]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[send_on_day]"]'));
     setRequiredIfDisplayed($('select[name="schedule_info[send_on]"]'));
     setRequiredIfDisplayed($('input[name="schedule_info[send_after]"]'));
@@ -62,7 +62,7 @@ function adjustActionScheduleType() {
     if ($('select[name="id_formActionScheduleTypes"] option:selected').text().includes('Reminder')) {
         $('.style-section-id_forms_reminder').removeClass('d-none');
         $('.style-section-id_formActions').removeClass('d-none');
-        if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
+        if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
             $('.style-section-linked_action').removeClass('d-none');
         }
     }
@@ -87,16 +87,16 @@ function adjustScheduleType() {
     $('.style-section-send_on_day').addClass('d-none');
     $('.style-section-linked_action').addClass('d-none');
     $('#at_time_holder').addClass('d-none');
-    if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('fixed datetime')) {
+    if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('fixed datetime')) {
         $('#custom_time_holder').removeClass('d-none');
-    } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
+    } else if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
         $('.style-section-send_on').removeClass('d-none');
         $('.style-section-send_on_day').removeClass('d-none');
         $('#at_time_holder').removeClass('d-none');
         if ($('select[name="id_formActionScheduleTypes"] option:selected').text().includes('Reminder')) {
             $('.style-section-linked_action').removeClass('d-none');
         }
-    } else if ($('select[name="schedule_info[qualtricScheduleTypes]"] option:selected').text().includes('time period')) {
+    } else if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('time period')) {
         $('.send_after').removeClass('d-none');
         $('.style-section-send_after_type').removeClass('d-none');
         $('#at_time_holder').removeClass('d-none');
@@ -198,7 +198,7 @@ $(document).ready(function () {
     });
 
     //on when (schedule_type) change ************************************************************************************
-    $('select[name="schedule_info[qualtricScheduleTypes]"]').on('change', function () {
+    $('select[name="schedule_info[actionScheduleTypes]"]').on('change', function () {
         adjustScheduleType();
     });
 

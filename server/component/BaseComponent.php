@@ -7,6 +7,7 @@
 spl_autoload_register(function ($class_name) {
     $folder = str_replace("Component", "", $class_name);
     $folder = lcfirst(str_replace("View", "", $folder));
+    $folder = lcfirst(str_replace("Init", "", $folder));
     $file = "/" . $folder . "/" . $class_name . ".php";
     if (file_exists(__DIR__ . "/style" . $file))
         require_once __DIR__ . "/style" . $file;

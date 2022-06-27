@@ -955,16 +955,18 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
             ));
-        } else if ($field['type'] == "select-qualtrics-survey") {
-            $children[] = new BaseStyleComponent("select", array(
-                "value" => $field['content'],
-                "name" => $field_name_prefix . "[content]",
-                "max" => 10,
-                "live_search" => 1,
-                "is_required" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
-            ));
-        } else if ($field['type'] == "select-platform") {
+        } 
+        // else if ($field['type'] == "select-qualtrics-survey") {
+        //     $children[] = new BaseStyleComponent("select", array(
+        //         "value" => $field['content'],
+        //         "name" => $field_name_prefix . "[content]",
+        //         "max" => 10,
+        //         "live_search" => 1,
+        //         "is_required" => 1,
+        //         "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+        //     ));
+        // } 
+        else if ($field['type'] == "select-platform") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
@@ -1007,6 +1009,13 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field_name_content
             ));
+        } else {
+             $init = new QualtricsSurveyInit(array(
+                "field" => $field,
+                "field_name_prefix" => $field_name_prefix,
+                "services"=> $this->model->get_services()
+            ));
+            $children[] =$init->initFieldType();
         }
 
         return new BaseStyleComponent("descriptionItem", array(
