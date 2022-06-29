@@ -2,6 +2,29 @@
 UPDATE version
 SET version = 'v5.0.0';
 
+DELIMITER //
+DROP PROCEDURE IF EXISTS add_unique_key //
+CREATE PROCEDURE add_unique_key(param_table VARCHAR(100), param_index VARCHAR(100), param_column VARCHAR(100))
+BEGIN
+    IF NOT EXISTS 
+	(
+		SELECT NULL 
+		FROM information_schema.STATISTICS
+		WHERE `table_schema` = DATABASE()
+		AND `table_name` = param_table
+		AND `index_name` = param_index 
+	) THEN    
+		SET @sqlstmt = CONCAT('ALTER TABLE ', param_table, ' ADD UNIQUE KEY ', param_index, ' (', param_column, ');');
+		PREPARE st FROM @sqlstmt;
+        EXECUTE st;
+        DEALLOCATE PREPARE st;	
+    END IF;
+END
+
+//
+
+DELIMITER ;
+
 -- add field condtion to all styles that have css field
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `help`)
 SELECT style_id, get_field_id('condition'), 'The field `condition` allows to specify a condition. Note that the field `condition` is of type `json` and requires\n1. valid json syntax (see https://www.json.org/)\n2. a valid condition structure (see https://github.com/jwadhams/json-logic-php/)\n\nOnly if a condition resolves to true the sections added to the field `children` will be rendered.\n\nIn order to refer to a form-field use the syntax `"@__form_name__#__from_field_name__"` (the quotes are necessary to make it valid json syntax) where `__form_name__` is the value of the field `name` of the style `formUserInput` and `__form_field_name__` is the value of the field `name` of any form-field style.' 
@@ -23,9 +46,8 @@ WHERE field_name = 'css' and style_name <> 'conditionalContainer' and style_name
 -- add keyword ajax_get_lookups
 INSERT IGNORE INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
 VALUES (NULL, 'ajax_get_lookups', '/request/[AjaxDataSource:class]/[get_lookups:method]', 'GET|POST', '0000000005', NULL, NULL, '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'));
-SET @id_page_data = LAST_INSERT_ID();
-INSERT INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
-VALUES ('0000000001', @id_page_data, '1', '0', '0', '0');
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
+VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'ajax_get_lookups'), '1', '0', '0', '0');
 
 -- delete field platoform
 DELETE FROM fields
@@ -37,47 +59,44 @@ WHERE id = get_field_type_id('select-platform');
 
 -- add UI preferences to the profile page 
 INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000012, 'profile-ui-preferences-card', NULL);
-SET @id_section_pnc = LAST_INSERT_ID();
 INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-(@id_section_pnc, 0000000022, 0000000002, 0000000001, 'UI Vorlieben'),
-(@id_section_pnc, 0000000022, 0000000003, 0000000001, 'UI Preferences'),
-(@id_section_pnc, 0000000023, 0000000001, 0000000001, 'mb-3 mt-3'),
-(@id_section_pnc, 0000000028, 0000000001, 0000000001, 'light'),
-(@id_section_pnc, 0000000046, 0000000001, 0000000001, '1'),
-(@id_section_pnc, 0000000047, 0000000001, 0000000001, '0'),
-(@id_section_pnc, 0000000048, 0000000001, 0000000001, ''),
-(@id_section_pnc, 0000000091, 0000000001, 0000000001, '{"and":[{"==":[true,"$admin"]}]}'),
-(@id_section_pnc, 00000000180, 0000000001, 0000000001, '{"condition":"AND","rules":[{"id":"user_group","field":"user_group","type":"string","input":"select","operator":"in","value":["admin"]}],"valid":true}');
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000022, 0000000002, 0000000001, 'UI Vorlieben'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000022, 0000000003, 0000000001, 'UI Preferences'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000023, 0000000001, 0000000001, 'mb-3 mt-3'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000028, 0000000001, 0000000001, 'light'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000046, 0000000001, 0000000001, '1'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000047, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000048, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0000000091, 0000000001, 0000000001, '{"and":[{"==":[true,"$admin"]}]}'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 00000000180, 0000000001, 0000000001, '{"condition":"AND","rules":[{"id":"user_group","field":"user_group","type":"string","input":"select","operator":"in","value":["admin"]}],"valid":true}');
 
 INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (get_style_id('formUserInputRecord'), 'profile-preferences-ui-formUserInputRecord', NULL);
-SET @id_section_pnf = LAST_INSERT_ID();
 INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-(@id_section_pnf, 0000000008, 0000000002, 0000000001, 'Ändern'),
-(@id_section_pnf, 0000000008, 0000000003, 0000000001, 'Change'),
-(@id_section_pnf, 0000000023, 0000000001, 0000000001, ''),
-(@id_section_pnf, 0000000028, 0000000001, 0000000001, 'primary'),
-(@id_section_pnf, 0000000057, 0000000001, 0000000001, 'ui-preferences'),
-(@id_section_pnf, 0000000087, 0000000001, 0000000001, '0'),
-(@id_section_pnf, 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Vorlieben wurden erfolgreich gespeichert'),
-(@id_section_pnf, 0000000035, 0000000003, 0000000001, 'The preferences settings were successfully saved');
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000008, 0000000002, 0000000001, 'Ändern'),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000008, 0000000003, 0000000001, 'Change'),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000023, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000028, 0000000001, 0000000001, 'primary'),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000057, 0000000001, 0000000001, 'ui-preferences'),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000087, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Vorlieben wurden erfolgreich gespeichert'),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0000000035, 0000000003, 0000000001, 'The preferences settings were successfully saved');
 
 INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-ui-preferences-old-ui', NULL);
-SET @id_section_pnci = LAST_INSERT_ID();
 INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-(@id_section_pnci, 0000000008, 0000000002, 0000000001, 'Enable old UI'),
-(@id_section_pnci, 0000000008, 0000000003, 0000000001, 'Enable old UI'),
-(@id_section_pnci, 0000000023, 0000000001, 0000000001, ''),
-(@id_section_pnci, 0000000054, 0000000001, 0000000001, 'checkbox'),
-(@id_section_pnci, 0000000055, 0000000002, 0000000001, ''),
-(@id_section_pnci, 0000000055, 0000000003, 0000000001, ''),
-(@id_section_pnci, 0000000056, 0000000001, 0000000001, '0'),
-(@id_section_pnci, 0000000057, 0000000001, 0000000001, 'old_ui'),
-(@id_section_pnci, 0000000058, 0000000001, 0000000001, '1');
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000008, 0000000002, 0000000001, 'Enable old UI'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000008, 0000000003, 0000000001, 'Enable old UI'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000023, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000054, 0000000001, 0000000001, 'checkbox'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000055, 0000000002, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000055, 0000000003, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000056, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000057, 0000000001, 0000000001, 'old_ui'),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0000000058, 0000000001, 0000000001, '1');
 
 INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
-((SELECT id FROM sections WHERE name = "profile-col1-div"), @id_section_pnc, 0),
-(@id_section_pnc, @id_section_pnf, 0),
-(@id_section_pnf, @id_section_pnci, 0);
+((SELECT id FROM sections WHERE name = "profile-col1-div"), (SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), 0),
+((SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-card'), (SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), 0),
+((SELECT id FROM sections WHERE `name` = 'profile-preferences-ui-formUserInputRecord'), (SELECT id FROM sections WHERE `name` = 'profile-ui-preferences-old-ui'), 0);
 
 
 -- change field submit_and_send_email that does not depend on the locale
@@ -90,19 +109,11 @@ CREATE TABLE IF NOT EXISTS `pageType_fields` (
   `id_pageType` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_fields` int(10) UNSIGNED ZEROFILL NOT NULL,
   `default_value` varchar(100) DEFAULT NULL,
-  `help` longtext
+  `help` longtext,
+  PRIMARY KEY (`id_pageType`, `id_fields`),
+  CONSTRAINT `fk_pageType_fields_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pageType_fields_id_pageType` FOREIGN KEY (`id_pageType`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Indexes for table `pageType_fields`
-ALTER TABLE `pageType_fields`
-  ADD PRIMARY KEY (`id_pageType`,`id_fields`),
-  ADD KEY `id_pageType` (`id_pageType`),
-  ADD KEY `id_fields` (`id_fields`);
-
--- Constraints for table `pageType_fields`
-ALTER TABLE `pageType_fields`
-  ADD CONSTRAINT `fk_pageType_fields_id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_pageType_fields_id_pageType` FOREIGN KEY (`id_pageType`) REFERENCES `pageType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- add page type maintenance (it is unique and only one page should be from this type)
 INSERT IGNORE INTO `pageType` (`id`, `name`) VALUES (NULL, 'maintenance');
@@ -110,15 +121,12 @@ INSERT IGNORE INTO `pageType` (`id`, `name`) VALUES (NULL, 'maintenance');
 -- add page maintenance
 INSERT IGNORE INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
 VALUES (NULL, 'maintenance', '/maintenance', 'GET|POST', '0000000001', NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'maintenance'));
-
-SET @id_page_data = LAST_INSERT_ID();
-
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
-VALUES ('0000000001', @id_page_data, '1', '0', '1', '0');
+VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'maintenance'), '1', '0', '1', '0');
 
 -- get the content from home page and move it to the new maintance page
 UPDATE pages_fields_translation
-SET id_pages = @id_page_data
+SET id_pages = (SELECT id FROM pages WHERE keyword = 'maintenance')
 WHERE id_fields IN (get_field_id('maintenance'), get_field_id('maintenance_date'), get_field_id('maintenance_time'));
 
 INSERT IGNORE INTO pageType_fields (id_pageType, id_fields, default_value, `help`)
@@ -251,22 +259,22 @@ SET id_group = 1
 WHERE name = "conditionFailed";
 
 -- make style name unique
-ALTER TABLE styles ADD UNIQUE KEY `styles_name` (`name`);
+CALL add_unique_key('styles','styles_name','name');
 
 -- reduce the name size so it can be a unique key
 ALTER TABLE plugins MODIFY COLUMN name VARCHAR(100);
 
 -- make plugins name unique
-ALTER TABLE plugins ADD UNIQUE KEY `plugins_name` (`name`);
+CALL add_unique_key('plugins','plugins_name','name');
 
 -- make fieldType name unique
-ALTER TABLE fieldType ADD UNIQUE KEY `fieldType_name` (`name`);
+CALL add_unique_key('fieldType','fieldType_name','name');
 
 -- make fields name unique
-ALTER TABLE fields ADD UNIQUE KEY `fields_name` (`name`);
+CALL add_unique_key('fields','fields_name','name');
 
 -- make styleGroup name unique
-ALTER TABLE styleGroup ADD UNIQUE KEY `styleGroup_name` (`name`);
+CALL add_unique_key('styleGroup','styleGroup_name','name');
 
 -- if the style book exists add the entry into the plugin table
 INSERT IGNORE INTO plugins (name, version) 
@@ -316,8 +324,8 @@ WHERE name = 'search';
 
 -- chat refactoring and move as a plugin
 SET foreign_key_checks = 0;
-DROP TABLE chatRoom_users;
-DROP TABLE chatRoom;
+DROP TABLE IF EXISTS chatRoom_users;
+DROP TABLE IF EXISTS chatRoom;
 SET foreign_key_checks = 1;
 
 
@@ -338,6 +346,41 @@ WHERE type_code = 'qualtricsProjectActionTriggerTypes';
 UPDATE lookups
 SET type_code = 'actionScheduleJobs'
 WHERE type_code = 'qualtricsActionScheduleTypes';
+
+CREATE TABLE IF NOT EXISTS `hooks` (
+  `id` INT(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) UNIQUE,
+  `description` VARCHAR(1000) DEFAULT NULL,  
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `hooks_fiedldTypes` (
+  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL, 
+  `id_fieldType` INT(10) UNSIGNED ZEROFILL NOT NULL,    
+  PRIMARY KEY (`id_hooks`, `id_fieldType`, `id_plugins`),
+  CONSTRAINT `hooks_fiedldTypes_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `hooks_fiedldTypes_fk_id_fieldType` FOREIGN KEY (`id_fieldType`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `hooks_fiedldTypes_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `hooks_pages` (
+  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL, 
+  `id_pages` INT(10) UNSIGNED ZEROFILL NOT NULL,    
+  PRIMARY KEY (`id_hooks`, `id_pages`, `id_plugins`),
+  CONSTRAINT `hooks_pages_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `hooks_pages_fk_id_fieldTypes` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `hooks_pages_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `hooks_plugins` (
+  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL,  
+  PRIMARY KEY (`id_hooks`, `id_plugins`),
+  CONSTRAINT `hooks_plugins_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,  
+  CONSTRAINT `hooks_plugins_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 DELIMITER //

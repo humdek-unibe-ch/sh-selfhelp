@@ -182,7 +182,6 @@ abstract class BasePage
         $acl = $this->services->get_acl();
         $this->acl_pass = $acl->has_access($_SESSION['id_user'],
                 $this->id_page, $this->required_access_level);
-        $_SESSION['requests'] = array();
     }
 
     /* Private Methods *********************************************************/
@@ -364,8 +363,8 @@ abstract class BasePage
      */
     private function get_csp_rules()
     {
-        return "default-src 'self'; frame-src https://eu.qualtrics.com/; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
-            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/";
+        return "default-src 'self';  style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
+            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;" . 'frame-src https://eu.qualtrics.com/;';
     }
 
     /**
