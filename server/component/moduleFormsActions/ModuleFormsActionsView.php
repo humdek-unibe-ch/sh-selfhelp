@@ -44,34 +44,6 @@ class ModuleFormsActionsView extends BaseView
     }
 
     /**
-     * Render the navbar
-     */
-    public function output_navbar($title)
-    {
-        $res = array();
-        $res[] = array(
-            "title" => "Qualtrics",
-            "active" => $title == "Qualtrics" ? "active" : "",
-            "url" => $this->model->get_link_url("ModuleFormsActions")
-        );
-        $res[] = array(
-            "title" => "Projects",
-            "active" => $title == "Projects" ? "active" : "",
-            "url" => $this->model->get_link_url("ModuleFormsActionsProject")
-        );
-        $res[] = array(
-            "title" => "Surveys",
-            "active" => $title == "Surveys" ? "active" : "",
-            "url" => $this->model->get_link_url("ModuleFormsActionsSurvey")
-        );
-        $navbar = new BaseStyleComponent("navigationBar", array(
-            "items" => $res,
-            "css" => "navbar-light bg-light"
-        ));
-        $navbar->output_content();
-    }
-
-    /**
      * render the page content - form actions
      */
     public function output_page_content()

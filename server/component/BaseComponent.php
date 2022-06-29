@@ -16,14 +16,17 @@ spl_autoload_register(function ($class_name) {
     else {
         // check plugins
         if($handle = opendir(PLUGIN_SERVER_PATH)) {
-            while(false !== ($dir = readdir($handle))){
-                if(filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir"){
+            while(false !== ($dir = readdir($handle))){                
+                if(filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir"){                    
                     $plugin_path = __DIR__ . '/../plugins/' . $dir . '/server/component';
                     if (file_exists($plugin_path . "/style" . $file)) {
                         require_once $plugin_path . "/style" . $file;
                         break;
                     } else if (file_exists($plugin_path . $file)) {
                         require_once $plugin_path . $file;
+                        break;
+                    } else if (file_exists($plugin_path . '/' . $class_name . '.php')) {
+                        require_once $plugin_path . '/' . $class_name . '.php';
                         break;
                     }
                 }

@@ -947,26 +947,13 @@ class CmsView extends BaseView
                 "callback_method" => "search_anchor_section",
                 "show_value" => true
             ));
-        }
-        else if($field['type'] == "select-group")
-        {
+        } else if ($field['type'] == "select-group") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
             ));
-        } 
-        // else if ($field['type'] == "select-qualtrics-survey") {
-        //     $children[] = new BaseStyleComponent("select", array(
-        //         "value" => $field['content'],
-        //         "name" => $field_name_prefix . "[content]",
-        //         "max" => 10,
-        //         "live_search" => 1,
-        //         "is_required" => 1,
-        //         "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
-        //     ));
-        // } 
-        else if ($field['type'] == "select-platform") {
+        } else if ($field['type'] == "select-platform") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
@@ -981,41 +968,35 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "max" => 10,
                 "live_search" => 1,
-                "is_required" => 1, 
+                "is_required" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'))
             ));
-        }
-        else if($field['type'] == "select-plugin")
-        {
+        } else if ($field['type'] == "select-plugin") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
                 "max" => 10,
                 "live_search" => 1,
-                "is_required" => 1, 
+                "is_required" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
             ));
-        }
-        else if($field['type'] == "condition")
-        {
+        } else if ($field['type'] == "condition") {
             $children[] = new BaseStyleComponent("conditionBuilder", array(
                 "value" => $field['content'],
                 "name" => $field_name_content
             ));
-        }
-        else if($field['type'] == "data-config")
-        {
+        } else if ($field['type'] == "data-config") {
             $children[] = new BaseStyleComponent("dataConfigBuilder", array(
                 "value" => $field['content'],
                 "name" => $field_name_content
             ));
-        } else {
-             $init = new QualtricsSurveyInit(array(
+        } else if (isset($field['id_fieldType'])) {
+            $children[] = $this->model->get_services()->get_hooks()->outputStyleField(array(
                 "field" => $field,
                 "field_name_prefix" => $field_name_prefix,
-                "services"=> $this->model->get_services()
+                "services" => $this->model->get_services(),
+                "disabled" => 0
             ));
-            $children[] =$init->initFieldType();
         }
 
         return new BaseStyleComponent("descriptionItem", array(
@@ -1085,14 +1066,6 @@ class CmsView extends BaseView
                 "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
             ));
         }
-        else if ($field['type'] == "select-qualtrics-survey") {
-            $children[] = new BaseStyleComponent("select", array(
-                "value" => $field['content'],
-                "name" => $field['name'],
-                "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
-            ));
-        }
         else if ($field['type'] == "select-platform") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
@@ -1131,11 +1104,20 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content'] && $field['content'] != '[]' ? 'exists' : $field['content']
             ));
-        }
-        else if($field['content'] != null)
-            $children[] = new BaseStyleComponent("rawText", array(
-                "text" => $field['content']
+        } else if (isset($field['id_fieldType'])) {
+            $res = $this->model->get_services()->get_hooks()->outputStyleField(array(
+                "field" => $field,
+                "field_name_prefix" => $field['name'],
+                "services" => $this->model->get_services(),
+                "disabled" => 1
             ));
+            if ($res) {
+                $children[] = $res;
+            } else if ($field['content'] != null)
+                $children[] = new BaseStyleComponent("rawText", array(
+                    "text" => $field['content']
+                ));
+        }
         $ar = array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
             "title" => isset($field['label']) ? $field['label'] : $field['name'],

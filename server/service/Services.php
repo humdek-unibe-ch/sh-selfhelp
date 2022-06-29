@@ -16,6 +16,7 @@ require_once __DIR__ . "/UserInput.php";
 require_once __DIR__ . "/Transaction.php";
 require_once __DIR__ . "/JobScheduler.php";
 require_once __DIR__ . "/conditions/Condition.php";
+require_once __DIR__ . "/Hooks.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -62,14 +63,19 @@ class Services
     private $router = null;
 
     /**
-     * The User input service instnce to handle user input data.
+     * The User input service instance to handle user input data.
      */
     private $user_input = null;
 
     /**
-     * The JobSheduler service instnce to handle jobs scheduling and execution.
+     * The JobSheduler service instance to handle jobs scheduling and execution.
      */
     private $job_scheduler;
+
+    /**
+     * The hooks service instance to handle hooks execution.
+     */
+    private $hooks;
 
     /**
      * The constructor.
@@ -89,6 +95,8 @@ class Services
         $this->acl = new Acl($this->db);
 
         $this->transaction = new Transaction($this->db);
+
+        $this->hooks = new Hooks($this->db);
 
         $this->user_input = new UserInput($this->db);
 
@@ -311,6 +319,17 @@ class Services
     public function get_condition()
     {
         return $this->condition;
+    }
+
+    /**
+     * Get the service class Hooks.
+     *
+     * @retval object
+     *  The Hooks service class.
+     */
+    public function get_hooks()
+    {
+        return $this->hooks;
     }
 
     /**

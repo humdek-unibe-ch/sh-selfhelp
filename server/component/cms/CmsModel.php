@@ -399,7 +399,7 @@ class CmsModel extends BaseModel
     private function fetch_page_fields($id)
     {
         $lang = isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : 1;
-        $sql = "SELECT 1*p.id AS id_pages, 1*f.id AS id, f.display, f.name, ft.name AS type,
+        $sql = "SELECT 1*p.id AS id_pages, 1*f.id AS id, f.display, f.name, ft.id as id_fieldType, ft.name AS type,
         pf.default_value, pf.help, l.locale AS locale, 1*l.id AS id_language,
         'male' AS gender, ".MALE_GENDER_ID." AS id_gender,
         (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND id_fields = f.id AND id_languages = l.id LIMIT 0,1) AS content,
@@ -521,7 +521,7 @@ class CmsModel extends BaseModel
     {
         $lang = isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : 1;
         $gender = isset($_SESSION['cms_gender']) ? $_SESSION['cms_gender'] : 1;
-        $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.name AS type,
+        $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.id as id_fieldType, ft.name AS type,
         sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
         IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1), sf.default_value) AS content,
         g.name AS gender, 1*g.id AS id_gender,

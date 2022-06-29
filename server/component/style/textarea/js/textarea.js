@@ -30,13 +30,13 @@ function initJsonFields() {
                 automaticLayout: true,
                 renderLineHighlight: "none"
             }
-            var editorQualtricsConfig = monaco.editor.create(json, editorOptions);
-            editorQualtricsConfig.getAction('editor.action.formatDocument').run().then(() => {
-                calcMonacoEditorSize(editorQualtricsConfig, json);
+            var editorConfig = monaco.editor.create(json, editorOptions);
+            editorConfig.getAction('editor.action.formatDocument').run().then(() => {
+                calcMonacoEditorSize(editorConfig, json);
             });
-            editorQualtricsConfig.onDidChangeModelContent(function (e) {
-                $(json).prev().val(editorQualtricsConfig.getValue());
-                calcMonacoEditorSize(editorQualtricsConfig, json);
+            editorConfig.onDidChangeModelContent(function (e) {
+                $(json).prev().val(editorConfig.getValue());
+                calcMonacoEditorSize(editorConfig, json);
                 $(json).prev().trigger('change');
             });
         });

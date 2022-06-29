@@ -361,10 +361,12 @@ abstract class BasePage
      * @retval string
      *  A string of valid csp rules.
      */
-    private function get_csp_rules()
+    private function getCspRules()
     {
-        return "default-src 'self';  style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
-            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;" . 'frame-src https://eu.qualtrics.com/;';
+        $csp_rules = "default-src 'self';  style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
+            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;";
+        $csp_rules_plugins = $this->services->get_hooks()->getCspRules();
+        return $csp_rules . $csp_rules_plugins;
     }
 
     /**

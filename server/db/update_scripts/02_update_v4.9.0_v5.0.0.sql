@@ -354,14 +354,19 @@ CREATE TABLE IF NOT EXISTS `hooks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `hooks_fiedldTypes` (
+INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputNav', 'Output an item in the navbar menu');
+INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputNavRight', 'Output an item in the right navbar menu');
+INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputStyleField', 'Output a style filed based on its type');
+INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('getCspRules', 'Output csp rules');
+
+CREATE TABLE IF NOT EXISTS `hooks_fieldTypes` (
   `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
   `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL, 
   `id_fieldType` INT(10) UNSIGNED ZEROFILL NOT NULL,    
   PRIMARY KEY (`id_hooks`, `id_fieldType`, `id_plugins`),
-  CONSTRAINT `hooks_fiedldTypes_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `hooks_fiedldTypes_fk_id_fieldType` FOREIGN KEY (`id_fieldType`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `hooks_fiedldTypes_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `hooks_fieldTypes_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `hooks_fieldTypes_fk_id_fieldType` FOREIGN KEY (`id_fieldType`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `hooks_fieldTypes_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `hooks_pages` (

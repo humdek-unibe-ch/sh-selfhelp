@@ -682,5 +682,14 @@ class BaseDb {
             "csv_separator" => $res['csv_separator']
         );
     }
+
+    /**
+     * Get cache
+     * @return object
+     * Return the cache instance
+     */
+    public function get_cache(){
+        return $this->cache;
+    }
 }
 ?>
