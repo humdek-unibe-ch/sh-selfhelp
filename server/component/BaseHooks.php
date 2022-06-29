@@ -4,15 +4,17 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+require_once __DIR__ . "/BaseModel.php";
 
 /**
  * The class to define the hooks.
  */
-class BaseHooks
+class BaseHooks extends BaseModel
 {
     /* Constructors ***********************************************************/
 
     /* Protected Properties *****************************************************/
+
     /**
      * Various params
      */
@@ -20,13 +22,15 @@ class BaseHooks
 
     /**
      * The constructor creates an instance of the hooks.
-     *
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param object $params
      *  Various params
      */
-    public function __construct($params = array())
+    public function __construct($services, $params = array())
     {
         $this->params = $params;
+        parent::__construct($services);
     }
 }
 ?>

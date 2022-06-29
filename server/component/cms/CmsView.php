@@ -994,7 +994,6 @@ class CmsView extends BaseView
             $children[] = $this->model->get_services()->get_hooks()->outputStyleField(array(
                 "field" => $field,
                 "field_name_prefix" => $field_name_prefix,
-                "services" => $this->model->get_services(),
                 "disabled" => 0
             ));
         }
@@ -1108,7 +1107,6 @@ class CmsView extends BaseView
             $res = $this->model->get_services()->get_hooks()->outputStyleField(array(
                 "field" => $field,
                 "field_name_prefix" => $field['name'],
-                "services" => $this->model->get_services(),
                 "disabled" => 1
             ));
             if ($res) {

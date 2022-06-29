@@ -22,7 +22,7 @@
                 <?php
                     if($_SESSION['logged_in'])
                     {
-                        $this->output_nav_chat();
+                        $this->outputNavRight();
                         $this->output_profile();
                     }
                     else if($login)

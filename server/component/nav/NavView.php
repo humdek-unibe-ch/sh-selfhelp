@@ -27,26 +27,11 @@ class NavView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Render the chat link.
+     * Render outputNavRight.
      */
-    private function output_nav_chat()
+    private function outputNavRight()
     {
-        $key = '';
-        if ($this->model->has_access_to_chat('chatTherapist')) {
-            $key = 'chatTherapist';
-        } else if ($this->model->has_access_to_chat('chatSubject')) {
-            $key = 'chatSubject';
-        } else {
-            return;
-        }
-        $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $group =  $this->model->get_chat_first_chat_group();
-        if (!$group) {
-            // if there is no chat group do not show
-            return;
-        }
-        $url = $this->model->get_link_url($key, array("gid" => intval($group['id_groups'])));
-        require __DIR__ . '/tpl_chat.php';
+        $this->model->get_services()->get_hooks()->outputNavRight();
     }
 
     /**
@@ -190,17 +175,7 @@ class NavView extends BaseView
                 $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active'], false, $icon);
             }
         }
-    }
-
-    /**
-     * Render the pill indicating new messages.
-     */
-    private function output_new_messages()
-    {
-        $count = $this->model->get_new_message_count();
-        if($count)
-            require __DIR__ .'/tpl_new_messages.php';
-    }
+    }    
 
     /**
      * Render the profile menu.

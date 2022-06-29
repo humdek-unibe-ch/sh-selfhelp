@@ -15,6 +15,7 @@ class Hooks
     /* Hooks */
     const HOOK_OUTPUT_STYLE_FIELD = 'outputStyleField';
     const HOOK_GET_CSP_RULES = 'getCspRules';
+    const HOOK_OUTPUT_NAV_RIGHT = 'outputNavRight';
 
     /**
      * The db instance which grants access to the DB.
@@ -22,14 +23,21 @@ class Hooks
     private $db;
 
     /**
+     * An associative array holding the different available services. See the
+     * class definition basepage for a list of all services.
+     */
+    private $services;
+
+    /**
      * Creating a Transaction Instance.
      *
-     * @param object $db
-     *  An instance of the service class PageDb.
+     * @param object $services
+     *  The service handler instance which holds all services
      */
-    public function __construct($db)
+    public function __construct($services)
     {
-        $this->db = $db;
+        $this->db = $services->get_db();
+        $this->services = $services;
         // $this->db->get_cache()->clear_cache();
     }
 
@@ -79,6 +87,27 @@ class Hooks
         }
     }
 
+    /**
+     * Get all hooks - outputNavRight
+     * @return array
+     * Array with plugins that register csp rules
+     */
+    private function getHooks_outputNavRight()
+    {
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_HOOKS, $this->db->get_cache()::CACHE_ALL, [__FUNCTION__, Hooks::HOOK_OUTPUT_NAV_RIGHT]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = 'SELECT p.name AS plugin_name
+                FROM hooks h
+                INNER JOIN hooks_plugins hp ON (hp.id_hooks = h.id)
+                INNER JOIN `plugins` p ON (hp.id_plugins = p.id)
+                WHERE h.name = :hook_name';
+            return $this->db->query_db($sql, array(":hook_name" => Hooks::HOOK_OUTPUT_NAV_RIGHT));
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -93,7 +122,7 @@ class Hooks
         foreach ($this->getHooks_outputStyleField($params['field']['id_fieldType']) as $key => $plugin) {
             $class_name = ucfirst($plugin['plugin_name']) . 'Hooks';
             if (class_exists($class_name)) {
-                $hooks = new $class_name($params);
+                $hooks = new $class_name($this->services, $params);
                 if (method_exists($hooks, Hooks::HOOK_OUTPUT_STYLE_FIELD)) {
                     return $hooks->outputStyleField();
                 }
@@ -113,13 +142,31 @@ class Hooks
         foreach ($this->getHooks_getCspRules() as $key => $plugin) {
             $class_name = ucfirst($plugin['plugin_name']) . 'Hooks';
             if (class_exists($class_name)) {
-                $hooks = new $class_name();
+                $hooks = new $class_name($this->services);
                 if (method_exists($hooks, Hooks::HOOK_GET_CSP_RULES)) {
                     $csp_rules = $csp_rules . $hooks->getCspRules();
                 }
             }
         }
         return $csp_rules;
+    }
+
+    /**
+     * Output an item in nav-right
+     * @param object
+     * Various params
+     */
+    public function outputNavRight()
+    {
+        foreach ($this->getHooks_outputNavRight() as $key => $plugin) {
+            $class_name = ucfirst($plugin['plugin_name']) . 'Hooks';
+            if (class_exists($class_name)) {
+                $hooks = new $class_name($this->services);
+                if (method_exists($hooks, Hooks::HOOK_OUTPUT_NAV_RIGHT)) {
+                    $hooks->outputNavRight();
+                }
+            }
+        }
     }
 }
 ?>

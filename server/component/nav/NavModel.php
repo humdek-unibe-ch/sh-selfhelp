@@ -164,25 +164,7 @@ class NavModel extends BaseModel
      * @retval bool
      *  True if the login page is active, fale otherwise
      */
-    public function get_login_active() { return $this->is_link_active("login"); }
-
-    /**
-     * Return the number of new messages.
-     *
-     * @retval int
-     *  The number of new messages.
-     */
-    public function get_new_message_count()
-    {
-        $sql = "SELECT count(cr.id_chat) AS count FROM chatRecipiants AS cr
-            WHERE cr.is_new = '1' AND cr.id_users = :uid";
-        $res = $this->db->query_db_first($sql,
-            array(":uid" => $_SESSION['id_user']));
-        if($res)
-            return intval($res['count']);
-        else
-            return 0;
-    }
+    public function get_login_active() { return $this->is_link_active("login"); }    
 
     /**
      * Fetches the name of the profile page from the database.
@@ -224,31 +206,5 @@ class NavModel extends BaseModel
      */
     public function has_route($route) { return $this->router->has_route($route); }
 
-    /**
-     * Checks whether user has access to the chat. If not later the icon is not visualized
-     *
-     * @param string $key
-     *  The page name of the chat; either "chatTherapist" or "chatSubject"
-     * @retval bool
-     *  True if the user has access to the chat.
-     */
-    public function has_access_to_chat($key){
-        return $this->acl->has_access_select($_SESSION['id_user'], $this->db->fetch_page_id_by_keyword($key)); 
-    }
-
-    /**
-     * Get the first group in which the user has chat permisions
-     * @retval array
-     * The group
-     */
-    public function get_chat_first_chat_group(){
-        $sql = "SELECT ug.id_groups
-                FROM users_groups ug
-                INNER JOIN acl_groups acl ON (acl.id_groups = ug.id_groups)
-                INNER JOIN pages p ON (acl.id_pages = p.id)
-                WHERE id_users = :uid AND keyword = 'chatSubject' AND acl_select = 1 AND ug.id_groups > 2
-                ORDER BY ug.id_groups ASC";
-        return $this->db->query_db_first($sql, array(":uid"=>$_SESSION['id_user']));
-    }
 }
 ?>

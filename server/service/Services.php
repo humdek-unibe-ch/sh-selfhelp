@@ -95,8 +95,7 @@ class Services
         $this->acl = new Acl($this->db);
 
         $this->transaction = new Transaction($this->db);
-
-        $this->hooks = new Hooks($this->db);
+        
 
         $this->user_input = new UserInput($this->db);
 
@@ -110,6 +109,7 @@ class Services
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
+        $this->hooks = new Hooks($this);
     }
 
     /**
