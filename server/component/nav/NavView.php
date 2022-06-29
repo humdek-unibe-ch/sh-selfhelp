@@ -35,6 +35,14 @@ class NavView extends BaseView
     }
 
     /**
+     * Render outputNavRight.
+     */
+    private function outputNav()
+    {
+        $this->model->get_services()->get_hooks()->outputNav();
+    }
+
+    /**
      * Render all navigation links.
      */
     private function output_nav_items()

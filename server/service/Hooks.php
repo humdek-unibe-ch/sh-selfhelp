@@ -16,6 +16,7 @@ class Hooks
     const HOOK_OUTPUT_STYLE_FIELD = 'outputStyleField';
     const HOOK_GET_CSP_RULES = 'getCspRules';
     const HOOK_OUTPUT_NAV_RIGHT = 'outputNavRight';
+    const HOOK_OUTPUT_NAV = 'outputNav';
 
     /**
      * The db instance which grants access to the DB.
@@ -90,7 +91,6 @@ class Hooks
     /**
      * Get all hooks - outputNavRight
      * @return array
-     * Array with plugins that register csp rules
      */
     private function getHooks_outputNavRight()
     {
@@ -105,6 +105,26 @@ class Hooks
                 INNER JOIN `plugins` p ON (hp.id_plugins = p.id)
                 WHERE h.name = :hook_name';
             return $this->db->query_db($sql, array(":hook_name" => Hooks::HOOK_OUTPUT_NAV_RIGHT));
+        }
+    }
+
+    /**
+     * Get all hooks - outputNav
+     * @return array
+     */
+    private function getHooks_outputNav()
+    {
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_HOOKS, $this->db->get_cache()::CACHE_ALL, [__FUNCTION__, Hooks::HOOK_OUTPUT_NAV]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = 'SELECT p.name AS plugin_name
+                FROM hooks h
+                INNER JOIN hooks_plugins hp ON (hp.id_hooks = h.id)
+                INNER JOIN `plugins` p ON (hp.id_plugins = p.id)
+                WHERE h.name = :hook_name';
+            return $this->db->query_db($sql, array(":hook_name" => Hooks::HOOK_OUTPUT_NAV));
         }
     }
 
@@ -164,6 +184,24 @@ class Hooks
                 $hooks = new $class_name($this->services);
                 if (method_exists($hooks, Hooks::HOOK_OUTPUT_NAV_RIGHT)) {
                     $hooks->outputNavRight();
+                }
+            }
+        }
+    }
+
+    /**
+     * Output an item in nav-right
+     * @param object
+     * Various params
+     */
+    public function outputNav()
+    {
+        foreach ($this->getHooks_outputNav() as $key => $plugin) {
+            $class_name = ucfirst($plugin['plugin_name']) . 'Hooks';
+            if (class_exists($class_name)) {
+                $hooks = new $class_name($this->services);
+                if (method_exists($hooks, Hooks::HOOK_OUTPUT_NAV)) {
+                    $hooks->outputNav();
                 }
             }
         }

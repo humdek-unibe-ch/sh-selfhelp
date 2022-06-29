@@ -16,6 +16,7 @@
             <ul class="navbar-nav mr-auto">
                 <?php
                     $this->output_nav_items();
+                    $this->outputNav();
                 ?>
             </ul>
             <ul class="navbar-nav navbar-right">
