@@ -13,6 +13,11 @@
  - add option for `page_access_type` change
  - add option for page `is_headless` change
  - add markdown editor for fields from type `markdown`
+ - add `hooks` which can be registered and executed in a plugin
+  - `outputNav` - Output an item in the navbar menu
+  - `outputNavRight` - Output an item in the right navbar menu
+  - `outputStyleField` - Output a style filed based on its type
+  - `getCspRules` - Output csp rules
 
 ### Bugfix 
  - fix json condition builder for `in_one_of` type used with other condition
