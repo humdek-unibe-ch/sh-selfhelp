@@ -354,8 +354,6 @@ CREATE TABLE IF NOT EXISTS `hooks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputNav', 'Output an item in the navbar menu');
-INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputNavRight', 'Output an item in the right navbar menu');
 INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputStyleField', 'Output a style filed based on its type');
 INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('getCspRules', 'Output csp rules');
 
@@ -385,6 +383,16 @@ CREATE TABLE IF NOT EXISTS `hooks_plugins` (
   PRIMARY KEY (`id_hooks`, `id_plugins`),
   CONSTRAINT `hooks_plugins_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,  
   CONSTRAINT `hooks_plugins_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `hooks_onEnterFunction` (
+  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
+  `class` VARCHAR(100) NOT NULL,  
+  `function` VARCHAR(100) NOT NULL,  
+  `exec_class` VARCHAR(100) NOT NULL,  
+  `exec_function` VARCHAR(100) NOT NULL,  
+  PRIMARY KEY (`id_hooks`),
+  CONSTRAINT `hooks_onEnterFunction_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

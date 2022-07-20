@@ -15,8 +15,6 @@ class Hooks
     /* Hooks */
     const HOOK_OUTPUT_STYLE_FIELD = 'outputStyleField';
     const HOOK_GET_CSP_RULES = 'getCspRules';
-    const HOOK_OUTPUT_NAV_RIGHT = 'outputNavRight';
-    const HOOK_OUTPUT_NAV = 'outputNav';
 
     /**
      * The db instance which grants access to the DB.
@@ -39,10 +37,38 @@ class Hooks
     {
         $this->db = $services->get_db();
         $this->services = $services;
+        $this->schedule_on_function_call();
         // $this->db->get_cache()->clear_cache();
     }
 
     /* Private Methods *********************************************************/
+
+
+    /**
+     * Check DB for entered functions to be watched and on entering the function execute the scheduled method in the scheduled class
+     */
+    private function schedule_on_function_call()
+    {
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_HOOKS, $this->db->get_cache()::CACHE_ALL, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result === false) {
+            $sql = 'SELECT class, `function`, exec_class, exec_function
+            FROM hooks h
+            INNER JOIN hooks_onEnterFunction oe ON (h.id = oe.id_hooks)';
+            $get_result = $this->db->query_db($sql, array());
+        }
+        $services = $this->services;
+        foreach ($get_result as $key => $hook) {
+            uopz_set_hook($hook['class'], $hook['function'], function () use ($services, $hook) {
+                if (class_exists($hook['exec_class'])) {
+                    $hookClassInstance = new $hook['exec_class']($services);
+                    if (method_exists($hookClassInstance, $hook['exec_function'])) {
+                        $hookClassInstance->{$hook['exec_function']}();
+                    }
+                }
+            });
+        }
+    }
 
     /**
      * Get all hooks - outputStyleField
@@ -88,46 +114,6 @@ class Hooks
         }
     }
 
-    /**
-     * Get all hooks - outputNavRight
-     * @return array
-     */
-    private function getHooks_outputNavRight()
-    {
-        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_HOOKS, $this->db->get_cache()::CACHE_ALL, [__FUNCTION__, Hooks::HOOK_OUTPUT_NAV_RIGHT]);
-        $get_result = $this->db->get_cache()->get($key);
-        if ($get_result !== false) {
-            return $get_result;
-        } else {
-            $sql = 'SELECT p.name AS plugin_name
-                FROM hooks h
-                INNER JOIN hooks_plugins hp ON (hp.id_hooks = h.id)
-                INNER JOIN `plugins` p ON (hp.id_plugins = p.id)
-                WHERE h.name = :hook_name';
-            return $this->db->query_db($sql, array(":hook_name" => Hooks::HOOK_OUTPUT_NAV_RIGHT));
-        }
-    }
-
-    /**
-     * Get all hooks - outputNav
-     * @return array
-     */
-    private function getHooks_outputNav()
-    {
-        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_HOOKS, $this->db->get_cache()::CACHE_ALL, [__FUNCTION__, Hooks::HOOK_OUTPUT_NAV]);
-        $get_result = $this->db->get_cache()->get($key);
-        if ($get_result !== false) {
-            return $get_result;
-        } else {
-            $sql = 'SELECT p.name AS plugin_name
-                FROM hooks h
-                INNER JOIN hooks_plugins hp ON (hp.id_hooks = h.id)
-                INNER JOIN `plugins` p ON (hp.id_plugins = p.id)
-                WHERE h.name = :hook_name';
-            return $this->db->query_db($sql, array(":hook_name" => Hooks::HOOK_OUTPUT_NAV));
-        }
-    }
-
     /* Public Methods *********************************************************/
 
     /**
@@ -169,42 +155,6 @@ class Hooks
             }
         }
         return $csp_rules;
-    }
-
-    /**
-     * Output an item in nav-right
-     * @param object
-     * Various params
-     */
-    public function outputNavRight()
-    {
-        foreach ($this->getHooks_outputNavRight() as $key => $plugin) {
-            $class_name = ucfirst($plugin['plugin_name']) . 'Hooks';
-            if (class_exists($class_name)) {
-                $hooks = new $class_name($this->services);
-                if (method_exists($hooks, Hooks::HOOK_OUTPUT_NAV_RIGHT)) {
-                    $hooks->outputNavRight();
-                }
-            }
-        }
-    }
-
-    /**
-     * Output an item in nav-right
-     * @param object
-     * Various params
-     */
-    public function outputNav()
-    {
-        foreach ($this->getHooks_outputNav() as $key => $plugin) {
-            $class_name = ucfirst($plugin['plugin_name']) . 'Hooks';
-            if (class_exists($class_name)) {
-                $hooks = new $class_name($this->services);
-                if (method_exists($hooks, Hooks::HOOK_OUTPUT_NAV)) {
-                    $hooks->outputNav();
-                }
-            }
-        }
     }
 }
 ?>

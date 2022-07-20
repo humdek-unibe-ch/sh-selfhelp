@@ -16,14 +16,12 @@
             <ul class="navbar-nav mr-auto">
                 <?php
                     $this->output_nav_items();
-                    $this->outputNav();
                 ?>
             </ul>
             <ul class="navbar-nav navbar-right">
                 <?php
                     if($_SESSION['logged_in'])
                     {
-                        $this->outputNavRight();
                         $this->output_profile();
                     }
                     else if($login)
