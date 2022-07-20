@@ -27,7 +27,6 @@ function init_ui_cms() {
         initCollapseMenu();
         initCollapseProperties();
         $('.ui-select-picker').selectpicker();
-        initChildrenArea();
         initUISectionsButtons();
         initSortableElements();
         adjustPropertiesHeight();
@@ -52,6 +51,14 @@ function init_ui_cms() {
     }
 }
 
+
+
+/**
+ * Load dynamically all init functions form the styles that have init functions
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initStyles() {
     // load dynamically all init functions form the styles that have init functions
     var styles = $("#properties").data('styles');
@@ -63,18 +70,29 @@ function initStyles() {
     })
 }
 
-// create a button add nee section above selected section
+/**
+ * create a button add new section above selected section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addButtonNewSectionAbove(sectionData) {
     var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section above"></i>');
     $(icon).click(() => {
         var position = (sectionData.order_position * 10) - 5; // get the style position and insert above
-        console.log(sectionData);
         showAddSection(sectionData, true, position);
     })
     return icon;
 }
 
-// create a button add new section bellow the selected section
+/**
+ * create a button add new section bellow the selected section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addButtonNewSectionBelow(sectionData) {
     var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section below"></i>');
     $(icon).click(() => {
@@ -84,7 +102,13 @@ function addButtonNewSectionBelow(sectionData) {
     return icon;
 }
 
-// create a new button got to section
+/**
+ * create a new button got to section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addButtonGoToSection(sectionData) {
     var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go to section: <code>' + sectionData['section_name'] + '</code>"></i>');
     $(icon).click(() => {
@@ -93,7 +117,13 @@ function addButtonGoToSection(sectionData) {
     return icon;
 }
 
-// create a new button add new child to selected section. Only sections witch can have children will have this button
+/**
+ * create a new button add new child to selected section. Only sections witch can have children will have this button
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addButtonNewChild(sectionData) {
     var icon = $('<button type="button" class="ui-add-first-child btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
@@ -102,11 +132,16 @@ function addButtonNewChild(sectionData) {
     return icon;
 }
 
-// create a button remove the selected section
+/**
+ * create a button remove the selected section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addButtonRemoveSection(sectionData) {
     var icon = $('<i class="fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the section"></i>');
     $(icon).click(() => {
-        console.log(sectionData);
         confirmation('Do you really want to remove <code>' + sectionData['section_name'] + '</code>?', () => {
             removeSection(sectionData);
         });
@@ -114,7 +149,13 @@ function addButtonRemoveSection(sectionData) {
     return icon;
 }
 
-// create a new button for moving the section up
+/**
+ * create a new button for moving the section up
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @returns {any}
+ */
 function addButtonMoveSectionUp(section) {
     var icon = $('<i class="fas fa-arrow-alt-circle-up ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section up"></i>');
     $(icon).click(() => {
@@ -123,7 +164,13 @@ function addButtonMoveSectionUp(section) {
     return icon;
 }
 
-// create a new button for moving the section down
+/**
+ * create a new button for moving the section down
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @returns {any}
+ */
 function addButtonMoveSectionDown(section) {
     var icon = $('<i class="fas fa-arrow-alt-circle-down ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section down"></i>');
     $(icon).click(() => {
@@ -132,7 +179,14 @@ function addButtonMoveSectionDown(section) {
     return icon;
 }
 
-// add all UI buttons to the sections    
+/**
+ * add all UI buttons to the sections    
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @param {boolean} hideUIButtons
+ * @returns {any}
+ */
 function addUISectionButtons(section, hideUIButtons) {
     var sectionData = $(section).data('section');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
@@ -141,7 +195,6 @@ function addUISectionButtons(section, hideUIButtons) {
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
     $(buttonsHolderAdd).append(addButtonNewSectionAbove(sectionData));
-    // $(buttonsHolderAdd).append(addButtonGoToSection(sectionData));
 
     // add the new section button for sections without any child
     if (sectionData['can_have_children']) {
@@ -177,6 +230,14 @@ function addUISectionButtons(section, hideUIButtons) {
     }    
 }
 
+/**
+ * Add the menu
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addMenu(section, sectionData) {
     var menu = $('<div class="d-flex bg-white mt-1 mb-1 p-1 rounded ui-menu-holder"></div>');
     $(menu).append(addBtnShowSectionFields(section, sectionData))
@@ -184,11 +245,18 @@ function addMenu(section, sectionData) {
     return menu
 }
 
+/**
+ * Add button show section fields
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addBtnShowSectionFields(section, sectionData) {
     var icon = $('<i class="fas fa-eye ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Show Section Fields"></i>');
     $(icon).click(() => {
         // mark the selected section
-        console.log(sectionData);
         $(".ui-marked-section").removeClass("ui-marked-section");        
         loadSectionFields(sectionData['go_to_section_url'], () => {
             setTimeout(() => {
@@ -200,6 +268,13 @@ function addBtnShowSectionFields(section, sectionData) {
     return icon;
 }
 
+/**
+ * Add button go to section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @returns {any}
+ */
 function addBtnGoToSection(sectionData) {
     var icon = $('<i class="far fa-object-group ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go To Section <code>' + sectionData['section_name'] + '</code>"></i>');
     $(icon).click(() => {
@@ -209,8 +284,16 @@ function addBtnGoToSection(sectionData) {
     return icon;
 }
 
-// confirmation function
-// takes confirmation message and confirmCallback which is executed on confirmation
+/**
+ * confirmation function
+ * takes confirmation message and confirmCallback which is executed on confirmation
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} content
+ * @param {Function} confirmCallback
+ * @param {any} type
+ * @returns {any}
+ */
 function confirmation(content, confirmCallback, type) {
     $.confirm({
         title: 'CMS UI',
@@ -227,7 +310,17 @@ function confirmation(content, confirmCallback, type) {
     });
 }
 
-// execute ajax call
+/**
+ * execute ajax call
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {string} method // post or get
+ * @param {string} url
+ * @param {any} data
+ * @param {Function} callbackSuccess
+ * @param {Function} callbackError
+ * @returns {any}
+ */
 function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
     jQuery.ajax({
         url: url,
@@ -251,7 +344,15 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
     });
 }
 
-// load specific ids, sent in array
+/**
+ * load specific ids, sent in array
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} data
+ * @param {Array} elements
+ * @param {Function} callback
+ * @returns {any}
+ */
 function update_new_data(data, elements, callback) {
     if(!elements){
         return;
@@ -267,15 +368,27 @@ function update_new_data(data, elements, callback) {
     $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
 }
 
-// refresh the CMS_UI
+/**
+ * refresh the CMS_UI
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {Array} elements
+ * @param {Function} callback
+ * @returns {any}
+ */
 function refresh_cms_ui(elements, callback) {
-    console.log('refresh', elements);
     $.get(location.href, function (data) {
         update_new_data(data, elements, callback);
     });
 }
 
-// move section up if possible
+/**
+ * move section up if possible
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @returns {any}
+ */
 function moveSectionUp(section) {
     section = $(section);
     var prev = section.prev();
@@ -291,7 +404,13 @@ function moveSectionUp(section) {
     });
 }
 
-// scroll to the section only if the difference is higher than 500px
+/**
+ * scroll to the section only if the difference is higher than 500px
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @returns {any}
+ */
 function scrollToSection(section) {
     if (Math.abs($(document).scrollTop() - $(section).offset().top) > 500) {
         $([document.documentElement, document.body]).animate({
@@ -300,7 +419,13 @@ function scrollToSection(section) {
     }
 }
 
-// move section down if possible
+/**
+ * move section down if possible
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @returns {any}
+ */
 function moveSectionDown(section) {
     section = $(section);
     var next = section.next();
@@ -316,27 +441,12 @@ function moveSectionDown(section) {
     });
 }
 
-// add area for the sections with children
-function addChildrenArea(sectionHolder) {
-    var section = $(sectionHolder).children(":first")[0];
-    // console.log(section);
-    // var sectionHTML = $(section).html();
-    // $(section).html('')
-    // var childrenArea = $('<div class="section-children-ui-cms border rounded"></div>');
-    // $(childrenArea).html(sectionHTML);  
-    // $(section).append(childrenArea);  
-    // $(section).wrapInner('<div class="section-children-ui-cms border rounded"></div>');
-}
-
-// init children area for the sections that can have children
-function initChildrenArea() {
-    var allSectionsWithChildren = $('.section-can-have-children');
-    Array.from(allSectionsWithChildren).forEach((section) => {
-        addChildrenArea(section);
-    });
-}
-
-// init all section and add buttons to them
+/**
+ * init all section and add buttons to them
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initUISectionsButtons() {
     var allSections = $('.ui-section-holder');
     var sectionIdx = 0;
@@ -354,7 +464,13 @@ function initUISectionsButtons() {
     });
 }
 
-// return the children order based
+/**
+ * return the children order based
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} parent
+ * @returns {any}
+ */
 function getChildrenOrder(parent) {
     var order = [];
     $(parent).children('.ui-section-holder').each(function (idx) {
@@ -365,7 +481,12 @@ function getChildrenOrder(parent) {
     return order.join();
 }
 
-// init all sections and make them sortable for faster reordering and re-arranging
+/**
+ * init all sections and make them sortable for faster reordering and re-arranging
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initSortableElements() {
     var sortableOptions = {
         scroll: true,
@@ -387,17 +508,11 @@ function initSortableElements() {
                     reorderSectionsFromRoot($(evt.item).data('section'), getChildrenOrder(evt.from));
                 } else {
                     // move from one parent to another
-                    console.log('Old parent', $(evt.item).data('section')['parent_id']);
                     var remove_data = Object.assign({}, $(evt.item).data('section'));
-                    console.log(remove_data);
                     $(evt.to).children('.ui-section-holder').each(function (idx) {
                         // re-index the new group
                         prepareSectionInfo(this, idx);
                     });
-                    console.log('New parent', $(evt.item).data('section')['parent_id'], $(evt.item).data('section'));
-                    console.log("New section ", $(evt.item).data('section')['id_sections'], " should have position: ", $(evt.item).data('section')['order_position'] * 10);
-                    console.log($(evt.to).closest('.ui-section-holder').data('section'));
-                    console.log(getChildrenOrder(evt.to));
                     var newSectionData = $(evt.to).closest('.ui-section-holder').data('section');
                     var sectionData = $(evt.item).data('section');
                     if (newSectionData) {
@@ -407,7 +522,6 @@ function initSortableElements() {
                         newSectionData = sectionData;
                         newSectionData['relation'] = RELATION_PAGE_CHILDREN;
                     }
-                    console.log('New section Data', newSectionData);
                     removeSection(remove_data, () => {
                         var sectionId = $(evt.item).data('section')['id_sections'];
                         var position = ($(evt.item).data('section')['order_position'] * 10) - 5;
@@ -448,52 +562,30 @@ function initSortableElements() {
     });
 }
 
-function loadNestedChildren(children, sortableOptions) {
-    var childrenSections = $(children).children('.section-can-have-children');
-    Array.from(childrenSections).forEach((section) => {
-        $(section).children('.ui-section-holder').each(function (idx) {
-            console.log(this);
-            prepareSectionInfo(this, idx);
-        });
-        new Sortable(section, sortableOptions);
-        // loadNestedChildren(section, sortableOptions);
-    });
-}
-
-// prepare section info. Calculate parents data, adjust relations and urls
+/**
+ * prepare section info. Calculate parents data, adjust relations and urls
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} section
+ * @param {any} idx
+ * @returns {any}
+ */
 function prepareSectionInfo(section, idx) {
     var sectionData = $(section).data('section');
     sectionData['order_position'] = idx;
-    // var parents = $(section).parents('.ui-section-holder');
-    // var parent
-    // if (parents) {
-    //     parent = parents[0];
-    // }
-    // parentData = $(parent).data('section');
-    // if (parentData) {
-    //     // sectionData['parent'] = "section";
-    //     if (sectionData['update_section_url']) {
-    //         // sectionData['update_url'] = sectionData['update_section_url'].replace(':parent_id', parentData['id_sections']);
-    //     }
-    //     // sectionData['relation'] = RELATION_SECTION_CHILDREN;
-    //     // sectionData['parent_id'] = parentData['id_sections'];
-    //     // if (sectionData['insert_sibling_section_url']) {
-    //     //     sectionData['insert_sibling_section_url_modified'] = sectionData['insert_sibling_section_url'].replace(':parent_id', parentData['id_sections']);
-    //     // }
-    // } else {
-    //     // sectionData['update_url'] = sectionData['update_page_url']
-    //     // sectionData['relation'] = RELATION_PAGE_CHILDREN;
-    //     // sectionData['parent'] = "page";
-    //     // sectionData['parent_id'] = sectionData['id_pages'];
-    // }
-
     $(section).children('.badge').text(idx + 1); // for debugging
-
     $(section).attr('data-section', sectionData);
     return sectionData;
 }
 
-// remove section from page or another section depending on the parameters
+/**
+ * remove section from page or another section depending on the parameters
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @param {Function} callback
+ * @returns {any}
+ */
 function removeSection(sectionData, callback) {
     executeAjaxCall(
         'post',
@@ -504,7 +596,6 @@ function removeSection(sectionData, callback) {
             "relation": sectionData['relation']
         },
         () => {
-            console.log('deleted');
             if (callback) {
                 callback();
             } else {
@@ -520,10 +611,15 @@ function removeSection(sectionData, callback) {
         });
 }
 
-// reorder section
+/**
+ * reorder section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {any} sectionData
+ * @param {any} order
+ * @returns {any}
+ */
 function reorderSectionsFromRoot(sectionData, order) {
-    console.log(order);
-    console.log(sectionData);
     executeAjaxCall(
         'post',
         sectionData['update_url'],
@@ -543,7 +639,6 @@ function reorderSectionsFromRoot(sectionData, order) {
             }
         },
         () => {
-            console.log('re-ordered');
             refresh_cms_ui(['#ui-middle', '#properties']);
         },
         () => {
@@ -555,13 +650,17 @@ function reorderSectionsFromRoot(sectionData, order) {
         });
 }
 
-// add already existing section
-// sectionId - int - the id of the section which will be added
-// sectionData - array - the section data with info how the section will be added
-// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
-// position - int - the position where it will be added 
+/**
+ * add already existing section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {Number} sectionId - the id of the section which will be added
+ * @param {Array} sectionData - the section data with info how the section will be added
+ * @param {Boolean} addSibling - if true we add a sibling we use the same parent if false we use the section as parent
+ * @param {Number} position - the position where it will be added 
+ * @returns {any}
+ */
 function addSection(sectionId, sectionData, addSibling, position) {
-    console.log('Add section', sectionId, sectionData, position);
     if (sectionId == sectionData['id_sections']) {
         $.alert({
             title: 'CMS UI',
@@ -572,20 +671,30 @@ function addSection(sectionId, sectionData, addSibling, position) {
     }
 }
 
-// add already existing section
-// styleId - int - the id of the style which will be created as a new section
-// sectionData - array - the section data with info how the section will be added
-// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
-// position - int - the position where it will be added 
+/**
+ * add already existing section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {Number} styleId - the id of the style which will be created as a new section
+ * @param {Array} sectionData - the section data with info how the section will be added
+ * @param {Boolean} addSibling - if true we add a sibling we use the same parent if false we use the section as parent
+ * @param {Number} position - the position where it will be added
+ * @param {String} styleName
+ * @returns {any}
+ */
 function addNewSection(styleId, sectionData, addSibling, position, styleName) {
-    console.log('Add new section', styleId, sectionData, position, styleName);
     createSection(sectionData, styleId, addSibling, position, styleName);
 }
 
-// show modal for add section
-// sectionData - array - the section data with info how the section will be added
-// position - int - the position where it will be added 
-// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
+/**
+ * show modal for add section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {Array} sectionData - the section data with info how the section will be added
+ * @param {Boolean} addSibling - if true we add a sibling we use the same parent if false we use the section as parent
+ * @param {Number} position - the position where it will be added 
+ * @returns {any}
+ */
 function showAddSection(sectionData, addSibling, position) {
     $('#ui-add-section-modal').modal();
     $('#ui-add-section').css({ top: window.event.clientY - $('#ui-add-section').outerHeight() / 2, left: window.event.clientX + 10 });
@@ -644,7 +753,6 @@ function showAddSection(sectionData, addSibling, position) {
         }
         data.push({ name: 'parent_id', value: parent_id });
         data.push({ name: 'position', value: position });
-        console.log(position);
         $.ajax({
             type: "POST",
             url: actionUrl,
@@ -665,8 +773,16 @@ function showAddSection(sectionData, addSibling, position) {
     });
 }
 
-// insert existing section
-// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
+/**
+ * insert existing section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {Number} styleId - the id of the style which will be created as a new section
+ * @param {Array} sectionData - the section data with info how the section will be added
+ * @param {Boolean} addSibling - if true we add a sibling we use the same parent if false we use the section as parent
+ * @param {Number} position - the position where it will be added
+ * @returns {any}
+ */
 function insertSection(sectionData, sectionId, addSibling, position) {
     executeAjaxCall(
         'post',
@@ -679,7 +795,6 @@ function insertSection(sectionData, sectionId, addSibling, position) {
             ajax: true
         },
         () => {
-            console.log('Section inserted');
             refresh_cms_ui(['#ui-middle', '#properties']);
         },
         () => {
@@ -691,8 +806,17 @@ function insertSection(sectionData, sectionId, addSibling, position) {
         });
 }
 
-// create new section
-// addSibling - bool - if true we add a sibling we use the same parent if false we use the section as parent
+/**
+ * create new section
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {Number} styleId - the id of the style which will be created as a new section
+ * @param {Array} sectionData - the section data with info how the section will be added
+ * @param {Boolean} addSibling - if true we add a sibling we use the same parent if false we use the section as parent
+ * @param {Number} position - the position where it will be added
+ * @param {any} styleName
+ * @returns {any}
+ */
 function createSection(sectionData, styleId, addSibling, position, styleName) {
     var timestamp = Math.round((new Date()).getTime() / 1000);
     executeAjaxCall(
@@ -709,7 +833,6 @@ function createSection(sectionData, styleId, addSibling, position, styleName) {
             position: position
         },
         () => {
-            console.log('Section inserted');
             refresh_cms_ui(['#ui-middle', '#properties']);
         },
         () => {
@@ -740,13 +863,16 @@ function getAddSectionUrl(sectionData, addSibling) {
             url = sectionData['insert_sibling_section_url'];
         }
     }
-    console.log(url);
     return url;
 }
 
-
-// add catcher and on error reload the ui
-// block the UI until page is refreshed, otherwise we can get errors when we do fast changes
+/**
+ * add catcher and on error reload the ui
+ * block the UI until page is refreshed, otherwise we can get errors when we do fast changes
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initCollapseMenu() {
 
     $('[data-toggle=sidebar-collapse]').off('click');
@@ -760,6 +886,12 @@ function initCollapseMenu() {
     });
 }
 
+/**
+ * Collapse sidebar
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function sidebarCollapse() {
     $('.menu-collapsed').toggleClass('d-none');
     $('#sidebar-container').toggleClass('sidebar-expanded sidebar-collapsed');
@@ -768,6 +900,12 @@ function sidebarCollapse() {
     $('#collapse-icon').toggleClass('fa-angle-double-left fa-angle-double-right');
 }
 
+/**
+ * Collapse properties
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function propertiesCollapse() {
     collapsedProperties = !collapsedProperties;
     $('.properties-collapsed').toggleClass('d-none');
@@ -776,6 +914,12 @@ function propertiesCollapse() {
     $('#collapse-properties-icon').toggleClass('fa-angle-double-right fa-angle-double-left');
 }
 
+/**
+ * Init collapse properties
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initCollapseProperties() {
     // Collapse/Expand icon
     $('[data-toggle=properties-collapse]').off('click');
@@ -792,13 +936,24 @@ function initCollapseProperties() {
     });
 }
 
+/**
+ * Init save properties button
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initSaveProperties() {
     $('#save-properties').click((e) => {
         e.stopPropagation();
-        console.log('Save properties');
     });
 }
 
+/**
+ * Init edit toggle button
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initEditToggle() {
     $('#ui-edit-toggle').off('change');
     var editLink = $('.ui-card-properties a:first').attr('href')
@@ -810,7 +965,6 @@ function initEditToggle() {
         $('#ui-edit-toggle').bootstrapToggle('on');
     }
     var toggleLink = getEditToggleLink();   
-    console.log('toggle link', toggleLink); 
     $('#ui-edit-toggle').change(function () {
         executeAjaxCall(
             'get',
@@ -841,13 +995,24 @@ function initEditToggle() {
     })
 }
 
+/**
+ * Get edit toggle link
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {String}
+ */
 function getEditToggleLink() {
     var editLink = $('.ui-card-properties a:first').attr('href');
-    // var cancelLink = $('.ui-card-properties > .card-body > form > a:first').attr('href');
     var cancelLink = location.href.replace('_update', '').replace('/update/prop', '');
     return editLink ? editLink : cancelLink;
 }
 
+/**
+ * Adjust properties height
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function adjustPropertiesHeight() {
     // with button down
     var saveBtnHeight = $('.ui-card-properties form > button').first().outerHeight();
@@ -860,21 +1025,18 @@ function adjustPropertiesHeight() {
             $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
         }
     }
-
-    // without button
-    // var usedSpace = $('.ui-card-properties')[0].getBoundingClientRect().top;
-    // $('.ui-card-properties').first().css({ "height": "calc(100vh - " + usedSpace + "px)" });
-    // console.log(usedSpace);
-
 }
 
+/**
+ * Init delete button
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initDeleteBtn() {
     $('#new-ui-delete').off('click').on('click', function () {
-        console.log('delete');
         var delData = $('#new-ui-delete').data('data');
-        console.log(delData);
         confirmation('<p>This will delete the page <code>' + delData['name'] + '</code> and all the data associated to this page.<p>Children elements are not affected.</p></p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the page.</p> <input id="deleteValue" type="text" class="form-control" >', () => {
-            console.log($("#deleteValue").val());
             if ($("#deleteValue").val() == delData['name']) {
                 var redirect_url = null;
                 var refresh = false;
@@ -899,7 +1061,6 @@ function initDeleteBtn() {
                         }
                     },
                     () => {
-                        console.log('error');
                         $.alert({
                             title: 'Error!',
                             content: 'The ' + delData['relation'] + ' was not deleted!',
@@ -926,10 +1087,15 @@ function initDeleteBtn() {
     })
 }
 
+/**
+ * Init export button
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initExportBtn() {
     $('#new-ui-export').off('click').on('click', function (e) {
         e.preventDefault();
-        console.log('export');
         executeAjaxCall(
             'post',
             $('#new-ui-export').attr('href'),
@@ -964,17 +1130,15 @@ function initExportBtn() {
     })
 }
 
+/**
+ * Init save button
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initSaveBtn() {
     var saveForm = $('.ui-card-properties form').first()
     $(saveForm).off('submit');
-    // btnSave.click(function (e) {
-    //     e.preventDefault();
-    //     var href = $(btnSave).attr('href');
-    //     $(btnSave).attr('href', '#');
-    //     e.stopPropagation();
-    //     // $.redirectPost(href, { });
-    //     console.log('save');
-    // });
 
     $(saveForm).submit(function (e) {
 
@@ -999,10 +1163,15 @@ function initSaveBtn() {
     });
 }
 
+/**
+ * Init unsaved changes listener 
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initUnsavedChangesListener() {
     $(window).bind('beforeunload', function (e) {
         if (unsavedChanges.length > 0) {
-            console.log(unsavedChanges);
             return false;
         }
     });
@@ -1021,11 +1190,25 @@ function initUnsavedChangesListener() {
     });
 }
 
+/**
+ * Init small buttons
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initSmallButtons() {
     $(".style-section-cms-settings form > button").addClass("btn-sm");
     $(".ui-card-properties form > button").addClass("btn-sm");
 }
 
+/**
+ * Load section fields
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @param {String} sectionUrl
+ * @param {Function} callback
+ * @returns {any}
+ */
 function loadSectionFields(sectionUrl, callback) {
     executeAjaxCall(
         'get',
@@ -1056,6 +1239,12 @@ function loadSectionFields(sectionUrl, callback) {
         });
 }
 
+/**
+ * Init sortable nav elements
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initSortableNavElements() {
     $('.children-list.sortable').each(function (idx) {
         var $input = $(this).prev();
@@ -1080,10 +1269,22 @@ function initSortableNavElements() {
     });
 }
 
+/**
+ * Load custom css classes
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function loadCustomCSSClasses() {
     $('.ui-children-list > a').removeClass('btn-secondary').addClass('btn-sm btn-primary rounded-top');
 }
 
+/**
+ * Init remove nav buttons
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initRemoveNavButtons() {
     $('.ui-children-list > li > a').off('click').on('click', function (e) {
         e.preventDefault();
@@ -1091,7 +1292,6 @@ function initRemoveNavButtons() {
         var url_params = url.split('/');
         var url_params = url_params.slice(-3);
         var listElement = $(this).parent();
-        console.log('click', url_params);
         confirmation('Do you really want to remove <code>' + $(listElement).find('span').eq(1).html() + '</code>?', () => {
             executeAjaxCall(
                 'post',
@@ -1102,7 +1302,6 @@ function initRemoveNavButtons() {
                     "relation": url_params[1]
                 },
                 (data) => {
-                    console.log('removed');
                     $(listElement).remove();
                     refresh_cms_ui(['#section-ui-navigation-hierarchy-list', '#section-ui-page-list']);
                 },
@@ -1118,6 +1317,12 @@ function initRemoveNavButtons() {
     })
 }
 
+/**
+ * Init page order
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
 function initPageOrder() {
 
     function showHideList(checkbox) {
