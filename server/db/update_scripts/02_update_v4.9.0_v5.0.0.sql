@@ -395,6 +395,10 @@ CREATE TABLE IF NOT EXISTS `hooks_onEnterFunction` (
   CONSTRAINT `hooks_onEnterFunction_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+UPDATE pages
+SET id_type = 1
+WHERE keyword = 'ajax_set_user_language';
+
 
 DELIMITER //
 DROP FUNCTION IF EXISTS get_page_fields_helper //
