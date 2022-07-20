@@ -92,26 +92,6 @@ class CmsPreferencesModel extends BaseModel
         );
     }
 
-    /**
-     * Enable or disable module
-     *
-     * @param string $module_id
-     *  The ID of the mudule to update.
-     * @param int $enabled
-     *  1 true, 0 false
-     * @retval mixed
-     *  The number of affected rows ion success or false on failure.
-     */
-    public function update_module_status($module_id, $enabled)
-    {
-        $sql = "UPDATE modules SET `enabled` = :enabled
-            WHERE id = :module_id";
-        return $this->db->execute_update_db($sql, array(
-            ':enabled' => $enabled,
-            ':module_id' => $module_id,
-        ));
-    }
-
     public function get_db(){
         return $this->db;
     }

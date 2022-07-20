@@ -38,35 +38,6 @@ class CmsPreferencesView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Render all modules
-     * @param string $mode 'update', 'view'
-     * @retval array with Template Stlye objects for each module
-     */
-    private function get_all_modules($mode)
-    {
-        $modules_arr = [];
-        foreach ($this->model->get_db()->fetch_all_modules() as $module) {
-            $mod = new BaseStyleComponent("template", array(
-                "path" => __DIR__ . "/tpl_checkBoxModule.php",
-                "items" => array(
-                    "is_checked" => $module['enabled'],
-                    "id_HTML" => $module['module_name'],
-                    "disabled" => $mode == 'view' ? "disabled" : ""
-                )
-            ));
-            array_push($modules_arr, $mod);
-        }
-        $cardModules = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
-            "is_expanded" => true,
-            "is_collapsible" => true,
-            "title" => "Modules",
-            "children" => $modules_arr,
-        ));
-        return count($modules_arr) > 0 ? $cardModules : [];
-    }
-
-    /**
      * Render the button to create a new language.
      */
     private function output_button()
@@ -147,7 +118,6 @@ class CmsPreferencesView extends BaseView
                 "value" => $this->model->get_cmsPreferences()['fcm_sender_id'],
                 "name" => "fcm_sender_id"
             )),
-            $this->get_all_modules('update')
         );
         $cmsPreferences = new BaseStyleComponent("card", array(
             "css" => "mb-3",
@@ -212,7 +182,6 @@ class CmsPreferencesView extends BaseView
                         "text" => $this->model->get_cmsPreferences()['fcm_sender_id']
                     ))),
                 )),
-                $this->get_all_modules('view')
             ),
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
         ));

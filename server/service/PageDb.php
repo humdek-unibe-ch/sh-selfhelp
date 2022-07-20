@@ -431,21 +431,6 @@ class PageDb extends BaseDb
     }
 
     /**
-     * Fetch all modules from the databse
-     *      
-     *
-     * @retval array
-     * enabled; 0 = false; 1 = true 
-     * module_name     
-     * id
-     */
-    public function fetch_all_modules()
-    {
-        $sql = "SELECT * FROM modules;";
-        return $this->query_db($sql);
-    }
-
-    /**
      * Fetch the id of a style given the name of the style
      *
      * @param string $name
