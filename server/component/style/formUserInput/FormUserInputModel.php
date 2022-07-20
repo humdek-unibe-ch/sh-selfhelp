@@ -85,13 +85,13 @@ class FormUserInputModel extends StyleModel
     private function calc_date_to_be_sent($schedule_info, $action_schedule_type_code)
     {
         $date_to_be_sent = 'undefined';
-        if ($schedule_info[actionScheduleTypes] == actionScheduleTypes) {
-            // send imediately
+        if ($schedule_info[actionScheduleTypes] == actionScheduleTypes_immediately) {
+            // send immediately
             $date_to_be_sent = date('Y-m-d H:i:s', time());
-        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes) {
+        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes_on_fixed_datetime) {
             // send on specific date
             $date_to_be_sent = date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $schedule_info['custom_time'])->getTimestamp());
-        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes) {
+        } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes_after_period) {
             // send after time period 
             $now = date('Y-m-d H:i:s', time());
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_info['send_after'] . ' ' . $schedule_info['send_after_type'], strtotime($now)));
