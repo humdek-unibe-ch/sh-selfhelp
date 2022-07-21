@@ -991,11 +991,14 @@ class CmsView extends BaseView
                 "name" => $field_name_content
             ));
         } else if (isset($field['id_fieldType'])) {
-            $children[] = $this->model->get_services()->get_hooks()->outputStyleField(array(
+            $res = $this->model->get_services()->get_hooks()->outputStyleField(array(
                 "field" => $field,
                 "field_name_prefix" => $field_name_prefix,
                 "disabled" => 0
             ));
+            if ($res) {
+                $children[] = $res;
+            }
         }
 
         return new BaseStyleComponent("descriptionItem", array(
