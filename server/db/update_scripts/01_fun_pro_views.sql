@@ -1,4 +1,25 @@
 DELIMITER //
+DROP PROCEDURE IF EXISTS add_unique_key //
+CREATE PROCEDURE add_unique_key(param_table VARCHAR(100), param_index VARCHAR(100), param_column VARCHAR(100))
+BEGIN
+    IF NOT EXISTS 
+	(
+		SELECT NULL 
+		FROM information_schema.STATISTICS
+		WHERE `table_schema` = DATABASE()
+		AND `table_name` = param_table
+		AND `index_name` = param_index 
+	) THEN    
+		SET @sqlstmt = CONCAT('ALTER TABLE ', param_table, ' ADD UNIQUE KEY ', param_index, ' (', param_column, ');');
+		PREPARE st FROM @sqlstmt;
+        EXECUTE st;
+        DEALLOCATE PREPARE st;	
+    END IF;
+END
+
+//
+
+DELIMITER ;DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
@@ -22,7 +43,61 @@ BEGIN
 	left join user_input_record record  on (ui.id_user_input_record = record.id)
 	LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 	LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-    where form.id = form_id_param;
+    WHERE form.id = form_id_param;
+	
+    RETURN @sql;
+END
+//
+
+DELIMITER ;
+DELIMITER //
+DROP FUNCTION IF EXISTS get_page_fields_helper //
+
+CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
+-- page_id -1 returns all pages
+BEGIN 
+	SET @@group_concat_max_len = 32000;
+	SET @sql = NULL;
+	SELECT
+	  GROUP_CONCAT(DISTINCT
+		CONCAT(
+		  'MAX(CASE WHEN f.`name` = "',
+		  f.`name`,
+		  '" THEN IF(IFNULL((SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' LIMIT 0,1), "") = "", (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = (CASE WHEN f.display = 0 THEN 1 ELSE ',default_language_id,' END) LIMIT 0,1),(SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' LIMIT 0,1))  end) as `',
+		  replace(f.`name`, ' ', ''), '`'
+		)
+	  ) INTO @sql
+	FROM  pages AS p
+	LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
+	LEFT JOIN fields AS f ON f.id = ptf.id_fields
+    WHERE p.id = page_id OR page_id = -1;
+	
+    RETURN @sql;
+END
+//
+
+DELIMITER ;
+DELIMITER //
+DROP FUNCTION IF EXISTS get_sections_fields_helper //
+
+CREATE FUNCTION get_sections_fields_helper(section_id INT, language_id INT, gender_id INT) RETURNS TEXT
+-- section_id -1 returns all sections
+BEGIN 
+	SET @@group_concat_max_len = 32000;
+	SET @sql = NULL;
+	SELECT
+	  GROUP_CONCAT(DISTINCT
+		CONCAT(
+		  'max(case when f.`name` = "',
+		  f.`name`,
+		  '" then sft.content end) as `',
+		  replace(f.`name`, ' ', ''), '`'
+		)
+	  ) INTO @sql
+	from  sections AS s
+	LEFT JOIN sections_fields_translation AS sft ON sft.id_sections = s.id AND (language_id = sft.id_languages OR sft.id_languages = 1) AND (sft.id_genders = gender_id)
+	LEFT JOIN fields AS f ON f.id = sft.id_fields
+    WHERE s.id = section_id OR section_id = -1;
 	
     RETURN @sql;
 END
@@ -202,7 +277,7 @@ BEGIN
         SELECT table_name from view_uploadTables where 1=2;
     ELSE
         BEGIN
-            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as row_id, r.timestamp as entry_date, ', @sql, 
+            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
                 ' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
 					inner join uploadCells cell on (cell.id_uploadRows = r.id)
@@ -234,56 +309,14 @@ END
 //
 
 DELIMITER ;
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS proc_register_module //
-
-CREATE PROCEDURE proc_register_module( 
-	p_module_name VARCHAR(500), 
-    p_page_name VARCHAR(100), 
-    p_enabled INT )
--- send module name, page name and enabled disabled;
--- if module does not exists, it will be created, then the page will be added to the module if it exists. First we check if the page exist, if it doesnt exist we throw error. 
--- enabled is assigned to the module.
-BEGIN
-	SET @page_id = NULL;
-    SET @module_id = NULL;
-    SET @result = '';
-	SELECT id INTO @page_id FROM pages WHERE keyword = p_page_name COLLATE utf8_unicode_ci;
-    
-    IF (@page_id IS NULL) THEN
-		SET @result = CONCAT('Page name ', p_page_name, ' does not exist;');
-	ELSE
-
-		SELECT id INTO @module_id FROM modules WHERE module_name = p_module_name COLLATE utf8_unicode_ci;
-		IF (@module_id IS NULL) THEN
-			INSERT INTO modules (module_name, enabled) VALUES (p_module_name, p_enabled); 
-			SET @module_id = LAST_INSERT_ID();
-            SET @result = CONCAT(@result, 'Module ', p_module_name, ' was created!;');            
-		ELSE
-			UPDATE modules SET enabled = p_enabled WHERE id = @module_id;
-            SET @result = CONCAT(@result, 'The status enabled of Module ', p_module_name, ' was was changed to ', p_enabled, ';');
-            
-		END IF;
-        INSERT INTO modules_pages (id_modules, id_pages) VALUES (@module_id, @page_id); 
-		SET @result = CONCAT(@result, 'Page ', p_page_name, ' was added to module ', p_module_name);
-        
-	END IF;
-    
-    SELECT @result AS result;
-
-END
-//
-
-DELIMITER ;
 DROP VIEW IF EXISTS view_qualtricsSurveys;
 CREATE VIEW view_qualtricsSurveys
 AS
 SELECT s.*, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code
 FROM qualtricsSurveys s 
 INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
-DROP VIEW IF EXISTS view_acl_groups_pages_modules;
-CREATE VIEW view_acl_groups_pages_modules
+DROP VIEW IF EXISTS view_acl_groups_pages;
+CREATE VIEW view_acl_groups_pages
 AS
 SELECT acl.id_groups, acl.id_pages, 
 CASE
@@ -292,15 +325,13 @@ CASE
 END AS acl_select, 
 acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
-p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+p.id_type
 FROM acl_groups acl
 INNER JOIN pages p ON (acl.id_pages = p.id or (p.id_type = 4 and acl.id_pages = null)) -- add all open pages although that there is no specific ACL
-LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
-LEFT JOIN modules m ON (m.id = mp.id_modules)
 GROUP BY acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
 p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
-DROP VIEW IF EXISTS view_acl_users_pages_modules;
-CREATE VIEW view_acl_users_pages_modules
+DROP VIEW IF EXISTS view_acl_users_pages;
+CREATE VIEW view_acl_users_pages
 AS
 SELECT acl.id_users, acl.id_pages, 
 CASE
@@ -309,11 +340,9 @@ CASE
 END AS acl_select, 
 acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
-p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+p.id_type
 FROM acl_users acl
 INNER JOIN pages p ON (acl.id_pages = p.id)
-LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
-LEFT JOIN modules m ON (m.id = mp.id_modules)
 GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
 p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
 DROP VIEW IF EXISTS view_qualtricsActions;
@@ -356,49 +385,29 @@ FROM transactions t
 INNER JOIN lookups tran_type ON (tran_type.id = t.id_transactionTypes)
 INNER JOIN lookups tran_by ON (tran_by.id = t.id_transactionBy)
 LEFT JOIN users u ON (u.id = t.id_users);
-DROP VIEW IF EXISTS view_users;
-CREATE VIEW view_users
-AS
-SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
-us.description, u.blocked, vc.code,
-GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
-GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
-FROM users AS u
-LEFT JOIN userStatus AS us ON us.id = u.id_status
-LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
-LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
-LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
-LEFT JOIN validation_codes vc ON u.id = vc.id_users
-WHERE u.intern <> 1 AND u.id_status > 0
-GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code
-ORDER BY u.email;
-DROP VIEW IF EXISTS view_acl_users_in_groups_pages_modules;
-CREATE VIEW view_acl_users_in_groups_pages_modules
+DROP VIEW IF EXISTS view_acl_users_in_groups_pages;
+CREATE VIEW view_acl_users_in_groups_pages
 AS
 SELECT ug.id_users, acl.id_pages, MAX(IFNULL(acl.acl_select, 0)) as acl_select, MAX(IFNULL(acl.acl_insert, 0)) as acl_insert,
 MAX(IFNULL(acl.acl_update, 0)) as acl_update, MAX(IFNULL(acl.acl_delete, 0)) as acl_delete, p.keyword,
 p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
-p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+p.id_type
 FROM users u
 INNER JOIN users_groups AS ug ON (ug.id_users = u.id)
 INNER  JOIN acl_groups acl ON (acl.id_groups = ug.id_groups)
 INNER JOIN pages p ON (acl.id_pages = p.id)
-LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
-LEFT JOIN modules m ON (m.id = mp.id_modules)
 GROUP BY ug.id_users, acl.id_pages, p.keyword, p.url, 
 p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
 DROP VIEW IF EXISTS view_acl_users_union;
 CREATE VIEW view_acl_users_union
 AS
 SELECT *
-FROM view_acl_users_in_groups_pages_modules
+FROM view_acl_users_in_groups_pages
 
 UNION 
 
 SELECT *
-FROM view_acl_users_pages_modules;
+FROM view_acl_users_pages;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
@@ -448,15 +457,12 @@ BEGIN
 	END AS acl_select, 
 	acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
-	p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+	p.id_type
 	FROM acl_groups acl
 	INNER JOIN pages p ON (acl.id_pages = p.id or (p.id_type = 4 and acl.id_pages = null)) -- add all open pages although that there is no specific ACL
-	LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
-	LEFT JOIN modules m ON (m.id = mp.id_modules)
     WHERE acl.id_groups = param_group_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
 	GROUP BY acl.id_groups, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
-	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
-    HAVING enabled = 1;
+	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
     
 END
 //
@@ -524,17 +530,14 @@ BEGIN
     SELECT ug.id_users, acl.id_pages, MAX(IFNULL(acl.acl_select, 0)) as acl_select, MAX(IFNULL(acl.acl_insert, 0)) as acl_insert,
 	MAX(IFNULL(acl.acl_update, 0)) as acl_update, MAX(IFNULL(acl.acl_delete, 0)) as acl_delete, p.keyword,
 	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
-	p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+	p.id_type
 	FROM users u
 	INNER JOIN users_groups AS ug ON (ug.id_users = u.id)
 	INNER  JOIN acl_groups acl ON (acl.id_groups = ug.id_groups)
 	INNER JOIN pages p ON (acl.id_pages = p.id)
-	LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
-	LEFT JOIN modules m ON (m.id = mp.id_modules)
 	WHERE ug.id_users = param_user_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
 	GROUP BY ug.id_users, acl.id_pages, p.keyword, p.url, 
 	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
-    HAVING enabled = 1
     
     UNION 
     
@@ -545,15 +548,12 @@ BEGIN
 	END AS acl_select, 
 	acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
-	p.id_type, MAX(IFNULL(m.enabled, 1)) AS enabled
+	p.id_type
 	FROM acl_users acl
 	INNER JOIN pages p ON (acl.id_pages = p.id)
-	LEFT JOIN modules_pages mp ON (mp.id_pages = p.id)
-	LEFT JOIN modules m ON (m.id = mp.id_modules)
     WHERE acl.id_users = param_user_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
 	GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
-	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
-    HAVING enabled = 1;
+	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
     
 END
 //
@@ -801,3 +801,87 @@ u.intern
 FROM users AS u
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0;
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_page_fields //
+
+CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, default_language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+BEGIN  
+	-- page_id -1 returns all pages
+    SET @@group_concat_max_len = 32000;
+	SELECT get_page_fields_helper(page_id, language_id, default_language_id) INTO @sql;	
+	
+    IF (@sql is null) THEN	
+        SELECT * FROM pages WHERE 1=2;
+    ELSE 
+		BEGIN
+		SET @sql = CONCAT(
+			'select p.id, p.keyword, p.url, p.protocol, p.id_actions, "select" AS access_level, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.name AS `action`, ', 
+			@sql, 
+			'FROM pages p
+            LEFT JOIN actions AS a ON a.id = p.id_actions
+			LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
+			LEFT JOIN fields AS f ON f.id = ptf.id_fields
+			WHERE (p.id = ', page_id, ' OR -1 = ', page_id, ')
+            GROUP BY p.id, p.keyword, p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.name HAVING 1 ', filter_param
+        );
+        
+        IF (order_param <> '') THEN	        
+			SET @sql = concat(
+				'SELECT * FROM (',
+				@sql,
+				') AS t ', order_param
+			);
+		END IF;
+
+		PREPARE stmt FROM @sql;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+        end;
+    END IF;
+END 
+//
+
+DELIMITER ;
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS get_sections_fields //
+
+CREATE PROCEDURE get_sections_fields( section_id INT, language_id INT, gender_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+BEGIN  
+	-- section_id -1 returns all sections
+    SET @@group_concat_max_len = 32000;
+	SELECT get_sections_fields_helper(section_id, language_id, gender_id) INTO @sql;	
+	
+    IF (@sql is null) THEN	
+        SELECT * FROM sections WHERE 1=2;
+    ELSE 
+		BEGIN
+		SET @sql = CONCAT(
+			'SELECT s.id AS section_id, s.name AS section_name, st.id AS style_id, st.name AS style_name, ', 
+			@sql, 
+			'FROM sections s
+            INNER JOIN styles st ON (s.id_styles = st.id)
+			LEFT JOIN sections_fields_translation AS sft ON sft.id_sections = s.id   
+			LEFT JOIN fields AS f ON sft.id_fields = f.id
+			WHERE (s.id = ', section_id, ' OR -1 = ', section_id, ') AND ( IFNULL(id_languages, 1) = 1 OR id_languages=', language_id, ') 
+            GROUP BY s.id, s.name, st.id, st.name HAVING 1 ', filter_param
+        );
+        
+        IF (order_param <> '') THEN	        
+			SET @sql = concat(
+				'SELECT * FROM (',
+				@sql,
+				') AS t ', order_param
+			);
+		END IF;
+
+		PREPARE stmt FROM @sql;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+        end;
+    END IF;
+END 
+//
+
+DELIMITER ;

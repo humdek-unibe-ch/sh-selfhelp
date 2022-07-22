@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 20, 2022 at 03:28 PM
+-- Generation Time: Jul 22, 2022 at 09:30 AM
 -- Server version: 5.7.36
 -- PHP Version: 7.2.34
 
@@ -839,54 +839,6 @@ CREATE TABLE IF NOT EXISTS `mailQueue` (
   `is_html` int(11) DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `modules`
---
-
-DROP TABLE IF EXISTS `modules`;
-CREATE TABLE IF NOT EXISTS `modules` (
-  `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
-  `module_name` varchar(500) DEFAULT NULL,
-  `enabled` int(11) DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `modules`
---
-
-INSERT INTO `modules` (`id`, `module_name`, `enabled`) VALUES
-(0000000001, 'moduleQualtrics', 1),
-(0000000003, 'moduleChat', 1),
-(0000000004, 'moduleScheduledJobs', 1),
-(0000000005, 'moduleFormsActions', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `modules_pages`
---
-
-DROP TABLE IF EXISTS `modules_pages`;
-CREATE TABLE IF NOT EXISTS `modules_pages` (
-  `id_modules` int(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_pages` int(10) UNSIGNED ZEROFILL NOT NULL,
-  PRIMARY KEY (`id_modules`,`id_pages`),
-  KEY `id_modules` (`id_modules`),
-  KEY `id_pages` (`id_pages`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `modules_pages`
---
-
-INSERT INTO `modules_pages` (`id_modules`, `id_pages`) VALUES
-(0000000004, 0000000050),
-(0000000005, 0000000061),
-(0000000005, 0000000062);
 
 -- --------------------------------------------------------
 
@@ -2983,13 +2935,6 @@ ALTER TABLE `formActions_groups`
 --
 ALTER TABLE `mailAttachments`
   ADD CONSTRAINT `mailAttachments_fk_id_mailQueue` FOREIGN KEY (`id_mailQueue`) REFERENCES `mailQueue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `modules_pages`
---
-ALTER TABLE `modules_pages`
-  ADD CONSTRAINT `modules_pages_fk_id_modules` FOREIGN KEY (`id_modules`) REFERENCES `modules` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `modules_pages_fk_id_pages` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pages`
