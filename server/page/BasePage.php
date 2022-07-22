@@ -365,8 +365,7 @@ abstract class BasePage
     {
         $csp_rules = "default-src 'self';  style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
             . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;";
-        $csp_rules_hooks = $this->services->get_hooks()->getCspRules();
-        return $csp_rules . $csp_rules_hooks;
+        return $csp_rules;
     }
 
     /**

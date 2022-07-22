@@ -347,53 +347,20 @@ UPDATE lookups
 SET type_code = 'actionScheduleJobs'
 WHERE type_code = 'qualtricsActionScheduleTypes';
 
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('hookTypes', 'hook_overwrite_return', 'Overwrite return value', 'On execution it overwrites the return value of the function');
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('hookTypes', 'hook_on_function_execute', 'On function execute', 'On function execute trigger event and we can execute another hook function');
+
 CREATE TABLE IF NOT EXISTS `hooks` (
   `id` INT(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `id_hookTypes` INT(10) UNSIGNED ZEROFILL NOT NULL, 
   `name` VARCHAR(100) UNIQUE,
   `description` VARCHAR(1000) DEFAULT NULL,  
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputStyleField', 'Output a style filed based on its type');
-INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('getCspRules', 'Output csp rules');
-INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputChatIcon', 'Output chat icon next to profile. It also shows how many unread messages exists');
-
-CREATE TABLE IF NOT EXISTS `hooks_fieldTypes` (
-  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL, 
-  `id_fieldType` INT(10) UNSIGNED ZEROFILL NOT NULL,    
-  PRIMARY KEY (`id_hooks`, `id_fieldType`, `id_plugins`),
-  CONSTRAINT `hooks_fieldTypes_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `hooks_fieldTypes_fk_id_fieldType` FOREIGN KEY (`id_fieldType`) REFERENCES `fieldType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `hooks_fieldTypes_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `hooks_pages` (
-  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL, 
-  `id_pages` INT(10) UNSIGNED ZEROFILL NOT NULL,    
-  PRIMARY KEY (`id_hooks`, `id_pages`, `id_plugins`),
-  CONSTRAINT `hooks_pages_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `hooks_pages_fk_id_fieldTypes` FOREIGN KEY (`id_pages`) REFERENCES `pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `hooks_pages_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `hooks_plugins` (
-  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
-  `id_plugins` INT(10) UNSIGNED ZEROFILL NOT NULL,  
-  PRIMARY KEY (`id_hooks`, `id_plugins`),
-  CONSTRAINT `hooks_plugins_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,  
-  CONSTRAINT `hooks_plugins_fk_id_plugins` FOREIGN KEY (`id_plugins`) REFERENCES `plugins` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `hooks_onEnterFunction` (
-  `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
   `class` VARCHAR(100) NOT NULL,  
   `function` VARCHAR(100) NOT NULL,  
   `exec_class` VARCHAR(100) NOT NULL,  
-  `exec_function` VARCHAR(100) NOT NULL,  
-  PRIMARY KEY (`id_hooks`),
-  CONSTRAINT `hooks_onEnterFunction_fk_id_hooks` FOREIGN KEY (`id_hooks`) REFERENCES `hooks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE  
+  `exec_function` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `hooks_fk_id_hookTypes` FOREIGN KEY (`id_hookTypes`) REFERENCES `lookups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 UPDATE pages

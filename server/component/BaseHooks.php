@@ -32,5 +32,30 @@ class BaseHooks extends BaseModel
         $this->params = $params;
         parent::__construct($services);
     }
+
+    /**
+     * Execute private method with reflection
+     * @param object hookedClassInstance
+     * The class which was hooked
+     * @param string $methodName
+     * The name of the method that we want to execute
+     * @param object $params = null
+     * Params passed to the method
+     * @return object
+     * Return the method result
+     */
+    protected function execute_private_method($hookedClassInstance, $methodName, $params = null)
+    {
+        $reflector = new ReflectionObject($hookedClassInstance);
+        $method = $reflector->getMethod($methodName);
+        $method->setAccessible(true);
+        if ($params == null) {
+            $res = $method->invoke($hookedClassInstance);
+        } else {
+            $res = $method->invoke($hookedClassInstance, $params);
+        }
+        $method->setAccessible(false);
+        return $res;
+    }
 }
 ?>

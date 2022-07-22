@@ -102,6 +102,7 @@ define('notificationTypes', 'notificationTypes');
 define('plugins', 'plugins');
 define('jobTypes', 'jobTypes');
 define('pageAccessTypes', 'pageAccessTypes');
+define('hookTypes', 'hookTypes');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -161,4 +162,6 @@ define('jobTypes_task', 'task');
 define('pageAccessTypes_mobile', 'mobile');
 define('pageAccessTypes_web', 'web');
 define('pageAccessTypes_mobile_and_web', 'mobile_and_web');
+define('hookTypes_hook_overwrite_return', 'hook_overwrite_return');
+define('hookTypes_hook_on_function_execute', 'hook_on_function_execute');
 ?>

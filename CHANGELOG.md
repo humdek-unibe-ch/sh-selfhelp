@@ -13,14 +13,13 @@
  - add option for `page_access_type` change
  - add option for page `is_headless` change
  - add markdown editor for fields from type `markdown`
- - add `hooks` which can be registered and executed in a plugin
-  - `outputStyleField` - Output a style filed based on its type
-  - `getCspRules` - Output csp rules
- - add `hooks` which can be added on function enter. They are stored in `hooks_onEnterFunction` - require module `php-uopz`
+ - add `hooks` - require module `php-uopz`
+    - add `hook_on_function_execute` which can be added on function enter.  
+    - add `hook_overwrite_return` which can overwrite the return value. 
 
 ### Bugfix 
  - fix json condition builder for `in_one_of` type used with other condition
- - autocomplete is not readonly anymore and can be deleted
+ - autocomplete is not read only anymore and can be deleted
  - improve the loading of UserInput by reducing the queries number
  - a style `link` can have empty `label`
 

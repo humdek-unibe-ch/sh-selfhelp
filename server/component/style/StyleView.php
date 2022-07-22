@@ -246,5 +246,14 @@ abstract class StyleView extends BaseView
         return $this->children;
     }
 
+    /**
+     * Set the view children
+     * @param array $children
+     * the children array
+     */
+    public function set_children($children){
+        $this->children = $children;
+    }
+
 }
 ?>
