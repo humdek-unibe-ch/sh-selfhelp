@@ -356,6 +356,7 @@ CREATE TABLE IF NOT EXISTS `hooks` (
 
 INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputStyleField', 'Output a style filed based on its type');
 INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('getCspRules', 'Output csp rules');
+INSERT IGNORE INTO `hooks` (`name`, `description`) VALUES ('outputChatIcon', 'Output chat icon next to profile. It also shows how many unread messages exists');
 
 CREATE TABLE IF NOT EXISTS `hooks_fieldTypes` (
   `id_hooks` INT(10) UNSIGNED ZEROFILL NOT NULL,
