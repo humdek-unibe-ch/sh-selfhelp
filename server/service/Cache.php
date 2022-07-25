@@ -70,7 +70,7 @@ class Cache
      */
     public function generate_key($type, $id, $extra_params =  array())
     {
-        $res = $type . '-' . $id;
+        $res = PROJECT_NAME . '-' . $type . '-' . $id;
         if (count($extra_params) > 0) {
             // $hashed_params = md5(implode('-', $extra_params));
             $hashed_params = implode('-', $extra_params);
