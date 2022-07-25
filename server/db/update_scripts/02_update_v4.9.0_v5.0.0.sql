@@ -324,12 +324,35 @@ SELECT 'qualtrics', 'v1.0.0'
 FROM styles
 WHERE name = 'qualtricsSurvey';
 
--- if the style qualtricsSurvey exists add the entry into the plugin table
+-- if the style qualtricsSurvey exists add hooks
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`)
+SELECT (SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'field-qualtricsSurvey-edit', 'Output select Qualtrics Survey field - edit mdoe', 'CmsView', 'create_field_form_item', 'QualtricsHooks', 'outputFieldQualtricsSurveyEdit'
+FROM styles
+WHERE name = 'qualtricsSurvey';
+
+-- if the style qualtricsSurvey exists add hooks
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`)
+SELECT (SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'field-qualtricsSurvey-view', 'Output select Qualtrics Survey field - view mode', 'CmsView', 'create_field_item', 'QualtricsHooks', 'outputFieldQualtricsSurveyView'
+FROM styles
+WHERE name = 'qualtricsSurvey';
+
+-- if the style qualtricsSurvey exists add hooks
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`)
+SELECT (SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'qualtrics-addCspRule', 'Add csp rule for Qualtrics iframe', 'BasePage', 'getCspRules', 'QualtricsHooks', 'setCspRules'
+FROM styles
+WHERE name = 'qualtricsSurvey';
+
+-- if the style chat exists add the entry into the plugin table
 INSERT IGNORE INTO plugins (name, version) 
 SELECT 'chat', 'v1.0.0'
 FROM styles
 WHERE name = 'chat';
 
+-- if the style chat exists add hooks
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`)
+SELECT (SELECT id FROM lookups WHERE lookup_code = 'hook_on_function_execute' LIMIT 0,1), 'outputChatIcon', 'Output chat icon next to profile. It also shows how many unread messages exists', 'NavView', 'output_profile', 'ChatHooks', 'outputChatIcon'
+FROM styles
+WHERE name = 'chat';
 
 -- chat refactoring and move as a plugin
 SET foreign_key_checks = 0;
