@@ -62,12 +62,14 @@ function init_ui_cms() {
 function initStyles() {
     // load dynamically all init functions form the styles that have init functions
     var styles = $("#properties").data('styles');
-    styles.forEach((style) => {
-        var styleName = style['name'].substr(0, 1).toUpperCase() + style['name'].substr(1);
-        if (window['init' + styleName]) {
-            window['init' + styleName]();
-        }
-    })
+    if (styles) {
+        styles.forEach((style) => {
+            var styleName = style['name'].substr(0, 1).toUpperCase() + style['name'].substr(1);
+            if (window['init' + styleName]) {
+                window['init' + styleName]();
+            }
+        })
+    }
 }
 
 /**
@@ -206,7 +208,7 @@ function addUISectionButtons(section, hideUIButtons) {
                 newSectionData['relation'] = RELATION_PAGE_CHILDREN; // this insert always in page
             } else {
                 newSectionData['relation'] = RELATION_SECTION_CHILDREN; // this insert always in section
-            }            
+            }
             $(childrenHolder).find('.ui-add-first-child').remove();
             $(childrenHolder).append(addButtonNewChild(newSectionData));
         }
@@ -225,9 +227,9 @@ function addUISectionButtons(section, hideUIButtons) {
     $(buttonsHolderUpDownButtons).append(addButtonMoveSectionDown(section));
     $(section).append($('<div class="ui-buttons-holder position-absolute justify-content-between"></div>').append(buttonsMenuHolder));
     if (!hideUIButtons) {
-        $(section).append(buttonsHolder);        
+        $(section).append(buttonsHolder);
         $(section).append(buttonsHolderUpDown);
-    }    
+    }
 }
 
 /**
@@ -257,7 +259,7 @@ function addBtnShowSectionFields(section, sectionData) {
     var icon = $('<i class="fas fa-eye ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Show Section Fields"></i>');
     $(icon).click(() => {
         // mark the selected section
-        $(".ui-marked-section").removeClass("ui-marked-section");        
+        $(".ui-marked-section").removeClass("ui-marked-section");
         loadSectionFields(sectionData['go_to_section_url'], () => {
             setTimeout(() => {
                 $(section).addClass('ui-marked-section');
@@ -354,7 +356,7 @@ function executeAjaxCall(method, url, data, callbackSuccess, callbackError) {
  * @returns {any}
  */
 function update_new_data(data, elements, callback) {
-    if(!elements){
+    if (!elements) {
         return;
     }
     $('.popover').remove(); // first remove all tooltips if they are active
@@ -452,11 +454,11 @@ function initUISectionsButtons() {
     var sectionIdx = 0;
     Array.from(allSections).forEach((section) => {
         var hideUIButtons = false;
-        var sectionData = $(section).data('section');        
-        if(!sectionData['id_sections']){ 
+        var sectionData = $(section).data('section');
+        if (!sectionData['id_sections']) {
             // it is a page           
             hideUIButtons = true;
-        }else if(sectionData['params']['sid'] == sectionData['id_sections'] ){
+        } else if (sectionData['params']['sid'] == sectionData['id_sections']) {
             hideUIButtons = true;
         }
         addUISectionButtons(section, hideUIButtons);
@@ -964,14 +966,14 @@ function initEditToggle() {
         // we are in edit mode
         $('#ui-edit-toggle').bootstrapToggle('on');
     }
-    var toggleLink = getEditToggleLink();   
+    var toggleLink = getEditToggleLink();
     $('#ui-edit-toggle').change(function () {
         executeAjaxCall(
             'get',
             toggleLink,
             {},
             (data) => {
-                history.pushState({href: toggleLink}, null, toggleLink); 
+                history.pushState({ href: toggleLink }, null, toggleLink);
                 data = $(data);
                 var content_collapsed = $('#section-ui-card-content > .collapsed')[0];
                 var properties_collapsed = $('#section-ui-card-properties > .collapsed')[0];
@@ -982,8 +984,8 @@ function initEditToggle() {
                 if (!properties_collapsed) {
                     // open properties card
                     toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
-                }                           
-                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", "#section-ui-navigation-hierarchy-list"]);                    
+                }
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", "#section-ui-navigation-hierarchy-list"]);
             },
             () => {
                 console.log('error');

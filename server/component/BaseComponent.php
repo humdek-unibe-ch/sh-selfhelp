@@ -106,7 +106,12 @@ abstract class BaseComponent
                 method_exists($this->view, 'output_style_for_cms') && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
                 // load the page in the CMS 
                 // wrap each style in UI CMS Holder that keep the information for the style
-                $this->view->output_style_for_cms();
+                $params = $this->model->get_params();
+                if (isset($params['missing']) && $params['missing']) {
+                    $this->view->output_content();
+                } else {
+                    $this->view->output_style_for_cms();
+                }                                
             } else {
                 $this->view->output_content();
             }

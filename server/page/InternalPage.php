@@ -45,7 +45,7 @@ class InternalPage
         foreach($this->sections as $section)
         {
             $this->base->add_component("section-" . $section['id'],
-                new StyleComponent($services, intval($section['id'])));
+                new StyleComponent($services, intval($section['id']), array('missing'=>true)));
         }
     }
 
