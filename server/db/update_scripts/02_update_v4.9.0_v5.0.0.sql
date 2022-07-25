@@ -217,12 +217,8 @@ UPDATE `fields`
 SET id_type = (SELECT id FROM fieldType WHERE `name` = 'data-config' LIMIT 0,1)
 WHERE `name` = 'data_config';
 
-
 -- Add new style `actionConfigBuilder`
 INSERT IGNORE INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('actionConfigBuilder', '1', (select id from styleGroup where `name` = 'intern' limit 1), 'Internal style used for the configuration of an action');
-
--- Add new style `qualtricsSurveyConfigBuilder`
-INSERT IGNORE INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtricsSurveyConfigBuilder', '1', (select id from styleGroup where `name` = 'intern' limit 1), 'Internal style used for the configuration of an Qulatrics Survey');
 
 -- add field data_config to all styles that have css field
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `help`)
@@ -321,6 +317,19 @@ INSERT IGNORE INTO plugins (name, version)
 SELECT 'search', 'v1.0.0'
 FROM styles
 WHERE name = 'search';
+
+-- if the style qualtricsSurvey exists add the entry into the plugin table
+INSERT IGNORE INTO plugins (name, version) 
+SELECT 'qualtrics', 'v1.0.0'
+FROM styles
+WHERE name = 'qualtricsSurvey';
+
+-- if the style qualtricsSurvey exists add the entry into the plugin table
+INSERT IGNORE INTO plugins (name, version) 
+SELECT 'chat', 'v1.0.0'
+FROM styles
+WHERE name = 'chat';
+
 
 -- chat refactoring and move as a plugin
 SET foreign_key_checks = 0;
