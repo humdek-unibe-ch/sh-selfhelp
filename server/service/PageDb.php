@@ -30,7 +30,7 @@ class PageDb extends BaseDb
      */
     function __construct($server, $dbname, $username, $password ) {
         parent::__construct( $server, $dbname, $username, $password );
-        $this->cache->clear_cache();
+        // $this->cache->clear_cache();
         // $this->cache->clear_cache($this->cache::CACHE_TYPE_PAGES, 80);
     }
 
