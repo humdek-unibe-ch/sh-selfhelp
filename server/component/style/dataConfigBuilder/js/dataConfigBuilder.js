@@ -45,7 +45,7 @@ function initDataConfigBuilder() {
             dataType: "json",
             url: schemaUrl,
             success: (s) => {
-                editor = new JSONEditor(dataConfigBuilder, {
+                var editor = new JSONEditor(dataConfigBuilder, {
                     theme: 'bootstrap4',
                     input_size: "small",
                     custom_forms: false,
