@@ -191,6 +191,7 @@ class GroupView extends BaseView
                 "id_prefix" => "groups",
                 "is_collapsible" => false,
                 "id_active" => $this->model->get_gid(),
+                "search_text" => 'Search'
             )))
         ));
         $card->output_content();
