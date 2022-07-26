@@ -14,4 +14,5 @@ js/*
 .vscode/launch.json
 !assets/datatables_child_row
 server/plugins/*
+!server/plugins/README.md
 server/db/install_selfhelp.sql
