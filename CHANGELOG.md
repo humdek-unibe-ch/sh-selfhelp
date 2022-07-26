@@ -13,7 +13,8 @@
  - add option for `page_access_type` change
  - add option for page `is_headless` change
  - add markdown editor for fields from type `markdown`
- - add `hooks` - require module `php-uopz`
+ - add `cache` - require module `php-apcu` (`sudo apt install php7.2-apcu`)
+ - add `hooks` - require module `php-uopz` (`sudo apt install php7.2-uopz`)
     - add `hook_on_function_execute` which can be added on function enter.  
     - add `hook_overwrite_return` which can overwrite the return value. 
 
@@ -22,6 +23,7 @@
  - autocomplete is not read only anymore and can be deleted
  - improve the loading of UserInput by reducing the queries number
  - a style `link` can have empty `label`
+ - `git tag` fix - set ownership to www-data (example `sudo chown -R www-data:www-data /home/www/selfhelp_v5_0_0/`)
 
 ### Internal
  - rework the `entryList` and `entryRecord` styles and how they work

@@ -19,7 +19,8 @@ END
 
 //
 
-DELIMITER ;DELIMITER //
+DELIMITER ;
+DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
