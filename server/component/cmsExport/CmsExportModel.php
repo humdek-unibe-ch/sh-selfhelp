@@ -8,7 +8,7 @@
 use Swaggest\JsonSchema\Schema;
 
 require_once __DIR__ . "/../BaseModel.php";
-require_once __DIR__ . "/../../service/ext/swaggest_json_schema_0.12.31.0_require/vendor/autoload.php";
+require_once __DIR__ . "/../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such

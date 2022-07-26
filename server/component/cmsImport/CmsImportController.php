@@ -29,9 +29,9 @@ class CmsImportController extends BaseController
                 $this->success_msgs[] = "Successfully parse JSON file: " . $model->json['file_name'] . '.json';
                 if ($model->type == 'section') {
                     $res = $model->import_section(isset($_POST['parent_id']) ? $_POST['parent_id'] : null, isset($_POST['position']) ? $_POST['position'] : null);
-                    if($res === true && false){
+                    if ($res === true) {
                         $this->success_msgs[] = "Section: " . $model->json['section']['section_name'] . ' was successfully imported.';
-                    }else{
+                    } else {
                         $this->fail = true;
                         $this->error_msgs[] = "Error! Section: " . $model->json['section']['section_name'] . ' was not imported';
                         $this->error_msgs[] = $res;
