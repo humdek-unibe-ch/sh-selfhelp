@@ -20,28 +20,31 @@ $(document).ready(function () {
 });
 
 function initConditionBuilder() {
-    var jqueryBuilderJsonInput = $("textarea[name*='jquery_builder_json']")[0];
-    var condition = $("textarea[name*='condition']")[0];
-    $('.conditionBuilderBtn').each(function () {
-        $(this).off('click').click(() => {
-            $(".condition_builder_modal_holder").modal({
-                backdrop: false
-            });
-            $('.saveConditionBuilder').each(function () {
-                $(this).attr('data-dismiss', 'modal');
-                $(this).off('click').click(function () {
-                    var rules = $('.condition_builder').queryBuilder('getRules');
-                    $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
-                    $(jqueryBuilderJsonInput).trigger('change');
-                    $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
-                    $(condition).trigger('change');
-                })
+    var condBuilderBtns = $('.conditionBuilderBtn');
+    if (condBuilderBtns.length > 0) {
+        var jqueryBuilderJsonInput = $("textarea[name*='jquery_builder_json']")[0];
+        var condition = $("textarea[name*='condition']")[0];
+        condBuilderBtns.each(function () {
+            $(this).off('click').click(() => {
+                $(".condition_builder_modal_holder").modal({
+                    backdrop: false
+                });
+                $('.saveConditionBuilder').each(function () {
+                    $(this).attr('data-dismiss', 'modal');
+                    $(this).off('click').click(function () {
+                        var rules = $('.condition_builder').queryBuilder('getRules');
+                        $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
+                        $(jqueryBuilderJsonInput).trigger('change');
+                        $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
+                        $(condition).trigger('change');
+                    })
+                });
             });
         });
-    });
 
-    // get groups and prepare the condition builder    
-    prepareConditionBuilder($(jqueryBuilderJsonInput).val());
+        // get groups and prepare the condition builder    
+        prepareConditionBuilder($(jqueryBuilderJsonInput).val());
+    }
 }
 
 // ********************************************* CONDITION BUILDER *****************************************

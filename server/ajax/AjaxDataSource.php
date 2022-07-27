@@ -344,12 +344,16 @@ class AjaxDataSource extends BaseAjax
      */
     public function get_lookups($data)
     {
-        $lookups = $this->db->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => $data['lookupType']));
-        $res = [];
-        foreach ($lookups as $key => $value) {
-            $res[$value['value']] = $value['text'];
+        if ($data) {
+            $lookups = $this->db->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => $data['lookupType']));
+            $res = [];
+            foreach ($lookups as $key => $value) {
+                $res[$value['value']] = $value['text'];
+            }
+            return json_encode($res);
+        } else {
+            return false;
         }
-        return json_encode($res);
     }
 }
 ?>
