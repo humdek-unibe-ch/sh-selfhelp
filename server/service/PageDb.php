@@ -328,7 +328,7 @@ class PageDb extends BaseDb
      */
     public function fetch_section_fields($id)
     {
-        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__, $_SESSION['language'], $_SESSION['gender']]);
         $get_result = $this->cache->get($key);
         $res = array();
         if ($get_result !== false) {
