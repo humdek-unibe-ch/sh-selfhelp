@@ -2,7 +2,9 @@
 
 ### BREAKING CHANGES
  - after updating an older version to 5.0.0 please check the impressum and if needed install the required plugins
+ - in `globals_untracked.php` change `define('LANGUAGE', 'de-CH'); // German` to `define('LANGUAGE', 2); // German`
  - add in the apache config: 
+
  `<Directory "${PROJECT_PATH}/server/plugins">    
     <Files ~ "\.json$">
         Require all granted
