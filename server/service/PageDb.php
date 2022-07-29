@@ -69,7 +69,9 @@ class PageDb extends BaseDb
             LEFT JOIN actions AS a ON p.id_actions = a.id
             WHERE p.id_type != :type
             ORDER BY -nav_position desc, p.keyword";
-            return $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
+            $res = $this->query_db($sql, array('type' => INTERNAL_PAGE_ID));
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 
@@ -89,6 +91,7 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT id FROM fields WHERE name = :name";
             $res = $this->query_db_first($sql, array('name' => $name));
+            $this->cache->set($key, $res['id']);
             if (!$res) return false;
             return $res['id'];
         }
@@ -111,6 +114,7 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
             $id = $this->query_db_first($sql, array(":keyword" => $keyword));
+            $this->cache->set($key, intval($id['id']));
             return intval($id['id']);
         }
     }
@@ -132,6 +136,7 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
             $keyword = $this->query_db_first($sql, array(":id" => $id));
+            $this->cache->set($key, $keyword['keyword']);
             return $keyword['keyword'];
         }
     }
@@ -153,6 +158,7 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT p.* FROM pages AS p WHERE id=:id";
             $page = $this->query_db_first($sql, array(":id" => $id));
+            $this->cache->set($key, $page);
             return $page;
         }
     }
@@ -190,7 +196,9 @@ class PageDb extends BaseDb
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             WHERE s.id = :id";
-            return $this->query_db_first($sql, array(":id" => $id));
+            $res = $this->query_db_first($sql, array(":id" => $id));
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 
@@ -242,7 +250,9 @@ class PageDb extends BaseDb
             LEFT JOIN sections AS s ON sn.child = s.id
             WHERE sn.parent = :id
             ORDER BY sn.position";
-            return $this->query_db($sql, array(":id" => $id));
+            $res = $this->query_db($sql, array(":id" => $id));
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 
@@ -447,6 +457,7 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT * FROM styles WHERE name = :name;";
             $res = $this->query_db_first($sql, array(":name" => $name));
+            $this->cache->set($key, $res);
             if (!$res) return false;
             return $res['id'];
         }
