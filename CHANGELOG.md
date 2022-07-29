@@ -2,6 +2,12 @@
 
 ### BREAKING CHANGES
  - after updating an older version to 5.0.0 please check the impressum and if needed install the required plugins
+ - add in the apache config: 
+ `<Directory "${PROJECT_PATH}/server/plugins">    
+    <Files ~ "\.json$">
+        Require all granted
+    </Files>    
+</Directory>`
 
 ### New Features
  - #321 - improve installation script
