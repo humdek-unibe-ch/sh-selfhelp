@@ -39,7 +39,7 @@ class Hooks
         $this->services = $services;
         $this->schedule_hook_on_function_execute();
         $this->schedule_hook_overwrite_return();
-        $this->db->clear_cache();
+        // $this->db->clear_cache();
     }
 
     /* Private Methods *********************************************************/
