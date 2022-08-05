@@ -1,4 +1,8 @@
-# v5.0.0 (latest)
+# v5.1.0 (latest)
+ ###  New features
+  - `hooks` - now it is possible to have multiple hooks for the same `method`
+
+# v5.0.0
 
 ### BREAKING CHANGES
  - after updating an older version to 5.0.0 please check the impressum and if needed install the required plugins

@@ -44,18 +44,47 @@ class BaseHooks extends BaseModel
      * @return object
      * Return the method result
      */
-    protected function execute_private_method($hookedClassInstance, $methodName, $params = null)
+    protected function execute_private_method($args = array())
     {
-        $reflector = new ReflectionObject($hookedClassInstance);
-        $method = $reflector->getMethod($methodName);
+        $reflector = new ReflectionObject($args['hookedClassInstance']);
+        $method = $reflector->getMethod($args['methodName']);
         $method->setAccessible(true);
-        if ($params == null) {
-            $res = $method->invoke($hookedClassInstance);
+        $parameters = $method->getParameters();
+
+        $params = array();
+        foreach ($parameters as $key => $parameter) {
+            if (isset($args[$parameter->name])) {
+                $params[] = $args[$parameter->name];
+            }
+        }
+        if (count($parameters) == 0) {
+            $res = $method->invoke($args['hookedClassInstance']);
         } else {
-            $res = $method->invoke($hookedClassInstance, $params);
+            $res = $method->invoke($args['hookedClassInstance'], ...$params);
         }
         $method->setAccessible(false);
         return $res;
+    }
+
+    /**
+     * Get the parameter value of the function by parameter name
+     * The function is called recursively until it finds the parameter
+     * @param array $args
+     * all the arguments
+     * @param string $param_name
+     * the name of the parameter that we search
+     * @return any
+     * Return the value
+     */
+    protected function get_param_by_name($args, $param_name)
+    {
+        if (isset($args[$param_name])) {
+            return $args[$param_name];
+        } else if (isset($args['args'])) {
+            return $this->get_param_by_name($args['args'], $param_name);
+        } else {
+            throw new Exception('Missing parameter');
+        }
     }
 }
 ?>
