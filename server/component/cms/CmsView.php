@@ -997,7 +997,7 @@ class CmsView extends BaseView
             "title" => isset($field['label']) ? $field['label'] : $field['name'],
             "type_input" => $field['type'],
             "locale" => isset($field['gender']) ? $field['locale'] : '',
-            "help" => $field['help'],
+            "help" => isset($field['help']) ?  $this->model->get_services()->get_parsedown()->text($field['help']) : '',
             "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
@@ -1103,7 +1103,7 @@ class CmsView extends BaseView
             "title" => isset($field['label']) ? $field['label'] : $field['name'],
             "locale" => isset($field['gender']) ? $field['locale'] : '',
             "alt" => "field is not set",
-            "help" => $field['help'],
+            "help" => isset($field['help']) ?  $this->model->get_services()->get_parsedown()->text($field['help']) : '',
             "display" => isset($field['display']) ? $field['display'] : 0,
             "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
