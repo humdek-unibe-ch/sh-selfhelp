@@ -1,9 +1,10 @@
 const jsonEditorInit = 'jsonEditorInit'
 const mdInit = 'mdInit'
+var simpleMDEEidtorRefreshed = false;
 
 $(document).ready(function () {
     autosize($('textarea'));
-    check_textarea_locked_after_submit();    
+    check_textarea_locked_after_submit();
     initTextarea();
 });
 
@@ -68,7 +69,6 @@ function initMarkdownFields() {
             autoRefresh: { delay: 0 },
             minHeight: '10px',
             forceSync: true,
-            inputStyle: 'contenteditable',
             toolbar: ["bold", "italic", "heading", "quote", "unordered-list", "ordered-list", "link", "image", "table", "preview", "guide"],
             renderingConfig: {
                 singleLineBreaks: false
@@ -76,6 +76,12 @@ function initMarkdownFields() {
         });
         editor.codemirror.on("change", () => {
             unsavedChanges.push(this);
-        });    
+        });
+        editor.codemirror.on("cursorActivity", () => {
+            if (!simpleMDEEidtorRefreshed) {
+                simpleMDEEidtorRefreshed = true;
+                editor.codemirror.refresh();
+            }
+        });
     });
 }
