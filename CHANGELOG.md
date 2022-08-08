@@ -6,6 +6,7 @@
   - Fix `tabs` loading. Now correctly load the first tab if none is selected. 
   - Fix `simpleMDE` text-area line selection on click.
   - Fix `help` MDE parse
+  - #326 - Fix markdown parse for fields `markdown-inline`.
 
 # v5.0.0
 
