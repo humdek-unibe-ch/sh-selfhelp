@@ -2,6 +2,9 @@
  ###  New features
   - `hooks` - now it is possible to have multiple hooks for the same `method`
 
+ ### Bugfix
+  - Fix `tabs` loading. Now correctly load the first tab if none is selected. 
+
 # v5.0.0
 
 ### BREAKING CHANGES
