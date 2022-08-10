@@ -18,6 +18,11 @@ class UserInput
     private $db;
 
     /**
+     * The transaction instance that log to DB.
+     */
+    private $transaction;
+
+    /**
      * The collection of input field attributes. See UserInput::set_field_attrs.
      */
     private $field_attrs = NULL;
@@ -33,9 +38,10 @@ class UserInput
      * @param object $db
      *  The db instance which grants access to the DB.
      */
-    public function __construct($db)
+    public function __construct($db, $transaction)
     {
         $this->db = $db;
+        $this->transaction = $transaction;
     }
 
     /* Private Methods ********************************************************/
@@ -658,6 +664,93 @@ class UserInput
             return $avatar ? $avatar['avatar'] : '';
         } else {
             return '';
+        }
+    }
+
+    /**
+     * Save static data in the upload_tables structure
+     * @param string $transaction_by
+     * What initialized the transaction
+     * @param string $table_name
+     * The table name where we want to save the data
+     * @param array $data
+     * The data that we want to save - associative array which contains "name of the column" => "value of the column"
+     * @return array
+     * return array with the result containing result and message
+     */
+    public function save_static_data($transaction_by, $table_name, $data){
+        $data['id_users'] = $_SESSION['id_user'];
+        $data['user_code'] = $_SESSION['user_code'];
+        $id_table = $this->get_form_id($table_name, FORM_STATIC);
+        try {
+            $this->db->begin_transaction();
+            if (!$id_table) {
+                // does not exists yet; try to create it
+                $id_table = $this->db->insert("uploadTables", array(
+                    "name" => $table_name
+                ));
+            }
+            if (!$id_table) {
+                $this->db->rollback();
+                return array(
+                    "res" => false,
+                    "msg" => "postprocess: failed to create new data table"
+                );
+            } else {
+                if ($this->transaction->add_transaction(transactionTypes_insert, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
+                    $this->db->rollback();
+                    return false;
+                }
+                $id_row = $this->db->insert("uploadRows", array(
+                    "id_uploadTables" => $id_table
+                ));
+                if (!$id_row) {
+                    $this->db->rollback();
+                    return array(
+                        "res" => false,
+                        "msg" => "postprocess: failed to add table rows"
+                    );
+                }
+                foreach ($data as $col => $value) {
+                    $id_col = $this->db->insert("uploadCols", array(
+                        "name" => $col,
+                        "id_uploadTables" => $id_table
+                    ));
+                    if (!$id_col) {
+                        $this->db->rollback();
+                        return array(
+                            "res" => false,
+                            "msg" => "postprocess: failed to add table cols"
+                        );
+                    }
+                    $res = $this->db->insert(
+                        "uploadCells",
+                        array(
+                            "id_uploadRows" => $id_row,
+                            "id_uploadCols" => $id_col,
+                            "value" => $value
+                        )
+                    );
+                    if (!$res) {
+                        $this->db->rollback();
+                        return array(
+                            "res" => false,
+                            "msg" => "postprocess: failed to add data values"
+                        );
+                    }
+                }
+            }
+            $this->db->commit();
+            return array(
+                "res" => true,
+                "msg" => "Record for user : " . $_SESSION['id_user'] . " was successfully inserted in DB"
+            );
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return array(
+                "res" => false,
+                "msg" => "Error while inserting records in the uploadTables"
+            );
         }
     }
 

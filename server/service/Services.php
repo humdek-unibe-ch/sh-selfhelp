@@ -97,7 +97,7 @@ class Services
         $this->transaction = new Transaction($this->db);
         
 
-        $this->user_input = new UserInput($this->db);
+        $this->user_input = new UserInput($this->db, $this->transaction);
 
         $this->condition = new Condition($this->db, $this->user_input, $this->router);
 
