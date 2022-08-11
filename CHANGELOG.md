@@ -1,4 +1,8 @@
-# v5.1.0 (latest)
+# v5.1.1 (latest)
+ ### Bugfix
+ - Fix login service
+
+# v5.1.0
  ###  New features
   - `hooks` - now it is possible to have multiple hooks for the same `method`
 

@@ -88,13 +88,13 @@ class Services
         $this->router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
         $this->init_router_routes();
 
-        $this->login = new Login($this->db,
+        $this->transaction = new Transaction($this->db);
+
+        $this->login = new Login($this->db, $this->transaction,
             $this->is_experimenter_page($this->router->route['name']),
             $this->does_redirect($this->router->route['name']));        
 
-        $this->acl = new Acl($this->db);
-
-        $this->transaction = new Transaction($this->db);
+        $this->acl = new Acl($this->db);        
         
 
         $this->user_input = new UserInput($this->db, $this->transaction);

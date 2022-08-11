@@ -15,6 +15,11 @@ class Login
     private $db;
 
     /**
+     * The transaction instance.
+     */
+    private $transaction;
+
+    /**
      * If true the current url is stored as last url in the db.
      */
     private $store_url;
@@ -29,16 +34,19 @@ class Login
      *
      * @param object $db
      *  The db instance which grants access to the DB.
+     * @param object $transaction
+     *  The transaction instance.
      * @param bool $store_url
      *  If true the current url is stored as last url in the db.
      * @param bool $redirect
      *  If true the user is redirected to the current url after login.
      */
-    public function __construct($db, $store_url=false, $redirect=false)
+    public function __construct($db, $transaction, $store_url=false, $redirect=false)
     {
         $this->db = $db;
         $this->store_url = $store_url;
         $this->redirect = $redirect;
+        $this->transaction = $transaction;
         $this->init_session();
     }
 
@@ -107,7 +115,7 @@ class Login
      */
     private function update_timestamp($id)
     {
-        $ui = new UserInput($this->db);
+        $ui = new UserInput($this->db, $this->transaction);
         $val = 0;
         $field = $ui->get_input_fields(array(
             'page' => 'profile',
