@@ -19,6 +19,8 @@ class Cache
     const CACHE_TYPE_FIELDS = 'CACHE_FIELDS';
     const CACHE_TYPE_STYLES = 'CACHE_STYLES';
     const CACHE_TYPE_HOOKS = 'HOOKS';
+    const CACHE_TYPE_USER_INPUT = 'USER_INPUT';
+    const CACHE_TYPE_CONDITION = 'CONDITION';
 
     const CACHE_ALL = 'ALL'; // it is used when we want all IDs and not a single record
 
