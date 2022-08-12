@@ -72,8 +72,12 @@ class ConditionalContainerView extends StyleView
     public function output_content()
     {
         $res = $this->model->get_condition_result();
-        if (
-            $this->model->is_cms_page() || $res['result']
+        // if ($this->model->is_cms_page() && $this->model->is_cms_page_editing()) {
+        if ($this->model->is_cms_page()) {
+            require __DIR__ . "/tpl_container.php";
+            require __DIR__ . "/tpl_failed_container.php";
+        } else if (
+            $res['result']
         ) {
             require __DIR__ . "/tpl_container.php";
         } else {
