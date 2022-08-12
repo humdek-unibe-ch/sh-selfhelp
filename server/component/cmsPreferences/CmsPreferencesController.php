@@ -38,6 +38,7 @@ class CmsPreferencesController extends BaseController
                 $this->fail = true;
                 $this->error_msgs[] = "Failed to update CMS Preferences";
             }
+            $this->model->get_db()->get_cache()->clear_cache();
         }
     }
 
