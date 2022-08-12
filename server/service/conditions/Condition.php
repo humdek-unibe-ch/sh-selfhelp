@@ -38,6 +38,7 @@ class Condition
         $this->db = $db;
         $this->user_input = $user_input;
         $this->router = $router;
+        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_CONDITION);
     }
 
     /**
@@ -52,16 +53,23 @@ class Condition
      */
     private function get_user_group($groupName, $id_users)
     {
-        $sql = "select g.name as group_name
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_CONDITION, $groupName, [__FUNCTION__, $id_users]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return isset($get_result["result"]['group_name']);
+        } else {
+            $sql = "select g.name as group_name
                 from users u
                 inner join users_groups ug on (u.id = ug.id_users)
                 inner join groups g on (ug.id_groups = g.id)
                 where g.name = :group and u.id = :uid";
-        $res = $this->db->query_db_first($sql, array(
-            ':group' => $groupName,
-            ':uid' => $id_users
-        ));
-        return  isset($res['group_name']);
+            $res = $this->db->query_db_first($sql, array(
+                ':group' => $groupName,
+                ':uid' => $id_users
+            ));
+            $this->db->get_cache()->set($key, array("result"=>$res));
+            return isset($res['group_name']);
+        }  
     }
 
     /**
