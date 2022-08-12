@@ -42,6 +42,7 @@ class UserInput
     {
         $this->db = $db;
         $this->transaction = $transaction;
+        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
     }
 
     /* Private Methods ********************************************************/
@@ -561,20 +562,26 @@ class UserInput
      */
     public function get_form_id($name, $form_type = FORM_DYNAMIC)
     {
-        if ($form_type == FORM_DYNAMIC) {
-            $sql = 'select id_section_form as id
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $name, [__FUNCTION__, $form_type]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            if ($form_type == FORM_DYNAMIC) {
+                $sql = 'select id_section_form as id
                 from user_input ui
                 inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
                 where sft_if.content = :name
                 limit 0,1;';
-        } else if ($form_type == FORM_STATIC) {
-            $sql = 'SELECT id 
+            } else if ($form_type == FORM_STATIC) {
+                $sql = 'SELECT id 
                 FROM uploadTables
                 WHERE name = :name';
-        }
-        return $this->db->query_db_first($sql, array(
-            ":name" => $name
-        ))['id'];
+            }
+            $res = $this->db->query_db_first($sql, array(":name" => $name))['id'];
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }        
     }
 
     /**
@@ -596,36 +603,44 @@ class UserInput
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_DYNAMIC, $user_id = null, $db_first = false)
     {
-        if (!$user_id) {
-            $user_id =  $_SESSION['id_user']; // if the user is not defined we set the session user if needed
-        }
-        if ($form_type == FORM_DYNAMIC) {
-            $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
-            $params = array(
-                ":form_id" => $form_id,
-                ":user_id" => $user_id
-            );
-            if (!$own_entries_only) {                
-                $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
-                $params = array(
-                    ":form_id" => $form_id
-                );
-            }
-        } else if ($form_type == FORM_STATIC) {
-            $params = array(
-                ":form_id" => $form_id,
-            );
-            if ($own_entries_only) {
-                $filter = ' AND id_users = ' . intval($user_id) . ' ' . $filter;
-            }
-            $sql = 'CALL get_uploadTable_with_filter(:form_id, :filter)';
-        }
-        $params[':filter'] = $filter;
-        if ($db_first) {
-            return $this->db->query_db_first($sql, $params);
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $form_type, $user_id, $db_first]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
         } else {
-            return $this->db->query_db($sql, $params);
-        }        
+            if (!$user_id) {
+                $user_id =  $_SESSION['id_user']; // if the user is not defined we set the session user if needed
+            }
+            if ($form_type == FORM_DYNAMIC) {
+                $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
+                $params = array(
+                    ":form_id" => $form_id,
+                    ":user_id" => $user_id
+                );
+                if (!$own_entries_only) {
+                    $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
+                    $params = array(
+                        ":form_id" => $form_id
+                    );
+                }
+            } else if ($form_type == FORM_STATIC) {
+                $params = array(
+                    ":form_id" => $form_id,
+                );
+                if ($own_entries_only) {
+                    $filter = ' AND id_users = ' . intval($user_id) . ' ' . $filter;
+                }
+                $sql = 'CALL get_uploadTable_with_filter(:form_id, :filter)';
+            }
+            $params[':filter'] = $filter;
+            if ($db_first) {
+                $res = $this->db->query_db_first($sql, $params);
+            } else {
+                $res = $this->db->query_db($sql, $params);
+            }
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }    
     }
 
     /**
