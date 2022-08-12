@@ -628,14 +628,17 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function getStyleNameById($style_id)
     {
-        $style_query = $this->db->query_db_first(
-            'select name from styles where id = :id',
-            array(":id" => $style_id)
-        );
-        if (isset($style_query['name'])) {
-            return $style_query['name'];
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_STYLES, $style_id, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
         } else {
-            return false;
+            $res = $this->db->query_db_first(
+                'select name from styles where id = :id',
+                array(":id" => $style_id)
+            );
+            $this->db->get_cache()->set($key, $res['name']);
+            return $res['name'];
         }
     }
 
@@ -702,17 +705,20 @@ class StyleModel extends BaseModel implements IStyleModel
      * Return true if it can and false if it cannot
      */
     public function can_have_children(){
-         $style_query = $this->db->query_db_first(
-            "SELECT style_id
-            FROM view_style_fields
-            WHERE field_name = 'children' AND style_name = :name;",
-            array(":name" => $this->style_name)
-        );
-        if (isset($style_query['style_id'])) {
-            return true;
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_STYLES, $this->style_name, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result['result'];
         } else {
-            return false;
-        }
+            $res = $this->db->query_db_first(
+                "SELECT style_id
+                FROM view_style_fields
+                WHERE field_name = 'children' AND style_name = :name;",
+                array(":name" => $this->style_name)
+            );
+            $this->db->get_cache()->set($key, array('result' =>isset($res['style_id'])));
+            return isset($res['style_id']);
+        } 
     }
 
     /**

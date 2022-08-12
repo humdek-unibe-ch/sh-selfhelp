@@ -1,4 +1,13 @@
-# v5.1.1 (latest)
+# v5.1.2 (latest)
+### Bugfix
+ - Fix style `conditionFailed` not showing in new UI edit mode
+
+ ###  New features
+  - send the default language id to the mobile app
+  - reset `cache` on CMS preferences update
+  - cache style_name when searched by id and cache if the style can have children
+
+# v5.1.1
  ### Bugfix
  - Fix login service
 
