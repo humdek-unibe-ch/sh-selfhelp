@@ -90,7 +90,8 @@ class FormUserInputModel extends StyleModel
             $date_to_be_sent = date('Y-m-d H:i:s', time());
         } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes_on_fixed_datetime) {
             // send on specific date
-            $date_to_be_sent = date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $schedule_info['custom_time'])->getTimestamp());
+            // $date_to_be_sent = date('Y-m-d H:i:s', DateTime::createFromFormat('d-m-Y H:i', $schedule_info['custom_time'])->getTimestamp());
+            $date_to_be_sent = date('Y-m-d H:i:s', strtotime($schedule_info['custom_time']));
         } else if ($schedule_info[actionScheduleTypes] == actionScheduleTypes_after_period) {
             // send after time period 
             $now = date('Y-m-d H:i:s', time());

@@ -1,4 +1,8 @@
-# v5.1.3 (latest)
+# v5.1.4 (latest)
+### Bugfix
+ - Overwrite time when scheduling action from form input
+
+# v5.1.3
 ### Bugfix
  - Fix clearing cache by type
 
