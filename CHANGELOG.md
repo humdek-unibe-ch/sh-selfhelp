@@ -1,6 +1,7 @@
 # v5.1.2 (latest)
 ### Bugfix
  - Fix style `conditionFailed` not showing in new UI edit mode
+ - Fix mobile language load
 
  ###  New features
   - send the default language id to the mobile app

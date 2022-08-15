@@ -81,8 +81,11 @@ if (isset($_POST['mobile']) && $_POST['mobile']) {
 
 function mobile_call($services, $router, $db){
     $debug_start_time = microtime(true);
-    $_SESSION['user_language'] = $_POST['id_languages'];
-    $_SESSION['language'] = $_POST['id_languages'];
+    $_SESSION['user_language'] = isset($_POST['id_languages']) && $_POST['id_languages'] > 1 ? $_POST['id_languages'] : LANGUAGE;
+    $_SESSION['language'] = isset($_POST['id_languages']) && $_POST['id_languages'] > 1 ? $_POST['id_languages'] : LANGUAGE;
+    if (isset($_SESSION['id_user'])) {
+        $db->update_by_ids('users', array("id_languages" => $_SESSION['user_language']), array('id' => $_SESSION['id_user'])); // set the language in the user table
+    }
     $res = [];
     if($router->route)
     {
@@ -112,6 +115,8 @@ function mobile_call($services, $router, $db){
             $res['time']['start_date'] = $start_date;                        
             $res['logged_in'] = $_SESSION['logged_in'];
             $res['base_path'] = BASE_PATH;
+            $res['default_language_id'] = LANGUAGE;
+            $res['user_language'] = $_SESSION['user_language'];
             echo json_encode($res, JSON_UNESCAPED_UNICODE);
         }
         else if($router->route['target'] == "component")
@@ -241,5 +246,3 @@ function cors() {
     }
     
 }
-
-?>
