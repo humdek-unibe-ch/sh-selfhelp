@@ -1,4 +1,8 @@
-# v5.1.2 (latest)
+# v5.1.3 (latest)
+### Bugfix
+ - Fix clearing cache by type
+
+# v5.1.2
 ### Bugfix
  - Fix style `conditionFailed` not showing in new UI edit mode
  - Fix mobile language load

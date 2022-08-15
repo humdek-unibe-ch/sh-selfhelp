@@ -46,7 +46,7 @@ class Cache
         if (!$type) {
             apcu_clear_cache();
         } else {
-            $filter = $type;
+            $filter = PROJECT_NAME . '-' . $type;
             if ($id) {
                 $filter = $filter . '-' . $id;
             }
