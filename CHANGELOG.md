@@ -1,3 +1,7 @@
+# v5.1.5 (latest)
+### Bugfix
+ - Fix form children loading when is in CMS and when is on normal page
+
 # v5.1.4 (latest)
 ### Bugfix
  - Overwrite time when scheduling action from form input

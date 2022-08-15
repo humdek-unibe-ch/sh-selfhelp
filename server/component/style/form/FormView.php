@@ -133,5 +133,18 @@ class FormView extends StyleView
             require __DIR__ . "/tpl_submit_and_send_btn.php";
         }
     }
+
+    /**
+     * Output form children. If it is in cms mode then output them wrapped in a div with `section-children-ui-cms` class
+     */
+    public function output_form_children()
+    {
+        // if ($this->model->is_cms_page()) {
+        if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], 'admin/cms_update') !== false) { // ugly hack, it should be replaced
+            require __DIR__ . "/tpl_cms_children_holder.php";
+        } else {
+            $this->output_children();
+        }
+    }
 }
 ?>
