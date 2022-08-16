@@ -4,6 +4,7 @@
 # v5.1.5
 ### Bugfix
  - Fix form children loading when is in CMS and when is on normal page
+ - `cronjob` - the cronjob should be changed to enable php cli to use apc module: example (`* * * * * php --define apc.enable_cli=1  /home/project/server/cronjobs/ScheduledJobsQueue.php`)
 
 # v5.1.4
 ### Bugfix
