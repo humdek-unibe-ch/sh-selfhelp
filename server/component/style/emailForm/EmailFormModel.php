@@ -116,7 +116,7 @@ class EmailFormModel extends EmailFormBaseModel
             "subject" => $this->subject_user,
             "body" => $this->email_user,
             "is_html" => $this->is_html,
-            "description" => "Emai from style EmailForm to the user",
+            "description" => "Email from style EmailForm to the user",
             "attachments" => $attachments
         );
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_anonymous_user);
@@ -145,7 +145,7 @@ class EmailFormModel extends EmailFormBaseModel
                 "subject" => $subject,
                 "body" => $msg,
                 "is_html" => $this->is_html,
-                "description" => "Emai from style EmailForm to the admins"
+                "description" => "Email from style EmailForm to the admins"
             );
             $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_anonymous_user);
         }

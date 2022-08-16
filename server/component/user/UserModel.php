@@ -347,7 +347,7 @@ class UserModel extends BaseModel
             "mode" => "activate",
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-        $subject = $_SESSION['project'] . " Email Verification";
+        $subject = $this->get_content($url, 'email_activate_subject');
         $from = "noreply@" . $_SERVER['HTTP_HOST'];
         $msg = $this->get_content($url, 'email_activate');
         $mail = array(
@@ -973,7 +973,7 @@ class UserModel extends BaseModel
                 "mode" => "activate",
             ));
             $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-            $subject = $_SESSION['project'] . " Email Verification";
+            $subject = $this->get_content($url, 'email_activate_subject');
             $from = "noreply@" . $_SERVER['HTTP_HOST'];
             $msg = $this->get_content($url, 'email_activate');
             $mail = array(
