@@ -1,8 +1,11 @@
-# v5.1.5 (latest)
+# v5.1.6 (latest)
+ - delete reminders for form actions when the correct form is filled
+
+# v5.1.5
 ### Bugfix
  - Fix form children loading when is in CMS and when is on normal page
 
-# v5.1.4 (latest)
+# v5.1.4
 ### Bugfix
  - Overwrite time when scheduling action from form input
 

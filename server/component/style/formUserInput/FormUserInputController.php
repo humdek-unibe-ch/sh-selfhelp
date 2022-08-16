@@ -196,7 +196,7 @@ class FormUserInputController extends BaseController
                 $this->model->queue_event_from_actions(actionTriggerTypes_finished);
                 $scheduled_reminders = $this->model->get_scheduled_reminders();
                 if ($scheduled_reminders && count($scheduled_reminders) > 0) {
-                 //   $this->model->delete_reminders($scheduled_reminders);
+                   $this->model->delete_reminders($scheduled_reminders);
                 }
             }
         }
