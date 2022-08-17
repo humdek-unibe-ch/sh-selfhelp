@@ -1,6 +1,7 @@
 # v5.2.0 (latest)
  - delete reminders for form actions when the correct form is filled
  - add `email_activate_subject` and `email_reminder_subject` fields for configuration when sending emails
+ - add an option to attach files when schedule a mail action for forms
 
 # v5.1.5
 ### Bugfix

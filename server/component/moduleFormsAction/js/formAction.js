@@ -44,6 +44,7 @@ function adjustActionScheduleType() {
     $('.style-section-from_email').removeClass('d-none');
     $('.style-section-from_name').removeClass('d-none');
     $('.style-section-reply_to').removeClass('d-none');
+    $('.style-section-attachments').removeClass('d-none');
     $('.style-section-to').removeClass('d-none');
     $('.style-section-subject').removeClass('d-none');
     $('.style-section-body').removeClass('d-none');
@@ -70,6 +71,7 @@ function adjustActionScheduleType() {
         $('.style-section-from_email').addClass('d-none');
         $('.style-section-from_name').addClass('d-none');
         $('.style-section-reply_to').addClass('d-none');
+        $('.style-section-attachments').addClass('d-none');
         $('.style-section-to').addClass('d-none');
         $('.style-section-subject').addClass('d-none');
         $('.style-section-body').addClass('d-none');
@@ -109,11 +111,13 @@ function adjustNotificationTypes() {
         $('.style-section-from_email').addClass('d-none');
         $('.style-section-from_name').addClass('d-none');
         $('.style-section-reply_to').addClass('d-none');
+        $('.style-section-attachments').addClass('d-none');
         $('.style-section-url').removeClass('d-none');
     } else if ($('select[name="schedule_info[notificationTypes]"] option:selected').text().includes('Email')) {
         $('.style-section-from_email').removeClass('d-none');
         $('.style-section-from_name').removeClass('d-none');
         $('.style-section-reply_to').removeClass('d-none');
+        $('.style-section-attachments').removeClass('d-none');
         $('.style-section-url').addClass('d-none');
     }
     adjustRequiredFields();

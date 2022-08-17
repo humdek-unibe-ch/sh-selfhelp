@@ -230,6 +230,18 @@ class FormUserInputModel extends StyleModel
         $result = array();
         $check_config = $this->check_config($schedule_info);
         $schedule_info = $check_config['schedule_info'];
+        $attachments = array();
+        $mail_attachments_from_config = array();
+        if(isset($schedule_info['attachments']) && $schedule_info['attachments']){
+            $mail_attachments_from_config = json_decode($schedule_info['attachments'], true);
+        }
+        foreach ($mail_attachments_from_config as $idx => $attachment) {
+            $attachments[] = array(
+                "attachment_name" => $attachment,
+                "attachment_path" => ASSET_SERVER_PATH . "/" . $attachment,
+                "attachment_url" => ASSET_PATH . "/" . $attachment
+           );
+        }
         $result = $check_config['result'];
         $mail = array();
         $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
@@ -245,7 +257,7 @@ class FormUserInputModel extends StyleModel
             "body" => $body,
             "description" => "Schedule email by form: " . $this->get_db_field("name"),
             "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
-            "attachments" => array()
+            "attachments" => $attachments
         );
         $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_system);
         if ($sj_id > 0) {
