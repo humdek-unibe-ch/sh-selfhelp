@@ -147,6 +147,13 @@ class ModuleScheduledJobsView extends BaseView
                         "text" => $mail_entry['is_html'] == 1 ? 'True' : 'False'
                     ))),
                 )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Config",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                            "text" => $mail_entry['config']
+                    ))),
+                )),  
                 new BaseStyleComponent("card", array(
                     "css" => "mb-3",
                     "title" => "Attachments",
@@ -238,7 +245,14 @@ class ModuleScheduledJobsView extends BaseView
                     "css" => "d-none",
                     "value" => $entry['body'],
                     "placeholder" => "@user_name can be used for showing the user",
-                ))
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Config",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $entry['config']
+                    ))),
+                )),  
             )
         ));
         $form->output_content();

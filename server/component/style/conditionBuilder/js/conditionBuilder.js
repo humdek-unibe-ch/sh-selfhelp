@@ -60,6 +60,9 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
     var platforms = await getLookups('pageAccessTypes');
     delete platforms['mobile_and_web']; // remove the combination
 
+    var languages = await getLanguages();
+    delete languages['0000000001']; // remove all languages selection
+
     var queryStructure = {
         icons: {
             add_group: 'fas fa-plus-circle',
@@ -174,6 +177,19 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
                 input: 'select',
                 operators: ['equal'],
                 values: platforms,
+                plugin: 'selectpicker',
+                plugin_config: {
+                    liveSearch: true,
+                    width: 'auto',
+                    liveSearchStyle: 'contains',
+                }
+            }, {
+                id: '__language__',
+                label: 'Language',
+                type: 'string',
+                input: 'select',
+                operators: ['equal'],
+                values: languages,
                 plugin: 'selectpicker',
                 plugin_config: {
                     liveSearch: true,
@@ -364,6 +380,29 @@ async function getLookups(lookupType) {
         }
     });
     return lookups;
+}
+
+async function getLanguages() {
+    var languages = [];
+    jQuery.ajax({
+        url: BASE_PATH + '/request/AjaxDataSource/get_languages',
+        async: false,
+        cache: false,
+        dataType: "json",
+        success: function (data) {
+            if (data.success) {
+                try {
+                    languages = JSON.parse(data.data);
+                } catch (error) {
+                    console.log('Error while parsing JSON', data.data);
+                }
+            }
+            else {
+                console.log(data);
+            }
+        }
+    });
+    return languages;
 }
 
 //********************************************** FUNCTIONS *****************************************************

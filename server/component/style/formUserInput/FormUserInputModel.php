@@ -243,7 +243,7 @@ class FormUserInputModel extends StyleModel
            );
         }
         $result = $check_config['result'];
-        $mail = array();
+        $mail = array();        
         $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
@@ -259,6 +259,7 @@ class FormUserInputModel extends StyleModel
             "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
             "attachments" => $attachments
         );
+        $mail['id_users'][] = $user_id;
         $sj_id = $this->job_scheduler->schedule_job($mail, transactionBy_by_system);
         if ($sj_id > 0) {
             if ($action['action_schedule_type_code'] == actionScheduleJobs_reminder) {

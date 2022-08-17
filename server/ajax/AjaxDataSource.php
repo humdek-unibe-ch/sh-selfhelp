@@ -355,5 +355,20 @@ class AjaxDataSource extends BaseAjax
             return false;
         }
     }
+
+    /**
+     * Get an array with the names of all languages
+     * 
+     * @retval array
+     * array with all languages
+     */
+    public function get_languages(){
+        $res_db = $this->db->select_table('languages');
+        $res = [];
+        foreach ($res_db as $key => $value) {
+            $res[$value['id']] = $value['language'];
+        }
+        return json_encode($res);
+    }
 }
 ?>

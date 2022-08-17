@@ -172,13 +172,16 @@ class Mailer extends BasicJob
 
     /**
      * Insert mail record in the mailQueue table
+     * @param array $sj_id
+     * schedule job id
      * @param array $data
+     * array with the data
      * @param array $attachments
      * array with name => path structure
      * @retval boolean
      *  return if the insert is successful
      */
-    public function schedule($data, $attachments = array())
+    public function schedule($sj_id, $data, $attachments = array())
     {
         $mail_data = array(
             "from_email" => $data['from_email'],
@@ -192,6 +195,14 @@ class Mailer extends BasicJob
             "is_html" => isset($data['is_html']) ? $data['is_html'] : 1 //html by default if not set
         );
         $mail_queue_id = $this->db->insert('mailQueue', $mail_data);
+        if ($mail_queue_id && isset($data['id_users'])) {
+                foreach ($data['id_users'] as $user) {
+                    $this->db->insert('scheduledJobs_users', array(
+                        "id_users" => $user,
+                        "id_scheduledJobs" => $sj_id
+                    ));
+                }
+            }
         if ($mail_queue_id && count($attachments) > 0) {
             //insert attachments in the DB
             foreach ($attachments as $attachment) {

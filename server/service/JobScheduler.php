@@ -61,7 +61,7 @@ class JobScheduler
     private function schedule_mail($job_id, $data)
     {
         $attachments = isset($data['attachments']) ? $data['attachments'] : array();
-        $mq_id = $this->mail->schedule($data, $attachments);
+        $mq_id = $this->mail->schedule($job_id, $data, $attachments);
         if (!$mq_id) {
             throw new Exception('Error in fucntion: schedule()');
         }

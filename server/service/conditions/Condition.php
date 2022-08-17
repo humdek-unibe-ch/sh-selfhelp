@@ -73,6 +73,23 @@ class Condition
     }
 
     /**
+     * Get the user selected language
+     * @param $id_users
+     * The id of the user
+     * @return int
+     * Return the saved language id or false if not found
+     */
+    private function get_user_language_id($id_users){
+        $sql = "SELECT id_languages
+                FROM users u                
+                WHERE u.id = :uid";
+        $res = $this->db->query_db_first($sql, array(
+            ':uid' => $id_users
+        ));
+        return isset($res['id_languages']) ? $res['id_languages'] : false;
+    }
+
+    /**
      * Use the JsonLogic libarary to compute whether the json condition is true
      * or false.
      *
@@ -104,6 +121,10 @@ class Condition
         $j_condition = str_replace('__platform__', $platform, $j_condition); // replace platform
         $keyword = $this->router->get_keyword_from_url();
         $j_condition = str_replace('__keyword__', $keyword, $j_condition); // replace __keyword__
+        if(strpos($j_condition, '__language__') !== false){
+            $language = $this->get_user_language_id($id_users);
+            $j_condition = str_replace('__language__', $language, $j_condition); // replace __language__
+        }
         // replace form field keywords with the actual values.
         $pattern = '~"' . $this->user_input->get_input_value_pattern() . '"~';
         preg_match_all($pattern, $j_condition, $matches, PREG_PATTERN_ORDER);
