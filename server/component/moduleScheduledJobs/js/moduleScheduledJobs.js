@@ -56,9 +56,10 @@ $(document).ready(function () {
 
     var table = $('#mailQueue').DataTable({
         order: [[2, "asc"]],
-        dom: 'Bfrtip',
+        dom: 'QBfrtip',
         buttons: [
-            'copy', 'csv', 'excel'
+            'copy', 'csv', 'excel', 
+            
         ],
         columnDefs: [{
             orderable: false,
@@ -72,7 +73,10 @@ $(document).ready(function () {
         select: {
             style: 'multi',
             selector: 'td:first-child'
-        }
+        },
+        searchBuilder: {
+            columns: [3,4,8,9,10,11]
+        },
     });
 
     var actionOptions = {
