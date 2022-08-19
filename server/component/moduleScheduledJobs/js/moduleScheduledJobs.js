@@ -87,7 +87,7 @@ $(document).ready(function () {
                 if (rows.length > 1) {
                     // For when we have contextMenu.isMulti enabled and have more than 1 row selected
                     return rows.length + ' jobs selected';
-                } else {
+                } else if (rows.length > 0) {
                     let row = rows[0];
                     return 'Job ' + row[2] + ' selected';
                 }
@@ -243,10 +243,6 @@ $(document).ready(function () {
         }
     });
 
-    // table.on('click', 'tr[id|="mailQueue-url"]', function (e) {
-    //     var ids = $(this).attr('id').split('-');
-    //     document.location = ids[2];
-    // });
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });

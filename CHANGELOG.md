@@ -5,6 +5,7 @@
  - add an option to attach files when schedule a mail action for forms
  - add language check `condition`
  - add an option for multiple selection of jobs in `scheduledJobs` and then `execute` them or `delete` them
+ - for `formActions` list on right click open edit or view action in a new tab
 
 # v5.1.5
 ### Bugfix
