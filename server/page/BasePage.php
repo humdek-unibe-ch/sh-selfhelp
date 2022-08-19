@@ -133,6 +133,7 @@ abstract class BasePage
             "/css/ext/query-builder.bootstrap.css",            
             "/css/ext/bootstrap4-toggle.min.css",      
             "/css/ext/easymde.min.css",   
+            "/css/ext/dataTables.contextualActions.min.css",   
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -151,6 +152,7 @@ abstract class BasePage
             "/js/ext/query-builder.standalone.min.js",
             "/js/ext/bootstrap4-toggle.min.js",
             "/js/ext/easymde.min.js",
+            "/js/ext/dataTables.contextualActions.min.js",
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",
