@@ -8,6 +8,7 @@
  - for `formActions` list on right click open edit or view action in a new tab
  - add `searchBuilder` for `formActions`;
  - add `searchBuilder` for `scheduledJobs`;
+ - add `searchBuilder` for `users`;
 
 # v5.1.5
 ### Bugfix
