@@ -6,12 +6,22 @@ $(document).ready(function () {
 
     //datatable projects
     var table = $('#formActions').DataTable({
-        "order": [[0, "asc"]]
+        "order": [[0, "asc"]],
+        buttons:[
+            {
+                extend: 'searchBuilder',
+                config: {
+                    depthLimit: 2
+                }
+            }
+        ],
+        dom: 'Bfrtip',
     });
-    // table.on('click', 'tr[id|="formAction-url"]', function (e) {
-    //     var ids = $(this).attr('id').split('-');
-    //     document.location = 'formsActions/select/' + parseInt(ids[2]);
-    // });
+
+    table.on('click', 'tr[id|="formAction-url"]', function (e) {
+        var ids = $(this).attr('id').split('-');
+        document.location = 'formsActions/select/' + parseInt(ids[2]);
+    });
 
     var actionOptions = {
         iconPrefix: 'fas fa-fw',
@@ -53,7 +63,7 @@ $(document).ready(function () {
             disabledOpacity: 0.4,
             dividerSpacing: 10,
         },
-        deselectAfterAction: true,
+        deselectAfterAction: false,
         items: [
             // Empty starter seperator to demonstrate that it won't render
             {
@@ -68,7 +78,6 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    console.log(row);
                     var ids = row[0].DT_RowId.split('-');                    
                     window.open('formsActions/select/' + parseInt(ids[2]), '_blank')
                 },
@@ -88,7 +97,6 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    console.log(row);
                     var ids = row[0].DT_RowId.split('-');
                     window.open('formsActions/update/' + parseInt(ids[2]), '_blank')
                 },
