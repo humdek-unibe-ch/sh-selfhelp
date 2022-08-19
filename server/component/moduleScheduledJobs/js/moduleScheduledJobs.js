@@ -55,12 +55,176 @@ $(document).ready(function () {
     }
 
     var table = $('#mailQueue').DataTable({
-        "order": [[0, "asc"]],
+        order: [[2, "asc"]],
         dom: 'Bfrtip',
         buttons: [
             'copy', 'csv', 'excel'
         ],
+        columnDefs: [{
+            orderable: false,
+            className: 'select-checkbox',
+            targets: 0,
+            width: "20px"
+        }, {
+            targets: 'no-sort',
+            orderable: false
+        }],
+        select: {
+            style: 'multi',
+            selector: 'td:first-child'
+        }
     });
+
+    var actionOptions = {
+        iconPrefix: 'fas fa-fw',
+        classes: [],
+        contextMenu: {
+            enabled: true,
+            isMulti: true,
+            xoffset: -10,
+            yoffset: -10,
+            headerRenderer: function (rows) {
+                if (rows.length > 1) {
+                    // For when we have contextMenu.isMulti enabled and have more than 1 row selected
+                    return rows.length + ' jobs selected';
+                } else {
+                    let row = rows[0];
+                    return 'Job ' + row[2] + ' selected';
+                }
+            },
+        },
+        showConfirmationMethod: (confirmation) => {
+            $.confirm({
+                title: confirmation.title,
+                content: confirmation.content,
+                buttons: {
+                    confirm: function () {
+                        return confirmation.callback(true);
+                    },
+                    cancel: function () {
+                        return confirmation.callback(false);
+                    }
+                }
+            });
+        },
+        buttonList: {
+            enabled: true,
+            iconOnly: false,
+            containerSelector: '#my-button-container',
+            groupClass: 'btn-group',
+            disabledOpacity: 0.4,
+            dividerSpacing: 10,
+        },
+        deselectAfterAction: true,
+        items: [
+            // Empty starter seperator to demonstrate that it won't render
+            {
+                type: 'divider',
+            },
+
+            {
+                type: 'option',
+                multi: false,
+                title: 'View',
+                iconClass: 'fa-eye',
+                buttonClasses: ['btn', 'btn-outline-secondary'],
+                contextMenuClasses: ['text-secondary'],
+                action: function (row) {
+                    console.log(row);
+                    var ids = row[0].DT_RowId.split('-');
+                    window.open(ids[2], '_blank')
+                },
+                isDisabled: function (row) {
+                },
+            },
+
+            {
+                type: 'divider',
+            },
+
+            {
+                type: 'option',
+                title: 'Execute Job',
+                multi: true,
+                multiTitle: 'Execute Jobs',
+                iconClass: 'fa-play',
+                buttonClasses: ['btn', 'btn-outline-danger'],
+                contextMenuClasses: ['text-danger'],
+
+                isDisabled: (row) => {
+                    return row.role === '';
+                },
+
+                confirmation: function (rows) {
+                    return {
+                        title: 'Execute Job!',
+                        content: rows.length > 1 ? 'Are you sure that you want to execute these jobs right now?' : 'Are you sure that you want to execute this job right now?'
+                    };
+
+                },
+                action: function (rows) {
+                    var executedRows = 0;
+                    rows.forEach(row => {
+                        var url = row.DT_RowId.split('-')[2];
+                        $.post(url, { mode: 'execute' }, function (result) {
+                            executedRows++;
+                            console.log(executedRows);
+                            if (executedRows == rows.length) {
+                                // all rows executed, refresh
+                                $('#btn-search-scheduled-jobs').click();
+                            }
+                        });
+                    });
+                },
+            },
+
+            {
+                type: 'option',
+                title: 'Delete Job',
+                multi: true,
+                multiTitle: 'Delete Jobs',
+                iconClass: 'fa-trash',
+                buttonClasses: ['btn', 'btn-outline-danger'],
+                contextMenuClasses: ['text-danger'],
+
+                isDisabled: (row) => {
+                    return row.role === '';
+                },
+
+                isDisabledStrictMode: true,
+
+                confirmation: function (rows) {
+                    return {
+                        title: 'Delete Job!',
+                        content: rows.length > 1 ? 'Are you sure that you want to delete these jobs right now?' : 'Are you sure that you want to delete this job right now?'
+                    };
+
+                },
+
+                action: function (rows) {
+                    var executedRows = 0;
+                    rows.forEach(row => {
+                        var url = row.DT_RowId.split('-')[2];
+                        $.post(url, { mode: 'delete' }, function (result) {
+                            executedRows++;
+                            console.log(executedRows);
+                            if (executedRows == rows.length) {
+                                // all rows executed, refresh
+                                $('#btn-search-scheduled-jobs').click();
+                            }
+                        });
+                    });
+                },
+            },
+
+            // Empty ending seperator to demonstrate that it won't render
+            {
+                type: 'divider',
+            },
+        ],
+    };
+
+    table.contextualActions(actionOptions);
 
     // Add event listener for opening and closing details
     $('#mailQueue tbody').on('click', 'td.details-control', function (e) {
@@ -72,18 +236,17 @@ $(document).ready(function () {
             // This row is already open - close it
             row.child.hide();
             tr.removeClass('shown');
-        }
-        else {
+        } else {
             // Open this row
             row.child(format($(tr).attr("data-row-id"))).show();
             tr.addClass('shown');
         }
     });
 
-    table.on('click', 'tr[id|="mailQueue-url"]', function (e) {
-        var ids = $(this).attr('id').split('-');
-        document.location = ids[2];
-    });
+    // table.on('click', 'tr[id|="mailQueue-url"]', function (e) {
+    //     var ids = $(this).attr('id').split('-');
+    //     document.location = ids[2];
+    // });
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });

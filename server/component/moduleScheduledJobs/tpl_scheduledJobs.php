@@ -45,7 +45,7 @@
                                 <div class="btn btn-primary" id="btnTo"><i class="far fa-calendar-alt"></i></div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Search</button>
+                        <button id="btn-search-scheduled-jobs" type="submit" class="btn btn-primary">Search</button>
                     </div>
                 </form>
             </div>

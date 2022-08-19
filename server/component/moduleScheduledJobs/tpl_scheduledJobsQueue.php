@@ -8,6 +8,7 @@
         <thead>
             <tr>
                 <th scope="col"></th>
+                <th scope="col"></th>
                 <th scope="col">ID</th>
                 <th scope="col">Status</th>
                 <th scope="col">Type</th>
@@ -18,6 +19,7 @@
                 <th scope="col">Recipient</th>
                 <th scope="col">Title</th>
                 <th scope="col">Message</th>
+                <th scope="col" class="d-none">Url</th>
             </tr>
         </thead>
         <tbody>

@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <tr class="mailQueue-row" data-row-id='<?php echo $queue['id']; ?>' id="mailQueue-url-<?php echo $url; ?>">
+    <td class="sj-select-checkbox"></td>
     <td class="details-control"></td>
     <td><?php echo $queue['id']; ?></td>
     <td><?php echo $queue['status']; ?></td>
@@ -15,4 +16,5 @@
     <td><?php echo $queue['recipient']; ?></td>
     <td><?php echo $queue['title']; ?></td>
     <td><?php echo $queue['message']; ?></td>
+    <td class ="d-none"><?php echo $url; ?></td>
 </tr>
