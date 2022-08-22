@@ -36,6 +36,8 @@ function formSubmitEvent() {
                     var parser = new DOMParser();
                     var htmlDoc = parser.parseFromString(data, 'text/html');
 
+                    updateValues($('.form-control', form), htmlDoc);
+
                     // update inputs - the function is in the style js
                     check_input_locked_after_submit();
                     // update radios - the function is in the style js
@@ -81,5 +83,26 @@ function formSubmitEvent() {
                 }
             });
         }
+    });
+}
+
+/**
+ * After an AJAX call refresh the form inputs
+ * @author Stefan Kodzhabashev
+ * @date 2022-08-22
+ * @param {any} elements
+ * The elements that we want to refresh
+ * @param {any} newData
+ * The new data returned from the AJAX call
+ * @returns {any}
+ */
+function updateValues(elements, newData) {
+    $(elements).toArray().forEach(element => {
+        $(element).attr('class').split(' ').forEach(className => {
+            if (className.includes('style-section')) {
+                console.log(className);
+                $('.' + className).replaceWith($('.' + className, newData));
+            }
+        });
     });
 }

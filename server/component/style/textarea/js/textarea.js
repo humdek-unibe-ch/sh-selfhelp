@@ -45,9 +45,9 @@ function initJsonFields() {
 }
 
 function check_textarea_locked_after_submit() {
-    // check if the text are shoud be locked after submit
+    // check if the text area should be locked after submit
     $('.selfhelpTextArea').each(function () {
-        if ($(this).data('locked_after_submit') && $(this).val()) {
+        if ($(this).data('locked_after_submit')) {
             $(this).prop('readonly', true);
         }
     })
