@@ -43,7 +43,7 @@ function init_ui_cms() {
         initSortableNavElements();
         loadCustomCSSClasses();
         initRemoveNavButtons();
-        initPageOrder();
+        initPageOrder(); // in cms.js
         initStyles();
     } catch (error) {
         console.log(error);
@@ -1319,59 +1319,3 @@ function initRemoveNavButtons() {
     })
 }
 
-/**
- * Init page order
- * @author Stefan Kodzhabashev
- * @date 2022-07-20
- * @returns {any}
- */
-function initPageOrder() {
-
-    function showHideList(checkbox) {
-        if ($(checkbox).is(":checked")) {
-            $(checkbox).next().removeClass("text-muted");
-            pos_list.parent().removeClass("d-none");
-        }
-        else {
-            $(checkbox).next().addClass("text-muted");
-            pos_list.parent().addClass("d-none");
-        }
-    }
-
-    function setOrder(list) {
-        var order = [];
-        list.children('li').each(function (idx) {
-            order[$(this).children('.badge').text()] = idx * 10;
-        });
-        check_pos_list.val(order.toString());
-    }
-
-    var pos_list = $("div.style-section-page-order-wrapper > ul.children-list");
-    var check_pos_list = $('input[name="set-position"]');
-    check_pos_list.each(function () {
-        showHideList(this);
-    })
-
-    check_pos_list.off('change').on('change', function () {
-        showHideList(this);
-        var nav_pos = $('input[name="nav_position"]');
-        if (!$(nav_pos).data('nav-position')) {
-            nav_pos.attr('data-nav-position', nav_pos.val());
-        }
-        unsavedChanges.push(this);
-    });
-
-    pos_list.each(function (idx) {
-        var list = $(this);
-        setOrder(list);
-        list.sortable("destroy");
-        list.sortable({
-            animation: 150,
-            onSort: function (evt) {
-                setOrder(list);
-                unsavedChanges.push(this);
-            },
-            filter: ".fixed",
-        });
-    });
-}

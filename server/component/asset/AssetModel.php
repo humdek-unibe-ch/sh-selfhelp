@@ -36,7 +36,7 @@ class AssetModel extends BaseModel
      * @retval mixed
      *  True on success, an error message on failure.
      */
-    private function pp_delete_asset_file_static($name)
+    public function pp_delete_asset_file_static($name)
     {
         $res = $this->db->remove_by_fk("uploadTables", "name", $name);
         if(!$res) {

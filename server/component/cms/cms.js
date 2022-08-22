@@ -33,6 +33,7 @@ $(document).ready(function() {
         traverse_page_view($root, $(this));
         $('.cms-page-overview').append($root);
     })
+    initPageOrder();
 });
 
 function traverse_page_view($root, $parent)
@@ -68,4 +69,66 @@ function traverse_page_view($root, $parent)
     if(add_leaf | (!has_style_child && !is_style_child))
         $new_root.append('<div class="page-view-element-leaf"></div>');
     return has_child | has_style_child;
+}
+
+
+/**
+ * Init page order
+ * @author Stefan Kodzhabashev
+ * @date 2022-07-20
+ * @returns {any}
+ */
+function initPageOrder() {
+
+    function showHideList(checkbox) {
+        if ($(checkbox).is(":checked")) {
+            $(checkbox).next().removeClass("text-muted");
+            pos_list.parent().removeClass("d-none");
+        }
+        else {
+            $(checkbox).next().addClass("text-muted");
+            pos_list.parent().addClass("d-none");
+        }
+    }
+
+    function setOrder(list) {
+        var order = [];
+        list.children('li').each(function (idx) {
+            order[$(this).children('.badge').text()] = idx * 10;
+        });
+        check_pos_list.val(order.toString());
+    }
+
+    var pos_list = $("div.style-section-page-order-wrapper > ul.children-list");
+    var check_pos_list = $('input[name="set-position"]');
+    check_pos_list.each(function () {
+        showHideList(this);
+    })
+
+    check_pos_list.off('change').on('change', function () {
+        showHideList(this);
+        var nav_pos = $('input[name="nav_position"]');
+        if (!$(nav_pos).data('nav-position')) {
+            nav_pos.attr('data-nav-position', nav_pos.val());
+        }
+        if (typeof unsavedChanges !== 'undefined') {
+            unsavedChanges.push(this);
+        }
+    });
+
+    pos_list.each(function (idx) {
+        var list = $(this);
+        setOrder(list);
+        list.sortable("destroy");
+        list.sortable({
+            animation: 150,
+            onSort: function (evt) {
+                setOrder(list);
+                if (typeof unsavedChanges !== 'undefined') {
+                    unsavedChanges.push(this);
+                }
+            },
+            filter: ".fixed",
+        });
+    });
 }

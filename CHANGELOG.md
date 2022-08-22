@@ -9,6 +9,7 @@
  - add `searchBuilder` for `formActions`;
  - add `searchBuilder` for `scheduledJobs`;
  - add `searchBuilder` for `users`;
+ - add header position for page edit in the old UI. Fix page editing in old UI to remove pages from menu
 
 # v5.1.5
 ### Bugfix

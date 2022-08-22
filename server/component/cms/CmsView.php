@@ -724,8 +724,18 @@ class CmsView extends BaseView
                 $new_field = $this->create_field_form_item($field);
                 if ($new_field) {
                     $form_items[] = $new_field;
-                }
+                }                
             }
+            $form_items[] = new BaseStyleComponent("descriptionItem", array(
+                "gender" => '',
+                "title" => 'Header Position',
+                "type_input" => 'checkbox',
+                "locale" => '',
+                "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                "display" => 0,
+                "css" => 'mb-0',
+                "children" => $this->get_page_header()
+            ));
         }
         if($this->model->is_navigation_main()){
             $form_items[] = $this->get_nav_help_card();
