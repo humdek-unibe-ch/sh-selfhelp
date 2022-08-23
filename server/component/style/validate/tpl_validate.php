@@ -20,13 +20,13 @@
                 </div>
                 <div class="form-group">
                     <label><?php echo $this->name_label; ?></label>
-                    <input type="text" class="form-control" name="name" placeholder="<?php echo $this->name_placeholder; ?>" value="<?php echo $name; ?>" required>
+                    <input type="text" class="form-control" autocomplete="username" name="name" placeholder="<?php echo $this->name_placeholder; ?>" value="<?php echo $name; ?>" required>
                     <small class="form-text text-muted"><?php echo $this->name_description; ?></small>
                 </div>
                 <div class="form-group">
                     <label><?php echo $this->pw_label; ?></label>
-                    <input type="password" class="form-control mb-1" name="pw" placeholder="<?php echo $this->pw_placeholder; ?>" required>
-                    <input type="password" class="form-control" name="pw_verify" placeholder="<?php echo $this->pw_confirm_label; ?>" required>
+                    <input type="password" autocomplete="new-password" class="form-control mb-1" name="pw" placeholder="<?php echo $this->pw_placeholder; ?>" required>
+                    <input type="password" autocomplete="new-password" class="form-control" name="pw_verify" placeholder="<?php echo $this->pw_confirm_label; ?>" required>
                 </div>
                 <div class="form-group">
                     <div>
