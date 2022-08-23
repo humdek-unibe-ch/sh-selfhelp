@@ -38,7 +38,8 @@ class AjaxLanguage extends BaseAjax
     {
         if ($data && $data['id_languages']) {
             $_SESSION['user_language'] = $data['id_languages'];
-            $_SESSION['language'] = $data['id_languages'];            
+            $_SESSION['language'] = $data['id_languages'];   
+            $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];         
             $this->db->update_by_ids('users', array("id_languages" => $data['id_languages']), array('id' => $_SESSION['id_user'])); // set the language in the user table
             return true;
         } else {

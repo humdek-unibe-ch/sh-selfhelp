@@ -72,6 +72,7 @@ class Login
         );
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
+        $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];
         if(!array_key_exists('target_url', $_SESSION))
             $_SESSION['target_url'] = null;
         if($this->redirect)

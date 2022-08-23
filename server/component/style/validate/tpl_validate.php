@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="container mt-3">
+<div class="container mt-3 <?php echo $this->css; ?>">
     <?php $this->output_alert(); ?>
     <div class="jumbotron">
         <h1><?php echo $this->title; ?></h1>

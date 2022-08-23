@@ -61,6 +61,7 @@ abstract class StyleView extends BaseView
             {
                 $this->css = $model->get_db_field("css", null);
                 $this->id_section = $model->get_db_field("id", null);
+                $this->css = $this->css . " selfhelp-" . $_SESSION['user_language_locale'];
                 if($this->id_section !== null)
                 {
                     $this->css .= " style-section-" . $this->id_section;

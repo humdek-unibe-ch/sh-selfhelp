@@ -11,6 +11,7 @@
  - add `searchBuilder` for `users`;
  - add header position for page edit in the old UI. Fix page editing in old UI to remove pages from menu
  - saving form with `ajax` enabled will refresh the inputs based on the values 
+ - #332 - add language class based on the locale to all `styles` with `css` property
 
 # v5.1.5
 ### Bugfix
