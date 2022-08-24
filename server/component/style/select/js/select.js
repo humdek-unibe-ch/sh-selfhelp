@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    initSelect();
+});
+
+function initSelect() {
     $('.bootstrapSelect').selectpicker({
         showTick: true,
         allowClear: true
@@ -9,8 +13,7 @@ $(document).ready(function () {
     })
 
     check_select_locked_after_submit();
-
-});
+}
 
 function initSelectImage(el) {
     var selectImageId = $(el).attr('id');
@@ -40,11 +43,11 @@ function initSelectImage(el) {
     $(el).addClass(classNames);
 }
 
-function check_select_locked_after_submit(){
-    $('.selfhelpSelect').each(function(){        
-        if($(this).data('locked_after_submit') && $(this).val()){
-            $(this).find("option:not(:selected)").prop('disabled',true);
+function check_select_locked_after_submit() {
+    $('.selfhelpSelect').each(function () {
+        if ($(this).data('locked_after_submit') && $(this).val()) {
+            $(this).find("option:not(:selected)").prop('disabled', true);
             $(this).selectpicker('refresh');
-        }        
+        }
     })
 }

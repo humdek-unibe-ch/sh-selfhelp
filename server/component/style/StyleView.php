@@ -49,14 +49,11 @@ abstract class StyleView extends BaseView
     public function __construct($model = null, $controller = null)
     {
         parent::__construct($model, $controller);
-        if($this->id_section == 3072){
-            $asd=2;
-        }
         $this->style_name = $model->get_style_name();
         $this->children = array();
         if($model != null)
         {
-            $this->children = $model->get_children();
+            $this->children = $model->get_children();            
             if(method_exists($model, "get_db_field"))
             {
                 $this->css = $model->get_db_field("css", null);

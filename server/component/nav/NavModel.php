@@ -81,6 +81,7 @@ class NavModel extends BaseModel
                     "title" => $item["title"] .= ' (' . $this->db->fetch_user_name() . ')',
                     "keyword" => $item['keyword'],                    
                     "is_active" => false,
+                    "avatar" => $this->user_input->get_avatar($_SESSION['id_user']),
                     "children" => array()
                 );
             }

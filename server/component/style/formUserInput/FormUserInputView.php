@@ -266,7 +266,8 @@ class FormUserInputView extends StyleView
             "url" => $url,
             "children" => $children,
             "css" => $this->css,
-            "id" => $this->id_section . isset($this->entry_data[ENTRY_RECORD_ID]) ? ' ' . $this->entry_data[ENTRY_RECORD_ID] : '',
+            // "id" => ($this->id_section . isset($this->entry_data[ENTRY_RECORD_ID]) ? ' ' . $this->entry_data[ENTRY_RECORD_ID] : ''),
+            "id" => $this->id_section,
             "submit_and_send_email" => $this->submit_and_send_email,
             "submit_and_send_label" => $this->submit_and_send_label
         ));

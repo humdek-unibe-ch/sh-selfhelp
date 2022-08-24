@@ -177,12 +177,17 @@ class NavView extends BaseView
     {
         $profile = $this->model->get_profile();
         $this->output_nav_menu('profile', $profile['title'],
-            $profile['children'], $profile['is_active'], true, ''); // no icon - later it can be added
+            $profile['children'], $profile['is_active'], true, $profile['avatar']); 
     }
 
+    /**
+     * Render icon
+     */
     private function output_icon($icon){
-        if($icon){
-            require __DIR__ .'/tpl_icon.php';
+        if ($icon && (strpos($icon, '.png') !== false || strpos($icon, '.jpg') !== false)) {
+            require __DIR__ . '/tpl_custom_icon.php';
+        } else if ($icon) {
+            require __DIR__ . '/tpl_icon.php';
         }
     }
 
@@ -238,6 +243,21 @@ class NavView extends BaseView
         }
 
         return $res;
+    }
+
+    /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(
+            __DIR__ . "/css/nav.css"
+        );
+        return parent::get_css_includes($local);
     }
 }
 ?>
