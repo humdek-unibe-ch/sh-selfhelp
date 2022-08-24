@@ -1,5 +1,6 @@
 <?php  
-
+// echo phpinfo();
+// return;
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";

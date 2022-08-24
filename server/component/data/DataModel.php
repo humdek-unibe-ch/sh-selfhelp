@@ -129,7 +129,7 @@ class DataModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, name 
-                FROM groups;";
+                FROM `groups`;";
         $groups = $this->db->query_db($sql);
         foreach ($groups as $val) {
             $value = ('group_' . intval($val['id']));

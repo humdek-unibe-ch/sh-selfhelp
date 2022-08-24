@@ -111,7 +111,7 @@ class UserModel extends BaseModel
      */
     private function fetch_user_groups($uid)
     {
-        $sql = "SELECT g.id, g.name AS title FROM groups AS g
+        $sql = "SELECT g.id, g.name AS title FROM `groups` AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id
             WHERE ug.id_users = :uid";
         $res_db = $this->db->query_db($sql, array(":uid" => $uid));
@@ -559,7 +559,7 @@ class UserModel extends BaseModel
     public function get_group_options()
     {
         $groups = array();
-        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+        $sql = "SELECT g.id AS value, g.name AS text FROM `groups` AS g
             ORDER BY g.name";
         $groups_db = $this->db->query_db($sql);
         foreach ($groups_db as $group) {
@@ -580,7 +580,7 @@ class UserModel extends BaseModel
     public function get_new_group_options($uid)
     {
         $groups = array();
-        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+        $sql = "SELECT g.id AS value, g.name AS text FROM `groups` AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
             WHERE ug.id_users IS NULL
             ORDER BY g.name";
@@ -601,7 +601,7 @@ class UserModel extends BaseModel
     public function get_rm_group_name()
     {
         if($this->did == null) return "";
-        $sql = "SELECT name FROM groups WHERE id = :gid";
+        $sql = "SELECT name FROM `groups` WHERE id = :gid";
         $res = $this->db->query_db_first($sql, array(":gid" => $this->did));
         return $res["name"];
     }
@@ -648,28 +648,31 @@ class UserModel extends BaseModel
      */
     public function get_user($user)
     {
-        $id = intval($user["id"]);
-        $state = $user["status"];
-        $desc = $user['description'];
-        if($user['blocked'])
-        {
-            $state = "<strong>[blocked]</strong> " . $state;
-            $desc = "This user cannot login until the blocked status is reversed";
+        if ($user) {
+            $id = intval($user["id"]);
+            $state = $user["status"];
+            $desc = $user['description'];
+            if ($user['blocked']) {
+                $state = "<strong>[blocked]</strong> " . $state;
+                $desc = "This user cannot login until the blocked status is reversed";
+            }
+            return array(
+                "id" => $id,
+                "title" => $user["email"],
+                "email" => $user["email"],
+                "name" => $user["name"],
+                "code" => $user["code"],
+                "user_activity" => $user["user_activity"],
+                "last_login" => $user["last_login"],
+                "status" => $state,
+                "blocked" => ($user['blocked'] == '1') ? true : false,
+                "description" => $desc,
+                "groups" => $user ? (array_key_exists('groups', $user) ? $user['groups'] : '') : '',
+                "url" => $this->get_link_url("userSelect", array("uid" => $id))
+            );
+        } else {
+            array();
         }
-        return array(
-            "id" => $id,
-            "title" => $user["email"],
-            "email" => $user["email"],
-            "name" => $user["name"],
-            "code" => $user["code"],
-            "user_activity" => $user["user_activity"],
-            "last_login" => $user["last_login"],
-            "status" => $state,
-            "blocked" => ($user['blocked'] == '1') ? true : false,
-            "description" => $desc,
-            "groups" => $user ? (array_key_exists('groups', $user) ? $user['groups'] : '') : '',            
-            "url" => $this->get_link_url("userSelect", array("uid" => $id))
-        );
     }
 
     /**

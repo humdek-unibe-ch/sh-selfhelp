@@ -30,7 +30,7 @@ class PageDb extends BaseDb
      */
     function __construct($server, $dbname, $username, $password ) {
         parent::__construct( $server, $dbname, $username, $password );
-        // $this->cache->clear_cache();
+        $this->cache->clear_cache();
         // $this->cache->clear_cache($this->cache::CACHE_TYPE_PAGES, 80);
     }
 
@@ -114,8 +114,9 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT p.id FROM pages AS p WHERE keyword=:keyword";
             $id = $this->query_db_first($sql, array(":keyword" => $keyword));
-            $this->cache->set($key, intval($id['id']));
-            return intval($id['id']);
+            $res = isset($id['id']) ? intval($id['id']) : $id;
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 
@@ -136,8 +137,9 @@ class PageDb extends BaseDb
         } else {
             $sql = "SELECT p.keyword FROM pages AS p WHERE id=:id";
             $keyword = $this->query_db_first($sql, array(":id" => $id));
-            $this->cache->set($key, $keyword['keyword']);
-            return $keyword['keyword'];
+            $res = isset($keyword['keyword']) ? $keyword['keyword'] : $keyword;
+            $this->cache->set($key, $res);
+            return $res;
         }
     }
 

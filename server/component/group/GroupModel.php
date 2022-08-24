@@ -69,7 +69,7 @@ class GroupModel extends BaseModel
      */
     private function fetch_group($gid)
     {
-        $sql = "SELECT g.name, g.description FROM groups AS g
+        $sql = "SELECT g.name, g.description FROM `groups` AS g
             WHERE g.id = :gid";
         $res = $this->db->query_db_first($sql, array(":gid" => $gid));
         if(!$res) return null;
@@ -90,7 +90,7 @@ class GroupModel extends BaseModel
      */
     private function fetch_groups()
     {
-        $sql = "SELECT g.id, g.name FROM groups AS g
+        $sql = "SELECT g.id, g.name FROM `groups` AS g
             ORDER BY g.name";
         return $this->db->query_db($sql);
     }

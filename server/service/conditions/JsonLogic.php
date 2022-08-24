@@ -367,7 +367,7 @@ class JsonLogic
 
     public static function rule_like($rule, $pattern)
     {
-        if (is_string($pattern) and $pattern{0} === '{') {
+        if (is_string($pattern) and $pattern[0] === '{') {
             $pattern = json_decode($pattern, true);
         }
 

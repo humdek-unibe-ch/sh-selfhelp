@@ -1,4 +1,27 @@
 DELIMITER //
+DROP PROCEDURE IF EXISTS add_table_column //
+CREATE PROCEDURE add_table_column(param_table VARCHAR(100), param_column VARCHAR(100), param_column_type VARCHAR(500))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*) 
+			FROM information_schema.COLUMNS
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+			AND `COLUMN_NAME` = param_column 
+		) > 0,
+        "SELECT 'Column already exists in the table'",
+        CONCAT('ALTER TABLE ', param_table, ' ADD COLUMN ', param_column, ' ', param_column_type, ' ;')
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
 DROP PROCEDURE IF EXISTS add_unique_key //
 CREATE PROCEDURE add_unique_key(param_table VARCHAR(100), param_index VARCHAR(100), param_column VARCHAR(100))
 BEGIN
@@ -131,7 +154,7 @@ drop view if exists view_style_fields;
 create view view_style_fields
 as
 select s.style_id, s.style_name, s.style_type, s.style_group, f.field_id, f.field_name, f.field_type, f.display, f.position, 
-sf.default_value, sf.help
+sf.default_value, sf.help, sf.disabled, sf.hidden
 from view_styles s
 left join styles_fields sf on (s.style_id = sf.id_styles)
 left join view_fields f on (f.field_id = sf.id_fields);
@@ -352,7 +375,7 @@ AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
@@ -370,7 +393,7 @@ INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
 LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
-LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN `groups` g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
@@ -572,14 +595,14 @@ CASE
     WHEN u.name = 'tpf' THEN 'tpf'    
     ELSE IFNULL(vc.code, '-') 
 END AS code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
 u.intern
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
@@ -590,13 +613,13 @@ AS
 SELECT
    s.id AS id_sections,
    s.name AS section_name,
-   sft.content,
+   IFNULL(sft.content, '') AS content,
    s.id_styles,
    fields.style_name,
    field_id AS id_fields,
    field_name,
-   l.locale,
-   g.name AS gender 
+   IFNULL(l.locale, '') AS locale,
+   IFNULL(g.name, '') AS gender 
 FROM sections s 
 LEFT JOIN view_style_fields fields ON (fields.style_id = s.id_styles) 
 LEFT JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
@@ -650,7 +673,7 @@ SELECT sj.id AS id, from_email, from_name,
 status_code, status, type_code, type, 
 sj.date_create, date_to_be_executed, date_executed,
 reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html, mq.id as id_mailQueue, id_jobTypes,
-id_jobStatus
+id_jobStatus, sj.config
 FROM mailQueue mq
 INNER JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_mailQueue = mq.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_mq.id_scheduledJobs);
@@ -692,7 +715,7 @@ SELECT sj.id AS id,
 status_code, status, type_code, type, 
 sj.date_create, date_to_be_executed, date_executed,
 recipient, subject, body, url, id_notifications, id_jobTypes,
-id_jobStatus
+id_jobStatus, sj.config
 FROM notifications n
 INNER JOIN scheduledJobs_notifications sj_n ON (sj_n.id_notifications = n.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_n.id_scheduledJobs);
@@ -744,7 +767,7 @@ CREATE VIEW view_formActions
 AS
 SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
 CASE 
@@ -757,7 +780,7 @@ INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleTypes)
 LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
 LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
-LEFT JOIN groups g on (fg.id_groups = g.id)
+LEFT JOIN `groups` g on (fg.id_groups = g.id)
 GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value, f.form_name, form_reminder_name;
 DROP VIEW IF EXISTS view_formActionsReminders;
 CREATE VIEW view_formActionsReminders

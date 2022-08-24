@@ -69,7 +69,7 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page_preview", new BaseStyleComponent("link",
             array(
-                "url" => $this->model->get_link_url($this->page_info['keyword'], array("nav" => $this->model->get_active_root_section_id())),
+                "url" => $this->model->get_link_url($this->page_info ? $this->page_info['keyword'] : '', array("nav" => $this->model->get_active_root_section_id())),
                 "css" => "ui-side-menu-button list-group-item list-group-item-action",
                 "open_in_new_tab" => true,
                 "children" => array(
@@ -268,8 +268,8 @@ class CmsView extends BaseView
                             "children" => 0,
                             "relation" => RELATION_PAGE_CHILDREN
                         ),
-                        "page_keyword" => $this->page_info["keyword"],
-                        "page_id" => intval($this->page_info['id'])
+                        "page_keyword" => $this->page_info ? $this->page_info["keyword"] : '',
+                        "page_id" => $this->page_info ? intval($this->page_info['id']): null
                     ),
                 ));
                 $page_components[] = $new_section;

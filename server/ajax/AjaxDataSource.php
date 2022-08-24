@@ -326,7 +326,7 @@ class AjaxDataSource extends BaseAjax
      * array with all names as string
      */
     public function get_groups(){
-        $res_db = $this->db->select_table('groups');
+        $res_db = $this->db->select_table('`groups`');
         $res = array();
         foreach ($res_db as $key => $value) {
             array_push($res, $value['name']);

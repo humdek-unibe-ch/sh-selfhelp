@@ -578,7 +578,8 @@ class UserInput
                 FROM uploadTables
                 WHERE name = :name';
             }
-            $res = $this->db->query_db_first($sql, array(":name" => $name))['id'];
+            $res = $this->db->query_db_first($sql, array(":name" => $name));
+            $res = $res ? $res['id'] : '';
             $this->db->get_cache()->set($key, $res);
             return $res;
         }        

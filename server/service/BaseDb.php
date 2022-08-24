@@ -10,7 +10,6 @@
  * @author moiri
  */
 
-require_once __DIR__ . "/ExtendedPdo.php";
 require_once __DIR__ . "/Cache.php";
 
 class BaseDb {
@@ -42,7 +41,7 @@ class BaseDb {
     public function __construct($server, $dbname, $username, $password, $names="utf8") {
         $this->cache = new Cache();
         try {
-            $this->dbh = new ExtendedPdo(
+            $this->dbh = new PDO(
                 "mysql:host=$server;dbname=$dbname;charset=$names",
                 $username, $password, array(PDO::ATTR_PERSISTENT => true)
             );

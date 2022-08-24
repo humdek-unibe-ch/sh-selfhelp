@@ -4,7 +4,7 @@ AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
@@ -22,7 +22,7 @@ INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
 LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
-LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN `groups` g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,

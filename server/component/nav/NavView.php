@@ -53,7 +53,10 @@ class NavView extends BaseView
      * Return the icon value or false if none set 
      */
     private function get_icon($icon)
-    {
+    {   
+        if(!$icon){
+            return false;
+        }
         $icons = explode(' ', $icon);
         if (count($icons) > 0) {
             foreach ($icons as $key => $iconValue) {
@@ -113,7 +116,7 @@ class NavView extends BaseView
      * if the menu should show an icon
      */
     private function output_nav_menu($key, $page_name, $children,
-            $is_active=false, $right=false, $icon)
+            $is_active=false, $right=false, $icon='')
     {
         $align = ($right) ? "dropdown-menu-right" : "";
         $active = ($is_active) ? "active" : "";
@@ -136,7 +139,7 @@ class NavView extends BaseView
      * if the menu should show an icon
      */
     private function output_nav_menu_item($key, $page_name, $nav_child,
-            $is_active=false, $icon)
+            $is_active=false, $icon='')
     {
         $active = ($is_active) ? "active" : "";
         $params = array();

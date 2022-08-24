@@ -1217,7 +1217,7 @@ class CmsModel extends BaseModel
      */
     public function get_active_root_section_id()
     {
-        if($this->page_info['id_navigation_section'] != null)
+        if($this->page_info && $this->page_info['id_navigation_section'] != null)
             return $this->id_root_section;
         return null;
     }
@@ -1371,7 +1371,11 @@ class CmsModel extends BaseModel
             WHERE nav_position IS NOT NULL AND id_type <> 1
             $parent_clause
             ORDER BY nav_position";
-        return $this->db->query_db($sql, array(":pid" => $parent));
+        if($parent){
+            return $this->db->query_db($sql, array(":pid" => $parent));
+        }else{
+            return $this->db->query_db($sql);
+        }
     }
 
     /**
@@ -1747,7 +1751,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation()
     {
-        return ($this->page_info['id_navigation_section'] != null);
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null);
     }
 
     /**
@@ -1759,7 +1763,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation_item()
     {
-        return ($this->page_info['id_navigation_section'] != null
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null
             && $this->id_root_section != null);
     }
 
@@ -2034,7 +2038,7 @@ class CmsModel extends BaseModel
     public function get_groups_grant_access_to_page($uid)
     {
         $groups = array();
-        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+        $sql = "SELECT g.id AS value, g.name AS text FROM `groups` AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
             WHERE ug.id_users IS NULL
             ORDER BY g.name";

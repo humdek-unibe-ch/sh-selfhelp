@@ -360,15 +360,17 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     private function calc_dynamic_values($field, $data_config, $user_name, $user_code){
         // replace the field content with the global variables
-        $field['content'] = str_replace('@user_code', $user_code, $field['content']);
-        $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
-        $field['content'] = str_replace('@user', $user_name, $field['content']);
-        if($data_config && $field['name'] != 'data_config'){
-            // if there is data_config set and the field is nto data_config, try to get dynamic data
-            $fields = $this->retrieve_data($data_config);
-            if ($fields) {
-                foreach ($fields as $field_name => $field_value) {
-                    $field['content']= str_replace($field_name, $field_value, $field['content']);
+        if ($field['content']) {
+            $field['content'] = str_replace('@user_code', $user_code, $field['content']);
+            $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
+            $field['content'] = str_replace('@user', $user_name, $field['content']);
+            if ($data_config && $field['name'] != 'data_config') {
+                // if there is data_config set and the field is nto data_config, try to get dynamic data
+                $fields = $this->retrieve_data($data_config);
+                if ($fields) {
+                    foreach ($fields as $field_name => $field_value) {
+                        $field['content'] = str_replace($field_name, $field_value, $field['content']);
+                    }
                 }
             }
         }
@@ -447,12 +449,12 @@ class StyleModel extends BaseModel implements IStyleModel
             } else if ($field['type'] == "markdown-inline" && (!$this->entry_record || count($this->entry_record) == 0)) {
                 $field['content'] = $this->parsedown->line($field['content']);
             } else if ($field['type'] == "json") {
-                $field['content'] = json_decode($field['content'], true);
+                $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
                 /* $field['content'] = $this->json_style_parse($field['content']); */
             } else if ($field['type'] == "condition") {
-                $field['content'] = json_decode($field['content'], true);
+                $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
             } else if ($field['type'] == "data-config") {
-                $field['content'] = json_decode($field['content'], true);
+                $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
             } else if ($this->user_input->is_new_ui_enabled() && $this->is_link_active("cmsUpdate") && $field['name'] == "css") {
                 // if it is the new UI and in edit mode remove the custom css for better visibility
                 $field['content'] = '';
