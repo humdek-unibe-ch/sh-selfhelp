@@ -1,6 +1,6 @@
 # v5.2.1 (latest)
 ###  New features
- - #333 show `avatar` image in profile id a form `avatar` exists and the user selected an avatar picture
+ - #333 - show `avatar` image in profile id a form `avatar` exists and the user selected an avatar picture
 
 # v5.2.0
 ###  New features
