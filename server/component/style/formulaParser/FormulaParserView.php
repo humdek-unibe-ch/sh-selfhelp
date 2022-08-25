@@ -6,11 +6,15 @@
 <?php
 require_once __DIR__ . "/../StyleView.php";
 require_once __DIR__ . "/../BaseStyleComponent.php";
-require_once __DIR__ . "/FormulaParser.php";
-require_once __DIR__ . "/../../../service/ext/math-executor/vendor/autoload.php";
+// require_once __DIR__ . "/FormulaParser.php";
+// require_once __DIR__ . "/../../../service/ext/math-executor/vendor/autoload.php";
+// require_once __DIR__ . "/../../../service/ext/php-math/vendor/autoload.php";
 
-use FormulaParser\FormulaParser;
-use NXP\MathExecutor;
+// use FormulaParser\FormulaParser;
+// use NXP\MathExecutor;
+
+// use MathPHP\Probability\Distribution\Continuous;
+
 
 /**
  * The base view class of form field style components.
@@ -59,20 +63,26 @@ class FormulaParserView extends StyleView
         // $fp = new FormulaParser($this->formula['formula']);
         // $fp->setVariables($this->formula['variables']);
         // $result =  $fp->getResult();
-        $executor = new MathExecutor();
-        $executor->addFunction('sum', function ($arr) {
+        // $executor = new MathExecutor();
+        // $executor->addFunction('sum', function ($arr) {
 
-            return array_sum($arr);
-        });
-        foreach ($this->formula['variables'] as $var => $value) {
-            if(is_array($value)){
-                $executor->setVar($var, $value);
-            }else{
-                $executor->setVar($var, $value);
-            }            
-        }
-        $result = $executor->execute($this->formula['formula']);
-        // $result ='';
+        //     return array_sum($arr);
+        // });
+        // foreach ($this->formula['variables'] as $var => $value) {
+        //     if(is_array($value)){
+        //         $executor->setVar($var, $value);
+        //     }else{
+        //         $executor->setVar($var, $value);
+        //     }            
+        // }
+        // $result = $executor->execute($this->formula['formula']);
+        $result ='';
+        // $cdf = stats_cdf_normal(5, 3, 2, 1) * 100;
+        $cdf ='';
+
+        $normal = new Continuous\Normal(3, 2);
+        $cdf2    = $normal->cdf(5);
+
         require __DIR__ . "/tpl_formula.php";
     }
 }

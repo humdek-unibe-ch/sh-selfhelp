@@ -7,4 +7,8 @@
     Formula <br>
     Variables <?php echo var_dump($this->formula['variables'])?> <br>
     <?php echo $this->formula['formula'] . " = " . $result ?>
+    <br>
+    stats_cdf_normal(5, 3, 2, 1) * 100 <br>
+    CDF <?php echo $cdf ?><br>
+    CDF2 <?php echo $cdf2 *100 ?>
 </div>

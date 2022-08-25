@@ -24,13 +24,13 @@ class PageDb extends BaseDb
      * @param string $dbname
      *  Name of the database.
      * @param string $username
-     *  The username of the database user.
+     *  The username of the database user.5
      * @param string $password
      *  The password of the database user.
      */
     function __construct($server, $dbname, $username, $password ) {
         parent::__construct( $server, $dbname, $username, $password );
-        $this->cache->clear_cache();
+        // $this->cache->clear_cache();
         // $this->cache->clear_cache($this->cache::CACHE_TYPE_PAGES, 80);
     }
 

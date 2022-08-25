@@ -44,14 +44,14 @@ class AjaxRequest
      * @param object $services
      *  The service handler instance which holds all services
      * @param string $keyword
-     *  The keyword, it will be used to find the url request permissisons
+     *  The keyword, it will be used to find the url request permissions
      * @param string $class_name
      *  The name of the calss to be instantiated.
      * @param string $method_name
-     *  The name of the method to be called on the instcane of
+     *  The name of the method to be called on the instance of
      *  AjaxRequest::class_name.
      */
-    public function __construct($services, $class_name, $method_name=null, $keyword)
+    public function __construct($services, $class_name, $method_name=null, $keyword='')
     {
         $this->services = $services;
         $this->class_name = $class_name;
