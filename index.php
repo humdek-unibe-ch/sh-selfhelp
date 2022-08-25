@@ -127,13 +127,11 @@ function mobile_call($services, $router, $db){
             $page->output();
         } else if ($router->route['target'] == "custom") {
             $function_name = "create_" . $router->route['name'] . "_page";
-            if (is_callable($function_name))
-                call_user_func_array(
-                    $function_name,
-                    array_merge(array($services), $router->route['params'])
-                );
-            else
+            if (is_callable($function_name)) {
+                call_user_func_array($function_name, array($services, $router->route['params']['class'] , $router->route['params']['method']));
+            } else {
                 throw new Exception("Cannot call custom function '$function_name'");
+            }
         } else if ($router->route['target'] == "ajax") {
             create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
         }
@@ -183,13 +181,11 @@ function web_call($services, $router, $db){
             $page->output();
         } else if ($router->route['target'] == "custom") {
             $function_name = "create_" . $router->route['name'] . "_page";
-            if (is_callable($function_name))
-                call_user_func_array(
-                    $function_name,
-                    array_merge(array($services), $router->route['params'])
-                );
-            else
+            if (is_callable($function_name)) {
+                call_user_func_array($function_name, array($services, $router->route['params']['class'] , $router->route['params']['method']));
+            } else {
                 throw new Exception("Cannot call custom function '$function_name'");
+            }
         } else if ($router->route['target'] == "ajax") {
             create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
         }
