@@ -1,7 +1,7 @@
 drop view if exists view_user_input;
 create view view_user_input
 as
-select cast(ui.id as unsigned) as id, cast(u.id as unsigned) as user_id, u.name as user_name, vc.code as user_code, cast(form.id as unsigned) form_id, sft_if.content as form_name, cast(field.id as unsigned) as field_id, 
+select cast(ui.id as int) as id, cast(u.id as int) as user_id, u.name as user_name, vc.code as user_code, cast(form.id as int) form_id, sft_if.content as form_name, cast(field.id as int) as field_id, 
 sft_in.content as field_name, ui.value, record.id as record_id, ui.edit_time, ui.removed
 from user_input ui
 left join users u on (ui.id_users = u.id)

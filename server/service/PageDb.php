@@ -346,22 +346,22 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT f.id AS id, f.name, ft.`name` AS type,
+            $sql = 'SELECT f.id AS id, f.name, ft."name" AS type,
             CASE
-                WHEN f.display = 0 then IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1), sf.default_value)
-                ELSE IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 0,1), 
-                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 0,1), 
-                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
-                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
+                WHEN f.display = 0 then COALESCE((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 1), sf.default_value)
+                ELSE COALESCE((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 1), 
+                COALESCE((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 1), 
+                COALESCE((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 1), 
+                COALESCE((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 1), \'\'))))
             END AS content,
-            sf.default_value, st.`name` AS style, s.`name` AS `section_name`, f.display, s.id as section_id
+            sf.default_value, st."name" AS style, s."name" AS "section_name", f.display, s.id as section_id
             FROM sections AS s 
             LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
             LEFT JOIN fields AS f ON f.id = sf.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+            LEFT JOIN "fieldType" AS ft ON ft.id = f.id_type
             LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN styleType AS t ON t.id = st.id_type
-            WHERE s.id = :id ";
+            LEFT JOIN "styleType" AS t ON t.id = st.id_type
+            WHERE s.id = :id ';
 
             $res = $this->query_db($sql, array(
                 ":id" => $id,
@@ -569,7 +569,7 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {    
-            $sql = 'CALL get_page_fields(:page_id, :language_id, :default_language_id, :filter, :order_by)';
+            $sql = 'SELECT get_page_fields(:page_id, :language_id, :default_language_id, :filter, :order_by)';
             $params = array(
                 ":page_id" => $page_id,
                 ":language_id" => $language_id,
@@ -577,13 +577,14 @@ class PageDb extends BaseDb
                 ":filter" => $filter,
                 ":order_by" => $order_by
             );
+            $res = $this->query_db_first($sql, $params);
             if ($page_id == -1) {
                 // return all
-                $res = $this->query_db($sql, $params);
+                $res = $this->query_db($res['get_page_fields']);
             } else {
                 // return the page as single
-                $res = $this->query_db_first($sql, $params);
-            }
+                $res = $this->query_db_first($res['get_page_fields']);
+            }            
             $this->cache->set($key, $res);
             return $res;
         }
@@ -602,11 +603,11 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT s.name, t.name AS type
+            $sql = 'SELECT s.name, t.name AS type
             FROM styles AS s
-            LEFT JOIN styleType AS t ON t.id = s.id_type
+            LEFT JOIN "styleType" AS t ON t.id = s.id_type
             LEFT JOIN sections AS sec ON sec.id_styles = s.id
-            WHERE sec.id = :id";
+            WHERE sec.id = :id';
             $res = $this->query_db_first($sql, array(":id" => $id));
             $this->cache->set($key, $res);
             return $res;

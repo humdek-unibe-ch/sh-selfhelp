@@ -42,7 +42,8 @@ class BaseDb {
         $this->cache = new Cache();
         try {
             $this->dbh = new PDO(
-                "mysql:host=$server;dbname=$dbname;charset=$names",
+                // "mysql:host=$server;dbname=$dbname;charset=$names",
+                "pgsql:host=$server;port=5432;;dbname=$dbname;",
                 $username, $password, array(PDO::ATTR_PERSISTENT => true)
             );
             $this->dbh->setAttribute(PDO::ATTR_ERRMODE,
@@ -413,12 +414,12 @@ class BaseDb {
             $columnStr = "";
             $valueStr = "";
             foreach ($entries as $i => $value) {
-                $columnStr .= $i.", ";
+                $columnStr .= '"'.$i.'", ';
                 $id = ":".$i;
                 $valueStr .= $id.", ";
                 $data[$id] = $value;
             }
-            $columnStr = rtrim($columnStr, ", ");
+            $columnStr = rtrim($columnStr, ', ');
             $valueStr = rtrim($valueStr, ", ");
             $onDuplicate = "";
             if(count($update_entries) > 0)
@@ -428,8 +429,8 @@ class BaseDb {
                     $onDuplicate .= $key . "=:" . $key .",";
                 $onDuplicate = rtrim($onDuplicate, ", ");
             }
-            $sql = "INSERT INTO ".$table
-                ." (".$columnStr.") VALUES(".$valueStr.") ". $onDuplicate;
+            $sql = 'INSERT INTO '.$table
+                .' ('.$columnStr.') VALUES('.$valueStr.') '. $onDuplicate;
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($data);
             $new_id = intval($this->dbh->lastInsertId());

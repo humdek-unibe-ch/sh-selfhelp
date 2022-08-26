@@ -58,9 +58,9 @@ class Hooks
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = 'SELECT DISTINCT `class`, `function`
+            $sql = 'SELECT DISTINCT "class", "function"
             FROM hooks h
-            INNER JOIN  lookups l ON (l.id = h.id_hookTypes)
+            INNER JOIN  lookups l ON (l.id = h."id_hookTypes")
             WHERE l.lookup_code = :lookup_code';
             $res = $this->db->query_db($sql, array(":lookup_code" => $hook_type));
             $this->db->get_cache()->set($key, $res);
@@ -162,10 +162,10 @@ class Hooks
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = 'SELECT `exec_class`, `exec_function`
+            $sql = 'SELECT "exec_class", "exec_function"
             FROM hooks h
-            INNER JOIN  lookups l ON (l.id = h.id_hookTypes)
-            WHERE l.lookup_code = :lookup_code AND `class` = :class AND `function` = :func
+            INNER JOIN  lookups l ON (l.id = h."id_hookTypes")
+            WHERE l.lookup_code = :lookup_code AND "class" = :class AND "function" = :func
             ORDER BY priority;';
             $res = $this->db->query_db($sql, array(
                 ":lookup_code" => $hook_type,

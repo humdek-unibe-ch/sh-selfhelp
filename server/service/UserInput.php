@@ -572,7 +572,7 @@ class UserInput
                 from user_input ui
                 inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
                 where sft_if.content = :name
-                limit 0,1;';
+                limit 1;';
             } else if ($form_type == FORM_STATIC) {
                 $sql = 'SELECT id 
                 FROM uploadTables
@@ -613,7 +613,7 @@ class UserInput
                 $user_id =  $_SESSION['id_user']; // if the user is not defined we set the session user if needed
             }
             if ($form_type == FORM_DYNAMIC) {
-                $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
+                $sql = 'SELECT get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
                 $params = array(
                     ":form_id" => $form_id,
                     ":user_id" => $user_id
@@ -634,11 +634,16 @@ class UserInput
                 $sql = 'CALL get_uploadTable_with_filter(:form_id, :filter)';
             }
             $params[':filter'] = $filter;
-            if ($db_first) {
+            // if ($db_first) {
                 $res = $this->db->query_db_first($sql, $params);
+            // } else {
+            //     $res = $this->db->query_db($sql, $params);
+            // }
+            if ($db_first) {
+                $res = $this->db->query_db_first($res['get_form_data_for_user_with_filter']);
             } else {
-                $res = $this->db->query_db($sql, $params);
-            }
+                $res = $this->db->query_db($res['get_form_data_for_user_with_filter']);
+            }            
             $this->db->get_cache()->set($key, $res);
             return $res;
         }    
