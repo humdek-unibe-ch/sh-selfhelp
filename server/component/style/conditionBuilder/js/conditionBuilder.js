@@ -112,7 +112,10 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
                 label: 'Field',
                 type: 'string',
                 input: 'text',
-                operators: ['field_equal', 'field_not_equal', 'field_greater', 'field_less', 'field_between']
+                operators: ['field_equal', 'field_not_equal', 'field_greater', 'field_less', 'field_between'],
+                validation: {
+                    allow_empty_value: true
+                }
             }, {
                 id: '__current_date__',
                 label: 'Current Date',
