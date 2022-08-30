@@ -281,7 +281,7 @@ function convertRules(rules) {
         }
         else if (['field_equal', 'field_not_equal', 'field_greater', 'field_less'].includes(rule.operator)) {
             var r = {};
-            r[jsonLogicOperators[rule.operator].op] = [rule.value[0], rule.value[1]]
+            r[jsonLogicOperators[rule.operator].op] = [rule.value[0], (rule.value[1] == null ? '' : rule.value[1])]
             jsonLogic[rules.condition].push(r);
         } else if (rule.operator == 'field_between') {
             // add additional AND for one of these groups

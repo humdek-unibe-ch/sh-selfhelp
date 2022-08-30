@@ -1,4 +1,8 @@
-# v5.2.1 (latest)
+# v5.2.2
+###  Bugfix
+ - In `conditionBuilder` a field can have empty string (`''`) as value in comparison
+
+# v5.2.1
 ###  New features
  - #333 - show `avatar` image in profile id a form `avatar` exists and the user selected an avatar picture
 
