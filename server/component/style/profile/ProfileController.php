@@ -63,7 +63,7 @@ class ProfileController extends BaseController
         }
 
         if (isset($_POST['user_name'])) {
-            $name = filter_var($_POST['user_name'], FILTER_SANITIZE_STRING);
+            $name = filter_var($_POST['user_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $res = $model->change_user_name($name);
             $this->success_change = $res;
             $this->fail_change = !$res;
@@ -81,8 +81,8 @@ class ProfileController extends BaseController
         if(isset($_POST['password']) && isset($_POST['verification']))
         {
             $res = $model->change_password(
-                filter_var($_POST['password'], FILTER_SANITIZE_STRING),
-                filter_var($_POST['verification'], FILTER_SANITIZE_STRING)
+                filter_var($_POST['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                filter_var($_POST['verification'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
             );
             $this->success_change = $res;
             $this->fail_change = !$res;

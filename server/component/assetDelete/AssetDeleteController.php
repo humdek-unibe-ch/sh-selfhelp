@@ -25,7 +25,7 @@ class AssetDeleteController extends BaseController
         parent::__construct($model);
         if(isset($_POST["rm_file"]) && $this->model->can_delete_asset())
         {
-            $file = filter_var($_POST['rm_file'], FILTER_SANITIZE_STRING);
+            $file = filter_var($_POST['rm_file'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $path = $this->model->get_server_path($mode) . '/' . $file;
             if(!file_exists($path))
             {

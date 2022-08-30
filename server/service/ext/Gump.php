@@ -143,7 +143,7 @@ class GUMP
     public static function xss_clean(array $data)
     {
         foreach ($data as $k => $v) {
-            $data[$k] = filter_var($v, FILTER_SANITIZE_STRING);
+            $data[$k] = filter_var($v, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         }
 
         return $data;
@@ -346,7 +346,7 @@ class GUMP
                         }
                     }
 
-                    $value = filter_var($value, FILTER_SANITIZE_STRING);
+                    $value = filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 }
 
                 $return[$field] = $value;
@@ -765,7 +765,7 @@ class GUMP
      */
     protected function filter_sanitize_string($value, $params = null)
     {
-        return filter_var($value, FILTER_SANITIZE_STRING);
+        return filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     }
 
     /**

@@ -40,7 +40,7 @@ class CmsInsertController extends BaseController
         if(isset($_POST['keyword']) && isset($_POST['url'])
             && isset($_POST['protocol']) && isset($_POST['type']))
         {
-            $this->name = filter_var($_POST["keyword"], FILTER_SANITIZE_STRING);
+            $this->name = filter_var($_POST["keyword"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             if (!preg_match_all('/^' . NAME_PATTERN . '$/', $this->name, $res)) {
                 $this->fail = true;
                 $this->error_msgs[] = "The name is not in the correct format!";

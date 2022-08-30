@@ -35,7 +35,7 @@ class ValidateController extends BaseController
         {
             if($_POST['pw'] === $_POST['pw_verify']
                 && $this->model->activate_user(
-                    filter_var($_POST['name'], FILTER_SANITIZE_STRING),
+                    filter_var($_POST['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                     password_hash($_POST['pw'], PASSWORD_DEFAULT),
                     filter_var($_POST['gender'], FILTER_SANITIZE_NUMBER_INT)))
             {

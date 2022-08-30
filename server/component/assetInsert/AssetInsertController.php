@@ -53,7 +53,7 @@ class AssetInsertController extends BaseController
                 $this->error_msgs[] = $res['msg'];
                 return;
             }
-            $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+            $name = filter_var($_POST['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $this->name = $name. '.' .$ext;
             $target = $model->get_server_path($mode) . '/' . $this->name;
             if(!isset($_POST['overwrite']) && file_exists($target))
