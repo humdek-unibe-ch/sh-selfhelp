@@ -106,7 +106,7 @@ class JsonModel extends StyleModel
         foreach($j_array as $key => $item)
         {
             // check if a json style key was misspelled
-            if($key[0] === "_" && $key !== "_baseStyle"
+            if(is_string($key) && $key[0] === "_" && $key !== "_baseStyle"
                 && $key !== "_name" && $key !== "_fields")
             {
                 return $this->json_style_return_error($is_child,
