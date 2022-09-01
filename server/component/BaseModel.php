@@ -308,7 +308,7 @@ abstract class BaseModel
     public function get_groups()
     {
         $groups = array();
-        foreach ($this->db->select_table("groups") as $group) {
+        foreach ($this->db->select_table("`groups`") as $group) {
             array_push($groups, array("value" => intval($group['id']), "text" => $group['name']));
         }
         return $groups;
