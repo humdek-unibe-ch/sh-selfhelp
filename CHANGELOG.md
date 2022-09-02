@@ -1,5 +1,9 @@
 # v5.2.3
 ###  Bugfix
+ - bring back extendedPDO for nested transactions
+
+# v5.2.3
+###  Bugfix
  - Load properly groups in `actions`
 
 # v5.2.2
