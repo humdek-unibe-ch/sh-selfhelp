@@ -1,3 +1,7 @@
+# v5.2.5 not published
+###  New features
+ - Check if a JSON value is dynamically set with {{}} and if it is accept it
+
 # v5.2.4
 ###  Bugfix
  - bring back extendedPDO for nested transactions

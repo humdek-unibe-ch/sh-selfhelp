@@ -111,6 +111,15 @@ class CmsUpdateController extends BaseController
     /* Private Methods ********************************************************/
 
     /**
+     * Check if a JSON value is dynamically set with {{}} and if it is accept it
+     * @return boolean
+     */
+    private function check_json_for_dynamic_content($value){
+        preg_match('~{{.*?}}~s', $value, $matches, PREG_OFFSET_CAPTURE);
+        return isset($matches[0]) && $matches[0][0];
+    }
+
+    /**
      * Checks whether the content of a input field corresponds to the xpected
      * type.
      *
@@ -125,7 +134,7 @@ class CmsUpdateController extends BaseController
         {
             if($value === "") return true;
             json_decode($value, true);
-            return (json_last_error() === JSON_ERROR_NONE);
+            return (json_last_error() === JSON_ERROR_NONE) || $this->check_json_for_dynamic_content($value);
         }
         if($type === "number")
             return is_numeric($value);
