@@ -1,4 +1,4 @@
-# v5.2.3
+# v5.2.4
 ###  Bugfix
  - bring back extendedPDO for nested transactions
 
