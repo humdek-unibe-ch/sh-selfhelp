@@ -100,7 +100,6 @@ function updateValues(elements, newData) {
     $(elements).toArray().forEach(element => {
         $(element).attr('class').split(' ').forEach(className => {
             if (className.includes('style-section')) {
-                console.log(className);
                 $('.' + className).replaceWith($('.' + className, newData));
             }
         });
