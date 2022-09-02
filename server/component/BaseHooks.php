@@ -67,6 +67,48 @@ class BaseHooks extends BaseModel
     }
 
     /**
+     * Set value to private property with reflection
+     * @param object hookedClassInstance
+     * The class which was hooked
+     * @param string $propertyName
+     * The name of the property that we want to set
+     * @param object $propertyNewValue
+     * The new value
+     */
+    protected function set_private_property($args = array())
+    {
+        $reflector = new ReflectionObject($args['hookedClassInstance']);
+        $property = $reflector->getProperty($args['propertyName']);
+        if (isset($args['arrayKey'])) {
+            $arr_value = $this->get_private_property($args);
+            $arr_value[$args['arrayKey']] = $args['propertyNewValue'];
+            $args['propertyNewValue'] = $arr_value;
+        }
+        $property->setAccessible(true);
+        $property->setValue($args['hookedClassInstance'], $args['propertyNewValue']);
+        $property->setAccessible(false);
+    }
+
+    /**
+     * Гet value to private property with reflection
+     * @param object hookedClassInstance
+     * The class which was hooked
+     * @param string $propertyName
+     * The name of the property that we want to set
+     * @return object $propertyValue
+     * Return property value
+     */
+    protected function get_private_property($args = array())
+    {
+        $reflector = new ReflectionObject($args['hookedClassInstance']);
+        $property = $reflector->getProperty($args['propertyName']);
+        $property->setAccessible(true);
+        $propertyValue = $property->getValue($args['hookedClassInstance']);
+        $property->setAccessible(false);
+        return $propertyValue;
+    }
+
+    /**
      * Get the parameter value of the function by parameter name
      * The function is called recursively until it finds the parameter
      * @param array $args
