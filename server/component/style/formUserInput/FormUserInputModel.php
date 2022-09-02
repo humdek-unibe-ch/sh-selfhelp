@@ -474,7 +474,7 @@ class FormUserInputModel extends StyleModel
      *  The number of affected rows or false if an error ocurred.
      */
     private function update_entry_with_record_id($id, $value, $record_id)
-    {
+    {        
         $this->db->begin_transaction();
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
         $filter = " AND deleted = 0 AND record_id = " . $record_id;
