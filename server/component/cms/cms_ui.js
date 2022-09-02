@@ -1178,14 +1178,14 @@ function initUnsavedChangesListener() {
         }
     });
     $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
-        if ($(this).attr('name').includes('jquery_builder_json')) {
+        if ($(this).attr('name') && $(this).attr('name').includes('jquery_builder_json')) {
             return;
         }
         unsavedChanges.push(this);
     });
 
     $('.ui-card-properties textarea').on('change', function () { //triggers change in all textareas
-        if ($(this).attr('name').includes('jquery_builder_json')) {
+        if ($(this).attr('name') && $(this).attr('name').includes('jquery_builder_json')) {
             return;
         }
         unsavedChanges.push(this);
