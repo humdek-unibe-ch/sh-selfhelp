@@ -30,52 +30,52 @@ class StyleModel extends BaseModel implements IStyleModel
     /**
      * The name of the style associated to the section.
      */
-    private $style_name;
+    protected $style_name;
 
     /**
      * The type of the style associated to the section.
      */
-    private $style_type;
+    protected $style_type;
 
     /**
      * The collection of fields that are attributed to this style component.
      */
-    private $db_fields;
+    protected $db_fields;
 
     /** 
      * An array of get parameters.
      */
-    private $params;
+    protected $params;
 
     /**
      * The id of the parent page
      */    
-    private $id_page;  
+    protected $id_page;  
 
     /**
      * If an entry record is passed from style entryVie to its children
      */
-    private $entry_record;
+    protected $entry_record;
 
     /**
      * The result of the computeted condition
      */    
-    private $condition_result; 
+    protected $condition_result; 
 
     /**
      * The DB field data config
      */
-    private $data_config;
+    protected $data_config;
 
     /**
      * The parent id if it exists
      */
-    private $parent_id;
+    protected $parent_id;
 
     /**
      * The relation if the component. Does it belong ot a page or a section, etc
      */
-    private $relation;
+    protected $relation;
 
     /* Constructors ***********************************************************/
 
@@ -276,9 +276,12 @@ class StyleModel extends BaseModel implements IStyleModel
      * Array with all params in the field value
      */
     private function get_entry_param($input)
-    {
-        preg_match_all('~\$\w+\b~', $input, $m);
+    {        
         $res = [];
+        if(!$input){
+            return $res;    
+        }
+        preg_match_all('~\$\w+\b~', $input, $m);
         foreach ($m as $key => $value) {
             foreach ($value as $k => $param) {
                 if ($param) {
@@ -694,10 +697,28 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function get_entry_value($entry_data, $value)
     {
+        if(!$value){
+            return $value;
+        }
         $params = $this->get_entry_param($value);
         foreach ($params as $key => $param) {
             $value = isset($entry_data[$param]) ? str_replace('$' . $param, $entry_data[$param], $value) : $value; // if the param is not set, return the original
         }
+
+        $value = preg_replace_callback('~{{.*?}}~s', function ($m) use ($entry_data) {
+            $res = trim(str_replace("{{", "", str_replace("}}", "", $m[0])));
+            if (isset($entry_data[$res])) {
+                if (is_array($entry_data[$res])) {
+                    return json_encode($entry_data[$res]);
+                } else {
+                    return isset($entry_data[$res]) ? $entry_data[$res] : $res . ' is not set';
+                }
+            } else {
+                // return '';
+            }
+            return str_replace(" ", "", $m[0]);
+        }, $value);
+
         return $value;
     }  
 
