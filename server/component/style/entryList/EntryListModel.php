@@ -41,6 +41,25 @@ class EntryListModel extends StyleModel
     public function __construct($services, $id)
     {
         parent::__construct($services, $id);
+        $this->init_properties();
+    }
+
+    /* Private Methods *********************************************************/
+
+    /**
+     * Fetch form data by id
+     * @return array
+     * the result of the fetched form
+     */
+    private function fetch_entry_list()
+    {
+        if ($this->form_type == FORM_DYNAMIC) {
+            $this->filter = ' AND deleted = 0 ' . $this->filter; // do not show the deleted records
+        }
+        return $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);
+    }
+
+    private function init_properties(){
         $formInfo = explode('-', $this->get_db_field("formName"));
         $this->form_id = $formInfo[0];
         if (isset($formInfo[1])) {
@@ -51,57 +70,42 @@ class EntryListModel extends StyleModel
         if ($this->form_id) {
             $this->entry_list = $this->fetch_entry_list();
         }
-        $this->loadChildrenEntryList();
-    }
-
-    /* Private Methods *********************************************************/
-
-    /**
-     * Fetch form data by id
-     * @retval array
-     * the result of the fetched form
-     */
-    private function fetch_entry_list()
-    {
-        if ($this->form_type == FORM_DYNAMIC){
-            $this->filter = ' AND deleted = 0 ' . $this->filter; // do not show the deleted records
-        }
-        return $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);
     }
 
     /* Public Methods *********************************************************/
 
     /**
      * Getter function, return the entry_list array property
-     * @retval array emtry_list
+     * @return array entry_list
      */
     public function get_entry_list()
     {
         return $this->entry_list;
     }
 
-    /**
-     * Load the children of the entryList (Loop through all the form records)
-     */
-    public function loadChildrenEntryList()
+    public function loadChildren()
     {
-        $entry_list = $this->get_entry_list();
-        $db_children = $this->db->fetch_section_children($this->section_id);
-        if (!$entry_list) {
-            return;
-        }
-        foreach ($entry_list as $key => $entry_record) {            
-            foreach ($db_children as $child) {
-                $new_child = new StyleComponent(
-                    $this->services,
-                    intval($child['id']),
-                    $this->get_params(),
-                    $this->get_id_page(),
-                    $entry_record
-                );
-                array_push($this->children, $new_child);
+        if ($this->is_cms_page()) {
+            parent::loadChildren();
+        } else {
+            $this->init_properties();
+            $entry_list = $this->get_entry_list();
+            $db_children = $this->db->fetch_section_children($this->section_id);
+            if (!$entry_list) {
+                return;
+            }
+            foreach ($entry_list as $key => $entry_record) {
+                foreach ($db_children as $child) {
+                    $new_child = new StyleComponent(
+                        $this->services,
+                        intval($child['id']),
+                        $this->get_params(),
+                        $this->get_id_page(),
+                        $entry_record
+                    );
+                    array_push($this->children, $new_child);
+                }
             }
         }
-
     }
 }

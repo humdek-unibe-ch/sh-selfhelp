@@ -1,6 +1,8 @@
 # v5.2.5 not published
 ###  New features
  - Check if a JSON value is dynamically set with {{}} and if it is accept it
+ - All dynamic variables can be accessed with {{var_name}} where the var_name is the name of the variable
+ - Fix the `entry_list` style for the new UI
 
 # v5.2.4
 ###  Bugfix

@@ -47,7 +47,8 @@ class EntryListView extends StyleView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_entryList.php";
+        $this->output_children();
+        // require __DIR__ . "/tpl_entryList.php";
     }
 
     /**
