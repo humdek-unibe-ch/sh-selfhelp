@@ -91,8 +91,8 @@ class Services
         $this->transaction = new Transaction($this->db);
 
         $this->login = new Login($this->db, $this->transaction,
-            $this->is_experimenter_page($this->router->route['name']),
-            $this->does_redirect($this->router->route['name']));        
+            $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
+            $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route));        
 
         $this->acl = new Acl($this->db);        
         
@@ -124,6 +124,9 @@ class Services
     {
         if(defined('REDIRECT_ON_LOGIN') && !REDIRECT_ON_LOGIN)
             return false;
+        if (!$keyword) {
+            return false;
+        }
         return !$this->is_login_page($keyword)
             && !$this->is_script_page($keyword)
             && !$this->is_open_page($keyword);
@@ -188,6 +191,10 @@ class Services
      */
     private function is_experimenter_page($keyword)
     {
+        if (!$keyword) {
+            // the route does not exists
+            return false;
+        }
         $sql = "SELECT * FROM pages WHERE keyword = :kw AND id_type = :type";
         $res = $this->db->query_db_first($sql, array(':kw' => $keyword,
             ':type' => EXPERIMENT_PAGE_ID));

@@ -219,7 +219,7 @@ class PageDb extends BaseDb
         }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
         $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
-        if ($page_info) {
+        if ($page_info && $page_info["protocol"]) {
             $protocols = explode("|", $page_info["protocol"]);
             if (in_array("DELETE", $protocols)) {
                 $page_info["access_level"] = "delete";
