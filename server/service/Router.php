@@ -23,6 +23,11 @@ class Router extends AltoRouter {
     public $route = NULL;
 
     /**
+     * The current_route of the request
+     */
+    public $current_route = NULL;
+
+    /**
      * The constructor which calls the parent constructor.
      *
      * @param instance $db
@@ -130,11 +135,13 @@ class Router extends AltoRouter {
      */
     public function is_active( $route_name )
     {
-        $match = $this->match();
+        if(!$this->current_route){
+            $this->current_route = $this->match();
+        }        
         // if(!$match){
         //     return false;
         // }
-        return ($match['name'] == $route_name);
+        return ($this->current_route ? $this->current_route['name'] == $route_name : $this->current_route);
     }
 
     /**
