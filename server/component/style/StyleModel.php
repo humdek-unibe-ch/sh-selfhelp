@@ -196,29 +196,35 @@ class StyleModel extends BaseModel implements IStyleModel
                     $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
                     });
-                    foreach ($config['fields'] as $key => $field) {
-                        // loop fields
-                        $i = 0;
-                        $field_value = '';
-                        foreach ($data as $key => $row) {
-                            $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
-                            if ($config['retrieve'] != 'all') {
-                                $field_value = $val;
-                                break; // we don need the others;
-                            } else {
-                                if ($i === 0) {
-                                    $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
+                    if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
+                        // return all fields
+                        $result = $data[0];
+                    } else {
+                        // return only the selected fields
+                        foreach ($config['fields'] as $key => $field) {
+                            // loop fields
+                            $i = 0;
+                            $field_value = '';
+                            foreach ($data as $key => $row) {
+                                $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
+                                if ($config['retrieve'] != 'all') {
+                                    $field_value = $val;
+                                    break; // we don need the others;
                                 } else {
-                                    // get the other values too                                
-                                    $field_value = $field_value . ',"' . $val . '"';
+                                    if ($i === 0) {
+                                        $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
+                                    } else {
+                                        // get the other values too                                
+                                        $field_value = $field_value . ',"' . $val . '"';
+                                    }
                                 }
+                                $i++;
                             }
-                            $i++;
+                            if ($config['retrieve'] === 'all') {
+                                $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
+                            }
+                            $result[$field['field_holder']] = $field_value;
                         }
-                        if ($config['retrieve'] === 'all') {
-                            $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
-                        }
-                        $result[$field['field_holder']] = $field_value;
                     }
                 }
             }

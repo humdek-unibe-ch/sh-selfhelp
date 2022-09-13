@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-06/schema#",
     "title": "Data config JSON",
     "type": "array",
     "format": "tabs",
@@ -31,6 +31,15 @@
                     "grid_columns": 6
                 }
             },
+            "all_fields": {
+                "type": "boolean",
+                "title": "All fields",
+                "description": "If true, it loads all fields for the selected table",
+                "propertyOrder": 5,
+                "options": {
+                    "grid_columns": 6
+                }
+            },
             "table": {
                 "type": "string",
                 "title": "Table name",
@@ -58,7 +67,7 @@
                 "type": "string",
                 "title": "Filter",
                 "description": "Advanced option to filter the data.",
-                "propertyOrder": 5,
+                "propertyOrder": 6,
                 "options": {
                     "grid_columns": 6
                 }
@@ -67,7 +76,7 @@
                 "type": "array",
                 "title": "Fields",
                 "format": "tabs",
-                "propertyOrder": 6,
+                "propertyOrder": 7,
                 "items": {
                     "type": "object",
                     "title": "Field",
@@ -113,8 +122,22 @@
         "required": [
             "type",
             "table",
-            "retrieve",
-            "fields"
-        ]
+            "retrieve"
+        ],
+        "if": {
+            "properties": {
+                "all_fields": {
+                    "type": "boolean",
+                    "enum": [
+                        false
+                    ]
+                }
+            }
+        },
+        "then": {
+            "required": [
+                "fields"
+            ]
+        }
     }
 }

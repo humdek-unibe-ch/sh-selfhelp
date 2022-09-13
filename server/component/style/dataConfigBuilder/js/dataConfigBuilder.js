@@ -207,7 +207,7 @@ function getTableFieldNames(type, formName, obj, path, init, dataConfigEditor) {
                     //delete the cache
                     delete fc.cached_editors.field_name;
                     fc.addObjectProperty('field_name');
-                } else {
+                } else if (obj.getEditor(path)) {
                     for (let i = 0; i < obj.getEditor(path).rows.length; i++) {
                         var currValue = obj.getEditor(path + '.' + i + '.field_name').getValue().valueOf();
                         var fc = obj.getEditor(path + '.' + i + '.field_name').parent;
