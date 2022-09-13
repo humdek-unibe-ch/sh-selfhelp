@@ -285,9 +285,12 @@ class CmsView extends BaseView
                 "children" => $page_components,
             ))
         );
-        if ($this->model->get_active_section_id() != null){            
+        if ($this->model->get_active_section_id() != null){
             $section_path = $this->model->get_section_path();
-            $id_page = isset($section_path[count($section_path)-1]) ? isset($section_path[count($section_path)-1]) : -1;
+            $params = isset($section_path[count($section_path) - 1]) ? isset($section_path[count($section_path) - 1]) : array();
+            if (!is_array($params)) {
+                $params = array();
+            }
             $this->add_local_component(
                 "section-view",
                 new BaseStyleComponent("card", array(
@@ -298,7 +301,7 @@ class CmsView extends BaseView
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
                         $this->model->get_active_section_id(),
-                        $id_page,
+                        $params,
                         $this->model->get_cms_page_id()
                     ))
                 ))
