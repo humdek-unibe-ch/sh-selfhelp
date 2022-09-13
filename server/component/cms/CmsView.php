@@ -286,6 +286,8 @@ class CmsView extends BaseView
             ))
         );
         if ($this->model->get_active_section_id() != null){            
+            $section_path = $this->model->get_section_path();
+            $id_page = isset($section_path[count($section_path)-1]) ? isset($section_path[count($section_path)-1]) : -1;
             $this->add_local_component(
                 "section-view",
                 new BaseStyleComponent("card", array(
@@ -296,7 +298,7 @@ class CmsView extends BaseView
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
                         $this->model->get_active_section_id(),
-                        $this->model->get_section_path()[count($this->model->get_section_path())-1],
+                        $id_page,
                         $this->model->get_cms_page_id()
                     ))
                 ))
@@ -376,7 +378,7 @@ class CmsView extends BaseView
                 "checked" => isset($page_info['nav_position']) ? "checked" : ""
             ),
         ));
-        if ($page_info['nav_position']=="") {
+        if ($page_info && $page_info['nav_position'] == "") {
             // the page is not in nav, add it to the list
             $pages[] = array("id" => $current_page, "title" => $page_info['keyword']);
         }
@@ -390,7 +392,7 @@ class CmsView extends BaseView
                     "items" => $pages,
                 )),
                 new BaseStyleComponent("input", array(
-                    "value" => $page_info['nav_position'],
+                    "value" => $page_info ? $page_info['nav_position'] : '',
                     "name" => "nav_position",
                     "type_input" => "hidden"
                 ))
@@ -765,7 +767,7 @@ class CmsView extends BaseView
                         "css" => "w-100 btn-sm",
                         "id" => "new-ui-delete",
                         "data" => array(
-                            "name" => $this->model->get_id_root_section() ? $section_info['name'] : $this->model->get_page_info()['keyword'],
+                            "name" => $this->model->get_id_root_section() ? $section_info['name'] : ($this->model->get_page_info() ? $this->model->get_page_info()['keyword'] : ''),
                             "id" => $this->model->get_id_root_section() ? $this->model->get_id_root_section() : $this->model->get_active_page_id(),
                             "del_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsDelete", $this->model->get_current_url_params()) : $this->model->get_link_url("cmsDelete", array("pid" => $this->model->get_active_page_id())),
                             "cms_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsUpdate", array("pid" => $this->model->get_active_page_id(), "mode" => UPDATE, "type" => "prop")) : $this->model->get_link_url("cmsSelect", array("pid" => null)),

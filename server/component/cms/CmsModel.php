@@ -1045,7 +1045,7 @@ class CmsModel extends BaseModel
     {
         return ($this->can_create_new_page()
             && $this->get_active_section_id() == null
-            && $this->page_info['parent'] == null
+            && $this->page_info && $this->page_info['parent'] == null
             && ($this->page_info['id_type'] == EXPERIMENT_PAGE_ID
                 || $this->page_info['id_type'] == OPEN_PAGE_ID));
     }
@@ -1402,38 +1402,40 @@ class CmsModel extends BaseModel
     public function get_page_properties()
     {
         $res = array();
-        $res[] = $this->add_property_item(
-            array(
-                "name" => "keyword",
-                "help" => "The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b>",
-                "type" => "text",
-                "relation" => RELATION_PAGE,
-                "content" => $this->page_info['keyword'],
-                "is_required" => 1,
-                "format" => "[a-zA-Z0-9_-]+",
-                "label" => "Keyword",
-            )
-        );
-        $res[] = $this->add_property_item(
-            array(
-                "name" => "id_pageAccessTypes",
-                "help" => "Select for what content the page will be loaded",
-                "type" => "select-platform",
-                "relation" => RELATION_PAGE,
-                "content" => $this->page_info['id_pageAccessTypes'],
-                "label" => "Page Access Type",
-            )
-        );
-        $res[] = $this->add_property_item(
-            array(
-                "name" => "is_headless",
-                "help" => "A headless page will <b>not</b> render any header or footer.",
-                "type" => "checkbox",
-                "relation" => RELATION_PAGE,
-                "content" => $this->page_info['is_headless'],
-                "label" => "Headless Page",
-            )
-        );
+        if ($this->page_info) {
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "keyword",
+                    "help" => "The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b>",
+                    "type" => "text",
+                    "relation" => RELATION_PAGE,
+                    "content" => $this->page_info['keyword'],
+                    "is_required" => 1,
+                    "format" => "[a-zA-Z0-9_-]+",
+                    "label" => "Keyword",
+                )
+            );
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "id_pageAccessTypes",
+                    "help" => "Select for what content the page will be loaded",
+                    "type" => "select-platform",
+                    "relation" => RELATION_PAGE,
+                    "content" => $this->page_info['id_pageAccessTypes'],
+                    "label" => "Page Access Type",
+                )
+            );
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "is_headless",
+                    "help" => "A headless page will <b>not</b> render any header or footer.",
+                    "type" => "checkbox",
+                    "relation" => RELATION_PAGE,
+                    "content" => $this->page_info['is_headless'],
+                    "label" => "Headless Page",
+                )
+            );
+        }
         $res = array_merge($res, $this->fetch_page_fields($this->id_page));
         if($this->is_navigation())
         {
@@ -1443,7 +1445,7 @@ class CmsModel extends BaseModel
             foreach($section_fields as $section_field)
                 $res[] = $section_field;
         }
-        if ($this->page_info['action'] === "sections") {
+        if ($this->page_info && $this->page_info['action'] === "sections") {
             $res[] = $this->add_property_item(
                 array(
                     "name" => "sections",
@@ -1523,19 +1525,21 @@ class CmsModel extends BaseModel
             $id_section = $this->get_active_section_id();
         $res = array();
         $fields = $this->fetch_style_fields_by_section_id($id_section);
-        $res[] = $this->add_property_item(
-            array(
-                "name" => "section_name",
-                "help" => "Section name. <b>Note that the section name can contain only numbers, letters, - and _ characters</b>",
-                "type" => "text",
-                "relation" => RELATION_SECTION,
-                // "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
-                "content" => $fields[0]['section_name'],
-                "is_required" => 0,
-                "format" => "[a-zA-Z0-9_-]+",
-                "label" => "Section name",
-            )
-        );        
+        if ($fields) {
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "section_name",
+                    "help" => "Section name. <b>Note that the section name can contain only numbers, letters, - and _ characters</b>",
+                    "type" => "text",
+                    "relation" => RELATION_SECTION,
+                    // "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
+                    "content" => $fields[0]['section_name'],
+                    "is_required" => 0,
+                    "format" => "[a-zA-Z0-9_-]+",
+                    "label" => "Section name",
+                )
+            );
+        }
         $res = array_merge($res, $fields);
         if ($this->is_navigation_root_item()) {
             $res[] = $this->add_property_item(
@@ -1776,7 +1780,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation_main()
     {
-        return ($this->page_info['id_navigation_section'] != null
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null
             && $this->id_root_section == null);
     }
 
@@ -1789,7 +1793,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation_root_item()
     {
-        return ($this->page_info['id_navigation_section'] != null
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null
             && $this->id_root_section != null
             && $this->id_section == null);
     }
@@ -2152,7 +2156,8 @@ class CmsModel extends BaseModel
     public function get_parent_page_id($page_id)
     {
         $sql = "SELECT parent FROM pages WHERE id = :page_id";
-        return $this->db->query_db_first($sql, array("page_id" => $page_id))['parent'];
+        $res = $this->db->query_db_first($sql, array("page_id" => $page_id));
+        return $res ? $res['parent'] : -1;
     }
 
     /**

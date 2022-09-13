@@ -416,7 +416,9 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = $this->replace_calced_values($field['content'], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
-                        $field['content'] = str_replace($field_name, $field_value, $field['content']);
+                        if($field_name[0]== '@'){
+                            $field['content'] = str_replace($field_name, $field_value, $field['content']);
+                        }
                     }
                 }
             }
