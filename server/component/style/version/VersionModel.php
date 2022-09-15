@@ -54,7 +54,8 @@ class VersionModel extends StyleModel
         $plugins_md = '';
         foreach ($plugins as $key => $plugin) {
             $git_command = 'cd server/plugins/' . $plugin['name'] . ' && git describe --tags';
-            $plugin_v = rtrim(shell_exec($git_command));
+            $res = shell_exec($git_command);
+            $plugin_v = $res ? rtrim($res) : '';
             $plugins_md = $plugins_md . "
             | " . $plugin['name'] . " | " . $plugin_v . "   | | Plugin |
             | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Plugin [DB Info] |";
