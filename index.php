@@ -58,16 +58,16 @@ function create_request_page($services, $class_name, $method_name, $keyword = nu
     $ajax = new AjaxRequest($services, $class_name, $method_name, $keyword);
     $ajax->print_json();
 }
-function create_exportData_page($services, $select, $option=null, $id=null)
+function create_exportData_page($services, $selector, $option=null, $id=null)
 {
     $page = new ExportPage($services);
-    $page->output($select, $option, $id);
+    $page->output($selector, $option, $id);
 }
 
 // create callback request
-function create_callback_page($services, $class_name, $method_name)
+function create_callback_page($services, $class, $method)
 {
-    $callback = new CallbackRequest($services, $class_name, $method_name);
+    $callback = new CallbackRequest($services, $class, $method);
     $callback->print_json();
 }
 
@@ -128,7 +128,7 @@ function mobile_call($services, $router, $db){
         } else if ($router->route['target'] == "custom") {
             $function_name = "create_" . $router->route['name'] . "_page";
             if (is_callable($function_name)) {
-                call_user_func_array($function_name, array($services, $router->route['params']['class'] , $router->route['params']['method']));
+                call_user_func_array($function_name, array_merge(array("services"=>$services), $router->route['params']));                
             } else {
                 throw new Exception("Cannot call custom function '$function_name'");
             }
@@ -182,7 +182,7 @@ function web_call($services, $router, $db){
         } else if ($router->route['target'] == "custom") {
             $function_name = "create_" . $router->route['name'] . "_page";
             if (is_callable($function_name)) {
-                call_user_func_array($function_name, array($services, $router->route['params']['class'] , $router->route['params']['method']));
+                call_user_func_array($function_name, array_merge(array("services"=>$services), $router->route['params']));                
             } else {
                 throw new Exception("Cannot call custom function '$function_name'");
             }

@@ -56,7 +56,7 @@ class EmailView extends BaseView
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
-            "title" => "Registered Users",
+            "title" => "Email snippets",
             "children" => array(new BaseStyleComponent("nestedList", array(
                 "items" => $this->model->get_emails(),
                 "id_prefix" => "emails",

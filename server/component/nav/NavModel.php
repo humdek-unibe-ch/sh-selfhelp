@@ -182,7 +182,7 @@ class NavModel extends BaseModel
      *  An array prepared by NavModel::prepare_pages.
      */
     public function get_pages() {
-        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != 62', 'ORDER BY nav_position');
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "mobile")', 'ORDER BY nav_position');
         return $this->pages = $this->prepare_pages($pages_db);
     }
 
@@ -193,7 +193,7 @@ class NavModel extends BaseModel
      *  An array prepared by NavModel::prepare_pages.
      */
     public function get_pages_mobile() { 
-        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != 63', 'ORDER BY nav_position');
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "web")', 'ORDER BY nav_position');
         return $this->pages = $this->prepare_pages($pages_db);
      }
 
