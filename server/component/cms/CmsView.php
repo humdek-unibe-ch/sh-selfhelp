@@ -553,6 +553,11 @@ class CmsView extends BaseView
         $url_edit = "";
         if($this->model->get_mode() == "update")
         {
+            if ($this->page_info && $this->page_info['id_actions'] == 1) {
+                // if page is custom remove the option for keyword editing
+                $keyword_key = array_search('keyword', array_column($fields, 'name'));
+                unset($fields[$keyword_key]);
+            }
             $children[] =  $this->create_field_form($fields, $is_new_ui);
             $type = "warning";
         }
@@ -685,9 +690,9 @@ class CmsView extends BaseView
                     }
                 }
             }
-            if (!$this->model->get_id_root_section()) {
+            if (!$this->model->get_id_root_section() && $this->page_info && $this->page_info['id_actions'] > 1) {
                 // if there is no root section it is page
-                // add page reordering and header positions                
+                // add page reordering and header positions    
                 $properties[] = new BaseStyleComponent("descriptionItem", array(
                     "gender" => '',
                     "title" => 'Header Position',
@@ -753,32 +758,36 @@ class CmsView extends BaseView
                 "css" => "w-100 mb-2 btn-sm",
                 "id" => "new-ui-export"
             ));
-            $form_items[] = new BaseStyleComponent("div", array(
-                "css" => "w-100 p-2",
-                "children" => array(
-                    new BaseStyleComponent("button", array(
-                        "label" => "Create New Child Page",
-                        "url" => $this->model->get_id_root_section() || !$this->model->can_create_new_child_page() ? null : $this->model->get_link_url("cmsInsert", array("pid" => $this->model->get_active_page_id())),
-                        "css" => "w-100 mb-2 btn-sm",
-                        "id" => "new-ui-create-child-page"
-                    )),
-                    $export_btn,
-                    new BaseStyleComponent("button", array(
-                        "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),
-                        "url" => '#',
-                        "type" => "danger",
-                        "css" => "w-100 btn-sm",
-                        "id" => "new-ui-delete",
-                        "data" => array(
-                            "name" => $this->model->get_id_root_section() ? $section_info['name'] : ($this->model->get_page_info() ? $this->model->get_page_info()['keyword'] : ''),
-                            "id" => $this->model->get_id_root_section() ? $this->model->get_id_root_section() : $this->model->get_active_page_id(),
-                            "del_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsDelete", $this->model->get_current_url_params()) : $this->model->get_link_url("cmsDelete", array("pid" => $this->model->get_active_page_id())),
-                            "cms_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsUpdate", array("pid" => $this->model->get_active_page_id(), "mode" => UPDATE, "type" => "prop")) : $this->model->get_link_url("cmsSelect", array("pid" => null)),
-                            "relation" => $this->model->get_id_root_section() ? RELATION_SECTION : RELATION_PAGE
-                        )
-                    ))
+            $delete_btn = new BaseStyleComponent("button", array(
+                "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),
+                "url" => '#',
+                "type" => "danger",
+                "css" => "w-100 btn-sm",
+                "id" => "new-ui-delete",
+                "data" => array(
+                    "name" => $this->model->get_id_root_section() ? $section_info['name'] : ($this->model->get_page_info() ? $this->model->get_page_info()['keyword'] : ''),
+                    "id" => $this->model->get_id_root_section() ? $this->model->get_id_root_section() : $this->model->get_active_page_id(),
+                    "del_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsDelete", $this->model->get_current_url_params()) : $this->model->get_link_url("cmsDelete", array("pid" => $this->model->get_active_page_id())),
+                    "cms_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsUpdate", array("pid" => $this->model->get_active_page_id(), "mode" => UPDATE, "type" => "prop")) : $this->model->get_link_url("cmsSelect", array("pid" => null)),
+                    "relation" => $this->model->get_id_root_section() ? RELATION_SECTION : RELATION_PAGE
                 )
             ));
+            $buttons = array(
+                new BaseStyleComponent("button", array(
+                    "label" => "Create New Child Page",
+                    "url" => $this->model->get_id_root_section() || !$this->model->can_create_new_child_page() ? null : $this->model->get_link_url("cmsInsert", array("pid" => $this->model->get_active_page_id())),
+                    "css" => "w-100 mb-2 btn-sm",
+                    "id" => "new-ui-create-child-page"
+                )),
+                $export_btn
+            );
+            if ($this->page_info && $this->page_info['id_actions'] > 1) {
+                $buttons[] = $delete_btn;
+            }
+            $form_items[] = new BaseStyleComponent("div", array(
+                "css" => "w-100 p-2",
+                "children" => $buttons
+            ));            
         }
 
         $params = $this->model->get_current_url_params();
@@ -1112,6 +1121,11 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content'] && $field['content'] != '[]' ? 'exists' : $field['content']
             ));
+        } else {
+            // do not show the whole condition as it takes a lof of space. 
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => $field['content']
+            ));
         }
         $ar = array(
             "gender" => isset($field['gender']) ? $field['gender'] : '',
@@ -1252,7 +1266,9 @@ class CmsView extends BaseView
      */
     private function output_page_preview_button()
     {
-        $this->output_local_component("page_preview");
+        if ($this->page_info && $this->page_info['id_actions'] > 1) {
+            $this->output_local_component("page_preview");
+        }
     }
 
     /**
@@ -1347,20 +1363,22 @@ class CmsView extends BaseView
      */
     private function output_page_preview()
     {
-        if ($this->model->is_navigation_main() && !$this->model->get_services()->get_user_input()->is_new_ui_enabled())
-            require __DIR__ . "/tpl_intro_nav.php";
-        else {
-            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
-                // show section if a section is selected otherwise show the whole page
-                $section_view = $this->get_local_component('section-view');
-                if ($section_view != null) {
-                    $this->output_local_component("section-view");
+        if ($this->page_info && $this->page_info['id_actions'] > 1) {
+            if ($this->model->is_navigation_main() && !$this->model->get_services()->get_user_input()->is_new_ui_enabled())
+                require __DIR__ . "/tpl_intro_nav.php";
+            else {
+                if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                    // show section if a section is selected otherwise show the whole page
+                    $section_view = $this->get_local_component('section-view');
+                    if ($section_view != null) {
+                        $this->output_local_component("section-view");
+                    } else {
+                        $this->output_local_component("page-view");
+                    }
                 } else {
+                    $this->output_local_component("section-view");
                     $this->output_local_component("page-view");
                 }
-            } else {
-                $this->output_local_component("section-view");
-                $this->output_local_component("page-view");
             }
         }
     }
