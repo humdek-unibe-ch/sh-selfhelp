@@ -5,6 +5,9 @@
  - Fix the `entry_list` style for the new UI
  - add field `all_fields` in `data_config`. Now if this is true it loads all fields as variables which can be accessed with {{var_name}} where var_name is the name of the field/column
  - add page `translations` where the users can define global translation keys and use the key to load the proper translation based on the selected language. A key is accessed by {{key_name}}, and this will be replaced with the value for the selected language
+ 
+ ###  Bugfix
+ - update flatpickr to v4.6.13, now time values can be cleared
 
 # v5.2.4
 ###  Bugfix
