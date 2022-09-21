@@ -313,6 +313,32 @@ abstract class BaseModel
         }
         return $groups;
     }
+
+    /**
+     * Generate and return the url of a list item.
+     *
+     * @param int $pid
+     *  The page id.
+     * @param int $sid
+     *  The root section id or the active section id if no root section is
+     *  available.
+     * @param int $ssid
+     *  The active section id.
+     * @return string
+     *  The generated url.
+     */
+    public function get_cms_item_url($pid, $sid=null, $ssid=null)
+    {
+        if ($sid == $ssid) $ssid = null;
+        if ($this->get_services()->get_user_input()->is_new_ui_enabled() && $this->is_link_active("cmsUpdate")) {
+            return $this->router->generate("cmsUpdate", array("pid" => $pid, "sid" => $sid, "ssid" => $ssid, "mode" => UPDATE, "type" => "prop"));
+        } else {
+            return $this->router->generate(
+                "cmsSelect",
+                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid)
+            );
+        }
+    }
     
 }
 ?>

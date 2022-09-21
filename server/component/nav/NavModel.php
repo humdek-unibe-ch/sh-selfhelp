@@ -48,15 +48,8 @@ class NavModel extends BaseModel
      */
     private function prepare_page($page)
     {
-        return array(
-            "id_navigation_section" => $page['id_navigation_section'],
-            "title" => $page['title'],
-            "keyword" => $page['keyword'],
-            "is_active" => $page['is_active'],
-            "url" => $page['url'],
-            "icon" => $page['icon'],
-            "children" => array()
-        );
+        $page["children"] = array();
+        return $page;
     }
 
     /**
@@ -177,12 +170,24 @@ class NavModel extends BaseModel
 
     /**
      * Fetches all page links that are placed in the navbar from the database.
-     *
-     * @retval array
+     * @return array
      *  An array prepared by NavModel::prepare_pages.
      */
     public function get_pages() {
-        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "mobile")', 'ORDER BY nav_position');
+        $backend = false;
+        if($this->router->route && isset($this->router->route['name'])){
+            $page_info = $this->db->fetch_page_info($this->router->route['name']);
+            if($page_info && isset($page_info['action'])){
+                $backend = ($page_info['action'] == PAGE_ACTION_BACKEND || $page_info['action'] == PAGE_ACTION_COMPONENT);
+            }
+        }
+        $backend_id_sql = '((SELECT id FROM actions WHERE `name` = "' . PAGE_ACTION_BACKEND . '"),(SELECT id FROM actions WHERE `name` = "' . PAGE_ACTION_COMPONENT . '"))';
+        if ($backend) {
+            $filter = 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_mobile . '") AND (id_actions IN ' . $backend_id_sql . ' OR IFNULL(id_actions, -1) = -1)';
+        } else {
+            $filter = 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_mobile . '") AND IFNULL(id_actions,-1) NOT IN ' . $backend_id_sql;
+        }
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], $filter, 'ORDER BY nav_position');
         return $this->pages = $this->prepare_pages($pages_db);
     }
 
@@ -192,8 +197,8 @@ class NavModel extends BaseModel
      * @retval array
      *  An array prepared by NavModel::prepare_pages.
      */
-    public function get_pages_mobile() { 
-        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "web")', 'ORDER BY nav_position');
+    public function get_pages_mobile() {
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_web . '")', 'ORDER BY nav_position');
         return $this->pages = $this->prepare_pages($pages_db);
      }
 

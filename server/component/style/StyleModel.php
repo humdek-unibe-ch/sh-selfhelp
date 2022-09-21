@@ -199,7 +199,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
                         $result = $data[0];
-                    } else {
+                    } else if (isset($config['fields'])) {
                         // return only the selected fields
                         foreach ($config['fields'] as $key => $field) {
                             // loop fields
@@ -412,10 +412,14 @@ class StyleModel extends BaseModel implements IStyleModel
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
                 '@user' =>$user_name,
-            ));
+            ));                       
             $field['content'] = str_replace('@user_code', $user_code, $field['content']);
             $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
             $field['content'] = str_replace('@user', $user_name, $field['content']);
+            $global_values = $this->db->get_global_values(); 
+            if($global_values){
+                $field['content'] = $this->replace_calced_values($field['content'],  $global_values);
+            }
             if ($data_config && $field['name'] != 'data_config') {
                 // if there is data_config set and the field is nto data_config, try to get dynamic data
                 $fields = $this->retrieve_data($data_config);
@@ -489,6 +493,10 @@ class StyleModel extends BaseModel implements IStyleModel
             $data_config = str_replace('@user_code', $user_code, $data_config);
             $data_config = str_replace('@project', $_SESSION['project'], $data_config);
             $data_config = str_replace('@user', $user_name, $data_config);
+            $global_values = $this->db->get_global_values(); 
+            if($global_values){
+                $data_config = $this->replace_calced_values($data_config,  $global_values);
+            }
             $data_config = json_decode($data_config, true);
         }
         foreach($fields as $field)

@@ -14,6 +14,13 @@ require_once __DIR__ . '/BaseDb.php';
 class PageDb extends BaseDb
 {
 
+    /* Private Properties *****************************************************/
+
+    /**
+     * The global values array
+     */
+    private $global_values;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -64,7 +71,7 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action, nav_position
+            $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.`name` AS `action`, nav_position
             FROM pages AS p
             LEFT JOIN actions AS a ON p.id_actions = a.id
             WHERE p.id_type != :type
@@ -218,18 +225,22 @@ class PageDb extends BaseDb
             return;
         }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
-        $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
-        if ($page_info && $page_info["protocol"]) {
-            $protocols = explode("|", $page_info["protocol"]);
-            if (in_array("DELETE", $protocols)) {
-                $page_info["access_level"] = "delete";
-            } else if (in_array("PATCH", $protocols)) {
-                $page_info["access_level"] = "update";
-            } else if (in_array("PUT", $protocols)) {
-                $page_info["access_level"] = "insert";
+        if ($page_id > 0) {
+            $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
+            if ($page_info && $page_info["protocol"]) {
+                $protocols = explode("|", $page_info["protocol"]);
+                if (in_array("DELETE", $protocols)) {
+                    $page_info["access_level"] = "delete";
+                } else if (in_array("PATCH", $protocols)) {
+                    $page_info["access_level"] = "update";
+                } else if (in_array("PUT", $protocols)) {
+                    $page_info["access_level"] = "insert";
+                }
             }
+            return $page_info;
+        } else {
+            return;
         }
-        return $page_info;
     }
 
     /**
@@ -637,6 +648,32 @@ class PageDb extends BaseDb
     public function clear_cache($type = null, $id = null)
     {
         $this->cache->clear_cache($type, $id);
+    }
+
+    /**
+     * Get selfhelp translations as array
+     * @retval array
+     * return translations array for the selected language
+     */
+    public function get_global_values()
+    {
+        if (!isset($this->global_values)) {
+            // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
+            $global_values_page = $this->fetch_page_info(SH_GLOBAL_VALUES);
+            if(isset($global_values_page[GLOBAL_VALUES])){
+                try {
+                    $this->global_values = json_decode($global_values_page[GLOBAL_VALUES], true);
+                } catch (\Throwable $th) {
+                    $this->global_values = array();
+                }
+            }else{
+                $this->global_values = array();
+            }
+        }
+        if(!$this->global_values){
+            $this->global_values = array();
+        }
+        return $this->global_values;
     }
 
 }

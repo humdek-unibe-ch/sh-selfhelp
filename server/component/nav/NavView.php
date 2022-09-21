@@ -33,15 +33,13 @@ class NavView extends BaseView
     private function output_nav_items()
     {
         $pages = $this->model->get_pages();
-        foreach($pages as $page)
-        {
-            $key = $page['keyword'];
+        foreach ($pages as $page) {
             $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
-            $icon = $this->get_icon($page['icon']);
-            if(empty($page['children']))
-                $this->output_nav_item($key, $page['title'], $nav_child, $page['is_active'], $icon);
-            else
-                $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active'], false, $icon);
+            if (empty($page['children'])) {
+                $this->output_nav_item($page, $nav_child);
+            } else {
+                $this->output_nav_menu($page, false);
+            }
         }
     }
 
@@ -75,77 +73,69 @@ class NavView extends BaseView
     /**
      * Render a navigation link, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
+     * @param string $page
+     *  The page info.
      * @param int $nav_child
      *  The id of the target navigation section (only relevant for navigation
      *  pages).
-     * @param bool $is_active
-     *  A flag indicating whether the menu item is currently active.
-     * @param string $icon
-     * if the menu should show an icon
      */
-    private function output_nav_item($key, $page_name, $nav_child=null,
-            $is_active=false, $icon='')
+    private function output_nav_item($page, $nav_child=null)
     {
-        $active = ($is_active) ? "active" : "";
+        $active = (isset($page['is_active']) && $page['is_active']) ? "active" : "";
+        $page_name = $page['title'];
         $params = array();
         if($nav_child !== null)
             $params['nav'] = $nav_child;        
-        $url = $this->model->get_link_url($key, $params);
+        $icon = $this->get_icon($page['icon']);
+        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
         require __DIR__ . "/tpl_nav_item.php";
+    }
+
+    /**
+     *  Render login link
+     */
+    private function output_login(){
+        $this->output_nav_item($this->model->get_services()->get_db()->fetch_page_info('login'), null);
     }
 
     /**
      * Render a navigation menu, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
-     * @param array $children
-     *  An array of page items (see NavModel::prepare_pages).
-     * @param bool $is_active
-     *  A flag indicating whether the menu item is currently active.
+     * @param string $page
+     *  The page info
      * @param bool $right
      *  If set to true the nemu is aligned to the right of the navbar. If set
      *  to false, the menu is left aligned (default).
-     * @param string $icon
-     * if the menu should show an icon
      */
-    private function output_nav_menu($key, $page_name, $children,
-            $is_active=false, $right=false, $icon='')
+    private function output_nav_menu($page, $right = false)
     {
+        $page_name = $page['title'];
+        $children = $page['children'];
+        $is_active = $page['is_active'];
         $align = ($right) ? "dropdown-menu-right" : "";
         $active = ($is_active) ? "active" : "";
+        $icon = $this->get_icon($page['icon']);
         require __DIR__ . "/tpl_nav_menu.php";
     }
 
     /**
      * Render a menu item, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
+     * @param array $page
+     *  The page info
      * @param int $nav_child
      *  The id of the target navigation section (only relevant for navigation
      *  pages).
-     * @param bool $is_active
-     *  A flag indicating whether the menu item is currently active.
-     * @param string $icon
-     * if the menu should show an icon
      */
-    private function output_nav_menu_item($key, $page_name, $nav_child,
-            $is_active=false, $icon='')
+    private function output_nav_menu_item($page, $nav_child)
     {
-        $active = ($is_active) ? "active" : "";
+        $active = (isset($page['is_active']) && $page['is_active']) ? "active" : "";
+        $page_name = $page['title'];
         $params = array();
         if($nav_child !== null)
             $params['nav'] = $nav_child;
-        $url = $this->model->get_link_url($key, $params);
+        $icon = $this->get_icon($page['icon']);
+        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
         require __DIR__ . "/tpl_nav_menu_item.php";
     }
 
@@ -159,16 +149,13 @@ class NavView extends BaseView
     {
         foreach($children as $page)
         {
-            $key = $page['keyword'];
             if(empty($page['children']))
             {
-                $icon = $this->get_icon($page['icon']);
                 $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
-                $this->output_nav_menu_item($key, $page['title'], $nav_child, $page['is_active'], $icon);
+                $this->output_nav_menu_item($page, $nav_child);
             }
             else{
-                $icon = $this->get_icon($page['icon']);
-                $this->output_nav_menu($key, $page['title'], $page['children'], $page['is_active'], false, $icon);
+                $this->output_nav_menu($page, false);
             }
         }
     }    
@@ -179,8 +166,8 @@ class NavView extends BaseView
     private function output_profile()
     {
         $profile = $this->model->get_profile();
-        $this->output_nav_menu('profile', $profile['title'],
-            $profile['children'], $profile['is_active'], true, $profile['avatar']); 
+        $profile['icon'] = $profile['avatar'];
+        $this->output_nav_menu($profile, true); 
     }
 
     /**

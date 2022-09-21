@@ -180,7 +180,7 @@ class CmsModel extends BaseModel
             "children" => $children,
             "url" => $url,
             "parent_id" => $parent_id,
-            "relation" => $relation,
+            "relation" => $relation
         );
     }
 
@@ -204,12 +204,21 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->has_access($this->mode, $id))
                 continue;
-            $root_idx = $this->get_item_index(intval($item['parent']),
-                $root_items);
-            $title = ($item['nav_position'] != '' ? '<i class="fas fa-bars"></i> ' : '') . $item['keyword']; // add menu icon for the pages that are in the menu
-            array_push($root_items[$root_idx]['children'],
-                $this->add_list_item($id, $title, array(),
-                    $this->get_item_url($id)));
+            $root_idx = $this->get_item_index(intval($item['parent']), $root_items);
+            if ($root_idx >= 0) {
+                $title = ($item['nav_position'] != '' ? '<i class="fas fa-bars"></i> ' : '') . $item['keyword']; // add menu icon for the pages that are in the menu
+                $page = $this->add_list_item(
+                    $id,
+                    $title,
+                    array(),
+                    $this->get_cms_item_url($id)
+                );
+                $page['action'] = $item['action'];
+                array_push(
+                    $root_items[$root_idx]['children'],
+                    $page
+                );
+            }
         }
         return $root_items;
     }
@@ -383,7 +392,7 @@ class CmsModel extends BaseModel
             else
                 $children = array();
             $res[] = $this->add_list_item($id_item, $item_db['name'], $children,
-                $this->get_item_url($this->id_page, $id_item));
+                $this->get_cms_item_url($this->id_page, $id_item));
         }
         return $res;
     }
@@ -457,7 +466,7 @@ class CmsModel extends BaseModel
                     $this->id_root_section,
                     $section['name'],
                     $this->fetch_section_hierarchy($this->id_root_section),
-                    $this->get_item_url($this->id_page, $this->id_root_section, $this->id_root_section)
+                    $this->get_cms_item_url($this->id_page, $this->id_root_section, $this->id_root_section)
                 );
             }
         }
@@ -562,33 +571,7 @@ class CmsModel extends BaseModel
             if($items[$idx]['id'] == $id)
                 return $idx;
         return -1;
-    }
-
-    /**
-     * Generate and return the url of a list item.
-     *
-     * @param int $pid
-     *  The page id.
-     * @param int $sid
-     *  The root section id or the active section id if no root section is
-     *  available.
-     * @param int $ssid
-     *  The active section id.
-     * @return string
-     *  The generated url.
-     */
-    private function get_item_url($pid, $sid=null, $ssid=null)
-    {
-        if ($sid == $ssid) $ssid = null;
-        if ($this->get_services()->get_user_input()->is_new_ui_enabled() && $this->is_link_active("cmsUpdate")) {
-            return $this->router->generate("cmsUpdate", array("pid" => $pid, "sid" => $sid, "ssid" => $ssid, "mode" => UPDATE, "type" => "prop"));
-        } else {
-            return $this->router->generate(
-                "cmsSelect",
-                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid)
-            );
-        }
-    }
+    }    
 
     /**
      * Get the current last position of a list of children.
@@ -625,9 +608,18 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->has_access($this->mode, $id))
                 continue;
-            $url = $this->get_item_url($id);
-            $title = ($item['nav_position'] != '' ? '<i class="fas fa-bars"></i> ' : '') . $item['keyword']; // add menu icon for the pages that are in the menu
-            array_push($res, $this->add_list_item($id, $title, array(),$url));
+            $url = $this->get_cms_item_url($id);
+            $title = $item['keyword'];
+            if($item['nav_position'] != ''){
+                if($item['action'] == PAGE_ACTION_BACKEND){
+                    $title = '<i class="fas fa-tools"></i> ' . $item['keyword']; // add backend icon for the pages that are in the menu
+                }else{
+                    $title = '<i class="fas fa-bars"></i> ' . $item['keyword']; // add menu icon for the pages that are in the menu
+                }
+            }
+            $page = $this->add_list_item($id, $title, array(), $url);
+            $page['action'] = $item['action'];
+            array_push($res, $page);
         }
         return $res;
     }
@@ -665,7 +657,7 @@ class CmsModel extends BaseModel
                 $id,
                 $item['name'],
                 $children,
-                $this->get_item_url($this->id_page, $id_root, $id_child),
+                $this->get_cms_item_url($this->id_page, $id_root, $id_child),
                 $item['parent_id'],
                 $item['relation']
             );

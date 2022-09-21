@@ -69,6 +69,16 @@ define('CALLBACK_NEW', 'callback_new');
 define('CALLBACK_ERROR', 'callback_error');
 define('CALLBACK_SUCCESS', 'callback_success');
 
+/* Page keywords */
+define('SH_GLOBAL_VALUES', 'sh_global_values');
+
+/* Page fields */
+define('GLOBAL_VALUES', 'global_values');
+
+/* Page actions */
+define('PAGE_ACTION_BACKEND', 'backend');
+define('PAGE_ACTION_COMPONENT', 'component');
+
 /* Entry modes */
 define('INSERT', 'insert');
 define('UPDATE', 'update');

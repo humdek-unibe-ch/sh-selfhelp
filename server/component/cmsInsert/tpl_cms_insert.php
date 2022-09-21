@@ -37,7 +37,7 @@
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="type" value="1" disabled>
-                        <label class="form-check-label">Custom</label>
+                        <label class="form-check-label">Backend</label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="type" value="5" disabled>

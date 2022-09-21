@@ -25,7 +25,7 @@
                         $this->output_profile();
                     }
                     else if($login)
-                        $this->output_nav_item('login', $login, null, $login_is_active);
+                        $this->output_login();
                 ?>
             </ul>
         </div>

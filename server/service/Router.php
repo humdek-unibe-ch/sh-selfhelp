@@ -28,6 +28,11 @@ class Router extends AltoRouter {
     public $current_route = NULL;
 
     /**
+     * The current keyword
+     */
+    public $current_keyword;
+
+    /**
      * The constructor which calls the parent constructor.
      *
      * @param instance $db
@@ -171,14 +176,18 @@ class Router extends AltoRouter {
      */
     public function get_keyword_from_url()
     {
+        if ($this->current_keyword) {
+            return $this->current_keyword;
+        }
         $path = explode('/', $_SERVER['REQUEST_URI']);
         if (BASE_PATH == '' && count($path) >= 1) {
-            return $path[1];
+            $this->current_keyword = $path[1];
         } else if (BASE_PATH != '' && count($path) >= 2) {
-            return $path[2];
+            $this->current_keyword = $path[2];
         } else {
-            return false;
+            $this->current_keyword = false;
         }
+        return $this->current_keyword;
     }
 }
 ?>

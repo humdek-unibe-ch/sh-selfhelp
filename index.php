@@ -183,7 +183,9 @@ function web_call($services, $router, $db){
             $function_name = "create_" . $router->route['name'] . "_page";
             if (is_callable($function_name)) {
                 call_user_func_array($function_name, array_merge(array("services"=>$services), $router->route['params']));                
-            } else {
+            } else {                
+                $page = new SectionPage($services, 'missing', array());
+                $page->output();                
                 throw new Exception("Cannot call custom function '$function_name'");
             }
         } else if ($router->route['target'] == "ajax") {

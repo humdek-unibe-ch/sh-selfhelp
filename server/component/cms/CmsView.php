@@ -167,6 +167,7 @@ class CmsView extends BaseView
         );
 
         $pages = $this->model->get_pages();
+        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND));
         $expand_pages = ($this->model->get_active_section_id() == null);
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id(), ' ');
@@ -524,6 +525,29 @@ class CmsView extends BaseView
     }
 
     /**
+     * Remove item ny key value
+     * @param array $items
+     * The fields array list
+     * @param string $keyName
+     * The key name that we check
+     * @param array $values
+     * the list with the values that we want to remove
+     * @return array
+     * Return the modified array
+     */
+    private function remove_item_by_key_value($items, $keyName, $values){
+        $itemKeys = array();
+        foreach ($values as $key => $value) {
+            // $itemKeys[] = array_search($value, array_column($items, $keyName));
+            $itemKeys = array_merge($itemKeys, array_keys(array_column($items, $keyName), $value));
+        }
+        foreach ($itemKeys as $key => $keyValue) {
+            unset($items[$keyValue]);
+        }
+        return $items;
+    }
+
+    /**
      * Add the page property list to the local component list. The page property
      * list is wrapped by a collapsible card component.
      */
@@ -554,9 +578,8 @@ class CmsView extends BaseView
         if($this->model->get_mode() == "update")
         {
             if ($this->page_info && $this->page_info['id_actions'] == 1) {
-                // if page is custom remove the option for keyword editing
-                $keyword_key = array_search('keyword', array_column($fields, 'name'));
-                unset($fields[$keyword_key]);
+                // if page is custom remove the option for editing some fields
+                $fields = $this->remove_item_by_key_value($fields, 'name', array("keyword", "id_pageAccessTypes","is_headless", "icon", "title", "description"));
             }
             $children[] =  $this->create_field_form($fields, $is_new_ui);
             $type = "warning";
@@ -690,19 +713,21 @@ class CmsView extends BaseView
                     }
                 }
             }
-            if (!$this->model->get_id_root_section() && $this->page_info && $this->page_info['id_actions'] > 1) {
+            if (!$this->model->get_id_root_section()) {
                 // if there is no root section it is page
                 // add page reordering and header positions    
-                $properties[] = new BaseStyleComponent("descriptionItem", array(
-                    "gender" => '',
-                    "title" => 'Header Position',
-                    "type_input" => 'checkbox',
-                    "locale" => '',
-                    "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
-                    "display" => 0,
-                    "css" => 'mb-0',
-                    "children" => $this->get_page_header()
-                ));
+                if ($this->page_info && $this->page_info['id_actions'] > 1) {
+                    $properties[] = new BaseStyleComponent("descriptionItem", array(
+                        "gender" => '',
+                        "title" => 'Header Position',
+                        "type_input" => 'checkbox',
+                        "locale" => '',
+                        "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                        "display" => 0,
+                        "css" => 'mb-0',
+                        "children" => $this->get_page_header()
+                    ));
+                }
             }
             if (count($content_fields) > 0) {
                 // if there are content fields we put them in a card
@@ -736,16 +761,18 @@ class CmsView extends BaseView
                     $form_items[] = $new_field;
                 }                
             }
-            $form_items[] = new BaseStyleComponent("descriptionItem", array(
-                "gender" => '',
-                "title" => 'Header Position',
-                "type_input" => 'checkbox',
-                "locale" => '',
-                "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
-                "display" => 0,
-                "css" => 'mb-0',
-                "children" => $this->get_page_header()
-            ));
+            if ($this->page_info && $this->page_info['id_actions'] > 1) {
+                $form_items[] = new BaseStyleComponent("descriptionItem", array(
+                    "gender" => '',
+                    "title" => 'Header Position',
+                    "type_input" => 'checkbox',
+                    "locale" => '',
+                    "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                    "display" => 0,
+                    "css" => 'mb-0',
+                    "children" => $this->get_page_header()
+                ));
+            }
         }
         if($this->model->is_navigation_main()){
             $form_items[] = $this->get_nav_help_card();
@@ -1088,7 +1115,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'id', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
             ));
         }
         else if ($field['type'] == "select-formName") {
