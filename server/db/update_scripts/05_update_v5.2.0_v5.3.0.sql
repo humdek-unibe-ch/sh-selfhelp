@@ -16,7 +16,7 @@ INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_ins
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_globals, get_field_id('title'), '0000000001', 'Globals');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_globals, get_field_id('title'), '0000000002', 'Globals');
 
--- add page type transaltion (it is unique and only one page should be from this type)
+-- add page type global_values
 INSERT IGNORE INTO `pageType` (`name`) VALUES ('global_values');
 
 -- add translation page
@@ -54,3 +54,27 @@ INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_lang
 UPDATE pages
 SET parent = @id_page_modules
 WHERE keyword IN ('moduleFormsAction','moduleFormsActions','moduleQualtrics','moduleQualtricsProject','moduleQualtricsProjectAction','moduleQualtricsSurvey','moduleQualtricsSync','moduleScheduledJobs','moduleScheduledJobsCompose');
+
+SET @id_page_email = (SELECT id FROM pages WHERE keyword = 'email');
+
+-- add page type global_values
+INSERT IGNORE INTO `pageType` (`name`) VALUES ('emails');
+
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_activate'), NULL, 'Activation email text');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_reminder'), NULL, 'Reminder email text');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_subject'), NULL, 'Email subject text');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_activate_subject'), NULL, 'Email activate subject text');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_reminder_subject'), NULL, 'Email reminder subject text');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('title'), NULL, 'Page title');
+
+UPDATE pages_fields_translation
+SET content = 'Email Templates'
+WHERE id_pages = @id_page_email AND id_fields = get_field_id('title');
+
+UPDATE `fields`
+SET id_type = get_field_type_id('markdown')
+WHERE `name` IN ('email_activate','email_reminder','email_subject','email_activate_subject','email_reminder_subject');
+
+UPDATE pages
+SET url = '/admin/email', id_actions = (SELECT id FROM actions WHERE `name` = 'backend' LIMIT 0,1), nav_position = 20, parent = @id_page_globals, id_type = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1)
+WHERE keyword = 'email';

@@ -227,9 +227,10 @@ class JobScheduler
             $this->db->begin_transaction();
             $execution_reult = true;
             $id_users = $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null;
+            $data['config'] = isset($data['config']) ? $data['config'] : '';
             if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email)) {
                 // send email
-                $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $data['config'],  $id_users);
+                $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $data['config'], $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
                 // send notificaiton
                 $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);
