@@ -111,7 +111,7 @@ class NavView extends BaseView
     {
         $page_name = $page['title'];
         $children = $page['children'];
-        $is_active = $page['is_active'];
+        $is_active = $page['is_active'] ?? false;
         $align = ($right) ? "dropdown-menu-right" : "";
         $active = ($is_active) ? "active" : "";
         $icon = $this->get_icon($page['icon']);
@@ -166,7 +166,7 @@ class NavView extends BaseView
     private function output_profile()
     {
         $profile = $this->model->get_profile();
-        $profile['icon'] = $profile['avatar'];
+        $profile['icon'] = $profile['avatar'] ?? '';
         $this->output_nav_menu($profile, true); 
     }
 
