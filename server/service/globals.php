@@ -71,9 +71,19 @@ define('CALLBACK_SUCCESS', 'callback_success');
 
 /* Page keywords */
 define('SH_GLOBAL_VALUES', 'sh_global_values');
+define('SH_MAINTENANCE', 'maintenance');
+define('SH_EMAIL', 'email');
 
 /* Page fields */
-define('GLOBAL_VALUES', 'global_values');
+define('PF_GLOBAL_VALUES', 'global_values');
+define('PF_MAINTENANCE', 'maintenance');
+define('PF_MAINTENANCE_DATE', 'maintenance_date');
+define('PF_MAINTENANCE_TIME', 'maintenance_time');
+define('PF_EMAIL_ACTIVATE', 'email_activate');
+define('PF_EMAIL_REMINDER', 'email_reminder');
+define('PF_EMAIL_SUBJECT', 'email_subject');
+define('PF_EMAIL_ACTIVATE_SUBJECT', 'email_activate_subject');
+define('PF_EMAIL_REMINDER_SUBJECT', 'email_reminder_subject');
 
 /* Page actions */
 define('PAGE_ACTION_BACKEND', 'backend');

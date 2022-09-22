@@ -187,21 +187,10 @@ class UserModel extends BaseModel
      */
     private function get_content($url, $email_type)
     {
-        $content = "";
-        $sql = "SELECT content FROM pages_fields_translation AS pft
-            LEFT JOIN pages AS p ON p.id = pft.id_pages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE p.keyword = 'email' AND f.name = :field
-            AND pft.id_languages = :lang";
-        $res = $this->db->query_db_first($sql, array(
-            ':lang' => $_SESSION['language'],
-            ':field' => $email_type,
-        ));
-        if ($res) {
-            $content = $res['content'];
-            $content = str_replace('@project', $_SESSION['project'], $content);
-            $content = str_replace('@link', $url, $content);
-        }
+        $email_page = $this->db->fetch_page_info(SH_EMAIL);
+        $content = $email_page[$email_type];
+        $content = str_replace('@project', $_SESSION['project'], $content);
+        $content = str_replace('@link', $url, $content);
         return $content;
     }
 
@@ -346,10 +335,10 @@ class UserModel extends BaseModel
             "token" => $token,
             "mode" => "activate",
         ));
-        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-        $subject = $this->get_content($url, 'email_activate_subject');
+        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;        
+        $subject = $this->get_content($url, PF_EMAIL_ACTIVATE_SUBJECT);
         $from = "noreply@" . $_SERVER['HTTP_HOST'];
-        $msg = $this->get_content($url, 'email_activate');
+        $msg = $this->get_content($url, PF_EMAIL_ACTIVATE);
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -976,9 +965,9 @@ class UserModel extends BaseModel
                 "mode" => "activate",
             ));
             $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
-            $subject = $this->get_content($url, 'email_activate_subject');
+            $subject = $this->get_content($url, PF_EMAIL_ACTIVATE_SUBJECT);
             $from = "noreply@" . $_SERVER['HTTP_HOST'];
-            $msg = $this->get_content($url, 'email_activate');
+            $msg = $this->get_content($url, PF_EMAIL_ACTIVATE);
             $mail = array(
                 "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
                 "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),

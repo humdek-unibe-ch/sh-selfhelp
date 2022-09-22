@@ -480,16 +480,16 @@ abstract class BasePage
         $msg = null;
         $date = null;
         $time = null;
-        $maintenance_fields = $this->services->get_db()->fetch_page_info('maintenance');
+        $maintenance_fields = $this->services->get_db()->fetch_page_info(SH_MAINTENANCE);
         if ($maintenance_fields) {
-            if (isset($maintenance_fields['maintenance'])) {
-                $msg = $maintenance_fields['maintenance'];
+            if (isset($maintenance_fields[PF_MAINTENANCE])) {
+                $msg = $maintenance_fields[PF_MAINTENANCE];
             }
-            if (isset($maintenance_fields['maintenance_date'])) {
-                $date = $maintenance_fields['maintenance_date'];
+            if (isset($maintenance_fields[PF_MAINTENANCE_DATE])) {
+                $date = $maintenance_fields[PF_MAINTENANCE_DATE];
             }
-            if (isset($maintenance_fields['maintenance_time'])) {
-                $time = $maintenance_fields['maintenance_time'];
+            if (isset($maintenance_fields[PF_MAINTENANCE_TIME])) {
+                $time = $maintenance_fields[PF_MAINTENANCE_TIME];
             }
         }
         if($msg && $date && $time)

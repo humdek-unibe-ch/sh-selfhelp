@@ -660,9 +660,9 @@ class PageDb extends BaseDb
         if (!isset($this->global_values)) {
             // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
             $global_values_page = $this->fetch_page_info(SH_GLOBAL_VALUES);
-            if(isset($global_values_page[GLOBAL_VALUES])){
+            if(isset($global_values_page[PF_GLOBAL_VALUES])){
                 try {
-                    $this->global_values = json_decode($global_values_page[GLOBAL_VALUES], true);
+                    $this->global_values = json_decode($global_values_page[PF_GLOBAL_VALUES], true);
                 } catch (\Throwable $th) {
                     $this->global_values = array();
                 }
