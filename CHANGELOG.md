@@ -7,6 +7,7 @@
  - add page `translations` where the users can define global translation keys and use the key to load the proper translation based on the selected language. A key is accessed by {{key_name}}, and this will be replaced with the value for the selected language
  - separate CMS from website, now the CMS can be accessed at `/admin/cms` when manually added
  - move page `email` to page `globals` and convert the page to `backend` page
+ - clear user data now clear the static data for the user too
  
  ###  Bugfix
  - update flatpickr to v4.6.13, now time values can be cleared
