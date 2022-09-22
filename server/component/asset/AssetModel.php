@@ -66,8 +66,8 @@ class AssetModel extends BaseModel
         if(!$fh) {
             return "postprocess: failed to open the uploaded file";
         }
-        $sql = "SELECT * FROM uploadTables WHERE name = ':name'";
-        $has_table = $this->db->query_db_first($sql, array("name" => $name));
+        $sql = "SELECT * FROM uploadTables WHERE `name` = :tbl_name";
+        $has_table = $this->db->query_db_first($sql, array("tbl_name" => $name));
 
         if(!$overwrite && $has_table) {
             fclose($fh);
