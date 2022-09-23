@@ -104,7 +104,7 @@ class Hooks
                 if (!$func) {
                     $func = $hook['function'];
                 }
-                uopz_set_return($class, $func, function (...$args) use ($hookService, $hook_method, $class, $func) {
+                $new_func = function (...$args) use ($hookService, $hook_method, $class, $func) {
                     if (class_exists($hook_method['exec_class'])) {
                         $hookClassInstance = new $hook_method['exec_class']($hookService->get_services());
                         if (method_exists($hookClassInstance, $hook_method['exec_function'])) {
@@ -112,20 +112,20 @@ class Hooks
                             $reflector = new ReflectionClass($class);
                             $parameters = $reflector->getMethod($func)->getParameters();
                             $argsKeys = array();
-                            foreach($parameters as $key => $parameter)
-                            {
-                                if(isset($args[$key])){
+                            foreach ($parameters as $key => $parameter) {
+                                if (isset($args[$key])) {
                                     $argsKeys[$parameter->name] = $args[$key];
                                 }
                             }
                             $argsKeys['hookedClassInstance'] = $this;
                             $argsKeys['methodName'] = $func;
-                            
+
                             $res = $hookClassInstance->{$hook_method['exec_function']}($argsKeys);
                             return $res;
                         }
                     }
-                }, true);
+                };
+                uopz_set_return($class, $func, $new_func, true);
                 $class = $hook_method['exec_class'];
                 $func = $hook_method['exec_function'];
             }
