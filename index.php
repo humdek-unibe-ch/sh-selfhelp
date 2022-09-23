@@ -125,7 +125,7 @@ function mobile_call($services, $router, $db){
             $page = new ComponentPage($services, $router->route['name'],
                 $router->route['params']);
             $page->output();
-        } else if ($router->route['target'] == "custom") {
+        } else if ($router->route['target'] == PAGE_ACTION_BACKEND) {
             $function_name = "create_" . $router->route['name'] . "_page";
             if (is_callable($function_name)) {
                 call_user_func_array($function_name, array_merge(array("services"=>$services), $router->route['params']));                
@@ -179,7 +179,7 @@ function web_call($services, $router, $db){
             $page = new ComponentPage($services, $router->route['name'],
                 $router->route['params']);
             $page->output();
-        } else if ($router->route['target'] == "custom") {
+        } else if ($router->route['target'] == PAGE_ACTION_BACKEND) {
             $function_name = "create_" . $router->route['name'] . "_page";
             if (is_callable($function_name)) {
                 call_user_func_array($function_name, array_merge(array("services"=>$services), $router->route['params']));                
