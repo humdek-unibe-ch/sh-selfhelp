@@ -113,13 +113,6 @@ class StyleModel extends BaseModel implements IStyleModel
             "content" => $id,
             "type" => "internal",
         );        
-        $fields = $this->db->fetch_section_fields($id);
-        $this->set_db_fields($fields);
-        if(!$this->style_name){
-            return;
-        }
-        $this->params = $params;
-        $this->id_page = $id_page;
         if ($this->style_name == 'entryRecord') {
             //if it is entryView calculate the entry record
             $res = $this->calc_entry_record();
@@ -128,6 +121,13 @@ class StyleModel extends BaseModel implements IStyleModel
             // // take the inherit entry record
             $this->entry_record = $entry_record;
         }
+        $fields = $this->db->fetch_section_fields($id);
+        $this->set_db_fields($fields);
+        if(!$this->style_name){
+            return;
+        }
+        $this->params = $params;
+        $this->id_page = $id_page;
 
         if (count($entry_record) > 0) {
             $this->adjust_entry_records();
@@ -414,7 +414,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @return string
      * Return the field content
      */
-    private function calc_dynamic_values($field, $data_config, $user_name, $user_code){
+    private function calc_dynamic_values($field, $data_config, $user_name, $user_code){                
         // replace the field content with the global variables
         if ($field['content']) {
             $field['content'] = $this->replace_calced_values($field['content'], array(
@@ -439,6 +439,20 @@ class StyleModel extends BaseModel implements IStyleModel
                             $field['content'] = str_replace($field_name, $field_value, $field['content']);
                         }
                     }
+                }
+            }
+        }
+        if ($this->entry_record) {
+            if ($field['type'] == 'json') {
+                $json_string = json_encode($field['content']);
+                $json_string = $this->get_entry_value($this->entry_record, $json_string);
+                $field['content']  = json_decode($json_string, true);
+            } else {
+                $field['content'] = $this->get_entry_value($this->entry_record, $field['content'], $field['content'] );
+                if ($field['type'] == 'markdown') {
+                    $field['content']  = $this->parsedown->text($field['content'] );
+                } else if ($field['type'] == 'markdown-inline') {
+                    $field['content']  = $this->parsedown->line($field['content'] );
                 }
             }
         }
@@ -521,9 +535,9 @@ class StyleModel extends BaseModel implements IStyleModel
             $default = $field["default_value"] ?? "";
             if ($field['name'] == "url") {
                 $field['content'] = $this->get_url($field['content']);
-            } else if ($field['type'] == "markdown" && (!$this->entry_record || count($this->entry_record) == 0)) {
+            } else if ($field['type'] == "markdown") {
                 $field['content'] = $this->parsedown->text($field['content']);
-            } else if ($field['type'] == "markdown-inline" && (!$this->entry_record || count($this->entry_record) == 0)) {
+            } else if ($field['type'] == "markdown-inline") {
                 $field['content'] = $this->parsedown->line($field['content']);
             } else if ($field['type'] == "json") {
                 $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
