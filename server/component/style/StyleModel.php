@@ -198,7 +198,16 @@ class StyleModel extends BaseModel implements IStyleModel
                     });
                     if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
-                        $result = $data[0];
+                        $all_values = array();
+                        foreach ($data as $key => $value) {
+                            foreach ($value as $field_name => $field_value) {
+                                $all_values[$field_name][] = $field_value;
+                            }
+                        }
+                        foreach ($all_values as $key => $value) {
+                            $all_values[$key] = implode(',', $value);
+                        }
+                        $result = $all_values;
                     } else if (isset($config['fields'])) {
                         // return only the selected fields
                         foreach ($config['fields'] as $key => $field) {
@@ -426,7 +435,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = $this->replace_calced_values($field['content'], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
-                        if($field_name[0]== '@'){
+                        if ($field_name[0] == '@') {
                             $field['content'] = str_replace($field_name, $field_value, $field['content']);
                         }
                     }
