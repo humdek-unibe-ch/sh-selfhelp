@@ -198,16 +198,20 @@ class StyleModel extends BaseModel implements IStyleModel
                     });
                     if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
-                        $all_values = array();
-                        foreach ($data as $key => $value) {
-                            foreach ($value as $field_name => $field_value) {
-                                $all_values[$field_name][] = $field_value;
+                        if ($config['retrieve'] === 'all') {
+                            $all_values = array();
+                            foreach ($data as $key => $value) {
+                                foreach ($value as $field_name => $field_value) {
+                                    $all_values[$field_name][] = $field_value;
+                                }
                             }
+                            foreach ($all_values as $key => $value) {
+                                $all_values[$key] = implode(',', $value);
+                            }
+                            $result = $all_values;
+                        } else {
+                            $result = $data[0];
                         }
-                        foreach ($all_values as $key => $value) {
-                            $all_values[$key] = implode(',', $value);
-                        }
-                        $result = $all_values;
                     } else if (isset($config['fields'])) {
                         // return only the selected fields
                         foreach ($config['fields'] as $key => $field) {
