@@ -676,5 +676,44 @@ class PageDb extends BaseDb
         return $this->global_values;
     }
 
+    /**
+     * Replace the calculated values
+     * @param string or array $field_content
+     * The value of the field contetn
+     * @param array $calc_formula_values
+     * the calculated variables with their value
+     * @return string or array
+     * Return the modified value of the field_content
+     */
+    public function replace_calced_values($field_content, $calc_formula_values)
+    {
+        $is_array = false;
+        if(is_array($field_content)){
+            $is_array = true;
+            $field_content = json_encode($field_content);
+        }
+        $field_content = preg_replace_callback('~{{.*?}}~s', function ($m) use ($calc_formula_values) {
+            $res = trim(str_replace("{{", "", str_replace("}}", "", $m[0])));
+            if (isset($calc_formula_values[$res])) {
+                if (is_array($calc_formula_values[$res])) {
+                    return json_encode($calc_formula_values[$res]);
+                } else {
+                    return isset($calc_formula_values[$res]) ? $calc_formula_values[$res] : $res . ' is not set';
+                }
+            } else {
+                // return '';
+            }
+            return str_replace(" ", "", $m[0]);
+        }, $field_content);
+        foreach ($calc_formula_values as $var => $var_value) {
+            if (is_array($var_value)) {
+                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', json_encode($var_value), $field_content);
+            } else if($var && $var_value) {
+                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', $var_value, $field_content);
+            }
+        }
+        return $is_array ? json_decode($field_content, true) : $field_content;
+    }
+
 }
 ?>

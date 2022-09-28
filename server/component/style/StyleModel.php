@@ -368,44 +368,7 @@ class StyleModel extends BaseModel implements IStyleModel
         }
     }
 
-    /**
-     * Replace the calculated values
-     * @param string or array $field_content
-     * The value of the field contetn
-     * @param array $calc_formula_values
-     * the calculated variables with their value
-     * @return string or array
-     * Return the modified value of the field_content
-     */
-    private function replace_calced_values($field_content, $calc_formula_values)
-    {
-        $is_array = false;
-        if(is_array($field_content)){
-            $is_array = true;
-            $field_content = json_encode($field_content);
-        }
-        $field_content = preg_replace_callback('~{{.*?}}~s', function ($m) use ($calc_formula_values) {
-            $res = trim(str_replace("{{", "", str_replace("}}", "", $m[0])));
-            if (isset($calc_formula_values[$res])) {
-                if (is_array($calc_formula_values[$res])) {
-                    return json_encode($calc_formula_values[$res]);
-                } else {
-                    return isset($calc_formula_values[$res]) ? $calc_formula_values[$res] : $res . ' is not set';
-                }
-            } else {
-                // return '';
-            }
-            return str_replace(" ", "", $m[0]);
-        }, $field_content);
-        foreach ($calc_formula_values as $var => $var_value) {
-            if (is_array($var_value)) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', json_encode($var_value), $field_content);
-            } else if($var && $var_value) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', $var_value, $field_content);
-            }
-        }
-        return $is_array ? json_decode($field_content, true) : $field_content;
-    }
+    
     
     /**
      * Check if there is dynamic data that should be calculated. If there are it is calculated and returned
@@ -423,7 +386,7 @@ class StyleModel extends BaseModel implements IStyleModel
     private function calc_dynamic_values($field, $data_config, $user_name, $user_code){                
         // replace the field content with the global variables
         if ($field['content']) {
-            $field['content'] = $this->replace_calced_values($field['content'], array(
+            $field['content'] = $this->db->replace_calced_values($field['content'], array(
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
                 '@user' =>$user_name,
@@ -433,12 +396,12 @@ class StyleModel extends BaseModel implements IStyleModel
             $field['content'] = str_replace('@user', $user_name, $field['content']);
             $global_values = $this->db->get_global_values(); 
             if($global_values){
-                $field['content'] = $this->replace_calced_values($field['content'],  $global_values);
+                $field['content'] = $this->db->replace_calced_values($field['content'],  $global_values);
             }
             if ($data_config && $field['name'] != 'data_config') {
                 // if there is data_config set and the field is nto data_config, try to get dynamic data
                 $fields = $this->retrieve_data($data_config);
-                $field['content'] = $this->replace_calced_values($field['content'], $fields);
+                $field['content'] = $this->db->replace_calced_values($field['content'], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
                         if ($field_name[0] == '@') {
@@ -514,7 +477,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $data_config = $data_config_key ? $fields[$data_config_key]['content'] : null;
         if ($data_config) {
             // if data_config is set replace if there are any globals
-            $data_config = $this->replace_calced_values($data_config, array(
+            $data_config = $this->db->replace_calced_values($data_config, array(
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
                 '@user' =>$user_name,
@@ -524,7 +487,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $data_config = str_replace('@user', $user_name, $data_config);
             $global_values = $this->db->get_global_values(); 
             if($global_values){
-                $data_config = $this->replace_calced_values($data_config,  $global_values);
+                $data_config = $this->db->replace_calced_values($data_config,  $global_values);
             }
             $data_config = json_decode($data_config, true);
         }
@@ -795,10 +758,10 @@ class StyleModel extends BaseModel implements IStyleModel
             return $value;
         }        
             
-        $value = $this->replace_calced_values($value, $entry_data);
+        $value = $this->db->replace_calced_values($value, $entry_data);
         $user_name = $this->db->fetch_user_name();
         $user_code = $this->db->get_user_code();
-        $value = $this->replace_calced_values($value, array(
+        $value = $this->db->replace_calced_values($value, array(
             '@user_code' => $user_code,
             '@project' => $_SESSION['project'],
             '@user' => $user_name
