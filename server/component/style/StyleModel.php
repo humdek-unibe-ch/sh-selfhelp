@@ -208,10 +208,8 @@ class StyleModel extends BaseModel implements IStyleModel
                             foreach ($all_values as $key => $value) {
                                 $all_values[$key] = implode(',', $value);
                             }
-                            // $result = $all_values;
                             $result = array_merge($result, $all_values);
                         } else {
-                            // $result = $data[0];
                             $result = array_merge($result, $data[0]);
                         }
                     } else if (isset($config['fields'])) {
