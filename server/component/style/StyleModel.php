@@ -218,23 +218,19 @@ class StyleModel extends BaseModel implements IStyleModel
                             // loop fields
                             $i = 0;
                             $field_value = '';
+                            $all_values = array();
                             foreach ($data as $key => $row) {
-                                $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value
+                                $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value                                
                                 if ($config['retrieve'] != 'all') {
                                     $field_value = $val;
                                     break; // we don need the others;
                                 } else {
-                                    if ($i === 0) {
-                                        $field_value = '"' . $val . '"'; // add quotes to the first entry in the array
-                                    } else {
-                                        // get the other values too                                
-                                        $field_value = $field_value . ',"' . $val . '"';
-                                    }
+                                    $all_values[] = $val;
                                 }
                                 $i++;
                             }
                             if ($config['retrieve'] === 'all') {
-                                $field_value = "[" . $field_value . "]"; // add array bracket around the whole result
+                                $field_value = implode(',', $all_values);
                             }
                             $result[$field['field_holder']] = $field_value;
                         }
