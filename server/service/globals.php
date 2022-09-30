@@ -74,6 +74,9 @@ define('SH_GLOBAL_VALUES', 'sh_global_values');
 define('SH_MAINTENANCE', 'maintenance');
 define('SH_EMAIL', 'email');
 
+/* Style Types */
+define('STYLE_TYPE_INTERNAL', 'internal');
+
 /* Page fields */
 define('PF_GLOBAL_VALUES', 'global_values');
 define('PF_MAINTENANCE', 'maintenance');
