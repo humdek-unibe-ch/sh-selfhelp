@@ -78,3 +78,5 @@ WHERE `name` IN ('email_activate','email_reminder','email_subject','email_activa
 UPDATE pages
 SET url = '/admin/email', id_actions = (SELECT id FROM actions WHERE `name` = 'backend' LIMIT 0,1), nav_position = 20, parent = @id_page_globals, id_type = (SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1)
 WHERE keyword = 'email';
+
+INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'dynamic_json', '15');
