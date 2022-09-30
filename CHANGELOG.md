@@ -1,4 +1,4 @@
-# v5.3.0
+# v5.3.0 - PHP 8 Support
 ###  New features
  - Check if a JSON value is dynamically set with {{}} and if it is accept it
  - All dynamic variables can be accessed with {{var_name}} where the var_name is the name of the variable

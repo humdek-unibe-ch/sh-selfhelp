@@ -12,3 +12,11 @@ Currently available styles include, but are not limited to, alert boxes, buttons
 
  - For information about documentation refer to [DOCUMENTS](DOCUMENTS.md)
  - For information about recent changes refer to [CHANGELOG](CHANGELOG.md)
+
+PHP 8.1 Installation
+
+ - `sudo add-apt-repository ppa:ondrej/php`
+ - `sudo apt install php8.1`
+ - `sudo apt-get install php8.1-fpm php8.1-mysql libapache2-mod-php8.1 libapache2-mod-fcgid php8.1-apcu php8.1-uopz -y`
+
+
