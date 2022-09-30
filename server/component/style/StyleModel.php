@@ -472,7 +472,10 @@ class StyleModel extends BaseModel implements IStyleModel
             } else if ($field['type'] == "markdown-inline") {
                 $field['content'] = $this->parsedown->line($field['content']);
             } else if ($field['type'] == "json") {
-                $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
+                $parsed_json = $field['content'] ? json_decode($field['content'], true) : array();
+                // if ($parsed_json) {
+                    $field['content'] = $parsed_json;
+                // }
                 /* $field['content'] = $this->json_style_parse($field['content']); */
             } else if ($field['type'] == "condition") {
                 $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
