@@ -604,6 +604,9 @@ class UserInput
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_DYNAMIC, $user_id = null, $db_first = false)
     {
+        if(strpos($filter, '{{') !== false ){
+            $filter = ''; // filter is not correct, tried to be set dynamically but failed
+        }
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $form_type, $user_id, $db_first]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
