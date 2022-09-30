@@ -1,6 +1,4 @@
 <?php  
-// echo phpinfo();
-// return;
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
@@ -13,10 +11,15 @@ require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
 
+if(defined('SHOW_PHP_INFO') && SHOW_PHP_INFO){
+    echo phpinfo();
+    return;
+}
+
 // load plugin globals
 loadPluginGlobals();
 
-if(defined(CORS) && CORS){
+if(defined('CORS') && CORS){
     cors();
 }
 

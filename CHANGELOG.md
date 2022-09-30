@@ -9,6 +9,7 @@
  - move page `email` to page `globals` and convert the page to `backend` page
  - clear user data now clear the static data for the user too
  - **BREAKING** - now when we retrieve all data from data config it return a coma separated string instead of "['ex1','ex2','ex3']"
+ - add an option to show php_info. If the global `SHOW_PHP_INFO` is set to `true` in `globals_untracked.php`
  
  ###  Bugfix
  - update flatpickr to v4.6.13, now time values can be cleared
