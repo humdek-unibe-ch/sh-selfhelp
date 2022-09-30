@@ -127,11 +127,7 @@ class StyleModel extends BaseModel implements IStyleModel
             return;
         }
         $this->params = $params;
-        $this->id_page = $id_page;
-
-        if (count($entry_record) > 0) {
-            $this->adjust_entry_records();
-        }        
+        $this->id_page = $id_page;  
 
         $this->calc_condition();
 
@@ -340,29 +336,6 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         return isset($ser_data) ? json_decode($ser_data, true) : $data_config;
     }
-
-    /**
-     * Adjust the fields content and replace it based on the entry record data
-     */
-    private function adjust_entry_records()
-    {
-        foreach ($this->db_fields as $key => $value) {
-            if ($value['type'] == 'json') {
-                $json_string = json_encode($value['content']);
-                $json_string = $this->get_entry_value($this->entry_record, $json_string);
-                $this->db_fields[$key]['content'] = json_decode($json_string, true);
-            } else {
-                $this->db_fields[$key]['content'] = $this->get_entry_value($this->entry_record, $value['content'], $this->db_fields[$key]['type']);
-                if ($value['type'] == 'markdown') {
-                    $this->db_fields[$key]['content'] = $this->parsedown->text($this->db_fields[$key]['content']);
-                } else if ($value['type'] == 'markdown-inline') {
-                    $this->db_fields[$key]['content'] = $this->parsedown->line($this->db_fields[$key]['content']);
-                }
-            }
-        }
-    }
-
-    
     
     /**
      * Check if there is dynamic data that should be calculated. If there are it is calculated and returned
@@ -377,7 +350,12 @@ class StyleModel extends BaseModel implements IStyleModel
      * @return string
      * Return the field content
      */
-    private function calc_dynamic_values($field, $data_config, $user_name, $user_code){                
+    private function calc_dynamic_values($field, $data_config, $user_name, $user_code){
+        //adjust entry records 
+        if ($this->entry_record) {
+            //adjust entry value
+            $field['content'] = $this->get_entry_value($this->entry_record, $field['content']);
+        }
         // replace the field content with the global variables
         if ($field['content']) {
             $field['content'] = $this->db->replace_calced_values($field['content'], array(
@@ -404,21 +382,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     }
                 }
             }
-        }
-        if ($this->entry_record) {
-            if ($field['type'] == 'json') {
-                $json_string = json_encode($field['content']);
-                $json_string = $this->get_entry_value($this->entry_record, $json_string);
-                $field['content']  = json_decode($json_string, true);
-            } else {
-                $field['content'] = $this->get_entry_value($this->entry_record, $field['content'], $field['content'] );
-                if ($field['type'] == 'markdown') {
-                    $field['content']  = $this->parsedown->text($field['content'] );
-                } else if ($field['type'] == 'markdown-inline') {
-                    $field['content']  = $this->parsedown->line($field['content'] );
-                }
-            }
-        }
+        }        
         return $field['content'];
     }
 
@@ -470,6 +434,10 @@ class StyleModel extends BaseModel implements IStyleModel
         $data_config_key = array_search('data_config', array_column($fields, 'name'));
         $data_config = $data_config_key ? $fields[$data_config_key]['content'] : null;
         if ($data_config) {
+            if ($this->entry_record) {
+                //adjust entry value
+                $data_config = $this->get_entry_value($this->entry_record, $data_config);
+            }
             // if data_config is set replace if there are any globals
             $data_config = $this->db->replace_calced_values($data_config, array(
                 '@user_code' => $user_code,
@@ -486,7 +454,8 @@ class StyleModel extends BaseModel implements IStyleModel
             $data_config = json_decode($data_config, true);
         }
         foreach($fields as $field)
-        {
+        {            
+
             // set style info
             $this->style_name = $field['style'];
             $this->style_type = $field['type'];
