@@ -1,5 +1,9 @@
 # v5.4.0 not published
+###  Bugfix
  - set `admin-link` to be a `backend` page
+
+ ###  New features
+ - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message` fields for style `button`
 
 # v5.3.0 - PHP 8 Support
 ###  New features
