@@ -1,3 +1,6 @@
+# v5.4.0 not published
+ - set `admin-link` to be a `backend` page
+
 # v5.3.0 - PHP 8 Support
 ###  New features
  - Check if a JSON value is dynamically set with {{}} and if it is accept it
