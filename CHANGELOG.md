@@ -5,6 +5,7 @@
 
  ###  New features
  - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message` fields for style `button`
+ - add style `loop` to core Selfhelp
 
 # v5.3.0 - PHP 8 Support
 ###  New features
