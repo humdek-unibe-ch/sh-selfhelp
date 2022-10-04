@@ -1,6 +1,7 @@
 # v5.4.0 not published
 ###  Bugfix
  - set `admin-link` to be a `backend` page
+ - fix remove `entry_list` from page or another section
 
  ###  New features
  - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message` fields for style `button`
