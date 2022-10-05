@@ -265,9 +265,9 @@ class CmsView extends BaseView
                     "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
                     "items" => array(
                         "data_section" => array(
-                            "can_have_children" => true,
+                            "can_have_children" => $this->model->get_mode() == "update",
                             "children" => 0,
-                            "relation" => RELATION_PAGE_CHILDREN
+                            "relation" => 'RELATION_PAGE_CHILDREN'
                         ),
                         "page_keyword" => $this->page_info ? $this->page_info["keyword"] : '',
                         "page_id" => $this->page_info ? intval($this->page_info['id']): null
