@@ -52,3 +52,8 @@ We can access multiple tables by adding another element to the array. The retrie
 -- add loop field to style loop
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'loop', get_field_type_id('json'), '0');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('loop'), get_field_id('loop'), NULL, 'Json array object as each entry represnts a row which is passed to the children');
+
+-- make field `source` display 0
+UPDATE `fields`
+SET display = 0
+WHERE `name` = 'source';
