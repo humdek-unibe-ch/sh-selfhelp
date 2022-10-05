@@ -82,7 +82,7 @@ class CmsInsertView extends BaseView
         $items = $this->get_lookups(pageAccessTypes);
         $access_types = new BaseStyleComponent("select", array(
             "label" => "Page Access Type:",
-            "value" => 0,
+            "value" => $this->model->get_services()->get_db()->get_lookup_id_by_code(pageAccessTypes, pageAccessTypes_mobile_and_web),
             "css" => "w-100",
             "is_required" => true,
             "name" => "id_pageAccessTypes",
