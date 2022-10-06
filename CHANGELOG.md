@@ -1,4 +1,4 @@
-# v5.4.0 not published
+# v5.4.0
 ###  Bugfix
  - set `admin-link` to be a `backend` page
  - fix remove `entry_list` from page or another section
@@ -6,6 +6,7 @@
  ###  New features
  - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message` fields for style `button`
  - add style `loop` to core Selfhelp
+ - add styles: `table`, `tableRow`, `tableCell`;
 
 # v5.3.0 - PHP 8 Support
 ###  New features

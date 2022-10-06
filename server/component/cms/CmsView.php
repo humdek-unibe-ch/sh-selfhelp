@@ -761,7 +761,7 @@ class CmsView extends BaseView
                     $form_items[] = $new_field;
                 }                
             }
-            if ($this->page_info && $this->page_info['id_actions'] > 1) {
+            if ($this->page_info && $this->page_info['id_actions'] > 1 && !$this->model->get_id_root_section()) {
                 $form_items[] = new BaseStyleComponent("descriptionItem", array(
                     "gender" => '',
                     "title" => 'Header Position',
