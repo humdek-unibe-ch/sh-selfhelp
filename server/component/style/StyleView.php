@@ -185,14 +185,13 @@ abstract class StyleView extends BaseView
             "type" => "prop",
             "did" => null,
             "sid" => $this->model->get_parent_id()            
-        ));
-        $go_to_section_url_params =array(
-            "pid" => isset($params['pid']) ? $params['pid'] : -1,
-            "mode" => "update",
-            "type" => "prop",
-            "did" => null,
-            "sid" => $_SESSION['active_section_id'],
-        );
+        ));      
+        $go_to_section_url_params = array();
+        foreach ($params as $key => $value) {
+            if($value){
+                $go_to_section_url_params[$key] = $value;
+            }
+        }
         if ($_SESSION['active_section_id'] != $this->id_section) {
             // add extra params for navigation container children
             $go_to_section_url_params['ssid'] = $this->id_section;

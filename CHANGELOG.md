@@ -1,3 +1,7 @@
+# v5.4.1
+###  Bugfix
+ - proper loading New UI buttons for navigation section children
+
 # v5.4.0
 ###  Bugfix
  - set `admin-link` to be a `backend` page
