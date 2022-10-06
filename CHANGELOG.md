@@ -1,3 +1,7 @@
+# v5.5.0
+###  Bugfix
+ - fix `source` field for images to be copied form the display values (after changing the field type to display none)
+
 # v5.4.1
 ###  Bugfix
  - proper loading New UI buttons for navigation section children
