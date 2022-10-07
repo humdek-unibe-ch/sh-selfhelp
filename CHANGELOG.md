@@ -1,3 +1,8 @@
+# v5.6.0
+
+- change the type of field `filter` from `text` to `code`
+- adjust dynamic store procedures to work better with `filters`
+
 # v5.5.0
 ###  Bugfix
  - fix `source` field for images to be copied form the display values (after changing the field type to display none)

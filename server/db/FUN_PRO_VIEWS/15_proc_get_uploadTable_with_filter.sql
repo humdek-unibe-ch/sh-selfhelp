@@ -25,13 +25,13 @@ BEGIN
         SELECT table_name from view_uploadTables where 1=2;
     ELSE
         BEGIN
-            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
+            SET @sql = CONCAT('select * from (select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
                 ' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
 					inner join uploadCells cell on (cell.id_uploadRows = r.id)
 					inner join uploadCols col on (col.id = cell.id_uploadCols)
 					where t.id = ', table_id_param,
-					' group by t.name, t.timestamp, r.id HAVING 1 ', filter_param);
+					' group by t.name, t.timestamp, r.id ) as r where 1=1  ', filter_param);
 			IF LOCATE('id_users', @sql) THEN
 				-- get user_name if there is id_users column
 				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id)');
