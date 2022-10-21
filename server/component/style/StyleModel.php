@@ -194,7 +194,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     });
                     if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
-                        if ($config['retrieve'] === 'all') {
+                        if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
                             $all_values = array();
                             foreach ($data as $key => $value) {
                                 foreach ($value as $field_name => $field_value) {
@@ -202,7 +202,11 @@ class StyleModel extends BaseModel implements IStyleModel
                                 }
                             }
                             foreach ($all_values as $key => $value) {
-                                $all_values[$key] = implode(',', $value);
+                                if ($config['retrieve'] === 'all') {
+                                    $all_values[$key] = implode(',', $value);
+                                } else {
+                                    $all_values[$key] = json_encode($value);
+                                }
                             }
                             $result = array_merge($result, $all_values);
                         } else {
@@ -217,7 +221,7 @@ class StyleModel extends BaseModel implements IStyleModel
                             $all_values = array();
                             foreach ($data as $key => $row) {
                                 $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value                                
-                                if ($config['retrieve'] != 'all') {
+                                if ($config['retrieve'] != 'all' && $config['retrieve'] != 'all_as_array') {
                                     $field_value = $val;
                                     break; // we don need the others;
                                 } else {
@@ -227,6 +231,8 @@ class StyleModel extends BaseModel implements IStyleModel
                             }
                             if ($config['retrieve'] === 'all') {
                                 $field_value = implode(',', $all_values);
+                            } else if ($config['retrieve'] === 'all_as_array') {
+                                $field_value = json_encode($all_values);
                             }
                             $result[$field['field_holder']] = $field_value;
                         }

@@ -54,7 +54,8 @@
                 "enum": [
                     "first",
                     "last",
-                    "all"
+                    "all",
+                    "all_as_array"
                 ],
                 "title": "Return",
                 "description": "Return th first record, last record as strong or all records in array for all",

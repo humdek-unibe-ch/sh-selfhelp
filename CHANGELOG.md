@@ -1,3 +1,7 @@
+# v5.6.1
+###  New features
+ - add return option `all_as_array` in the `data_config_builder`. This will be used for easy graph data loading
+
 # v5.6.0
 
 - change the type of field `filter` from `text` to `code`
