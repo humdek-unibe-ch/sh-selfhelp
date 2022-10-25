@@ -78,6 +78,9 @@ function adjustActionScheduleType() {
         $('.style-section-type').addClass('d-none');
         $('.style-section-targetGroups').removeClass('d-none');
     }
+    if ($('select[name="id_formActionScheduleTypes"] option:selected').text().includes('Notification')) {
+        $('.style-section-valid').removeClass('d-none');
+    }
     adjustRequiredFields();
 }
 
