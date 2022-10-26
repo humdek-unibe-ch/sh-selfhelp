@@ -54,7 +54,7 @@ class AssetInsertController extends BaseController
                 return;
             }
             $name = filter_var($_POST['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            $this->name = $name. '.' .$ext;
+            $this->name = $name;
             $target = $model->get_server_path($mode) . '/' . $this->name;
             if(!isset($_POST['overwrite']) && file_exists($target))
             {
@@ -71,7 +71,18 @@ class AssetInsertController extends BaseController
             }
             if(move_uploaded_file($_FILES['file']['tmp_name'], $target))
             {
+                if($this->model->save_asset_db(array(
+                    "folder" => $_POST['folder'],
+                    "file_name" => $_POST['name'],
+                    "file_path" => $target,
+                    "id_assetTypes" => $mode
+                ))){
                 $this->success = true;
+                } else {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Unable to store the file on the server [DB Error]";
+                    return;
+                }
             }
             else
             {

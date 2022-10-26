@@ -58,7 +58,7 @@ class AssetInsertView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/insert.js");
+        $local = array(__DIR__ . "/js/insert.js");
         return parent::get_js_includes($local);
     }
 
@@ -85,6 +85,14 @@ class AssetInsertView extends BaseView
                 array('mode' => $this->mode));
             require __DIR__ . "/tpl_insert.php";
         }
+    }
+
+    /**
+     * Output the folder input control
+     */
+    public function output_folder()
+    {
+        require __DIR__ . "/tpl_folder.php";
     }
 	
 	public function output_content_mobile()

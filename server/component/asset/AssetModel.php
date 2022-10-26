@@ -292,5 +292,19 @@ class AssetModel extends BaseModel
             return $this->pp_insert_asset_file_static($path, $name, $overwrite);
         return true;
     }
+
+    public function save_asset_db($asset)
+    {
+        $asset['id_assetTypes'] = $this->db->get_lookup_id_by_value(assetTypes, $asset['id_assetTypes']);
+        $exist = $this->db->query_db_first('SELECT id FROM assets WHERE `file_name` = :file_name', array(":file_name" => $asset['file_name']));
+        if ($exist) {
+            // update
+            return $this->db->update_by_ids('assets', $asset, array('id' => $exist['id']));
+        } else {
+            // insert
+            return $this->db->insert("assets", $asset);
+        }
+    }
+
 }
 ?>

@@ -2,6 +2,9 @@
 ### Bugfix
  - Show field `valid` for notifications scheduled from action for form. The filed is used for notifications that have reminders attached to them.
 
+###  New features
+ - Add an option to group assets in folders
+
 # v5.6.1
 ###  New features
  - add return option `all_as_array` in the `data_config_builder`. This will be used for easy graph data loading

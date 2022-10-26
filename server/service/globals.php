@@ -126,6 +126,7 @@ define('plugins', 'plugins');
 define('jobTypes', 'jobTypes');
 define('pageAccessTypes', 'pageAccessTypes');
 define('hookTypes', 'hookTypes');
+define('assetTypes', 'assetTypes');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
