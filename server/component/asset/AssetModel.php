@@ -293,6 +293,13 @@ class AssetModel extends BaseModel
         return true;
     }
 
+    /**
+     * Save an entry in table assets when a file is uploaded
+     * @param object $asset
+     * Information for the asset
+     * @return boolean
+     * Return the results of the operation
+     */
     public function save_asset_db($asset)
     {
         $asset['id_assetTypes'] = $this->db->get_lookup_id_by_value(assetTypes, $asset['id_assetTypes']);
@@ -304,6 +311,22 @@ class AssetModel extends BaseModel
             // insert
             return $this->db->insert("assets", $asset);
         }
+    }
+
+    /**
+     * Delete the file entry from the assets table in the  DB
+     * @param object $asset
+     * Information for the asset
+     * @return boolean
+     * Return the results of the operation
+     */
+    public function delete_asset_db($asset)
+    {
+        $exist = $this->db->query_db_first('SELECT id FROM assets WHERE `file_name` = :file_name', array(":file_name" => $asset['file_name']));
+        if ($exist) {
+            return $this->db->remove_by_ids("assets", array("file_name" => $asset['file_name']));
+        }
+        return true; // the file is not in the DB        
     }
 
 }

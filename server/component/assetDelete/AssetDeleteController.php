@@ -46,6 +46,11 @@ class AssetDeleteController extends BaseController
                 $this->error_msgs[] = "File was removed but data postprocessing failed";
                 return;
             }
+            if (!$model->delete_asset_db(array("file_name" => $file))) {
+                $this->fail = true;
+                $this->error_msgs[] = "File was not removed from the DB!";
+                return;
+            };
             $this->success = true;
         }
     }
