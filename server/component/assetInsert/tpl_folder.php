@@ -5,5 +5,8 @@
 ?>
 <div class="form-group col">
     <label>Folder</label>
-    <input type="text" class="form-control" name="folder" placeholder="Select folder">
+    <input list="folders" type="text" class="form-control" name="folder" placeholder="Select folder">
+    <datalist id="folders">
+        <?php $this->output_folders(); ?>
+    </datalist>
 </div>

@@ -188,4 +188,7 @@ define('pageAccessTypes_web', 'web');
 define('pageAccessTypes_mobile_and_web', 'mobile_and_web');
 define('hookTypes_hook_overwrite_return', 'hook_overwrite_return');
 define('hookTypes_hook_on_function_execute', 'hook_on_function_execute');
+define('assetTypes_css', 'css');
+define('assetTypes_asset', 'asset');
+define('assetTypes_static', 'static');
 ?>

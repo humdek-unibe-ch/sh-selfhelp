@@ -94,6 +94,17 @@ class AssetInsertView extends BaseView
     {
         require __DIR__ . "/tpl_folder.php";
     }
+
+    /**
+     * Output the folders which will be used in the datalist
+     */
+    public function output_folders()
+    {
+        $folders = $this->model->get_assets_folders();
+        foreach ($folders as $key => $folder) {
+            require __DIR__ . "/tpl_folder_option.php";
+        }                
+    }
 	
 	public function output_content_mobile()
     {

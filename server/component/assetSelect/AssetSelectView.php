@@ -50,19 +50,50 @@ class AssetSelectView extends BaseView
         if($this->model->can_insert_asset())
             $add_target = $this->model->get_link_url("assetInsert",
                 array('mode' => $mode));
-        $list = new BaseStyleComponent("sortableList", array(
-            "items" => $this->model->get_asset_files($mode),
-            "is_editable" => true,
-            "url_delete" => $del_target,
-            "url_add" => $add_target,
-        ));
+        $items = array();
+        $files = $this->model->get_asset_files($mode);
+        $folder_files = array();
+        $assets_without_folder = array();
+        $assets_with_folder = array();
+        foreach ($files as $key => $value) {
+            if(!isset($folder_files[$value['folder']])){
+                $folder_files[$value['folder']] = array();
+            }
+            $folder_files[$value['folder']][] = $value;
+        }
+        foreach ($folder_files as $key => $value) {
+            if ($key == 'no_folder') {
+                $assets_without_folder[] = new BaseStyleComponent("sortableList", array(
+                    "items" => $value,
+                    "is_editable" => true,
+                    "url_delete" => $del_target,
+                    "url_add" => $add_target,
+                    "css" => "mb-3",
+                ));
+            } else {
+                $assets_with_folder[] = new BaseStyleComponent("card", array(
+                    "css" => "mb-3",
+                    "title" => $key,
+                    "type" => "light",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "children" => array("list" => new BaseStyleComponent("sortableList", array(
+                        "items" => $value,
+                        "is_editable" => true,
+                        "url_delete" => $del_target,
+                        "url_add" => $add_target,
+                    )))
+                ));
+            }
+        }
+        $items =  array_merge($assets_without_folder, $assets_with_folder);
         $card = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "title" => $title[$mode],
             "type" => "light",
             "is_expanded" => false,
             "is_collapsible" => true,
-            "children" => array($list)
+            "children" => $items
         ));
         $card->output_content();
     }

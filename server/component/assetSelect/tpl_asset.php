@@ -8,7 +8,7 @@
         <h1>Manage Assets and CSS Files</h1>
         <p>Manage asset and CSS files. Asset files can be referenced in the CMS and CSS files can be used to customize the look and feel of the webpage.</p>
     </div>
-    <?php $this->output_assets("asset"); ?>
-    <?php $this->output_assets("css"); ?>
-    <?php $this->output_assets("static"); ?>
+    <?php $this->output_assets(assetTypes_asset); ?>
+    <?php $this->output_assets(assetTypes_css); ?>
+    <?php $this->output_assets(assetTypes_static); ?>
 </div>

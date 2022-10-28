@@ -214,8 +214,19 @@ class AssetModel extends BaseModel
         }
         natcasesort($files);
         $assets = array();
-        foreach($files as $file)
-            $assets[] = array("id" => $file, "title" => $file, "url" => $base_url . '/' . $file);
+        foreach ($files as $file) {
+            $assets[$file] = array("id" => $file, "title" => $file, "url" => $base_url . '/' . $file, "folder" => 'no_folder');
+        }
+        $asset_type_id = $this->db->get_lookup_id_by_value(assetTypes, $mode);
+        $sql = 'SELECT `file_name`, folder
+                        FROM assets 
+                        WHERE id_assetTypes = :id_assetTypes';
+        $assets_db = $this->db->query_db($sql, array(":id_assetTypes" => $asset_type_id));
+        foreach ($assets_db as $key => $value) {
+            if($value['folder'] && $value['file_name'] && isset($assets[$value['file_name']])){
+                $assets[$value['file_name']]['folder'] = $value['folder'];
+            }
+        }
         return $assets;
     }
 
@@ -327,6 +338,18 @@ class AssetModel extends BaseModel
             return $this->db->remove_by_ids("assets", array("file_name" => $asset['file_name']));
         }
         return true; // the file is not in the DB        
+    }
+
+    /**
+     * Get all created folders
+     * @return array
+     * Return all folders in array
+     */
+    public function get_assets_folders(){
+        $sql = "SELECT DISTINCT(folder) AS folder
+                FROM assets
+                WHERE folder <> ''";
+        return $this->db->query_db($sql, array());
     }
 
 }

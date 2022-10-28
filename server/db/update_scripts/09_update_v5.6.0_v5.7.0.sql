@@ -5,6 +5,7 @@ SET version = 'v5.7.0';
 -- add assets types
 INSERT IGNORE INTO `lookups` (type_code, lookup_code, lookup_value, lookup_description) values ('assetTypes', 'css', 'CSS', 'A CSS file that will be used for custom styling');
 INSERT IGNORE INTO `lookups` (type_code, lookup_code, lookup_value, lookup_description) values ('assetTypes', 'asset', 'Asset', 'Files that can be used as assets. All uploaded files are public and everyone can have access to them');
+INSERT IGNORE INTO `lookups` (type_code, lookup_code, lookup_value, lookup_description) values ('assetTypes', 'static', 'Static', 'Static files which are uploaded in the static table');
 
 -- add table `assets`
 CREATE TABLE IF NOT EXISTS `assets` (
