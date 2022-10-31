@@ -1,4 +1,4 @@
-# v5.7.0 (Not published yet)
+# v5.7.0
 ### Bugfix
  - Show field `valid` for notifications scheduled from action for form. The filed is used for notifications that have reminders attached to them.
 
