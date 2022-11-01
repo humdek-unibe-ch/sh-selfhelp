@@ -1,3 +1,7 @@
+-- set DB version
+UPDATE version
+SET version = 'v5.8.0';
+
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
