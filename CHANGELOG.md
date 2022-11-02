@@ -1,3 +1,7 @@
+# v5.8.1 (Not published)
+### Bugfix
+ - properly check if form for use_preferences exists on a new setup
+
 # v5.8.0
 ### Bugfix
  - Properly order a static table data
