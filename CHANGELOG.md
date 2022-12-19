@@ -1,4 +1,4 @@
-# v5.9.0 (Not published)
+# v5.9.0
 ### Bugfix
  - properly check if form for use_preferences exists on a new setup
 
