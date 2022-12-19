@@ -1041,6 +1041,16 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field_name_content
             ));
+        } else if ($field['type'] == "select-page-keyword") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 0,
+                "allow_clear" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
+            ));
         }
 
         return new BaseStyleComponent("descriptionItem", array(
@@ -1141,12 +1151,17 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content'] && $field['content'] != 'null' ? 'exists' : $field['content']
             ));
-        }
-        else if($field['type'] == "data-config")
-        {
+        } else if ($field['type'] == "data-config") {
             // do not show the whole condition as it takes a lof of space. 
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content'] && $field['content'] != '[]' ? 'exists' : $field['content']
+            ));
+        } else if ($field['type'] == "select-page-keyword") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
             ));
         } else {
             // do not show the whole condition as it takes a lof of space. 

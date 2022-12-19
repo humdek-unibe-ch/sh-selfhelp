@@ -26,6 +26,11 @@ class ValidateModel extends StyleModel
      */
     private $email;
 
+    /**
+     * The page keyword, if set it after successful validation the user is redirected to that page
+     */
+    private $redirect_page_keyword;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -49,6 +54,8 @@ class ValidateModel extends StyleModel
         $this->email = null;
         $this->name = null;
         $this->gender = null;
+        $page_keyword_id = $this->get_db_field("page_keyword");
+        $this->redirect_page_keyword = $this->db->fetch_page_keyword_by_id($page_keyword_id);
         $data = $this->fetch_user_data($uid, $token);
         if($data)
         {
@@ -158,5 +165,15 @@ class ValidateModel extends StyleModel
     {
         return $this->gender;
     }
+
+    /**
+     * Get the page_keyword
+     * @return string 
+     * Returns the page keyword
+     */
+    public function get_redirect_page_keyword(){
+        return $this->redirect_page_keyword;
+    }
+
 }
 ?>

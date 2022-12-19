@@ -1,6 +1,10 @@
-# v5.8.1 (Not published)
+# v5.9.0 (Not published)
 ### Bugfix
  - properly check if form for use_preferences exists on a new setup
+
+###  New features
+ - add field `redirect` to style `validate`. If a page is selected in the validate style, the user will be logged in and redirected to that page after a successful validation of the user account
+ - add option to clear selected value in `select` input
 
 # v5.8.0
 ### Bugfix
