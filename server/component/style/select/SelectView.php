@@ -37,6 +37,12 @@ class SelectView extends FormFieldView
 
     private $image_selector;
 
+    /**
+     * DB field 'allow_clear' (false).
+     * If set to true the selected value can be cleared
+     */
+    private $allow_clear;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -53,6 +59,7 @@ class SelectView extends FormFieldView
         $this->live_search = $this->model->get_db_field("live_search", false);
         $this->max = $this->model->get_db_field("max", 5);
         $this->disabled = $this->model->get_db_field("disabled", 0);
+        $this->allow_clear = $this->model->get_db_field("allow_clear", 0);
         $this->image_selector = $this->model->get_db_field("image_selector", 0);        
     }
 
