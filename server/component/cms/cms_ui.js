@@ -8,6 +8,7 @@ const RELATION_PAGE_NAV = 'page_nav';
 const RELATION_SECTION_NAV = 'section_nav';
 const RELATION_PAGE = 'page'; // used when we work with page columns/fields from the `page` table in the DB
 const RELATION_SECTION = 'section';  // used when we work with section columns/fields from the `section` table in the DB
+const DEBUG = false;
 
 $(document).ready(function () {
     init_ui_cms();
@@ -573,6 +574,9 @@ function initSortableElements() {
  * @returns {any}
  */
 function prepareSectionInfo(section, idx) {
+    if(DEBUG){
+        console.log(section, idx);
+    }
     var sectionData = $(section).data('section');
     sectionData['order_position'] = idx;
     $(section).children('.badge').text(idx + 1); // for debugging
@@ -698,6 +702,11 @@ function addNewSection(styleId, sectionData, addSibling, position, styleName) {
  * @returns {any}
  */
 function showAddSection(sectionData, addSibling, position) {
+    if(DEBUG){
+        console.log("sectionData", sectionData);
+        console.log("addSibling", addSibling);
+        console.log("position", position);
+    }
     $('#ui-add-section-modal').modal();
     $('#ui-add-section').css({ top: window.event.clientY - $('#ui-add-section').outerHeight() / 2, left: window.event.clientX + 10 });
     $('#nav-new-section-tab').tab("show"); //always show the first tab when modal is opened for consistency 

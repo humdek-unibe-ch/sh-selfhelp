@@ -199,9 +199,27 @@ class ValidateView extends StyleView
     /**
      * Render to user-defined input fields.
      */
-    private function output_custom_fields()
+    private function check_custom_fields()
     {
-        if(count($this->children) === 0) return;
+        if (count($this->children) === 0) {
+            require __DIR__ . "/tpl_cms_children_holder.php";
+        } else {
+            if (
+                method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() &&
+                method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
+                $this->model->get_services()->get_user_input()->is_new_ui_enabled()
+            ) {
+                require __DIR__ . "/tpl_custom_fields_edit.php";
+            } else {
+                $this->output_custom_fields();
+            }            
+        }        
+    }
+
+    /**
+     * Output custom fields
+     */
+    private function output_custom_fields() {
         $input = new BaseStyleComponent('input', array(
             'type_input' => 'hidden',
             'name' => '__form_name',

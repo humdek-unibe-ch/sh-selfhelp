@@ -45,7 +45,7 @@
                         <label class="form-check-label"><?php echo $this->gender_divers; ?></label>
                     </div>
                 </div>
-                <?php $this->output_custom_fields(); ?>
+                <?php $this->check_custom_fields(); ?>
                 <button type="submit" class="btn btn-primary"><?php echo $this->activate_label; ?></button>
             </form>
         </div>

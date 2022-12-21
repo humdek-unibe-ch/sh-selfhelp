@@ -1,6 +1,7 @@
-# v5.9.1
+# v5.9.1 (unpublished)
 ### Bugfix
  - fix errors when sending validation email (php8)
+ - fix add children to style `validate` using new UI;
 
 # v5.9.0
 ### Bugfix
