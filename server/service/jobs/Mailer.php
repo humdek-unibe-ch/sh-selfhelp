@@ -76,11 +76,13 @@ class Mailer extends BasicJob
             $user_info = $this->db->query_db_first('SELECT name, id FROM users WHERE email = :email', array(":email" => trim($mail)));
             $user_name = $user_info['name'];
             if ($this->check_condition($condition, $user_info['id'])) {
-                $msg_send = str_replace('@user_name', $user_name, $msg);
-                if ($msg_html) {
-                    $msg_html_send = str_replace('@user_name', $user_name, $msg_html);
+                if ($user_name) {
+                    $msg = str_replace('@user_name', $user_name, $msg);
                 }
-                $res = $res && $this->send_mail($from, $to, $subject, $msg_send, $msg_html_send, $attachments, $replyTo);
+                if ($msg_html && $user_name) {
+                    $msg_html= str_replace('@user_name', $user_name, $msg_html);
+                }
+                $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, $attachments, $replyTo);
                 $this->transaction->add_transaction(
                     $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
                     $sent_by,

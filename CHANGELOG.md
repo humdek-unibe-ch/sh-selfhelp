@@ -1,3 +1,7 @@
+# v5.9.1
+### Bugfix
+ - fix errors when sending validation email (php8)
+
 # v5.9.0
 ### Bugfix
  - properly check if form for use_preferences exists on a new setup

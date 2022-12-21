@@ -317,7 +317,10 @@ class UserModel extends BaseModel
         $uid = $this->is_user_interested($email);
         if (!($uid > 0)) {
             // we check if the user is invited already
-            $uid = $this->is_user_invited($email)['id'];
+            $user_info = $this->is_user_invited($email);
+            if ($user_info) {
+                $uid = $user_info['id'];
+            }
         }
         if (!($uid > 0)) {
             //check if the user is autocreated
