@@ -1,7 +1,8 @@
-# v5.9.1 (unpublished)
+# v5.10.0 (unpublished)
 ### Bugfix
  - fix errors when sending validation email (php8)
  - fix add children to style `validate` using new UI;
+ - do not load `globals` and `modules` pages in the mobile app
 
 # v5.9.0
 ### Bugfix
