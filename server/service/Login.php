@@ -58,6 +58,13 @@ class Login
         if(PROJECT_NAME !== "") {
             session_name(PROJECT_NAME);
         }
+        if(isset($_POST['mobile_web']) && $_POST['mobile_web']){
+            // enable cross side cookies
+            session_set_cookie_params([            
+                'secure' => true,
+                'samesite' => 'None'
+            ]);
+        }
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;

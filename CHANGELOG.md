@@ -4,6 +4,9 @@
  - fix add children to style `validate` using new UI;
  - do not load `globals` and `modules` pages in the mobile app
 
+###  New features
+ - add backend changes for mobile preview in WEB
+
 # v5.9.0
 ### Bugfix
  - properly check if form for use_preferences exists on a new setup
