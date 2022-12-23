@@ -20,7 +20,7 @@ if(defined('SHOW_PHP_INFO') && SHOW_PHP_INFO){
 loadPluginGlobals();
 
 if(defined('CORS') && CORS){
-    cors();
+    // cors();
 }
 
 /**
