@@ -58,12 +58,18 @@ class Login
         if(PROJECT_NAME !== "") {
             session_name(PROJECT_NAME);
         }
-        if(isset($_POST['mobile_web']) && $_POST['mobile_web']){
-            // enable cross side cookies
-            session_set_cookie_params([            
-                'secure' => true,
-                'samesite' => 'None'
-            ]);
+        if (isset($_POST['mobile_web']) && $_POST['mobile_web']) {
+            // enable cross side cookies            
+            if (PHP_VERSION_ID < 70300) {
+                session_set_cookie_params(6000, '/; samesite=' . 'None', $_SERVER['HTTP_HOST'], true);
+            } else {
+                session_set_cookie_params(
+                    [
+                        'secure' => true,
+                        'samesite' => 'None'
+                    ]
+                );
+            }
         }
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
