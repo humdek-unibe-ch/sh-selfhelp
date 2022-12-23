@@ -1,4 +1,4 @@
-<?php  
+<?php 
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
@@ -19,9 +19,9 @@ if(defined('SHOW_PHP_INFO') && SHOW_PHP_INFO){
 // load plugin globals
 loadPluginGlobals();
 
-if(defined('CORS') && CORS){
-    cors();
-}
+// if(defined('CORS') && CORS){
+//     cors();
+// }
 
 /**
  * Load plugins globals
