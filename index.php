@@ -19,9 +19,9 @@ if(defined('SHOW_PHP_INFO') && SHOW_PHP_INFO){
 // load plugin globals
 loadPluginGlobals();
 
-// if(defined('CORS') && CORS){
-//     cors();
-// }
+if(defined('CORS') && CORS){
+    cors();
+}
 
 /**
  * Load plugins globals
