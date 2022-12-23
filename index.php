@@ -20,7 +20,7 @@ if(defined('SHOW_PHP_INFO') && SHOW_PHP_INFO){
 loadPluginGlobals();
 
 if(defined('CORS') && CORS){
-    // cors();
+    cors();
 }
 
 /**
@@ -223,9 +223,14 @@ function web_call($services, $router, $db){
 }
 
 function cors() {
-    
+
     // Allow from any origin
-    if (isset($_SERVER['HTTP_ORIGIN'])) {
+    if (
+        isset($_SERVER['HTTP_ORIGIN']) &&
+        (strpos($_SERVER['HTTP_ORIGIN'],'https://46.126.153.11') !== false ||
+        strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
+        strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
+    ) {
         // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
         // you want to allow, and if so:
         header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
