@@ -86,6 +86,16 @@ class AssetSelectView extends BaseView
                 ));
             }
         }
+        if(count($assets_without_folder) == 0){
+            // if there are no files create the add button
+            $assets_without_folder[] = new BaseStyleComponent("sortableList", array(
+                    "items" => array(),
+                    "is_editable" => true,
+                    "url_delete" => $del_target,
+                    "url_add" => $add_target,
+                    "css" => "mb-3",
+                ));
+        }
         $items =  array_merge($assets_without_folder, $assets_with_folder);
         $card = new BaseStyleComponent("card", array(
             "css" => "mb-3",
