@@ -163,7 +163,7 @@ class RegisterModel extends StyleModel
 
     public function register_user_without_code($email){
         $user = $this->user_model->is_user_invited($email); 
-        if ($user['id'] > 0 ){
+        if ($user && $user['id'] > 0 ){
             // if the user already is created and we want to resend the activation link
             return $this->user_model->create_new_user($email, $user['code'], true);
         }
