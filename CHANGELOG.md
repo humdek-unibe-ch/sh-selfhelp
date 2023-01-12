@@ -1,11 +1,14 @@
-# v5.10.0 (unpublished)
+# v5.10.0
 ### Bugfix
  - fix errors when sending validation email (php8)
  - fix add children to style `validate` using new UI;
  - do not load `globals` and `modules` pages in the mobile app
+ - fix `css` upload files in the assets when there are no `css` files
 
 ###  New features
  - add backend changes for mobile preview in WEB
+ - add `custom_css` page where a raw `css` can be added
+ - for `backend` pages hide the middle-ui
 
 # v5.9.0
 ### Bugfix

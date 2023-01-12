@@ -1,4 +1,5 @@
 const jsonEditorInit = 'jsonEditorInit'
+const cssEditorInit = 'cssEditorInit'
 const mdInit = 'mdInit'
 var simpleMDEEidtorRefreshed = false;
 
@@ -11,6 +12,7 @@ $(document).ready(function () {
 function initTextarea() {
     initJsonFields();
     initMarkdownFields();
+    initCssFields();
 }
 
 function initJsonFields() {
@@ -84,4 +86,35 @@ function initMarkdownFields() {
             }
         });
     });
+}
+
+function initCssFields() {
+    $('.css').each(function () {
+        // load the monaco editor for css fields
+        var cssField = $(this)[0];
+        if ($(cssField).data(cssEditorInit)) {
+            // already initialized do not do it again
+            return;
+        }
+        $(cssField).data(cssEditorInit, true);
+        require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            var editorOptions = {
+                value: $(cssField).prev().val(),
+                language: 'css',
+                automaticLayout: true,
+                renderLineHighlight: "none"
+            }
+            var editorConfig = monaco.editor.create(cssField, editorOptions);
+            editorConfig.getAction('editor.action.formatDocument').run().then(() => {
+                calcMonacoEditorSize(editorConfig, cssField);
+            });
+            editorConfig.onDidChangeModelContent(function (e) {
+                $(cssField).prev().val(editorConfig.getValue());
+                calcMonacoEditorSize(editorConfig, cssField);
+                $(cssField).prev().trigger('change');
+            });
+            cssFormatMonaco(monaco);
+        });
+    })
 }

@@ -73,6 +73,7 @@ define('CALLBACK_SUCCESS', 'callback_success');
 define('SH_GLOBAL_VALUES', 'sh_global_values');
 define('SH_MAINTENANCE', 'maintenance');
 define('SH_EMAIL', 'email');
+define('SH_GLOBAL_CSS', 'sh_global_css');
 
 /* Style Types */
 define('STYLE_TYPE_INTERNAL', 'internal');
@@ -87,6 +88,7 @@ define('PF_EMAIL_REMINDER', 'email_reminder');
 define('PF_EMAIL_SUBJECT', 'email_subject');
 define('PF_EMAIL_ACTIVATE_SUBJECT', 'email_activate_subject');
 define('PF_EMAIL_REMINDER_SUBJECT', 'email_reminder_subject');
+define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 
 /* Page actions */
 define('PAGE_ACTION_BACKEND', 'backend');

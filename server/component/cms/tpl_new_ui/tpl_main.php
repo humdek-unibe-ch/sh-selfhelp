@@ -26,11 +26,9 @@
         </div>
     </div>
 
-    <div id="ui-middle" class="flex-grow-1">
-        <?php $this->output_page_content(); ?>
-    </div>
+    <?php $this->output_ui_middle(); ?>
 
-    <div id="properties" class="properties-expanded" data-styles="<?php echo htmlspecialchars(json_encode($this->get_styles()), ENT_QUOTES, 'UTF-8'); ?>">
+    <div id="properties" class="properties-expanded <?php echo $this->expand_ui_properties(); ?>" data-styles="<?php echo htmlspecialchars(json_encode($this->get_styles()), ENT_QUOTES, 'UTF-8'); ?>">
         <div class="d-flex h-100 flex-column">
             <ul class="list-group sticky-top">
                 <div id="collapsePropertiesBtn" data-toggle="properties-collapse" class="ui-side-menu-button list-group-item list-group-item-action rounded-0 pt-0 pb-0 pr-2 d-flex align-items-center">

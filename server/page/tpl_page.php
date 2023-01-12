@@ -20,6 +20,9 @@
     $this->output_js_includes();
 ?>
     <script><?php echo $this->get_js_constants() ?></script>
+    <style type="text/css">
+        <?php $this->output_custom_css(); ?>        
+    </style>
  <?php
     $this->output_js_includes_after();
 ?>   

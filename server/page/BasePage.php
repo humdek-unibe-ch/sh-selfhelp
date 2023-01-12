@@ -133,7 +133,7 @@ abstract class BasePage
             "/css/ext/query-builder.bootstrap.css",            
             "/css/ext/bootstrap4-toggle.min.css",      
             "/css/ext/easymde.min.css",   
-            "/css/ext/dataTables.contextualActions.min.css",   
+            "/css/ext/dataTables.contextualActions.min.css",             
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -153,6 +153,7 @@ abstract class BasePage
             "/js/ext/bootstrap4-toggle.min.js",
             "/js/ext/easymde.min.js",
             "/js/ext/dataTables.contextualActions.min.js",
+            "/js/ext/css-format-monaco.min.js",  
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",
@@ -365,7 +366,6 @@ abstract class BasePage
      */
     private function getCspRules()
     {
-        return "";
         $csp_rules = "default-src 'self';  style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
             . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;";
         return $csp_rules;
@@ -612,6 +612,7 @@ abstract class BasePage
         $res['title'] = $this->title;
         $res['avatar'] = $this->services->get_user_input()->get_avatar($_SESSION['id_user']);
         $res['external_css'] = $this->get_external_css_for_mobile();
+        $res['external_css'] = $res['external_css'] . ' ' . $this->get_global_custom_css();
         $res['languages'] = $this->services->get_db()->get_languages();
         return $res;
     }
@@ -753,6 +754,18 @@ abstract class BasePage
             || $this->services->get_router()->is_active("cmsDelete")
         );
 
+    }
+
+    public function get_global_custom_css(){
+        $global_css_page = $this->services->get_db()->fetch_page_info(SH_GLOBAL_CSS);
+        return $global_css_page[PF_GLOBAL_CUSTOM_CSS];
+    }
+
+    public function output_custom_css(){
+        echo $this->get_global_custom_css();
+        // echo '.test{
+        //     border: 1px solid red;
+        // }';
     }
 }
 ?>

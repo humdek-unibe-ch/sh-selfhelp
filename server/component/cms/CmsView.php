@@ -876,7 +876,7 @@ class CmsView extends BaseView
                 "name" => $field_name_content,            
                 "type_input" => $field['type'],
             ));
-        else if(in_array($field['type'], array("textarea", "markdown", "json", "code", "email", "dynamic_json")))
+        else if(in_array($field['type'], array("textarea", "markdown", "json", "code", "email", "dynamic_json", "css")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
@@ -1529,6 +1529,26 @@ class CmsView extends BaseView
         $res = $this->model->get_styles();
         $res[] = array("name" => "import"); // add custom init function from cms
         return $res;
+    }
+
+    /**
+     * Output ui middle elements when they are needed
+     */
+    public function output_ui_middle()
+    {
+        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
+            // do not load
+        } else {
+            require __DIR__ . "/tpl_new_ui/tpl_ui_middle.php";
+        }
+    }
+
+    public function expand_ui_properties(){
+        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
+            return 'flex-grow-1';
+        } else {
+            return '';
+        }
     }
 }
 ?>

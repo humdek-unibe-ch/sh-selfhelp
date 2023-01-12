@@ -62,10 +62,12 @@ class TextareaView extends FormFieldView
 
     /* Public Methods *********************************************************/
 
-    public function output_json(){        
-       if($this->type_input == "json"){
+    public function output_monaco_editor(){
+        if ($this->type_input == "json") {
             require __DIR__ . "/tpl_json.php";
-       }
+        } else if ($this->type_input == "css") {
+            require __DIR__ . "/tpl_css.php";
+        }
     }
 }
 ?>
