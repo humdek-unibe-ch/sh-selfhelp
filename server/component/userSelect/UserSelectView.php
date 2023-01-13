@@ -192,7 +192,7 @@ class UserSelectView extends BaseView
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
-            "title" => "Email activation",
+            "title" => "Email Activation",
             "type" => "info",
             "children" => array(
                 new BaseStyleComponent("plaintext", array(
