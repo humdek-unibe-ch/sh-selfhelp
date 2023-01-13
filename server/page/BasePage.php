@@ -758,14 +758,11 @@ abstract class BasePage
 
     public function get_global_custom_css(){
         $global_css_page = $this->services->get_db()->fetch_page_info(SH_GLOBAL_CSS);
-        return $global_css_page[PF_GLOBAL_CUSTOM_CSS];
+        return isset($global_css_page[PF_GLOBAL_CUSTOM_CSS]) ? $global_css_page[PF_GLOBAL_CUSTOM_CSS] : '';
     }
 
     public function output_custom_css(){
-        echo $this->get_global_custom_css();
-        // echo '.test{
-        //     border: 1px solid red;
-        // }';
+        echo $this->get_global_custom_css();        
     }
 }
 ?>
