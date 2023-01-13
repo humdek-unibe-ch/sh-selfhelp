@@ -189,5 +189,24 @@ class Router extends AltoRouter {
         }
         return $this->current_keyword;
     }
+
+    /**
+     * Generates the url of a link, given a router keyword.
+     *
+     * @param string $key
+     *  A router key.
+     * @param array $params
+     *  The url parameters used to generate the url.
+     *
+     * @retval string
+     *  The generated link url.
+     */
+    public function get_link_url($key, $params=array())
+    {
+        if($this->has_route($key))
+            return $this->generate($key, $params);
+        else
+            return "";
+    }
 }
 ?>

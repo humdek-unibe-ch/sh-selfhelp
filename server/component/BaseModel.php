@@ -166,10 +166,7 @@ abstract class BaseModel
      */
     public function get_link_url($key, $params=array())
     {
-        if($this->router->has_route($key))
-            return $this->router->generate($key, $params);
-        else
-            return "";
+        return $this->router->get_link_url($key, $params);
     }
 
     /**
