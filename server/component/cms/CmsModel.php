@@ -1360,7 +1360,7 @@ class CmsModel extends BaseModel
     {
         $parent_clause = $parent ? "AND parent = :pid" : "AND parent is NULL";
         $sql = "SELECT id, keyword AS title FROM pages
-            WHERE nav_position IS NOT NULL AND id_type <> 1
+            WHERE nav_position IS NOT NULL AND id_actions <> " . INTERNAL_PAGE_ID . " AND id_type <> 1
             $parent_clause
             ORDER BY nav_position";
         if($parent){
