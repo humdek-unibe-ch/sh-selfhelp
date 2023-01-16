@@ -208,5 +208,21 @@ class Router extends AltoRouter {
         else
             return "";
     }
+
+    /**
+     * Get a route param by name
+     * @param string $param_name
+     * The name of the param that we search for
+     * @return string || false
+     * Return the value of the param if it is found or false if it is not
+     */
+    public function get_param_by_name($param_name)
+    {
+        if (isset($this->route['params']) && isset($this->route['params'][$param_name])) {
+            return $this->route['params'][$param_name];
+        } else {
+            return false;
+        }
+    }
 }
 ?>
