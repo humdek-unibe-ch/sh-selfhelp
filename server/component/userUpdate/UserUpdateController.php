@@ -27,15 +27,6 @@ class UserUpdateController extends UserController
     public function __construct($model, $mode)
     {
         parent::__construct($model);
-        $this->set_update_mode($mode);        
-    }
-
-    /**
-     * Check the user update mode and based on it change the functionality
-     * @param string $mode
-     * The mode param
-     */
-    private function set_update_mode($mode) {
         if($mode == "block" && isset($_POST["block"]))
         {
             if($this->model->block_user($this->selected_user['id']))
