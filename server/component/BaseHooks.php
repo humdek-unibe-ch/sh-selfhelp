@@ -128,5 +128,38 @@ class BaseHooks extends BaseModel
             throw new Exception('Missing parameter');
         }
     }
+
+    /**
+     * Execute parent method with reflection
+     * @param object hookedClassInstance
+     * The class which was hooked
+     * @param string $methodName
+     * The name of the method that we want to execute
+     * @param object $params = null
+     * Params passed to the method
+     * @return object
+     * Return the method result
+     */
+    protected function execute_parent_method($args = array())
+    {
+        $reflector = new ReflectionObject($args['hookedClassInstance']);
+        $parent_class = $reflector->getParentClass();
+        $method = $parent_class->getMethod($args['methodName']);
+        $parameters = $method->getParameters();
+
+        $params = array();
+        foreach ($parameters as $key => $parameter) {
+            if (isset($args[$parameter->name])) {
+                $params[] = $args[$parameter->name];
+            }
+        }
+        if (count($parameters) == 0) {
+            $res = $method->invoke($args['hookedClassInstance']);
+        } else {
+            $res = $method->invoke($args['hookedClassInstance'], ...$params);
+        }
+        $method->setAccessible(false);
+        return $res;
+    }
 }
 ?>
