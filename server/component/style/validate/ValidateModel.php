@@ -26,6 +26,16 @@ class ValidateModel extends StyleModel
      */
     private $email;
 
+     /**
+     * The user_name of the user to validate.
+     */
+    private $name;
+
+     /**
+     * The gender of the user to validate.
+     */
+    private $gender;
+
     /**
      * The page keyword, if set it after successful validation the user is redirected to that page
      */

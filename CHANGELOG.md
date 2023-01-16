@@ -1,4 +1,6 @@
 # v5.10.1 (unpublished)
+###  New features
+ - add a method for executing parent methods in `hooks` 
 
 # v5.10.0
 ### Bugfix
