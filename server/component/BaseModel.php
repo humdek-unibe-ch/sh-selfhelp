@@ -116,6 +116,30 @@ abstract class BaseModel
             array("nav" => $id));
     }
 
+    /**
+     * Set default settings for a curl call
+     */
+    private function get_default_curl_settings($data)
+    {
+        $arr = array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 100,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER => $data['header']
+        );
+
+        if (DEBUG) {
+            //skip ssl checks for local testing
+            $arr[CURLOPT_SSL_VERIFYHOST] = false;
+            $arr[CURLOPT_SSL_VERIFYPEER] = false;
+        }
+
+        return $arr;
+    }
+
     /* Protected Methods *********************************************************/
     
 
@@ -334,6 +358,36 @@ abstract class BaseModel
                 "cmsSelect",
                 array("pid" => $pid, "sid" => $sid, "ssid" => $ssid)
             );
+        }
+    }
+
+    /**
+     * Execute curl calls
+     * @param array $data
+     * request_type, url, post_params
+     * @return bool || object
+     *  false or response
+     */
+    public function execute_curl_call($data)
+    {
+        // curl module should be installed
+        // sudo apt-get install php-curl
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, $this->get_default_curl_settings($data));
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $data['request_type']);
+            curl_setopt($curl, CURLOPT_URL, $data['URL']);
+            if (isset($data['post_params'])) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data['post_params']);
+            }
+
+            $response = curl_exec($curl);
+            $response = json_decode($response, true);
+
+            curl_close($curl);
+            return $response;
+        } catch (Exception $e) {
+            return false;
         }
     }
     
