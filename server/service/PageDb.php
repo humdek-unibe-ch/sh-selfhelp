@@ -222,12 +222,12 @@ class PageDb extends BaseDb
      */
     public function fetch_page_info($keyword)
     {
-        if (!$keyword || !isset($_SESSION)) {
+        if (!$keyword) {
             return;
         }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
         if ($page_id > 0) {
-            $page_info = $this->fetch_pages($page_id, $_SESSION['language']);
+            $page_info = $this->fetch_pages($page_id, isset($_SESSION['language']) ? $_SESSION['language'] : LANGUAGE);
             if ($page_info && $page_info["protocol"]) {
                 $protocols = explode("|", $page_info["protocol"]);
                 if (in_array("DELETE", $protocols)) {

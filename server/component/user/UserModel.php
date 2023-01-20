@@ -51,35 +51,7 @@ class UserModel extends BaseModel
         if($uid != null) $this->selected_user = $this->get_user($this->fetch_user($uid));
     }
 
-    /* Private Methods ********************************************************/
-
-    /**
-     * Fetch the user data from the db.
-     *
-     * @param int $uid
-     *  The id of the user to fetch.
-     * @retval array
-     *  An array with the following keys:
-     *   'id':          The id of the user.
-     *   'email':       The email of the user.
-     *   'name':        The name of the user.
-     *   'last_login':  The date of the last login.
-     *   'status':      The status of the user.
-     *   'description': The description of status of the user.
-     *   'blocked':     A boolean indication whether the user is blocked or not.
-     *   'code':        The validation code of the user.
-     *   'groups':      The groups in which the user belongs.
-     */
-    private function fetch_user($uid)
-    {
-        $sql = "SELECT *
-            FROM view_users         
-            WHERE id = :uid and intern <> 1";
-        $res = $this->db->query_db_first($sql, array(":uid" => $uid));
-        if($res)
-            $res['id'] = $uid;
-        return $res;
-    }
+    /* Private Methods ********************************************************/    
 
     /**
      * Fetch the user data from the db.
@@ -1017,6 +989,34 @@ class UserModel extends BaseModel
         $insert = $dbh->prepare($sql);
         $insert->execute();
         return $insert->rowCount() > 0 ? $code : false;
+    }
+
+    /**
+     * Fetch the user data from the db.
+     *
+     * @param int $uid
+     *  The id of the user to fetch.
+     * @retval array
+     *  An array with the following keys:
+     *   'id':          The id of the user.
+     *   'email':       The email of the user.
+     *   'name':        The name of the user.
+     *   'last_login':  The date of the last login.
+     *   'status':      The status of the user.
+     *   'description': The description of status of the user.
+     *   'blocked':     A boolean indication whether the user is blocked or not.
+     *   'code':        The validation code of the user.
+     *   'groups':      The groups in which the user belongs.
+     */
+    public function fetch_user($uid)
+    {
+        $sql = "SELECT *
+            FROM view_users         
+            WHERE id = :uid and intern <> 1";
+        $res = $this->db->query_db_first($sql, array(":uid" => $uid));
+        if($res)
+            $res['id'] = $uid;
+        return $res;
     }
 }
 ?>
