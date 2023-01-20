@@ -78,9 +78,11 @@ class Services
     private $hooks;
 
     /**
+     * @param bool $fullMode
+     * By default it is full mode and load all services. In some cases for cronjobs we do not need all the services and then we can select $fullMode false
      * The constructor.
      */
-    public function __construct()
+    public function __construct($fullMode = true)
     {
         $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
@@ -90,11 +92,16 @@ class Services
 
         $this->transaction = new Transaction($this->db);
 
-        $this->login = new Login($this->db, $this->transaction,
-            $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
-            $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route));        
-
-        $this->acl = new Acl($this->db);        
+        if ($fullMode) {
+            $this->login = new Login(
+                $this->db,
+                $this->transaction,
+                $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
+                $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route)
+            );
+            $this->acl = new Acl($this->db);        
+        }
+        
         
 
         $this->user_input = new UserInput($this->db, $this->transaction);
@@ -109,7 +116,9 @@ class Services
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
-        $this->hooks = new Hooks($this);
+        if ($fullMode) {
+            $this->hooks = new Hooks($this);
+        }
     }
 
     /**
