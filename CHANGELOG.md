@@ -2,6 +2,9 @@
 ###  New features
  - add a method for executing parent methods in `hooks` 
 
+### Bugfix
+ - show correctly when one user is selected in `user data`
+
 # v5.10.0
 ### Bugfix
  - fix errors when sending validation email (php8)

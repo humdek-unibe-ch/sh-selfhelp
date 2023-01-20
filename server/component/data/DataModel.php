@@ -109,7 +109,7 @@ class DataModel extends BaseModel
             "text" => 'All',
         ));
         foreach ($users as $val) {
-            $value = ('user_' . intval($val['id']));
+            $value = (intval($val['id']));
             //$selected = $this->users && array_search($value, $this->users) !== false ? 'selected' : '';
             array_push($arr, array(
                 "value" => $value,
@@ -155,7 +155,7 @@ class DataModel extends BaseModel
 
     public function get_selected_users()
     {
-        return str_replace('user_', '', $this->users);
+        return $this->users;
     }
 
     public function get_selected_forms()
