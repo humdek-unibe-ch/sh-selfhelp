@@ -38,7 +38,7 @@ class PageDb extends BaseDb
     function __construct($server, $dbname, $username, $password ) {
         parent::__construct( $server, $dbname, $username, $password );
         // $res = apcu_cache_info();
-        $this->cache->clear_cache();
+        // $this->cache->clear_cache();
         // $this->cache->clear_cache($this->cache::CACHE_TYPE_PAGES, 80);
     }
 
@@ -222,7 +222,7 @@ class PageDb extends BaseDb
      */
     public function fetch_page_info($keyword)
     {
-        if (!$keyword) {
+        if (!$keyword || !isset($_SESSION)) {
             return;
         }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
