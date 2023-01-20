@@ -1,4 +1,4 @@
-# v5.10.1 (unpublished)
+# v5.10.1
 ###  New features
  - add a method for executing parent methods in `hooks`
  - add `help` tooltip loading for style `descriptionTime` 
