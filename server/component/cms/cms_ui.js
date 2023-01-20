@@ -368,7 +368,10 @@ function update_new_data(data, elements, callback) {
         callback();
     }
     init_ui_cms(); // reload the UI initialization
-    $('[data-toggle="popover"]').popover({ html: true }); // reload again the tooltips
+    $('[data-toggle="popover"]').popover({
+        html: true,
+        placement: 'top'
+    }); // reload again the tooltips
 }
 
 /**
@@ -574,7 +577,7 @@ function initSortableElements() {
  * @returns {any}
  */
 function prepareSectionInfo(section, idx) {
-    if(DEBUG){
+    if (DEBUG) {
         console.log(section, idx);
     }
     var sectionData = $(section).data('section');
@@ -702,7 +705,7 @@ function addNewSection(styleId, sectionData, addSibling, position, styleName) {
  * @returns {any}
  */
 function showAddSection(sectionData, addSibling, position) {
-    if(DEBUG){
+    if (DEBUG) {
         console.log("sectionData", sectionData);
         console.log("addSibling", addSibling);
         console.log("position", position);

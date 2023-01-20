@@ -1,9 +1,11 @@
 # v5.10.1 (unpublished)
 ###  New features
- - add a method for executing parent methods in `hooks` 
+ - add a method for executing parent methods in `hooks`
+ - add `help` tooltip loading for style `descriptionTime` 
 
 ### Bugfix
  - show correctly when one user is selected in `user data`
+ - fix `i` tooltip placement on top and its loading
 
 # v5.10.0
 ### Bugfix
