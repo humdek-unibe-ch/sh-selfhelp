@@ -1,3 +1,7 @@
+# v5.11.0 (Unpublished)
+###  New features
+ - add db function `drop_table_column`
+
 # v5.10.1
 ###  New features
  - add a method for executing parent methods in `hooks`
