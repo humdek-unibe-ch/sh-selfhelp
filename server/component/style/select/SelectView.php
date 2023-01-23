@@ -82,7 +82,7 @@ class SelectView extends FormFieldView
      */
     private function output_fields()
     {
-        if($this->value == "" && !$this->is_multiple)
+        if($this->value == "" && !$this->is_multiple && !$this->required)
         {
             $empty = $this->model->get_db_field("alt");
             require __DIR__ . "/tpl_select_empty.php";

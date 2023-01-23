@@ -2,6 +2,9 @@
 ###  New features
  - add db function `drop_table_column`
 
+### Bugfix
+ - `select` when `required` now properly check if it is filled
+
 # v5.10.1
 ###  New features
  - add a method for executing parent methods in `hooks`
