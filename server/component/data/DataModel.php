@@ -45,7 +45,7 @@ class DataModel extends BaseModel
      *
      * @retval array
      *  As array of items where each item has the following keys:
-     *   - 'form_id':    form_id used as combobox value and used as a paramter for the databse function to retrieve the data.
+     *   - 'form_id':    form_id used as combobox value and used as a parameter for the database function to retrieve the data.
      *   - 'form_name':  form name shown in the combo box
      */
     public function get_forms()
@@ -56,8 +56,9 @@ class DataModel extends BaseModel
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
         ));
-        $sql = 'SELECT type, id AS form_id, orig_name AS form_name, form_id_plus_type AS form
-                FROM view_data_tables';
+        $sql = 'SELECT type, id AS form_id, orig_name AS form_name, form_id_plus_type AS form, internal
+                FROM view_data_tables
+                WHERE internal <> 1';
         return $this->db->query_db($sql);
     }
 

@@ -1,6 +1,7 @@
 # v5.11.0 (Unpublished)
 ###  New features
  - add db function `drop_table_column`
+ - add field `internal` to styles: `formUserInput`, `formUserInputLog` and `formUserInputRecord`. If internal is enabled the form data is not shown and can be used only internally.
 
 ### Bugfix
  - `select` when `required` now properly check if it is filled

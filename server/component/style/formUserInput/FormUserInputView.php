@@ -60,10 +60,10 @@ class FormUserInputView extends StyleView
     protected $submit_and_send_email;
 
     /**
-     * DB field 'submit_and_send_lable' ('').
+     * DB field 'submit_and_send_label' ('').
      * The label on the submit and send button
      */
-    protected $submit_and_send_lable;
+    protected $submit_and_send_label;
 
     /**
      * Selected record_id if there is one selected
@@ -208,8 +208,8 @@ class FormUserInputView extends StyleView
             $entry_record = $this->model->get_form_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
             if (!$entry_record) {
                 // no data for that record
-                $this->sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
-                foreach ($this->sections as $section) {
+                $sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
+                foreach ($sections as $section) {
                     $missing_styles =  new StyleComponent($this->model->get_services(), intval($section['id']));
                     $missing_styles->output_content();
                 }

@@ -38,7 +38,7 @@ class AjaxSearch extends BaseAjax
     {
         $sql = "SELECT table_name AS value, table_name AS id
             FROM view_data_tables
-            WHERE table_name LIKE :search ORDER BY table_name";
+            WHERE internal <> 1 AND table_name LIKE :search ORDER BY table_name";
         return $this->db->query_db($sql, array(
             'search' => "%".$data['search']."%"
         ));
