@@ -2,6 +2,7 @@
 ###  New features
  - add db function `drop_table_column`
  - add db function `add_foreign_key`
+ - add db function `drop_foreign_key`
  - add field `internal` to styles: `formUserInput`, `formUserInputLog` and `formUserInputRecord`. If internal is enabled the form data is not shown and can be used only internally.
 
 ### Bugfix
