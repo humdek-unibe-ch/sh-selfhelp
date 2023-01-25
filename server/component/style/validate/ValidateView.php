@@ -123,9 +123,27 @@ class ValidateView extends StyleView
     private $custom_form_name;
 
     /**
+     * DB field 'name_description' (empty string)
+     * The name description
+     */
+    private $name_description;
+
+    /**
+     * DB field 'value_gender' (empty string)
+     * The default value of the gender. If set it will be hidden
+     */
+    private $value_gender;
+
+    /**
+     * DB field 'value_name' (empty string)
+     * The default value of the user name. If set it will be hidden
+     */
+    private $value_name;
+
+    /**
      * The controller instance of the formUserInput component.
      */
-    private $ui_controller;
+    private $ui_controller;    
 
     /* Constructors ***********************************************************/
 
@@ -161,6 +179,8 @@ class ValidateView extends StyleView
         $this->success = $this->model->get_db_field("success");
         $this->login_action_label = $this->model->get_db_field("label_login");
         $this->custom_form_name = $this->model->get_db_field("name");
+        $this->value_name = $this->model->get_db_field("value_name", "");
+        $this->value_gender = $this->model->get_db_field("value_gender", "");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -249,7 +269,23 @@ class ValidateView extends StyleView
             $male_checked = ($gender === "male") ? "checked" : "";
             $female_checked = ($gender === "female") ? "checked" : "";
             $divers_checked = ($gender === "divers") ? "checked" : "";
+            if ($this->value_gender) {
+                switch ($this->value_gender) {
+                    case MALE_GENDER_ID:
+                        $male_checked = "checked";
+                        break;
+                    case FEMALE_GENDER_ID:
+                        $female_checked = "checked";
+                        break;
+                    case DIVERS_GENDER_ID:
+                        $divers_checked = "checked";
+                        break;
+                }
+            }
             $name = $this->model->get_user_name();
+            if ($this->value_name) {
+                $name = $this->value_name;
+            }
             require __DIR__ . "/tpl_validate.php";
         }
         if($this->model->is_cms_page()
@@ -259,6 +295,22 @@ class ValidateView extends StyleView
             $url = $this->model->get_link_url("login");
             require __DIR__ . "/tpl_success.php";
         }
+    }
+
+    /**
+     * Get the css for the gender group. If there are default value the group is not displayed
+     * @return string
+     */
+    public function get_css_gender(){
+        return $this->value_gender ? "d-none": "";
+    }
+
+    /**
+     * Get the css for the name group. If there are default value the group is not displayed
+     * @return string
+     */
+    public function get_css_name(){
+        return $this->value_name ? "d-none": "";
     }
 }
 ?>

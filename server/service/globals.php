@@ -45,6 +45,8 @@ define('EMAIL_TYPE_ID', 11);
 define('STYLE_GROUP_INTERN_ID', 1);
 
 define('MALE_GENDER_ID', 1);
+define('FEMALE_GENDER_ID', 2);
+define('DIVERS_GENDER_ID', 3);
 define('ALL_LANGUAGE_ID', 1);
 
 define('EXPERIMENTER_GROUP_ID', 2);

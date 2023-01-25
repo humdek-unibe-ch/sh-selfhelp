@@ -4,6 +4,7 @@
  - add db function `add_foreign_key`
  - add db function `drop_foreign_key`
  - add field `internal` to styles: `formUserInput`, `formUserInputLog` and `formUserInputRecord`. If internal is enabled the form data is not shown and can be used only internally.
+ - #342 add an option to set a default value for `gender` and `name`(user_name) in style `validation`. If the default value is set the fields will be hidden.
 
 ### Bugfix
  - `select` when `required` now properly check if it is filled

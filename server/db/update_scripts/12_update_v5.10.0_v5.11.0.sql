@@ -2,6 +2,16 @@
 UPDATE version
 SET version = 'v5.11.0';
 
+-- add field value_gender
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'value_gender', get_field_type_id('text'), '');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('validate'), get_field_id('value_gender'), '', 'Set the default value for the gender. Once it is set, the field will be hidden on validation. `1` - `male`, `2` - `female`, `3` - `divers`');
+-- add field value_name
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'value_name', get_field_type_id('text'), '');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('validate'), get_field_id('value_name'), '', 'Set the default value for the user name. Once it is set, the field will be hidden on validation.');
+
+
 DELIMITER //
 DROP PROCEDURE IF EXISTS drop_table_column //
 CREATE PROCEDURE drop_table_column(param_table VARCHAR(100), param_column VARCHAR(100))
