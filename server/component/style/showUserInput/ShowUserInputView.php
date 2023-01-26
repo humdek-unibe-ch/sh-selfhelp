@@ -87,7 +87,7 @@ class ShowUserInputView extends StyleView
         $this->anchor = $this->model->get_db_field("anchor");
         $this->source_an = $this->model->convert_to_alphanumeric($this->source);
         $this->is_log = $this->model->get_db_field("is_log", false);
-        $this->label = $this->model->get_db_field("label_date_time", "Record Id");
+        $this->label = $this->model->get_db_field("label_date_time", "Entry Date");
         $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
         $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
@@ -185,18 +185,17 @@ class ShowUserInputView extends StyleView
     {
         $rows = array();
         $header = array($this->label);
-        foreach($fields as $field)
-        {
-            $header[] = ($field['field_label'] == '' ? $field['field_name']: $field['field_label']);
-            if(isset($field['id_user_input_record'])){
+        foreach($fields as $field) {
+            $header[] = ($field['field_label'] == '' ? $field['field_name'] : $field['field_label']);
+            if (isset($field['id_user_input_record']) && false) { // always show the timestamp, we dont need the record id
                 // new visualization based on row id
-                if(!isset($rows[$field['id_user_input_record']]))
-                    $rows[$field['id_user_input_record']] = array($field['id_user_input_record']);
+                if (!isset($rows[$field['id_user_input_record']]))
+                $rows[$field['id_user_input_record']] = array($field['id_user_input_record']);
                 $rows[$field['id_user_input_record']][intval($field['id'])] = $field['value'];
-            }else{
+            } else {
                 // legacy
-                if(!isset($rows[$field['timestamp']]))
-                    $rows[$field['timestamp']] = array($field['timestamp']);
+                if (!isset($rows[$field['timestamp']]))
+                $rows[$field['timestamp']] = array($field['timestamp']);
                 $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
             }
         }

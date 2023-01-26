@@ -8,6 +8,7 @@
 
 ### Bugfix
  - `select` when `required` now properly check if it is filled
+ - style `showUserInput` show `timestamp` instead of `record_id`
 
 # v5.10.1
 ###  New features
