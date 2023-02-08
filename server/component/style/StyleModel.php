@@ -234,7 +234,7 @@ class StyleModel extends BaseModel implements IStyleModel
                             } else if ($config['retrieve'] === 'all_as_array') {
                                 $field_value = json_encode($all_values);
                             }
-                            $result[$field['field_holder']] = $field_value;
+                            $result[$field['field_holder']] = ($field_value == '' ? $field['not_found_text'] : $field_value);
                         }
                     }
                 }
