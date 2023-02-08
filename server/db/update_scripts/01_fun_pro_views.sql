@@ -115,15 +115,15 @@ WHERE p.id = 1;
 drop view if exists view_fields;
 create view view_fields
 as
-select cast(f.id as unsigned) as field_id, f.name as field_name, f.display, cast(ft.id as unsigned) as field_type_id, ft.name as field_type, ft.position
+select cast(f.id as unsigned) as field_id, f.`name` as field_name, f.display, cast(ft.id as unsigned) as field_type_id, ft.`name` as field_type, ft.position
 from fields f
 left join fieldType ft on (f.id_type = ft.id);
 drop view if exists view_styles;
 create view view_styles
 as
-select cast(s.id as unsigned) as style_id, s.name as style_name, s.description as style_description,
-cast(st.id as unsigned) as style_type_id, st.name as style_type, cast(sg.id as unsigned) as style_group_id,
-sg.name as style_group, sg.description as style_group_description, sg.position as style_group_position
+select cast(s.id as unsigned) as style_id, s.`name` as style_name, s.description as style_description,
+cast(st.id as unsigned) as style_type_id, st.`name` as style_type, cast(sg.id as unsigned) as style_group_id,
+sg.`name` as style_group, sg.description as style_group_description, sg.position as style_group_position
 from styles s
 left join styleType st on (s.id_type = st.id)
 left join styleGroup sg on (s.id_group = sg.id);
@@ -138,7 +138,7 @@ left join view_fields f on (f.field_id = sf.id_fields);
 drop view if exists view_user_input;
 create view view_user_input
 as
-select cast(ui.id as unsigned) as id, cast(u.id as unsigned) as user_id, u.name as user_name, vc.code as user_code, cast(form.id as unsigned) form_id, sft_if.content as form_name, cast(field.id as unsigned) as field_id, 
+select cast(ui.id as unsigned) as id, cast(u.id as unsigned) as user_id, u.`name` as user_name, vc.code as user_code, cast(form.id as unsigned) form_id, sft_if.content as form_name, cast(field.id as unsigned) as field_id, 
 sft_in.content as field_name, ui.value, record.id as record_id, ui.edit_time, ui.removed
 from user_input ui
 left join users u on (ui.id_users = u.id)
@@ -229,7 +229,7 @@ DELIMITER ;
 drop view if exists view_uploadTables;
 create view view_uploadTables
 as
-select t.id as table_id, r.id as row_id, r.timestamp as entry_date, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp
+select t.id as table_id, r.id as row_id, r.timestamp as entry_date, col.id as col_id, t.`name` as table_name, col.`name` as col_name, cell.value as value, t.timestamp
 from uploadTables t
 inner join uploadRows r on (t.id = r.id_uploadTables)
 inner join uploadCells cell on (cell.id_uploadRows = r.id)
@@ -262,10 +262,10 @@ BEGIN
     SELECT
     GROUP_CONCAT(DISTINCT
         CONCAT(
-            'max(case when col.name = "',
-                col.name,
+            'max(case when col.`name` = "',
+                col.`name`,
                 '" then value end) as `',
-            replace(col.name, ' ', ''), '`'
+            replace(col.`name`, ' ', ''), '`'
         )
     ) INTO @sql
     FROM  uploadTables t
@@ -278,16 +278,16 @@ BEGIN
         SELECT table_name from view_uploadTables where 1=2;
     ELSE
         BEGIN
-            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
+            SET @sql = CONCAT('select t.`name` as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
                 ' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
 					inner join uploadCells cell on (cell.id_uploadRows = r.id)
 					inner join uploadCols col on (col.id = cell.id_uploadCols)
 					where t.id = ', table_id_param,
-					' group by t.name, t.timestamp, r.id HAVING 1 ', filter_param);
+					' group by t.`name`, t.timestamp, r.id HAVING 1 ', filter_param);
 			IF LOCATE('id_users', @sql) THEN
 				-- get user_name if there is id_users column
-				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id)');
+				SET @sql = CONCAT('select v.*, u.`name` as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id)');
 			END IF;
 
             PREPARE stmt FROM @sql;
@@ -349,17 +349,17 @@ p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.na
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
-SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
+SELECT st.id as id, st.`name` as action_name, st.id_qualtricsProjects as project_id, p.`name` as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
+st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.`name` as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
 GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
 schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
 CASE 
-	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
+	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.`name` 
     ELSE NULL
 END as survey_reminder_name, st.id_qualtricsActions
 FROM qualtricsActions st 
@@ -370,17 +370,17 @@ INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
 LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
-LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN `groups` g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
-GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
-st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
+GROUP BY st.id, st.`name`, st.id_qualtricsProjects, p.`name`,
+st.id_qualtricsSurveys, s.`name`, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
 DROP VIEW IF EXISTS view_transactions;
 CREATE VIEW view_transactions
 AS
 SELECT t.id, t.transaction_time, t.id_transactionTypes, tran_type.lookup_value AS transaction_type,
-id_transactionBy, tran_by.lookup_value AS transaction_by, id_users, u.name AS user_name,
+id_transactionBy, tran_by.lookup_value AS transaction_by, id_users, u.`name` AS user_name,
 table_name, id_table_name, REPLACE(JSON_EXTRACT(transaction_log, '$.verbal_log'), '"', '') AS transaction_verbal_log
 FROM transactions t
 INNER JOIN lookups tran_type ON (tran_type.id = t.id_transactionTypes)
@@ -423,7 +423,7 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
+		SET @sql = CONCAT('select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.`name` as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
 		left join sections field on (ui.id_sections = field.id)
@@ -432,7 +432,7 @@ BEGIN
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 		LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
 		where form.id = ', form_id_param, ' and u.id = ', user_id_param,
-		' group by u.id, sft_if.content, u.name, record.id, vc.code, removed HAVING 1 ', filter_param);
+		' group by u.id, sft_if.content, u.`name`, record.id, vc.code, removed HAVING 1 ', filter_param);
 
 		
 		PREPARE stmt FROM @sql;
@@ -499,7 +499,7 @@ BEGIN
 												 WHERE  p2.parent = p.id 
 												 AND ( l.locale = param_locale 
 												 OR l.locale = 'all' ) 
-												 AND f2.NAME = 'label' 
+												 AND f2.`name` = 'label' 
 												 AND p2.nav_position IS NOT NULL 
 												 ORDER  BY p2.nav_position ASC))))) AS 
 		   pages 
@@ -513,7 +513,7 @@ BEGIN
 	WHERE  p.nav_position IS NOT NULL 
 		   AND ( l.locale = param_locale 
 				  OR l.locale = 'all' ) 
-		   AND f.NAME = 'label' 
+		   AND f.`name` = 'label' 
 		   AND p.parent IS NULL 
 ORDER  BY p.nav_position DESC;
     
@@ -563,40 +563,40 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_users;
 CREATE VIEW view_users
 AS
-SELECT u.id, u.email, u.name, 
+SELECT u.id, u.email, u.`name`, 
 IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
-us.name AS status,
+us.`name` AS status,
 us.description, u.blocked, 
 CASE
-	WHEN u.name = 'admin' THEN 'admin'
-    WHEN u.name = 'tpf' THEN 'tpf'    
+	WHEN u.`name` = 'admin' THEN 'admin'
+    WHEN u.`name` = 'tpf' THEN 'tpf'    
     ELSE IFNULL(vc.code, '-') 
 END AS code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
 u.intern
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
-GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
+GROUP BY u.id, u.email, u.`name`, u.last_login, us.`name`, us.description, u.blocked, vc.code, user_activity
 ORDER BY u.email;
 DROP VIEW IF EXISTS view_sections_fields;
 CREATE VIEW view_sections_fields
 AS
 SELECT
    s.id AS id_sections,
-   s.name AS section_name,
+   s.`name` AS section_name,
    sft.content,
    s.id_styles,
    fields.style_name,
    field_id AS id_fields,
    field_name,
    l.locale,
-   g.name AS gender 
+   g.`name` AS gender 
 FROM sections s 
 LEFT JOIN view_style_fields fields ON (fields.style_id = s.id_styles) 
 LEFT JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
@@ -609,8 +609,8 @@ SELECT sj.id AS id, l_status.lookup_code AS status_code, l_status.lookup_value A
 sj.date_create, date_to_be_executed, date_executed, description, 
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails
-    -- WHEN l_types.lookup_code = 'notification' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
-    -- WHEN l_types.lookup_code = 'task' THEN (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+    -- WHEN l_types.lookup_code = 'notification' THEN (SELECT GROUP_CONCAT(DISTINCT u.`name` SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
+    -- WHEN l_types.lookup_code = 'task' THEN (SELECT GROUP_CONCAT(DISTINCT u.`name` SEPARATOR '; ') FROM scheduledJobs_users sj_u INNER JOIN users u on (u.id = sj_u.id_users) WHERE id_scheduledJobs = sj.id)
     WHEN l_types.lookup_code = 'notification' THEN ''
     WHEN l_types.lookup_code = 'task' THEN ''
     ELSE ""
@@ -657,7 +657,7 @@ INNER JOIN view_scheduledJobs sj ON (sj.id = sj_mq.id_scheduledJobs);
 DROP VIEW IF EXISTS view_qualtricsReminders;
 CREATE VIEW view_qualtricsReminders
 AS
-SELECT u.id as user_id, u.email, u.name AS user_name, code, sj.id AS id_scheduledJobs,
+SELECT u.id as user_id, u.email, u.`name` AS user_name, code, sj.id AS id_scheduledJobs,
 sj.status_code as status_code, sj.status AS status, r.id_qualtricsSurveys AS id_qualtricsSurveys, s.qualtrics_survey_id,
 qa.id_qualtricsActions,
 	(SELECT sess.date_to_be_executed 
@@ -719,7 +719,7 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
+		SET @sql = CONCAT('select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.`name` as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
 		left join sections field on (ui.id_sections = field.id)
@@ -727,7 +727,7 @@ BEGIN
 		left join user_input_record record  on (ui.id_user_input_record = record.id)
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 		LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-		where form.id = ', form_id_param, ' group by u.id, sft_if.content, u.name, record.id, vc.code, removed HAVING 1 ', filter_param);
+		where form.id = ', form_id_param, ' group by u.id, sft_if.content, u.`name`, record.id, vc.code, removed HAVING 1 ', filter_param);
 
 		
 		PREPARE stmt FROM @sql;
@@ -742,9 +742,9 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_formActions;
 CREATE VIEW view_formActions
 AS
-SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
+SELECT fa.id as id, fa.`name` as action_name, fa.id_forms as id_forms, f.form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
 CASE 
@@ -757,12 +757,12 @@ INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleTypes)
 LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
 LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
-LEFT JOIN groups g on (fg.id_groups = g.id)
-GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value, f.form_name, form_reminder_name;
+LEFT JOIN `groups` g on (fg.id_groups = g.id)
+GROUP BY fa.id, fa.`name`, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value, f.form_name, form_reminder_name;
 DROP VIEW IF EXISTS view_formActionsReminders;
 CREATE VIEW view_formActionsReminders
 AS
-SELECT u.id as user_id, u.email, u.name AS user_name, code, sj.id AS id_scheduledJobs,
+SELECT u.id as user_id, u.email, u.`name` AS user_name, code, sj.id AS id_scheduledJobs,
 sj.status_code as status_code, sj.status AS status, r.id_forms AS id_forms,
 fa.id_formActions,
 	(SELECT sess.date_to_be_executed 
@@ -792,10 +792,10 @@ LEFT JOIN formActions fa ON (fa.id = sj_fa.id_formActions);
 DROP VIEW IF EXISTS view_user_codes;
 CREATE VIEW view_user_codes
 AS
-SELECT u.id, u.email, u.name, u.blocked, 
+SELECT u.id, u.email, u.`name`, u.blocked, 
 CASE
-	WHEN u.name = 'admin' THEN 'admin'
-    WHEN u.name = 'tpf' THEN 'tpf'    
+	WHEN u.`name` = 'admin' THEN 'admin'
+    WHEN u.`name` = 'tpf' THEN 'tpf'    
     ELSE IFNULL(vc.code, '-') 
 END AS code,
 u.intern
@@ -817,14 +817,14 @@ BEGIN
     ELSE 
 		BEGIN
 		SET @sql = CONCAT(
-			'select p.id, p.keyword, p.url, p.protocol, p.id_actions, "select" AS access_level, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.name AS `action`, ', 
+			'select p.id, p.keyword, p.url, p.protocol, p.id_actions, "select" AS access_level, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.`name` AS `action`, ', 
 			@sql, 
 			'FROM pages p
             LEFT JOIN actions AS a ON a.id = p.id_actions
 			LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
 			LEFT JOIN fields AS f ON f.id = ptf.id_fields
 			WHERE (p.id = ', page_id, ' OR -1 = ', page_id, ')
-            GROUP BY p.id, p.keyword, p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.name HAVING 1 ', filter_param
+            GROUP BY p.id, p.keyword, p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position, p.footer_position, p.id_type, p.id_pageAccessTypes, a.`name` HAVING 1 ', filter_param
         );
         
         IF (order_param <> '') THEN	        
@@ -859,14 +859,14 @@ BEGIN
     ELSE 
 		BEGIN
 		SET @sql = CONCAT(
-			'SELECT s.id AS section_id, s.name AS section_name, st.id AS style_id, st.name AS style_name, ', 
+			'SELECT s.id AS section_id, s.`name` AS section_name, st.id AS style_id, st.`name` AS style_name, ', 
 			@sql, 
 			'FROM sections s
             INNER JOIN styles st ON (s.id_styles = st.id)
 			LEFT JOIN sections_fields_translation AS sft ON sft.id_sections = s.id   
 			LEFT JOIN fields AS f ON sft.id_fields = f.id
 			WHERE (s.id = ', section_id, ' OR -1 = ', section_id, ') AND ( IFNULL(id_languages, 1) = 1 OR id_languages=', language_id, ') 
-            GROUP BY s.id, s.name, st.id, st.name HAVING 1 ', filter_param
+            GROUP BY s.id, s.`name`, st.id, st.`name` HAVING 1 ', filter_param
         );
         
         IF (order_param <> '') THEN	        
