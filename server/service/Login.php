@@ -64,7 +64,11 @@ class Login
     private function init_session()
     {
         if(PROJECT_NAME !== "") {
-            session_name(PROJECT_NAME);
+            if (DEBUG) {
+                session_name(PROJECT_NAME);
+            } else {
+                session_name('__Secure-' . PROJECT_NAME);
+            }
         }
         if (isset($_POST['mobile_web']) && $_POST['mobile_web']) {
             // enable cross side cookies            
@@ -79,7 +83,16 @@ class Login
                 );
             }
         } else {
-            session_set_cookie_params(0, NULL, NULL, TRUE, TRUE);
+            if (PHP_VERSION_ID < 70300) {
+                session_set_cookie_params(6000, '/; samesite=' . 'strict', true, true);
+            } else {
+                session_set_cookie_params(
+                    [
+                        'secure' => true,
+                        'samesite' => 'strict'
+                    ]
+                );
+            }
         }
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
