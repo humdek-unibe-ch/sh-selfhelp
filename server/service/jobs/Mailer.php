@@ -74,8 +74,9 @@ class Mailer extends BasicJob
             unset($to['to']);
             $to['to'][] = array('address' => $mail, 'name' => $mail);
             $user_info = $this->db->query_db_first('SELECT name, id FROM users WHERE email = :email', array(":email" => trim($mail)));
-            $user_name = $user_info['name'];
-            if ($this->check_condition($condition, $user_info['id'])) {
+            $user_name = isset($user_info['name']) ? $user_info['name'] : '';
+            $user_info_id = isset($user_info['id']) ? $user_info['id'] : '';
+            if ($this->check_condition($condition, $user_info_id)) {
                 if ($user_name) {
                     $msg = str_replace('@user_name', $user_name, $msg);
                 }

@@ -91,6 +91,10 @@ define('PF_EMAIL_SUBJECT', 'email_subject');
 define('PF_EMAIL_ACTIVATE_SUBJECT', 'email_activate_subject');
 define('PF_EMAIL_REMINDER_SUBJECT', 'email_reminder_subject');
 define('PF_EMAIL_ACTIVATE_EMAIL_ADDRESS', 'email_activate_email_address');
+define('PF_EMAIL_DELETE_PROFILE', 'email_delete_profile');
+define('PF_EMAIL_DELETE_PROFILE_SUBJECT', 'email_delete_profile_subject');
+define('PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS', 'email_delete_profile_email_address');
+define('PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY', 'email_delete_profile_email_address_notification_copy');
 define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 
 /* Page actions */

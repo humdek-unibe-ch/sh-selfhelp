@@ -78,6 +78,11 @@ class Services
     private $hooks;
 
     /**
+     * The condition service instance to handle conditional logic.
+     */
+    private $condition;
+
+    /**
      * @param bool $fullMode
      * By default it is full mode and load all services. In some cases for cronjobs we do not need all the services and then we can select $fullMode false
      * The constructor.
@@ -90,18 +95,7 @@ class Services
         $this->router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
         $this->init_router_routes();
 
-        $this->transaction = new Transaction($this->db);
-
-        if ($fullMode) {
-            $this->login = new Login(
-                $this->db,
-                $this->transaction,
-                $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
-                $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route)
-            );
-            $this->acl = new Acl($this->db);        
-        }
-        
+        $this->transaction = new Transaction($this->db);                
         
 
         $this->user_input = new UserInput($this->db, $this->transaction);
@@ -112,6 +106,16 @@ class Services
 
         $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $this->condition);
         
+        if ($fullMode) {
+            $this->login = new Login(
+                $this->db,
+                $this->transaction,
+                $this->job_scheduler,
+                $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
+                $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route)
+            );
+            $this->acl = new Acl($this->db);        
+        }
 
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);

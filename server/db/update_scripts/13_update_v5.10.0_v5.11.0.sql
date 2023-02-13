@@ -15,6 +15,22 @@ VALUES (get_style_id('validate'), get_field_id('value_name'), '', 'Set the defau
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_activate_email_address', get_field_type_id('text'), '0');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_activate_email_address'), NULL, 'Set the email address which will be used to send activation emails.');
 
+-- add field `email_delete_profile_email_address`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_delete_profile_email_address', get_field_type_id('text'), '0');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_delete_profile_email_address'), NULL, 'Set the email address which will be used to send confirmation emails when the users delete their profile');
+
+-- add field `email_delete_profile_subject`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_delete_profile_subject', get_field_type_id('markdown'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_delete_profile_subject'), NULL, 'Subject text for the email confirmation which is sent when a user profile is deleted');
+
+-- add field `email_delete_profile`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_delete_profile', get_field_type_id('markdown'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_delete_profile'), NULL, 'Email text which is sent when a user profile is deleted');
+
+-- add field `email_delete_profile_email_address_notification_copy`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_delete_profile_email_address_notification_copy', get_field_type_id('text'), '0');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_delete_profile_email_address_notification_copy'), NULL, 'Set an email address that will be notified that a user acount was deleted');
+
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS drop_table_column //
