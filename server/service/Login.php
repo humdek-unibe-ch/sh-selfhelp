@@ -78,6 +78,8 @@ class Login
                     ]
                 );
             }
+        } else {
+            session_set_cookie_params(0, NULL, NULL, TRUE, TRUE);
         }
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
