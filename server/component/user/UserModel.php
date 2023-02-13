@@ -166,6 +166,17 @@ class UserModel extends BaseModel
         return $content;
     }
 
+    /**
+     * Get the email address which will be used to send an activation email
+     * @return string
+     * Return the email address
+     */
+    private function get_email_activate_from_email_address(){
+        $email_activate_fields = $this->db->fetch_page_info(SH_EMAIL);
+        return isset($email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS]) && $email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS] != '' ? $email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS] : "noreply@" . $_SERVER['HTTP_HOST'];
+
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -323,7 +334,7 @@ class UserModel extends BaseModel
         ));
         $url = "https://" . $_SERVER['HTTP_HOST'] . $url;        
         $subject = $this->get_content($url, PF_EMAIL_ACTIVATE_SUBJECT);
-        $from = "noreply@" . $_SERVER['HTTP_HOST'];
+        $from = $this->get_email_activate_from_email_address();
         $msg = $this->get_content($url, PF_EMAIL_ACTIVATE);
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
@@ -952,7 +963,7 @@ class UserModel extends BaseModel
             ));
             $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
             $subject = $this->get_content($url, PF_EMAIL_ACTIVATE_SUBJECT);
-            $from = "noreply@" . $_SERVER['HTTP_HOST'];
+            $from = $this->get_email_activate_from_email_address();
             $msg = $this->get_content($url, PF_EMAIL_ACTIVATE);
             $mail = array(
                 "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),

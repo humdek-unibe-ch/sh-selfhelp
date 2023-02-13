@@ -11,6 +11,10 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, '
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('validate'), get_field_id('value_name'), '', 'Set the default value for the user name. Once it is set, the field will be hidden on validation.');
 
+-- add field `email_activate_email_address`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_activate_email_address', get_field_type_id('text'), '0');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_activate_email_address'), NULL, 'Set the email address which will be used to send activation emails.');
+
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS drop_table_column //

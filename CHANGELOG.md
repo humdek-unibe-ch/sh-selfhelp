@@ -5,6 +5,7 @@
  - add db function `drop_foreign_key`
  - add field `internal` to styles: `formUserInput`, `formUserInputLog` and `formUserInputRecord`. If internal is enabled the form data is not shown and can be used only internally.
  - #342 add an option to set a default value for `gender` and `name`(user_name) in style `validation`. If the default value is set the fields will be hidden.
+ - #343 add a field `email_activate_email_address` in `Email Templates`. If the field is set, it will be used as an email from where is sent the message and where it can be replied.
 
 ### Bugfix
  - `select` when `required` now properly check if it is filled

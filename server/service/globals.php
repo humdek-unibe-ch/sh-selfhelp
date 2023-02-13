@@ -90,6 +90,7 @@ define('PF_EMAIL_REMINDER', 'email_reminder');
 define('PF_EMAIL_SUBJECT', 'email_subject');
 define('PF_EMAIL_ACTIVATE_SUBJECT', 'email_activate_subject');
 define('PF_EMAIL_REMINDER_SUBJECT', 'email_reminder_subject');
+define('PF_EMAIL_ACTIVATE_EMAIL_ADDRESS', 'email_activate_email_address');
 define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 
 /* Page actions */
