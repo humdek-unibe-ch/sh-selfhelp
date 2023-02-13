@@ -71,7 +71,7 @@ class Login
             }
         }
         if (isset($_POST['mobile_web']) && $_POST['mobile_web']) {
-            // enable cross side cookies            
+            // enable cross side cookies for mobile preview, only for specific addresses       
             if (PHP_VERSION_ID < 70300) {
                 session_set_cookie_params(6000, '/; samesite=' . 'None', $_SERVER['HTTP_HOST'], true);
             } else {
@@ -82,7 +82,8 @@ class Login
                     ]
                 );
             }
-        } else {
+        } else if (!isset($_POST['mobile']) || !$_POST['mobile']) {
+            // web calls only
             if (PHP_VERSION_ID < 70300) {
                 session_set_cookie_params(6000, '/; samesite=' . 'strict', true, true);
             } else {
