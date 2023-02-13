@@ -149,6 +149,7 @@ abstract class BasePage
             "/js/ext/jquery-ui.min.js",
             "/js/ext/jsoneditor.min.js",
             "/js/ext/moment.min.js",
+            "/js/ext/jquery-extendext.js",
             "/js/ext/query-builder.standalone.min.js",
             "/js/ext/bootstrap4-toggle.min.js",
             "/js/ext/easymde.min.js",
@@ -366,7 +367,7 @@ abstract class BasePage
      */
     private function getCspRules()
     {
-        $csp_rules = "default-src 'self';  style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-"
+        $csp_rules = "default-src 'self';  style-src 'self' 'unsafe-inline'; object-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-"
             . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;";
         return $csp_rules;
     }

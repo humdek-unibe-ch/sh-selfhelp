@@ -1,4 +1,7 @@
 # v5.11.0 (Unpublished)
+### Security Update
+ - adjust csp_rules to include `unsafe-inline` instead of `unsafe-eval`. Update jQueryBuilder with this [version](https://github.com/lol768/jQuery-QueryBuilder)
+
 ###  New features
  - add db function `drop_table_column`
  - add db function `add_foreign_key`
