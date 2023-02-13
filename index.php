@@ -1,4 +1,6 @@
 <?php 
+header("X-XSS-Protection: 1; mode=block");
+header("X-Frame-Options: SAMEORIGIN");
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 require_once "./server/service/Services.php";
 require_once "./server/service/Router.php";
