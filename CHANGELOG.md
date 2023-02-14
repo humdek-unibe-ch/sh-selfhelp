@@ -1,4 +1,4 @@
-# v5.11.0 (Unpublished)
+# v5.11.0
 ### Security Update
  - adjust csp_rules to include `unsafe-inline` instead of `unsafe-eval`. Update jQueryBuilder with this [version](https://github.com/lol768/jQuery-QueryBuilder)
 
