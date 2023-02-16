@@ -84,17 +84,17 @@ class Login
                 );
             }
         } else if (!isset($_POST['mobile']) || !$_POST['mobile']) {
-            // web calls only
-            // if (PHP_VERSION_ID < 70300) {
-            //     session_set_cookie_params(6000, '/; samesite=' . 'strict', $_SERVER['HTTP_HOST'], true);
-            // } else {
-            //     session_set_cookie_params(
-            //         [
-            //             'secure' => true,
-            //             'samesite' => 'strict'
-            //         ]
-            //     );
-            // }
+            web calls only
+            if (PHP_VERSION_ID < 70300) {
+                session_set_cookie_params(6000, '/; samesite=' . 'strict', $_SERVER['HTTP_HOST'], true);
+            } else {
+                session_set_cookie_params(
+                    [
+                        'secure' => true,
+                        'samesite' => 'strict'
+                    ]
+                );
+            }
         }
         session_start();
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
