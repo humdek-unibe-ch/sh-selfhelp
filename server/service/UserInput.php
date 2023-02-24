@@ -152,7 +152,7 @@ class UserInput
      */
     private function fetch_section_name($id)
     {
-        $sql = "SELECT name FROM sections WHERE id = :id";
+        $sql = "SELECT `name` FROM sections WHERE id = :id";
         $parent = $this->db->query_db_first($sql, array(":id" => $id));
         if($parent) return $parent["name"];
         else return null;
