@@ -1,3 +1,7 @@
+# v5.11.1
+###  New features
+ - add `_index` in `entryList` which keep the index of the array elements
+
 # v5.11.0
 ### Security Update
  - adjust csp_rules to include `unsafe-inline` instead of `unsafe-eval`. Update jQueryBuilder with this [version](https://github.com/lol768/jQuery-QueryBuilder)

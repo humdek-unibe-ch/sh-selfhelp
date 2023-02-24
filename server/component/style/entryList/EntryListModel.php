@@ -71,7 +71,14 @@ class EntryListModel extends StyleModel
         if ($this->form_type == FORM_DYNAMIC) {
             $this->filter = ' AND deleted = 0 ' . $this->filter; // do not show the deleted records
         }
-        return $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);
+        $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);
+        $i = 0;
+        foreach ($entry_data as $key => $value) {
+            // add index to the data
+            $entry_data[$key]['_index'] = $i;
+            $i++;
+        }
+        return $entry_data;
     }
 
     private function init_properties(){
