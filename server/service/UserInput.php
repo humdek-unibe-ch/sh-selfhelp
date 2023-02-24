@@ -78,22 +78,30 @@ class UserInput
         // rework
         if(!isset($conds['ui.id_section_form']))
             $field_attrs = $this->get_field_attrs(-1, $get_page_info);
-        $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
-            g.name AS gender, vc.code, id_user_input_record
-            FROM user_input AS ui
-            LEFT JOIN users AS u ON u.id = ui.id_users
-            LEFT JOIN genders AS g ON g.id = u.id_genders
-            LEFT JOIN validation_codes AS vc on vc.id_users = ui.id_users
-            WHERE 1";
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, json_encode($conds), [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        $fields_db = array();
         $gender = $_SESSION['gender'];
         $language = $_SESSION['language'];
-        foreach($conds as $key => $value)
-        {
-            if($key === "g.name") $gender = $value;
-
-            $sql .= " AND " . $key . " = '" . $value . "'";
+        if ($get_result !== false) {
+            $fields_db = $get_result;
+        } else {
+            $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
+                    g.`name` AS gender, vc.code, id_user_input_record
+                    FROM user_input AS ui
+                    LEFT JOIN users AS u ON u.id = ui.id_users
+                    LEFT JOIN genders AS g ON g.id = u.id_genders
+                    LEFT JOIN validation_codes AS vc on vc.id_users = ui.id_users
+                    WHERE 1";
+            foreach ($conds as $k => $value) {
+                if ($k === "g.name") {
+                    $gender = $value;
+                };
+                $sql .= " AND " . $k . " = '" . $value . "'";
+            }
+            $fields_db = $this->db->query_db($sql);
+            $this->db->get_cache()->set($key, $fields_db);
         }
-        $fields_db = $this->db->query_db($sql);
 
         $fields = array();
         foreach($fields_db as $field)
@@ -134,12 +142,19 @@ class UserInput
      */
     private function fetch_nav_section_page($id_section)
     {
-        $sql = "SELECT p.keyword FROM sections_navigation AS sn
-            LEFT JOIN pages AS p ON p.id = sn.id_pages
-            WHERE sn.child = :id";
-        $page = $this->db->query_db_first($sql, array(":id" => $id_section));
-        if($page) return $page["keyword"];
-        else return null;
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_PAGES, $id_section, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT p.keyword FROM sections_navigation AS sn
+                    LEFT JOIN pages AS p ON p.id = sn.id_pages
+                    WHERE sn.child = :id";
+            $page = $this->db->query_db_first($sql, array(":id" => $id_section));
+            $res = $page ? $page["keyword"] : null;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        } 
     }
 
     /**
@@ -152,10 +167,17 @@ class UserInput
      */
     private function fetch_section_name($id)
     {
-        $sql = "SELECT `name` FROM sections WHERE id = :id";
-        $parent = $this->db->query_db_first($sql, array(":id" => $id));
-        if($parent) return $parent["name"];
-        else return null;
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT `name` FROM sections WHERE id = :id";
+            $parent = $this->db->query_db_first($sql, array(":id" => $id));
+            $res = $parent ? $parent["name"] : null;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }
     }
 
     /**
@@ -168,12 +190,19 @@ class UserInput
      */
     private function fetch_section_page($id_section)
     {
-        $sql = "SELECT p.keyword FROM pages_sections AS ps
-            LEFT JOIN pages AS p ON p.id = ps.id_pages
-            WHERE ps.id_sections = :id";
-        $page = $this->db->query_db_first($sql, array(":id" => $id_section));
-        if($page) return $page["keyword"];
-        else return null;
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_PAGES, $id_section, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT p.keyword FROM pages_sections AS ps
+                    LEFT JOIN pages AS p ON p.id = ps.id_pages
+                    WHERE ps.id_sections = :id";
+            $page = $this->db->query_db_first($sql, array(":id" => $id_section));
+            $res = $page ? $page["keyword"] : null;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }  
     }
 
     /**
@@ -186,10 +215,17 @@ class UserInput
      */
     private function fetch_section_parent($id_child)
     {
-        $sql = "SELECT parent FROM sections_hierarchy WHERE child = :id";
-        $parent = $this->db->query_db_first($sql, array(":id" => $id_child));
-        if($parent) return intval($parent["parent"]);
-        else return null;
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id_child, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT parent FROM sections_hierarchy WHERE child = :id";
+            $parent = $this->db->query_db_first($sql, array(":id" => $id_child));
+            $res = $parent ? $parent["parent"] : null;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        } 
     }
 
     /**
@@ -433,16 +469,24 @@ class UserInput
     public function set_field_attrs()
     {
         $this->field_attrs = array();
-        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
-            LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
-            LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
-            LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
-            LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
-            LEFT JOIN sections AS s ON s.id = ui.id_sections
-            LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN genders AS g ON g.id = sft_il.id_genders
-            LEFT JOIN languages AS l ON l.id = sft_il.id_languages";
-        $sections = $this->db->query_db($sql);
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $this->db->get_cache()::CACHE_ALL, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        $sections = array();
+        if ($get_result !== false) {
+            $sections = $get_result;
+        } else {
+            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS `language` FROM user_input AS ui
+                    LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
+                    LEFT JOIN sections AS s ON s.id = ui.id_sections
+                    LEFT JOIN styles AS st ON st.id = s.id_styles
+                    LEFT JOIN genders AS g ON g.id = sft_il.id_genders
+                    LEFT JOIN languages AS l ON l.id = sft_il.id_languages";
+            $sections = $this->db->query_db($sql);
+            $this->db->get_cache()->set($key, $sections);
+        }         
         foreach($sections as $section)
         {
             $id = intval($section['id_sections']);
@@ -484,17 +528,25 @@ class UserInput
     public function get_field_attrs($id, $get_page_info = false)
     {
         $field_attrs = array();
-        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
-            LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
-            LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
-            LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
-            LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
-            LEFT JOIN sections AS s ON s.id = ui.id_sections
-            LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN genders AS g ON g.id = sft_il.id_genders
-            LEFT JOIN languages AS l ON l.id = sft_il.id_languages
-            WHERE ui.id_sections = :id or :id = -1";
-        $sections = $this->db->query_db($sql, array(":id"=>$id));
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        $sections = array();
+        if ($get_result !== false) {
+            $sections = $get_result;
+        } else {
+            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
+                    LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
+                    LEFT JOIN sections AS s ON s.id = ui.id_sections
+                    LEFT JOIN styles AS st ON st.id = s.id_styles
+                    LEFT JOIN genders AS g ON g.id = sft_il.id_genders
+                    LEFT JOIN languages AS l ON l.id = sft_il.id_languages
+                    WHERE ui.id_sections = :id or :id = -1";
+            $sections = $this->db->query_db($sql, array(":id" => $id));
+            $this->db->get_cache()->set($key, $sections);
+        }
         foreach($sections as $section)
         {
             $id = intval($section['id_sections']);
@@ -565,7 +617,8 @@ class UserInput
      */
     public function get_form_id($name, $form_type = FORM_DYNAMIC)
     {
-        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $name, [__FUNCTION__, $form_type]);
+        // the cache type is like a section, because the form name can be edited only in cms
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $name, [__FUNCTION__, $form_type]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
             return $get_result;
@@ -774,6 +827,91 @@ class UserInput
                 "msg" => "Error while inserting records in the uploadTables"
             );
         }
+    }
+
+    /**
+     * Get the form field id
+     * @param int $field_id
+     * the section_id of the field
+     * @retval string the fiedl name
+     */
+    public function get_form_field_name($field_id)
+    {
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $field_id, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT content
+                FROM sections s
+                INNER JOIN sections_fields_translation sft ON (s.id = sft.id_sections)
+                WHERE sft.id_fields = 57 AND id = :id";
+            $res = $this->db->query_db_first($sql, array(
+                ":id" => $field_id,
+            ));
+            $res = $res ? $res["content"] : false;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        } 
+    }
+
+    /**
+     * Fetch the label of a form field from the database if available.
+     *
+     * @param intval $id_section
+     *  The section id of the form field from which the label will be fetched.
+     * @retval string
+     *  The label of the form field or the empty string if the label is not
+     *  available.
+     */
+    public function get_field_label($id_section)
+    {
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id_section, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT sft.content
+                    FROM sections_fields_translation AS sft
+                    LEFT JOIN fields AS f ON f.id = sft.id_fields
+                    WHERE f.name = 'label' AND sft.id_sections = :id";
+            $label = $this->db->query_db_first(
+                $sql,
+                array(":id" => $id_section)
+            );
+            $res = $label ? $label["content"] : "";
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        } 
+    }
+
+    /**
+     * Fetch the style of a form field from the database if available.
+     *
+     * @param intval $id_section
+     *  The section id of the form field from which the style will be fetched.
+     * @retval string
+     *  The style of the form field or the empty string if the style is not
+     *  available.
+     */
+    public function get_field_style($id_section)
+    {
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id_section, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = "SELECT st.name FROM styles AS st
+            LEFT JOIN sections AS s ON s.id_styles = st.id
+            WHERE s.id = :id";
+            $style = $this->db->query_db_first(
+                $sql,
+                array(":id" => $id_section)
+            );
+            $res = $style ? $style["name"] : "";
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        } 
     }
 
 }

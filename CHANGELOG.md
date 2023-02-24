@@ -1,3 +1,7 @@
+# v5.11.2
+###  Bugfix
+ - add `cache` for loading user_input forms
+
 # v5.11.1
 ###  New features
  - add `_index` in `entryList` which keep the index of the array elements

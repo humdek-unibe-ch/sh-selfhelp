@@ -416,7 +416,6 @@ class FormUserInputModel extends StyleModel
      */
     private function insert_new_entry($id, $value, $id_record, $id_users)
     {
-        $this->db->begin_transaction();
         $res = $this->db->insert("user_input", array(
             "id_users" => $id_users,
             "id_sections" => $id,
@@ -431,7 +430,6 @@ class FormUserInputModel extends StyleModel
             $this->transaction::TABLE_USER_INPUT,
             $id_record
         );
-        $this->db->commit();
         return $res;
     }
 
@@ -475,7 +473,6 @@ class FormUserInputModel extends StyleModel
      */
     private function update_entry_with_record_id($id, $value, $record_id)
     {        
-        $this->db->begin_transaction();
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
         $filter = " AND deleted = 0 AND record_id = " . $record_id;
         $entry_record = $this->user_input->get_data($this->get_form_id(), $filter, $own_entries_only, FORM_DYNAMIC, null, true);
@@ -511,7 +508,6 @@ class FormUserInputModel extends StyleModel
             $this->transaction::TABLE_USER_INPUT,
             $record_id
         );
-        $this->db->commit();
         return $res;
     }
 
@@ -568,16 +564,7 @@ class FormUserInputModel extends StyleModel
      */
     public function get_field_label($id_section)
     {
-        $sql = "SELECT sft.content
-            FROM sections_fields_translation AS sft
-            LEFT JOIN fields AS f ON f.id = sft.id_fields
-            WHERE f.name = 'label' AND sft.id_sections = :id";
-        $label = $this->db->query_db_first(
-            $sql,
-            array(":id" => $id_section)
-        );
-        if ($label) return $label["content"];
-        return "";
+        return $this->user_input->get_field_label($id_section);
     }
 
     /**
@@ -591,15 +578,7 @@ class FormUserInputModel extends StyleModel
      */
     public function get_field_style($id_section)
     {
-        $sql = "SELECT st.name FROM styles AS st
-            LEFT JOIN sections AS s ON s.id_styles = st.id
-            WHERE s.id = :id";
-        $style = $this->db->query_db_first(
-            $sql,
-            array(":id" => $id_section)
-        );
-        if ($style) return $style["name"];
-        return "";
+        $this->user_input->get_field_style($id_section);
     }
 
     /**
@@ -635,13 +614,18 @@ class FormUserInputModel extends StyleModel
      */
     public function has_field_data($id)
     {
-        $sql = "SELECT * FROM user_input
-            WHERE id_sections = :id AND id_section_form = :fid
-            AND id_users = :uid";
-        $res = $this->db->query_db($sql, array(
-            ":id" => $id,
-            ":fid" => $this->get_form_id(),
-            ":uid" => $_SESSION['id_user'],
+        // $sql = "SELECT * FROM user_input
+        //     WHERE id_sections = :id AND id_section_form = :fid
+        //     AND id_users = :uid";
+        // $res = $this->db->query_db($sql, array(
+        //     ":id" => $id,
+        //     ":fid" => $this->get_form_id(),
+        //     ":uid" => $_SESSION['id_user'],
+        // ));
+        $res = $this->user_input->get_input_fields(array(
+            "id_section" => $id,
+            "id_user" => $_SESSION['id_user'],
+            "id_section_form" => $this->get_form_id()
         ));
         if ($res) return true;
         else return false;
@@ -655,11 +639,9 @@ class FormUserInputModel extends StyleModel
      */
     public function has_form_data()
     {
-        $sql = "SELECT * FROM user_input
-            WHERE id_section_form = :fid AND id_users = :uid";
-        $res = $this->db->query_db($sql, array(
-            ":fid" => $this->get_form_id(),
-            ":uid" => $_SESSION['id_user'],
+        $res = $this->user_input->get_input_fields(array(
+            "id_user" => $_SESSION['id_user'],
+            "id_section_form" => $this->get_form_id()
         ));
         if ($res) return true;
         else return false;
@@ -706,6 +688,7 @@ class FormUserInputModel extends StyleModel
         if ($this->is_log() || !$this->has_form_data()) {
             $id_record = $this->db->insert("user_input_record", array());
         }
+        $this->db->begin_transaction();
         foreach ($user_input as $id => $value) {
             if ($this->is_log() || !$this->has_field_data($id))
                 $res = $this->insert_new_entry($id, $value, $id_record, intval($_SESSION['id_user']));
@@ -721,6 +704,7 @@ class FormUserInputModel extends StyleModel
             else
                 $count += $res;
         }
+        $this->db->commit();
         // Once data is entered to the uiser input database the attributes in
         // the user_input service needs to be updated.
         $this->user_input->set_field_attrs();
@@ -837,15 +821,7 @@ class FormUserInputModel extends StyleModel
      */
     public function get_form_field_name($field_id)
     {
-        $sql = "SELECT *
-                FROM sections s
-                INNER JOIN sections_fields_translation sft ON (s.id = sft.id_sections)
-                WHERE sft.id_fields = 57 AND id = :id";
-        $res = $this->db->query_db_first($sql, array(
-            ":id" => $field_id,
-        ));
-        if ($res) return $res['content'];
-        else return false;
+        return $this->user_input->get_form_field_name($field_id);
     }
 
     public function set_entry_data($entry_data)

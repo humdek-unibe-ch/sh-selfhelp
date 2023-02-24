@@ -1,4 +1,27 @@
 DELIMITER //
+DROP PROCEDURE IF EXISTS add_foreign_key //
+CREATE PROCEDURE add_foreign_key(param_table VARCHAR(100), fk_name VARCHAR(100), fk_column VARCHAR(100), fk_references VARCHAR(200))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*)
+            FROM information_schema.TABLE_CONSTRAINTS 
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+            AND `constraint_name` = fk_name
+		) > 0,
+        "SELECT 'The foreign key already exists in the table'",
+        CONCAT('ALTER TABLE ', param_table, ' ADD CONSTRAINT ', fk_name, ' FOREIGN KEY (', fk_column, ') REFERENCES ', fk_references, ' ON DELETE CASCADE ON UPDATE CASCADE;')
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
 DROP PROCEDURE IF EXISTS add_table_column //
 CREATE PROCEDURE add_table_column(param_table VARCHAR(100), param_column VARCHAR(100), param_column_type VARCHAR(500))
 BEGIN	
@@ -38,6 +61,52 @@ BEGIN
         EXECUTE st;
         DEALLOCATE PREPARE st;	
     END IF;
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
+DROP PROCEDURE IF EXISTS drop_foreign_key //
+CREATE PROCEDURE drop_foreign_key(param_table VARCHAR(100), fk_name VARCHAR(100))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*)
+            FROM information_schema.TABLE_CONSTRAINTS 
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+            AND `constraint_name` = fk_name
+		) = 0,
+        "SELECT 'Foreign key does not exist'",
+        CONCAT('ALTER TABLE ', param_table, ' DROP FOREIGN KEY ', fk_name, ' ;')
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
+DROP PROCEDURE IF EXISTS drop_table_column //
+CREATE PROCEDURE drop_table_column(param_table VARCHAR(100), param_column VARCHAR(100))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*) 
+			FROM information_schema.COLUMNS
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+			AND `COLUMN_NAME` = param_column 
+		) = 0,
+        "SELECT 'Column does not exist'",
+        CONCAT('ALTER TABLE ', param_table, ' DROP COLUMN ', param_column, ' ;')
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
 END
 
 //
@@ -257,23 +326,26 @@ from uploadTables t
 inner join uploadRows r on (t.id = r.id_uploadTables)
 inner join uploadCells cell on (cell.id_uploadRows = r.id)
 inner join uploadCols col on (col.id = cell.id_uploadCols);
-drop view if exists view_form;
-create view view_form
-as
-select distinct cast(form.id as unsigned) form_id, sft_if.content as form_name
-from user_input ui
-left join sections form  on (ui.id_section_form = form.id)
-LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57;
-drop view if exists view_data_tables;
-create view view_data_tables
-as
-select 'dynamic' as type, form_id as id, form_name as orig_name, concat(form_name, '_dynamic') as table_name, CONCAT(form_id,"-","dynamic") AS form_id_plus_type
-from view_form
+DROP VIEW IF EXISTS view_form;
+CREATE VIEW view_form
+AS
+SELECT DISTINCT cast(form.id AS UNSIGNED) form_id, sft_if.content AS form_name, IFNULL(sft_intern.content, 0) AS internal
+FROM user_input ui
+LEFT JOIN sections form  ON (ui.id_section_form = form.id)
+LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+LEFT JOIN sections_fields_translation AS sft_intern ON sft_intern.id_sections = ui.id_section_form AND sft_intern.id_fields = (SELECT id
+FROM `fields`
+WHERE `name` = 'internal');
+DROP VIEW IF EXISTS view_data_tables;
+CREATE VIEW view_data_tables
+AS
+SELECT 'dynamic' AS `type`, form_id AS id, form_name AS orig_name, concat(form_name, '_dynamic') AS `table_name`, CONCAT(form_id,"-","dynamic") AS form_id_plus_type, internal
+FROM view_form
 
-union
+UNION
 
-select 'static' as type, id as id, name as orig_name, concat(name, '_static') as table_name, CONCAT(FLOOR(id),"-","static") AS form_id_plus_type
-from uploadTables;
+SELECT 'static' AS `type`, id AS id, `name` AS orig_name, CONCAT(`name`, '_static') AS `table_name`, CONCAT(FLOOR(id),"-","static") AS form_id_plus_type, 0  AS internal
+FROM uploadTables;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
@@ -301,18 +373,17 @@ BEGIN
         SELECT table_name from view_uploadTables where 1=2;
     ELSE
         BEGIN
-            SET @sql = CONCAT('select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
+            SET @sql = CONCAT('select * from (select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
                 ' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
 					inner join uploadCells cell on (cell.id_uploadRows = r.id)
 					inner join uploadCols col on (col.id = cell.id_uploadCols)
 					where t.id = ', table_id_param,
-					' group by t.name, t.timestamp, r.id HAVING 1 ', filter_param);
+					' group by t.name, t.timestamp, r.id ) as r where 1=1  ', filter_param);
 			IF LOCATE('id_users', @sql) THEN
 				-- get user_name if there is id_users column
-				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id)');
-			END IF;
-
+				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id) where 1=1  ', filter_param);
+			END IF;			
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
@@ -446,7 +517,7 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
+		SET @sql = CONCAT('select * from (select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
 		left join sections field on (ui.id_sections = field.id)
@@ -455,7 +526,7 @@ BEGIN
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 		LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
 		where form.id = ', form_id_param, ' and u.id = ', user_id_param,
-		' group by u.id, sft_if.content, u.name, record.id, vc.code, removed HAVING 1 ', filter_param);
+		' group by u.id, sft_if.content, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
 
 		
 		PREPARE stmt FROM @sql;
@@ -677,37 +748,6 @@ id_jobStatus, sj.config
 FROM mailQueue mq
 INNER JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_mailQueue = mq.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_mq.id_scheduledJobs);
-DROP VIEW IF EXISTS view_qualtricsReminders;
-CREATE VIEW view_qualtricsReminders
-AS
-SELECT u.id as user_id, u.email, u.name AS user_name, code, sj.id AS id_scheduledJobs,
-sj.status_code as status_code, sj.status AS status, r.id_qualtricsSurveys AS id_qualtricsSurveys, s.qualtrics_survey_id,
-qa.id_qualtricsActions,
-	(SELECT sess.date_to_be_executed 
-	FROM scheduledJobs sess 
-    INNER JOIN scheduledJobs_qualtricsActions sj_qa2 on (sj_qa2.id_scheduledJobs = sess.id)
-	INNER JOIN qualtricsActions qa2 ON (qa2.id = sj_qa2.id_qualtricsActions)
-    WHERE qa2.id = qa.id_qualtricsActions 
-    ORDER BY sess.date_to_be_executed DESC
-    LIMIT 0, 1) AS session_start_date,
-(SELECT CAST(JSON_EXTRACT(qa2.schedule_info, '$.valid') AS UNSIGNED)
-FROM qualtricsActions qa2
-WHERE qa2.id = qa.id_qualtricsActions) AS valid,
-(SELECT sess.date_to_be_executed 
-	FROM scheduledJobs sess 
-    INNER JOIN scheduledJobs_qualtricsActions sj_qa2 on (sj_qa2.id_scheduledJobs = sess.id)
-	INNER JOIN qualtricsActions qa2 ON (qa2.id = sj_qa2.id_qualtricsActions)
-    WHERE qa2.id = qa.id_qualtricsActions 
-    ORDER BY sess.date_to_be_executed DESC
-    LIMIT 0, 1) + INTERVAL (SELECT CAST(JSON_EXTRACT(qa2.schedule_info, '$.valid') AS UNSIGNED)
-FROM qualtricsActions qa2
-WHERE qa2.id = qa.id_qualtricsActions) MINUTE AS valid_till
-FROM qualtricsReminders r
-INNER JOIN view_users u ON (u.id = r.id_users)
-INNER JOIN qualtricsSurveys s ON (s.id = r.id_qualtricsSurveys)
-LEFT JOIN view_scheduledJobs sj ON (sj.id = r.id_scheduledJobs) 
-LEFT JOIN scheduledJobs_qualtricsActions sj_qa on (sj_qa.id_scheduledJobs = sj.id)
-LEFT JOIN qualtricsActions qa ON (qa.id = sj_qa.id_qualtricsActions);
 DROP VIEW IF EXISTS view_notifications;
 CREATE VIEW view_notifications
 AS
@@ -742,7 +782,7 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
+		SET @sql = CONCAT('select * from (select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
 		left join sections field on (ui.id_sections = field.id)
@@ -750,7 +790,7 @@ BEGIN
 		left join user_input_record record  on (ui.id_user_input_record = record.id)
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 		LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-		where form.id = ', form_id_param, ' group by u.id, sft_if.content, u.name, record.id, vc.code, removed HAVING 1 ', filter_param);
+		where form.id = ', form_id_param, ' group by u.id, sft_if.content, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
 
 		
 		PREPARE stmt FROM @sql;

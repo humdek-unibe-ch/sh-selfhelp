@@ -558,14 +558,22 @@ class BaseDb {
      */
     public function get_lookup_id_by_value($type, $value)
     {
-        $val = $this->query_db_first(
-            'SELECT id FROM lookups WHERE lookup_value = :value AND type_code = :type_code;',
-            array(
-                ':value' => $value,
-                ":type_code" => $type
-            )
-        );
-        return $val['id'];
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_LOOKUPS, $value, [__FUNCTION__, $type]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $val = $this->query_db_first(
+                'SELECT id FROM lookups WHERE lookup_value = :value AND type_code = :type_code;',
+                array(
+                    ':value' => $value,
+                    ":type_code" => $type
+                )
+            );
+            $res = $val ? $val["id"] : null;
+            $this->cache->set($key, $res);
+            return $res;
+        }
     }
 
     /**
@@ -576,18 +584,26 @@ class BaseDb {
      * @param string $code
      *  The lookup code
      * @retval int
-     *  the id of the lookpu code
+     *  the id of the lookup code
      */
     public function get_lookup_id_by_code($type, $code)
     {
-        $val = $this->query_db_first(
-            'SELECT id FROM lookups WHERE lookup_code = :code AND type_code = :type_code;',
-            array(
-                ':code' => $code,
-                ":type_code" => $type
-            )
-        );
-        return $val['id'];
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_LOOKUPS, $code, [__FUNCTION__, $type]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $val = $this->query_db_first(
+                'SELECT id FROM lookups WHERE lookup_code = :code AND type_code = :type_code;',
+                array(
+                    ':code' => $code,
+                    ":type_code" => $type
+                )
+            );
+            $res = $val ? $val["id"] : null;
+            $this->cache->set($key, $res);
+            return $res;
+        }
     }
 
     /**
