@@ -705,6 +705,7 @@ class FormUserInputModel extends StyleModel
                 $count += $res;
         }
         $this->db->commit();
+        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
         // Once data is entered to the uiser input database the attributes in
         // the user_input service needs to be updated.
         $this->user_input->set_field_attrs();
@@ -736,6 +737,7 @@ class FormUserInputModel extends StyleModel
         }
         // Once data is entered to the uiser input database the attributes in
         // the user_input service needs to be updated.
+        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
         $this->user_input->set_field_attrs();
         return $count;
     }
