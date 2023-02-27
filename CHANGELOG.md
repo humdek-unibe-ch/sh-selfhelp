@@ -1,3 +1,7 @@
+# v5.11.3
+### Security Update
+ - make cookies secure and samesite = strict
+
 # v5.11.2
 ###  Bugfix
  - add `cache` for loading user_input forms
