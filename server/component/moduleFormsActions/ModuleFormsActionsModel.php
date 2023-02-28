@@ -52,7 +52,7 @@ class ModuleFormsActionsModel extends BaseModel
                 "id_forms" => $data['id_forms'],
                 "id_formProjectActionTriggerTypes" => $data['id_formProjectActionTriggerTypes'],
                 "id_formActionScheduleTypes" => $data['id_formActionScheduleTypes'],
-                "id_forms_reminder" => isset($data['id_forms_reminder']) ? $data['id_forms_reminder'] : null,
+                "id_forms_reminder" => isset($data['id_forms_reminder']) && $data['id_forms_reminder'] != '' ? $data['id_forms_reminder'] : null,
                 "id_formActions" => isset($data['id_formActions']) ? $data['id_formActions'] : null,
                 "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info'], true) : null
             ));
