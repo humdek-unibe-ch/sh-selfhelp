@@ -1,0 +1,683 @@
+{
+	"$schema": "http://json-schema.org/draft-06/schema#",
+	"definitions": {
+		"loop": {
+			"type": "object",
+			"properties": {
+				"loop_count": {
+					"type": "number",
+					"default": 1
+				},
+				"schedules": {
+					"title": "Actions schedules",
+					"$ref": "#root/definitions/schedules"
+				}
+			}
+		},
+		"randomizer": {
+			"type": "object",
+			"properties": {
+				"even_presentation": {
+					"type": "boolean"
+				},
+				"schedules": {
+					"title": "Actions schedules",
+					"$ref": "#root/definitions/schedules"
+				}
+			}
+		},
+		"repeat_ref": {
+			"type": "object",
+			"properties": {
+				"end_date": {
+					"type": "string",
+					"title": "End repeat",
+					"format": "datetime-local",
+					"description": "The last date when it should happen. Either occurrences or end repeat date should be filled",
+					"inputAttributes": {
+						"placeholder": "Enter date"
+					},
+					"flatpickr": {
+						"inlineHideInput": true,
+						"wrap": true,
+						"time_24hr": true,
+						"allowInput": true,
+						"showClearButton": true
+					}
+				},
+				"occurrences": {
+					"type": "integer",
+					"minimum": 1,
+					"default": "",
+					"description": "The number of times the event should repeat. If not specified, the event will repeat untill the end repeat date is reached. Either occurrences or end repeat date should be filled"
+				},
+				"frequency": {
+					"type": "string",
+					"enum": [
+						"daily",
+						"weekly",
+						"monthly",
+						"yearly"
+					],
+					"description": "The frequency at which the event repeats."
+				},
+				"interval": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "The number of units (e.g. days, weeks, months, years) between each occurrence of the event."
+				},
+				"daysOfWeek": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"frequency": [
+								"weekly"
+							]
+						}
+					},
+					"items": {
+						"type": "string",
+						"enum": [
+							"Monday",
+							"Tuesday",
+							"Wednesday",
+							"Thursday",
+							"Friday",
+							"Saturday",
+							"Sunday"
+						]
+					},
+					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency."
+				},
+				"daysOfMonth": {
+					"type": "array",
+					"format": "select2",
+					"uniqueItems": true,
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"frequency": [
+								"monthly"
+							]
+						}
+					},
+					"items": {
+						"type": "integer",
+						"enum": [
+							1,
+							2,
+							3,
+							4,
+							5,
+							6,
+							7,
+							8,
+							9,
+							10,
+							11,
+							12,
+							13,
+							14,
+							15,
+							16,
+							17,
+							18,
+							19,
+							20,
+							21,
+							22,
+							23,
+							24,
+							25,
+							26,
+							27,
+							28,
+							29,
+							30,
+							31
+						]
+					},
+					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency."
+				},
+				"monthsOfYear": {
+					"type": "array",
+					"format": "select2",
+					"uniqueItems": true,
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"frequency": [
+								"yearly"
+							]
+						}
+					},
+					"items": {
+						"type": "string",
+						"enum": [
+							"January",
+							"February",
+							"March",
+							"April",
+							"May",
+							"June",
+							"July",
+							"August",
+							"September",
+							"October",
+							"November",
+							"December"
+						]
+					},
+					"description": "An array of the months of the year in which the event occurs. Only applicable for yearly frequency."
+				}
+			}
+		},
+		"action_schedule": {
+			"type": "object",
+			"properties": {
+				"schedule": {
+					"type": "string",
+					"enum": [
+						"task",
+						"notification",
+						"reminder"
+					],
+					"default": "task"
+				},
+				"notification_types": {
+					"type": "string",
+					"title": "Notification type",
+					"enum": [
+						"email",
+						"push_notification"
+					],
+					"default": "email",
+					"options": {
+						"dependencies": {
+							"schedule": [
+								"notification",
+								"reminder"
+							]
+						}
+					}
+				},
+				"actionSchedule_types": {
+					"type": "string",
+					"default": "immediately",
+					"enum": [
+						"after time period",
+						"after time period on weekday at given time",
+						"immediately",
+						"On spesific fixed date"
+					]
+				},
+				"send_after": {
+					"type": "number",
+					"title": "Send after",
+					"options": {
+						"dependencies": {
+							"actionSchedule_types": [
+								"after time period"
+							]
+						}
+					}
+				},
+				"send_after_type": {
+					"type": "string",
+					"title": "Send after type",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					],
+					"options": {
+						"dependencies": {
+							"actionSchedule_types": [
+								"after time period"
+							]
+						}
+					}
+				},
+				"send_on": {
+					"type": "string",
+					"title": "Send on",
+					"enum": [
+						"1st",
+						"2nd"
+					],
+					"options": {
+						"dependencies": {
+							"actionSchedule_types": [
+								"after time period on weekday at given time"
+							]
+						}
+					}
+				},
+				"send_on_day": {
+					"type": "string",
+					"title": "Send on day",
+					"enum": [
+						"monday",
+						"tuesday"
+					],
+					"options": {
+						"dependencies": {
+							"actionSchedule_types": [
+								"after time period on weekday at given time"
+							]
+						}
+					}
+				},
+				"send_on_day_at": {
+					"type": "string",
+					"format": "time",
+					"title": "send_on_day_at",
+					"options": {
+						"dependencies": {
+							"actionSchedule_types": [
+								"after time period on weekday at given time",
+								"after time period"
+							]
+						},
+						"inputAttributes": {
+							"placeholder": "Enter time"
+						},
+						"flatpickr": {
+							"inlineHideInput": true,
+							"wrap": true,
+							"allowInput": true,
+							"showClearButton": true
+						}
+					}
+				},
+				"multiple": {
+					"type": "boolean",
+					"format": "checkbox",
+					"title": "multiple",
+					"default": false
+				},
+				"multiple_number": {
+					"type": "number",
+					"title": "For every",
+					"options": {
+						"dependencies": {
+							"multiple": true
+						},
+						"inputAttributes": {
+							"placeholder": "Enter the number of the repeated actions"
+						}
+					}
+				},
+				"multiple_type": {
+					"type": "string",
+					"title": "",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					],
+					"default": "days",
+					"description": "How many actions are scheduled and when after the initial scheduling",
+					"options": {
+						"dependencies": {
+							"multiple": true
+						}
+					}
+				},
+				"custom_time": {
+					"type": "string",
+					"format": "datetime-local",
+					"title": "custom_time",
+					"options": {
+						"dependencies": {
+							"actionSchedule_types": [
+								"On spesific fixed date"
+							]
+						},
+						"inputAttributes": {
+							"placeholder": "Enter date"
+						},
+						"flatpickr": {
+							"inlineHideInput": true,
+							"wrap": true,
+							"time_24hr": true,
+							"allowInput": true,
+							"showClearButton": true
+						}
+					}
+				},
+				"target_groups": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						}
+					},
+					"title": "target_groups",
+					"description": "target_groups",
+					"items": {
+						"type": "string",
+						"enum": [
+							"group1",
+							"group2",
+							"group3"
+						]
+					}
+				},
+				"task_type": {
+					"type": "string",
+					"title": "Task type",
+					"enum": [
+						"add_group",
+						"remove_group"
+					],
+					"options": {
+						"dependencies": {
+							"schedule": [
+								"task"
+							]
+						}
+					}
+				},
+				"task_description": {
+					"type": "string",
+					"title": "Task description",
+					"default": "Task description",
+					"options": {
+						"dependencies": {
+							"schedule": [
+								"task"
+							]
+						}
+					}
+				},
+				"task_groups": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"task_type": [
+								"add_group",
+								"remove_group"
+							]
+						}
+					},
+					"title": "Group",
+					"description": "Select Selfhelp group",
+					"items": {
+						"type": "string",
+						"enum": [
+							"group1",
+							"group2",
+							"group3"
+						]
+					}
+				},
+				"redirect_url": {
+					"type": "string",
+					"title": "Redirect URL",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification"
+							]
+						}
+					}
+				},
+				"from_email": {
+					"type": "string",
+					"title": "From email",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"email"
+							]
+						}
+					}
+				},
+				"from_name": {
+					"type": "string",
+					"title": "From name",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"email"
+							]
+						}
+					}
+				},
+				"reply_to": {
+					"type": "string",
+					"title": "Reply to",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"email"
+							]
+						}
+					}
+				},
+				"recipient": {
+					"type": "string",
+					"title": "Send To (recipient)",
+					"description": "Use @user for the user who is triggering the action, separate with `;` for emails",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"subject": {
+					"type": "string",
+					"title": "Subject",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"body": {
+					"type": "string",
+					"format": "markdown",
+					"title": "Body",
+					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"attachments": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"dependencies": {
+							"notification_types": "email"
+						},
+						"select2": {
+							"tags": true
+						}
+					},
+					"title": "Attachments",
+					"items": {
+						"type": "string",
+						"enum": [
+							"att1",
+							"att2",
+							"att3"
+						]
+					}
+				},
+				"overwrite_variable": {
+					"type": "boolean",
+					"format": "checkbox",
+					"title": "overwrite_variable",
+					"default": false
+				},
+				"variable": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"dependencies": {
+							"overwrite_variable": true
+						},
+						"select2": {
+							"tags": true
+						}
+					},
+					"title": "variable",
+					"description": "variable",
+					"items": {
+						"type": "string",
+						"enum": [
+							"var1",
+							"var2",
+							"var3"
+						]
+					}
+				}
+			}
+		},
+		"schedules": {
+			"type": "array",
+			"title": "Actions",
+			"items": {
+				"title": "Action",
+				"$ref": "#/definitions/action_schedule"
+			}
+		}
+	},
+	"title": "Action config",
+	"type": "object",
+	"required": [],
+	"properties": {
+		"repeat": {
+			"type": "boolean",
+			"format": "checkbox",
+			"title": "repeat",
+			"default": false
+		},
+		"repeat_config": {
+			"title": "Repeat Config",
+			"$ref": "#root/definitions/repeat_ref",
+			"options": {
+				"dependencies": {
+					"repeat": true
+				}
+			}
+		},
+		"schedule_type": {
+			"type": "string",
+			"enum": [
+				"normal",
+				"loop",
+				"randomizer",
+				"loop_in_randomizer",
+				"randomizer_in_loop"
+			]
+		},
+		"schedules": {
+			"title": "Actions schedules",
+			"$ref": "#root/definitions/schedules",
+			"options": {
+				"dependencies": {
+					"schedule_type": "normal"
+				}
+			}
+		},
+		"loop": {
+			"title": "Loop",
+			"$ref": "#root/definitions/loop",
+			"options": {
+				"dependencies": {
+					"schedule_type": "loop"
+				}
+			}
+		},
+		"randomizer": {
+			"title": "Randomizer",
+			"$ref": "#root/definitions/randomizer",
+			"options": {
+				"dependencies": {
+					"schedule_type": "randomizer"
+				}
+			}
+		},
+		"loop_in_randomizer": {
+			"type": "object",
+			"title": "loop_in_randomizer",
+			"options": {
+				"dependencies": {
+					"schedule_type": "loop_in_randomizer"
+				}
+			},
+			"properties": {
+				"even_presentation": {
+					"type": "boolean"
+				},
+				"loop": {
+					"title": "Loop",
+					"$ref": "#root/definitions/loop"
+				}
+			}
+		},
+		"randomizer_in_loop": {
+			"type": "object",
+			"title": "randomizer_in_loop",
+			"options": {
+				"dependencies": {
+					"schedule_type": "randomizer_in_loop"
+				}
+			},
+			"properties": {
+				"loop_count": {
+					"type": "number",
+					"default": 1
+				},
+				"randomizer": {
+					"title": "Randomizer",
+					"$ref": "#root/definitions/randomizer"
+				}
+			}
+		}
+	}
+}

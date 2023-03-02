@@ -7,7 +7,6 @@ $(document).ready(function () {
 });
 
 function initDataConfigBuilder() {
-
     $('.dataConfigBuilderBtn').each(function () {
         var data_config = $("textarea[name*='data_config']")[0];
         $(this).off('click').click(() => {
@@ -19,7 +18,7 @@ function initDataConfigBuilder() {
                 // on modal close set the value to the Monaco editor
                 $(this).click(function () {
                     var val = JSON.stringify(dataConfigEditor.getValue(), null, 3);
-                    if(val == '[]'){
+                    if (val == '[]') {
                         val = '';
                     }
                     $(data_config).val(val);
@@ -33,7 +32,7 @@ function initDataConfigBuilder() {
             // already initialized do not do it again
             return;
         }
-        $(dataConfigBuilder).data(dataConfigInit, true);             
+        $(dataConfigBuilder).data(dataConfigInit, true);
         var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/dataConfig/dataConfig.json";
         // get the schema with AJAX call
         var textarea_json_val = null;
@@ -69,7 +68,7 @@ function initDataConfigBuilder() {
                         if (dataConfigEditor.editors.hasOwnProperty(key) && key !== 'root' && dataConfigEditor.watchlist && !dataConfigEditor.watchlist[key] &&
                             (key.includes('table') || key.includes('type') || key.includes('field_name'))) {
                             if (key.includes('type')) {
-                                // populate tables for new data source
+                                // populate tables for new data source                                                                
                                 getTableNames(dataConfigEditor.getEditor(key).getValue(), dataConfigEditor, key.replace('type', 'table'));
                             } else if (key.includes('field_name')) {
                                 // populate field names for the new field
@@ -88,29 +87,31 @@ function initDataConfigBuilder() {
                     }
                 })
 
-                // Initialization
-                for (let key in dataConfigEditor.editors) {
-                    if (dataConfigEditor.editors.hasOwnProperty(key) && key !== 'root') {
-                        if (key.includes('type')) {
-                            // populate tables
-                            var k = key.replace('type', 'table');
-                            dataConfigInitCalls[k] = false;
-                            getTableNames(dataConfigEditor.getEditor(key).getValue(), dataConfigEditor, key.replace('type', 'table'), dataConfigEditor);
-                        } else if (key.includes('table') && dataConfigEditor.getEditor(key) && dataConfigEditor.getEditor(key).getValue()) {
-                            // populate fields
-                            var k = key.replace('type', 'table');
-                            dataConfigInitCalls[k] = false;
-                            getTableFieldNames(
-                                dataConfigEditor.getEditor(key.replace('table', 'type')).getValue(),
-                                dataConfigEditor.getEditor(key).getValue(),
-                                dataConfigEditor,
-                                key.replace('table', 'fields'),
-                                false,
-                                dataConfigEditor
-                            );
+                dataConfigEditor.on('ready', () => {
+                    // Initialization
+                    for (let key in dataConfigEditor.editors) {
+                        if (dataConfigEditor.editors.hasOwnProperty(key) && key !== 'root') {
+                            if (key.includes('type')) {
+                                // populate tables
+                                var k = key.replace('type', 'table');
+                                dataConfigInitCalls[k] = false;
+                                getTableNames(dataConfigEditor.getEditor(key).getValue(), dataConfigEditor, key.replace('type', 'table'), dataConfigEditor);
+                            } else if (key.includes('table') && dataConfigEditor.getEditor(key) && dataConfigEditor.getEditor(key).getValue()) {
+                                // populate fields
+                                var k = key.replace('type', 'table');
+                                dataConfigInitCalls[k] = false;
+                                getTableFieldNames(
+                                    dataConfigEditor.getEditor(key.replace('table', 'type')).getValue(),
+                                    dataConfigEditor.getEditor(key).getValue(),
+                                    dataConfigEditor,
+                                    key.replace('table', 'fields'),
+                                    false,
+                                    dataConfigEditor
+                                );
+                            }
                         }
                     }
-                }
+                });
             }
         });
     });

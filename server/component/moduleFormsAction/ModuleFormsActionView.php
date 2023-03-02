@@ -122,7 +122,7 @@ class ModuleFormsActionView extends BaseView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['valid']) ? $this->action["schedule_info"]['valid'] : ''
                     ))),
-                )),                
+                )),
                 new BaseStyleComponent("select", array(
                     "label" => "When",
                     "is_required" => true,
@@ -478,7 +478,7 @@ class ModuleFormsActionView extends BaseView
                     "value" => isset($this->action["schedule_info"]['attachments']) ? $this->action["schedule_info"]['attachments'] : '',
                     "css" => "mb-3",
                     "placeholder" => "Add attachment files from assets in array",
-                )),   
+                )),
                 new BaseStyleComponent("ActionConfigBuilder", array(
                     "label" => "Config",
                     "type_input" => "json",
@@ -502,8 +502,8 @@ class ModuleFormsActionView extends BaseView
     {
         require __DIR__ . "/tpl_moduleFormsAction.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }
@@ -609,30 +609,48 @@ class ModuleFormsActionView extends BaseView
                             "name" => "id_formProjectActionTriggerTypes",
                             "items" => $this->get_lookups(actionTriggerTypes),
                         )),
-                        new BaseStyleComponent("select", array(
-                            "label" => "For group(s)",
-                            "name" => "id_groups[]",
-                            "is_multiple" => true,
-                            "is_required" => false,
-                            "live_search" => true,
-                            "value" => explode(',', $this->action['id_groups'] ?? ''),
-                            "items" => $this->model->get_groups(),
-                            "css" => "mb-3",
+                        new BaseStyleComponent("conditionBuilder", array(
+                            "value" => $this->action['condition'] ?? '',
+                            "name" => 'condition'
                         )),
-                        new BaseStyleComponent("select", array(
-                            "label" => "Schedule",
-                            "name" => "id_formActionScheduleTypes",
-                            "id" => "id_formActionScheduleTypes",
-                            "value" => isset($this->action['id_formActionScheduleTypes']) ? $this->action['id_formActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(actionScheduleJobs, 'nothing'),
-                            "items" => $this->get_lookups(actionScheduleJobs),
-                            "css" => "mb-3",
+                        new BaseStyleComponent("textarea", array(
+                            "value" => $this->action['jquery_builder_json'] ?? '',
+                            "name" => 'jquery_builder_json',
+                            "css" => "d-none"
                         )),
-                        $this->get_schedule_info_card(),
-                        new BaseStyleComponent("input", array(
-                            "type_input" => "hidden",
-                            "name" => "id",
-                            "value" => $this->sid,
+                        new BaseStyleComponent("ActionConfigBuilder", array(
+                            "label" => "Config",
+                            "type_input" => "json",
+                            "id" => "config",
+                            "name" => "schedule_info",
+                            "value" => isset($this->action["schedule_info"]) ? $this->action["schedule_info"] : '',
+                            "css" => "mb-3 actionConfig",
+                            "placeholder" => "",
                         )),
+                        // new BaseStyleComponent("select", array(
+                        //     "label" => "For group(s)",
+                        //     "name" => "id_groups[]",
+                        //     "is_multiple" => true,
+                        //     "is_required" => false,
+                        //     "live_search" => true,
+                        //     "value" => explode(',', $this->action['id_groups'] ?? ''),
+                        //     "items" => $this->model->get_groups(),
+                        //     "css" => "mb-3",
+                        // )),
+                        // new BaseStyleComponent("select", array(
+                        //     "label" => "Schedule",
+                        //     "name" => "id_formActionScheduleTypes",
+                        //     "id" => "id_formActionScheduleTypes",
+                        //     "value" => isset($this->action['id_formActionScheduleTypes']) ? $this->action['id_formActionScheduleTypes'] : $this->model->get_services()->get_db()->get_lookup_id_by_value(actionScheduleJobs, 'nothing'),
+                        //     "items" => $this->get_lookups(actionScheduleJobs),
+                        //     "css" => "mb-3",
+                        // )),
+                        // $this->get_schedule_info_card(),
+                        // new BaseStyleComponent("input", array(
+                        //     "type_input" => "hidden",
+                        //     "name" => "id",
+                        //     "value" => $this->sid,
+                        // )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "mode",
@@ -656,7 +674,7 @@ class ModuleFormsActionView extends BaseView
     {
         if (empty($local)) {
             $local = array(
-                __DIR__ . "/js/formAction.js",                
+                __DIR__ . "/js/formAction.js",
             );
         }
         return parent::get_js_includes($local);
@@ -716,6 +734,5 @@ class ModuleFormsActionView extends BaseView
         ));
         $form->output_content();
     }
-
 }
 ?>

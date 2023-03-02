@@ -1,6 +1,7 @@
 # v5.12.0 (Unpublished)
 ###  New features
  - rework module `Form Actions`. 
+ - update `jsoneditor.min.js` from `2.6.1` to `2.9.1`
 
 # v5.11.3
 ### Security Update

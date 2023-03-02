@@ -36,7 +36,7 @@ class ModuleFormsActionsController extends BaseController
             isset($_POST['schedule_info'])
         ) {
             //insert mode
-            $this->insert_action($_POST);
+            // $this->insert_action($_POST);
         } else if (
             isset($_POST['mode']) && $_POST['mode'] === UPDATE &&
             isset($_POST['name']) &&

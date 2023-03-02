@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    initActionConfigBuilder();
+    // initActionConfigBuilder();    
+    loadAction();
 });
 
 function initActionConfigBuilder() {
@@ -27,7 +28,7 @@ function initActionConfigBuilder() {
                 $(json).prev().val(editor.getValue());
                 calcMonacoEditorSize(editor, json);
             });
-            showActionConfigBuilder(json, editor);            
+            showActionConfigBuilder(json, editor);
             showActionConditionBuilder(editor, null);
 
         });
@@ -284,11 +285,41 @@ function showActionConditionBuilder(monacoEditor, jqueryBuilderJsonInput) {
 // ********************************************* ACTION CONFIG BUILDER *****************************************
 
 
-function getActionConfigJson(json){
+function getActionConfigJson(json) {
     try {
         var res = JSON.parse($(json).prev().val());
         return res;
     } catch (error) {
         return null;
     }
+}
+
+
+
+function loadAction() {
+
+    var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/actionConfig/actionConfig2.json";
+    // get the schema with AJAX call
+    $.ajax({
+        dataType: "json",
+        url: schemaUrl,
+        success: (s) => {
+            console.log(s);
+            editor = new JSONEditor($('.actionConfig_builder')[0], {
+                theme: 'bootstrap4',
+                iconlib: 'fontawesome5',
+                ajax: true,
+                schema: s,
+                show_errors: "always",
+            });
+            editor.on('change', () => {
+                console.log(editor.getValue());
+                $('.actionConfig_builder').find('select').each(function () {
+                    $(this).selectpicker();
+                    $(this).selectpicker('refresh');
+                })
+            });
+        }
+    });
+
 }
