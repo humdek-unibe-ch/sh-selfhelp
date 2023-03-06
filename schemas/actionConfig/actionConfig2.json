@@ -1,32 +1,61 @@
 {
-	"$schema": "http://json-schema.org/draft-06/schema#",
+	"$schema": "http://json-schema.org/draft-04/schema#",
 	"definitions": {
-		"loop": {
+		"condition_ref": {
+			"type": "string"
+		},
+		"block_ref": {
 			"type": "object",
 			"properties": {
-				"loop_count": {
-					"type": "number",
-					"default": 1
+				"block_name": {
+					"type": "string"
 				},
-				"schedules": {
-					"title": "Actions schedules",
-					"$ref": "#root/definitions/schedules"
+				"condition": {
+					"$ref": "#/definitions/condition_ref"
+				},
+				"show_randomization_count_hidden": {
+					"watch": {
+						"even_presentation": "root.randomizer.even_presentation",
+						"randomize": "root.randomize"
+					},
+					"template": "{{even_presentation}}-{{randomize}}",
+					"options": {
+						"hidden": true
+					}
+				},
+				"randomization_count": {
+					"type": "number",
+					"default": 0,
+					"options": {
+						"dependencies": {
+							"show_randomization_count_hidden": [
+								"true-true"
+							]
+						}
+					}
+				},
+				"tasks": {
+					"type": "array",
+					"items": {
+						"title": "Task",
+						"$ref": "#/definitions/task_ref"
+					}
 				}
 			}
 		},
-		"randomizer": {
+		"randomizer_ref": {
 			"type": "object",
 			"properties": {
 				"even_presentation": {
 					"type": "boolean"
 				},
-				"schedules": {
-					"title": "Actions schedules",
-					"$ref": "#root/definitions/schedules"
+				"random_elements": {
+					"type": "number",
+					"description": "Randomly present the selected ammount of the blocks"
 				}
 			}
 		},
-		"repeat_ref": {
+		"repeater_ref": {
 			"type": "object",
 			"properties": {
 				"end_date": {
@@ -184,36 +213,10 @@
 				}
 			}
 		},
-		"action_schedule": {
+		"schedule_time_ref": {
 			"type": "object",
 			"properties": {
-				"schedule": {
-					"type": "string",
-					"enum": [
-						"task",
-						"notification",
-						"reminder"
-					],
-					"default": "task"
-				},
-				"notification_types": {
-					"type": "string",
-					"title": "Notification type",
-					"enum": [
-						"email",
-						"push_notification"
-					],
-					"default": "email",
-					"options": {
-						"dependencies": {
-							"schedule": [
-								"notification",
-								"reminder"
-							]
-						}
-					}
-				},
-				"actionSchedule_types": {
+				"task_schedule_types": {
 					"type": "string",
 					"default": "immediately",
 					"enum": [
@@ -228,7 +231,7 @@
 					"title": "Send after",
 					"options": {
 						"dependencies": {
-							"actionSchedule_types": [
+							"task_schedule_types": [
 								"after time period"
 							]
 						}
@@ -247,7 +250,7 @@
 					],
 					"options": {
 						"dependencies": {
-							"actionSchedule_types": [
+							"task_schedule_types": [
 								"after time period"
 							]
 						}
@@ -262,7 +265,7 @@
 					],
 					"options": {
 						"dependencies": {
-							"actionSchedule_types": [
+							"task_schedule_types": [
 								"after time period on weekday at given time"
 							]
 						}
@@ -277,7 +280,7 @@
 					],
 					"options": {
 						"dependencies": {
-							"actionSchedule_types": [
+							"task_schedule_types": [
 								"after time period on weekday at given time"
 							]
 						}
@@ -289,7 +292,7 @@
 					"title": "send_on_day_at",
 					"options": {
 						"dependencies": {
-							"actionSchedule_types": [
+							"task_schedule_types": [
 								"after time period on weekday at given time",
 								"after time period"
 							]
@@ -305,50 +308,13 @@
 						}
 					}
 				},
-				"multiple": {
-					"type": "boolean",
-					"format": "checkbox",
-					"title": "multiple",
-					"default": false
-				},
-				"multiple_number": {
-					"type": "number",
-					"title": "For every",
-					"options": {
-						"dependencies": {
-							"multiple": true
-						},
-						"inputAttributes": {
-							"placeholder": "Enter the number of the repeated actions"
-						}
-					}
-				},
-				"multiple_type": {
-					"type": "string",
-					"title": "",
-					"enum": [
-						"seconds",
-						"minutes",
-						"hours",
-						"days",
-						"weeks",
-						"months"
-					],
-					"default": "days",
-					"description": "How many actions are scheduled and when after the initial scheduling",
-					"options": {
-						"dependencies": {
-							"multiple": true
-						}
-					}
-				},
 				"custom_time": {
 					"type": "string",
 					"format": "datetime-local",
 					"title": "custom_time",
 					"options": {
 						"dependencies": {
-							"actionSchedule_types": [
+							"task_schedule_types": [
 								"On spesific fixed date"
 							]
 						},
@@ -363,80 +329,28 @@
 							"showClearButton": true
 						}
 					}
-				},
-				"target_groups": {
-					"type": "array",
-					"uniqueItems": true,
-					"format": "select2",
-					"options": {
-						"grid_columns": 12,
-						"select2": {
-							"tags": true
-						}
-					},
-					"title": "target_groups",
-					"description": "target_groups",
-					"items": {
-						"type": "string",
-						"enum": [
-							"group1",
-							"group2",
-							"group3"
-						]
-					}
-				},
-				"task_type": {
+				}
+			}
+		},
+		"notification_ref": {
+			"type": "object",
+			"properties": {
+				"notification_types": {
 					"type": "string",
-					"title": "Task type",
+					"title": "Notification type",
 					"enum": [
-						"add_group",
-						"remove_group"
+						"email",
+						"push_notification"
 					],
+					"default": "email",
 					"options": {
-						"dependencies": {
-							"schedule": [
-								"task"
-							]
-						}
-					}
-				},
-				"task_description": {
-					"type": "string",
-					"title": "Task description",
-					"default": "Task description",
-					"options": {
-						"dependencies": {
-							"schedule": [
-								"task"
-							]
-						}
-					}
-				},
-				"task_groups": {
-					"type": "array",
-					"uniqueItems": true,
-					"format": "select2",
-					"options": {
-						"grid_columns": 12,
-						"select2": {
-							"tags": true
-						},
 						"dependencies": {
 							"task_type": [
-								"add_group",
-								"remove_group"
+								"notification",
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
 							]
 						}
-					},
-					"title": "Group",
-					"description": "Select Selfhelp group",
-					"items": {
-						"type": "string",
-						"enum": [
-							"group1",
-							"group2",
-							"group3"
-						]
 					}
 				},
 				"redirect_url": {
@@ -544,139 +458,168 @@
 							"att3"
 						]
 					}
+				}
+			}
+		},
+		"reminder_ref": {
+			"type": "object",
+			"properties": {
+				"schedule_time": {
+					"$ref": "#/definitions/schedule_time_ref"
 				},
-				"overwrite_variable": {
-					"type": "boolean",
-					"format": "checkbox",
-					"title": "overwrite_variable",
-					"default": false
+				"notification": {
+					"$ref": "#/definitions/notification_ref"
+				}
+			}
+		},
+		"task_ref": {
+			"type": "object",
+			"properties": {
+				"task_name": {
+					"type": "string",
+					"title": "Task name"
 				},
-				"variable": {
+				"task_type": {
+					"type": "string",
+					"enum": [
+						"add_group",
+						"remove_group",
+						"notification",
+						"notification_with_reminder",
+						"notification_with_reminder_for_diary"
+					]
+				},
+				"schedule_time": {
+					"$ref": "#/definitions/schedule_time_ref"
+				},
+				"task_add_remove_groups": {
 					"type": "array",
 					"uniqueItems": true,
 					"format": "select2",
 					"options": {
 						"grid_columns": 12,
-						"dependencies": {
-							"overwrite_variable": true
-						},
 						"select2": {
 							"tags": true
+						},
+						"dependencies": {
+							"task_type": [
+								"add_group",
+								"remove_group"
+							]
 						}
 					},
-					"title": "variable",
-					"description": "variable",
+					"title": "Group",
+					"description": "Select Selfhelp group",
 					"items": {
 						"type": "string",
 						"enum": [
-							"var1",
-							"var2",
-							"var3"
+							"group1",
+							"group2",
+							"group3"
 						]
 					}
+				},
+				"notification": {
+					"$ref": "#/definitions/notification_ref",
+					"options": {
+						"dependencies": {
+							"task_type": [
+								"notification",
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				},
+				"reminders": {
+					"type": "array",
+					"items": {
+						"title": "reminder",
+						"$ref": "#/definitions/reminder_ref"
+					},
+					"options": {
+						"dependencies": {
+							"task_type": [
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
 				}
-			}
-		},
-		"schedules": {
-			"type": "array",
-			"title": "Actions",
-			"items": {
-				"title": "Action",
-				"$ref": "#/definitions/action_schedule"
 			}
 		}
 	},
 	"title": "Action config",
+	"id": "root",
 	"type": "object",
-	"required": [],
+	"required": [
+		"blocks"
+	],
 	"properties": {
-		"repeat": {
+		"randomize": {
 			"type": "boolean",
-			"format": "checkbox",
-			"title": "repeat",
 			"default": false
 		},
-		"repeat_config": {
-			"title": "Repeat Config",
-			"$ref": "#root/definitions/repeat_ref",
+		"randomizer": {
+			"title": "randomizer",
+			"$ref": "#/definitions/randomizer_ref",
+			"options": {
+				"dependencies": {
+					"randomize": true
+				}
+			}
+		},
+		"repeat": {
+			"type": "boolean",
+			"default": false
+		},
+		"repeater": {
+			"title": "Repeater",
+			"$ref": "#/definitions/repeater_ref",
 			"options": {
 				"dependencies": {
 					"repeat": true
 				}
 			}
 		},
-		"schedule_type": {
-			"type": "string",
-			"enum": [
-				"normal",
-				"loop",
-				"randomizer",
-				"loop_in_randomizer",
-				"randomizer_in_loop"
-			]
+		"target_groups": {
+			"type": "boolean",
+			"default": false
 		},
-		"schedules": {
-			"title": "Actions schedules",
-			"$ref": "#root/definitions/schedules",
+		"selected_target_groups": {
+			"type": "array",
+			"uniqueItems": true,
+			"format": "select2",
 			"options": {
-				"dependencies": {
-					"schedule_type": "normal"
-				}
-			}
-		},
-		"loop": {
-			"title": "Loop",
-			"$ref": "#root/definitions/loop",
-			"options": {
-				"dependencies": {
-					"schedule_type": "loop"
-				}
-			}
-		},
-		"randomizer": {
-			"title": "Randomizer",
-			"$ref": "#root/definitions/randomizer",
-			"options": {
-				"dependencies": {
-					"schedule_type": "randomizer"
-				}
-			}
-		},
-		"loop_in_randomizer": {
-			"type": "object",
-			"title": "loop_in_randomizer",
-			"options": {
-				"dependencies": {
-					"schedule_type": "loop_in_randomizer"
+				"grid_columns": 12,
+				"select2": {
+					"tags": true
 				}
 			},
-			"properties": {
-				"even_presentation": {
-					"type": "boolean"
-				},
-				"loop": {
-					"title": "Loop",
-					"$ref": "#root/definitions/loop"
+			"title": "target_groups",
+			"description": "target_groups",
+			"items": {
+				"type": "string",
+				"enum": [
+					"group1",
+					"group2",
+					"group3"
+				]
+			},
+			"options": {
+				"dependencies": {
+					"target_groups": true
 				}
 			}
 		},
-		"randomizer_in_loop": {
-			"type": "object",
-			"title": "randomizer_in_loop",
-			"options": {
-				"dependencies": {
-					"schedule_type": "randomizer_in_loop"
-				}
-			},
-			"properties": {
-				"loop_count": {
-					"type": "number",
-					"default": 1
-				},
-				"randomizer": {
-					"title": "Randomizer",
-					"$ref": "#root/definitions/randomizer"
-				}
+		"condition": {
+			"$ref": "#/definitions/condition_ref"
+		},
+		"blocks": {
+			"type": "array",
+			"items": {
+				"title": "Block",
+				"$ref": "#/definitions/block_ref"
 			}
 		}
 	}
