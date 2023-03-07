@@ -12,10 +12,10 @@
             "type": {
                 "type": "string",
                 "title": "Type",
-                "description": "Dynamic is for forms that are created in SelfHelp, static is for upload tables, for example static uploaded data or Qualtrics data",
+                "description": "Internal is for forms that are created in SelfHelp, EXTERNAL is for upload tables, for example static uploaded data or Qualtrics data",
                 "enum": [
-                    "dynamic",
-                    "static"
+                    "INTERNAL",
+                    "EXTERNAL"
                 ],
                 "propertyOrder": 1,
                 "options": {

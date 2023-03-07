@@ -268,9 +268,9 @@ class UserModel extends BaseModel
         $res = $this->db->remove_by_fk('user_activity', 'id_users', $uid);
         $res &= $this->db->remove_by_fk('user_input', 'id_users', $uid);
 
-        //remove static data
+        //remove external data
         foreach ($this->db->select_table('uploadTables') as $row => $table) {
-            foreach ($this->user_input->get_data($table['id'], '', true, FORM_STATIC, $uid) as $key => $row_record) {
+            foreach ($this->user_input->get_data($table['id'], '', true, FORM_EXTERNAL, $uid) as $key => $row_record) {
                 $res &= $this->db->remove_by_ids("uploadRows", array(
                     "id" => $row_record['record_id'],
                     "id_uploadTables" => $table['id']

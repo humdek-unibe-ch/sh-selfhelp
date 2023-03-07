@@ -475,7 +475,7 @@ class FormUserInputModel extends StyleModel
     {        
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
         $filter = " AND deleted = 0 AND record_id = " . $record_id;
-        $entry_record = $this->user_input->get_data($this->get_form_id(), $filter, $own_entries_only, FORM_DYNAMIC, null, true);
+        $entry_record = $this->user_input->get_data($this->get_form_id(), $filter, $own_entries_only, FORM_INTERNAL, null, true);
         $field_name = $this->get_form_field_name($id);
         $res = false;
         $tran_type = '';
@@ -655,7 +655,7 @@ class FormUserInputModel extends StyleModel
     public function get_id_record()
     {
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
-        $res = $this->user_input->get_data($this->get_form_id(),'ORDER BY record_id DESC',$own_entries_only, FORM_DYNAMIC, null, true);
+        $res = $this->user_input->get_data($this->get_form_id(),'ORDER BY record_id DESC',$own_entries_only, FORM_INTERNAL, null, true);
         if ($res) return $res['record_id'];
         else return false;
     }

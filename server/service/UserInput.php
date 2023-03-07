@@ -584,7 +584,7 @@ class UserInput
     {
         if (!isset($this->ui_pref)) {
             // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
-            $form_id = $this->get_form_id('ui-preferences', FORM_DYNAMIC);
+            $form_id = $this->get_form_id('ui-preferences', FORM_INTERNAL);
             if($form_id){
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
@@ -611,11 +611,11 @@ class UserInput
      * @param string $name
      * The name of the form or table     
      * @param int $form_type
-     * Dynamic or static form, it loads different table based on this value
+     * Internal or external form, it loads different table based on this value
      * @retval array
      * the result of the fetched form row
      */
-    public function get_form_id($name, $form_type = FORM_DYNAMIC)
+    public function get_form_id($name, $form_type = FORM_INTERNAL)
     {
         // the cache type is like a section, because the form name can be edited only in cms
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $name, [__FUNCTION__, $form_type]);
@@ -623,13 +623,13 @@ class UserInput
         if ($get_result !== false) {
             return $get_result;
         } else {
-            if ($form_type == FORM_DYNAMIC) {
+            if ($form_type == FORM_INTERNAL) {
                 $sql = 'select id_section_form as id
                 from user_input ui
                 inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
                 where sft_if.content = :name
                 limit 0,1;';
-            } else if ($form_type == FORM_STATIC) {
+            } else if ($form_type == FORM_EXTERNAL) {
                 $sql = 'SELECT id 
                 FROM uploadTables
                 WHERE name = :name';
@@ -650,7 +650,7 @@ class UserInput
      * @param boolean $own_entries_only
      * If true it loads only records created by the same user. 
      * @param string $form_type
-     * Dynamic or static form, it loads different table based on this value
+     * Internal or external form, it loads different table based on this value
      * @param int $user_id
      * Show the data for that user
      * @param boolean $db_first
@@ -658,7 +658,7 @@ class UserInput
      * @retval array
      * the result of the fetched data
      */
-    public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_DYNAMIC, $user_id = null, $db_first = false)
+    public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_INTERNAL, $user_id = null, $db_first = false)
     {
         if(strpos($filter, '{{') !== false ){
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
@@ -671,7 +671,7 @@ class UserInput
             if (!$user_id) {
                 $user_id =  $_SESSION['id_user']; // if the user is not defined we set the session user if needed
             }
-            if ($form_type == FORM_DYNAMIC) {
+            if ($form_type == FORM_INTERNAL) {
                 $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
                 $params = array(
                     ":form_id" => $form_id,
@@ -683,7 +683,7 @@ class UserInput
                         ":form_id" => $form_id
                     );
                 }
-            } else if ($form_type == FORM_STATIC) {
+            } else if ($form_type == FORM_EXTERNAL) {
                 $params = array(
                     ":form_id" => $form_id,
                 );
@@ -712,13 +712,13 @@ class UserInput
      * @param string $filter
      * filter string that is added to the having clause
      * @param string $form_type
-     * Dynamic or static form, it loads different table based on this value
+     * Internal or external form, it loads different table based on this value
      * @param boolean $db_first
      * If true it returns the first row. 
      * @retval array
      * the result of the fetched data
      */
-    public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_DYNAMIC, $db_first = false)
+    public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_INTERNAL, $db_first = false)
     {        
         return $this->get_data($form_id, $filter, true, $form_type, $user_id, $db_first);
     }
@@ -729,13 +729,13 @@ class UserInput
      * @param int $user_id
      * 
      * @retval string
-     *  The avatar image of the current user or emty string.
+     *  The avatar image of the current user or empty string.
      */
     public function get_avatar($user_id)
     {
         $form_id = $this->get_form_id('avatar');
         if ($form_id) {
-            $avatar = $this->get_data_for_user($form_id, $user_id, '', FORM_DYNAMIC, true);
+            $avatar = $this->get_data_for_user($form_id, $user_id, '', FORM_INTERNAL, true);
             return $avatar ? $avatar['avatar'] : '';
         } else {
             return '';
@@ -756,7 +756,7 @@ class UserInput
     public function save_static_data($transaction_by, $table_name, $data){
         $data['id_users'] = $_SESSION['id_user'];
         $data['user_code'] = $_SESSION['user_code'];
-        $id_table = $this->get_form_id($table_name, FORM_STATIC);
+        $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
         try {
             $this->db->begin_transaction();
             if (!$id_table) {

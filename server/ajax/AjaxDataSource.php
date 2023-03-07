@@ -7,7 +7,7 @@
 require_once __DIR__ . "/BaseAjax.php";
 
 /**
- * A small class to allow to fetch static or dynamic datat from the DB. This
+ * A small class to allow to fetch internal or external  data from the DB. This
  * class is used for AJAX calls.
  */
 class AjaxDataSource extends BaseAjax
@@ -100,7 +100,7 @@ class AjaxDataSource extends BaseAjax
      *  data set collected from one form submission. The keys of each item
      *  correspond to the field names of the form.
      */
-    private function fetch_data_table_dynamic($form_id, $filters, $single_user)
+    private function fetch_data_table_internal($form_id, $filters, $single_user)
     {
         $res = array();
         $cond = "";
@@ -139,7 +139,7 @@ class AjaxDataSource extends BaseAjax
     }
 
     /**
-     * Read static data from the database. This data is collected through a CSV
+     * Read external data from the database. This data is collected through a CSV
      * file upload.
      *
      * @param number $table_id
@@ -152,7 +152,7 @@ class AjaxDataSource extends BaseAjax
      *  a row of the data table. The keys of each item correspond to the column
      *  names of the table.
      */
-    private function fetch_data_table_static($table_id, $filters)
+    private function fetch_data_table_external($table_id, $filters)
     {
         $res = array();
         $sql = "SELECT * FROM view_uploadTables
@@ -246,10 +246,10 @@ class AjaxDataSource extends BaseAjax
                 && count($_SESSION['data_filter'][$table_name]) > 0) {
                 $filter = $_SESSION['data_filter'][$table_name];
         }
-        if($source['type'] === "static") {
-            return $this->fetch_data_table_static($source['id'], $filter);
-        } else if($source['type'] === "dynamic") {
-            return $this->fetch_data_table_dynamic($source['id'], $filter,
+        if($source['type'] === FORM_INTERNAL) {
+            return $this->fetch_data_table_external($source['id'], $filter);
+        } else if($source['type'] === FORM_EXTERNAL) {
+            return $this->fetch_data_table_internal($source['id'], $filter,
                 true);
         }
         return false;
@@ -284,7 +284,7 @@ class AjaxDataSource extends BaseAjax
      * Get an array with the names of all tables; forms for dynamic and upload tables for statis
      * 
      * @param $data
-     *  - `type` = static or dynamic
+     *  - `type` = Internal or external
      * @retval array
      * array with all names as string
      */
@@ -304,7 +304,7 @@ class AjaxDataSource extends BaseAjax
      * Get an array with the names of all tables; forms for dynamic and upload tables for statis
      * 
      * @param $data
-     *  - `type` = static or dynamic
+     *  - `type` = Internal or external
      *  - `name` = table name
      * @retval array
      * array with all field names as string

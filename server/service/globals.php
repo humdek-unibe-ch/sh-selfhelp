@@ -63,8 +63,11 @@ define('USER_STATUS_INVITED', 2);
 define('USER_STATUS_ACTIVE', 3);
 
 /* Form types */
-define('FORM_DYNAMIC', 'dynamic');
-define('FORM_STATIC', 'static');
+// define('FORM_DYNAMIC', 'dynamic');
+// define('FORM_STATIC', 'static');
+define('FORM_INTERNAL', 'INTERNAL');
+define('FORM_EXTERNAL', 'EXTERNAL');
+
 
 /* Callback status */
 define('CALLBACK_NEW', 'callback_new');

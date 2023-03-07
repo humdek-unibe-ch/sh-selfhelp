@@ -19,7 +19,7 @@ class EntryListModel extends StyleModel
     private $form_id;
 
     /**
-     * The type of the selected form, dynamic or static
+     * The type of the selected form, internal or external
      */
     private $form_type;
 
@@ -68,7 +68,7 @@ class EntryListModel extends StyleModel
      */
     private function fetch_entry_list()
     {
-        if ($this->form_type == FORM_DYNAMIC) {
+        if ($this->form_type == FORM_INTERNAL) {
             $this->filter = ' AND deleted = 0 ' . $this->filter; // do not show the deleted records
         }
         $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);

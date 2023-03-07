@@ -168,7 +168,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $table_id = $this->user_input->get_form_id($config['table'], $config['type']);
                 $data = null;
                 if ($table_id) {
-                    if ($config['type'] === 'static') {
+                    if ($config['type'] === FORM_EXTERNAL) {
                         $filter = "ORDER BY record_id ASC";
                         if ($config['retrieve'] === 'last') {
                             $filter = "ORDER BY record_id DESC";
@@ -190,7 +190,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     }
                     $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type']);
                     $data = array_filter($data, function ($value) {
-                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from static/upload table
+                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
                     });
                     if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields

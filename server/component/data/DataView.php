@@ -69,7 +69,7 @@ class DataView extends BaseView
                     }
                     $tableHead = $tableHead . '</tr></thead>';
                     $tableBody = $tableBody . '</tbody>';
-                    $formName = isset($field['form_name']) ? $field['form_name'] : $field['table_name']; // one is for static the other for dynamic tables
+                    $formName = isset($field['form_name']) ? $field['form_name'] : $field['table_name']; // one is for internal the other for external tables
 
                     $card = new BaseStyleComponent("card", array(
                         "css" => "mb-3 card card-success",

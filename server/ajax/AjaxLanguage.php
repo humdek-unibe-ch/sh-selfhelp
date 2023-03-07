@@ -7,7 +7,7 @@
 require_once __DIR__ . "/BaseAjax.php";
 
 /**
- * A small class to allow to fetch static or dynamic datat from the DB. This
+ * 
  * class is used for AJAX calls.
  */
 class AjaxLanguage extends BaseAjax
