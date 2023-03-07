@@ -3,6 +3,7 @@
  - rework module `Form Actions`. 
  - update `jsoneditor.min.js` from `2.6.1` to `2.9.1`
  - better labeling and colors for `data_config` and `condition` buttons based on if a configuration is set or not
+ - add new internal style `jobConfig`
 
 # v5.11.3
 ### Security Update

@@ -58,10 +58,6 @@ class ActionConfigBuilderView extends FormFieldView
      */
     public function output_builder()
     {
-        // $actionConfig = new BaseStyleComponent("div", array(
-        //             "css" => "actionConfig_builder"
-        //         ));
-        // $actionConfig->output_content();
         $modal = new BaseStyleComponent('modal', array(
             'title' => "Action Config Builder",
             "css" => "actionConfig_builder_modal_holder",

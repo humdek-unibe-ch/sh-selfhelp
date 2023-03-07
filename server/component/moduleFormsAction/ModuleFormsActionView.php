@@ -479,15 +479,15 @@ class ModuleFormsActionView extends BaseView
                     "css" => "mb-3",
                     "placeholder" => "Add attachment files from assets in array",
                 )),
-                new BaseStyleComponent("ActionConfigBuilder", array(
-                    "label" => "Config",
-                    "type_input" => "json",
-                    "id" => "config",
-                    "name" => "schedule_info[config]",
-                    "value" => isset($this->action["schedule_info"]['config']) ? $this->action["schedule_info"]['config'] : '',
-                    "css" => "mb-3 actionConfig",
-                    "placeholder" => "",
-                ))
+                // new BaseStyleComponent("ActionConfigBuilder", array(
+                //     "label" => "Config",
+                //     "type_input" => "json",
+                //     "id" => "config",
+                //     "name" => "schedule_info[config]",
+                //     "value" => isset($this->action["schedule_info"]['config']) ? $this->action["schedule_info"]['config'] : '',
+                //     "css" => "mb-3 actionConfig",
+                //     "placeholder" => "",
+                // ))
             )
         ));
     }
@@ -618,13 +618,13 @@ class ModuleFormsActionView extends BaseView
                             "name" => 'jquery_builder_json',
                             "css" => "d-none"
                         )),
-                        new BaseStyleComponent("ActionConfigBuilder", array(
+                        new BaseStyleComponent("JobConfig", array(
                             "label" => "Config",
                             "type_input" => "json",
                             "id" => "config",
                             "name" => "schedule_info",
                             "value" => isset($this->action["schedule_info"]) ? $this->action["schedule_info"] : '',
-                            "css" => "mb-3 actionConfig",
+                            "css" => "mb-3 jobConfig",
                             "placeholder" => "",
                         )),
                         // new BaseStyleComponent("select", array(

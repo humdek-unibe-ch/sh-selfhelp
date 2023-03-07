@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    initActionConfigBuilder();
+    loadJobConfig();
 });
 
 function initActionConfigBuilder() {
@@ -294,4 +294,35 @@ function getActionConfigJson(json) {
     } catch (error) {
         return null;
     }
+}
+
+
+
+function loadJobConfig() {
+    if ($('.jobConfig').length > 0) {
+        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfig.json";
+        // get the schema with AJAX call
+        $.ajax({
+            dataType: "json",
+            url: schemaUrl,
+            success: (s) => {
+                console.log(s);
+                editor = new JSONEditor($('.jobConfig')[0], {
+                    theme: 'bootstrap4',
+                    iconlib: 'fontawesome5',
+                    ajax: true,
+                    schema: s,
+                    show_errors: "always",
+                });
+                editor.on('change', () => {
+                    console.log(editor.getValue());
+                    $('.jobConfig').find('select').each(function () {
+                        $(this).selectpicker();
+                        $(this).selectpicker('refresh');
+                    })
+                });
+            }
+        });
+    }
+
 }
