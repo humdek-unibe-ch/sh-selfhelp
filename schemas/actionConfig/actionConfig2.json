@@ -34,11 +34,11 @@
 						}
 					}
 				},
-				"tasks": {
+				"jobs": {
 					"type": "array",
 					"items": {
-						"title": "Task",
-						"$ref": "#/definitions/task_ref"
+						"title": "job",
+						"$ref": "#/definitions/job_ref"
 					}
 				}
 			}
@@ -216,7 +216,7 @@
 		"schedule_time_ref": {
 			"type": "object",
 			"properties": {
-				"task_schedule_types": {
+				"job_schedule_types": {
 					"type": "string",
 					"default": "immediately",
 					"enum": [
@@ -231,7 +231,7 @@
 					"title": "Send after",
 					"options": {
 						"dependencies": {
-							"task_schedule_types": [
+							"job_schedule_types": [
 								"after time period"
 							]
 						}
@@ -250,7 +250,7 @@
 					],
 					"options": {
 						"dependencies": {
-							"task_schedule_types": [
+							"job_schedule_types": [
 								"after time period"
 							]
 						}
@@ -265,7 +265,7 @@
 					],
 					"options": {
 						"dependencies": {
-							"task_schedule_types": [
+							"job_schedule_types": [
 								"after time period on weekday at given time"
 							]
 						}
@@ -280,7 +280,7 @@
 					],
 					"options": {
 						"dependencies": {
-							"task_schedule_types": [
+							"job_schedule_types": [
 								"after time period on weekday at given time"
 							]
 						}
@@ -292,7 +292,7 @@
 					"title": "send_on_day_at",
 					"options": {
 						"dependencies": {
-							"task_schedule_types": [
+							"job_schedule_types": [
 								"after time period on weekday at given time",
 								"after time period"
 							]
@@ -314,7 +314,7 @@
 					"title": "custom_time",
 					"options": {
 						"dependencies": {
-							"task_schedule_types": [
+							"job_schedule_types": [
 								"On spesific fixed date"
 							]
 						},
@@ -345,7 +345,7 @@
 					"default": "email",
 					"options": {
 						"dependencies": {
-							"task_type": [
+							"job_type": [
 								"notification",
 								"notification_with_reminder",
 								"notification_with_reminder_for_diary"
@@ -472,14 +472,14 @@
 				}
 			}
 		},
-		"task_ref": {
+		"job_ref": {
 			"type": "object",
 			"properties": {
-				"task_name": {
+				"job_name": {
 					"type": "string",
-					"title": "Task name"
+					"title": "job name"
 				},
-				"task_type": {
+				"job_type": {
 					"type": "string",
 					"enum": [
 						"add_group",
@@ -492,7 +492,7 @@
 				"schedule_time": {
 					"$ref": "#/definitions/schedule_time_ref"
 				},
-				"task_add_remove_groups": {
+				"job_add_remove_groups": {
 					"type": "array",
 					"uniqueItems": true,
 					"format": "select2",
@@ -502,7 +502,7 @@
 							"tags": true
 						},
 						"dependencies": {
-							"task_type": [
+							"job_type": [
 								"add_group",
 								"remove_group"
 							]
@@ -523,7 +523,7 @@
 					"$ref": "#/definitions/notification_ref",
 					"options": {
 						"dependencies": {
-							"task_type": [
+							"job_type": [
 								"notification",
 								"notification_with_reminder",
 								"notification_with_reminder_for_diary"
@@ -539,7 +539,7 @@
 					},
 					"options": {
 						"dependencies": {
-							"task_type": [
+							"job_type": [
 								"notification_with_reminder",
 								"notification_with_reminder_for_diary"
 							]

@@ -1,6 +1,6 @@
 $(document).ready(function () {
-    // initActionConfigBuilder();    
-    loadAction();
+    initActionConfigBuilder();
+    // loadAction();
 });
 
 function initActionConfigBuilder() {
@@ -221,13 +221,16 @@ function showActionConfigBuilder(json, monacoEditor) {
                 schema: s,
                 show_errors: "always",
             });
-            editor.on('change', () => {
-                $('.actionConfig_builder').find('select').each(function () {
-                    $(this).selectpicker();
-                    $(this).selectpicker('refresh');
-                })
+
+            editor.on('ready', () => {
+                editor.on('change', () => {
+                    $('.actionConfig_builder').find('select').each(function () {
+                        $(this).selectpicker();
+                        $(this).selectpicker('refresh');
+                    })
+                });
+                getGroupsForActionConfig(editor, defValue, editor);
             });
-            getGroupsForActionConfig(editor, defValue, editor);
         }
     });
 }
