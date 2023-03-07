@@ -23,6 +23,14 @@ function initDataConfigBuilder() {
                     }
                     $(data_config).val(val);
                     $(data_config).trigger('change');
+                    $('.dataConfigBuilderBtn').removeClass('btn-primary btn-warning');
+                    if (dataConfigEditor.getValue().length > 0) {
+                        $('.dataConfigBuilderBtn').addClass('btn-warning');
+                        $('.dataConfigBuilderBtn').html('Edit Data Config');
+                    } else {
+                        $('.dataConfigBuilderBtn').addClass('btn-primary');
+                        $('.dataConfigBuilderBtn').html('Add Data Config');
+                    }
                 })
             });
         });

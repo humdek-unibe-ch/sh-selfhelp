@@ -37,6 +37,14 @@ function initConditionBuilder() {
                         $(jqueryBuilderJsonInput).trigger('change');
                         $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
                         $(condition).trigger('change');
+                        $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
+                        if (rules) {
+                            $('.conditionBuilderBtn').addClass('btn-warning');
+                            $('.conditionBuilderBtn').html('Edit Condition');
+                        } else {
+                            $('.conditionBuilderBtn').addClass('btn-primary');
+                            $('.conditionBuilderBtn').html('Add Condition');
+                        }
                     })
                 });
             });

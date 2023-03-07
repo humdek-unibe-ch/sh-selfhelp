@@ -1149,12 +1149,12 @@ class CmsView extends BaseView
         {
             // do not show the whole condition as it takes a lof of space. 
             $children[] = new BaseStyleComponent("rawText", array(
-                "text" => $field['content'] && $field['content'] != 'null' ? 'exists' : $field['content']
+                "text" => $field['content'] && json_decode($field['content']) ? 'exists' : $field['content']
             ));
         } else if ($field['type'] == "data-config") {
             // do not show the whole condition as it takes a lof of space. 
             $children[] = new BaseStyleComponent("rawText", array(
-                "text" => $field['content'] && $field['content'] != '[]' ? 'exists' : $field['content']
+                "text" => $field['content'] && json_decode($field['content']) ? 'exists' : $field['content']
             ));
         } else if ($field['type'] == "select-page-keyword") {
             $children[] = new BaseStyleComponent("select", array(

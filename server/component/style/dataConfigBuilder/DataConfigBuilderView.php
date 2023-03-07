@@ -85,6 +85,13 @@ class DataConfigBuilderView extends FormFieldView
             )
         ));
         $modal->output_content();
+        $button_label = 'Add Data Config';
+        if(isset($this->value)){
+            $data_config = json_decode($this->value);
+            if($data_config){
+                $button_label = 'Edit Data Config';
+            }
+        }        
         require __DIR__ . "/tpl_dataConfig_builder.php";
     }
 }

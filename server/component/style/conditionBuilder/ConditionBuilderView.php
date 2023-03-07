@@ -79,6 +79,13 @@ class ConditionBuilderView extends FormFieldView
             ),
         ));
         $modal->output_content();
+        $button_label = 'Add Condition';
+        if(isset($this->value)){
+            $data_config = json_decode($this->value);
+            if($data_config){
+                $button_label = 'Edit Condition';
+            }
+        }   
         require __DIR__ . "/tpl_condition_builder.php";
     }
 }
