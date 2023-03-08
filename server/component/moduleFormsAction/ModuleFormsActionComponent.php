@@ -28,11 +28,11 @@ class ModuleFormsActionComponent extends BaseComponent
      */
     public function __construct($services, $params, $id_page)
     {
-        $sid = isset($params['sid']) ? intval($params['sid']) : null;
+        $aid = isset($params['aid']) ? intval($params['aid']) : null;
         $mode = isset($params['mode']) ? $params['mode'] : null;
         $model = new ModuleFormsActionModel($services);
         $controller = new ModuleFormsActionController($model);
-        $view = new ModuleFormsActionView($model, $controller, $mode, $sid);
+        $view = new ModuleFormsActionView($model, $controller, $mode, $aid);
         parent::__construct($model, $view, $controller);
     }
 }

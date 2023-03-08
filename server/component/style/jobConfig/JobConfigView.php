@@ -42,20 +42,10 @@ class JobConfigView extends FormFieldView
     {
         if ($this->value === null)
             $this->value = $this->default_value;
-        require __DIR__ . "/tpl_textarea.php";
+        require __DIR__ . "/tpl_jobConfig.php";
     }
 
     /* Public Methods *********************************************************/
 
-    /**
-     * Render the builder buttons and modal forms if they are needed
-     */
-    public function output_builder()
-    {
-        $jobConfig = new BaseStyleComponent("div", array(
-            "css" => "jobConfig"
-        ));
-        $jobConfig->output_content();
-    }
 }
 ?>

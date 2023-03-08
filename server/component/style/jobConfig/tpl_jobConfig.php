@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<textarea name="<?php echo $this->name; ?>" class="selfhelpTextArea jobConfig form-control d-none">
+<textarea id="jobConfigValue" name="<?php echo $this->name; ?>" class="selfhelpTextArea form-control d-none">
     <?php echo $this->value; ?>
 </textarea>
-<?php $this->output_builder() ?>
+<div id = "jobConfig" class="<?php echo $this->css; ?>"></div>

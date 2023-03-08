@@ -218,12 +218,29 @@
 			"properties": {
 				"job_schedule_types": {
 					"type": "string",
-					"default": "immediately",
-					"enum": [
-						"after time period",
-						"after time period on weekday at given time",
-						"immediately",
-						"On spesific fixed date"
+					"enumSource": [
+						{
+							"source": [
+								{
+									"value": "after_period",
+									"text": "After time period"
+								},
+								{
+									"value": "after_period_on_day_at_time",
+									"text": "After time period on a weekday at given time"
+								},
+								{
+									"value": "immediately",
+									"text": "Immediately"
+								},
+								{
+									"value": "on_fixed_datetime",
+									"text": "On specific fixed datetime"
+								}
+							],
+							"title": "{{item.text}}",
+							"value": "{{item.value}}"
+						}
 					]
 				},
 				"send_after": {
@@ -232,7 +249,7 @@
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
-								"after time period"
+								"after_period"
 							]
 						}
 					}
@@ -251,7 +268,7 @@
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
-								"after time period"
+								"after_period"
 							]
 						}
 					}
@@ -266,7 +283,7 @@
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
-								"after time period on weekday at given time"
+								"after_period_on_day_at_time"
 							]
 						}
 					}
@@ -281,7 +298,7 @@
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
-								"after time period on weekday at given time"
+								"after_period_on_day_at_time"
 							]
 						}
 					}
@@ -293,8 +310,8 @@
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
-								"after time period on weekday at given time",
-								"after time period"
+								"after_period_on_day_at_time",
+								"after_period"
 							]
 						},
 						"inputAttributes": {
@@ -315,7 +332,7 @@
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
-								"On spesific fixed date"
+								"on_fixed_datetime"
 							]
 						},
 						"inputAttributes": {
@@ -591,25 +608,40 @@
 			"uniqueItems": true,
 			"format": "select2",
 			"options": {
-				"grid_columns": 12,
-				"select2": {
-					"tags": true
+				"dependencies": {
+					"target_groups": true
 				}
 			},
 			"title": "target_groups",
 			"description": "target_groups",
 			"items": {
 				"type": "string",
-				"enum": [
-					"group1",
-					"group2",
-					"group3"
-				]
-			},
+				"enum": []
+			}
+		},
+		"overwrite_variables": {
+			"type": "boolean",
+			"default": false
+		},
+		"selected_overwrite_variables": {
+			"type": "array",
+			"uniqueItems": true,
+			"format": "select2",
 			"options": {
 				"dependencies": {
-					"target_groups": true
+					"overwrite_variables": true
 				}
+			},
+			"title": "overwrite_variables",
+			"description": "overwrite_variables",
+			"items": {
+				"type": "string",
+				"enum": [
+					"send_after",
+					"send_after_type",
+					"send_on_day_at",
+					"custom_time"
+				]
 			}
 		},
 		"condition": {

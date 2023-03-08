@@ -37,8 +37,8 @@ class ModuleFormsActionModel extends BaseModel
     public function get_forms()
     {
         $surveys = array();
-        foreach ($this->db->select_table("view_form") as $survey) {
-            array_push($surveys, array("value" => $survey['form_id'], "text" => $survey['form_name']));
+        foreach ($this->db->select_table("view_data_tables") as $survey) {
+            array_push($surveys, array("value" => $survey['form_id_plus_type'], "text" => $survey['orig_name']));
         }
         return $surveys;
     }

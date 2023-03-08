@@ -203,4 +203,13 @@ define('hookTypes_hook_on_function_execute', 'hook_on_function_execute');
 define('assetTypes_css', 'css');
 define('assetTypes_asset', 'asset');
 define('assetTypes_static', 'static');
+
+/* Action config */
+define('ACTION_JOB_SCHEDULE_TYPES', 'job_schedule_types');
+define('ACTION_JOB_SCHEDULE_TIME', 'schedule_time');
+define('ACTION_JOB_TYPE', 'job_type');
+define('ACTION_JOB_ADD_REMOVE_GROUPS', 'job_add_remove_groups');
+define('ACTION_JOB_TYPE_ADD_GROUP', 'add_group');
+define('ACTION_JOB_TYPE_REMOVE_GROUP', 'remove_group');
+define('ACTION_SELECTED_OVERWRITE_VARIABLES', 'selected_overwrite_variables');
 ?>

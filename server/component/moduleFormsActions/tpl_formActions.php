@@ -11,8 +11,6 @@
                 <th scope="col">Action Name</th>
                 <th scope="col">Form Name</th>
                 <th scope="col">Trigger Type</th>
-                <th scope="col">Action Type</th>
-                <th scope="col">For Groups</th>
             </tr>
         </thead>
         <tbody>

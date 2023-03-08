@@ -8,6 +8,4 @@
     <td><?php echo $action['action_name']; ?></td>
     <td><?php echo $action['form_name']; ?></td>
     <td><?php echo $action['trigger_type']; ?></td>
-    <td><?php echo $action['action_schedule_type']; ?></td>
-    <td><?php echo $action['groups']; ?></td>
 </tr>

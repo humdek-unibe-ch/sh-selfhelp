@@ -1,6 +1,7 @@
 # v5.12.0 (Unpublished)
 ###  New features
- - rework module `Form Actions`. 
+ - rework module `Form Actions`. If you scheduled form action please contact support
+  - old actions should be manually checked after the update. They will be in table `old_formActions`. The related tables should be checked `formActions_groups` and `formActionsReminders` and once the migration is done these tables can be deleted
  - update `jsoneditor.min.js` from `2.6.1` to `2.9.1`
  - better labeling and colors for `data_config` and `condition` buttons based on if a configuration is set or not
  - add new internal style `jobConfig`

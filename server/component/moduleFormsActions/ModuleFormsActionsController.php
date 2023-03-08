@@ -32,18 +32,16 @@ class ModuleFormsActionsController extends BaseController
             isset($_POST['name']) &&
             isset($_POST['id_forms']) &&
             isset($_POST['id_formProjectActionTriggerTypes']) &&
-            isset($_POST['id_formActionScheduleTypes']) &&
-            isset($_POST['schedule_info'])
+            isset($_POST['config'])
         ) {
             //insert mode
-            // $this->insert_action($_POST);
+            $this->insert_action($_POST);
         } else if (
             isset($_POST['mode']) && $_POST['mode'] === UPDATE &&
             isset($_POST['name']) &&
             isset($_POST['id_forms']) &&
             isset($_POST['id_formProjectActionTriggerTypes']) &&
-            isset($_POST['id_formActionScheduleTypes']) &&
-            isset($_POST['schedule_info'])
+            isset($_POST['config'])
         ) {
             //edit mode
             $this->update_action($_POST);
@@ -84,8 +82,8 @@ class ModuleFormsActionsController extends BaseController
      */
     private function insert_action($data)
     {
-        $this->pid = $this->model->insert_new_action($data);
-        if ($this->pid > 0) {
+        $pid = $this->model->insert_new_action($data);
+        if ($pid > 0) {
             $this->success = true;
             $this->success_msgs[] = "Action " . $data['name'] . " was successfully added";
         } else {
@@ -106,7 +104,6 @@ class ModuleFormsActionsController extends BaseController
         if ($selectedAction['action_name'] === $data['deleteActionName']) {
             $res = $this->model->get_services()->get_db()->remove_by_fk("formActions", "id", $selectedAction['id']);
             if ($res) {
-                $this->mode = "deleted";
                 $this->success = true;
                 $this->success_msgs[] = "Action " . $selectedAction['action_name'] . " was successfully deleted";
             } else {
