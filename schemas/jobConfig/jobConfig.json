@@ -616,7 +616,12 @@
 			"description": "target_groups",
 			"items": {
 				"type": "string",
-				"enum": []
+				"enum": [
+					"admin",
+					"therapist",
+					"subject",
+					"test"
+				]
 			}
 		},
 		"overwrite_variables": {
