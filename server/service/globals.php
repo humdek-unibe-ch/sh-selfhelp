@@ -212,4 +212,6 @@ define('ACTION_JOB_ADD_REMOVE_GROUPS', 'job_add_remove_groups');
 define('ACTION_JOB_TYPE_ADD_GROUP', 'add_group');
 define('ACTION_JOB_TYPE_REMOVE_GROUP', 'remove_group');
 define('ACTION_SELECTED_OVERWRITE_VARIABLES', 'selected_overwrite_variables');
+define('ACTION_TARGET_GROUPS', 'target_groups');
+define('ACTION_SELECTED_TARGET_GROUPS', 'selected_target_groups');
 ?>

@@ -156,10 +156,14 @@ class FormUserInputModel extends StyleModel
      */
     private function get_users_from_groups($groups)
     {
+        foreach ($groups as &$value) {
+            $value = "'" . $value . "'";
+        }
         $sql = "SELECT u.id
                     FROM users u
-                    INNER JOIN users_groups g ON (u.id = g.id_users)
-                    WHERE u.id_status = 3 AND g.id_groups IN (" . implode(",", $groups) . ");";
+                    INNER JOIN users_groups ug ON (u.id = ug.id_users)
+                    INNER JOIN `groups` g ON (g.id = ug.id_groups)
+                    WHERE u.id_status = 3 AND g.name IN (" . implode(",", $groups) . ");";
         return $this->db->query_db($sql);
     }
 
@@ -388,6 +392,17 @@ class FormUserInputModel extends StyleModel
                 }
             }
         }
+        
+        $form_values = array();
+        foreach ($_POST as $field_name => $field) {
+            if(isset($field['value'])){
+                // it is a form field
+                $form_values[$field_name] = $field['value'];
+            }
+        }
+
+        $config = $this->db->replace_calced_values($config, $form_values);
+
 
         return array(
             "result" => $result,
@@ -823,8 +838,21 @@ class FormUserInputModel extends StyleModel
         //get all actions for this form and trigger type
         $actions = $this->get_actions($this->section_id, $trigger_type);
         foreach ($actions as $action) {
-            // if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) { condition
+            // if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) { condition            
             $config = json_decode($action['config'], true);
+            $users = array();
+            if (isset($config[ACTION_TARGET_GROUPS]) && $config[ACTION_TARGET_GROUPS]) {
+                // the jobs will be for groups, we have to add all the users from these groups
+                $users_from_groups = $this->get_users_from_groups($config[ACTION_SELECTED_TARGET_GROUPS]);
+                if ($users_from_groups) {
+                    foreach ($users_from_groups as $key => $user) {
+                        array_push($users, $user['id']);
+                    }
+                    $users = array_unique($users);
+                }
+            } else {
+                array_push($users, $_SESSION['id_user']);
+            }
             if($trigger_type == actionTriggerTypes_finished){
                 // when the trigger is finished, we have data and we can use it
                 $check_config = $this->check_config($config);
@@ -836,9 +864,7 @@ class FormUserInputModel extends StyleModel
 
                     $res = array();
 
-                    if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
-                        $users = array();
-                        array_push($users, $_SESSION['id_user']);
+                    if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {                                                        
                         $start_time = microtime(true);
                         $start_date = date("Y-m-d H:i:s");
                         $res = $this->queue_task($users, $job, $action);
