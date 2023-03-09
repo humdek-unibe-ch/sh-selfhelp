@@ -214,4 +214,8 @@ define('ACTION_JOB_TYPE_REMOVE_GROUP', 'remove_group');
 define('ACTION_SELECTED_OVERWRITE_VARIABLES', 'selected_overwrite_variables');
 define('ACTION_TARGET_GROUPS', 'target_groups');
 define('ACTION_SELECTED_TARGET_GROUPS', 'selected_target_groups');
+define('ACTION_RANDOMIZE', 'randomize');
+define('ACTION_RANDOMIZER', 'randomizer');
+define('ACTION_RANDOMIZER_EVEN_PRESENTATION', 'even_presentation');
+define('ACTION_RANDOMIZER_RANDOM_ELEMENTS', 'random_elements');
 ?>

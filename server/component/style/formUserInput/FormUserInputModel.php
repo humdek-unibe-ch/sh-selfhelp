@@ -830,7 +830,7 @@ class FormUserInputModel extends StyleModel
      * Check if any event should be queued based on the actions
      *
      * @retval string
-     *  log text what actions was done;
+     *  log text what actions were done;
      */
     public function queue_event_from_actions($trigger_type)
     {
@@ -841,6 +841,8 @@ class FormUserInputModel extends StyleModel
             // if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) { condition            
             $config = json_decode($action['config'], true);
             $users = array();
+
+            /*************************  TARGET_GROUPS **************************************************/
             if (isset($config[ACTION_TARGET_GROUPS]) && $config[ACTION_TARGET_GROUPS]) {
                 // the jobs will be for groups, we have to add all the users from these groups
                 $users_from_groups = $this->get_users_from_groups($config[ACTION_SELECTED_TARGET_GROUPS]);
@@ -853,12 +855,25 @@ class FormUserInputModel extends StyleModel
             } else {
                 array_push($users, $_SESSION['id_user']);
             }
+            /*************************  TARGET_GROUPS **************************************************/
+
+            /*************************  CHECK DYNAMIC DATA *********************************************/
             if($trigger_type == actionTriggerTypes_finished){
                 // when the trigger is finished, we have data and we can use it
                 $check_config = $this->check_config($config);
                 array_push($result, $check_config['result']);            
                 $config = $check_config['config'];
             }
+            /*************************  CHECK DYNAMIC DATA *********************************************/
+
+            /*************************  RANDOMIZE ******************************************************/
+            if (isset($config[ACTION_RANDOMIZE]) && $config[ACTION_RANDOMIZE]) {
+                shuffle($config ['blocks']); // randomize the blocks
+                array_splice($config ['blocks'], $config[ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
+            }
+
+            /*************************  RANDOMIZE ******************************************************/
+
             foreach ($config ['blocks'] as $block_index => $block) {
                 foreach ($block['jobs'] as $job_index => $job) {
 
