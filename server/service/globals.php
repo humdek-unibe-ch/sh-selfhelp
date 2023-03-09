@@ -219,4 +219,10 @@ define('ACTION_RANDOMIZER', 'randomizer');
 define('ACTION_RANDOMIZER_EVEN_PRESENTATION', 'even_presentation');
 define('ACTION_RANDOMIZER_RANDOM_ELEMENTS', 'random_elements');
 define('ACTION_BLOCK_RANDOMIZATION_COUNT', 'randomization_count');
+define('ACTION_REPEAT', 'repeat');
+define('ACTION_REPEATER', 'repeater');
+define('ACTION_REPEATER_OCCURRENCES', 'occurrences');
+define('ACTION_REPEATER_FREQUENCY', 'frequency');
+define('ACTION_REPEATER_DAYS_OF_WEEK', 'daysOfWeek');
+define('ACTION_REPEATER_DAYS_OF_MONTH', 'daysOfMonth');
 ?>

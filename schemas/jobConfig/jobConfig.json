@@ -7,6 +7,12 @@
 		"block_ref": {
 			"type": "object",
 			"properties": {
+				"index": {
+					"type": "number",
+					"options": {
+						"hidden": true
+					}
+				},
 				"block_name": {
 					"type": "string"
 				},
@@ -58,42 +64,29 @@
 		"repeater_ref": {
 			"type": "object",
 			"properties": {
-				"end_date": {
-					"type": "string",
-					"title": "End repeat",
-					"format": "datetime-local",
-					"description": "The last date when it should happen. Either occurrences or end repeat date should be filled",
-					"inputAttributes": {
-						"placeholder": "Enter date"
-					},
-					"flatpickr": {
-						"inlineHideInput": true,
-						"wrap": true,
-						"time_24hr": true,
-						"allowInput": true,
-						"showClearButton": true
-					}
-				},
 				"occurrences": {
 					"type": "integer",
+					"title": "Occurrences",
 					"minimum": 1,
 					"default": "",
-					"description": "The number of times the event should repeat. If not specified, the event will repeat untill the end repeat date is reached. Either occurrences or end repeat date should be filled"
+					"description": "How many times the event should be repeated"
 				},
 				"frequency": {
 					"type": "string",
+					"title":"Repeat every",
 					"enum": [
-						"daily",
-						"weekly",
-						"monthly",
-						"yearly"
+						"day",
+						"week",
+						"month"
 					],
+					"options": {
+						"enum_titles": [
+							"Day",
+							"Week",
+							"Month"
+						]
+					},
 					"description": "The frequency at which the event repeats."
-				},
-				"interval": {
-					"type": "integer",
-					"minimum": 1,
-					"description": "The number of units (e.g. days, weeks, months, years) between each occurrence of the event."
 				},
 				"daysOfWeek": {
 					"type": "array",
@@ -106,7 +99,7 @@
 						},
 						"dependencies": {
 							"frequency": [
-								"weekly"
+								"week"
 							]
 						}
 					},
@@ -135,7 +128,7 @@
 						},
 						"dependencies": {
 							"frequency": [
-								"monthly"
+								"month"
 							]
 						}
 					},
@@ -176,40 +169,6 @@
 						]
 					},
 					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency."
-				},
-				"monthsOfYear": {
-					"type": "array",
-					"format": "select2",
-					"uniqueItems": true,
-					"options": {
-						"grid_columns": 12,
-						"select2": {
-							"tags": true
-						},
-						"dependencies": {
-							"frequency": [
-								"yearly"
-							]
-						}
-					},
-					"items": {
-						"type": "string",
-						"enum": [
-							"January",
-							"February",
-							"March",
-							"April",
-							"May",
-							"June",
-							"July",
-							"August",
-							"September",
-							"October",
-							"November",
-							"December"
-						]
-					},
-					"description": "An array of the months of the year in which the event occurs. Only applicable for yearly frequency."
 				}
 			}
 		},

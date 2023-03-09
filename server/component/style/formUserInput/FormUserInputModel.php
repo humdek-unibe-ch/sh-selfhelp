@@ -61,15 +61,17 @@ class FormUserInputModel extends StyleModel
      * The action row
      * @param array $blocks
      * The selected blocks which will be executed
+     * @return object;
+     * Return the update blocks with the new counters
      */
     private function update_randomization_count($action, $blocks){
-        $action['config'] = json_decode($action['config'], true);
         foreach ($blocks as $block_index => $block) {
             $action['config']['blocks'][$block['index']][ACTION_BLOCK_RANDOMIZATION_COUNT]++;
         }
         $this->db->update_by_ids("formActions", array(
             "config" => json_encode($action['config'])
         ), array('id' => $action['id']));
+        return $action;
     }
 
     /**
@@ -92,6 +94,34 @@ class FormUserInputModel extends StyleModel
         } else {
             $next_weekday = $next_weekday->getTimestamp();
             return date('Y-m-d H:i:s', $next_weekday);
+        }
+    }
+
+    private function set_execution_date($action, $job)
+    {
+        $config = $action['config'];
+        if (isset($config[ACTION_REPEAT]) && $config[ACTION_REPEAT]) {
+            $repeater = $config[ACTION_REPEATER];
+            // Define the start date of the event
+            $start_date = $this->calc_date_to_be_sent($job['schedule_time']);
+            $start_date_time = date('H:i:s', strtotime($start_date));
+            $current_date = $start_date;
+            $schedule_dates = array();
+            // Loop as many occurrences we have 
+            while (count($schedule_dates) < $repeater[ACTION_REPEATER_OCCURRENCES]) {
+                if (($repeater[ACTION_REPEATER_FREQUENCY] == 'day')
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && in_array(date('l', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_WEEK]))
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && in_array(date('d', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_MONTH]))
+                ) {
+                    // Event occurs on this day, schedule it
+                    $schedule_dates[] = date('Y-m-d H:i:s', strtotime($start_date_time, strtotime($current_date))); // add the new date with the time that we already calculated in the start date
+                }
+                // Increment the current date with one day
+                $current_date = date('Y-m-d', strtotime("+1 day", strtotime($current_date)));
+            }
+            return $schedule_dates[$action["repeat_index"]];
+        } else {
+            return $this->calc_date_to_be_sent($job['schedule_time']);
         }
     }
 
@@ -195,15 +225,12 @@ class FormUserInputModel extends StyleModel
      * user id arrays
      * @param array $action
      * the action information
-     * @retval string
+     * @return string
      *  log text what actions was done;
      */
     private function queue_task($users, $job, $action)
     {
         $result = array();
-        $check_config = $this->check_config($action);
-        // $schedule_info = $check_config['schedule_info'];
-        // $result = $check_config['result'];
         $task_config = array(
             "type" => $job[ACTION_JOB_TYPE],
             "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $this->get_db_field("name"),
@@ -212,7 +239,7 @@ class FormUserInputModel extends StyleModel
         $task = array(
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
-            "date_to_be_executed" => $this->calc_date_to_be_sent($job['schedule_time']),
+            "date_to_be_executed" => $this->set_execution_date($action, $job),
             "id_users" => $users,
             "config" => $task_config, //extra config for condition
             "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $this->get_db_field("name"),
@@ -861,13 +888,13 @@ class FormUserInputModel extends StyleModel
         $actions = $this->get_actions($this->section_id, $trigger_type);
         foreach ($actions as $action) {
             // if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) { condition            
-            $config = json_decode($action['config'], true);
+            $action['config'] = json_decode($action['config'], true);
             $users = array();
 
             /*************************  TARGET_GROUPS **************************************************/
-            if (isset($config[ACTION_TARGET_GROUPS]) && $config[ACTION_TARGET_GROUPS]) {
+            if (isset($action['config'][ACTION_TARGET_GROUPS]) && $action['config'][ACTION_TARGET_GROUPS]) {
                 // the jobs will be for groups, we have to add all the users from these groups
-                $users_from_groups = $this->get_users_from_groups($config[ACTION_SELECTED_TARGET_GROUPS]);
+                $users_from_groups = $this->get_users_from_groups($action['config'][ACTION_SELECTED_TARGET_GROUPS]);
                 if ($users_from_groups) {
                     foreach ($users_from_groups as $key => $user) {
                         array_push($users, $user['id']);
@@ -882,61 +909,68 @@ class FormUserInputModel extends StyleModel
             /*************************  CHECK DYNAMIC DATA *********************************************/
             if($trigger_type == actionTriggerTypes_finished){
                 // when the trigger is finished, we have data and we can use it
-                $check_config = $this->check_config($config);
+                $check_config = $this->check_config($action['config']);
                 array_push($result, $check_config['result']);            
-                $config = $check_config['config'];
+                $action['config'] = $check_config['config'];
             }
             /*************************  CHECK DYNAMIC DATA *********************************************/
 
-            /*************************  RANDOMIZE ******************************************************/
-            if (isset($config[ACTION_RANDOMIZE]) && $config[ACTION_RANDOMIZE]) {
-                if ($config[ACTION_RANDOMIZER][ACTION_RANDOMIZER_EVEN_PRESENTATION]) {
-                    // Filter the blocks that should be executed in order that their count is even
-                    $min_randomization_count = PHP_INT_MAX; 
-                    $blocks_not_executed_yet = array();
-                    $index=0;
-                    foreach ($config['blocks'] as &$block) {
-                        $block['index']= $index;
-                        if ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] < $min_randomization_count) {
-                            // new minimum count found, clear previous objects
-                            $min_randomization_count = $block[ACTION_BLOCK_RANDOMIZATION_COUNT];
-                            $blocks_not_executed_yet = array($block);
-                        } elseif ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] == $min_randomization_count) {
-                            // same minimum count, add to list of objects
-                            $blocks_not_executed_yet[] = $block;
+            /*************************  REPEAT *********************************************************/
+
+            $repeat = isset($action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES]) ? $action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES] : 1;
+
+            for ($repeat_index = 0; $repeat_index < $repeat; $repeat_index++) {
+                $action['repeat_index'] = $repeat_index;
+
+                /*************************  RANDOMIZE ******************************************************/
+                if (isset($action['config'][ACTION_RANDOMIZE]) && $action['config'][ACTION_RANDOMIZE]) {
+                    if ($action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_EVEN_PRESENTATION]) {
+                        // Filter the blocks that should be executed in order that their count is even
+                        $min_randomization_count = PHP_INT_MAX;
+                        $blocks_not_executed_yet = array();
+                        $index = 0;
+                        foreach ($action['config']['blocks'] as $key => $block) {
+                            $action['config']['blocks'][$key]['index'] = $index;
+                            if ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] < $min_randomization_count) {
+                                // new minimum count found, clear previous objects
+                                $min_randomization_count = $block[ACTION_BLOCK_RANDOMIZATION_COUNT];
+                                $blocks_not_executed_yet = array($action['config']['blocks'][$key]);
+                            } elseif ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] == $min_randomization_count) {
+                                // same minimum count, add to list of objects
+                                $blocks_not_executed_yet[] = $action['config']['blocks'][$key];
+                            }
+                            $index++;
                         }
-                        $index++;
                     }
-                    $config['blocks'] = $blocks_not_executed_yet; // assign only the filtered blocks that are not yet executed to be even with the others
-                } 
-                shuffle($config['blocks']); // randomize the blocks
-                array_splice($config['blocks'], $config[ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
-                $this->update_randomization_count($action, $config['blocks']);
-            }
+                    shuffle($blocks_not_executed_yet); // randomize the blocks
+                    array_splice($blocks_not_executed_yet, $action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
+                    $action = $this->update_randomization_count($action, $blocks_not_executed_yet);
+                }
 
-            /*************************  RANDOMIZE ******************************************************/
+                /*************************  RANDOMIZE ******************************************************/
 
-            foreach ($config ['blocks'] as $block_index => $block) {
-                foreach ($block['jobs'] as $job_index => $job) {
+                foreach ($blocks_not_executed_yet as $block_index => $block) {
+                    foreach ($block['jobs'] as $job_index => $job) {
 
-                    $res = array();
+                        $res = array();
 
-                    if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {                                                        
-                        $start_time = microtime(true);
-                        $start_date = date("Y-m-d H:i:s");
-                        $res = $this->queue_task($users, $job, $action);
-                        $res['time'] = [];
-                        $end_time = microtime(true);
-                        $res['time']['exec_time'] = $end_time - $start_time;
-                        $res['time']['start_date'] = $start_date;
-                        array_push($result, $res);
-                    }
+                        if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
+                            $start_time = microtime(true);
+                            $start_date = date("Y-m-d H:i:s");
+                            $res = $this->queue_task($users, $job, $action);
+                            $res['time'] = [];
+                            $end_time = microtime(true);
+                            $res['time']['exec_time'] = $end_time - $start_time;
+                            $res['time']['start_date'] = $start_date;
+                            array_push($result, $res);
+                        }
 
-                    if (isset($res['sj_id'])) {
-                        $this->db->insert('scheduledJobs_formActions', array(
-                            "id_scheduledJobs" => $res['sj_id'],
-                            "id_formActions" => $action['id'],
-                        ));
+                        if (isset($res['sj_id'])) {
+                            $this->db->insert('scheduledJobs_formActions', array(
+                                "id_scheduledJobs" => $res['sj_id'],
+                                "id_formActions" => $action['id'],
+                            ));
+                        }
                     }
                 }
             }
