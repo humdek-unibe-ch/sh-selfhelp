@@ -45,9 +45,31 @@ class FormUserInputModel extends StyleModel
 
     /* Private Methods ********************************************************/
 
+    /**
+     * Get form id
+     * @return int
+     * Return the form id
+     */
     private function get_form_id()
     {
         return $this->get_db_field("id");
+    }
+
+    /**
+     * Increment the randomization_count on the executed blocks in the action config
+     * @param object $action
+     * The action row
+     * @param array $blocks
+     * The selected blocks which will be executed
+     */
+    private function update_randomization_count($action, $blocks){
+        $action['config'] = json_decode($action['config'], true);
+        foreach ($blocks as $block_index => $block) {
+            $action['config']['blocks'][$block['index']][ACTION_BLOCK_RANDOMIZATION_COUNT]++;
+        }
+        $this->db->update_by_ids("formActions", array(
+            "config" => json_encode($action['config'])
+        ), array('id' => $action['id']));
     }
 
     /**
@@ -868,8 +890,28 @@ class FormUserInputModel extends StyleModel
 
             /*************************  RANDOMIZE ******************************************************/
             if (isset($config[ACTION_RANDOMIZE]) && $config[ACTION_RANDOMIZE]) {
-                shuffle($config ['blocks']); // randomize the blocks
-                array_splice($config ['blocks'], $config[ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
+                if ($config[ACTION_RANDOMIZER][ACTION_RANDOMIZER_EVEN_PRESENTATION]) {
+                    // Filter the blocks that should be executed in order that their count is even
+                    $min_randomization_count = PHP_INT_MAX; 
+                    $blocks_not_executed_yet = array();
+                    $index=0;
+                    foreach ($config['blocks'] as &$block) {
+                        $block['index']= $index;
+                        if ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] < $min_randomization_count) {
+                            // new minimum count found, clear previous objects
+                            $min_randomization_count = $block[ACTION_BLOCK_RANDOMIZATION_COUNT];
+                            $blocks_not_executed_yet = array($block);
+                        } elseif ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] == $min_randomization_count) {
+                            // same minimum count, add to list of objects
+                            $blocks_not_executed_yet[] = $block;
+                        }
+                        $index++;
+                    }
+                    $config['blocks'] = $blocks_not_executed_yet; // assign only the filtered blocks that are not yet executed to be even with the others
+                } 
+                shuffle($config['blocks']); // randomize the blocks
+                array_splice($config['blocks'], $config[ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
+                $this->update_randomization_count($action, $config['blocks']);
             }
 
             /*************************  RANDOMIZE ******************************************************/

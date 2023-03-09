@@ -218,4 +218,5 @@ define('ACTION_RANDOMIZE', 'randomize');
 define('ACTION_RANDOMIZER', 'randomizer');
 define('ACTION_RANDOMIZER_EVEN_PRESENTATION', 'even_presentation');
 define('ACTION_RANDOMIZER_RANDOM_ELEMENTS', 'random_elements');
+define('ACTION_BLOCK_RANDOMIZATION_COUNT', 'randomization_count');
 ?>
