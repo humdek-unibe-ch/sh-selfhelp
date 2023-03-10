@@ -918,6 +918,7 @@ class FormUserInputModel extends StyleModel
             /*************************  REPEAT *********************************************************/
 
             $repeat = isset($action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES]) ? $action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES] : 1;
+            $executed_blocks = array();
 
             for ($repeat_index = 0; $repeat_index < $repeat; $repeat_index++) {
                 $action['repeat_index'] = $repeat_index;
@@ -950,6 +951,7 @@ class FormUserInputModel extends StyleModel
                 /*************************  RANDOMIZE ******************************************************/
 
                 foreach ($blocks_not_executed_yet as $block_index => $block) {
+                    $executed_blocks[] = $block['block_name'];
                     foreach ($block['jobs'] as $job_index => $job) {
 
                         $res = array();

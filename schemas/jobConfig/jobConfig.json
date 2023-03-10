@@ -63,13 +63,14 @@
 		},
 		"repeater_ref": {
 			"type": "object",
+			"description": "Define repetition of the blocks. It creates a loop where new dates are calculated based on their date to be schedulete. Example: if you schedule a job immediately and it was defined to occurre 3 times every day, then 3 jobs will be created. One for now, one for tomorrow the same time and one for the day after tomorrow at the same time",
 			"properties": {
 				"occurrences": {
 					"type": "integer",
 					"title": "Occurrences",
 					"minimum": 1,
 					"default": "",
-					"description": "How many times the event should be repeated"
+					"description": "How many times the blocks should be scheduled."
 				},
 				"frequency": {
 					"type": "string",
@@ -90,6 +91,7 @@
 				},
 				"daysOfWeek": {
 					"type": "array",
+					"title":"Select week days",
 					"uniqueItems": true,
 					"format": "select2",
 					"options": {
@@ -119,6 +121,7 @@
 				},
 				"daysOfMonth": {
 					"type": "array",
+					"title": "Select days",
 					"format": "select2",
 					"uniqueItems": true,
 					"options": {
