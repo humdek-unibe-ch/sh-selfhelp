@@ -48,8 +48,10 @@ EXECUTE stmt;
 CREATE TABLE IF NOT EXISTS `formActions` (
 	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,		
 	`name` VARCHAR(200) NOT NULL,    
-    `id_formProjectActionTriggerTypes` int(10 ) UNSIGNED ZEROFILL NOT NULL,        
-    `config` text	
+    `id_formProjectActionTriggerTypes` INT(10 ) UNSIGNED ZEROFILL NOT NULL,            
+    `config` TEXT,
+	`condition_logic` VARCHAR(10000),
+    `condition_jquery_builder_json` VARCHAR(10000)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -74,6 +76,7 @@ AS
 SELECT fa.id AS id, fa.`name` AS action_name, orig_name AS form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value AS trigger_type, trig.lookup_code AS trigger_type_code,
 config,
+condition_logic, condition_jquery_builder_json,
 CASE
 	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
 	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
@@ -86,6 +89,7 @@ LEFT JOIN view_data_tables dt ON (dt.form_id_plus_type = CASE
 	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
 	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
 END);
+
 
 
 

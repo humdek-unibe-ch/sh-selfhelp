@@ -4,6 +4,7 @@ AS
 SELECT fa.id AS id, fa.`name` AS action_name, orig_name AS form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value AS trigger_type, trig.lookup_code AS trigger_type_code,
 config,
+condition_logic, condition_jquery_builder_json,
 CASE
 	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
 	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')

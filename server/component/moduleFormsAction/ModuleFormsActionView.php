@@ -185,12 +185,12 @@ class ModuleFormsActionView extends BaseView
                             "items" => $this->get_lookups(actionTriggerTypes),
                         )),
                         new BaseStyleComponent("conditionBuilder", array(
-                            "value" => $this->action['condition'] ?? '',
+                            "value" => $this->action['condition_logic'] ?? '',
                             "name" => 'condition'
                         )),
                         new BaseStyleComponent("textarea", array(
-                            "value" => $this->action['jquery_builder_json'] ?? '',
-                            "name" => 'jquery_builder_json',
+                            "value" => $this->action['condition_jquery_builder_json'] ?? '',
+                            "name" => 'condition_jquery_builder_json',
                             "css" => "d-none"
                         )),
                         new BaseStyleComponent("JobConfig", array(

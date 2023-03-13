@@ -81,8 +81,8 @@ class ConditionBuilderView extends FormFieldView
         $modal->output_content();
         $button_label = 'Add Condition';
         if(isset($this->value)){
-            $data_config = json_decode($this->value);
-            if($data_config){
+            $condition_config = json_decode($this->value);
+            if($condition_config){
                 $button_label = 'Edit Condition';
             }
         }   

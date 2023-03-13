@@ -67,7 +67,9 @@ class ModuleFormsActionsModel extends BaseModel
             $actionId = $this->db->insert("formActions", array(
                 "name" => $data['name'],
                 "id_formProjectActionTriggerTypes" => $data['id_formProjectActionTriggerTypes'],
-                "config" => $data['config']
+                "config" => $data['config'],
+                "condition_logic" => $data['condition'],
+                "condition_jquery_builder_json" => $data['condition_jquery_builder_json']
             ));
             $this->insert_form_relation($actionId, $data['id_forms']);
             $this->db->commit();
@@ -102,7 +104,9 @@ class ModuleFormsActionsModel extends BaseModel
             $this->db->update_by_ids("formActions", array(
                 "name" => $data['name'],
                 "id_formProjectActionTriggerTypes" => $data['id_formProjectActionTriggerTypes'],
-                "config" => $data['config']
+                "config" => $data['config'],
+                "condition_logic" => $data['condition'],
+                "condition_jquery_builder_json" => $data['condition_jquery_builder_json']
             ), array('id' => $data['id']));
 
             //delete all form relations
