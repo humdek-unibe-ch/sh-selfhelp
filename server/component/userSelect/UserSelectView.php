@@ -168,7 +168,7 @@ class UserSelectView extends BaseView
             "type" => "danger",
             "children" => array(
                 new BaseStyleComponent("plaintext", array(
-                    "text" => "Cleaning user data will remove all activity logs as well as all input data entered by this user. This cannot be undone.",
+                    "text" => "Cleaning user data will remove all activity logs as well as all input data entered by this user. It will also remove all scheduled actions for that user. This cannot be undone.",
                     "is_paragraph" => true,
                 )),
                 new BaseStyleComponent("form", array(

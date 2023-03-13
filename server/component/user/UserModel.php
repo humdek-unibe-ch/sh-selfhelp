@@ -262,23 +262,44 @@ class UserModel extends BaseModel
      */
     public function clean_user_data($uid)
     {
-        if(!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
+        if (!$this->acl->is_user_of_higer_level_than_user($_SESSION['id_user'], $uid))
             return false;
 
-        $res = $this->db->remove_by_fk('user_activity', 'id_users', $uid);
-        $res &= $this->db->remove_by_fk('user_input', 'id_users', $uid);
+        try {
+            $this->db->begin_transaction();
+            $res = $this->db->remove_by_fk('user_activity', 'id_users', $uid);
+            $res &= $this->db->remove_by_fk('user_input', 'id_users', $uid);
 
-        //remove external data
-        foreach ($this->db->select_table('uploadTables') as $row => $table) {
-            foreach ($this->user_input->get_data($table['id'], '', true, FORM_EXTERNAL, $uid) as $key => $row_record) {
-                $res &= $this->db->remove_by_ids("uploadRows", array(
-                    "id" => $row_record['record_id'],
-                    "id_uploadTables" => $table['id']
+            // remove scheduled jobs
+            $sql_scheduled_jobs = "SELECT id_scheduledJobs
+                            FROM scheduledJobs sj 
+                            INNER JOIN scheduledJobs_users u ON (u.id_scheduledJobs = sj.id)
+                            WHERE u.id_users = :uid;";
+            $res_scheduled_jobs = $this->db->query_db($sql_scheduled_jobs, array(
+                ":uid" => $uid
+            ));
+            foreach ($res_scheduled_jobs as $key => $row) {
+                $res &= $this->db->remove_by_ids("scheduledJobs", array(
+                    "id" => $row['id_scheduledJobs']
                 ));
             }
-        }
+            $res &= $this->db->remove_by_fk('scheduledJobs_users', 'id_users', $uid);
 
-        return $res;
+            //remove external data
+            foreach ($this->db->select_table('uploadTables') as $row => $table) {
+                foreach ($this->user_input->get_data($table['id'], '', true, FORM_EXTERNAL, $uid) as $key => $row_record) {
+                    $res &= $this->db->remove_by_ids("uploadRows", array(
+                        "id" => $row_record['record_id'],
+                        "id_uploadTables" => $table['id']
+                    ));
+                }
+            }
+            $this->db->commit();
+            return $res;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
     }
 
     /**
