@@ -247,7 +247,9 @@ class FormUserInputModel extends StyleModel
         $sj_id = $this->job_scheduler->schedule_job($task, transactionBy_by_system);
         if ($sj_id > 0) {
             $result[] = 'Task was queued for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
-            if (($job[ACTION_JOB_SCHEDULE_TIME][ACTION_JOB_SCHEDULE_TYPES] == actionScheduleTypes_immediately)) {
+            $execution_date = new DateTime($task['date_to_be_executed']);
+            $now = new DateTime();
+            if (($job[ACTION_JOB_SCHEDULE_TIME][ACTION_JOB_SCHEDULE_TYPES] == actionScheduleTypes_immediately) && $now->getTimestamp() >= $execution_date->getTimestamp()) {
                 $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
                 if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
                     $result[] = 'Task was executed for user: ' . $_SESSION['id_user'] . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
@@ -887,8 +889,13 @@ class FormUserInputModel extends StyleModel
         //get all actions for this form and trigger type
         $actions = $this->get_actions($this->section_id, $trigger_type);
         foreach ($actions as $action) {
-            // if ($this->is_user_in_group($_SESSION['id_user'], $action['id_groups'])) { condition            
-            $action['config'] = json_decode($action['config'], true);
+            $condition_logic =  json_decode($action['condition_logic'], true);
+            if(!$this->services->get_condition()->compute_condition($condition_logic)['result']){
+                $result[] = "Action condition is not met";
+                break;
+            }
+
+            $action['config'] = json_decode($action['config'], true);            
             $users = array();
 
             /*************************  TARGET_GROUPS **************************************************/
