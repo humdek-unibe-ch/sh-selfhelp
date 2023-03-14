@@ -16,9 +16,6 @@
 				"block_name": {
 					"type": "string"
 				},
-				"condition": {
-					"$ref": "#/definitions/condition_ref"
-				},
 				"show_randomization_count_hidden": {
 					"watch": {
 						"even_presentation": "root.randomizer.even_presentation",
@@ -57,6 +54,8 @@
 				},
 				"random_elements": {
 					"type": "number",
+					"minimum": 1,
+					"default": 1,
 					"description": "Randomly present the selected ammount of the blocks"
 				}
 			}
@@ -69,12 +68,12 @@
 					"type": "integer",
 					"title": "Occurrences",
 					"minimum": 1,
-					"default": "",
+					"default": 1,
 					"description": "How many times the blocks should be scheduled."
 				},
 				"frequency": {
 					"type": "string",
-					"title":"Repeat every",
+					"title": "Repeat every",
 					"enum": [
 						"day",
 						"week",
@@ -91,7 +90,7 @@
 				},
 				"daysOfWeek": {
 					"type": "array",
-					"title":"Select week days",
+					"title": "Select week days",
 					"uniqueItems": true,
 					"format": "select2",
 					"options": {
@@ -175,8 +174,76 @@
 				}
 			}
 		},
+		"schedule_time_reminder_ref": {
+			"type": "object",
+			"description": "Define how much time after the notification, the reminder will be sent",
+			"properties": {
+				"send_after": {
+					"type": "number",
+					"title": "Send after",
+					"minimum": 1,
+					"default": 1
+				},
+				"send_after_type": {
+					"type": "string",
+					"title": " ",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					]
+				},
+				"parent_job_type_hidden": {
+					"type": "string",
+					"template": "{{job_type}}",
+					"watch": {
+						"job_type": "job.job_type"
+					},
+					"options": {
+						"hidden": true
+					}
+				},
+				"valid": {
+					"type": "number",
+					"title": "Valid for",
+					"minimum": 1,
+					"default": 1,
+					"options": {
+						"dependencies": {
+							"parent_job_type_hidden": [
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				},
+				"valid_type": {
+					"type": "string",
+					"description": "How much time is the reminder valid",
+					"title": " ",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					],
+					"options": {
+						"dependencies": {
+							"parent_job_type_hidden": [
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				}
+			}
+		},
 		"schedule_time_ref": {
 			"type": "object",
+			"required": ["send_on_day_at"],
 			"properties": {
 				"job_schedule_types": {
 					"type": "string",
@@ -238,10 +305,7 @@
 				"send_on": {
 					"type": "string",
 					"title": "Send on",
-					"enum": [
-						"1st",
-						"2nd"
-					],
+					"enumSource": [],
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
@@ -253,10 +317,7 @@
 				"send_on_day": {
 					"type": "string",
 					"title": "Send on day",
-					"enum": [
-						"monday",
-						"tuesday"
-					],
+					"enumSource": [],
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
@@ -268,7 +329,7 @@
 				"send_on_day_at": {
 					"type": "string",
 					"format": "time",
-					"title": "send_on_day_at",
+					"title": "send_on_day_at",					
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
@@ -443,8 +504,13 @@
 		"reminder_ref": {
 			"type": "object",
 			"properties": {
+				"form_id": {
+					"type": "string",
+					"title": "Reminder for",
+					"enumSource": []
+				},
 				"schedule_time": {
-					"$ref": "#/definitions/schedule_time_ref"
+					"$ref": "#/definitions/schedule_time_reminder_ref"
 				},
 				"notification": {
 					"$ref": "#/definitions/notification_ref"
@@ -453,6 +519,7 @@
 		},
 		"job_ref": {
 			"type": "object",
+			"id": "job",
 			"properties": {
 				"job_name": {
 					"type": "string",
@@ -610,9 +677,6 @@
 					"custom_time"
 				]
 			}
-		},
-		"condition": {
-			"$ref": "#/definitions/condition_ref"
 		},
 		"blocks": {
 			"type": "array",

@@ -65,7 +65,6 @@ function loadJobConfig() {
 function prepareEnumSource(values) {
     enumValues = [];
     for (const key in values) {
-        console.log(key, values[key]);
         enumValues.push({
             value: key,
             text: values[key]
@@ -80,13 +79,37 @@ function prepareEnumSource(values) {
     return res;
 }
 
+function get_forms() {
+    var formsArray = {};
+    $('select[name="id_forms"]').find('option').each(function () {
+        if (this.value) {
+            formsArray[this.value] = this.text;
+        }
+    });
+    return formsArray;
+}
+
+function get_time_intervals_text() {
+    var obj = {};
+    obj[1] = '1st';
+    obj[2] = '2nd';
+    obj[3] = '3rd';
+    for (var i = 4; i <= 20; i++) {
+        obj[i]= i + 'th';
+    }
+    return obj;
+}
+
 async function setDynamicEnums() {
     var groups = await getGroups();
     editor.schema.definitions.job_ref.properties.job_add_remove_groups.items.enum = groups;
-    console.log(editor.schema.properties.selected_target_groups.items.enum);
     editor.schema.properties.selected_target_groups.items.enum = [...groups];
-    console.log(JSON.stringify(editor.schema.properties.selected_target_groups.items.enum));
     var actionScheduleTypes = await getLookups('actionScheduleTypes');
+    var weekdays = await getLookups('weekdays');
     editor.schema.definitions.schedule_time_ref.properties.job_schedule_types.enumSource = prepareEnumSource(actionScheduleTypes);
+    editor.schema.definitions.schedule_time_ref.properties.send_on_day.enumSource = prepareEnumSource(weekdays);
+    editor.schema.definitions.schedule_time_ref.properties.send_on.enumSource = prepareEnumSource(get_time_intervals_text());
+    editor.schema.definitions.reminder_ref.properties.form_id.enumSource = prepareEnumSource(get_forms());
+
     createJSONEditor(editor.schema); // after changes the forms should be recreated
 }

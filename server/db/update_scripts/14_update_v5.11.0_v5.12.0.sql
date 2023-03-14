@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `formActions_EXTERNAL` (
   `id_formActions` int(10) UNSIGNED ZEROFILL NOT NULL,
   PRIMARY KEY (`id_forms`,`id_formActions`),
   CONSTRAINT `fk_formActions_EXTERNAL_id_forms` FOREIGN KEY (`id_forms`) REFERENCES `uploadTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_formActions_EXTERNALformActions_EXTERNAL_id_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_formActions_EXTERNAL_id_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET @old_form_exists:= (SELECT COUNT(*) FROM information_schema.`tables` WHERE table_schema = DATABASE() AND `table_name` = 'old_formActions');
@@ -52,6 +52,17 @@ CREATE TABLE IF NOT EXISTS `formActions` (
     `config` TEXT,
 	`condition_logic` VARCHAR(10000),
     `condition_jquery_builder_json` VARCHAR(10000)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `scheduledJobs_reminders` (
+	`id_scheduledJobs` INT(10) UNSIGNED ZEROFILL NOT NULL,
+    `id_forms_INTERNAL` INT(10) UNSIGNED ZEROFILL NULL,  
+	`id_forms_EXTERNAL` INT(10) UNSIGNED ZEROFILL NULL,	
+	`session_start_date` DATETIME,
+    `session_end_date` DATETIME,
+	CONSTRAINT `scheduledJobs_reminders_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT `scheduledJobs_reminders_id_forms_INTERNAL` FOREIGN KEY (`id_forms_INTERNAL`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `scheduledJobs_reminders_id_forms_EXTERNAL` FOREIGN KEY (`id_forms_EXTERNAL`) REFERENCES `uploadTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -89,6 +100,18 @@ LEFT JOIN view_data_tables dt ON (dt.form_id_plus_type = CASE
 	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
 	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
 END);
+
+DROP VIEW IF EXISTS view_formActionsReminders;
+
+DROP VIEW IF EXISTS view_scheduledJobs_reminders;
+CREATE VIEW view_scheduledJobs_reminders
+AS
+SELECT r.id_scheduledJobs, r.id_forms_INTERNAL, r.id_forms_EXTERNAL,
+r.session_start_date, r.session_end_date, sju.id_users,l_status.lookup_code as job_status_code, l_status.lookup_value as job_status
+FROM scheduledJobs_reminders r
+INNER JOIN scheduledJobs sj ON (sj.id = r.id_scheduledJobs)
+INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
+INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus);
 
 
 
