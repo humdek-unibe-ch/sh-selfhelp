@@ -1002,7 +1002,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("select", array(
                 "value" => $field['content'],
                 "name" => $field_name_prefix . "[content]",
-                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('`groups`', 'id', array('name'))
             ));
         } else if ($field['type'] == "select-platform") {
             $children[] = new BaseStyleComponent("select", array(
@@ -1117,7 +1117,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('groups', 'id', array('name'))
+                "items" => $this->model->get_db()->fetch_table_as_select_values('`groups`', 'id', array('name'))
             ));
         }
         else if ($field['type'] == "select-platform") {
