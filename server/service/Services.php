@@ -102,9 +102,12 @@ class Services
 
         $this->condition = new Condition($this->db, $this->user_input, $this->router);
 
+        $this->user_input->setConditionService($this->condition);
+
         $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router, $this->condition);        
 
         $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $this->condition);
+        $this->user_input->setJobSchedulerService($this->job_scheduler);
         
         if ($fullMode) {
             $this->login = new Login(
