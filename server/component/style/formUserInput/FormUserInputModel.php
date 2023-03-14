@@ -290,7 +290,8 @@ class FormUserInputModel extends StyleModel
      * @return string
      *  log text what actions was done;
      */
-    private function queue_mail($users,$job,$action, $date_to_be_executed = null, $reminder_dates = null) {
+    private function queue_mail($users, $job, $action, $date_to_be_executed = null, $reminder_dates = null)
+    {
         $result = array();
         $attachments = array();
         foreach ($job['notification']['attachments'] as $idx => $attachment) {
@@ -389,47 +390,66 @@ class FormUserInputModel extends StyleModel
      * @retval string
      *  log text what actions was done;
      */
-    private function queue_notification($user_id, $action)
+    private function queue_notification($users, $job, $action, $date_to_be_executed = null, $reminder_dates = null)
     {
-        //  {
-        // 	"type": "overwrite_variable",
-        // 	"variable": ["send_on_day_at", "var2"]    
-        // }
-
-        $schedule_info = json_decode($action['schedule_info'], true);
         $result = array();
-        $check_config = $this->check_config($schedule_info);
-        $schedule_info = $check_config['schedule_info'];
-        $result = $check_config['result'];
-
-        $body = str_replace('@user_name', $this->db->select_by_uid('users', $user_id)['name'], $schedule_info['body']);
         $notification = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
-            "date_to_be_executed" => $this->calc_date_to_be_sent($schedule_info, $action['action_schedule_type_code']),
-            "recipients" => array($user_id),
-            "subject" => $schedule_info['subject'],
+            "date_to_be_executed" => $date_to_be_executed ? $date_to_be_executed : $this->set_execution_date($action, $job),
+            "subject" => $job['notification']['subject'],
             "url" => isset($schedule_info['url']) ? $schedule_info['url'] : null,
-            "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
-            "body" => $body,
+            // "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
             "description" => "Schedule notification by form: " . $this->get_db_field("name"),
         );
-        $sj_id = $this->job_scheduler->schedule_job($notification, transactionBy_by_system);
-        if ($sj_id > 0) {
-            if ($action['action_schedule_type_code'] == actionScheduleJobs_reminder) {
-                $this->add_reminder($sj_id, $user_id, $action);
-            }
-            $result[] = 'Notification was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
-            if (($schedule_info[actionScheduleTypes] == actionScheduleTypes_immediately)) {
-                $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
-                if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
-                    $result[] = 'Notification was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
-                } else {
-                    $result[] = 'ERROR! Notification was not sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+        foreach ($users as $key => $user_id) {
+            $notification['recipients'] = array($user_id);
+            $user_info =  $this->db->select_by_uid('users', $user_id);
+            // replace dynamically the @user_name if used
+            $notification['body'] = str_replace(
+                '@user_name',
+                $user_info['name'],
+                $job['notification']['body']
+            );
+            $sj_id = $this->job_scheduler->schedule_job($notification, transactionBy_by_system);
+            if (isset($job['form_id'])) {
+                // it is a reminder
+                $reminder_data = array(
+                    "id_scheduledJobs" => $sj_id
+                );
+                if ($reminder_dates) {
+                    $reminder_data['session_start_date'] = $reminder_dates['session_start_date'];
+                    $reminder_data['session_end_date'] = $reminder_dates['session_end_date'];
                 }
+                $form = explode('-', $job['form_id']);
+                if ($form[1] == FORM_INTERNAL) {
+                    $reminder_data['id_forms_INTERNAL'] = $form[0];
+                } else if ($form[1] == FORM_EXTERNAL) {
+                    $reminder_data['id_forms_EXTERNAL'] = $form[0];
+                }
+                $this->db->insert('scheduledJobs_reminders', $reminder_data);
+                $result[] = "Insert reminders for formId: " . $job['form_id'];
             }
-        } else {
-            $result[] = 'ERROR! Notificaton was not queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+            if ($sj_id > 0) {
+                if (isset($job['reminders'])) {
+                    foreach ($job['reminders'] as $reminder_idx => $reminder) {
+                        $result[] = $this->send_reminder($notification['date_to_be_executed'], $users, $reminder, $action);
+                    }
+                }
+                $result[] = 'Notification was queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                $execution_date = new DateTime($notification['date_to_be_executed']);
+                $now = new DateTime();
+                if (isset($job[ACTION_JOB_SCHEDULE_TIME][ACTION_JOB_SCHEDULE_TYPES]) && ($job[ACTION_JOB_SCHEDULE_TIME][ACTION_JOB_SCHEDULE_TYPES] == actionScheduleTypes_immediately) && $now->getTimestamp() >= $execution_date->getTimestamp()) {
+                    $job_entry = $this->db->query_db_first('SELECT * FROM view_scheduledJobs WHERE id = :sjid;', array(":sjid" => $sj_id));
+                    if (($this->job_scheduler->execute_job($job_entry, transactionBy_by_system))) {
+                        $result[] = 'Notification was sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                    } else {
+                        $result[] = 'ERROR! Notification was not sent for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+                    }
+                }
+            } else {
+                $result[] = 'ERROR! Notification was not queued for user: ' . $user_id . ' when form: ' . $this->get_db_field("name") . ' ' . $action['trigger_type'];
+            }
         }
         return array(
             "result" => $result,
@@ -994,7 +1014,15 @@ class FormUserInputModel extends StyleModel
                                 $res['time']['start_date'] = $start_date;
                                 array_push($result, $res);
                             } else if ($job['notification']['notification_types'] == notificationTypes_push_notification) {
-
+                                // the notification type is push notification                        
+                                $start_time = microtime(true);
+                                $start_date = date("Y-m-d H:i:s");
+                                $res = $this->queue_notification($users, $job, $action);
+                                $res['time'] = [];
+                                $end_time = microtime(true);
+                                $res['time']['exec_time'] = $end_time - $start_time;
+                                $res['time']['start_date'] = $start_date;
+                                array_push($result, $res);
                             }
                         }
 
@@ -1007,66 +1035,6 @@ class FormUserInputModel extends StyleModel
                     }
                 }
             }
-
-
-            // $res = array();
-            // if ($action['action_schedule_type_code'] == actionScheduleJobs_task) {
-            //     $users = array();
-            //     if (isset($schedule_info['target_groups'])) {
-            //         $users_from_groups = $this->get_users_from_groups($schedule_info['target_groups']);
-            //         if ($users_from_groups) {
-            //             foreach ($users_from_groups as $key => $user) {
-            //                 array_push($users, $user['id']);
-            //             }
-            //             $users = array_unique($users);
-            //         }
-            //     } else {
-            //         array_push($users, $_SESSION['id_user']);
-            //     }
-            //     $start_time = microtime(true);
-            //     $start_date = date("Y-m-d H:i:s");
-            //     $res = $this->queue_task($users, $action);
-            //     $res['time'] = [];
-            //     $end_time = microtime(true);
-            //     $res['time']['exec_time'] = $end_time - $start_time;
-            //     $res['time']['start_date'] = $start_date;
-            //     array_push($result, $res);
-            // } else if (
-            //     $action['action_schedule_type_code'] == actionScheduleJobs_notification ||
-            //     $action['action_schedule_type_code'] == actionScheduleJobs_reminder
-            // ) {
-            //     if ($schedule_info['notificationTypes'] == notificationTypes_email) {
-            //         // the notification type is email                        
-            //         $start_time = microtime(true);
-            //         $start_date = date("Y-m-d H:i:s");
-            //         $res = $this->queue_mail($_SESSION['id_user'], $action);
-            //         $res['time'] = [];
-            //         $end_time = microtime(true);
-            //         $res['time']['exec_time'] = $end_time - $start_time;
-            //         $res['time']['start_date'] = $start_date;
-            //         array_push($result, $res);
-            //     } else if ($schedule_info['notificationTypes'] == notificationTypes_push_notification) {
-            //         // the notification type is push notification                        
-            //         $start_time = microtime(true);
-            //         $start_date = date("Y-m-d H:i:s");
-            //         $res = $this->queue_notification($_SESSION['id_user'], $action);
-            //         $res['time'] = [];
-            //         $end_time = microtime(true);
-            //         $res['time']['exec_time'] = $end_time - $start_time;
-            //         $res['time']['start_date'] = $start_date;
-            //         array_push($result, $res);
-            //     }
-            // }
-
-            // if (isset($res['sj_id'])) {
-            //     $this->db->insert('scheduledJobs_formActions', array(
-            //         "id_scheduledJobs" => $res['sj_id'],
-            //         "id_formActions" => $action['id'],
-            //     ));
-            // }
-
-
-            // } condition
         }
 
         if (count($result) == 0) {
@@ -1078,7 +1046,7 @@ class FormUserInputModel extends StyleModel
     /**
      * Change the status of the queueud mails to deleted
      * @param array $scheduled_reminders
-     * Arra with reminders that should be deleted
+     * Array with reminders that should be deleted
      */
     public function delete_reminders($scheduled_reminders)
     {
