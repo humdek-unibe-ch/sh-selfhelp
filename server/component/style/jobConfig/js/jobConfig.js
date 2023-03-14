@@ -109,7 +109,7 @@ async function setDynamicEnums() {
     editor.schema.definitions.schedule_time_ref.properties.job_schedule_types.enumSource = prepareEnumSource(actionScheduleTypes);
     editor.schema.definitions.schedule_time_ref.properties.send_on_day.enumSource = prepareEnumSource(weekdays);
     editor.schema.definitions.schedule_time_ref.properties.send_on.enumSource = prepareEnumSource(get_time_intervals_text());
-    editor.schema.definitions.reminder_ref.properties.form_id.enumSource = prepareEnumSource(get_forms());
+    editor.schema.definitions.job_ref.properties.reminder_form_id.enumSource = prepareEnumSource(get_forms());
 
     createJSONEditor(editor.schema); // after changes the forms should be recreated
 }

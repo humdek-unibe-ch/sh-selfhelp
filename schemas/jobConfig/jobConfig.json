@@ -243,7 +243,9 @@
 		},
 		"schedule_time_ref": {
 			"type": "object",
-			"required": ["send_on_day_at"],
+			"required": [
+				"send_on_day_at"
+			],
 			"properties": {
 				"job_schedule_types": {
 					"type": "string",
@@ -329,7 +331,7 @@
 				"send_on_day_at": {
 					"type": "string",
 					"format": "time",
-					"title": "send_on_day_at",					
+					"title": "send_on_day_at",
 					"options": {
 						"dependencies": {
 							"job_schedule_types": [
@@ -506,8 +508,13 @@
 			"properties": {
 				"form_id": {
 					"type": "string",
-					"title": "Reminder for",
-					"enumSource": []
+					"template": "{{reminder_form_id}}",
+					"watch": {
+						"reminder_form_id": "job.reminder_form_id"
+					},
+					"options": {
+						"hidden": true
+					}
 				},
 				"schedule_time": {
 					"$ref": "#/definitions/schedule_time_reminder_ref"
@@ -534,6 +541,20 @@
 						"notification_with_reminder",
 						"notification_with_reminder_for_diary"
 					]
+				},
+				"reminder_form_id": {
+					"type": "string",
+					"title": "Reminder for",
+					"enumSource": [],
+					"options": {
+						"dependencies": {
+							"job_type": [
+								"notification",
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
 				},
 				"schedule_time": {
 					"$ref": "#/definitions/schedule_time_ref"

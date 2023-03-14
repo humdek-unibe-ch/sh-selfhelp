@@ -41,6 +41,11 @@ class JobScheduler
     private $condition;
 
     /**
+     * The task service.
+     */
+    private $task;
+
+    /**
      * Creating a PHPMailer Instance.
      *
      * @param object $db
@@ -151,14 +156,14 @@ class JobScheduler
                 if (!$this->schedule_task($job_id, $data)) {
                     throw new Exception('Error while scheduling the task');
                 }
-            }
+            }   
             $this->transaction->add_transaction(
                 transactionTypes_insert,
                 $tran_by,
                 $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null,
                 $this->transaction::TABLE_SCHEDULED_JOBS,
                 $job_id
-            );
+            );         
             $this->db->commit();
             return $job_id;
         } catch (Exception $e) {

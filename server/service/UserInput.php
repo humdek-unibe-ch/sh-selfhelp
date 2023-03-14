@@ -423,8 +423,10 @@ class UserInput
             $result[] = 'ERROR! Task was not queued for user: ' . $_SESSION['id_user'] . ' when form: ' . $form_data['form_name'] . ' ' . $action['trigger_type'];
         }
         return array(
-            "result" => $result,
-            "sj_id" => $sj_id
+            $sj_id => array(
+                "job_type" => jobTypes_task,
+                "result" => $result
+            )
         );
     }
 
@@ -439,7 +441,9 @@ class UserInput
             );
         }
         if ($reminder['notification']['notification_types'] == notificationTypes_email) {
-            return  $this->queue_mail($users, $reminder, $action, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_mail($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+        }else if ($reminder['notification']['notification_types'] == notificationTypes_push_notification) {
+            return  $this->queue_notification($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         }
     }
 
@@ -504,7 +508,7 @@ class UserInput
                 $reminder_data = array(
                     "id_scheduledJobs" => $sj_id
                 );
-                if($reminder_dates){
+                if ($reminder_dates) {
                     $reminder_data['session_start_date'] = $reminder_dates['session_start_date'];
                     $reminder_data['session_end_date'] = $reminder_dates['session_end_date'];
                 }
@@ -518,9 +522,10 @@ class UserInput
                 $result[] = "Insert reminders for formId: " . $job['form_id'];
             }
             if ($sj_id > 0) {
-                if(isset($job['reminders'])){
+                if (isset($job['reminders'])) {
+                    $reminders_result = array();
                     foreach ($job['reminders'] as $reminder_idx => $reminder) {
-                        $result[] = $this->send_reminder($mail['date_to_be_executed'], $users, $reminder, $action, $form_data);
+                        $reminders_result[] = $this->send_reminder($mail['date_to_be_executed'], $users, $reminder, $action, $form_data);
                     }
                 }
                 $result[] = 'Mail was queued for user: ' . $user_id . ' when form: ' . $form_data['form_name'] . ' ' . $action['trigger_type'];
@@ -539,8 +544,11 @@ class UserInput
             }
         }
         return array(
-            "result" => $result,
-            "sj_id" => $sj_id
+            $sj_id => array(
+                "job_type" => jobTypes_email,
+                "result" => $result,
+                "reminders" => isset($reminders_result) ? $reminders_result : array()
+            )
         );
     }
 
@@ -597,8 +605,9 @@ class UserInput
             }
             if ($sj_id > 0) {
                 if (isset($job['reminders'])) {
+                    $reminders_result = array();
                     foreach ($job['reminders'] as $reminder_idx => $reminder) {
-                        $result[] = $this->send_reminder($notification['date_to_be_executed'], $users, $reminder, $action, $form_data);
+                        $reminders_result[] = $this->send_reminder($notification['date_to_be_executed'], $users, $reminder, $action, $form_data);
                     }
                 }
                 $result[] = 'Notification was queued for user: ' . $user_id . ' when form: ' . $form_data['form_name'] . ' ' . $action['trigger_type'];
@@ -617,8 +626,11 @@ class UserInput
             }
         }
         return array(
-            "result" => $result,
-            "sj_id" => $sj_id
+            $sj_id => array(
+                "job_type" => jobTypes_notification,
+                "result" => $result,
+                "reminders" => isset($reminders_result) ? $reminders_result : array()
+            )
         );
     }
 
@@ -717,6 +729,47 @@ class UserInput
             return date('Y-m-d H:i:s', $next_weekday);
         }
     }    
+
+    /**
+     * Get the scheduled reminders for the user and this survey
+     * @retval array
+     * all scheduled reminders
+     */
+    private function get_scheduled_reminders_for_delete($form_data)
+    {
+        $sql = '';
+        if ($form_data['form_type'] == FORM_INTERNAL) {
+            $sql = 'SELECT id_scheduledJobs 
+                    FROM view_scheduledJobs_reminders 
+                    WHERE `id_users` = :uid AND id_forms_INTERNAL = :sid AND job_status_code = :status
+                    AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
+        } else if ($form_data['form_type'] == FORM_EXTERNAL) {
+            $sql = 'SELECT id_scheduledJobs 
+                    FROM view_scheduledJobs_reminders 
+                    WHERE `id_users` = :uid AND id_forms_EXTERNAL = :sid AND job_status_code = :status
+                    AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
+        }
+        return $this->db->query_db(
+            $sql,
+            array(
+                ":uid" => $_SESSION['id_user'],
+                ":sid" => $form_data['form_id'],
+                ":status" => scheduledJobsStatus_queued
+            )
+        );
+    }
+
+    /**
+     * Change the status of the queued mails to deleted
+     * @param array $scheduled_reminders
+     * Array with reminders that should be deleted
+     */
+    public function delete_reminders($scheduled_reminders)
+    {
+        foreach ($scheduled_reminders as $reminder) {
+            $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_system);
+        }
+    } 
 
     /* Public Methods *********************************************************/
 
@@ -1380,137 +1433,145 @@ class UserInput
      */
     public function queue_job_from_actions($form_data)
     {
-        $result = array();
-        //get all actions for this form and trigger type
-        $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
-        foreach ($actions as $action) {
-            $condition_logic =  json_decode($action['condition_logic'], true);
-            if(!$this->condition->compute_condition($condition_logic)['result']){
-                $result[] = "Action condition is not met";
-                break;
-            }
-
-            $action['config'] = json_decode($action['config'], true);            
-            $users = array();
-
-            /*************************  TARGET_GROUPS **************************************************/
-            if (isset($action['config'][ACTION_TARGET_GROUPS]) && $action['config'][ACTION_TARGET_GROUPS]) {
-                // the jobs will be for groups, we have to add all the users from these groups
-                $users_from_groups = $this->get_users_from_groups($action['config'][ACTION_SELECTED_TARGET_GROUPS]);
-                if ($users_from_groups) {
-                    foreach ($users_from_groups as $key => $user) {
-                        array_push($users, $user['id']);
-                    }
-                    $users = array_unique($users);
+        try {
+            $this->db->begin_transaction();
+            $result = array(
+                "form_data" => $form_data
+            );
+            //get all actions for this form and trigger type
+            $start_time = microtime(true);
+            $start_date = date("Y-m-d H:i:s");
+            $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
+            foreach ($actions as $action) {
+                $condition_logic =  json_decode($action['condition_logic'], true);
+                if (!$this->condition->compute_condition($condition_logic)['result']) {
+                    $result['condition'] = "Action condition is not met";
+                    break;
                 }
-            } else {
-                array_push($users, $_SESSION['id_user']);
-            }
-            /*************************  TARGET_GROUPS **************************************************/
 
-            /*************************  CHECK DYNAMIC DATA *********************************************/
-            if($form_data['trigger_type'] == actionTriggerTypes_finished){
-                // when the trigger is finished, we have data and we can use it
-                $check_config = $this->check_config($action['config'], $form_data['form_fields']);
-                array_push($result, $check_config['result']);            
-                $action['config'] = $check_config['config'];
-            }
-            /*************************  CHECK DYNAMIC DATA *********************************************/
+                $action['config'] = json_decode($action['config'], true);
+                $users = array();
 
-            /*************************  REPEAT *********************************************************/
-
-            $repeat = isset($action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES]) ? $action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES] : 1;
-            $executed_blocks = array();
-            $blocks_not_executed_yet = $action['config']['blocks'];
-
-            for ($repeat_index = 0; $repeat_index < $repeat; $repeat_index++) {
-                $action['repeat_index'] = $repeat_index;
-
-                /*************************  RANDOMIZE ******************************************************/
-                if (isset($action['config'][ACTION_RANDOMIZE]) && $action['config'][ACTION_RANDOMIZE]) {
-                    if ($action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_EVEN_PRESENTATION]) {
-                        // Filter the blocks that should be executed in order that their count is even
-                        $min_randomization_count = PHP_INT_MAX;
-                        $blocks_not_executed_yet = array();
-                        $index = 0;
-                        foreach ($action['config']['blocks'] as $key => $block) {
-                            $action['config']['blocks'][$key]['index'] = $index;
-                            if ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] < $min_randomization_count) {
-                                // new minimum count found, clear previous objects
-                                $min_randomization_count = $block[ACTION_BLOCK_RANDOMIZATION_COUNT];
-                                $blocks_not_executed_yet = array($action['config']['blocks'][$key]);
-                            } elseif ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] == $min_randomization_count) {
-                                // same minimum count, add to list of objects
-                                $blocks_not_executed_yet[] = $action['config']['blocks'][$key];
-                            }
-                            $index++;
+                /*************************  TARGET_GROUPS **************************************************/
+                if (isset($action['config'][ACTION_TARGET_GROUPS]) && $action['config'][ACTION_TARGET_GROUPS]) {
+                    // the jobs will be for groups, we have to add all the users from these groups
+                    $users_from_groups = $this->get_users_from_groups($action['config'][ACTION_SELECTED_TARGET_GROUPS]);
+                    if ($users_from_groups) {
+                        foreach ($users_from_groups as $key => $user) {
+                            array_push($users, $user['id']);
                         }
+                        $users = array_unique($users);
                     }
-                    shuffle($blocks_not_executed_yet); // randomize the blocks
-                    array_splice($blocks_not_executed_yet, $action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
-                    $action = $this->update_randomization_count($action, $blocks_not_executed_yet);
+                } else {
+                    array_push($users, $_SESSION['id_user']);
                 }
+                /*************************  TARGET_GROUPS **************************************************/
 
-                /*************************  RANDOMIZE ******************************************************/
+                /*************************  CHECK DYNAMIC DATA *********************************************/
+                if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
+                    // when the trigger is finished, we have data and we can use it
+                    $check_config = $this->check_config($action['config'], $form_data['form_fields']);
+                    $result['check_config'] = $check_config['result'];
+                    $action['config'] = $check_config['config'];
+                }
+                /*************************  CHECK DYNAMIC DATA *********************************************/
 
-                foreach ($blocks_not_executed_yet as $block_index => $block) {
-                    $executed_blocks[] = $block['block_name'];
-                    foreach ($block['jobs'] as $job_index => $job) {
+                /*************************  REPEAT *********************************************************/
 
-                        $res = array();
+                $repeat = isset($action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES]) ? $action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES] : 1;
+                $executed_blocks = array();
+                $blocks_not_executed_yet = $action['config']['blocks'];
 
-                        if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
-                            $start_time = microtime(true);
-                            $start_date = date("Y-m-d H:i:s");
-                            $res = $this->queue_task($users, $job, $action, $form_data);
-                            $res['time'] = [];
-                            $end_time = microtime(true);
-                            $res['time']['exec_time'] = $end_time - $start_time;
-                            $res['time']['start_date'] = $start_date;
-                            array_push($result, $res);
-                        } else if (
-                            $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
-                            $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
-                            $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
-                        ) {
-                            if ($job['notification']['notification_types'] == notificationTypes_email) {
-                                // the notification type is email                        
-                                $start_time = microtime(true);
-                                $start_date = date("Y-m-d H:i:s");
-                                $res = $this->queue_mail($users, $job, $action, $form_data);
-                                $res['time'] = [];
-                                $end_time = microtime(true);
-                                $res['time']['exec_time'] = $end_time - $start_time;
-                                $res['time']['start_date'] = $start_date;
-                                array_push($result, $res);
-                            } else if ($job['notification']['notification_types'] == notificationTypes_push_notification) {
-                                // the notification type is push notification                        
-                                $start_time = microtime(true);
-                                $start_date = date("Y-m-d H:i:s");
-                                $res = $this->queue_notification($users, $job, $action, $form_data);
-                                $res['time'] = [];
-                                $end_time = microtime(true);
-                                $res['time']['exec_time'] = $end_time - $start_time;
-                                $res['time']['start_date'] = $start_date;
-                                array_push($result, $res);
+                for ($repeat_index = 0; $repeat_index < $repeat; $repeat_index++) {
+                    $action['repeat_index'] = $repeat_index;
+
+                    /*************************  RANDOMIZE ******************************************************/
+                    if (isset($action['config'][ACTION_RANDOMIZE]) && $action['config'][ACTION_RANDOMIZE]) {
+                        if ($action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_EVEN_PRESENTATION]) {
+                            // Filter the blocks that should be executed in order that their count is even
+                            $min_randomization_count = PHP_INT_MAX;
+                            $blocks_not_executed_yet = array();
+                            $index = 0;
+                            foreach ($action['config']['blocks'] as $key => $block) {
+                                $action['config']['blocks'][$key]['index'] = $index;
+                                if ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] < $min_randomization_count) {
+                                    // new minimum count found, clear previous objects
+                                    $min_randomization_count = $block[ACTION_BLOCK_RANDOMIZATION_COUNT];
+                                    $blocks_not_executed_yet = array($action['config']['blocks'][$key]);
+                                } elseif ($block[ACTION_BLOCK_RANDOMIZATION_COUNT] == $min_randomization_count) {
+                                    // same minimum count, add to list of objects
+                                    $blocks_not_executed_yet[] = $action['config']['blocks'][$key];
+                                }
+                                $index++;
                             }
                         }
-
-                        if (isset($res['sj_id'])) {
-                            $this->db->insert('scheduledJobs_formActions', array(
-                                "id_scheduledJobs" => $res['sj_id'],
-                                "id_formActions" => $action['id'],
-                            ));
-                        }
+                        shuffle($blocks_not_executed_yet); // randomize the blocks
+                        array_splice($blocks_not_executed_yet, $action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
+                        $action = $this->update_randomization_count($action, $blocks_not_executed_yet);
                     }
+
+                    /*************************  RANDOMIZE ******************************************************/
+
+                    foreach ($blocks_not_executed_yet as $block_index => $block) {
+                        $curr_block = array(
+                            "block_name" => $block['block_name'],
+                            "jobs" => array()
+                        );
+                        foreach ($block['jobs'] as $job_index => $job) {
+                            if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
+                                $curr_block['jobs'][] = $this->queue_task($users, $job, $action, $form_data);
+                            } else if (
+                                $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
+                                $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
+                                $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
+                            ) {
+                                if ($job['notification']['notification_types'] == notificationTypes_email) {
+                                    // the notification type is email                        
+                                    $curr_block['jobs'][] = $this->queue_mail($users, $job, $action, $form_data);
+                                } else if ($job['notification']['notification_types'] == notificationTypes_push_notification) {
+                                    // the notification type is push notification                        
+                                    $curr_block['jobs'][] = $this->queue_notification($users, $job, $action, $form_data);
+                                }
+                            }
+                            if (isset($res['sj_id'])) {
+                                $this->db->insert('scheduledJobs_formActions', array(
+                                    "id_scheduledJobs" => $res['sj_id'],
+                                    "id_formActions" => $action['id'],
+                                ));
+                            }
+                        }
+                        $executed_blocks[] = $curr_block;
+                    }
+                    $result['executed_blocks'] = $executed_blocks;
                 }
             }
-        }
 
-        if (count($result) == 0) {
-            $result[] = "no event";
+            $scheduled_reminders = $this->get_scheduled_reminders_for_delete($form_data);
+            if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                $this->delete_reminders($scheduled_reminders);
+                $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
+            }
+
+            $end_time = microtime(true);
+            $result['time'] = array(
+                "start_date" => $start_date,
+                "exec_time" => $end_time - $start_time
+            );
+            $this->transaction->add_transaction(
+                transactionTypes_insert,
+                transactionBy_by_user,
+                $_SESSION['id_user'],
+                $form_data['form_type'],
+                $form_data['form_id'],
+                false,                
+                $result
+        );
+            $this->db->commit();
+            return $result;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
         }
-        return $result;
     }
 
     /**

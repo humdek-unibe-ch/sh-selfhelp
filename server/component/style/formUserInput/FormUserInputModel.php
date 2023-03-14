@@ -411,41 +411,7 @@ class FormUserInputModel extends StyleModel
     public function set_entry_data($entry_data)
     {
         $this->entry_data = $entry_data;
-    }
-
-    
-
-    /**
-     * Change the status of the queueud mails to deleted
-     * @param array $scheduled_reminders
-     * Array with reminders that should be deleted
-     */
-    public function delete_reminders($scheduled_reminders)
-    {
-        foreach ($scheduled_reminders as $reminder) {
-            $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_system);
-        }
-    }
-
-    /**
-     * Get the scheduled reminders for the user and this survey
-     * @retval array
-     * all scheduled reminders
-     */
-    public function get_scheduled_reminders()
-    {
-        return $this->db->query_db(
-            'SELECT id_scheduledJobs 
-            FROM view_scheduledJobs_reminders 
-            WHERE `id_users` = :uid AND id_forms_INTERNAL = :sid AND job_status_code = :status
-            AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))',
-            array(
-                ":uid" => $_SESSION['id_user'],
-                ":sid" => $this->section_id,
-                ":status" => scheduledJobsStatus_queued
-            )
-        );
-    }
+    }   
 
     /**
      * Prepare the form data and call the queue_job_from_actions
