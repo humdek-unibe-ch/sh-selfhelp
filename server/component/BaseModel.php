@@ -119,7 +119,7 @@ abstract class BaseModel
     /**
      * Set default settings for a curl call
      */
-    private function get_default_curl_settings($data)
+    static private function get_default_curl_settings($data)
     {
         $arr = array(
             CURLOPT_RETURNTRANSFER => 1,
@@ -368,13 +368,13 @@ abstract class BaseModel
      * @return bool || object
      *  false or response
      */
-    public function execute_curl_call($data)
+    static public function execute_curl_call($data)
     {
         // curl module should be installed
         // sudo apt-get install php-curl
         try {
             $curl = curl_init();
-            curl_setopt_array($curl, $this->get_default_curl_settings($data));
+            curl_setopt_array($curl, BaseModel::get_default_curl_settings($data));
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $data['request_type']);
             curl_setopt($curl, CURLOPT_URL, $data['URL']);
             if (isset($data['post_params'])) {
