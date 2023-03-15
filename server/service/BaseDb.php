@@ -661,8 +661,10 @@ class BaseDb {
     /**
      * rollback PDO DB transanction
      */
-    public function rollback(){
+    public function rollback()
+    {
         $this->dbh->rollback();
+        $this->cache->clear_cache(); // on rollback clear cache
     }
 
     /**
