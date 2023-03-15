@@ -461,12 +461,12 @@ class BaseDb {
             $db_data = array();
             $columnStr = "(" . implode(',', $cols) . ")";
             $valueStr = implode(',', array_map(
-                function($row, $row_idx) use ($data, &$db_data)
+                function($row, $row_idx) use ($cols, &$db_data)
                 {
                     return "(" . implode(',', array_map(
-                        function($value, $col_idx) use ($data, &$db_data, $row_idx)
+                        function($value, $col_idx) use ($cols, &$db_data, $row_idx)
                         {
-                            $id = ":".($row_idx * count($data) + $col_idx);
+                            $id = ":".($row_idx * count($cols) + $col_idx);
                             $db_data[$id] = $value;
                             return $id;
                         }, $row, array_keys($row))) . ")";
