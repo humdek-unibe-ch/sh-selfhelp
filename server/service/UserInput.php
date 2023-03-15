@@ -760,6 +760,42 @@ class UserInput
     }
 
     /**
+     * Get the column id if the column already exists in the table
+     * @param string $col_name
+     * the column name 
+     * @param int $table_id
+     * the id of the table
+     * @return int
+     * Return the id of the column if it is found
+     */
+    private function get_uploadTable_columnId($col_name, $table_id)
+    {
+        // the cache type is like a section, because the form name can be edited only in cms
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $col_name, [__FUNCTION__, $table_id]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $res = $this->db->query_db_first("SELECT id FROM uploadCols WHERE `name` = :col_name AND id_uploadTables = :table_id", array(":col_name" => $col_name, ":table_id" => $table_id));
+            $res = $res ? $res['id'] : '';
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }        
+    }
+
+    /**
+     * Check if an array is associative 
+     * @param array
+     * The array that we want to check
+     * @return bool
+     */
+    private function isAssoc(array $arr)
+    {
+        if (array() === $arr) return false;
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
      * Change the status of the queued mails to deleted
      * @param array $scheduled_reminders
      * Array with reminders that should be deleted
@@ -1142,10 +1178,10 @@ class UserInput
             } else if ($form_type == FORM_EXTERNAL) {
                 $sql = 'SELECT id 
                 FROM uploadTables
-                WHERE name = :name';
+                WHERE `name` = :name';
             }
             $res = $this->db->query_db_first($sql, array(":name" => $name));
-            $res = $res ? $res['id'] : '';
+            $res = $res ? $res['id'] : false;
             $this->db->get_cache()->set($key, $res);
             return $res;
         }        
@@ -1263,19 +1299,31 @@ class UserInput
      * @return array
      * return array with the result containing result and message
      */
-    public function save_static_data($transaction_by, $table_name, $data){
-        if (!isset($data['id_users'])) {
-            $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
-        }
-        $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
+    public function save_static_data($transaction_by, $table_name, $data)
+    {
         try {
             $this->db->begin_transaction();
+            if (!$this->isAssoc($data)) {
+                foreach ($data as $key => $row) {
+                    if(!$this->save_static_data($transaction_by, $table_name, $row)){
+                        // on one error break
+                        break;
+                    }
+                }
+            }
+            if (!isset($data['id_users'])) {
+                $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
+            }
+
+            /******************* SET TABLE *********************************/
+            $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
             if (!$id_table) {
                 // does not exists yet; try to create it
                 $id_table = $this->db->insert("uploadTables", array(
                     "name" => $table_name
                 ));
             }
+            /******************* SET TABLE *********************************/
             if (!$id_table) {
                 $this->db->rollback();
                 return array(
@@ -1287,6 +1335,30 @@ class UserInput
                     $this->db->rollback();
                     return false;
                 }
+
+                /******************* SET COLUMNS *********************************/
+                $col_ids = array();
+                foreach ($data as $col_name => $value) {
+                    $id_col = $this->get_uploadTable_columnId($col_name, $id_table);
+                    if(!$id_col){
+                        // it does not exist, create it
+                        $id_col = $this->db->insert("uploadCols", array(
+                            "name" => $col_name,
+                            "id_uploadTables" => $id_table
+                        ));
+                    }
+                    if (!$id_col) {
+                        $this->db->rollback();
+                        return array(
+                            "res" => false,
+                            "msg" => "postprocess: failed to add table cols"
+                        );
+                    }
+                    $col_ids[$col_name] = $id_col;
+                }
+                /******************* SET COLUMNS *********************************/
+                
+                /******************* SET ROW     *********************************/
                 $id_row = $this->db->insert("uploadRows", array(
                     "id_uploadTables" => $id_table
                 ));
@@ -1297,34 +1369,67 @@ class UserInput
                         "msg" => "postprocess: failed to add table rows"
                     );
                 }
-                foreach ($data as $col => $value) {
-                    $id_col = $this->db->insert("uploadCols", array(
-                        "name" => $col,
-                        "id_uploadTables" => $id_table
-                    ));
-                    if (!$id_col) {
-                        $this->db->rollback();
-                        return array(
-                            "res" => false,
-                            "msg" => "postprocess: failed to add table cols"
-                        );
-                    }
-                    $res = $this->db->insert(
+                /******************* SET ROW     *********************************/
+
+                /******************* SET CELLS   *********************************/
+                $db_cells = array();
+                foreach ($data as $col_name => $col_val) {
+                    array_push($db_cells, array($id_row, $col_ids[$col_name], $col_val));
+                }
+                $res = $this->db->insert_mult(
                         "uploadCells",
                         array(
-                            "id_uploadRows" => $id_row,
-                            "id_uploadCols" => $id_col,
-                            "value" => $value
-                        )
+                            "id_uploadRows",
+                            "id_uploadCols",
+                            "value"
+                        ),
+                        $db_cells
                     );
-                    if (!$res) {
-                        $this->db->rollback();
+                if (!$res) {
+                    $this->db->rollback();
                         return array(
                             "res" => false,
                             "msg" => "postprocess: failed to add data values"
                         );
-                    }
                 }
+
+                /******************* SET CELLS   *********************************/
+
+
+                
+                // foreach ($data as $col => $value) {
+                //     $id_col = $this->get_uploadTable_columnId($col, $id_table);
+                //     if(!$id_col){
+                //         // it does not exist, create it
+                //         $id_col = $this->db->insert("uploadCols", array(
+                //             "name" => $col,
+                //             "id_uploadTables" => $id_table
+                //         ));
+                //     }
+                //     if (!$id_col) {
+                //         $this->db->rollback();
+                //         return array(
+                //             "res" => false,
+                //             "msg" => "postprocess: failed to add table cols"
+                //         );
+                //     }
+                //     $res = $this->db->insert(
+                //         "uploadCells",
+                //         array(
+                //             "id_uploadRows" => $id_row,
+                //             "id_uploadCols" => $id_col,
+                //             "value" => $value
+                //         )
+                //     );
+                //     if (!$res) {
+                //         $this->db->rollback();
+                //         return array(
+                //             "res" => false,
+                //             "msg" => "postprocess: failed to add data values"
+                //         );
+                //     }
+                // }
+
             }
             $this->db->commit();
             return array(
