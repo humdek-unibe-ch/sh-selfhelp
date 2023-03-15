@@ -1264,8 +1264,12 @@ class UserInput
      * return array with the result containing result and message
      */
     public function save_static_data($transaction_by, $table_name, $data){
-        $data['id_users'] = $_SESSION['id_user'];
-        $data['user_code'] = $_SESSION['user_code'];
+        if (!isset($data['id_users'])) {
+            $data['id_users'] = $_SESSION['id_user'];
+        }
+        if (isset($data['user_code'])) {
+            $data['user_code'] = $_SESSION['user_code'];
+        }
         $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
         try {
             $this->db->begin_transaction();
@@ -1328,7 +1332,7 @@ class UserInput
             $this->db->commit();
             return array(
                 "res" => true,
-                "msg" => "Record for user : " . $_SESSION['id_user'] . " was successfully inserted in DB"
+                "msg" => "Record for user : " . $data['id_users'] . " was successfully inserted in DB"
             );
         } catch (Exception $e) {
             $this->db->rollback();
