@@ -1265,10 +1265,7 @@ class UserInput
      */
     public function save_static_data($transaction_by, $table_name, $data){
         if (!isset($data['id_users'])) {
-            $data['id_users'] = $_SESSION['id_user'];
-        }
-        if (isset($data['user_code'])) {
-            $data['user_code'] = $_SESSION['user_code'];
+            $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
         }
         $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
         try {
