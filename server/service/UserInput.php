@@ -846,6 +846,98 @@ class UserInput
     }
 
     /**
+     * @param string $transaction_by
+     * Save static data in the upload_tables structure
+     * What initialized the transaction
+     * @param string $table_name
+     * The table name where we want to save the data
+     * @param array $data
+     * The data that we want to save - associative array which contains "name of the column" => "value of the column"
+     * @return bool
+     */
+    private function save_external_row($transaction_by, $table_name, $data, $updateBasedOn = null){
+        if (!isset($data['id_users'])) {
+            $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
+        }
+
+        /******************* SET TABLE *********************************/
+        $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
+        if (!$id_table) {
+            // does not exists yet; try to create it
+            $id_table = $this->db->insert("uploadTables", array(
+                "name" => $table_name
+            ));
+        } else if ($updateBasedOn) {
+            $filter = '';
+            foreach ($updateBasedOn as $key => $value) {
+                $filter = $filter . ' AND ' . $key . ' = "' . $value . '"';
+            }
+            $record = $this->get_data(
+                $id_table,
+                $filter,
+                false,
+                FORM_EXTERNAL,
+                null,
+                true
+            );
+            if ($record) {
+                // the record exists, do not insert it, update it
+                $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
+                $this->db->commit();
+                return $res;
+            }
+        }
+        /******************* SET TABLE *********************************/
+        if (!$id_table) {
+            $this->db->rollback();
+            return false;
+        } else {
+            if ($this->transaction->add_transaction(transactionTypes_insert, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
+                $this->db->rollback();
+                return false;
+            }
+
+            /******************* SET COLUMNS *********************************/
+
+            $col_ids = $this->get_columns_for_upload_table($id_table, $data);
+
+            /******************* SET COLUMNS *********************************/
+
+            /******************* SET ROW     *********************************/
+            $id_row = $this->db->insert("uploadRows", array(
+                "id_uploadTables" => $id_table
+            ));
+            if (!$id_row) {
+                $this->db->rollback();
+                return false;
+            }
+            /******************* SET ROW     *********************************/
+
+            /******************* SET CELLS   *********************************/
+            $db_cells = array();
+            foreach ($data as $col_name => $col_val) {
+                array_push($db_cells, array($id_row, $col_ids[$col_name], $col_val));
+            }
+            $res = $this->db->insert_mult(
+                "uploadCells",
+                array(
+                    "id_uploadRows",
+                    "id_uploadCols",
+                    "value"
+                ),
+                $db_cells
+            );
+            if (!$res) {
+                $this->db->rollback();
+                return false;
+            }
+
+            /******************* SET CELLS   *********************************/
+        }
+        return true;
+    }
+
+    /**
      * Change the status of the queued mails to deleted
      * @param array $scheduled_reminders
      * Array with reminders that should be deleted
@@ -1353,108 +1445,19 @@ class UserInput
     {
         try {
             $this->db->begin_transaction();
+            $res = true;
             if (!$this->isAssoc($data)) {
                 foreach ($data as $key => $row) {
-                    if(!$this->save_external_data($transaction_by, $table_name, $row)){
-                        // on one error break
-                        break;
-                    }
+                  $res = $res && $this->save_external_row($transaction_by, $table_name, $row);
                 }
-            }
-            if (!isset($data['id_users'])) {
-                $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
-            }            
-
-            /******************* SET TABLE *********************************/
-            $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
-            if (!$id_table) {
-                // does not exists yet; try to create it
-                $id_table = $this->db->insert("uploadTables", array(
-                    "name" => $table_name
-                ));
-            } else if ($updateBasedOn) {
-                $filter = '';
-                foreach ($updateBasedOn as $key => $value) {
-                    $filter = $filter . ' AND ' . $key . ' = "' . $value . '"';
-                }
-                $record = $this->get_data($id_table, $filter, false, FORM_EXTERNAL, null, true);
-                if ($record) {
-                    // the record exists, do not insert it, update it
-                    $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
-                    $this->db->commit();
-                    return array(
-                        "res" => true,
-                        "msg" => "Record " . $record['record_id'] . " for user : " . $data['id_users'] . " was successfully update in DB"
-                    );
-                }
-            }
-            /******************* SET TABLE *********************************/
-            if (!$id_table) {
-                $this->db->rollback();
-                return array(
-                    "res" => false,
-                    "msg" => "postprocess: failed to create new data table"
-                );
             } else {
-                if ($this->transaction->add_transaction(transactionTypes_insert, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
-                    $this->db->rollback();
-                    return false;
-                }
-
-                /******************* SET COLUMNS *********************************/
-
-                $col_ids = $this->get_columns_for_upload_table($id_table, $data);                
-
-                /******************* SET COLUMNS *********************************/
-                
-                /******************* SET ROW     *********************************/
-                $id_row = $this->db->insert("uploadRows", array(
-                    "id_uploadTables" => $id_table
-                ));
-                if (!$id_row) {
-                    $this->db->rollback();
-                    return array(
-                        "res" => false,
-                        "msg" => "postprocess: failed to add table rows"
-                    );
-                }
-                /******************* SET ROW     *********************************/
-
-                /******************* SET CELLS   *********************************/
-                $db_cells = array();
-                foreach ($data as $col_name => $col_val) {
-                    array_push($db_cells, array($id_row, $col_ids[$col_name], $col_val));
-                }
-                $res = $this->db->insert_mult(
-                        "uploadCells",
-                        array(
-                            "id_uploadRows",
-                            "id_uploadCols",
-                            "value"
-                        ),
-                        $db_cells
-                    );
-                if (!$res) {
-                    $this->db->rollback();
-                        return array(
-                            "res" => false,
-                            "msg" => "postprocess: failed to add data values"
-                        );
-                }
-
-                /******************* SET CELLS   *********************************/
+                $res = $this->save_external_row($transaction_by, $table_name, $data, $updateBasedOn);                
             }
             $this->db->commit();
-            return array(
-                "res" => true,
-                "msg" => "Record for user : " . $data['id_users'] . " was successfully inserted in DB"
-            );
+            return $res;
         } catch (Exception $e) {
             $this->db->rollback();
-            return array(
-                "res" => false,
-                "msg" => "Error while inserting records in the uploadTables"
-            );
+            return false;
         }
     }
 
