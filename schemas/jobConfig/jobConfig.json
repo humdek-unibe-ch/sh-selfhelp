@@ -548,8 +548,7 @@
 					"enumSource": [],
 					"options": {
 						"dependencies": {
-							"job_type": [
-								"notification",
+							"job_type": [							
 								"notification_with_reminder",
 								"notification_with_reminder_for_diary"
 							]
