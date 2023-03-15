@@ -784,6 +784,31 @@ class UserInput
     }
 
     /**
+     * Get the columns needed for the upload table and insert them if they do not exists
+     * @param int $id_table
+     * The uploadTable id
+     * @param object $data
+     * The data for the row. Based on it we will get the needed columns
+     * @return array
+     * Return array with the column name and the column id
+     */
+    private function get_columns_for_upload_table($id_table, $data){
+        $col_ids = array();
+        foreach ($data as $col_name => $value) {
+            $id_col = $this->get_uploadTable_columnId($col_name, $id_table);
+            if(!$id_col){
+                // it does not exist, create it
+                $id_col = $this->db->insert("uploadCols", array(
+                    "name" => $col_name,
+                    "id_uploadTables" => $id_table
+                ));
+            }
+            $col_ids[$col_name] = $id_col;
+        }
+        return $col_ids;
+    }
+
+    /**
      * Check if an array is associative 
      * @param array
      * The array that we want to check
@@ -793,6 +818,31 @@ class UserInput
     {
         if (array() === $arr) return false;
         return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
+     * Update the record in the upload table
+     * @param int $id_table
+     * The upload table id
+     * @param object $record
+     * The record that already exists
+     * @param string $transaction_by
+     * Who initiated the update
+     * @param object $data
+     * the new data that will update the old one
+     * @return bool
+     * Return the success of the update
+     */
+    private function update_external_data($id_table, $record, $transaction_by, $data){
+        $col_ids = $this->get_columns_for_upload_table($id_table, $data);
+        $res = $this->db->execute_update_db("UPDATE uploadRows SET `timestamp` = NOW() WHERE id = :id;", array(':id' => $record['record_id'])); //update the timestamp of the row
+        foreach ($data as $key => $value) {
+            $res = $res && $this->db->update_by_ids('uploadCells', array("value" => $value), array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key]));
+        }
+        if ($res) {
+            $this->transaction->add_transaction(transactionTypes_update, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table);
+        }
+        return $res;
     }
 
     /**
@@ -1299,13 +1349,13 @@ class UserInput
      * @return array
      * return array with the result containing result and message
      */
-    public function save_static_data($transaction_by, $table_name, $data)
+    public function save_external_data($transaction_by, $table_name, $data, $updateBasedOn = null)
     {
         try {
             $this->db->begin_transaction();
             if (!$this->isAssoc($data)) {
                 foreach ($data as $key => $row) {
-                    if(!$this->save_static_data($transaction_by, $table_name, $row)){
+                    if(!$this->save_external_data($transaction_by, $table_name, $row)){
                         // on one error break
                         break;
                     }
@@ -1313,7 +1363,7 @@ class UserInput
             }
             if (!isset($data['id_users'])) {
                 $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
-            }
+            }            
 
             /******************* SET TABLE *********************************/
             $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
@@ -1322,6 +1372,21 @@ class UserInput
                 $id_table = $this->db->insert("uploadTables", array(
                     "name" => $table_name
                 ));
+            } else if ($updateBasedOn) {
+                $filter = '';
+                foreach ($updateBasedOn as $key => $value) {
+                    $filter = $filter . ' AND ' . $key . ' = "' . $value . '"';
+                }
+                $record = $this->get_data($id_table, $filter, false, FORM_EXTERNAL, null, true);
+                if ($record) {
+                    // the record exists, do not insert it, update it
+                    $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
+                    $this->db->commit();
+                    return array(
+                        "res" => true,
+                        "msg" => "Record " . $record['record_id'] . " for user : " . $data['id_users'] . " was successfully update in DB"
+                    );
+                }
             }
             /******************* SET TABLE *********************************/
             if (!$id_table) {
@@ -1337,25 +1402,9 @@ class UserInput
                 }
 
                 /******************* SET COLUMNS *********************************/
-                $col_ids = array();
-                foreach ($data as $col_name => $value) {
-                    $id_col = $this->get_uploadTable_columnId($col_name, $id_table);
-                    if(!$id_col){
-                        // it does not exist, create it
-                        $id_col = $this->db->insert("uploadCols", array(
-                            "name" => $col_name,
-                            "id_uploadTables" => $id_table
-                        ));
-                    }
-                    if (!$id_col) {
-                        $this->db->rollback();
-                        return array(
-                            "res" => false,
-                            "msg" => "postprocess: failed to add table cols"
-                        );
-                    }
-                    $col_ids[$col_name] = $id_col;
-                }
+
+                $col_ids = $this->get_columns_for_upload_table($id_table, $data);                
+
                 /******************* SET COLUMNS *********************************/
                 
                 /******************* SET ROW     *********************************/
@@ -1394,42 +1443,6 @@ class UserInput
                 }
 
                 /******************* SET CELLS   *********************************/
-
-
-                
-                // foreach ($data as $col => $value) {
-                //     $id_col = $this->get_uploadTable_columnId($col, $id_table);
-                //     if(!$id_col){
-                //         // it does not exist, create it
-                //         $id_col = $this->db->insert("uploadCols", array(
-                //             "name" => $col,
-                //             "id_uploadTables" => $id_table
-                //         ));
-                //     }
-                //     if (!$id_col) {
-                //         $this->db->rollback();
-                //         return array(
-                //             "res" => false,
-                //             "msg" => "postprocess: failed to add table cols"
-                //         );
-                //     }
-                //     $res = $this->db->insert(
-                //         "uploadCells",
-                //         array(
-                //             "id_uploadRows" => $id_row,
-                //             "id_uploadCols" => $id_col,
-                //             "value" => $value
-                //         )
-                //     );
-                //     if (!$res) {
-                //         $this->db->rollback();
-                //         return array(
-                //             "res" => false,
-                //             "msg" => "postprocess: failed to add data values"
-                //         );
-                //     }
-                // }
-
             }
             $this->db->commit();
             return array(
