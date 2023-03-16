@@ -312,7 +312,7 @@ class UserInput
         return $this->db->query_db(
             $sqlGetActions,
             array(
-                "id_forms" => $id_forms . '-' . $form_type,
+                "id_forms" => (int)$id_forms . '-' . $form_type,
                 "trigger_type" => $trigger_type
             )
         );
@@ -324,35 +324,39 @@ class UserInput
      * the config info
      * @param array $fields
      * the form fields and their vlaues
-     * @retval array 
+     * @return array 
      * return the info from the check
      */
     private function check_config($config, $fields)
     {
-        $result = array();
+        $result = array();        
+        $form_values = array();
+        //prepare the values based on what type of form they come
+        foreach ($fields as $field_name => $field) {
+            if(isset($field['value'])){
+                // it is a form field
+                $form_values[$field_name] = $field['value'];
+            }else{
+                // it is from external
+                $form_values[$field_name] = $field;
+            }
+        }
 
+        // replace overwrite variables
         if (isset($config[ACTION_SELECTED_OVERWRITE_VARIABLES])) {
             foreach ($config[ACTION_SELECTED_OVERWRITE_VARIABLES] as $var_index => $variable) {
                 foreach ($config['blocks'] as $block_index => $block) {
                     foreach ($block['jobs'] as $job_index => $job) {
-                        if (isset($fields[$variable]['value'])) {
-                            $config['blocks'][$block_index]['jobs'][$job_index][ACTION_JOB_SCHEDULE_TIME][$variable] = $fields[$variable]['value'];
-                            $result[] = 'Overwrite variable `' . $variable . '` with value ' . $fields[$variable]['value'];
+                        if (isset($form_values[$variable])) {
+                            $config['blocks'][$block_index]['jobs'][$job_index][ACTION_JOB_SCHEDULE_TIME][$variable] = $form_values[$variable];
+                            $result[] = 'Overwrite variable `' . $variable . '` with value ' . $form_values[$variable];
                         }
                     }
                 }
             }
         }
         
-        $form_values = array();
-        foreach ($fields as $field_name => $field) {
-            if(isset($field['value'])){
-                // it is a form field
-                $form_values[$field_name] = $field['value'];
-            }
-        }
-
-        $config = $this->db->replace_calced_values($config, $form_values);
+        $config = $this->db->replace_calced_values($config, $form_values); //replace {{vars}}
 
         return array(
             "result" => $result,
@@ -741,19 +745,20 @@ class UserInput
         if ($form_data['form_type'] == FORM_INTERNAL) {
             $sql = 'SELECT id_scheduledJobs 
                     FROM view_scheduledJobs_reminders 
-                    WHERE `id_users` = :uid AND id_forms_INTERNAL = :sid AND job_status_code = :status
+                    WHERE `id_users` = :uid AND id_forms_INTERNAL = :form_id AND job_status_code = :status
                     AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
         } else if ($form_data['form_type'] == FORM_EXTERNAL) {
             $sql = 'SELECT id_scheduledJobs 
                     FROM view_scheduledJobs_reminders 
-                    WHERE `id_users` = :uid AND id_forms_EXTERNAL = :sid AND job_status_code = :status
+                    WHERE `id_users` = :uid AND id_forms_EXTERNAL = :form_id AND job_status_code = :status
                     AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
         }
+        $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
         return $this->db->query_db(
             $sql,
             array(
-                ":uid" => $_SESSION['id_user'],
-                ":sid" => $form_data['form_id'],
+                ":uid" => $id_users,
+                ":form_id" => $form_data['form_id'],
                 ":status" => scheduledJobsStatus_queued
             )
         );
@@ -1446,14 +1451,42 @@ class UserInput
         try {
             $this->db->begin_transaction();
             $res = true;
+            $id_users = null;
             if (!$this->isAssoc($data)) {
                 foreach ($data as $key => $row) {
+                    if(isset($row['id_users'])){
+                        if($id_users == null){
+                            $id_users = $row['id_users'];
+                        }else if($id_users != $row['id_users']){
+                            // different users in this data set
+                            $id_users = 'different_users';
+                        }
+                    }
                   $res = $res && $this->save_external_row($transaction_by, $table_name, $row);
                 }
             } else {
                 $res = $this->save_external_row($transaction_by, $table_name, $data, $updateBasedOn);                
             }
+
+            /**************** Check jobs ***************************************/
+            $form_fields = array();
+            if ($this->isAssoc($data)) {
+                $form_fields = $data;
+            } else if ($id_users && $id_users != 'different_users') {
+                // if it is not associative array then it is a multi insert, just notify and dont send all rows, we cannot use them
+                // but if all rows are for the same user we can send the user
+                $form_fields['id_users']  = $id_users;
+            }
+            $form_data = array(
+                "trigger_type" => actionTriggerTypes_finished,
+                "form_name" => $table_name,
+                "form_id" => $this->get_form_id($table_name, FORM_EXTERNAL),
+                "form_type" => FORM_EXTERNAL,
+                "form_fields" => $form_fields
+            );            
+            /**************** Check jobs ***************************************/
             $this->db->commit();
+            $this->queue_job_from_actions($form_data);
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
@@ -1564,9 +1597,10 @@ class UserInput
             $start_time = microtime(true);
             $start_date = date("Y-m-d H:i:s");
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
+            $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
             foreach ($actions as $action) {
-                $condition_logic =  json_decode($action['condition_logic'], true);
-                if (!$this->condition->compute_condition($condition_logic)['result']) {
+                $condition_logic =  json_decode($action['condition_logic'], true);                
+                if (!$this->condition->compute_condition($condition_logic, $id_users)['result']) { 
                     $result['condition'] = "Action condition is not met";
                     break;
                 }
@@ -1585,7 +1619,7 @@ class UserInput
                         $users = array_unique($users);
                     }
                 } else {
-                    array_push($users, $_SESSION['id_user']);
+                    array_push($users, $id_users);
                 }
                 /*************************  TARGET_GROUPS **************************************************/
 
