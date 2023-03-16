@@ -15,7 +15,7 @@ function createJSONEditor(schema) {
         ajax: true,
         schema: schema,
         show_errors: "always",
-        
+
     });
     editor.on('ready', () => {
         crrValue = false;
@@ -29,6 +29,10 @@ function createJSONEditor(schema) {
         }
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
+                if ($(this).is('[name*="attachments"]')) {
+                    // The element has a name containing "attachments"
+                    $(this).data('live-search', 'true'); // add live search
+                }                
                 $(this).selectpicker();
                 $(this).selectpicker('refresh');
             });
@@ -95,7 +99,7 @@ function get_time_intervals_text() {
     obj[2] = '2nd';
     obj[3] = '3rd';
     for (var i = 4; i <= 20; i++) {
-        obj[i]= i + 'th';
+        obj[i] = i + 'th';
     }
     return obj;
 }
