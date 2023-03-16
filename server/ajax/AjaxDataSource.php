@@ -370,5 +370,32 @@ class AjaxDataSource extends BaseAjax
         }
         return json_encode($res);
     }
+
+    /**
+     * Get an array with the file names in the assets table
+     * @param object $data
+     * With property 'filter', comma separated file extensions
+     * @return array
+     * array with all names as string
+     */
+    public function get_assets($data)
+    {
+        $res_db = $this->db->select_table('assets');
+        $files = array();
+        foreach ($res_db as $key => $value) {
+            array_push($files, $value['file_name']);
+        }        
+
+        if ($data['filter'] != '') {
+            $extensions = explode(",", $data['filter']); // Desired file extensions
+            $filtered_files = array_filter($files, function ($file) use ($extensions) {
+                $extension = pathinfo($file, PATHINFO_EXTENSION);
+                return in_array($extension, $extensions);
+            });
+            return json_encode(array_values($filtered_files));
+        } else {
+            return json_encode($files);
+        }
+    }
 }
 ?>

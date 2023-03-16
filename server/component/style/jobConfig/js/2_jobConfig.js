@@ -100,16 +100,43 @@ function get_time_intervals_text() {
     return obj;
 }
 
+async function getAssets(filter) {
+    var assets = [];
+    jQuery.ajax({
+        url: BASE_PATH + '/request/AjaxDataSource/get_assets',
+        async: false,
+        cache: false,
+        type: 'post',
+        data: { filter: filter },
+        dataType: "json",
+        success: function (data) {
+            if (data.success) {
+                try {
+                    assets = JSON.parse(data.data);
+                } catch (error) {
+                    console.log('Error while parsing JSON', data.data);
+                }
+            }
+            else {
+                console.log(data);
+            }
+        }
+    });
+    return assets;
+}
+
 async function setDynamicEnums() {
     var groups = await getGroups();
     editor.schema.definitions.job_ref.properties.job_add_remove_groups.items.enum = groups;
     editor.schema.properties.selected_target_groups.items.enum = [...groups];
     var actionScheduleTypes = await getLookups('actionScheduleTypes');
     var weekdays = await getLookups('weekdays');
+    var attachments = await getAssets('');
     editor.schema.definitions.schedule_time_ref.properties.job_schedule_types.enumSource = prepareEnumSource(actionScheduleTypes);
     editor.schema.definitions.schedule_time_ref.properties.send_on_day.enumSource = prepareEnumSource(weekdays);
     editor.schema.definitions.schedule_time_ref.properties.send_on.enumSource = prepareEnumSource(get_time_intervals_text());
     editor.schema.definitions.job_ref.properties.reminder_form_id.enumSource = prepareEnumSource(get_forms());
+    editor.schema.definitions.notification_ref.properties.attachments.items.enum = attachments;
 
     createJSONEditor(editor.schema); // after changes the forms should be recreated
 }

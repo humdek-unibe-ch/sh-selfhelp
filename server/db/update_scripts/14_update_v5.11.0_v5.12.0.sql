@@ -97,6 +97,11 @@ WHERE keyword = 'moduleFormsAction';
 ALTER TABLE transactions
 MODIFY COLUMN transaction_log MEDIUMTEXT;
 
+-- add keyword ajax_get_assets
+INSERT IGNORE INTO pages (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'ajax_get_assets', '/request/[AjaxDataSource:class]/[get_assets:method]', 'GET|POST', '0000000005', NULL, NULL, '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'));
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) 
+VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'ajax_get_assets'), '1', '0', '0', '0');
 
 DROP VIEW IF EXISTS view_data_tables;
 CREATE VIEW view_data_tables
