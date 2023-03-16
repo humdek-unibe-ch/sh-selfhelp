@@ -15,6 +15,7 @@ function createJSONEditor(schema) {
         ajax: true,
         schema: schema,
         show_errors: "always",
+        
     });
     editor.on('ready', () => {
         crrValue = false;
@@ -31,7 +32,6 @@ function createJSONEditor(schema) {
                 $(this).selectpicker();
                 $(this).selectpicker('refresh');
             });
-            console.log(editor.getValue());
             $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
         });
         if ($('#jobConfig').hasClass('view-select')) {

@@ -154,7 +154,7 @@ abstract class BasePage
             "/js/ext/bootstrap4-toggle.min.js",
             "/js/ext/easymde.min.js",
             "/js/ext/dataTables.contextualActions.min.js",
-            "/js/ext/css-format-monaco.min.js",  
+            "/js/ext/css-format-monaco.min.js" 
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",

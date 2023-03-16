@@ -470,6 +470,13 @@
 					"title": "Body",
 					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
 					"options": {
+						"simplemde": {
+							"autoDownloadFontAwesome": false,
+							"spellChecker": false,
+							"renderingConfig": {
+								"singleLineBreaks": false
+							}
+						},
 						"dependencies": {
 							"notification_types": [
 								"push_notification",
@@ -548,7 +555,7 @@
 					"enumSource": [],
 					"options": {
 						"dependencies": {
-							"job_type": [							
+							"job_type": [
 								"notification_with_reminder",
 								"notification_with_reminder_for_diary"
 							]

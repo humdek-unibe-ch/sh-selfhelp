@@ -18,6 +18,42 @@ UPDATE sections_fields_translation
 SET content = REPLACE(content, '-dynamic', '-INTERNAL')
 WHERE id_fields = get_field_id('formName');
 
+DELIMITER //
+DROP PROCEDURE IF EXISTS form_actions_rework //
+CREATE PROCEDURE form_actions_rework()
+BEGIN
+	SET @actions_exists := (SELECT COUNT(*) FROM information_schema.`tables`
+	WHERE table_schema = DATABASE()
+	AND `table_name` = 'formActions_groups');
+    IF @actions_exists > 0 THEN
+		BEGIN
+			SET @existing_actions := (SELECT COUNT(*) FROM formActions);
+			IF @existing_actions > 0 THEN
+					RENAME TABLE formActions TO old_formActions;
+			END IF;
+            DROP TABLE IF EXISTS formActions_groups;
+			DROP TABLE IF EXISTS formActionsReminders;
+			DROP TABLE IF EXISTS scheduledJobs_formActions;
+			DROP TABLE IF EXISTS formActions;
+        END;
+    END IF;
+END
+
+//
+DELIMITER ;
+CALL form_actions_rework();
+DROP PROCEDURE IF EXISTS form_actions_rework;
+
+-- add table formActions
+CREATE TABLE IF NOT EXISTS `formActions` (
+	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,		
+	`name` VARCHAR(200) NOT NULL,    
+    `id_formProjectActionTriggerTypes` INT(10 ) UNSIGNED ZEROFILL NOT NULL,            
+    `config` TEXT,
+	`condition_logic` VARCHAR(10000),
+    `condition_jquery_builder_json` VARCHAR(10000)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `formActions_INTERNAL` (
   `id_forms` int(10) UNSIGNED ZEROFILL NOT NULL,
   `id_formActions` int(10) UNSIGNED ZEROFILL NOT NULL,
@@ -34,26 +70,6 @@ CREATE TABLE IF NOT EXISTS `formActions_EXTERNAL` (
   CONSTRAINT `fk_formActions_EXTERNAL_id_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-SET @old_form_exists:= (SELECT COUNT(*) FROM information_schema.`tables` WHERE table_schema = DATABASE() AND `table_name` = 'old_formActions');
-SELECT @old_form_exists;
-
-SET @existing_actions := (SELECT COUNT(*) FROM formActions);
-SET @query = If(@existing_actions > 0 AND @old_form_exists = 0,
-    'RENAME TABLE formActions TO old_formActions; DROP TABLE IF EXISTS formActions;',
-    'SELECT \'no legacy actions\' ');
-PREPARE stmt FROM @query;
-EXECUTE stmt;
-
--- add table formActions
-CREATE TABLE IF NOT EXISTS `formActions` (
-	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,		
-	`name` VARCHAR(200) NOT NULL,    
-    `id_formProjectActionTriggerTypes` INT(10 ) UNSIGNED ZEROFILL NOT NULL,            
-    `config` TEXT,
-	`condition_logic` VARCHAR(10000),
-    `condition_jquery_builder_json` VARCHAR(10000)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `scheduledJobs_reminders` (
 	`id_scheduledJobs` INT(10) UNSIGNED ZEROFILL NOT NULL,
     `id_forms_INTERNAL` INT(10) UNSIGNED ZEROFILL NULL,  
@@ -65,6 +81,14 @@ CREATE TABLE IF NOT EXISTS `scheduledJobs_reminders` (
     CONSTRAINT `scheduledJobs_reminders_id_forms_EXTERNAL` FOREIGN KEY (`id_forms_EXTERNAL`) REFERENCES `uploadTables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- add table scheduledJobs_formActions
+CREATE TABLE IF NOT EXISTS `scheduledJobs_formActions` (
+	`id_scheduledJobs` INT(10) UNSIGNED ZEROFILL NOT NULL,
+	`id_formActions` INT(10) UNSIGNED ZEROFILL NOT NULL,
+	PRIMARY KEY(id_scheduledJobs, id_formActions),
+	CONSTRAINT `scheduledJobs_formActions_fk_id_scheduledJobs` FOREIGN KEY (`id_scheduledJobs`) REFERENCES `scheduledJobs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT `scheduledJobs_formActions_fk_iid_formActions` FOREIGN KEY (`id_formActions`) REFERENCES `formActions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 UPDATE pages
 SET url = '/admin/formsActions/[select|update|insert|delete:mode]?/[i:aid]?'
