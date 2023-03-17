@@ -1,0 +1,747 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"definitions": {
+		"condition_ref": {
+			"type": "string"
+		},
+		"block_ref": {
+			"type": "object",
+			"properties": {
+				"index": {
+					"type": "number",
+					"options": {
+						"hidden": true
+					}
+				},
+				"block_name": {
+					"type": "string"
+				},
+				"show_randomization_count_hidden": {
+					"watch": {
+						"even_presentation": "root.randomizer.even_presentation",
+						"randomize": "root.randomize"
+					},
+					"template": "{{even_presentation}}-{{randomize}}",
+					"options": {
+						"hidden": true
+					}
+				},
+				"randomization_count": {
+					"type": "number",
+					"default": 0,
+					"options": {
+						"dependencies": {
+							"show_randomization_count_hidden": [
+								"true-true"
+							]
+						}
+					}
+				},
+				"jobs": {
+					"type": "array",
+					"items": {
+						"title": "job",
+						"$ref": "#/definitions/job_ref"
+					}
+				}
+			}
+		},
+		"randomizer_ref": {
+			"type": "object",
+			"properties": {
+				"even_presentation": {
+					"type": "boolean"
+				},
+				"random_elements": {
+					"type": "number",
+					"minimum": 1,
+					"default": 1,
+					"description": "Randomly present the selected ammount of the blocks"
+				}
+			}
+		},
+		"repeater_ref": {
+			"type": "object",
+			"description": "Define repetition of the blocks. It creates a loop where new dates are calculated based on their date to be schedulete. Example: if you schedule a job immediately and it was defined to occurre 3 times every day, then 3 jobs will be created. One for now, one for tomorrow the same time and one for the day after tomorrow at the same time",
+			"properties": {
+				"occurrences": {
+					"type": "integer",
+					"title": "Occurrences",
+					"minimum": 1,
+					"default": 1,
+					"description": "How many times the blocks should be scheduled."
+				},
+				"frequency": {
+					"type": "string",
+					"title": "Repeat every",
+					"enum": [
+						"day",
+						"week",
+						"month"
+					],
+					"options": {
+						"enum_titles": [
+							"Day",
+							"Week",
+							"Month"
+						]
+					},
+					"description": "The frequency at which the event repeats."
+				},
+				"daysOfWeek": {
+					"type": "array",
+					"title": "Select week days",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"frequency": [
+								"week"
+							]
+						}
+					},
+					"items": {
+						"type": "string",
+						"enum": [
+							"Monday",
+							"Tuesday",
+							"Wednesday",
+							"Thursday",
+							"Friday",
+							"Saturday",
+							"Sunday"
+						]
+					},
+					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency."
+				},
+				"daysOfMonth": {
+					"type": "array",
+					"title": "Select days",
+					"format": "select2",
+					"uniqueItems": true,
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"frequency": [
+								"month"
+							]
+						}
+					},
+					"items": {
+						"type": "integer",
+						"enum": [
+							1,
+							2,
+							3,
+							4,
+							5,
+							6,
+							7,
+							8,
+							9,
+							10,
+							11,
+							12,
+							13,
+							14,
+							15,
+							16,
+							17,
+							18,
+							19,
+							20,
+							21,
+							22,
+							23,
+							24,
+							25,
+							26,
+							27,
+							28,
+							29,
+							30,
+							31
+						]
+					},
+					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency."
+				}
+			}
+		},
+		"schedule_time_reminder_ref": {
+			"type": "object",
+			"description": "Define how much time after the notification, the reminder will be sent",
+			"properties": {
+				"send_after": {
+					"type": "number",
+					"title": "Send after",
+					"minimum": 1,
+					"default": 1
+				},
+				"send_after_type": {
+					"type": "string",
+					"title": " ",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					]
+				},
+				"parent_job_type_hidden": {
+					"type": "string",
+					"template": "{{job_type}}",
+					"watch": {
+						"job_type": "job.job_type"
+					},
+					"options": {
+						"hidden": true
+					}
+				},
+				"valid": {
+					"type": "number",
+					"title": "Valid for",
+					"minimum": 1,
+					"default": 1,
+					"options": {
+						"dependencies": {
+							"parent_job_type_hidden": [
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				},
+				"valid_type": {
+					"type": "string",
+					"description": "How much time is the reminder valid",
+					"title": " ",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					],
+					"options": {
+						"dependencies": {
+							"parent_job_type_hidden": [
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				}
+			}
+		},
+		"schedule_time_ref": {
+			"type": "object",
+			"required": [
+				"send_on_day_at"
+			],
+			"properties": {
+				"job_schedule_types": {
+					"type": "string",
+					"enumSource": [
+						{
+							"source": [
+								{
+									"value": "after_period",
+									"text": "After time period"
+								},
+								{
+									"value": "after_period_on_day_at_time",
+									"text": "After time period on a weekday at given time"
+								},
+								{
+									"value": "immediately",
+									"text": "Immediately"
+								},
+								{
+									"value": "on_fixed_datetime",
+									"text": "On specific fixed datetime"
+								}
+							],
+							"title": "{{item.text}}",
+							"value": "{{item.value}}"
+						}
+					]
+				},
+				"send_after": {
+					"type": "number",
+					"title": "Send after",
+					"options": {
+						"dependencies": {
+							"job_schedule_types": [
+								"after_period"
+							]
+						}
+					}
+				},
+				"send_after_type": {
+					"type": "string",
+					"title": "Send after type",
+					"enum": [
+						"seconds",
+						"minutes",
+						"hours",
+						"days",
+						"weeks",
+						"months"
+					],
+					"options": {
+						"dependencies": {
+							"job_schedule_types": [
+								"after_period"
+							]
+						}
+					}
+				},
+				"send_on": {
+					"type": "string",
+					"title": "Send on",
+					"enumSource": [],
+					"options": {
+						"dependencies": {
+							"job_schedule_types": [
+								"after_period_on_day_at_time"
+							]
+						}
+					}
+				},
+				"send_on_day": {
+					"type": "string",
+					"title": "Send on day",
+					"enumSource": [],
+					"options": {
+						"dependencies": {
+							"job_schedule_types": [
+								"after_period_on_day_at_time"
+							]
+						}
+					}
+				},
+				"send_on_day_at": {
+					"type": "string",
+					"format": "time",
+					"title": "send_on_day_at",
+					"options": {
+						"dependencies": {
+							"job_schedule_types": [
+								"after_period_on_day_at_time",
+								"after_period"
+							]
+						},
+						"inputAttributes": {
+							"placeholder": "Enter time"
+						},
+						"flatpickr": {
+							"inlineHideInput": true,
+							"wrap": true,
+							"allowInput": true,
+							"showClearButton": true
+						}
+					}
+				},
+				"custom_time": {
+					"type": "string",
+					"format": "datetime-local",
+					"title": "custom_time",
+					"options": {
+						"dependencies": {
+							"job_schedule_types": [
+								"on_fixed_datetime"
+							]
+						},
+						"inputAttributes": {
+							"placeholder": "Enter date"
+						},
+						"flatpickr": {
+							"inlineHideInput": true,
+							"wrap": true,
+							"time_24hr": true,
+							"allowInput": true,
+							"showClearButton": true
+						}
+					}
+				}
+			}
+		},
+		"notification_ref": {
+			"type": "object",
+			"properties": {
+				"notification_types": {
+					"type": "string",
+					"title": "Notification type",
+					"enum": [
+						"email",
+						"push_notification"
+					],
+					"default": "email",
+					"options": {
+						"dependencies": {
+							"job_type": [
+								"notification",
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				},
+				"redirect_url": {
+					"type": "string",
+					"title": "Redirect URL",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification"
+							]
+						}
+					}
+				},
+				"from_email": {
+					"type": "string",
+					"title": "From email",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"email"
+							]
+						}
+					}
+				},
+				"from_name": {
+					"type": "string",
+					"title": "From name",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"email"
+							]
+						}
+					}
+				},
+				"reply_to": {
+					"type": "string",
+					"title": "Reply to",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"email"
+							]
+						}
+					}
+				},
+				"recipient": {
+					"type": "string",
+					"title": "Send To (recipient)",
+					"description": "Use @user for the user who is triggering the action, separate with `;` for emails",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"subject": {
+					"type": "string",
+					"title": "Subject",
+					"options": {
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"body": {
+					"type": "string",
+					"format": "markdown",
+					"title": "Body",
+					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
+					"options": {
+						"simplemde": {
+							"autoDownloadFontAwesome": false,
+							"spellChecker": false,
+							"renderingConfig": {
+								"singleLineBreaks": false
+							}
+						},
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"attachments": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"dependencies": {
+							"notification_types": "email"
+						},
+						"select2": {
+							"tags": true
+						}
+					},
+					"title": "Attachments",
+					"items": {
+						"type": "string",
+						"enum": [
+							"att1",
+							"att2",
+							"att3"
+						]
+					}
+				}
+			}
+		},
+		"reminder_ref": {
+			"type": "object",
+			"properties": {
+				"form_id": {
+					"type": "string",
+					"template": "{{reminder_form_id}}",
+					"watch": {
+						"reminder_form_id": "job.reminder_form_id"
+					},
+					"options": {
+						"hidden": true
+					}
+				},
+				"schedule_time": {
+					"$ref": "#/definitions/schedule_time_reminder_ref"
+				},
+				"notification": {
+					"$ref": "#/definitions/notification_ref"
+				}
+			}
+		},
+		"job_ref": {
+			"type": "object",
+			"id": "job",
+			"properties": {
+				"job_name": {
+					"type": "string",
+					"title": "job name"
+				},
+				"job_type": {
+					"type": "string",
+					"enum": [
+						"add_group",
+						"remove_group",
+						"notification",
+						"notification_with_reminder",
+						"notification_with_reminder_for_diary"
+					]
+				},
+				"reminder_form_id": {
+					"type": "string",
+					"title": "Reminder for",
+					"enumSource": [],
+					"options": {
+						"dependencies": {
+							"job_type": [
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				},
+				"schedule_time": {
+					"$ref": "#/definitions/schedule_time_ref"
+				},
+				"job_add_remove_groups": {
+					"type": "array",
+					"uniqueItems": true,
+					"format": "select2",
+					"options": {
+						"grid_columns": 12,
+						"select2": {
+							"tags": true
+						},
+						"dependencies": {
+							"job_type": [
+								"add_group",
+								"remove_group"
+							]
+						}
+					},
+					"title": "Group",
+					"description": "Select Selfhelp group",
+					"items": {
+						"type": "string",
+						"enum": [
+							"group1",
+							"group2",
+							"group3"
+						]
+					}
+				},
+				"notification": {
+					"$ref": "#/definitions/notification_ref",
+					"options": {
+						"dependencies": {
+							"job_type": [
+								"notification",
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				},
+				"reminders": {
+					"type": "array",
+					"items": {
+						"title": "reminder",
+						"$ref": "#/definitions/reminder_ref"
+					},
+					"options": {
+						"dependencies": {
+							"job_type": [
+								"notification_with_reminder",
+								"notification_with_reminder_for_diary"
+							]
+						}
+					}
+				}
+			}
+		}
+	},
+	"title": "Action config",
+	"id": "root",
+	"type": "object",
+	"required": [
+		"blocks"
+	],
+	"properties": {
+		"condition": {
+			"type": "object",
+			"properties": {
+				"rules": {
+					"type": "string",
+					"title": "Rules",
+					"format": "textarea",
+					"options": {
+						"hidden": false
+					}
+				},
+				"builder": {
+					"type": "string",
+					"title": "Builder",
+					"format": "textarea",
+					"options": {
+						"hidden": false
+					}
+				},
+				"btn": {
+					"type": "button",
+					"title": "Search",
+					"options": {
+						"button": {
+							"icon": "search",
+							"action": "myAction"
+						}
+					}
+				}
+			}
+		},
+		"randomize": {
+			"type": "boolean",
+			"default": false
+		},
+		"randomizer": {
+			"title": "randomizer",
+			"$ref": "#/definitions/randomizer_ref",
+			"options": {
+				"dependencies": {
+					"randomize": true
+				}
+			}
+		},
+		"repeat": {
+			"type": "boolean",
+			"default": false
+		},
+		"repeater": {
+			"title": "Repeater",
+			"$ref": "#/definitions/repeater_ref",
+			"options": {
+				"dependencies": {
+					"repeat": true
+				}
+			}
+		},
+		"target_groups": {
+			"type": "boolean",
+			"default": false
+		},
+		"selected_target_groups": {
+			"type": "array",
+			"uniqueItems": true,
+			"format": "select2",
+			"options": {
+				"dependencies": {
+					"target_groups": true
+				}
+			},
+			"title": "target_groups",
+			"description": "target_groups",
+			"items": {
+				"type": "string",
+				"enum": [
+					"admin",
+					"therapist",
+					"subject",
+					"test"
+				]
+			}
+		},
+		"overwrite_variables": {
+			"type": "boolean",
+			"default": false
+		},
+		"selected_overwrite_variables": {
+			"type": "array",
+			"uniqueItems": true,
+			"format": "select2",
+			"options": {
+				"dependencies": {
+					"overwrite_variables": true
+				}
+			},
+			"title": "overwrite_variables",
+			"description": "overwrite_variables",
+			"items": {
+				"type": "string",
+				"enum": [
+					"send_after",
+					"send_after_type",
+					"send_on_day_at",
+					"custom_time"
+				]
+			}
+		},
+		"blocks": {
+			"type": "array",
+			"items": {
+				"title": "Block",
+				"$ref": "#/definitions/block_ref"
+			}
+		}
+	}
+}

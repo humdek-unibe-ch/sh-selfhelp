@@ -1,6 +1,6 @@
-# v5.12.0 (Unpublished)
+# v6.0.0
 ###  New features
- - rework module `Form Actions`. If you scheduled form action please contact support
+ - rework module `Form Actions`. If you scheduled form actions in the past please contact support
   - old actions should be manually checked after the update. They will be in table `old_formActions`. The related tables should be checked `formActions_groups` and `formActionsReminders` and once the migration is done these tables can be deleted
  - update `jsoneditor.min.js` from `2.6.1` to `2.9.1`
  - better labeling and colors for `data_config` and `condition` buttons based on if a configuration is set or not
@@ -8,7 +8,7 @@
  - refactor user input data to be with types: `internal`, `external` instead of `dynamic`, `static`
 
 ### Plugins
- - `fitrockr` plugin should be updated to v1.0.4
+ - <code>`fitrockr`</code> plugin should be updated to v1.0.4
 
 # v5.11.3
 ### Security Update

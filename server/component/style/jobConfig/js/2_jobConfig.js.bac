@@ -1,0 +1,260 @@
+var editor = null;
+
+$(document).ready(function () {
+    loadJobConfig();
+});
+
+
+function createJSONEditor(schema) {
+    if (editor) {
+        editor.destroy();
+    }
+    editor = new JSONEditor($('#jobConfig')[0], {
+        theme: 'bootstrap4',
+        iconlib: 'fontawesome5',
+        ajax: true,
+        schema: schema,
+        show_errors: "always",
+
+    });
+    editor.on('ready', () => {
+        crrValue = false;
+        try {
+            crrValue = JSON.parse($('#jobConfigValue').val());
+        } catch (error) {
+            // no value is set
+        }
+        if (crrValue) {
+            editor.editors.root.setValue(crrValue, true)
+        }
+        adjustConditions();
+        editor.on('change', () => {
+            $('#jobConfig').find('select').each(function () {
+                if ($(this).is('[name*="attachments"]')) {
+                    // The element has a name containing "attachments"
+                    $(this).data('live-search', 'true'); // add live search
+                }
+                $(this).selectpicker();
+                $(this).selectpicker('refresh');
+            });
+            $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
+        });
+        if ($('#jobConfig').hasClass('view-select')) {
+            // disable the form if we are in view mode
+            editor.disable();
+        }
+    });
+}
+
+/**
+ * Load the job config with json-editor library
+ * @author Stefan Kodzhabashev
+ * @date 2023-03-08
+ * @returns {any}
+ */
+function loadJobConfig() {
+    if ($('#jobConfig').length > 0) {
+        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfig.json";
+        // get the schema with AJAX call
+        $.ajax({
+            dataType: "json",
+            url: schemaUrl,
+            success: (retrievedSchema) => {
+                createJSONEditor(retrievedSchema);
+                setDynamicEnums();
+            }
+        });
+    }
+}
+
+function prepareEnumSource(values) {
+    enumValues = [];
+    for (const key in values) {
+        enumValues.push({
+            value: key,
+            text: values[key]
+        });
+    }
+    res = [];
+    res.push({
+        "source": enumValues,
+        "title": "{{item.text}}",
+        "value": "{{item.value}}"
+    });
+    return res;
+}
+
+function get_forms() {
+    var formsArray = {};
+    $('select[name="id_forms"]').find('option').each(function () {
+        if (this.value) {
+            formsArray[this.value] = this.text;
+        }
+    });
+    return formsArray;
+}
+
+function get_time_intervals_text() {
+    var obj = {};
+    obj[1] = '1st';
+    obj[2] = '2nd';
+    obj[3] = '3rd';
+    for (var i = 4; i <= 20; i++) {
+        obj[i] = i + 'th';
+    }
+    return obj;
+}
+
+async function getAssets(filter) {
+    var assets = [];
+    jQuery.ajax({
+        url: BASE_PATH + '/request/AjaxDataSource/get_assets',
+        async: false,
+        cache: false,
+        type: 'post',
+        data: { filter: filter },
+        dataType: "json",
+        success: function (data) {
+            if (data.success) {
+                try {
+                    assets = JSON.parse(data.data);
+                } catch (error) {
+                    console.log('Error while parsing JSON', data.data);
+                }
+            }
+            else {
+                console.log(data);
+            }
+        }
+    });
+    return assets;
+}
+
+async function setDynamicEnums() {
+    var groups = await getGroups();
+    editor.schema.definitions.job_ref.properties.job_add_remove_groups.items.enum = groups;
+    editor.schema.properties.selected_target_groups.items.enum = [...groups];
+    var actionScheduleTypes = await getLookups('actionScheduleTypes');
+    var weekdays = await getLookups('weekdays');
+    var attachments = await getAssets('');
+    editor.schema.definitions.schedule_time_ref.properties.job_schedule_types.enumSource = prepareEnumSource(actionScheduleTypes);
+    editor.schema.definitions.schedule_time_ref.properties.send_on_day.enumSource = prepareEnumSource(weekdays);
+    editor.schema.definitions.schedule_time_ref.properties.send_on.enumSource = prepareEnumSource(get_time_intervals_text());
+    editor.schema.definitions.job_ref.properties.reminder_form_id.enumSource = prepareEnumSource(get_forms());
+    editor.schema.definitions.notification_ref.properties.attachments.items.enum = attachments;
+
+    createJSONEditor(editor.schema); // after changes the forms should be recreated
+}
+
+function setJsonValue(id, value){
+    obj = editor.getValue();
+    var props = id.split('[');
+    props.forEach(function (prop, index) {
+        if (prop.endsWith(']')) {
+            var propName = prop.substring(0, prop.length - 1);
+            if (index === props.length - 1) {
+                obj[propName] = value; // Assign new value to the final property
+            } else {
+                obj = obj[propName]; // Traverse the nested properties
+            }
+        }
+    });
+    $(editor).trigger('change');
+}
+
+function setJsonCondition(field) {
+    var value = editor.getValue();
+    var props = field.attr('id').split('[');
+    props.forEach(function (prop, index) {
+        if (prop.endsWith(']')) {
+            var propName = prop.substring(0, prop.length - 1);
+            if (index === props.length - 1) {
+                value[propName] = rulesToJsonLogic(rules); // Assign new value to the final property
+            } else {
+                value = value[propName]; // Traverse the nested properties
+            }
+        }
+    });
+}
+
+function adjustConditions() {
+    $('textarea[name*="condition"]').each(function () {
+        try {
+            var json_object = JSON.parse($(this).val());
+            console.log($(this).attr('id'));
+        } catch (error) {
+
+        }
+    });
+    $(editor).trigger('change');
+}
+
+JSONEditor.defaults.callbacks = {
+    "button": {
+        "myAction": function (jseditor, e) {
+            console.log((editor.getValue()));
+            console.log($(jseditor.container).parent().prev().find('textarea'));
+            var rules_field = $(jseditor.container).parent().prev().prev().find('textarea');
+            $(rules_field).val(JSON.parse($(rules_field).val()));
+            console.log($(rules_field).val());
+            var builder_field = $(jseditor.container).parent().prev().find('textarea');
+            $(".condition_builder_modal_holder").modal({
+                backdrop: false
+            });
+            $('.saveConditionBuilder').each(function () {
+                $(this).attr('data-dismiss', 'modal');
+                $(this).off('click').click(function () {
+                    var rules = $('.condition_builder').queryBuilder('getRules');
+                    $(rules_field).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
+                    $(rules_field).trigger('change');
+                    // $(jseditor.parent).trigger('change');
+                    // console.log(editor.getValue());
+                    // res = editor.getValue();
+                    // console.log(res);
+                    // // $res['condition'] = rulesToJsonLogic(rules);
+                    // console.log(rules_field.attr('id'));
+                    // var value = res;
+                    // rules_field.attr('id').split('[').forEach(function (prop) {
+                    //     if (prop.endsWith(']')) {
+                    //         var propName = prop.substring(0, prop.length - 1);
+                    //         value = value[propName];
+                    //     }
+                    // });
+
+                    // var value = editor.getValue();
+                    // var props = rules_field.attr('id').split('[');
+                    // props.forEach(function (prop, index) {
+                    //     if (prop.endsWith(']')) {
+                    //         var propName = prop.substring(0, prop.length - 1);
+                    //         if (index === props.length - 1) {
+                    //             value[propName] = rulesToJsonLogic(rules); // Assign new value to the final property
+                    //         } else {
+                    //             value = value[propName]; // Traverse the nested properties
+                    //         }
+                    //     }
+                    // });
+
+                    setJsonValue(rules_field.attr('id'),rulesToJsonLogic(rules));
+
+
+                    // console.log(value);
+                    // console.log(res);
+                    // $(editor).trigger('change');
+                    console.log((editor.getValue()));
+                    // $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
+                    // $(jqueryBuilderJsonInput).trigger('change');
+                    // $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
+                    // $(condition).trigger('change');
+                    // $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
+                    // if (rules) {
+                    //     $('.conditionBuilderBtn').addClass('btn-warning');
+                    //     $('.conditionBuilderBtn').html('Edit Condition');
+                    // } else {
+                    //     $('.conditionBuilderBtn').addClass('btn-primary');
+                    //     $('.conditionBuilderBtn').html('Add Condition');
+                    // }
+                })
+            });
+        }
+    }
+}
