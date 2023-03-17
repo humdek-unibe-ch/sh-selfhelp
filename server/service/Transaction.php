@@ -14,7 +14,7 @@ class Transaction
     /* Constants ************************************************/
 
     /* Table names */
-    const TABLE_PAGES = 'pages';    
+    const TABLE_PAGES = 'pages';
     const TABLE_SCHEDULED_JOBS = 'scheduledJobs';
     const TABLE_USER_INPUT = 'user_input';
     const TABLE_USERS = 'users';
@@ -64,8 +64,8 @@ class Transaction
         //TODO  make params array; it could be better
         $log = array(
             "verbal_log" => $verbal_log ? $verbal_log : ('Transaction type: `' . $tran_type . '` from table: `' . $table_name . '` triggered ' . $tran_by),
-            "url" => $user_id > 0 ? $_SERVER['REQUEST_URI'] : "",
-            "session" => $user_id > 0 ? $_SESSION : ""
+            "url" => $user_id > 0 ? (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : "") : "",
+            "session" => $user_id > 0 ? (isset($_SESSION) ? $_SESSION  : "") : ""
         );
         if ($table_name && $entry_id && $log_row) {
             $entry = $this->db->query_db_first('SELECT * FROM ' . $table_name . ' WHERE id = :id;', array(":id" => $entry_id));
