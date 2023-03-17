@@ -921,7 +921,7 @@ class UserInput
             /******************* SET CELLS   *********************************/
             $db_cells = array();
             foreach ($data as $col_name => $col_val) {
-                array_push($db_cells, array($id_row, $col_ids[$col_name], $col_val));
+                array_push($db_cells, array($id_row, $col_ids[$col_name], $col_val ? $col_val : ''));
             }
             $res = $this->db->insert_mult(
                 "uploadCells",
