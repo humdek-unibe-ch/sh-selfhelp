@@ -1716,7 +1716,7 @@ class UserInput
             $this->transaction->add_transaction(
                 transactionTypes_insert,
                 transactionBy_by_user,
-                $_SESSION['id_user'],
+                $id_users,
                 $form_data['form_type'],
                 $form_data['form_id'],
                 false,                
