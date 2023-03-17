@@ -18,7 +18,7 @@ function createJSONEditor(schema) {
 
     });
     editor.on('ready', () => {
-        crrValue = false;
+        var crrValue = false;
         try {
             crrValue = JSON.parse($('#jobConfigValue').val());
         } catch (error) {
