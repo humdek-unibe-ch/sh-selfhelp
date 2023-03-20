@@ -67,14 +67,14 @@ function loadJobConfig() {
 }
 
 function prepareEnumSource(values) {
-    enumValues = [];
+    var enumValues = [];
     for (const key in values) {
         enumValues.push({
             value: key,
             text: values[key]
         });
     }
-    res = [];
+    var res = [];
     res.push({
         "source": enumValues,
         "title": "{{item.text}}",

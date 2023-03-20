@@ -1,3 +1,7 @@
+# v6.0.1
+###  Bugfix
+ - properly load form reminder in `action` with `reminders`
+
 # v6.0.0
 ###  New features
  - rework module `Form Actions`. If you scheduled form actions in the past please contact support
