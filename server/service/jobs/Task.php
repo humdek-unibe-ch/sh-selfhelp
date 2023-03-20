@@ -37,7 +37,7 @@ class Task  extends BasicJob
      * @retval boolean
      *  return if task was successfully executed
      */
-    private function execute_task_single($task_info, $sent_by, $execute_user_id)
+    private function execute_task_single($task_info, $sent_by, $condition, $execute_user_id)
     {
         $res = true;
         $sql = "SELECT *
@@ -46,7 +46,7 @@ class Task  extends BasicJob
         $users = $this->db->query_db($sql, array(":sj_id" => $task_info['id']));
         $conditon = $task_info['config'];
         $task_info['config'] = json_decode($task_info['config'], true);
-        $conditon = isset($task_info['config']['condition']) ? json_encode($task_info['config']['condition']) : '';
+        $conditon = isset($task_info['config']['condition']) ? json_encode($task_info['config']['condition']) : $condition;
         foreach ($users as $user) {
             if ($conditon == '' || $this->check_condition($conditon, $user['id_users'])) {
                 // check if no condition or condition fullfiled -> then execute
@@ -230,11 +230,11 @@ class Task  extends BasicJob
         }
     }
 
-    public function execute_entry($sj_id, $sent_by, $user_id = null)
+    public function execute_entry($sj_id, $sent_by, $condition, $user_id = null)
     {
         $task_info = $this->db->select_by_uid('view_tasks', $sj_id);
         if ($task_info) {
-            return $this->execute_task_single($task_info, $sent_by, $user_id);
+            return $this->execute_task_single($task_info, $sent_by, $condition, $user_id);
         } else {
             return false;
         }

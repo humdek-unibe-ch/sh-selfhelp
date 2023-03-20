@@ -241,7 +241,7 @@ class JobScheduler
                 $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
                 // execute task
-                $execution_reult = $this->task->execute_entry($data['id'], $tran_by, $id_users);
+                $execution_reult = $this->task->execute_entry($data['id'], $tran_by, $data['config'], $id_users);
             }
             $status = $this->db->get_lookup_id_by_value(scheduledJobsStatus, $execution_reult ? scheduledJobsStatus_done : scheduledJobsStatus_failed);
             $this->set_status($data['id'], $status);
