@@ -2,7 +2,32 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"definitions": {
 		"condition_ref": {
-			"type": "string"
+			"type": "object",
+			"properties": {
+				"jsonLogic": {
+					"type": "object",
+					"title": "jsonLogic",
+					"options": {
+						"hidden": true
+					}
+				},
+				"builder": {
+					"type": "object",
+					"title": "Builder",
+					"options": {
+						"hidden": true
+					}
+				},
+				"condition_btn": {
+					"type": "button",
+					"title": "Add condition",
+					"options": {
+						"button": {
+							"action": "showConditionBuilder"
+						}
+					}
+				}
+			}
 		},
 		"block_ref": {
 			"type": "object",
@@ -15,6 +40,10 @@
 				},
 				"block_name": {
 					"type": "string"
+				},
+				"condition": {
+					"title": "Condition",
+					"$ref": "#/definitions/condition_ref"
 				},
 				"show_randomization_count_hidden": {
 					"watch": {
@@ -539,6 +568,10 @@
 					"type": "string",
 					"title": "job name"
 				},
+				"condition": {
+					"title": "Condition",
+					"$ref": "#/definitions/condition_ref"
+				},
 				"job_type": {
 					"type": "string",
 					"enum": [
@@ -618,6 +651,15 @@
 							]
 						}
 					}
+				},
+				"on_job_execute": {
+					"type": "object",
+					"properties": {
+						"condition": {
+							"title": "Condition on job execute",
+							"$ref": "#/definitions/condition_ref"
+						}
+					}
 				}
 			}
 		}
@@ -630,32 +672,8 @@
 	],
 	"properties": {
 		"condition": {
-			"type": "object",
-			"properties": {
-				"rules": {
-					"type": "object",
-					"title": "Rules",					
-					"options": {
-						"hidden": false
-					}
-				},
-				"builder": {
-					"type": "object",
-					"title": "Builder",					
-					"options": {
-						"hidden": false
-					}
-				},
-				"btn": {
-					"type": "button",
-					"title": "Add condition",
-					"options": {
-						"button": {							
-							"action": "myAction"
-						}
-					}
-				}				
-			}
+			"title": "Condition",
+			"$ref": "#/definitions/condition_ref"
 		},
 		"randomize": {
 			"type": "boolean",

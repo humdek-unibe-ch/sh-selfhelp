@@ -1,3 +1,7 @@
+# v6.0.2
+###  New features
+ - add conditions for blocks and jobs
+
 # v6.0.1
 ###  Bugfix
  - properly load form reminder in `action` with `reminders`

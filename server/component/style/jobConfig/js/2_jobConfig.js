@@ -27,7 +27,6 @@ function createJSONEditor(schema) {
         if (crrValue) {
             editor.editors.root.setValue(crrValue, true)
         }
-        adjustConditions();
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
                 if ($(this).is('[name*="attachments"]')) {
@@ -146,8 +145,8 @@ async function setDynamicEnums() {
     createJSONEditor(editor.schema); // after changes the forms should be recreated
 }
 
-function setJsonValue(field, value){
-    obj = editor.getValue();
+function setJsonValue(field, value) {
+    var obj = editor.getValue();
     $(field).val(JSON.stringify(value, null, 3))
     var path = field.data('schemapath');
     var props = path.replace('root.', '').split('.');
@@ -157,44 +156,42 @@ function setJsonValue(field, value){
         } else {
             obj = obj[propName]; // Traverse the nested properties
         }
-    });    
+    });
     editor.setValue(editor.getValue());
-    $(editor).trigger('change');
-    console.log((editor.getValue()));
 }
 
-function setJsonCondition(field) {
-    var value = editor.getValue();
-    var props = field.attr('id').split('[');
-    props.forEach(function (prop, index) {
-        if (prop.endsWith(']')) {
-            var propName = prop.substring(0, prop.length - 1);
-            if (index === props.length - 1) {
-                value[propName] = rulesToJsonLogic(rules); // Assign new value to the final property
-            } else {
-                value = value[propName]; // Traverse the nested properties
-            }
+function getBuilderValues(builder_field) {
+    var obj = editor.getValue();
+    var path = builder_field.data('schemapath');
+    console.log(path);
+    var props = path.replace('root.', '').split('.');
+    var builder_field_value = '{}';
+    props.forEach(function (propName, index) {
+        if (index === props.length - 1) {
+            builder_field_value = obj[propName]
+        } else {
+            obj = obj[propName]; // Traverse the nested properties
         }
     });
-}
-
-function adjustConditions() {
-    $('textarea[name*="condition"]').each(function () {
-        try {
-            var json_object = JSON.parse($(this).val());
-            console.log($(this).attr('id'));
-        } catch (error) {
-
+    $('.condition_builder').queryBuilder('destroy');
+    jqueryBuilderValue = null;
+    try {
+        if (Object.keys(builder_field_value).length !== 0) {
+            jqueryBuilderValue = JSON.stringify(builder_field_value);
         }
-    });
-    $(editor).trigger('change');
+    } catch (error) {
+
+    }
+    prepareConditionBuilder(jqueryBuilderValue);
 }
 
 JSONEditor.defaults.callbacks = {
     "button": {
-        "myAction": function (jseditor, e) {
-            var rules_field = $(e.target).parent().parent().parent().parent().prev().prev().find('[data-schemapath*="rules"]');
+        "showConditionBuilder": function (jseditor, e) {
+            var jsonLogic_field = $(e.target).parent().parent().parent().parent().prev().prev().find('[data-schemapath*="jsonLogic"]');
             var builder_field = $(e.target).parent().parent().parent().parent().prev().find('[data-schemapath*="builder"]');
+            console.log(builder_field[0]);
+            getBuilderValues(builder_field);
             $(".condition_builder_modal_holder").modal({
                 backdrop: false
             });
@@ -202,51 +199,8 @@ JSONEditor.defaults.callbacks = {
                 $(this).attr('data-dismiss', 'modal');
                 $(this).off('click').click(function () {
                     var rules = $('.condition_builder').queryBuilder('getRules');
-                    // $(rules_field).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
-                    // $(rules_field).trigger('change');
-                    // $(jseditor.parent).trigger('change');
-                    // console.log(editor.getValue());
-                    // res = editor.getValue();
-                    // console.log(res);
-                    // // $res['condition'] = rulesToJsonLogic(rules);
-                    // console.log(rules_field.attr('id'));
-                    // var value = res;
-                    // rules_field.attr('id').split('[').forEach(function (prop) {
-                    //     if (prop.endsWith(']')) {
-                    //         var propName = prop.substring(0, prop.length - 1);
-                    //         value = value[propName];
-                    //     }
-                    // });
-
-                    // var value = editor.getValue();
-                    // var props = rules_field.attr('id').split('[');
-                    // props.forEach(function (prop, index) {
-                    //     if (prop.endsWith(']')) {
-                    //         var propName = prop.substring(0, prop.length - 1);
-                    //         if (index === props.length - 1) {
-                    //             value[propName] = rulesToJsonLogic(rules); // Assign new value to the final property
-                    //         } else {
-                    //             value = value[propName]; // Traverse the nested properties
-                    //         }
-                    //     }
-                    // });
-
-                    setJsonValue(rules_field,rulesToJsonLogic(rules));
-                    setJsonValue(builder_field,rules);
-
-
-                    // $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
-                    // $(jqueryBuilderJsonInput).trigger('change');
-                    // $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
-                    // $(condition).trigger('change');
-                    // $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
-                    // if (rules) {
-                    //     $('.conditionBuilderBtn').addClass('btn-warning');
-                    //     $('.conditionBuilderBtn').html('Edit Condition');
-                    // } else {
-                    //     $('.conditionBuilderBtn').addClass('btn-primary');
-                    //     $('.conditionBuilderBtn').html('Add Condition');
-                    // }
+                    setJsonValue(jsonLogic_field, rulesToJsonLogic(rules));
+                    setJsonValue(builder_field, rules);
                 })
             });
         }

@@ -409,6 +409,7 @@ class UserInput
             "id_users" => $users,
             "config" => $task_config, //extra config for condition
             "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
+            "condition" =>  isset($job['on_job_execute']['condition']['jsonLogic']) ? $job['on_job_execute']['condition']['jsonLogic'] : null,
         );
         $sj_id = $this->job_scheduler->schedule_job($task, transactionBy_by_system);
         if ($sj_id > 0) {
@@ -482,7 +483,7 @@ class UserInput
             "reply_to" => $job['notification']['reply_to'],
             "subject" => $job['notification']['subject'],
             "description" => "Schedule email by form: " . $form_data['form_name'],
-            // "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
+            "condition" =>  isset($job['on_job_execute']['condition']['jsonLogic']) ? $job['on_job_execute']['condition']['jsonLogic'] : null,
             "attachments" => $attachments
         );
         foreach ($users as $key => $user_id) {
@@ -576,7 +577,7 @@ class UserInput
             "date_to_be_executed" => $date_to_be_executed ? $date_to_be_executed : $this->set_execution_date($action, $job),
             "subject" => $job['notification']['subject'],
             "url" => isset($job['notification']['redirect_url']) ? $job['notification']['redirect_url'] : null,
-            // "condition" =>  isset($schedule_info['config']) && isset($schedule_info['config']['condition']) ? $schedule_info['config']['condition'] : null,
+            "condition" =>  isset($job['on_job_execute']['condition']['jsonLogic']) ? $job['on_job_execute']['condition']['jsonLogic'] : null,
             "description" => "Schedule notification by form: " . $form_data['form_name'],
         );
         foreach ($users as $key => $user_id) {
@@ -1599,13 +1600,23 @@ class UserInput
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
             foreach ($actions as $action) {
-                $condition_logic =  json_decode($action['condition_logic'], true);                
-                if (!$this->condition->compute_condition($condition_logic, $id_users)['result']) { 
+
+                /*************************  CHECK DYNAMIC DATA *********************************************/
+                if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
+                    // when the trigger is finished, we have data and we can use it
+                    $check_config = $this->check_config($action['config'], $form_data['form_fields']);
+                    $result['check_config'] = $check_config['result'];
+                    $action['config'] = $check_config['config'];
+                }
+                /*************************  CHECK DYNAMIC DATA *********************************************/
+
+                $action['config'] = json_decode($action['config'], true);              
+                if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) { 
                     $result['condition'] = "Action condition is not met";
                     break;
                 }
 
-                $action['config'] = json_decode($action['config'], true);
+                
                 $users = array();
 
                 /*************************  TARGET_GROUPS **************************************************/
@@ -1621,16 +1632,7 @@ class UserInput
                 } else {
                     array_push($users, $id_users);
                 }
-                /*************************  TARGET_GROUPS **************************************************/
-
-                /*************************  CHECK DYNAMIC DATA *********************************************/
-                if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
-                    // when the trigger is finished, we have data and we can use it
-                    $check_config = $this->check_config($action['config'], $form_data['form_fields']);
-                    $result['check_config'] = $check_config['result'];
-                    $action['config'] = $check_config['config'];
-                }
-                /*************************  CHECK DYNAMIC DATA *********************************************/
+                /*************************  TARGET_GROUPS **************************************************/                
 
                 /*************************  REPEAT *********************************************************/
 
@@ -1673,27 +1675,40 @@ class UserInput
                             "block_name" => $block['block_name'],
                             "jobs" => array()
                         );
-                        foreach ($block['jobs'] as $job_index => $job) {
-                            if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
-                                $curr_block['jobs'][] = $this->queue_task($users, $job, $action, $form_data);
-                            } else if (
-                                $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
-                                $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
-                                $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
-                            ) {
-                                if ($job['notification']['notification_types'] == notificationTypes_email) {
-                                    // the notification type is email                        
-                                    $curr_block['jobs'][] = $this->queue_mail($users, $job, $action, $form_data);
-                                } else if ($job['notification']['notification_types'] == notificationTypes_push_notification) {
-                                    // the notification type is push notification                        
-                                    $curr_block['jobs'][] = $this->queue_notification($users, $job, $action, $form_data);
+
+                        if (isset($block['condition']["jsonLogic"]) && !$this->condition->compute_condition($block['condition']["jsonLogic"], $id_users)['result']) {
+                            $curr_block['condition'] = "Block condition is not met";
+                        } else {
+
+                            foreach ($block['jobs'] as $job_index => $job) {
+                                if (isset($job['condition']["jsonLogic"]) && !$this->condition->compute_condition($job['condition']["jsonLogic"], $id_users)['result']) {
+                                    $curr_block['jobs'][] = array(
+                                        "job_name" => $job['job_name'],
+                                        "condition" => 'Job condition is not met'
+                                    );
+                                } else {
+                                    if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
+                                        $curr_block['jobs'][] = $this->queue_task($users, $job, $action, $form_data);
+                                    } else if (
+                                        $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
+                                        $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
+                                        $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
+                                    ) {
+                                        if ($job['notification']['notification_types'] == notificationTypes_email) {
+                                            // the notification type is email                        
+                                            $curr_block['jobs'][] = $this->queue_mail($users, $job, $action, $form_data);
+                                        } else if ($job['notification']['notification_types'] == notificationTypes_push_notification) {
+                                            // the notification type is push notification                        
+                                            $curr_block['jobs'][] = $this->queue_notification($users, $job, $action, $form_data);
+                                        }
+                                    }
+                                    if (isset($res['sj_id'])) {
+                                        $this->db->insert('scheduledJobs_formActions', array(
+                                            "id_scheduledJobs" => $res['sj_id'],
+                                            "id_formActions" => $action['id'],
+                                        ));
+                                    }
                                 }
-                            }
-                            if (isset($res['sj_id'])) {
-                                $this->db->insert('scheduledJobs_formActions', array(
-                                    "id_scheduledJobs" => $res['sj_id'],
-                                    "id_formActions" => $action['id'],
-                                ));
                             }
                         }
                         $executed_blocks[] = $curr_block;
