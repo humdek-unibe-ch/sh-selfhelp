@@ -633,31 +633,28 @@
 			"type": "object",
 			"properties": {
 				"rules": {
-					"type": "string",
-					"title": "Rules",
-					"format": "textarea",
+					"type": "object",
+					"title": "Rules",					
 					"options": {
 						"hidden": false
 					}
 				},
 				"builder": {
-					"type": "string",
-					"title": "Builder",
-					"format": "textarea",
+					"type": "object",
+					"title": "Builder",					
 					"options": {
 						"hidden": false
 					}
 				},
 				"btn": {
 					"type": "button",
-					"title": "Search",
+					"title": "Add condition",
 					"options": {
-						"button": {
-							"icon": "search",
+						"button": {							
 							"action": "myAction"
 						}
 					}
-				}
+				}				
 			}
 		},
 		"randomize": {

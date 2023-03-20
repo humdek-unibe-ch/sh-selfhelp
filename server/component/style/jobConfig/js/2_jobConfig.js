@@ -18,7 +18,7 @@ function createJSONEditor(schema) {
 
     });
     editor.on('ready', () => {
-        var crrValue = false;
+        crrValue = false;
         try {
             crrValue = JSON.parse($('#jobConfigValue').val());
         } catch (error) {
@@ -27,12 +27,13 @@ function createJSONEditor(schema) {
         if (crrValue) {
             editor.editors.root.setValue(crrValue, true)
         }
+        adjustConditions();
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
                 if ($(this).is('[name*="attachments"]')) {
                     // The element has a name containing "attachments"
                     $(this).data('live-search', 'true'); // add live search
-                }                
+                }
                 $(this).selectpicker();
                 $(this).selectpicker('refresh');
             });
@@ -53,7 +54,7 @@ function createJSONEditor(schema) {
  */
 function loadJobConfig() {
     if ($('#jobConfig').length > 0) {
-        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfig.json";
+        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfigCond.json";
         // get the schema with AJAX call
         $.ajax({
             dataType: "json",
@@ -143,4 +144,111 @@ async function setDynamicEnums() {
     editor.schema.definitions.notification_ref.properties.attachments.items.enum = attachments;
 
     createJSONEditor(editor.schema); // after changes the forms should be recreated
+}
+
+function setJsonValue(field, value){
+    obj = editor.getValue();
+    $(field).val(JSON.stringify(value, null, 3))
+    var path = field.data('schemapath');
+    var props = path.replace('root.', '').split('.');
+    props.forEach(function (propName, index) {
+        if (index === props.length - 1) {
+            obj[propName] = value; // Assign new value to the final property
+        } else {
+            obj = obj[propName]; // Traverse the nested properties
+        }
+    });    
+    editor.setValue(editor.getValue());
+    $(editor).trigger('change');
+    console.log((editor.getValue()));
+}
+
+function setJsonCondition(field) {
+    var value = editor.getValue();
+    var props = field.attr('id').split('[');
+    props.forEach(function (prop, index) {
+        if (prop.endsWith(']')) {
+            var propName = prop.substring(0, prop.length - 1);
+            if (index === props.length - 1) {
+                value[propName] = rulesToJsonLogic(rules); // Assign new value to the final property
+            } else {
+                value = value[propName]; // Traverse the nested properties
+            }
+        }
+    });
+}
+
+function adjustConditions() {
+    $('textarea[name*="condition"]').each(function () {
+        try {
+            var json_object = JSON.parse($(this).val());
+            console.log($(this).attr('id'));
+        } catch (error) {
+
+        }
+    });
+    $(editor).trigger('change');
+}
+
+JSONEditor.defaults.callbacks = {
+    "button": {
+        "myAction": function (jseditor, e) {
+            var rules_field = $(e.target).parent().parent().parent().parent().prev().prev().find('[data-schemapath*="rules"]');
+            var builder_field = $(e.target).parent().parent().parent().parent().prev().find('[data-schemapath*="builder"]');
+            $(".condition_builder_modal_holder").modal({
+                backdrop: false
+            });
+            $('.saveConditionBuilder').each(function () {
+                $(this).attr('data-dismiss', 'modal');
+                $(this).off('click').click(function () {
+                    var rules = $('.condition_builder').queryBuilder('getRules');
+                    // $(rules_field).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
+                    // $(rules_field).trigger('change');
+                    // $(jseditor.parent).trigger('change');
+                    // console.log(editor.getValue());
+                    // res = editor.getValue();
+                    // console.log(res);
+                    // // $res['condition'] = rulesToJsonLogic(rules);
+                    // console.log(rules_field.attr('id'));
+                    // var value = res;
+                    // rules_field.attr('id').split('[').forEach(function (prop) {
+                    //     if (prop.endsWith(']')) {
+                    //         var propName = prop.substring(0, prop.length - 1);
+                    //         value = value[propName];
+                    //     }
+                    // });
+
+                    // var value = editor.getValue();
+                    // var props = rules_field.attr('id').split('[');
+                    // props.forEach(function (prop, index) {
+                    //     if (prop.endsWith(']')) {
+                    //         var propName = prop.substring(0, prop.length - 1);
+                    //         if (index === props.length - 1) {
+                    //             value[propName] = rulesToJsonLogic(rules); // Assign new value to the final property
+                    //         } else {
+                    //             value = value[propName]; // Traverse the nested properties
+                    //         }
+                    //     }
+                    // });
+
+                    setJsonValue(rules_field,rulesToJsonLogic(rules));
+                    setJsonValue(builder_field,rules);
+
+
+                    // $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
+                    // $(jqueryBuilderJsonInput).trigger('change');
+                    // $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
+                    // $(condition).trigger('change');
+                    // $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
+                    // if (rules) {
+                    //     $('.conditionBuilderBtn').addClass('btn-warning');
+                    //     $('.conditionBuilderBtn').html('Edit Condition');
+                    // } else {
+                    //     $('.conditionBuilderBtn').addClass('btn-primary');
+                    //     $('.conditionBuilderBtn').html('Add Condition');
+                    // }
+                })
+            });
+        }
+    }
 }
