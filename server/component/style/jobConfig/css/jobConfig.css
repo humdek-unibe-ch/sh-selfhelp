@@ -1,0 +1,248 @@
+.jobConfig .card-title.level-1 {
+    display: flex !important;
+    border-bottom: 1px solid var(--secondary);
+    align-items: center;
+}
+
+.jobConfig .card-title.level-1>button {
+    z-index: 100;
+}
+
+.jobConfig .card-title.level-3 {
+    display: flex !important;
+    align-items: center;
+    flex-direction: row-reverse;
+    border-bottom: 1px solid var(--secondary);
+    margin-right: -15px;
+    padding: 0.5rem 15px 0.5rem 0;
+}
+
+.jobConfig .card-title.level-2,
+.card-title.level-4 {
+    float: right;
+    display: flex !important;
+    align-items: center;
+    flex-direction: row-reverse;
+}
+
+.jobConfig label {
+    margin: 0;
+}
+
+.jobConfig .btn-group {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+.jobConfig h3 .btn-group {
+    display: block !important;
+}
+
+.jobConfig h3 {
+    font-size: 1rem;
+}
+
+.jobConfig .nav-link {
+    padding: 0.25rem 0.5rem;
+    font-size: .875rem;
+}
+
+.json-editor-btn-add {
+    background-color: var(--success);
+}
+
+.json-editor-btn-delete,
+.json-editor-btn-subtract {
+    background-color: var(--danger);
+}
+
+.jobConfig .nav-link {
+    color: var(--dark);
+}
+
+.jobConfig .nav-link.active {
+    background-color: var(--secondary) !important;
+    color: var(--white) !important;
+}
+
+.jobConfig .btn:focus,
+.btn:active,
+.btn:target,
+.btn:hover,
+.btn:focus-visible,
+.btn:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.json-editor-btn-collapse.btn:active {
+    color: var(--dark) !important;
+    background-color: transparent !important;
+}
+
+.jobConfig .json-editor-btn-collapse {
+    /* display: none; */
+    border: 0;
+    color: inherit;
+    background: inherit;
+    margin: 0;
+}
+
+.jobConfig .json-editor-btn-collapse .fa-caret-down::before {
+    content: "\f102";
+}
+
+.jobConfig .json-editor-btn-collapse .fa-caret-right::before {
+    content: "\f103";
+}
+
+.jobConfig .modal-dialog {
+    max-width: 95% !important;
+    z-index: 1000;
+}
+
+.jobConfig .modal-dialog .modal-header {
+    background: var(--secondary);
+    color: var(--white)
+}
+
+.jobConfig .btn-group button {
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.jobConfig_holder {
+    min-height: 80vh;
+}
+
+.jobConfig .modal-body {
+    padding: 0;
+    background-color: var(--light);
+}
+
+#Data-Source .nav {
+    padding-left: 0.25rem;
+}
+
+#Data-Source {
+    padding: 0;
+}
+
+.jobConfig>.je-noindent>.row {
+    margin: 0;
+}
+
+#Data-Source>.je-object__container>p {
+    border-top: 1px solid;
+    margin-right: -15px;
+    font-style: italic;
+}
+
+#Field>.je-object__container>p {
+    border-top: 1px solid;
+    margin-right: -15px;
+    font-style: italic;
+}
+
+#jobConfig .bootstrap-select {
+    border: 1px solid;
+}
+
+#jobConfig select {
+    border: 1px solid;
+}
+
+#jobConfig input {
+    border: 1px solid;
+}
+
+[data-schemapath*="condition"] .card-body {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+[data-schemapath*="condition"] [data-schematype="button"] {
+    background-color: white;
+}
+
+#jobConfig>[data-schemaid="root"]>.card-body {
+    padding: 0;
+    border: none;
+    background-color: white !important;
+}
+
+#jobConfig>[data-schemaid="root"] .json-editor-btn-edit {
+    width: 50px !important;
+    max-width: 80px;
+    margin-right: 0px;
+    margin-left: auto;
+}
+
+#jobConfig>[data-schemaid="root"]>.btn-group {
+    margin-left: auto;
+    margin-right: 0;
+    width: 100%;
+    display: flex;
+    align-items: end;
+    position: relative;
+    top: -50px;
+    z-index: 1;
+}
+
+#jobConfig .form-check {
+    display: flex;
+    align-items: center;
+}
+
+#jobConfig .form-group {
+    margin: 0 !important;
+}
+
+#jobConfig [data-schemapath="root.randomizer"] p {
+    margin: 0 !important;
+}
+
+#jobConfig [data-schemapath="root.randomizer"] .card-body {
+    padding: 0.75rem;
+}
+
+#jobConfig [data-schemapath="root.randomizer.random_elements"] .form-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#jobConfig [data-schemapath="root.randomizer.random_elements"] .form-group label {
+    margin-right: 20px;
+}
+
+#jobConfig [data-schemapath="root.randomizer.random_elements"] .form-group .form-control {
+    width: 50px;
+    height: 30px;
+}
+
+.jobConfig [data-schemapath="root.blocks"] .card-title.level-2 {
+    display: flex !important;
+    border-bottom: 1px solid var(--secondary);
+    align-items: center;
+    width: 100%;
+}
+
+.jobConfig [data-schemapath="root.randomizer"] .card-title.level-2 {
+    display: flex !important;
+    border-bottom: 1px solid var(--secondary);
+    align-items: center;
+    width: 100%;
+}
+
+.jobConfig [data-schemapath="root.repeater"] .card-title.level-2 {
+    display: flex !important;
+    border-bottom: 1px solid var(--secondary);
+    align-items: center;
+    width: 100%;
+}
+
+.jobConfig  [data-schemapath="root.randomize"], [data-schemapath="root.repeat"], [data-schemapath="root.target_groups"], [data-schemapath="root.overwrite_variables"]{
+    margin: 10px 0;
+}

@@ -3,6 +3,12 @@
 	"definitions": {
 		"condition_ref": {
 			"type": "object",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,
+				"compact": true
+			},
 			"properties": {
 				"jsonLogic": {
 					"type": "object",
@@ -68,6 +74,7 @@
 				},
 				"jobs": {
 					"type": "array",
+					"format": "tabs",
 					"items": {
 						"title": "job",
 						"$ref": "#/definitions/job_ref"
@@ -77,28 +84,44 @@
 		},
 		"randomizer_ref": {
 			"type": "object",
+			"format": "grid-strict",
+			"description": "Add randomization options for the blocks",
 			"properties": {
 				"even_presentation": {
-					"type": "boolean"
+					"type": "boolean",
+					"format": "checkbox",
+					"title": "Evenly present blocks",
+					"description": "When enabled, the blocks will be presented evenly. A count field will be added to each block and it will be used to adjust the ammount of entries. The counter is global per action and not per user.",
+					"options": {
+						"grid_columns": 6
+					}
 				},
 				"random_elements": {
 					"type": "number",
+					"title": "Randomly present",
 					"minimum": 1,
 					"default": 1,
-					"description": "Randomly present the selected ammount of the blocks"
+					"description": "Randomly present the selected ammount from the following blocks.",
+					"options": {
+						"grid_columns": 6
+					}
 				}
 			}
 		},
 		"repeater_ref": {
 			"type": "object",
-			"description": "Define repetition of the blocks. It creates a loop where new dates are calculated based on their date to be schedulete. Example: if you schedule a job immediately and it was defined to occurre 3 times every day, then 3 jobs will be created. One for now, one for tomorrow the same time and one for the day after tomorrow at the same time",
+			"description": "Define repetition of the blocks. It creates a loop where new dates are calculated based on their date to be scheduled. Example: if you schedule a job immediately and it was defined to occur 3 times every day, then 3 jobs will be created. One for now, one for tomorrow the same time and one for the day after tomorrow at the same time",
+			"format": "grid-strict",
 			"properties": {
 				"occurrences": {
 					"type": "integer",
 					"title": "Occurrences",
 					"minimum": 1,
 					"default": 1,
-					"description": "How many times the blocks should be scheduled."
+					"description": "How many times the blocks should be scheduled.",
+					"options": {
+						"grid_columns": 3
+					}
 				},
 				"frequency": {
 					"type": "string",
@@ -109,6 +132,7 @@
 						"month"
 					],
 					"options": {
+						"grid_columns": 3,
 						"enum_titles": [
 							"Day",
 							"Week",
@@ -123,7 +147,7 @@
 					"uniqueItems": true,
 					"format": "select2",
 					"options": {
-						"grid_columns": 12,
+						"grid_columns": 6,
 						"select2": {
 							"tags": true
 						},
@@ -153,7 +177,7 @@
 					"format": "select2",
 					"uniqueItems": true,
 					"options": {
-						"grid_columns": 12,
+						"grid_columns": 6,
 						"select2": {
 							"tags": true
 						},
@@ -667,30 +691,69 @@
 	"title": "Action config",
 	"id": "root",
 	"type": "object",
+	"format": "grid-strict",
 	"required": [
 		"blocks"
 	],
+	"options": {
+		"disable_properties": true
+	},
 	"properties": {
 		"condition": {
 			"title": "Condition",
-			"$ref": "#/definitions/condition_ref"
+			"$ref": "#/definitions/condition_ref",
+			"options": {
+				"grid_columns": 12
+			}
 		},
 		"randomize": {
+			"title": "Randomize",
 			"type": "boolean",
-			"default": false
+			"default": false,
+			"format": "checkbox",
+			"options": {
+				"grid_columns": 3
+			}
+		},
+		"repeat": {
+			"title": "Repeat",
+			"type": "boolean",
+			"default": false,
+			"format": "checkbox",
+			"options": {
+				"grid_columns": 3
+			}
+		},		
+		"target_groups": {
+			"type": "boolean",
+			"title":"Target groups",
+			"default": false,
+			"format": "checkbox",
+			"options": {
+				"grid_columns": 3
+			}
+		},
+		"overwrite_variables": {
+			"type": "boolean",
+			"title": "Overwrite variables",
+			"default": false,
+			"format": "checkbox",
+			"options": {
+				"grid_columns": 3
+			}
 		},
 		"randomizer": {
-			"title": "randomizer",
+			"title": "Randomizer",
 			"$ref": "#/definitions/randomizer_ref",
 			"options": {
 				"dependencies": {
 					"randomize": true
-				}
+				},
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,				
+				"grid_columns": 12
 			}
-		},
-		"repeat": {
-			"type": "boolean",
-			"default": false
 		},
 		"repeater": {
 			"title": "Repeater",
@@ -698,12 +761,12 @@
 			"options": {
 				"dependencies": {
 					"repeat": true
-				}
+				},
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,				
+				"grid_columns": 12
 			}
-		},
-		"target_groups": {
-			"type": "boolean",
-			"default": false
 		},
 		"selected_target_groups": {
 			"type": "array",
@@ -712,10 +775,11 @@
 			"options": {
 				"dependencies": {
 					"target_groups": true
-				}
+				},
+				"grid_columns": 6
 			},
-			"title": "target_groups",
-			"description": "target_groups",
+			"title": "Select target groups",
+			"description": "All jobs will be executed to all users within the selected groups. Use it carefully.",
 			"items": {
 				"type": "string",
 				"enum": [
@@ -726,10 +790,6 @@
 				]
 			}
 		},
-		"overwrite_variables": {
-			"type": "boolean",
-			"default": false
-		},
 		"selected_overwrite_variables": {
 			"type": "array",
 			"uniqueItems": true,
@@ -737,10 +797,14 @@
 			"options": {
 				"dependencies": {
 					"overwrite_variables": true
-				}
+				},
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,				
+				"grid_columns": 6
 			},
-			"title": "overwrite_variables",
-			"description": "overwrite_variables",
+			"title": "Overwrite variables",
+			"description": "Select which variables to be overwritten. If a value with the same name is submitted in the form, it will be used to overwrite the selected variable.",
 			"items": {
 				"type": "string",
 				"enum": [
@@ -753,6 +817,7 @@
 		},
 		"blocks": {
 			"type": "array",
+			"format": "tabs",
 			"items": {
 				"title": "Block",
 				"$ref": "#/definitions/block_ref"

@@ -185,8 +185,8 @@ class ModuleFormsActionView extends BaseView
                             "items" => $this->get_lookups(actionTriggerTypes),
                         )),
                         new BaseStyleComponent("conditionBuilder", array(
-                            "value" => $this->action['condition_logic'] ?? '',
-                            "name" => 'condition'
+                            "name" => 'condition',
+                            "css" => "d-none"
                         )),
                         new BaseStyleComponent("textarea", array(
                             "value" => $this->action['condition_jquery_builder_json'] ?? '',
@@ -194,7 +194,6 @@ class ModuleFormsActionView extends BaseView
                             "css" => "d-none"
                         )),
                         new BaseStyleComponent("JobConfig", array(
-                            "label" => "Config",
                             "type_input" => "json",
                             "id" => "config",
                             "name" => "config",
