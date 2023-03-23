@@ -14,14 +14,14 @@
 					"type": "object",
 					"title": "jsonLogic",
 					"options": {
-						"hidden": true
+						"hidden": false
 					}
 				},
 				"builder": {
 					"type": "object",
 					"title": "Builder",
 					"options": {
-						"hidden": true
+						"hidden": false
 					}
 				},
 				"condition_btn": {
@@ -37,6 +37,15 @@
 		},
 		"block_ref": {
 			"type": "object",
+			"title": "Block",
+			"headerTemplate": "{{i}} - {{self.block_name}}",
+			"format": "grid-strict",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,
+				"compact": true
+			},
 			"properties": {
 				"index": {
 					"type": "number",
@@ -44,12 +53,20 @@
 						"hidden": true
 					}
 				},
-				"block_name": {
-					"type": "string"
-				},
 				"condition": {
 					"title": "Condition",
-					"$ref": "#/definitions/condition_ref"
+					"$ref": "#/definitions/condition_ref",
+					"options": {
+						"grid_columns": 12
+					}
+				},
+				"block_name": {
+					"title": "Block name",
+					"default": "Block",
+					"type": "string",
+					"options": {
+						"grid_columns": 6
+					}
 				},
 				"show_randomization_count_hidden": {
 					"watch": {
@@ -63,20 +80,24 @@
 				},
 				"randomization_count": {
 					"type": "number",
+					"title": "Randomization count",
 					"default": 0,
+					"description": "It keeps the state of the randomization count for even presentation.",
 					"options": {
 						"dependencies": {
 							"show_randomization_count_hidden": [
 								"true-true"
 							]
-						}
+						},
+						"grid_columns": 6
 					}
 				},
 				"jobs": {
 					"type": "array",
 					"format": "tabs",
+					"title": "Jobs",
 					"items": {
-						"title": "job",
+						"title": "Job",
 						"$ref": "#/definitions/job_ref"
 					}
 				}
@@ -230,16 +251,27 @@
 		"schedule_time_reminder_ref": {
 			"type": "object",
 			"description": "Define how much time after the notification, the reminder will be sent",
+			"title": "Reminder schedule time",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true
+			},
+			"format": "grid-strict",
 			"properties": {
 				"send_after": {
 					"type": "number",
 					"title": "Send after",
 					"minimum": 1,
-					"default": 1
+					"default": 1,
+					"options": {
+						"grid_columns": 6
+					}
 				},
 				"send_after_type": {
 					"type": "string",
-					"title": " ",
+					"title": "&nbsp;",
+					"default": "days",
 					"enum": [
 						"seconds",
 						"minutes",
@@ -247,7 +279,10 @@
 						"days",
 						"weeks",
 						"months"
-					]
+					],
+					"options": {
+						"grid_columns": 6
+					}
 				},
 				"parent_job_type_hidden": {
 					"type": "string",
@@ -265,6 +300,7 @@
 					"minimum": 1,
 					"default": 1,
 					"options": {
+						"grid_columns": 6,
 						"dependencies": {
 							"parent_job_type_hidden": [
 								"notification_with_reminder_for_diary"
@@ -274,8 +310,9 @@
 				},
 				"valid_type": {
 					"type": "string",
-					"description": "How much time is the reminder valid",
-					"title": " ",
+					"description": "For how much time the reminder is valid after it was sent",
+					"title": " &nbsp;",
+					"default": "hours",
 					"enum": [
 						"seconds",
 						"minutes",
@@ -285,6 +322,7 @@
 						"months"
 					],
 					"options": {
+						"grid_columns": 6,
 						"dependencies": {
 							"parent_job_type_hidden": [
 								"notification_with_reminder_for_diary"
@@ -296,12 +334,23 @@
 		},
 		"schedule_time_ref": {
 			"type": "object",
+			"title": "Schedule time",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true
+			},
 			"required": [
 				"send_on_day_at"
 			],
+			"format": "grid-strict",
 			"properties": {
 				"job_schedule_types": {
 					"type": "string",
+					"title": "Schedule type",
+					"options": {
+						"grid_columns": 12
+					},
 					"enumSource": [
 						{
 							"source": [
@@ -330,7 +379,10 @@
 				"send_after": {
 					"type": "number",
 					"title": "Send after",
+					"default": 1,
+					"minimum": 1,
 					"options": {
+						"grid_columns": 4,
 						"dependencies": {
 							"job_schedule_types": [
 								"after_period"
@@ -340,7 +392,8 @@
 				},
 				"send_after_type": {
 					"type": "string",
-					"title": "Send after type",
+					"title": "&nbsp;",
+					"default": "days",
 					"enum": [
 						"seconds",
 						"minutes",
@@ -350,6 +403,7 @@
 						"months"
 					],
 					"options": {
+						"grid_columns": 4,
 						"dependencies": {
 							"job_schedule_types": [
 								"after_period"
@@ -362,6 +416,7 @@
 					"title": "Send on",
 					"enumSource": [],
 					"options": {
+						"grid_columns": 4,
 						"dependencies": {
 							"job_schedule_types": [
 								"after_period_on_day_at_time"
@@ -371,9 +426,10 @@
 				},
 				"send_on_day": {
 					"type": "string",
-					"title": "Send on day",
+					"title": "&nbsp;",
 					"enumSource": [],
 					"options": {
+						"grid_columns": 4,
 						"dependencies": {
 							"job_schedule_types": [
 								"after_period_on_day_at_time"
@@ -384,8 +440,9 @@
 				"send_on_day_at": {
 					"type": "string",
 					"format": "time",
-					"title": "send_on_day_at",
+					"title": "at",
 					"options": {
+						"grid_columns": 4,
 						"dependencies": {
 							"job_schedule_types": [
 								"after_period_on_day_at_time",
@@ -406,8 +463,9 @@
 				"custom_time": {
 					"type": "string",
 					"format": "datetime-local",
-					"title": "custom_time",
+					"title": "Select date",
 					"options": {
+						"grid_columns": 12,
 						"dependencies": {
 							"job_schedule_types": [
 								"on_fixed_datetime"
@@ -429,6 +487,13 @@
 		},
 		"notification_ref": {
 			"type": "object",
+			"title": "Notification",
+			"format": "grid-strict",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true
+			},
 			"properties": {
 				"notification_types": {
 					"type": "string",
@@ -439,6 +504,11 @@
 					],
 					"default": "email",
 					"options": {
+						"grid_columns": 12,
+						"enum_titles": [
+							"Email",
+							"Push notification"
+						],
 						"dependencies": {
 							"job_type": [
 								"notification",
@@ -450,8 +520,9 @@
 				},
 				"redirect_url": {
 					"type": "string",
-					"title": "Redirect URL",
+					"title": "Redirect to URL",
 					"options": {
+						"grid_columns": 6,
 						"dependencies": {
 							"notification_types": [
 								"push_notification"
@@ -463,6 +534,7 @@
 					"type": "string",
 					"title": "From email",
 					"options": {
+						"grid_columns": 6,
 						"dependencies": {
 							"notification_types": [
 								"email"
@@ -474,6 +546,7 @@
 					"type": "string",
 					"title": "From name",
 					"options": {
+						"grid_columns": 6,
 						"dependencies": {
 							"notification_types": [
 								"email"
@@ -485,6 +558,7 @@
 					"type": "string",
 					"title": "Reply to",
 					"options": {
+						"grid_columns": 6,
 						"dependencies": {
 							"notification_types": [
 								"email"
@@ -497,39 +571,7 @@
 					"title": "Send To (recipient)",
 					"description": "Use @user for the user who is triggering the action, separate with `;` for emails",
 					"options": {
-						"dependencies": {
-							"notification_types": [
-								"push_notification",
-								"email"
-							]
-						}
-					}
-				},
-				"subject": {
-					"type": "string",
-					"title": "Subject",
-					"options": {
-						"dependencies": {
-							"notification_types": [
-								"push_notification",
-								"email"
-							]
-						}
-					}
-				},
-				"body": {
-					"type": "string",
-					"format": "markdown",
-					"title": "Body",
-					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
-					"options": {
-						"simplemde": {
-							"autoDownloadFontAwesome": false,
-							"spellChecker": false,
-							"renderingConfig": {
-								"singleLineBreaks": false
-							}
-						},
+						"grid_columns": 6,
 						"dependencies": {
 							"notification_types": [
 								"push_notification",
@@ -560,11 +602,51 @@
 							"att3"
 						]
 					}
+				},
+				"subject": {
+					"type": "string",
+					"title": "Subject",
+					"options": {
+						"grid_columns": 12,
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
+				},
+				"body": {
+					"type": "string",
+					"format": "markdown",
+					"title": "Body",
+					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
+					"options": {
+						"grid_columns": 12,
+						"simplemde": {
+							"autoDownloadFontAwesome": false,
+							"spellChecker": false,
+							"renderingConfig": {
+								"singleLineBreaks": false
+							}
+						},
+						"dependencies": {
+							"notification_types": [
+								"push_notification",
+								"email"
+							]
+						}
+					}
 				}
 			}
 		},
 		"reminder_ref": {
 			"type": "object",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true
+			},
 			"properties": {
 				"form_id": {
 					"type": "string",
@@ -587,30 +669,58 @@
 		"job_ref": {
 			"type": "object",
 			"id": "job",
+			"title": "Job",
+			"headerTemplate": "{{i}} - {{self.job_name}}",
+			"format": "grid-strict",
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,
+				"compact": true
+			},
 			"properties": {
-				"job_name": {
-					"type": "string",
-					"title": "job name"
-				},
 				"condition": {
 					"title": "Condition",
-					"$ref": "#/definitions/condition_ref"
+					"$ref": "#/definitions/condition_ref",
+					"options": {
+						"grid_columns": 12
+					}
+				},
+				"job_name": {
+					"type": "string",
+					"title": "Job name",
+					"default": "Job",
+					"options": {
+						"grid_columns": 6
+					}
 				},
 				"job_type": {
 					"type": "string",
+					"title": "Job type",
 					"enum": [
 						"add_group",
 						"remove_group",
 						"notification",
 						"notification_with_reminder",
 						"notification_with_reminder_for_diary"
-					]
+					],
+					"options": {
+						"enum_titles": [
+							"Add group",
+							"Remove group",
+							"Schedule notification",
+							"Schedule notification with reminders",
+							"Schedule notification with reminders for a diary"
+						],
+						"grid_columns": 6
+					}
 				},
 				"reminder_form_id": {
 					"type": "string",
 					"title": "Reminder for",
 					"enumSource": [],
 					"options": {
+						"grid_columns": 12,
 						"dependencies": {
 							"job_type": [
 								"notification_with_reminder",
@@ -663,6 +773,8 @@
 				},
 				"reminders": {
 					"type": "array",
+					"title": "Reminders",
+					"format": "tabs-top",
 					"items": {
 						"title": "reminder",
 						"$ref": "#/definitions/reminder_ref"
@@ -678,6 +790,13 @@
 				},
 				"on_job_execute": {
 					"type": "object",
+					"options": {
+						"disable_collapse": true,
+						"disable_edit_json": true,
+						"disable_properties": true,
+						"compact": true,
+						"grid_columns": 12
+					},
 					"properties": {
 						"condition": {
 							"title": "Condition on job execute",
@@ -723,10 +842,10 @@
 			"options": {
 				"grid_columns": 3
 			}
-		},		
+		},
 		"target_groups": {
 			"type": "boolean",
-			"title":"Target groups",
+			"title": "Target groups",
 			"default": false,
 			"format": "checkbox",
 			"options": {
@@ -751,7 +870,7 @@
 				},
 				"disable_collapse": true,
 				"disable_edit_json": true,
-				"disable_properties": true,				
+				"disable_properties": true,
 				"grid_columns": 12
 			}
 		},
@@ -764,7 +883,7 @@
 				},
 				"disable_collapse": true,
 				"disable_edit_json": true,
-				"disable_properties": true,				
+				"disable_properties": true,
 				"grid_columns": 12
 			}
 		},
@@ -800,7 +919,7 @@
 				},
 				"disable_collapse": true,
 				"disable_edit_json": true,
-				"disable_properties": true,				
+				"disable_properties": true,
 				"grid_columns": 6
 			},
 			"title": "Overwrite variables",
@@ -817,7 +936,8 @@
 		},
 		"blocks": {
 			"type": "array",
-			"format": "tabs",
+			"title": "Blocks",
+			"format": "tabs-top",
 			"items": {
 				"title": "Block",
 				"$ref": "#/definitions/block_ref"

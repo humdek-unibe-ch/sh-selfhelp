@@ -33,6 +33,18 @@ function createJSONEditor(schema) {
                     // The element has a name containing "attachments"
                     $(this).data('live-search', 'true'); // add live search
                 }
+                if ($(this).is('[name*="reminder_form_id"]')) {
+                    // The element has a name containing "reminder_form_id"
+                    $(this).data('live-search', 'true'); // add live search
+                }
+                if ($(this).is('[name*="job_add_remove_groups"]')) {
+                    // The element has a name containing "job_add_remove_groups"
+                    $(this).data('live-search', 'true'); // add live search
+                }
+                if ($(this).is('[name*="selected_target_groups"]')) {
+                    // The element has a name containing "selected_target_groups"
+                    $(this).data('live-search', 'true'); // add live search
+                }
                 $(this).selectpicker();
                 $(this).selectpicker('refresh');
             });
@@ -188,9 +200,17 @@ function getBuilderValues(builder_field) {
 JSONEditor.defaults.callbacks = {
     "button": {
         "showConditionBuilder": function (jseditor, e) {
+
+            console.log(e.target);
+
             var jsonLogic_field = $(e.target).parent().parent().parent().parent().prev().prev().find('[data-schemapath*="jsonLogic"]');
             var builder_field = $(e.target).parent().parent().parent().parent().prev().find('[data-schemapath*="builder"]');
-            console.log(builder_field[0]);
+
+            console.log($(e.target).parents());
+
+            jsonLogic_field = $(e.target).prevAll().filter('[data-schemapath*="jsonLogic"]').first();
+
+            console.log(jsonLogic_field);
             getBuilderValues(builder_field);
             $(".condition_builder_modal_holder").modal({
                 backdrop: false
