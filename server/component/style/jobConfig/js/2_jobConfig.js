@@ -16,9 +16,9 @@ function createJSONEditor(schema) {
         schema: schema,
         show_errors: "always",
 
-    });
-    editor.on('ready', () => {
-        crrValue = false;
+    });    
+    editor.on('ready', () => {        
+        var crrValue = false;
         try {
             crrValue = JSON.parse($('#jobConfigValue').val());
         } catch (error) {
@@ -27,6 +27,7 @@ function createJSONEditor(schema) {
         if (crrValue) {
             editor.editors.root.setValue(crrValue, true)
         }
+        check_condition_btns();
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
                 if ($(this).is('[name*="attachments"]')) {
@@ -47,12 +48,27 @@ function createJSONEditor(schema) {
                 }
                 $(this).selectpicker();
                 $(this).selectpicker('refresh');
-            });
+            });            
             $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
+            check_condition_btns();
         });
-        if ($('#jobConfig').hasClass('view-select')) {
+        if ($('#jobConfig').hasClass('view-mode')) {
             // disable the form if we are in view mode
             editor.disable();
+        }
+    });
+}
+
+function check_condition_btns() {
+    $('#jobConfig').find('[data-container="condition-btn"]').each(function () {
+        var builder_field = $(this).parent().parent().parent().prev().find('[data-schemapath*="builder"]');
+        var builder_val = getBuilderValues(builder_field);
+        if (builder_val) {
+            $(this).removeClass('btn-primary').addClass('btn-warning');
+            $(this).text($(this).text().replace('Add', 'Edit'));
+        }else{
+            $(this).removeClass('btn-warning').addClass('btn-primary');
+            $(this).text($(this).text().replace('Edit', 'Add'));
         }
     });
 }
@@ -175,7 +191,6 @@ function setJsonValue(field, value) {
 function getBuilderValues(builder_field) {
     var obj = editor.getValue();
     var path = builder_field.data('schemapath');
-    console.log(path);
     var props = path.replace('root.', '').split('.');
     var builder_field_value = '{}';
     props.forEach(function (propName, index) {
@@ -185,8 +200,10 @@ function getBuilderValues(builder_field) {
             obj = obj[propName]; // Traverse the nested properties
         }
     });
-    $('.condition_builder').queryBuilder('destroy');
-    jqueryBuilderValue = null;
+    if ($('.condition_builder').length > 0) {
+        $('.condition_builder').queryBuilder('destroy');
+    }
+    var jqueryBuilderValue = null;
     try {
         if (Object.keys(builder_field_value).length !== 0) {
             jqueryBuilderValue = JSON.stringify(builder_field_value);
@@ -194,24 +211,20 @@ function getBuilderValues(builder_field) {
     } catch (error) {
 
     }
-    prepareConditionBuilder(jqueryBuilderValue);
+    return jqueryBuilderValue;    
 }
 
 JSONEditor.defaults.callbacks = {
     "button": {
         "showConditionBuilder": function (jseditor, e) {
-
-            console.log(e.target);
-
-            var jsonLogic_field = $(e.target).parent().parent().parent().parent().prev().prev().find('[data-schemapath*="jsonLogic"]');
-            var builder_field = $(e.target).parent().parent().parent().parent().prev().find('[data-schemapath*="builder"]');
-
-            console.log($(e.target).parents());
-
-            jsonLogic_field = $(e.target).prevAll().filter('[data-schemapath*="jsonLogic"]').first();
-
-            console.log(jsonLogic_field);
-            getBuilderValues(builder_field);
+            var builder_field = $(e.target).parent().parent().parent().prev().find('[data-schemapath*="builder"]');
+            if (e.target.tagName === 'SPAN') {
+                builder_field = $(e.target).parent().parent().parent().parent().prev().find('[data-schemapath*="builder"]');
+            }
+            var jsonLogic_field = $(builder_field).parent().prev().find('[data-schemapath*="jsonLogic"]');
+            if (builder_field.length > 0) {
+                prepareConditionBuilder(getBuilderValues(builder_field));
+            }
             $(".condition_builder_modal_holder").modal({
                 backdrop: false
             });

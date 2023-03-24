@@ -2,6 +2,44 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"definitions": {
 		"condition_ref": {
+			"type": "object",			
+			"options": {
+				"disable_collapse": true,
+				"disable_edit_json": true,
+				"disable_properties": true,
+				"compact": true
+			},
+			"properties": {
+				"jsonLogic": {
+					"type": "object",
+					"title": "jsonLogic",
+					"options": {
+						"hidden": true
+					}
+				},
+				"builder": {
+					"type": "object",
+					"title": "Builder",
+					"options": {
+						"hidden": true
+					}
+				},
+				"condition_btn": {
+					"type": "button",
+					"title": "Add condition",					
+					"options": {
+						"button": {
+							"action": "showConditionBuilder"
+						},
+						"inputAttributes": {
+						  "data-container":  "condition-btn",
+						  "class": "btn btn-primary btn-sm json-editor-btn-"
+						}
+					}
+				}
+			}
+		},
+		"condition_ref_on_execute": {
 			"type": "object",
 			"options": {
 				"disable_collapse": true,
@@ -14,22 +52,26 @@
 					"type": "object",
 					"title": "jsonLogic",
 					"options": {
-						"hidden": false
+						"hidden": true
 					}
 				},
 				"builder": {
 					"type": "object",
 					"title": "Builder",
 					"options": {
-						"hidden": false
+						"hidden": true
 					}
 				},
 				"condition_btn": {
 					"type": "button",
-					"title": "Add condition",
+					"title": "Add condition on execute",
 					"options": {
 						"button": {
 							"action": "showConditionBuilder"
+						},
+						"inputAttributes": {
+						  "data-container":  "condition-btn",
+						  "class": "btn btn-primary btn-sm json-editor-btn-"
 						}
 					}
 				}
@@ -683,7 +725,23 @@
 					"title": "Condition",
 					"$ref": "#/definitions/condition_ref",
 					"options": {
-						"grid_columns": 12
+						"grid_columns": 6
+					}
+				},
+				"on_job_execute": {
+					"type": "object",
+					"options": {
+						"disable_collapse": true,
+						"disable_edit_json": true,
+						"disable_properties": true,
+						"compact": true,
+						"grid_columns": 6
+					},
+					"properties": {
+						"condition": {
+							"title": "Condition on job execute",
+							"$ref": "#/definitions/condition_ref_on_execute"
+						}
 					}
 				},
 				"job_name": {
@@ -785,22 +843,6 @@
 								"notification_with_reminder",
 								"notification_with_reminder_for_diary"
 							]
-						}
-					}
-				},
-				"on_job_execute": {
-					"type": "object",
-					"options": {
-						"disable_collapse": true,
-						"disable_edit_json": true,
-						"disable_properties": true,
-						"compact": true,
-						"grid_columns": 12
-					},
-					"properties": {
-						"condition": {
-							"title": "Condition on job execute",
-							"$ref": "#/definitions/condition_ref"
 						}
 					}
 				}

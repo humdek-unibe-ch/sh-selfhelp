@@ -269,12 +269,11 @@ class ModuleFormsActionView extends BaseView
                     ))),
                 )),
                 new BaseStyleComponent("JobConfig", array(
-                    "label" => "Config",
                     "type_input" => "json",
                     "id" => "config",
                     "name" => "config",
                     "value" => isset($this->action["config"]) ? $this->action["config"] : '',
-                    "css" => "view-select",
+                    "css" => "jobConfig view-mode",
                     "placeholder" => "",
                 ))
             )
