@@ -1613,7 +1613,7 @@ class UserInput
                 $action['config'] = json_decode($action['config'], true);              
                 if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) { 
                     $result['condition'] = "Action condition is not met";
-                    break;
+                    continue;
                 }
 
                 

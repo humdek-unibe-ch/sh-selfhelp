@@ -16,8 +16,8 @@ function createJSONEditor(schema) {
         schema: schema,
         show_errors: "always",
 
-    });    
-    editor.on('ready', () => {        
+    });
+    editor.on('ready', () => {
         var crrValue = false;
         try {
             crrValue = JSON.parse($('#jobConfigValue').val());
@@ -48,7 +48,7 @@ function createJSONEditor(schema) {
                 }
                 $(this).selectpicker();
                 $(this).selectpicker('refresh');
-            });            
+            });
             $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
             check_condition_btns();
         });
@@ -66,7 +66,7 @@ function check_condition_btns() {
         if (builder_val) {
             $(this).removeClass('btn-primary').addClass('btn-warning');
             $(this).text($(this).text().replace('Add', 'Edit'));
-        }else{
+        } else {
             $(this).removeClass('btn-warning').addClass('btn-primary');
             $(this).text($(this).text().replace('Edit', 'Add'));
         }
@@ -81,7 +81,7 @@ function check_condition_btns() {
  */
 function loadJobConfig() {
     if ($('#jobConfig').length > 0) {
-        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfigCond.json";
+        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfig.json";
         // get the schema with AJAX call
         $.ajax({
             dataType: "json",
@@ -194,10 +194,12 @@ function getBuilderValues(builder_field) {
     var props = path.replace('root.', '').split('.');
     var builder_field_value = '{}';
     props.forEach(function (propName, index) {
-        if (index === props.length - 1) {
-            builder_field_value = obj[propName]
-        } else {
-            obj = obj[propName]; // Traverse the nested properties
+        if (obj.hasOwnProperty(propName)) {
+            if (index === props.length - 1) {
+                builder_field_value = obj[propName]
+            } else {
+                obj = obj[propName]; // Traverse the nested properties
+            }
         }
     });
     if ($('.condition_builder').length > 0) {
@@ -211,7 +213,7 @@ function getBuilderValues(builder_field) {
     } catch (error) {
 
     }
-    return jqueryBuilderValue;    
+    return jqueryBuilderValue;
 }
 
 JSONEditor.defaults.callbacks = {

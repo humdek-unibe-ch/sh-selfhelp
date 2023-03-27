@@ -49,9 +49,7 @@ CREATE TABLE IF NOT EXISTS `formActions` (
 	`id` INT(10) UNSIGNED ZEROFILL NOT NULL PRIMARY KEY  AUTO_INCREMENT,		
 	`name` VARCHAR(200) NOT NULL,    
     `id_formProjectActionTriggerTypes` INT(10 ) UNSIGNED ZEROFILL NOT NULL,            
-    `config` TEXT,
-	`condition_logic` VARCHAR(10000),
-    `condition_jquery_builder_json` VARCHAR(10000)
+    `config` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `formActions_INTERNAL` (

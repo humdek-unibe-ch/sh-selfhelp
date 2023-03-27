@@ -1,11 +1,3 @@
-# v6.0.2
-###  New features
- - add conditions for blocks and jobs
-
-# v6.0.1
-###  Bugfix
- - properly load form reminder in `action` with `reminders`
-
 # v6.0.0
 ###  New features
  - rework module `Form Actions`. If you scheduled form actions in the past please contact support
@@ -14,6 +6,9 @@
  - better labeling and colors for `data_config` and `condition` buttons based on if a configuration is set or not
  - add new internal style `jobConfig`
  - refactor user input data to be with types: `internal`, `external` instead of `dynamic`, `static`
+
+###  Bugfix
+ - properly load form reminder in `action` with `reminders`
 
 ### Plugins
  - <code>`fitrockr`</code> plugin should be updated to v1.0.4
