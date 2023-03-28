@@ -1687,8 +1687,9 @@ class UserInput
                                         "condition" => 'Job condition is not met'
                                     );
                                 } else {
+                                    $scheduling_result = null;
                                     if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
-                                        $curr_block['jobs'][] = $this->queue_task($users, $job, $action, $form_data);
+                                        $scheduling_result = $this->queue_task($users, $job, $action, $form_data);
                                     } else if (
                                         $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
                                         $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
@@ -1696,15 +1697,16 @@ class UserInput
                                     ) {
                                         if ($job['notification']['notification_types'] == notificationTypes_email) {
                                             // the notification type is email                        
-                                            $curr_block['jobs'][] = $this->queue_mail($users, $job, $action, $form_data);
+                                            $scheduling_result = $this->queue_mail($users, $job, $action, $form_data);
                                         } else if ($job['notification']['notification_types'] == notificationTypes_push_notification) {
                                             // the notification type is push notification                        
-                                            $curr_block['jobs'][] = $this->queue_notification($users, $job, $action, $form_data);
+                                            $scheduling_result = $this->queue_notification($users, $job, $action, $form_data);
                                         }
                                     }
-                                    if (isset($res['sj_id'])) {
+                                    $curr_block['jobs'][] = $scheduling_result;
+                                    if (array_key_first($scheduling_result)) {                                        
                                         $this->db->insert('scheduledJobs_formActions', array(
-                                            "id_scheduledJobs" => $res['sj_id'],
+                                            "id_scheduledJobs" => array_key_first($scheduling_result),
                                             "id_formActions" => $action['id'],
                                         ));
                                     }

@@ -224,7 +224,7 @@ class JobScheduler
      * all the information required for the job
      * @param string $action_by
      * who triggered the action
-     * @retval int job_id if successfull otherwise false
+     * @return int job_id if successful otherwise false
      */
     public function execute_job($data, $tran_by)
     {
@@ -237,7 +237,7 @@ class JobScheduler
                 // send email
                 $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $data['config'], $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
-                // send notificaiton
+                // send notification
                 $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
                 // execute task
