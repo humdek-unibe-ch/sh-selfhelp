@@ -1704,9 +1704,9 @@ class UserInput
                                         }
                                     }
                                     $curr_block['jobs'][] = $scheduling_result;
-                                    if (array_key_first($scheduling_result)) {                                        
+                                    if (reset(array_keys($scheduling_result))) {                                        
                                         $this->db->insert('scheduledJobs_formActions', array(
-                                            "id_scheduledJobs" => array_key_first($scheduling_result),
+                                            "id_scheduledJobs" => reset(array_keys($scheduling_result)),
                                             "id_formActions" => $action['id'],
                                         ));
                                     }
