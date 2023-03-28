@@ -4,11 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container-fluid mt-3">
-    <div class="row">
-        <div class="col-auto">
+    <div class="d-flex w-100">
+        <div class="scheduled-jobs-side-buttons mr-3">
             <?php $this->output_side_buttons(); ?>
         </div>
-        <div class="col">
+        <div class="flex-grow-1">
             <?php $this->output_alert(); ?>     
             <div class="jumbotron">
                 <h1>Scheduled Jobs</h1>

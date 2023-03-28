@@ -1,3 +1,6 @@
+# v6.1.0
+###  New features
+
 # v6.0.0
 ###  New features
  - rework module `Form Actions`. If you scheduled form actions in the past please contact support

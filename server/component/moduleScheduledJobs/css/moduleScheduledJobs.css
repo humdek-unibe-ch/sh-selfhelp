@@ -59,3 +59,7 @@ table.dataTable tr.shown td.details-control:before {
 #mailQueue tbody td {
   vertical-align: middle;
 }
+
+.scheduled-jobs-side-buttons{
+    min-width: 200px;
+}
