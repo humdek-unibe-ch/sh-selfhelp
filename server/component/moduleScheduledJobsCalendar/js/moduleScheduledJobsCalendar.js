@@ -51,9 +51,7 @@ function prepare_scheduled_events(scheduled_events) {
             job['backgroundColor'] = "green";
         } else if (job.status_code == 'failed') {
             job['backgroundColor'] = "red";
-        }
-        // job['title'] = "[<b>" + job.type_code + "</b>] " + job["title"];
-        job["description"] = 'Lecture';
+        };
     });
     return scheduled_events;
 }

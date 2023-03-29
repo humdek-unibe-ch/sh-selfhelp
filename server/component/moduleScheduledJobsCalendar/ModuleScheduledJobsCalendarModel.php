@@ -90,7 +90,7 @@ class ModuleScheduledJobsCalendarModel extends BaseModel
                         ELSE l_types.lookup_code 
                     END AS type_code
                     , `description` as title,
-                    date_to_be_executed AS `start`, date_to_be_executed AS `end`, :sjid AS `url`
+                    date_to_be_executed AS `start`, DATE_ADD(date_to_be_executed, INTERVAL 1 SECOND) AS `end`, :sjid AS `url`
                     FROM scheduledJobs sj
                     INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
                     INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)

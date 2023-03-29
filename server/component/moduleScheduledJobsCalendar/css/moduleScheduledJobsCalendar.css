@@ -4,11 +4,14 @@
     border: 1.5px solid;
     white-space: normal;
     margin-bottom: 3px;
+    font-size: 12px;
 }
 
 .scheduled-jobs-calendar-event .fc-event-time {
     font-weight: 700;
     display: inline-block;
+    margin-right: 0 !important;
+    font-size: 12px;
 }
 
 .scheduled-jobs-calendar-event .fc-daygrid-event-dot {
@@ -20,7 +23,7 @@
 }
 
 .scheduled-jobs-calendar-remove_group .fc-event-time span {
-    color: rgb(169, 5, 5);
+    color: rgb(249, 0, 212);
 }
 
 .scheduled-jobs-calendar-event .fc-event-title {
@@ -29,6 +32,7 @@
     width: 100%;
     border-top: dotted 1px;
     border-color: inherit;
+    color: var(--dark);
 }
 
 .scheduled-jobs-calendar-done .fc-daygrid-event-dot {
