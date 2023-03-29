@@ -57,6 +57,7 @@ $(document).ready(function () {
     var table = $('#mailQueue').DataTable({
         order: [[2, "asc"]],
         dom: 'QBfrtip',
+        scrollX: true,
         buttons: ['copy', 'csv', 'excel'],
         columnDefs: [{
             orderable: false,

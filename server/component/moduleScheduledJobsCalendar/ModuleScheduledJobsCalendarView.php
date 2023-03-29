@@ -20,9 +20,9 @@ class ModuleScheduledJobsCalendarView extends BaseView
      * @param object $model
      *  The model instance of the component.
      */
-    public function __construct($model, $controller)
+    public function __construct($model)
     {
-        parent::__construct($model, $controller);
+        parent::__construct($model);
     }
 
     /* Private Methods ********************************************************/
@@ -35,10 +35,52 @@ class ModuleScheduledJobsCalendarView extends BaseView
      */
     public function output_content()
     {
-        $calendar = new BaseStyleComponent("div", array(
-            "css" => "scheduled-jobs-calendar-view"
+        require __DIR__ . "/tpl_schedule_jobs_calendar_view.php";
+    }
+
+    public function output_calendar()
+    {
+        $container = new BaseStyleComponent("container", array(
+            "css" => "mt-3",
+            "is_fluid" => false,
+            "children" => array(new BaseStyleComponent("card", array(
+                "css" => "mb-3",
+                "title" => 'Job schedule calendar view',
+                "type" => "light",
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "children" => array(
+                    new BaseStyleComponent("div", array(
+                        "css" => "d-flex align-items-end",
+                        "children" => array(
+                            new BaseStyleComponent("select", array(
+                                "label" => "Select user",
+                                "value" => $this->model->get_selected_user(),
+                                "id" => "scheduled-jobs-calendar-selected-user",
+                                "name" => "users",
+                                "css" => 'flex-grow-1 mr-3',
+                                "live_search" => true,
+                                "is_multiple" => false,
+                                "items" => $this->model->get_users(),
+                            )),
+                            new BaseStyleComponent("div", array(
+                                "children" => array(new BaseStyleComponent("button", array(
+                                    "label" => "View",
+                                    "css" => "flex-grow-0 mb-3",
+                                    "id" => "scheduled-jobs-view-calendar-btn",
+                                    "url" => $this->model->get_link_url("moduleScheduledJobsCalendar", array("uid" => ":uid")),
+                                    "type" => "primary",
+                                )))
+                            ))
+                        )
+                    )),
+                    new BaseStyleComponent("div", array(
+                        "css" => "scheduled-jobs-calendar-view"
+                    ))
+                )
+            )))
         ));
-        $calendar->output_content();
+        $container->output_content();
     }
 
     public function output_content_mobile()
@@ -50,14 +92,16 @@ class ModuleScheduledJobsCalendarView extends BaseView
      * Get js include files required for this component. This overrides the
      * parent implementation.
      *
-     * @retval array
+     * @return array
      *  An array of js include files the component requires.
      */
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
             $local = array(
-                __DIR__ . "/js/event-calendar.min.js",
+                __DIR__ . "/js/full-calendar-v6-1-5.min.js",
+                __DIR__ . "/js/bootstrap-full-calendar-v6-1-5.global.min.js",
+                __DIR__ . "/js/jquery.contextMenu.min.js",
                 __DIR__ . "/js/moduleScheduledJobsCalendar.js"
             );
         }
@@ -68,14 +112,15 @@ class ModuleScheduledJobsCalendarView extends BaseView
      * Get css include files required for this component. This overrides the
      * parent implementation.
      *
-     * @retval array
+     * @return array
      *  An array of css include files the component requires.
      */
     public function get_css_includes($local = array())
     {
         $local = array(
             __DIR__ . "/css/event-calendar.min.css",
-            __DIR__ . "/css/moduleScheduledJobsCalendar.css"
+            __DIR__ . "/css/moduleScheduledJobsCalendar.css",
+            __DIR__ . "/css/jquery.contextMenu.min.css"
         );
         return parent::get_css_includes($local);
     }

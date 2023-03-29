@@ -63,3 +63,7 @@ table.dataTable tr.shown td.details-control:before {
 .scheduled-jobs-side-buttons{
     min-width: 200px;
 }
+
+.scheduled-jobs-holder{
+    max-width: calc(100% - 200px - 1rem);
+}

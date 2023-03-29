@@ -70,6 +70,7 @@ class ResetPasswordModel extends EmailFormBaseModel
             "is_html" => 1,
             "description" => "Password reset email"
         );
+        $mail['id_users'][] = intval($uid['id']);
         return $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 

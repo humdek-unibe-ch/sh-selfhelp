@@ -8,7 +8,7 @@
         <div class="scheduled-jobs-side-buttons mr-3">
             <?php $this->output_side_buttons(); ?>
         </div>
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 scheduled-jobs-holder">
             <?php $this->output_alert(); ?>     
             <div class="jumbotron">
                 <h1>Scheduled Jobs</h1>

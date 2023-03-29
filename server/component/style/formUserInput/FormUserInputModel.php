@@ -355,6 +355,7 @@ class FormUserInputModel extends StyleModel
             "body" => $body,
             "description" => "FormUserInput Feedback email"
         );
+        $mail['id_users'][] = $_SESSION['id_user'];
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 

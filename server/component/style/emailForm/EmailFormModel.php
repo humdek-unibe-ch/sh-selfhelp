@@ -119,6 +119,7 @@ class EmailFormModel extends EmailFormBaseModel
             "description" => "Email from style EmailForm to the user",
             "attachments" => $attachments
         );
+        $mail['id_users'][] = $_SESSION['id_user'];
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_anonymous_user);
     }
 

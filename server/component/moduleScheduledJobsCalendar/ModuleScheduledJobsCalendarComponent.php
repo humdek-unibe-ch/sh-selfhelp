@@ -6,7 +6,7 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/ModuleScheduledJobsCalendarView.php";
-require_once __DIR__ . "/../moduleScheduledJobs/ModuleScheduledJobsModel.php";
+require_once __DIR__ . "/ModuleScheduledJobsCalendarModel.php";
 require_once __DIR__ . "/../moduleScheduledJobs/ModuleScheduledJobsController.php";
 
 /**
@@ -26,11 +26,10 @@ class ModuleScheduledJobsCalendarComponent extends BaseComponent
      */
     public function __construct($services, $params)
     {
-        $type = isset($params['type']) ? $params['type'] : null;
-        $model = new ModuleScheduledJobsModel($services, null, $type);
-        $controller = new ModuleScheduledJobsController($model);
-        $view = new ModuleScheduledJobsCalendarView($model, $controller);
-        parent::__construct($model, $view, $controller);
+        $uid = isset($params['uid']) ? $params['uid'] : null;
+        $model = new ModuleScheduledJobsCalendarModel($services, $uid);
+        $view = new ModuleScheduledJobsCalendarView($model);
+        parent::__construct($model, $view);
     }
 }
 ?>

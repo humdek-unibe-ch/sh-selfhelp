@@ -1,5 +1,7 @@
 # v6.1.0
 ###  New features
+ - add user_id to the jobs when an email is sent from the system
+ - add `View calendar` to `scheduled_jobs` where all scheduled jobs can be shown in a calendar for a user
 
 # v6.0.0
 ###  New features

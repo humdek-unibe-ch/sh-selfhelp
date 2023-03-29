@@ -370,6 +370,7 @@ class UserModel extends BaseModel
             "is_html" => 1,
             "description" => "Registration Email"
         );
+        $mail['id_users'][] = $uid;
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
         return $uid;
     }
@@ -956,6 +957,7 @@ class UserModel extends BaseModel
                 "is_html" => 1,
                 "description" => "Activation Email"
             );
+            $mail['id_users'][] = $uid;
             $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
             return true;
         } catch (\Throwable $th) {

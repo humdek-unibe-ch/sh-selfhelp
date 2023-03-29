@@ -491,6 +491,16 @@ class ModuleScheduledJobsView extends BaseView
             "css" => "d-block mb-3",
         ));
         $composeNotification->output_content();
+
+        // view calendar
+        $viewCalendar = new BaseStyleComponent("button", array(
+            "label" => "View calendar",
+            "id" => "job_schedule_calendar",
+            "url" => $this->model->get_link_url("moduleScheduledJobsCalendar",  array()),
+            "type" => "secondary",
+            "css" => "d-block mb-3",
+        ));
+        $viewCalendar->output_content();
     }
 
     public function output_content_mobile()
