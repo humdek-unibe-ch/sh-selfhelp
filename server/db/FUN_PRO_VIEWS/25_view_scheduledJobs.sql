@@ -23,11 +23,13 @@ CASE
 END AS message,
 sj_mq.id_mailQueue,
 id_jobTypes,
-id_jobStatus
+id_jobStatus,
+a.id_formActions
 FROM scheduledJobs sj
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)
 INNER JOIN lookups l_types ON (l_types.id = sj.id_jobTypes)
 LEFT JOIN scheduledJobs_mailQueue sj_mq on (sj_mq.id_scheduledJobs = sj.id)
 LEFT JOIN mailQueue mq on (mq.id = sj_mq.id_mailQueue)
 LEFT JOIN scheduledJobs_notifications sj_n on (sj_n.id_scheduledJobs = sj.id)
-LEFT JOIN notifications n on (n.id = sj_n.id_notifications);
+LEFT JOIN notifications n on (n.id = sj_n.id_notifications)
+LEFT JOIN scheduledJobs_formActions a on (a.id_scheduledJobs = sj.id);

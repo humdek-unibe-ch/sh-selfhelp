@@ -240,45 +240,47 @@ class ModuleFormsActionView extends BaseView
      */
     public function output_action_view()
     {
-        $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",
-            "is_expanded" => true,
-            "is_collapsible" => false,
-            "url_edit" => $this->model->get_link_url("moduleFormsAction", array("mode" => UPDATE, "aid" => $this->aid)),
-            "title" => 'Action &nbsp;<code>' . $this->action['action_name'] . '</code>',
-            "children" => array(
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Action name",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->action['action_name']
-                    ))),
-                )),
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "When form",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->action['form_name']
-                    ))),
-                )),
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "Is (trigger type)",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->action['trigger_type']
-                    ))),
-                )),
-                new BaseStyleComponent("JobConfig", array(
-                    "type_input" => "json",
-                    "id" => "config",
-                    "name" => "config",
-                    "value" => isset($this->action["config"]) ? $this->action["config"] : '',
-                    "css" => "jobConfig view-mode",
-                    "placeholder" => "",
-                ))
-            )
-        ));
-        $form->output_content();
+        if ($this->action) {
+            $form = new BaseStyleComponent("card", array(
+                "css" => "mb-3",
+                "is_expanded" => true,
+                "is_collapsible" => false,
+                "url_edit" => $this->model->get_link_url("moduleFormsAction", array("mode" => UPDATE, "aid" => $this->aid)),
+                "title" => 'Action &nbsp;<code>' . $this->action['action_name'] . '</code>',
+                "children" => array(
+                    new BaseStyleComponent("descriptionItem", array(
+                        "title" => "Action name",
+                        "locale" => "",
+                        "children" => array(new BaseStyleComponent("rawText", array(
+                            "text" => $this->action['action_name']
+                        ))),
+                    )),
+                    new BaseStyleComponent("descriptionItem", array(
+                        "title" => "When form",
+                        "locale" => "",
+                        "children" => array(new BaseStyleComponent("rawText", array(
+                            "text" => $this->action['form_name']
+                        ))),
+                    )),
+                    new BaseStyleComponent("descriptionItem", array(
+                        "title" => "Is (trigger type)",
+                        "locale" => "",
+                        "children" => array(new BaseStyleComponent("rawText", array(
+                            "text" => $this->action['trigger_type']
+                        ))),
+                    )),
+                    new BaseStyleComponent("JobConfig", array(
+                        "type_input" => "json",
+                        "id" => "config",
+                        "name" => "config",
+                        "value" => isset($this->action["config"]) ? $this->action["config"] : '',
+                        "css" => "jobConfig view-mode",
+                        "placeholder" => "",
+                    ))
+                )
+            ));
+            $form->output_content();
+        }
     }
 }
 ?>

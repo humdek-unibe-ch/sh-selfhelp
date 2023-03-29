@@ -2,6 +2,7 @@
 ###  New features
  - add user_id to the jobs when an email is sent from the system
  - add `View calendar` to `scheduled_jobs` where all scheduled jobs can be shown in a calendar for a user
+ - add button `View Action` on scheduled job view, if the job was scheduled from an action. The button leads to the action that scheduled the job
 
 # v6.0.0
 ###  New features

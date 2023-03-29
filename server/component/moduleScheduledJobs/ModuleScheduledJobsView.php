@@ -444,6 +444,17 @@ class ModuleScheduledJobsView extends BaseView
         ));
         $executeButton->output_content();
 
+        if (isset($this->job_entry['id_formActions']) && $this->job_entry['id_formActions'] > 0) {
+            // View the action from where the job was generated if it is linked
+            $actionButton = new BaseStyleComponent("button", array(
+                "label" => "View Action",
+                "id" => "view_action",
+                "url" => $this->model->get_link_url("moduleFormsAction", array("mode" => SELECT, "aid" => $this->job_entry['id_formActions'])),
+                "css" => "d-block mb-3"
+            ));
+            $actionButton->output_content();
+        }
+
         if (!($this->job_entry['status_code'] === scheduledJobsStatus_deleted)) {
             // delete button visible only if not deleted
             $deleteButton = new BaseStyleComponent("button", array(
