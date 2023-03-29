@@ -1000,8 +1000,10 @@ class CmsView extends BaseView
             ));
         } else if ($field['type'] == "select-group") {
             $children[] = new BaseStyleComponent("select", array(
-                "value" => $field['content'],
-                "name" => $field_name_prefix . "[content]",
+                "value" => explode(',', $field['content']),
+                "name" => $field_name_prefix . "[content][]",
+                "live_search" => true,
+                "is_multiple" => true,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('`groups`', 'id', array('name'))
             ));
         } else if ($field['type'] == "select-platform") {

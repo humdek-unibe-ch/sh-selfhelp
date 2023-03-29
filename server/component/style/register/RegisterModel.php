@@ -123,7 +123,7 @@ class RegisterModel extends StyleModel
     {
         if($this->check_validation_code($code)) {
             $group = $this->get_group_from_code($code);
-            $groupId = array($this->get_db_field("group", SUBJECT_GROUP_ID)); // asign predefined group in the controler if not set the default group `subject`
+            $groupId = explode(',', $this->get_db_field("group", SUBJECT_GROUP_ID)); // assign predefined group in the controller i not set the default group `subject`
             if (!empty($group)) {
                 $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }

@@ -357,6 +357,9 @@ class CmsUpdateController extends BaseController
                     if($this->check_content($type, $content))
                     {
                         $content = $this->secure_field($type, $content);
+                        if(is_array($content)){
+                            $content = implode(',', $content);
+                        }
                         if ($relation == RELATION_PAGE) {
                             $page_fields[$name] = $content;
                             $res = true;
