@@ -194,6 +194,7 @@ class FormUserInputController extends BaseController
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
                 $this->model->queue_job_from_actions(actionTriggerTypes_finished);
+                $this->model->reload_children();
             }
         }
         $redirect = $this->model->get_db_field("redirect_at_end", "");

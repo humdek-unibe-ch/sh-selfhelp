@@ -429,5 +429,9 @@ class FormUserInputModel extends StyleModel
         );
         $this->user_input->queue_job_from_actions($form_data);
     }
+
+    public function reload_children(){
+        $this->loadChildren();
+    }
 }
 ?>

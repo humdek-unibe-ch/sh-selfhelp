@@ -36,7 +36,17 @@ function formSubmitEvent() {
                     var parser = new DOMParser();
                     var htmlDoc = parser.parseFromString(data, 'text/html');
 
-                    updateValues($('.form-control', form), htmlDoc);
+                    // assign success alerts
+                    $(htmlDoc).find('.alert-success').each(function () {
+                        console.log($(this));
+                        $(this).insertBefore($(form)[0]);
+                    });
+                    //assign fail alerts
+                    $(htmlDoc).find('.alert-danger').each(function () {
+                        $(this).insertBefore($(form)[0]);
+                    });
+
+                    updateValues($('.selfHelp-form'), htmlDoc);                    
 
                     // update inputs - the function is in the style js
                     check_input_locked_after_submit();
@@ -47,27 +57,7 @@ function formSubmitEvent() {
                     // update sliders - the function is in the style js
                     check_slider_locked_after_submit();
                     // update textarea - the function is in the style js
-                    check_textarea_locked_after_submit();
-
-                    // get the form class which includes the sectionId, this is the way we will find it from the returned html and replace it
-                    // var searchClasses = [];
-                    // $(form).attr('class').trim().split(' ').forEach(element => {
-                    //     searchClasses.push('.'+element);
-                    // });
-                    // console.log(searchClasses);
-                    // $(htmlDoc).find(searchClasses.join(',')).each(function () {
-                    //     // update all children inside the form with the new data
-                    //     $(form).html($(this).html());
-                    // });
-
-                    // assign success allerts
-                    $(htmlDoc).find('.alert-success').each(function () {
-                        $(this).insertBefore($(form)[0]);
-                    });
-                    //assign fail alerts
-                    $(htmlDoc).find('.alert-danger').each(function () {
-                        $(this).insertBefore($(form)[0]);
-                    });
+                    check_textarea_locked_after_submit();            
 
                     if (is_log) {
                         $(form)[0].reset();
@@ -100,7 +90,11 @@ function updateValues(elements, newData) {
     $(elements).toArray().forEach(element => {
         $(element).attr('class').split(' ').forEach(className => {
             if (className.includes('style-section')) {
-                $('.' + className).replaceWith($('.' + className, newData));
+                var oldForm = $('.' + className);
+                var newForm = $('.' + className, newData);
+                if(newForm.length > 0){
+                    oldForm.replaceWith(newForm);
+                }
             }
         });
     });

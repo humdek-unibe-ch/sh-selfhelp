@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<form id="section-<?php echo $this->id_section; ?>" action="<?php echo $this->url ?>" method="post" class="<?php echo $this->css; ?>">
+<form id="section-<?php echo $this->id_section; ?>" action="<?php echo $this->url ?>" method="post" class="selfHelp-form <?php echo $this->css; ?>">
     <?php $this->output_form_children(); ?>
     <?php $this->output_submit_button(); ?>
     <?php $this->output_submit_and_send_button(); ?>
