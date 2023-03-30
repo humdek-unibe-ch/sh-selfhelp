@@ -139,6 +139,7 @@ define('jobTypes', 'jobTypes');
 define('pageAccessTypes', 'pageAccessTypes');
 define('hookTypes', 'hookTypes');
 define('assetTypes', 'assetTypes');
+define('groupTypes', 'groupTypes');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -203,6 +204,8 @@ define('hookTypes_hook_on_function_execute', 'hook_on_function_execute');
 define('assetTypes_css', 'css');
 define('assetTypes_asset', 'asset');
 define('assetTypes_static', 'static');
+define('groupTypes_db_role', 'db_role');
+define('groupTypes_group', 'group');
 
 /* Action config */
 define('ACTION_JOB_SCHEDULE_TYPES', 'job_schedule_types');

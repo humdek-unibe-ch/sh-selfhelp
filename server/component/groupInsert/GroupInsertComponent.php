@@ -25,11 +25,12 @@ class GroupInsertComponent extends BaseComponent
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $params)
     {
+        $group_type = isset($params['type']) ? $params['type'] : null;
         $model = new GroupModel($services, null);
-        $controller = new GroupInsertController($model);
-        $view = new GroupInsertView($model, $controller);
+        $controller = new GroupInsertController($model, $group_type);
+        $view = new GroupInsertView($model, $controller, $group_type);
         parent::__construct($model, $view, $controller);
     }
 }

@@ -6,7 +6,7 @@
 <?php $this->output_alert(); ?>
 <div>
    <div class="jumbotron">
-      <h1>Group <code><?php echo $this->selected_group['name']; ?></code></h1>
+      <h1><?php echo $this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group' ?>  <code><?php echo $this->selected_group['name']; ?></code></h1>
       <p class="lead">&mdash; <?php echo $this->selected_group['desc']; ?> &mdash;</p>
    </div>
 </div>

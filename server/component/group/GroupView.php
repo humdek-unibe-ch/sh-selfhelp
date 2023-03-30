@@ -59,16 +59,7 @@ class GroupView extends BaseView
      */
     private function output_button()
     {
-        if($this->model->can_create_new_group())
-        {
-            $button = new BaseStyleComponent("button", array(
-                "label" => "Create New Group",
-                "url" => $this->model->get_link_url("groupInsert"),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
-            ));
-            $button->output_content();
-        }
+        
     }
 
     /**
@@ -181,20 +172,57 @@ class GroupView extends BaseView
      */
     private function output_groups()
     {
-        $card = new BaseStyleComponent("card", array(
+        if($this->model->can_create_new_group())
+        {
+            $button = new BaseStyleComponent("button", array(
+                "label" => "Create New DB Role",
+                "url" => $this->model->get_link_url("groupInsert", array("type"=>groupTypes_db_role)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $button->output_content();
+        }
+
+        if($this->model->can_create_new_group())
+        {
+            $button = new BaseStyleComponent("button", array(
+                "label" => "Create New Group",
+                "url" => $this->model->get_link_url("groupInsert", array("type"=>groupTypes_group)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $button->output_content();
+        }
+
+        $db_roles = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "DB Roles",
+            "children" => array(new BaseStyleComponent("nestedList", array(
+                "items" => $this->model->get_groups(groupTypes_db_role),
+                "id_prefix" => "db_roles",
+                "is_collapsible" => false,
+                "id_active" => $this->model->get_gid(),
+                "search_text" => 'Search'
+            )))
+        ));
+        $db_roles->output_content();        
+
+        $groups = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
             "title" => "Groups",
             "children" => array(new BaseStyleComponent("nestedList", array(
-                "items" => $this->model->get_groups(),
+                "items" => $this->model->get_groups(groupTypes_group),
                 "id_prefix" => "groups",
                 "is_collapsible" => false,
                 "id_active" => $this->model->get_gid(),
                 "search_text" => 'Search'
             )))
         ));
-        $card->output_content();
+        $groups->output_content();
     }
 
     /**

@@ -29,8 +29,10 @@ class GroupInsertController extends GroupController
      *
      * @param object $model
      *  The model instance of the component.
+     * @param string $group_type
+     * The group type that we want to create: group or db_role
      */
-    public function __construct($model)
+    public function __construct($model, $group_type)
     {
         parent::__construct($model);
         $this->gid = null;
@@ -45,7 +47,7 @@ class GroupInsertController extends GroupController
                 return;
             }
             $this->gid = $this->model->insert_new_group($_POST['name'],
-                $_POST['desc']);
+                $_POST['desc'], $group_type);
             if($this->gid && $this->update_group_acl($this->gid))
                 $this->success = true;
             else

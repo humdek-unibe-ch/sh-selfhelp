@@ -69,30 +69,37 @@ class GroupModel extends BaseModel
      */
     private function fetch_group($gid)
     {
-        $sql = "SELECT g.name, g.description FROM `groups` AS g
-            WHERE g.id = :gid";
+        $sql = "SELECT g.name, g.description, l.lookup_code AS group_type 
+                FROM `groups` AS g
+                INNER JOIN lookups l ON (g.id_group_types = l.id)
+                WHERE g.id = :gid";
         $res = $this->db->query_db_first($sql, array(":gid" => $gid));
         if(!$res) return null;
         return array(
             "id" => $gid,
             "name" => $res['name'],
             "desc" => $res['description'],
+            "group_type" => $res['group_type']
         );
     }
 
     /**
      * Fetch the list of groups
-     *
-     * @retval array
+     * @param string $group_type
+     * The group type - db_role or group
+     * @return array
      *  A list of db items where each item has the keys
      *   'id':      The id of the group.
      *   'name':    The name of the group.
      */
-    private function fetch_groups()
+    private function fetch_groups($group_type)
     {
-        $sql = "SELECT g.id, g.name FROM `groups` AS g
-            ORDER BY g.name";
-        return $this->db->query_db($sql);
+        $sql = "SELECT g.id, g.`name`
+                FROM `groups` AS g
+                INNER JOIN lookups l ON (g.id_group_types = l.id) 
+                WHERE l.lookup_code = :group_type
+                ORDER BY g.name";
+        return $this->db->query_db($sql, array("group_type" => $group_type));
     }
 
     /**
@@ -112,6 +119,13 @@ class GroupModel extends BaseModel
     {
         $acl = array();
         $sql = "SELECT p.id, p.keyword FROM pages AS p ORDER BY p.keyword";
+        if ($this->selected_group && $this->selected_group['group_type'] == groupTypes_group) {
+            $sql = "SELECT p.id, p.keyword 
+                    FROM pages AS p 
+                    INNER JOIN pageType t ON (p.id_type = t.id)
+                    WHERE t.`name` = 'experiment' 
+                    ORDER BY p.keyword";
+        }
         $pages = $this->db->query_db($sql);
         if ($id == null && $is_group) {
             // prefill empty gacl which is needed for the simple acl            
@@ -621,17 +635,18 @@ class GroupModel extends BaseModel
     /**
      * Get a list of groups and prepares the list such that it can be passed to a
      * list component.
-     *
-     * @retval array
+     * @param string $group_type
+     * The group type  
+     * @return array
      *  An array of items where each item has the following keys:
      *   'id':      The id of the group.
      *   'title':   The name of the group.
      *   'url':     The url pointing to the group.
      */
-    public function get_groups()
+    public function get_groups($group_type = groupTypes_group)
     {
         $res = array();
-        foreach($this->fetch_groups() as $group)
+        foreach($this->fetch_groups($group_type) as $group)
         {
             $id = intval($group["id"]);
             $res[] = array(
@@ -672,14 +687,17 @@ class GroupModel extends BaseModel
      *  The name of the group to be added.
      * @param string $desc
      *  The description of the group to be added.
-     * @retval int
+     * @param string $group_type
+     * The group type that we want to create: group or db_role
+     * @return int
      *  The id of the new group or false if the process failed.
      */
-    public function insert_new_group($name, $desc)
+    public function insert_new_group($name, $desc, $group_type)
     {
         return $this->db->insert("`groups`", array(
             "name" => $name,
             "description" => $desc,
+            "id_group_types" => $this->db->get_lookup_id_by_code(groupTypes, $group_type)
         ));
     }
 

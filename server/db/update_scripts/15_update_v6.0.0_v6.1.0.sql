@@ -7,8 +7,29 @@ INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `i
 VALUES (NULL, 'moduleScheduledJobsCalendar', '/admin/scheduledJobs/calendar/[i:uid]?', 'GET|POST', '0000000002', NULL, NULL, '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE type_code = "pageAccessTypes" AND lookup_code = "mobile_and_web"));
 
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleScheduledJobsCalendar'), '0000000008', '0000000001', 'Scheduled Jobs - Calendar View');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleScheduledJobsCalendar'), '0000000054', '0000000001', '');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleScheduledJobsCalendar'), '0000000054', '0000000001', 'Scheduled Jobs - Calendar View');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleScheduledJobsCalendar'), '1', '0', '0', '0');
+
+ -- update insert group to handle type group and db_role 
+UPDATE pages
+SET url = '/admin/group_insert/[group|db_role:type]'
+WHERE keyword = 'groupInsert';
+
+-- add group types
+INSERT IGNORE INTO `lookups` (type_code, lookup_code, lookup_value, lookup_description) values ('groupTypes', 'db_role', 'DB Role', 'In the DB role we can set up multiple types of access. It is used for specific custom roles');
+INSERT IGNORE INTO `lookups` (type_code, lookup_code, lookup_value, lookup_description) values ('groupTypes', 'group', 'Group', 'The group type has only `select` privileges and it is used for access to pages and condition checks');
+
+CALL add_table_column('groups', 'id_group_types', 'INT(10) UNSIGNED ZEROFILL');
+
+UPDATE groups
+SET id_group_types = (SELECT id FROM lookups WHERE lookup_code = 'db_role')
+WHERE `name` IN ('admin', 'therapist', 'subject');
+
+UPDATE groups
+SET id_group_types = (SELECT id FROM lookups WHERE lookup_code = 'group')
+WHERE `name` NOT IN ('admin', 'therapist', 'subject');
+
+CALL add_foreign_key('groups', 'groups_fk_id_group_types', 'id_group_types', 'lookups (id)');
 
 DROP VIEW IF EXISTS view_scheduledJobs;
 CREATE VIEW view_scheduledJobs
