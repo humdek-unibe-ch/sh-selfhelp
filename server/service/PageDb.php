@@ -402,7 +402,7 @@ class PageDb extends BaseDb
         $sql = "SELECT name, email FROM users WHERE id = :id";
         $res = $this->query_db_first($sql, array(":id" => $_SESSION['id_user']));
         if ($res && (isset($res['name']) || isset($res['email']))) {
-            $_SESSION['user_name'] = isset($res['name']) ? $res['name'] : $res['email'];
+            $_SESSION['user_name'] = isset($res['name']) ? $res['name'] : '';
             return $_SESSION['user_name'];
         } else {
             return "unknown";
