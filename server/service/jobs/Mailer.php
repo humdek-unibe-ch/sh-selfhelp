@@ -20,6 +20,11 @@ class Mailer extends BasicJob
     private $parsedown = null;
 
     /**
+     * User input service.
+     */
+    private $user_input = null;
+
+    /**
      * Creating a PHPMailer Instance.
      *
      * @param object $db
@@ -31,11 +36,12 @@ class Mailer extends BasicJob
         $this->parsedown->setSafeMode(false);
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';
+        $this->user_input = $user_input;
         parent::__construct($db, $transaction, $condition);
     }
 
     /* Private Methods *********************************************************/
-    
+
 
     /**
      * Send mail from the queue     
@@ -76,12 +82,25 @@ class Mailer extends BasicJob
             $user_info = $this->db->query_db_first('SELECT name, id FROM users WHERE email = :email', array(":email" => trim($mail)));
             $user_name = isset($user_info['name']) ? $user_info['name'] : '';
             $user_info_id = isset($user_info['id']) ? $user_info['id'] : '';
+            $notification_settings = $this->user_input->get_user_notification_settings($user_info_id);
+            if ($notification_settings && isset($notification_settings['no_emails']) && $notification_settings['no_emails']) {
+                $this->transaction->add_transaction(
+                    transactionTypes_send_notification_fail,
+                    $sent_by,
+                    $user_id,
+                    $this->transaction::TABLE_SCHEDULED_JOBS,
+                    $mail_info['id'],
+                    false,
+                    'Sending email to user ' . $mail_info['recipient_emails'] . ' failed because the user does not want to receive emails.'
+                );
+                return false;
+            }
             if ($this->check_condition($condition, $user_info_id)) {
                 if ($user_name) {
                     $msg = str_replace('@user_name', $user_name, $msg);
                 }
                 if ($msg_html && $user_name) {
-                    $msg_html= str_replace('@user_name', $user_name, $msg_html);
+                    $msg_html = str_replace('@user_name', $user_name, $msg_html);
                 }
                 $res = $res && $this->send_mail($from, $to, $subject, $msg, $msg_html, $attachments, $replyTo);
                 $this->transaction->add_transaction(
@@ -199,13 +218,13 @@ class Mailer extends BasicJob
         );
         $mail_queue_id = $this->db->insert('mailQueue', $mail_data);
         if ($mail_queue_id && isset($data['id_users'])) {
-                foreach ($data['id_users'] as $user) {
-                    $this->db->insert('scheduledJobs_users', array(
-                        "id_users" => $user,
-                        "id_scheduledJobs" => $sj_id
-                    ));
-                }
+            foreach ($data['id_users'] as $user) {
+                $this->db->insert('scheduledJobs_users', array(
+                    "id_users" => $user,
+                    "id_scheduledJobs" => $sj_id
+                ));
             }
+        }
         if ($mail_queue_id && count($attachments) > 0) {
             //insert attachments in the DB
             foreach ($attachments as $attachment) {

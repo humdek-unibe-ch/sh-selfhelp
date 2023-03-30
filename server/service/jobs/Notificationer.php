@@ -14,6 +14,10 @@ require_once __DIR__ . "/BasicJob.php";
  */
 class Notificaitoner extends BasicJob
 {
+    /**
+     * User input service.
+     */
+    private $user_input = null;
 
     /**
      * Creating a PHPMailer Instance.
@@ -21,8 +25,9 @@ class Notificaitoner extends BasicJob
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction, $condition)
+    public function __construct($db, $transaction, $condition, $user_input)
     {
+        $this->user_input = $user_input;
         parent::__construct($db, $transaction, $condition);
     }
 
@@ -89,6 +94,19 @@ class Notificaitoner extends BasicJob
                 WHERE sj_u.id_scheduledJobs = :sj_id";
         $notifications = $this->db->query_db($sql, array(":sj_id" => $notification_info['id']));
         foreach ($notifications as $notification) {
+            $notification_settings = $this->user_input->get_user_notification_settings($notification['id_users']);
+            if ($notification_settings && isset($notification_settings['no_push_notifications']) && $notification_settings['no_push_notifications']) {
+                $this->transaction->add_transaction(
+                    transactionTypes_send_notification_fail,
+                    $sent_by,
+                    $user_id,
+                    $this->transaction::TABLE_SCHEDULED_JOBS,
+                    $notification_info['id'],
+                    false,
+                    'Sending push notifications to user ' . $notification['email'] . ' failed because the user does not want to receive push notifications.'
+                );
+                return false;
+            }
             if ($this->check_condition($condition, $notification['id_users'])) {
                 if ($notification['device_token']) {
                     $user_info = $this->db->select_by_uid('view_user_codes', $notification['id_users']);

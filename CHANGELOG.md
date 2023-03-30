@@ -6,6 +6,7 @@
  - in style `register` - now for group we can select multiple groups which will be assigned to the user
  - separate `groups` in `groups` and `db_roles`. The groups can give access to `experimental` pages and can be used in conditions. DB roles are used to give privileges and are used for management tool.
  - `conditions` are based now only on `groups` from type `group`. The DB roles groups cannot be used in conditions and they cannot be automatically add or removed from an user.
+ - #348 - In user profile there are 2 new fields `Do not send emails` and `Do not send push notifications`. When they are enabled the user will not receive the selected type of messaging
 
 # v6.0.0
 ###  New features

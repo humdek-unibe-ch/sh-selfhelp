@@ -31,6 +31,38 @@ WHERE `name` NOT IN ('admin', 'therapist', 'subject');
 
 CALL add_foreign_key('groups', 'groups_fk_id_group_types', 'id_group_types', 'lookups (id)');
 
+-- no emials option
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'notifications-email', NULL);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000008, 0000000002, 0000000001, 'Keine E-Mails senden'),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000008, 0000000003, 0000000001, 'Do not send emails'),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000023, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000054, 0000000001, 0000000001, 'checkbox'),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000055, 0000000002, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000055, 0000000003, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000056, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000057, 0000000001, 0000000001, 'no_emails'),
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000058, 0000000001, 0000000001, '1');
+
+INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
+((SELECT id FROM sections WHERE name = "profile-notification-formUserInput"), (SELECT id FROM sections WHERE `name` = 'notifications-email'), -1);
+
+-- no push notification option
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'notifications-push_notification', NULL);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000008, 0000000002, 0000000001, 'Keine Push-Benachrichtigungen senden'),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000008, 0000000003, 0000000001, 'Do not send push notifications'),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000023, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000054, 0000000001, 0000000001, 'checkbox'),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000055, 0000000002, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000055, 0000000003, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000056, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000057, 0000000001, 0000000001, 'no_push_notifications'),
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000058, 0000000001, 0000000001, '1');
+
+INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
+((SELECT id FROM sections WHERE name = "profile-notification-formUserInput"), (SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), -1);
+
 DROP VIEW IF EXISTS view_scheduledJobs;
 CREATE VIEW view_scheduledJobs
 AS

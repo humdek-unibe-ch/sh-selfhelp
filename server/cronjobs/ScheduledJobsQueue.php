@@ -58,7 +58,7 @@ class ScheduledJobsQueue
         $user_input = new UserInput($this->db, $this->transaction);
         $condition = new Condition($this->db, $user_input,$router);
         $mail = new Mailer($this->db, $this->transaction, $user_input, $router, $condition);
-        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $condition);
+        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $condition, $user_input);
     }
 
     /**

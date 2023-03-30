@@ -51,12 +51,12 @@ class JobScheduler
      * @param object $db
      *  An instcance of the service class PageDb.
      */
-    public function __construct($db, $transaction, $mail, $condition)
+    public function __construct($db, $transaction, $mail, $condition, $user_input)
     {
         $this->db = $db;
         $this->transaction = $transaction;
         $this->mail = $mail;
-        $this->notification = new Notificaitoner($db, $transaction, $condition);
+        $this->notification = new Notificaitoner($db, $transaction, $condition, $user_input);
         $this->task = new Task($db, $transaction, $condition);
         $this->condition = $condition;
     }

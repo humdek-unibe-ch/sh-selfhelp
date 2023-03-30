@@ -1288,6 +1288,26 @@ class UserInput
     }
 
     /**
+     * Get the notification settings
+     * @param int $id_users
+     * The user for who we check the settings. If not set we use the session user
+     * @return array or false
+     * return the UI preferences row or false if it is not set
+     */
+    public function get_user_notification_settings($id_users = null)
+    {
+        if ($id_users == null) {
+            $id_users = $_SESSION['id_user'];
+        }
+        $form_id = $this->get_form_id('notification', FORM_INTERNAL);
+        if ($form_id) {
+            $res = $this->get_data($form_id, '', true, FORM_INTERNAL, $id_users);
+            return $res ? $res[0] : false;
+        }
+    }
+
+
+    /**
      * Check if we should load the new UI or load the old UI
      */
     public function is_new_ui_enabled()
@@ -1704,9 +1724,10 @@ class UserInput
                                         }
                                     }
                                     $curr_block['jobs'][] = $scheduling_result;
-                                    if (reset(array_keys($scheduling_result))) {                                        
+                                    $scheduling_keys = array_keys($scheduling_result);
+                                    if (reset($scheduling_keys)) {                                        
                                         $this->db->insert('scheduledJobs_formActions', array(
-                                            "id_scheduledJobs" => reset(array_keys($scheduling_result)),
+                                            "id_scheduledJobs" => reset($scheduling_keys),
                                             "id_formActions" => $action['id'],
                                         ));
                                     }
