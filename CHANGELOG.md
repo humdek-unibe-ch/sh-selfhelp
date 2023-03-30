@@ -5,6 +5,7 @@
  - add button `View Action` on scheduled job view, if the job was scheduled from an action. The button leads to the action that scheduled the job
  - in style `register` - now for group we can select multiple groups which will be assigned to the user
  - separate `groups` in `groups` and `db_roles`. The groups can give access to `experimental` pages and can be used in conditions. DB roles are used to give privileges and are used for management tool.
+ - `conditions` are based now only on `groups` from type `group`. The DB roles groups cannot be used in conditions and they cannot be automatically add or removed from an user.
 
 # v6.0.0
 ###  New features

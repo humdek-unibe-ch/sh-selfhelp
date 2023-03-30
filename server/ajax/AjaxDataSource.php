@@ -322,11 +322,17 @@ class AjaxDataSource extends BaseAjax
     /**
      * Get an array with the names of all groups
      * 
-     * @retval array
+     * @return array
      * array with all names as string
      */
-    public function get_groups(){
-        $res_db = $this->db->select_table('`groups`');
+    public function get_groups()
+    {
+        $sql = "SELECT g.id, g.`name`
+                FROM `groups` AS g
+                INNER JOIN lookups l ON (g.id_group_types = l.id) 
+                WHERE l.lookup_code = :group_type
+                ORDER BY g.name";
+        $res_db = $this->db->query_db($sql, array("group_type" => groupTypes_group));
         $res = array();
         foreach ($res_db as $key => $value) {
             array_push($res, $value['name']);

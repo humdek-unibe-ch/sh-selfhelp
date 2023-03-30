@@ -195,8 +195,8 @@ class ModuleScheduledJobsModel extends BaseModel
     public function get_groups()
     {
         $arr = array();
-        $sql = "SELECT id, name 
-                FROM groups;";
+        $sql = "SELECT id, `name` 
+                FROM `groups`;";
         $users = $this->db->query_db($sql);
         foreach ($users as $val) {
             array_push($arr, array("value" => ('group_' . intval($val['id'])), "text" => $val['name']));

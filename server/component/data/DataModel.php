@@ -121,29 +121,6 @@ class DataModel extends BaseModel
         return $arr;
     }
 
-    /**
-     * Get all groups;
-     * @retval array
-     * array used for select dropdown
-     */
-    public function get_groups()
-    {
-        $arr = array();
-        $sql = "SELECT id, name 
-                FROM `groups`;";
-        $groups = $this->db->query_db($sql);
-        foreach ($groups as $val) {
-            $value = ('group_' . intval($val['id']));
-            $selected = $this->users && array_search($value, $this->users) !== false ? 'selected' : '';
-            array_push($arr, array(
-                "value" => $value,
-                "text" => $val['name'],
-                "selected" => $selected
-            ));
-        }
-        return $arr;
-    }
-
     public function set_selected_users($users)
     {
         $this->users = $users;
