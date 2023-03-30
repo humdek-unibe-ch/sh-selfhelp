@@ -10,6 +10,7 @@
 
 ### Bugfix
  - #347 - fix the tabs loading
+ - #346 - fix that the condition is not refreshed when the form is submitted and the condition is in the form
 
 # v6.0.0
 ###  New features
