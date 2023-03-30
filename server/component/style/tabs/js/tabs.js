@@ -9,7 +9,7 @@ function initTabs() {
     }
     $('.tabs-container').find('.tab-content').each(function () {
         $(this).closest('.tabs-container').append($(this));
-    });    
+    });
     activate_with_hash();
     $(window).bind('hashchange', function (e) {
         activate_with_hash();
@@ -17,15 +17,19 @@ function initTabs() {
     $('button.tab-button').click(function () {
         window.location.hash = "#section-" + $(this).attr('data-context');
     });
-    if (!window.location.hash) {
-        // if not tabs is opened, select the first one
-        var firstTab = $('button.tab-button').first();
-        activate($('.style-section-'+$(firstTab).attr('data-context')));
-    }
+
+    // first open the first tab in each tab container
+    $('.tabs-container').each(function () {
+        var firstTab = $(this).find('button.tab-button').first();
+        activate($('.style-section-' + $(firstTab).attr('data-context')));
+    });
+    // if there is active hash, use it
+    activate_with_hash();
+
 }
 
-function activate($this) {    
-    if($this.length == 0){
+function activate($this) {
+    if ($this.length == 0) {
         return;
     }
     var selector = '.tab-content-index-' + $this.attr('data-context');
@@ -38,5 +42,5 @@ function activate($this) {
 }
 
 function activate_with_hash() {
-    activate($('.style-'+ window.location.hash.substring(1)));
+    activate($('.style-' + window.location.hash.substring(1)));
 }

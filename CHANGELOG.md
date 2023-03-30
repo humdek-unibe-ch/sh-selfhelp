@@ -8,6 +8,9 @@
  - `conditions` are based now only on `groups` from type `group`. The DB roles groups cannot be used in conditions and they cannot be automatically add or removed from an user.
  - #348 - In user profile there are 2 new fields `Do not send emails` and `Do not send push notifications`. When they are enabled the user will not receive the selected type of messaging
 
+### Bugfix
+ - #347 - fix the tabs loading
+
 # v6.0.0
 ###  New features
  - rework module `Form Actions`. If you scheduled form actions in the past please contact support
