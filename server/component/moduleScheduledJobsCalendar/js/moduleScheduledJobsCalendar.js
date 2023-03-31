@@ -75,10 +75,6 @@ function init_calendar() {
         weekNumberFormat: {
             week: 'long'
         },
-        titleFormat: {
-            // day: 'MM/dd'
-            week: "long"
-        },
         height: 'auto',
         firstDay: 1,
         eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
