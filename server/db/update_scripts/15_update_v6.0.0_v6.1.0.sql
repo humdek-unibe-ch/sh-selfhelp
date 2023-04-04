@@ -42,7 +42,7 @@ INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `i
 ((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000055, 0000000003, 0000000001, ''),
 ((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000056, 0000000001, 0000000001, '0'),
 ((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000057, 0000000001, 0000000001, 'no_emails'),
-((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000058, 0000000001, 0000000001, '1');
+((SELECT id FROM sections WHERE `name` = 'notifications-email'), 0000000058, 0000000001, 0000000001, '0');
 
 INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 ((SELECT id FROM sections WHERE name = "profile-notification-formUserInput"), (SELECT id FROM sections WHERE `name` = 'notifications-email'), -1);
@@ -58,7 +58,7 @@ INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `i
 ((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000055, 0000000003, 0000000001, ''),
 ((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000056, 0000000001, 0000000001, '0'),
 ((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000057, 0000000001, 0000000001, 'no_push_notifications'),
-((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000058, 0000000001, 0000000001, '1');
+((SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), 0000000058, 0000000001, 0000000001, '0');
 
 INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 ((SELECT id FROM sections WHERE name = "profile-notification-formUserInput"), (SELECT id FROM sections WHERE `name` = 'notifications-push_notification'), -1);
