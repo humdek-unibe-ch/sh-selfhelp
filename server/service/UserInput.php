@@ -86,7 +86,7 @@ class UserInput
     private function fetch_input_fields($conds = array(), $get_page_info = false)
     {
         // rework
-        if(!isset($conds['ui.id_section_form']))
+        if (!isset($conds['ui.id_section_form']))
             $field_attrs = $this->get_field_attrs(-1, $get_page_info);
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, json_encode($conds), [__FUNCTION__]);
         $get_result = $this->db->get_cache()->get($key);
@@ -114,15 +114,14 @@ class UserInput
         }
 
         $fields = array();
-        foreach($fields_db as $field)
-        {
+        foreach ($fields_db as $field) {
             $id = intval($field["id_sections"]);
             if (isset($conds['ui.id_section_form'])) {
                 $field_attrs = $this->get_field_attrs($id, $get_page_info);
             }
-            if(!isset($field_attrs[$id])) continue;
+            if (!isset($field_attrs[$id])) continue;
             $field_label = $field_attrs[$id]["label"][$gender][$language] ?? "";
-            if($gender === "female" && $field_label === "")
+            if ($gender === "female" && $field_label === "")
                 $field_label = $field_attrs[$id]["label"]["male"][$language] ?? "";
             $fields[] = array(
                 "id" => $field['id'],
@@ -164,7 +163,7 @@ class UserInput
             $res = $page ? $page["keyword"] : null;
             $this->db->get_cache()->set($key, $res);
             return $res;
-        } 
+        }
     }
 
     /**
@@ -212,7 +211,7 @@ class UserInput
             $res = $page ? $page["keyword"] : null;
             $this->db->get_cache()->set($key, $res);
             return $res;
-        }  
+        }
     }
 
     /**
@@ -235,7 +234,7 @@ class UserInput
             $res = $parent ? $parent["parent"] : null;
             $this->db->get_cache()->set($key, $res);
             return $res;
-        } 
+        }
     }
 
     /**
@@ -254,16 +253,13 @@ class UserInput
         $nav = null;
         $parent_it = $this->fetch_section_parent($id_section);
         $parent = $parent_it;
-        while($parent_it !== null)
-        {
+        while ($parent_it !== null) {
             $parent = $parent_it;
             $parent_it = $this->fetch_section_parent($parent_it);
         }
-        if($parent !== null)
-        {
+        if ($parent !== null) {
             $page = $this->fetch_section_page($parent);
-            if($page === null)
-            {
+            if ($page === null) {
                 $page = $this->fetch_nav_section_page($parent);
                 $nav = $this->fetch_section_name($parent);
             }
@@ -329,14 +325,14 @@ class UserInput
      */
     private function check_config($config, $fields)
     {
-        $result = array();        
+        $result = array();
         $form_values = array();
         //prepare the values based on what type of form they come
         foreach ($fields as $field_name => $field) {
-            if(isset($field['value'])){
+            if (isset($field['value'])) {
                 // it is a form field
                 $form_values[$field_name] = $field['value'];
-            }else{
+            } else {
                 // it is from external
                 $form_values[$field_name] = $field;
             }
@@ -355,7 +351,7 @@ class UserInput
                 }
             }
         }
-        
+
         $config = $this->db->replace_calced_values($config, $form_values); //replace {{vars}}
 
         return array(
@@ -373,7 +369,8 @@ class UserInput
      * @return object;
      * Return the update blocks with the new counters
      */
-    private function update_randomization_count($action, $blocks){
+    private function update_randomization_count($action, $blocks)
+    {
         foreach ($blocks as $block_index => $block) {
             $action['config']['blocks'][$block['index']][ACTION_BLOCK_RANDOMIZATION_COUNT]++;
         }
@@ -447,7 +444,7 @@ class UserInput
         }
         if ($reminder['notification']['notification_types'] == notificationTypes_email) {
             return  $this->queue_mail($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
-        }else if ($reminder['notification']['notification_types'] == notificationTypes_push_notification) {
+        } else if ($reminder['notification']['notification_types'] == notificationTypes_push_notification) {
             return  $this->queue_notification($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         }
     }
@@ -701,24 +698,31 @@ class UserInput
             if ($schedule_time['send_on_day_at']) {
                 try {
                     $at_time = explode(':', $schedule_time['send_on_day_at']);
-                    $d = new DateTime();
-                    $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
-                    $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
-                    $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
+                    if (count($at_time) == 2) {
+                        $d = new DateTime();
+                        $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
+                        $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
+                        $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
+                    } else {
+                        $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_system, null, null, null, false, array(
+                            "data" => $schedule_time,
+                            "text" => "The time is not set correctly"
+                        ));
+                    }
                 } catch (Exception $e) {
                     $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_system, null, null, null, false, array(
                         "error" => $e,
                         "data" => $schedule_time,
                         "text" => "error while calculating the time"
                     ));
-                }                
+                }
             }
         } else if ($schedule_time[ACTION_JOB_SCHEDULE_TYPES] == actionScheduleTypes_after_period_on_day_at_time) {
             // send on specific weekday after 1,2,3, or more weeks at specific time
             $date_to_be_sent = $this->calc_date_on_weekday($schedule_time);
         }
         return $date_to_be_sent;
-    }    
+    }
 
     /**
      * Calculate the date when the email should be sent when it is on weekday type
@@ -741,7 +745,7 @@ class UserInput
             $next_weekday = $next_weekday->getTimestamp();
             return date('Y-m-d H:i:s', $next_weekday);
         }
-    }    
+    }
 
     /**
      * Get the scheduled reminders for the user and this survey
@@ -794,7 +798,7 @@ class UserInput
             $res = $res ? $res['id'] : '';
             $this->db->get_cache()->set($key, $res);
             return $res;
-        }        
+        }
     }
 
     /**
@@ -806,11 +810,12 @@ class UserInput
      * @return array
      * Return array with the column name and the column id
      */
-    private function get_columns_for_upload_table($id_table, $data){
+    private function get_columns_for_upload_table($id_table, $data)
+    {
         $col_ids = array();
         foreach ($data as $col_name => $value) {
             $id_col = $this->get_uploadTable_columnId($col_name, $id_table);
-            if(!$id_col){
+            if (!$id_col) {
                 // it does not exist, create it
                 $id_col = $this->db->insert("uploadCols", array(
                     "name" => $col_name,
@@ -847,7 +852,8 @@ class UserInput
      * @return bool
      * Return the success of the update
      */
-    private function update_external_data($id_table, $record, $transaction_by, $data){
+    private function update_external_data($id_table, $record, $transaction_by, $data)
+    {
         $col_ids = $this->get_columns_for_upload_table($id_table, $data);
         $res = $this->db->execute_update_db("UPDATE uploadRows SET `timestamp` = NOW() WHERE id = :id;", array(':id' => $record['record_id'])); //update the timestamp of the row
         foreach ($data as $key => $value) {
@@ -869,7 +875,8 @@ class UserInput
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
      * @return bool
      */
-    private function save_external_row($transaction_by, $table_name, $data, $updateBasedOn = null){
+    private function save_external_row($transaction_by, $table_name, $data, $updateBasedOn = null)
+    {
         if (!isset($data['id_users'])) {
             $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
         }
@@ -961,7 +968,7 @@ class UserInput
         foreach ($scheduled_reminders as $reminder) {
             $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_system);
         }
-    } 
+    }
 
     /* Public Methods *********************************************************/
 
@@ -973,17 +980,18 @@ class UserInput
      * @retval string
      * the converted string which will be used as ID
      */
-     public function convert_to_valid_html_id($string){
+    public function convert_to_valid_html_id($string)
+    {
         //Lower case everything
-         $string = strtolower($string);
-         //Make alphanumeric (removes all other characters)
-         $string = preg_replace("/[^a-z0-9_\s-]/", "", $string);
-         //Clean up multiple dashes or whitespaces
-         $string = preg_replace("/[\s-]+/", " ", $string);
-         //Convert whitespaces and underscore to dash
-         $string = preg_replace("/[\s_]/", "-", $string);
-         return $string;        
-     }
+        $string = strtolower($string);
+        //Make alphanumeric (removes all other characters)
+        $string = preg_replace("/[^a-z0-9_\s-]/", "", $string);
+        //Clean up multiple dashes or whitespaces
+        $string = preg_replace("/[\s-]+/", " ", $string);
+        //Convert whitespaces and underscore to dash
+        $string = preg_replace("/[\s_]/", "-", $string);
+        return $string;
+    }
 
     /**
      * Get all input fields given a filter
@@ -1009,30 +1017,30 @@ class UserInput
     {
         // rework
         $db_cond = array();
-        if(isset($filter["gender"]))
+        if (isset($filter["gender"]))
             $db_cond["g.name"] = $filter["gender"];
-        if(isset($filter["id_section"]))
+        if (isset($filter["id_section"]))
             $db_cond["ui.id_sections"] = $filter["id_section"];
-        if(isset($filter["id_section_form"])) {
+        if (isset($filter["id_section_form"])) {
             $db_cond["ui.id_section_form"] = $filter["id_section_form"];
         }
-        if(isset($filter["id_user"]))
+        if (isset($filter["id_user"]))
             $db_cond["ui.id_users"] = $filter["id_user"];
-        if(isset($filter["id"]))
+        if (isset($filter["id"]))
             $db_cond["ui.id"] = $filter["id"];
-        if(isset($filter["removed"]))
+        if (isset($filter["removed"]))
             $db_cond["ui.removed"] = $filter["removed"] ? '1' : '0';
-        if(isset($filter["form_name"]))
+        if (isset($filter["form_name"]))
             $db_cond["ui.id_section_form"] = $this->get_form_id($filter["form_name"]);
         $fields_all = $this->fetch_input_fields($db_cond, $get_page_info);
         $fields = array();
-        foreach($fields_all as $field)
-            if((!isset($filter["field_name"]) || (isset($filter["field_name"])
-                        && $field['field_name'] === $filter["field_name"]))
+        foreach ($fields_all as $field)
+            if ((!isset($filter["field_name"]) || (isset($filter["field_name"])
+                    && $field['field_name'] === $filter["field_name"]))
                 && (!isset($filter["page"]) || (isset($filter["page"])
-                        && $field['page'] === $filter["page"]))
+                    && $field['page'] === $filter["page"]))
                 && (!isset($filter["nav"]) || (isset($filter["nav"])
-                        && strpos($field['nav'], $filter["nav"]) !== false))
+                    && strpos($field['nav'], $filter["nav"]) !== false))
             )
                 $fields[] = $field;
         return $fields;
@@ -1133,7 +1141,7 @@ class UserInput
     public function get_input_value_by_pattern($pattern, $uid)
     {
         $names = explode('#', $pattern);
-        if(count($names) !== 2)
+        if (count($names) !== 2)
             return null;
 
         $form = substr($names[0], 1);
@@ -1143,7 +1151,7 @@ class UserInput
             "field_name" => $field,
             "id_user" => $uid
         ));
-        if(count($vals) > 0)
+        if (count($vals) > 0)
             return end($vals)['value'];
 
         return "";
@@ -1188,14 +1196,12 @@ class UserInput
                     LEFT JOIN languages AS l ON l.id = sft_il.id_languages";
             $sections = $this->db->query_db($sql);
             $this->db->get_cache()->set($key, $sections);
-        }         
-        foreach($sections as $section)
-        {
+        }
+        foreach ($sections as $section) {
             $id = intval($section['id_sections']);
             $name = $section['field_name'];
             $label_name = $section['field_label'] ?? $name;
-            if(isset($this->field_attrs[$id]))
-            {
+            if (isset($this->field_attrs[$id])) {
                 $this->field_attrs[$id]["label"][$section['gender']][$section['language']] = $label_name;
                 continue;
             }
@@ -1249,20 +1255,18 @@ class UserInput
             $sections = $this->db->query_db($sql, array(":id" => $id));
             $this->db->get_cache()->set($key, $sections);
         }
-        foreach($sections as $section)
-        {
+        foreach ($sections as $section) {
             $id = intval($section['id_sections']);
             $name = $section['field_name'];
             $label_name = $section['field_label'] ?? $name;
-            if(isset($field_attrs[$id]))
-            {
+            if (isset($field_attrs[$id])) {
                 $field_attrs[$id]["label"][$section['gender']][$section['language']] = $label_name;
                 continue;
             }
             $type = $section['input_type'] ?? $section['field_type'];
             $label = array('male' => array(), 'female' => array());
             $label[$section['gender']][$section['language']] = $label_name;
-            if($get_page_info){
+            if ($get_page_info) {
                 $page = $this->find_section_page($id);
             }
             $field_attrs[$id] = array(
@@ -1287,7 +1291,7 @@ class UserInput
         if (!isset($this->ui_pref)) {
             // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
             $form_id = $this->get_form_id('ui-preferences', FORM_INTERNAL);
-            if($form_id){
+            if ($form_id) {
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
             }
@@ -1360,7 +1364,7 @@ class UserInput
             $res = $res ? $res['id'] : false;
             $this->db->get_cache()->set($key, $res);
             return $res;
-        }        
+        }
     }
 
     /**
@@ -1382,7 +1386,7 @@ class UserInput
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_INTERNAL, $user_id = null, $db_first = false)
     {
-        if(strpos($filter, '{{') !== false ){
+        if (strpos($filter, '{{') !== false) {
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
         }
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $form_type, $user_id, $db_first]);
@@ -1422,7 +1426,7 @@ class UserInput
             }
             $this->db->get_cache()->set($key, $res);
             return $res;
-        }    
+        }
     }
 
     /**
@@ -1441,7 +1445,7 @@ class UserInput
      * the result of the fetched data
      */
     public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_INTERNAL, $db_first = false)
-    {        
+    {
         return $this->get_data($form_id, $filter, true, $form_type, $user_id, $db_first);
     }
 
@@ -1483,18 +1487,18 @@ class UserInput
             $id_users = null;
             if (!$this->isAssoc($data)) {
                 foreach ($data as $key => $row) {
-                    if(isset($row['id_users'])){
-                        if($id_users == null){
+                    if (isset($row['id_users'])) {
+                        if ($id_users == null) {
                             $id_users = $row['id_users'];
-                        }else if($id_users != $row['id_users']){
+                        } else if ($id_users != $row['id_users']) {
                             // different users in this data set
                             $id_users = 'different_users';
                         }
                     }
-                  $res = $res && $this->save_external_row($transaction_by, $table_name, $row);
+                    $res = $res && $this->save_external_row($transaction_by, $table_name, $row);
                 }
             } else {
-                $res = $this->save_external_row($transaction_by, $table_name, $data, $updateBasedOn);                
+                $res = $this->save_external_row($transaction_by, $table_name, $data, $updateBasedOn);
             }
 
             /**************** Check jobs ***************************************/
@@ -1512,7 +1516,7 @@ class UserInput
                 "form_id" => $this->get_form_id($table_name, FORM_EXTERNAL),
                 "form_type" => FORM_EXTERNAL,
                 "form_fields" => $form_fields
-            );            
+            );
             /**************** Check jobs ***************************************/
             $this->db->commit();
             $this->queue_job_from_actions($form_data);
@@ -1546,7 +1550,7 @@ class UserInput
             $res = $res ? $res["content"] : false;
             $this->db->get_cache()->set($key, $res);
             return $res;
-        } 
+        }
     }
 
     /**
@@ -1576,7 +1580,7 @@ class UserInput
             $res = $label ? $label["content"] : "";
             $this->db->get_cache()->set($key, $res);
             return $res;
-        } 
+        }
     }
 
     /**
@@ -1605,7 +1609,7 @@ class UserInput
             $res = $style ? $style["name"] : "";
             $this->db->get_cache()->set($key, $res);
             return $res;
-        } 
+        }
     }
 
     /**
@@ -1638,13 +1642,13 @@ class UserInput
                 }
                 /*************************  CHECK DYNAMIC DATA *********************************************/
 
-                $action['config'] = json_decode($action['config'], true);              
-                if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) { 
+                $action['config'] = json_decode($action['config'], true);
+                if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) {
                     $result['condition'] = "Action condition is not met";
                     continue;
                 }
 
-                
+
                 $users = array();
 
                 /*************************  TARGET_GROUPS **************************************************/
@@ -1660,7 +1664,7 @@ class UserInput
                 } else {
                     array_push($users, $id_users);
                 }
-                /*************************  TARGET_GROUPS **************************************************/                
+                /*************************  TARGET_GROUPS **************************************************/
 
                 /*************************  REPEAT *********************************************************/
 
@@ -1733,7 +1737,7 @@ class UserInput
                                     }
                                     $curr_block['jobs'][] = $scheduling_result;
                                     $scheduling_keys = array_keys($scheduling_result);
-                                    if (reset($scheduling_keys)) {                                        
+                                    if (reset($scheduling_keys)) {
                                         $this->db->insert('scheduledJobs_formActions', array(
                                             "id_scheduledJobs" => reset($scheduling_keys),
                                             "id_formActions" => $action['id'],
@@ -1765,9 +1769,9 @@ class UserInput
                 $id_users,
                 $form_data['form_type'],
                 $form_data['form_id'],
-                false,                
+                false,
                 $result
-        );
+            );
             $this->db->commit();
             return $result;
         } catch (Exception $e) {
@@ -1779,16 +1783,17 @@ class UserInput
     /**
      * Set the condition service
      */
-    public function setConditionService($condition){
+    public function setConditionService($condition)
+    {
         $this->condition = $condition;
     }
 
     /**
      * Set the job_scheduler service
      */
-    public function setJobSchedulerService($job_scheduler){
+    public function setJobSchedulerService($job_scheduler)
+    {
         $this->job_scheduler = $job_scheduler;
     }
-
 }
 ?>
