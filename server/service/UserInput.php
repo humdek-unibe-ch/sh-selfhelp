@@ -705,9 +705,9 @@ class UserInput
                     $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
                     $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
                     $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
-                } catch (\Throwable $th) {
+                } catch (Exception $e) {
                     $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_system, null, null, null, false, array(
-                        "error" => $th,
+                        "error" => $e,
                         "data" => $schedule_time,
                         "text" => "error while calculating the time"
                     ));
