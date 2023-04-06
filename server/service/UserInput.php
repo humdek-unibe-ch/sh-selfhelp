@@ -699,11 +699,19 @@ class UserInput
             $now = date('Y-m-d H:i:s', time());
             $date_to_be_sent = date('Y-m-d H:i:s', strtotime('+' . $schedule_time['send_after'] . ' ' . $schedule_time['send_after_type'], strtotime($now)));
             if ($schedule_time['send_on_day_at']) {
-                $at_time = explode(':', $schedule_time['send_on_day_at']);
-                $d = new DateTime();
-                $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
-                $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
-                $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
+                try {
+                    $at_time = explode(':', $schedule_time['send_on_day_at']);
+                    $d = new DateTime();
+                    $date_to_be_sent = $d->setTimestamp(strtotime($date_to_be_sent));
+                    $date_to_be_sent = $date_to_be_sent->setTime($at_time[0], $at_time[1]);
+                    $date_to_be_sent = date('Y-m-d H:i:s', $date_to_be_sent->getTimestamp());
+                } catch (\Throwable $th) {
+                    $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_system, null, null, null, false, array(
+                        "error" => $th,
+                        "data" => $schedule_time,
+                        "text" => "error while calculating the time"
+                    ));
+                }                
             }
         } else if ($schedule_time[ACTION_JOB_SCHEDULE_TYPES] == actionScheduleTypes_after_period_on_day_at_time) {
             // send on specific weekday after 1,2,3, or more weeks at specific time

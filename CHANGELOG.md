@@ -1,3 +1,7 @@
+# v6.1.1
+###  New features
+ - add extra logging when time is calculated for scheduling actions 
+
 # v6.1.0
 ###  New features
  - add user_id to the jobs when an email is sent from the system
