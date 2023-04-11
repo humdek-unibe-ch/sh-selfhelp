@@ -364,20 +364,26 @@ class UserInput
      * Increment the randomization_count on the executed blocks in the action config
      * @param object $action
      * The action row
+     * @param object $not_modified_action
+     * The original action row, which the dynamic data check is not applied
      * @param array $blocks
      * The selected blocks which will be executed
      * @return object;
-     * Return the update blocks with the new counters
+     * Return the update blocks with the new counters for the action and not modified action
      */
-    private function update_randomization_count($action, $blocks)
+    private function update_randomization_count($action, $not_modified_action, $blocks)
     {
         foreach ($blocks as $block_index => $block) {
-            $action['config']['blocks'][$block['index']][ACTION_BLOCK_RANDOMIZATION_COUNT]++;
+            $action['config']['blocks'][$block['index']][ACTION_BLOCK_RANDOMIZATION_COUNT]++; //this one will be returned
+            $not_modified_action['config']['blocks'][$block['index']][ACTION_BLOCK_RANDOMIZATION_COUNT]++; // this one will be used to update the DB and if there were variable replacement in the dynamic data check it will not be saved in the DB
         }
         $this->db->update_by_ids("formActions", array(
-            "config" => json_encode($action['config'])
-        ), array('id' => $action['id']));
-        return $action;
+            "config" => json_encode($not_modified_action['config'])
+        ), array('id' => $not_modified_action['id']));
+        return array(
+            "action" => $action,
+            "not_modified_action" => $not_modified_action
+        );
     }
 
     /**
@@ -1631,7 +1637,9 @@ class UserInput
             $start_date = date("Y-m-d H:i:s");
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
-            foreach ($actions as $action) {
+            foreach ($actions as $action) {     
+                $not_modified_action = array_slice($action, 0); //create a copy of the original action
+                $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
 
                 /*************************  CHECK DYNAMIC DATA *********************************************/
                 if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
@@ -1642,6 +1650,7 @@ class UserInput
                 }
                 /*************************  CHECK DYNAMIC DATA *********************************************/
 
+                //check action condition
                 $action['config'] = json_decode($action['config'], true);
                 if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) {
                     $result['condition'] = "Action condition is not met";
@@ -1697,7 +1706,9 @@ class UserInput
                         }
                         shuffle($blocks_not_executed_yet); // randomize the blocks
                         array_splice($blocks_not_executed_yet, $action['config'][ACTION_RANDOMIZER][ACTION_RANDOMIZER_RANDOM_ELEMENTS]); // keep only the number of the elements that we want to present
-                        $action = $this->update_randomization_count($action, $blocks_not_executed_yet);
+                        $updated_result = $this->update_randomization_count($action, $not_modified_action, $blocks_not_executed_yet);
+                        $action = $updated_result['action'];
+                        $not_modified_action = $updated_result['not_modified_action'];
                     }
 
                     /*************************  RANDOMIZE ******************************************************/
