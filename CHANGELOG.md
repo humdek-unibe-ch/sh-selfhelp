@@ -1,3 +1,7 @@
+# v6.1.3
+###  New features
+ - `reminders` in `Jobs` inherit `on_execute_condition` from the `notification`;
+
 # v6.1.2
 ### Bugfix
  - fix the bug when dynamic data overwrite the variable with the retrieved value in the form action and later the variable is gone for further caught actions.
