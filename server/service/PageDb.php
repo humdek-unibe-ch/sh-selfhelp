@@ -716,5 +716,22 @@ class PageDb extends BaseDb
         return $is_array ? json_decode($field_content, true) : $field_content;
     }
 
+    /**
+     * Get the user selected language
+     * @param $id_users
+     * The id of the user
+     * @return int
+     * Return the saved language id or false if not found
+     */
+    public function get_user_language_id($id_users){
+        $sql = "SELECT id_languages
+                FROM users u                
+                WHERE u.id = :uid";
+        $res = $this->query_db_first($sql, array(
+            ':uid' => $id_users
+        ));
+        return isset($res['id_languages']) ? $res['id_languages'] : false;
+    }
+
 }
 ?>

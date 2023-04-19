@@ -79,14 +79,8 @@ class Condition
      * @return int
      * Return the saved language id or false if not found
      */
-    private function get_user_language_id($id_users){
-        $sql = "SELECT id_languages
-                FROM users u                
-                WHERE u.id = :uid";
-        $res = $this->db->query_db_first($sql, array(
-            ':uid' => $id_users
-        ));
-        return isset($res['id_languages']) ? $res['id_languages'] : false;
+    private function get_user_language_id($id_users){        
+        return $this->db->get_user_language_id($id_users);
     }
 
     /**

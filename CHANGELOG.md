@@ -1,3 +1,7 @@
+# v6.1.4
+###  New features
+ - add `__keyword__`, `__platform__`, `__language__` to the global variables and they can be loaded with `{{}}`, ex `{{__keyword__}}`
+
 # v6.1.3
 ###  New features
  - `reminders` in `Jobs` inherit `on_execute_condition` from the `notification`;

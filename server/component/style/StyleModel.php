@@ -364,11 +364,18 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         // replace the field content with the global variables
         if ($field['content']) {
-            $field['content'] = $this->db->replace_calced_values($field['content'], array(
+            $global_vars = array(
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
-                '@user' =>$user_name,
-            ));                       
+                '@user' => $user_name,
+                '__keyword__' => $this->router->get_keyword_from_url(),
+                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
+            );
+            if(strpos($field['content'], '__language__') !== false){
+                $language = $this->db->get_user_language_id($_SESSION['id_user']);
+                $global_vars['__language__'] = $language;
+            }
+            $field['content'] = $this->db->replace_calced_values($field['content'], $global_vars);
             $field['content'] = str_replace('@user_code', $user_code, $field['content']);
             $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
             $field['content'] = str_replace('@user', $user_name, $field['content']);
@@ -377,7 +384,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = $this->db->replace_calced_values($field['content'],  $global_values);
             }
             if ($data_config && $field['name'] != 'data_config') {
-                // if there is data_config set and the field is nto data_config, try to get dynamic data
+                // if there is data_config set and the field is not data_config, try to get dynamic data
                 $fields = $this->retrieve_data($data_config);
                 $field['content'] = $this->db->replace_calced_values($field['content'], $fields);
                 if ($fields) {
