@@ -246,12 +246,24 @@ class ValidateView extends StyleView
             'value' => $this->custom_form_name,
         ));
         $input->output_content();
-        foreach($this->children as $child)
-        {
-            $input = $child->get_style_instance();
-            if(is_a($input, "FormFieldComponent"))
-                $input->enable_user_input();
+        $this->output_custom_fields_children($this->children);
+        foreach ($this->children as $child) {
             $child->output_content();
+        }
+    }
+    
+    /**
+     * Recursively load children fields and enable them if they are form fields
+     * @param array $children
+     * The children elements that we will loop
+     */
+    private function output_custom_fields_children($children){
+        foreach ($children as $child) {
+            $input = $child->get_style_instance();
+            if (is_a($input, "FormFieldComponent")){
+                $input->enable_user_input();                
+            }
+            $this->output_custom_fields_children($child->get_children());
         }
     }
 

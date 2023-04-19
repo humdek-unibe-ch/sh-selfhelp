@@ -1,3 +1,7 @@
+# v6.1.6
+###  Bugfix
+ - adding input fields as children in style `validate` are saved in the DB as user input data
+
 # v6.1.5
 ###  New features
  - add `__keyword__`, `__platform__`, `__language__` to the global variables and they can be loaded with `{{}}`, ex `{{__keyword__}}` for the `data_config`
