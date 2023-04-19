@@ -452,11 +452,19 @@ class StyleModel extends BaseModel implements IStyleModel
                 $data_config = $this->get_entry_value($this->entry_record, $data_config);
             }
             // if data_config is set replace if there are any globals
-            $data_config = $this->db->replace_calced_values($data_config, array(
+            $global_vars = array(
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
-                '@user' =>$user_name,
-            ));
+                '@user' => $user_name,
+                '__keyword__' => $this->router->get_keyword_from_url(),
+                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
+            );
+            if(strpos($data_config, '__language__') !== false){
+                $language = $this->db->get_user_language_id($_SESSION['id_user']);
+                $global_vars['__language__'] = $language;
+            }
+            $data_config = $this->db->replace_calced_values($data_config, $global_vars);
+            
             $data_config = str_replace('@user_code', $user_code, $data_config);
             $data_config = str_replace('@project', $_SESSION['project'], $data_config);
             $data_config = str_replace('@user', $user_name, $data_config);
