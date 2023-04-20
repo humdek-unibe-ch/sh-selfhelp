@@ -356,7 +356,7 @@ class StyleModel extends BaseModel implements IStyleModel
      * @return string
      * Return the field content
      */
-    private function calc_dynamic_values($field, $data_config, $user_name, $user_code){
+    protected function calc_dynamic_values($field, $data_config, $user_name, $user_code){
         //adjust entry records 
         if ($this->entry_record) {
             //adjust entry value

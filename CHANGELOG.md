@@ -1,3 +1,7 @@
+# v6.1.7 (Unpublished)
+### New features
+ - make function `calc_dynamic_values` protected in `StyleModel`
+
 # v6.1.6
 ###  Bugfix
  - adding input fields as children in style `validate` are saved in the DB as user input data
