@@ -864,7 +864,8 @@ class UserInput
         $col_ids = $this->get_columns_for_upload_table($id_table, $data);
         $res = $this->db->execute_update_db("UPDATE uploadRows SET `timestamp` = NOW() WHERE id = :id;", array(':id' => $record['record_id'])); //update the timestamp of the row
         foreach ($data as $key => $value) {
-            $res = $res && $this->db->update_by_ids('uploadCells', array("value" => $value), array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key]));
+            // if it has a value it will be updated if it is not created yet it will be inserted
+            $res = $res && $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
         }
         if ($res) {
             $this->transaction->add_transaction(transactionTypes_update, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table);
@@ -911,17 +912,14 @@ class UserInput
             if ($record) {
                 // the record exists, do not insert it, update it
                 $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
-                $this->db->commit();
                 return $res;
             }
         }
         /******************* SET TABLE *********************************/
         if (!$id_table) {
-            $this->db->rollback();
             return false;
         } else {
             if ($this->transaction->add_transaction(transactionTypes_insert, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
-                $this->db->rollback();
                 return false;
             }
 
@@ -936,7 +934,6 @@ class UserInput
                 "id_uploadTables" => $id_table
             ));
             if (!$id_row) {
-                $this->db->rollback();
                 return false;
             }
             /******************* SET ROW     *********************************/
@@ -956,7 +953,6 @@ class UserInput
                 $db_cells
             );
             if (!$res) {
-                $this->db->rollback();
                 return false;
             }
 
@@ -1518,7 +1514,7 @@ class UserInput
                 $form_fields['id_users']  = $id_users;
             }
             $form_data = array(
-                "trigger_type" => actionTriggerTypes_finished,
+                "trigger_type" => isset($data['trigger_type']) ? $data['trigger_type'] : actionTriggerTypes_finished,
                 "form_name" => $table_name,
                 "form_id" => $this->get_form_id($table_name, FORM_EXTERNAL),
                 "form_type" => FORM_EXTERNAL,
