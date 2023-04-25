@@ -69,7 +69,6 @@ function initMarkdownFields() {
             autoDownloadFontAwesome: false,
             spellChecker: false,
             autoRefresh: { delay: 0 },
-            minHeight: '10px',
             forceSync: true,
             toolbar: ["bold", "italic", "heading", "quote", "unordered-list", "ordered-list", "link", "image", "table", "preview", "guide"],
             renderingConfig: {
