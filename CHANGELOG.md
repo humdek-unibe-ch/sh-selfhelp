@@ -5,6 +5,7 @@
 ###  Bugfix
  - save external data on update properly add new columns if they do not exists
  - fix the size of the `markdown` fields in a style in the CMS
+ - #356 - fix condition check from cronjob
 
 # v6.1.6
 ###  Bugfix

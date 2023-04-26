@@ -179,15 +179,20 @@ class Router extends AltoRouter {
         if ($this->current_keyword) {
             return $this->current_keyword;
         }
-        $path = explode('/', $_SERVER['REQUEST_URI']);
-        if (BASE_PATH == '' && count($path) >= 1) {
-            $this->current_keyword = $path[1];
-        } else if (BASE_PATH != '' && count($path) >= 2) {
-            $this->current_keyword = $path[2];
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $path = explode('/', $_SERVER['REQUEST_URI']);
+            if (BASE_PATH == '' && count($path) >= 1) {
+                $this->current_keyword = $path[1];
+            } else if (BASE_PATH != '' && count($path) >= 2) {
+                $this->current_keyword = $path[2];
+            } else {
+                $this->current_keyword = false;
+            }
+            return $this->current_keyword;
         } else {
-            $this->current_keyword = false;
+            // when a condition is used in cronjob and needs to calculate the keyword, there is no keyword
+            return 'no server requests';
         }
-        return $this->current_keyword;
     }
 
     /**

@@ -1312,7 +1312,7 @@ class UserInput
     public function get_user_notification_settings($id_users = null)
     {
         if ($id_users == null) {
-            $id_users = $_SESSION['id_user'];
+            $id_users = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1;
         }
         $form_id = $this->get_form_id('notification', FORM_INTERNAL);
         if ($form_id) {
@@ -1398,7 +1398,7 @@ class UserInput
             return $get_result;
         } else {
             if (!$user_id) {
-                $user_id =  $_SESSION['id_user']; // if the user is not defined we set the session user if needed
+                $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
             }
             if ($form_type == FORM_INTERNAL) {
                 $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
