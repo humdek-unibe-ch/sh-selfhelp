@@ -2,6 +2,7 @@
 ### New features
  - make function `calc_dynamic_values` protected in `StyleModel`
  - add class `selfHelp-locale-language_code` example: `selfHelp-locale-de-CH` in the style
+ - in `admin/data` hide all columns starting with "_"
 
 ###  Bugfix
  - save external data on update properly add new columns if they do not exists
