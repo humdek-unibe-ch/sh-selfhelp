@@ -1,7 +1,7 @@
 $(document).ready(function () {
     //************* all forms tables ******************************
     $('.adminData').each(function () {
-        $(this).DataTable({
+        var table = $(this).DataTable({
             scrollX: true,
             dom: 'Bfrtip',
             buttons: [
@@ -11,6 +11,16 @@ $(document).ready(function () {
                 { "visible": false, "targets": 0 },
                 { "visible": false, "targets": 1 }
             ]
+        });
+
+        // hide all columns starting with "_"
+        table.columns().every(function () {
+            var column = this;
+            var header = $(column.header()).text().trim();
+
+            if (header.startsWith('_')) {
+                column.visible(false);
+            }
         });
     });
 
