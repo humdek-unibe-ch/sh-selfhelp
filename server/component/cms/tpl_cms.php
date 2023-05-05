@@ -5,6 +5,7 @@
 ?>
 <div class="row">
     <div class="col">
+        <div id="multiple-users-warning"><?php $this->output_check_multiple_users(); ?></div>    
         <?php $this->output_alerts(); ?>
         <?php $this->output_breadcrumb(); ?>
     </div>

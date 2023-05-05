@@ -309,3 +309,8 @@
     border: 1.5px dotted !important;
     border-color: var(--secondary) !important;
 }
+
+.sticky-top #multiple-users-warning #section-multiple-users-warning-alert{
+    margin-bottom: 0;
+    border-radius: 0;
+}
