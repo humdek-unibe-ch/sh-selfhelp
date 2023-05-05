@@ -83,13 +83,7 @@ class ExportPage extends BasePage
         if($selector !== "user_input_form"){
             // get and post difference - we cannot set header later in get request
             header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . $selector . '.csv');
-        }
-        // log user activity on export pages
-        $this->services->get_db()->insert("user_activity", array(
-            "id_users" => $_SESSION['id_user'],
-            "url" => $_SERVER['REQUEST_URI'],
-            "id_type" => 2,
-        ));        
+        }   
 
         // create a file pointer connected to the output stream
         $output = fopen('php://output', 'w');

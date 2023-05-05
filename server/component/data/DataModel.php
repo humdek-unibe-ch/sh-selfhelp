@@ -50,12 +50,6 @@ class DataModel extends BaseModel
      */
     public function get_forms()
     {
-        // log user activity on export pages
-        $this->services->get_db()->insert("user_activity", array(
-            "id_users" => $_SESSION['id_user'],
-            "url" => $_SERVER['REQUEST_URI'],
-            "id_type" => 2,
-        ));
         $sql = 'SELECT type, id AS form_id, orig_name AS form_name, form_id_plus_type AS form, internal
                 FROM view_data_tables
                 WHERE internal <> 1';

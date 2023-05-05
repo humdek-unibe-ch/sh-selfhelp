@@ -140,26 +140,8 @@ function mobile_call($services, $router, $db){
         } else if ($router->route['target'] == "ajax") {
             create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
         }
-        // log user activity on experiment pages
-        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
-        if ($db->query_db_first(
-            $sql,
-            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])
-        )) {
-            //if transaction logs work as expected this should be removed
-            $db->insert("user_activity", array(
-                "id_users" => $_SESSION['id_user'],
-                "url" => $_SERVER['REQUEST_URI'],
-                "exec_time" => (microtime(true) - $debug_start_time)
-            ));
-        } else {
-            $db->insert("user_activity", array(
-                "id_users" => $_SESSION['id_user'],
-                "url" => $_SERVER['REQUEST_URI'],
-                "id_type" => 2,
-                "exec_time" => (microtime(true) - $debug_start_time)
-            ));
-        }
+        // log user activity 
+        $router->log_user_activity($debug_start_time, true);
     }
     else {
         // no route was matched
@@ -196,26 +178,9 @@ function web_call($services, $router, $db){
         } else if ($router->route['target'] == "ajax") {
             create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
         }
-        // log user activity on experiment pages
-        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
-        if ($db->query_db_first(
-            $sql,
-            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $router->route['name'])
-        )) {
-            //if transaction logs work as expected this should be removed
-            $db->insert("user_activity", array(
-                "id_users" => $_SESSION['id_user'],
-                "url" => $_SERVER['REQUEST_URI'],
-                "exec_time" => (microtime(true) - $debug_start_time)
-            ));
-        } else {
-            $db->insert("user_activity", array(
-                "id_users" => $_SESSION['id_user'],
-                "url" => $_SERVER['REQUEST_URI'],
-                "id_type" => 2,
-                "exec_time" => (microtime(true) - $debug_start_time)
-            ));
-        }
+        // log user activity
+        $router->log_user_activity($debug_start_time);
+        
     }
     else {
         // no route was matched

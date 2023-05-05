@@ -229,5 +229,38 @@ class Router extends AltoRouter {
             return false;
         }
     }
+
+    /**
+     * Log user activity for a page request
+     * @param int $debug_start_time
+     * The timestamp when te request is started. We use it to calculate how much time t was needed for the request to be executed
+     * @param bool $mobile
+     * Is the request from a mobile app. The default is false
+     */
+    public function log_user_activity($debug_start_time, $mobile = false){
+        $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+        if ($this->db->query_db_first(
+            $sql,
+            array(":id" => EXPERIMENT_PAGE_ID, ":key" => $this->route['name'])
+        )) {
+            //if transaction logs work as expected this should be removed
+            $this->db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+                "exec_time" => (microtime(true) - $debug_start_time),
+                "mobile" => (int)$mobile
+            ));
+        } else {
+            $this->db->insert("user_activity", array(
+                "id_users" => $_SESSION['id_user'],
+                "url" => $_SERVER['REQUEST_URI'],
+                "id_type" => 2,
+                "exec_time" => (microtime(true) - $debug_start_time),
+                "keyword" => $this->route['name'],
+                "params" => json_encode($this->route['params']),
+                "mobile" => (int)$mobile
+            ));
+        }
+    }
 }
 ?>
