@@ -71,7 +71,7 @@ abstract class BaseView
     protected function output_local_component($name)
     {
         $component = $this->get_local_component($name);
-        if($component != null)
+        if ($component != null)
             $component->output_content();
     }
 
@@ -85,7 +85,7 @@ abstract class BaseView
      */
     protected function get_local_component($name)
     {
-        if(array_key_exists($name, $this->local_components))
+        if (array_key_exists($name, $this->local_components))
             return $this->local_components[$name];
         else
             return null;
@@ -96,10 +96,9 @@ abstract class BaseView
      */
     protected function output_controller_alerts_fail()
     {
-        if($this->controller === null) return;
-        if(!$this->controller->has_failed()) return;
-        foreach($this->controller->get_error_msgs() as $idx =>$msg)
-        {
+        if ($this->controller === null) return;
+        if (!$this->controller->has_failed()) return;
+        foreach ($this->controller->get_error_msgs() as $idx => $msg) {
             $alert = new BaseStyleComponent("alert", array(
                 "id" => "controller-fail-" . $idx,
                 "type" => "danger",
@@ -117,8 +116,8 @@ abstract class BaseView
      */
     protected function output_controller_alerts_fail_mobile()
     {
-        if($this->controller === null) return;
-        if(!$this->controller->has_failed()) return;
+        if ($this->controller === null) return;
+        if (!$this->controller->has_failed()) return;
         return $this->controller->get_error_msgs();
     }
 
@@ -127,10 +126,9 @@ abstract class BaseView
      */
     protected function output_controller_alerts_success()
     {
-        if($this->controller === null) return;
-        if(!$this->controller->has_succeeded()) return;
-        foreach($this->controller->get_success_msgs() as $idx => $msg)
-        {
+        if ($this->controller === null) return;
+        if (!$this->controller->has_succeeded()) return;
+        foreach ($this->controller->get_success_msgs() as $idx => $msg) {
             $alert = new BaseStyleComponent("alert", array(
                 "id" => "controller-success-" . $idx,
                 "type" => "success",
@@ -148,8 +146,8 @@ abstract class BaseView
      */
     protected function output_controller_alerts_success_mobile()
     {
-        if($this->controller === null) return;
-        if(!$this->controller->has_succeeded()) return;
+        if ($this->controller === null) return;
+        if (!$this->controller->has_succeeded()) return;
         return $this->controller->get_success_msgs();
     }
 
@@ -206,7 +204,8 @@ abstract class BaseView
      *  value int,
      *  text string
      */
-    public function get_lookups($type){
+    public function get_lookups($type)
+    {
         $arr = array();
         foreach ($this->model->get_services()->get_db()->get_lookups($type) as $val) {
             array_push($arr, array("value" => intval($val['id']), "text" => $val['lookup_value']));
@@ -223,25 +222,28 @@ abstract class BaseView
      *  value int,
      *  text string
      */
-    public function get_lookups_with_code($type){
+    public function get_lookups_with_code($type)
+    {
         $arr = array();
         foreach ($this->model->get_services()->get_db()->get_lookups($type) as $val) {
             array_push($arr, array("value" => $val['lookup_code'], "text" => $val['lookup_value']));
         }
         return $arr;
-    }    
+    }
 
     /**
      * render the app version
      */
-    public function get_app_version(){
+    public function get_app_version()
+    {
         echo rtrim(shell_exec("git describe --tags"));
     }
 
     /**
      * render the db version
      */
-    public function get_db_version(){
+    public function get_db_version()
+    {
         echo $this->model->get_services()->get_db()->query_db_first('SELECT version FROM version')['version'];
     }
 
@@ -277,6 +279,10 @@ abstract class BaseView
                 return $alert;
             }
             $alert->output_content();
+        }
+        if ($return_component) {
+            // return empty div
+            return new BaseStyleComponent("div", array("id" => "multiple-users-warning-div"));
         }
     }
 }
