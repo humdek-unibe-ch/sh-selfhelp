@@ -360,8 +360,13 @@ function update_new_data(data, elements, callback) {
     if (!elements) {
         return;
     }
+    if (elements.indexOf("#multiple-users-warning") === -1) {
+        elements.push("#multiple-users-warning");
+    }
+    console.log(elements);
     $('.popover').remove(); // first remove all tooltips if they are active
     elements.forEach(element => {
+        console.log($(data).find(element).children());
         $(element).empty().append($(data).find(element).children());
     });
     if (callback) {

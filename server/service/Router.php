@@ -262,5 +262,61 @@ class Router extends AltoRouter {
             ));
         }
     }
+
+    /**
+     * Get all sensible pages that we want to check if multiple people are editing them at the same time
+     * @return array
+     * return the keywords of the pages in an array
+     */
+    public function get_sensible_pages()
+    {
+        return ['cmsUpdate', 'moduleFormsAction'];
+    }
+
+    /**
+     * For sensible pages - check if anyone else is working on this page in the last 15 minutes and it is still on the page
+     * @return array
+     * Return all users that works on the same page
+     */
+    public function get_other_users_editing_this_page()
+    {
+        $sensible_pages = $this->get_sensible_pages();
+        if (in_array($this->route['name'], $sensible_pages)) {
+            // check if anyone else is working on this page in the last 15 minutes and it is still on the page
+            $res = array();
+            $sql = "SELECT last_requests.*, u.`name` AS user_name, u.email
+                    FROM (SELECT ua1.id_users, ua1.keyword, ua1.params, JSON_UNQUOTE(JSON_EXTRACT(ua1.params, '$.pid')) AS id_pages, ua1.`timestamp`
+                    FROM user_activity ua1
+                    LEFT JOIN user_activity ua2
+                    ON ua1.id_users = ua2.id_users 
+                        AND ua1.`timestamp` < ua2.`timestamp` 
+                        AND NOT ua2.keyword LIKE 'ajax\_%'
+                    WHERE ua2.id_users IS NULL
+                    AND ua1.`timestamp` >= NOW() - INTERVAL 15 MINUTE
+                    GROUP BY ua1.id_users) AS last_requests
+                    INNER JOIN users u ON last_requests.id_users = u.id
+                    WHERE keyword = :keyword";
+            if ($this->route['name'] == 'cmsUpdate') {
+                // this page is special and we have to check only the page param, and not the current section. 
+                $sql = $sql . ' AND id_pages = :id_pages';
+                $res = $this->db->query_db($sql, array(":keyword" => $this->route['name'], ":id_pages" => $this->route['params']['pid']));
+            } else {
+                $sql = $sql . ' AND params = :params';
+                $res = $this->db->query_db($sql, array(":keyword" => $this->route['name'], ":params" => json_encode($this->route['params'])));
+            }
+            if (count($res) > 1) {
+                // more than 1 user is editing the page
+                return $res;
+            } else if (count($res) == 1) {
+                // one user check is this user is the same as who checks
+                if ($res[0]['id_users'] == $_SESSION['id_user']) {
+                    return false;
+                }
+                return $res;
+            }
+        } else {
+            return false;
+        }
+    }
 }
 ?>

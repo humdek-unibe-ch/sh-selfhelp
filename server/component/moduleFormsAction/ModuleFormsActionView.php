@@ -282,5 +282,6 @@ class ModuleFormsActionView extends BaseView
             $form->output_content();
         }
     }
+
 }
 ?>

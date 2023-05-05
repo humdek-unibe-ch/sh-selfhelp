@@ -180,6 +180,7 @@ function web_call($services, $router, $db){
         }
         // log user activity
         $router->log_user_activity($debug_start_time);
+        $test = $router->get_other_users_editing_this_page();
         
     }
     else {

@@ -244,5 +244,33 @@ abstract class BaseView
     public function get_db_version(){
         echo $this->model->get_services()->get_db()->query_db_first('SELECT version FROM version')['version'];
     }
+
+    /**
+     * Check and output an alert for the multiple users editing the same page
+     */
+    public function output_check_multiple_users()
+    {
+        $users = $this->model->get_services()->get_router()->get_other_users_editing_this_page();
+        if ($users) {
+            $user_emails = array();
+            foreach ($users as $key => $value) {
+                $user_emails[] = "[" . $value['email'] . "]";
+            }            
+            $alert = new BaseStyleComponent("alert", array(
+                "type" => "danger",
+                "id" => "multiple-users-warning-alert",
+                "is_dismissable" => false,
+                "children" => array(
+                    new BaseStyleComponent(
+                        "markdown",
+                        array(
+                            "text_md" => "<div class = 'd-flex justify-content-between'><div>Multiple people are editing this survey and you might impact each other's changes!</div> <div><i class='fas fa-users'></i> " . implode(", ", $user_emails) . "</div></div>"
+                        )
+                    )
+                )
+            ));
+            $alert->output_content();
+        }
+    }
 }
 ?>
