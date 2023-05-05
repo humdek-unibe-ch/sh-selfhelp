@@ -247,15 +247,19 @@ abstract class BaseView
 
     /**
      * Check and output an alert for the multiple users editing the same page
+     * @param boolean $return_component
+     * If true, the function will return the component instead of outputting it. Default value is false
+     * @return object
+     * If a value is returned, it returns the alert
      */
-    public function output_check_multiple_users()
+    public function output_check_multiple_users($return_component = false)
     {
         $users = $this->model->get_services()->get_router()->get_other_users_editing_this_page();
         if ($users) {
             $user_emails = array();
             foreach ($users as $key => $value) {
                 $user_emails[] = "[" . $value['email'] . "]";
-            }            
+            }
             $alert = new BaseStyleComponent("alert", array(
                 "type" => "danger",
                 "id" => "multiple-users-warning-alert",
@@ -269,6 +273,9 @@ abstract class BaseView
                     )
                 )
             ));
+            if ($return_component) {
+                return $alert;
+            }
             $alert->output_content();
         }
     }
