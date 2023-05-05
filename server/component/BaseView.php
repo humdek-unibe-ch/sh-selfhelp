@@ -268,7 +268,7 @@ abstract class BaseView
                     new BaseStyleComponent(
                         "markdown",
                         array(
-                            "text_md" => "<div class = 'd-flex justify-content-between'><div>Multiple people are editing this survey and you might impact each other's changes!</div> <div><i class='fas fa-users'></i> " . implode(", ", $user_emails) . "</div></div>"
+                            "text_md" => "<div class = 'd-flex justify-content-between'><div>Multiple people are editing this page and you might impact each other's changes!</div> <div><i class='fas fa-users'></i> " . implode(", ", $user_emails) . "</div></div>"
                         )
                     )
                 )
