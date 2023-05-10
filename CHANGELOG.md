@@ -1,4 +1,4 @@
-# v6.2.0 (Unpublished)
+# v6.2.0
 ### New features
  - make function `calc_dynamic_values` protected in `StyleModel`
  - add class `selfHelp-locale-language_code` example: `selfHelp-locale-de-CH` in the style
