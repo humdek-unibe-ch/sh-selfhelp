@@ -1,5 +1,6 @@
 # v6.2.1
 ###  Bugfix
+- bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
 
 # v6.2.0
 ### New features
