@@ -219,23 +219,6 @@ class ModuleFormsActionView extends BaseView
     }
 
     /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @retval array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        if (empty($local)) {
-            $local = array(
-                __DIR__ . "/js/formAction.js",
-            );
-        }
-        return parent::get_js_includes($local);
-    }
-
-    /**
      * Render the add action entry form view.
      */
     public function output_action_view()

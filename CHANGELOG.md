@@ -1,3 +1,6 @@
+# v6.2.1
+###  Bugfix
+
 # v6.2.0
 ### New features
  - make function `calc_dynamic_values` protected in `StyleModel`

@@ -47,7 +47,6 @@ function createJSONEditor(schema) {
                     $(this).data('live-search', 'true'); // add live search
                 }
                 $(this).selectpicker();
-                $(this).selectpicker('refresh');
             });
             $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
             check_condition_btns();
