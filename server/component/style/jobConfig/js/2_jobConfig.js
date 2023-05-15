@@ -30,22 +30,7 @@ function createJSONEditor(schema) {
         check_condition_btns();
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
-                if ($(this).is('[name*="attachments"]')) {
-                    // The element has a name containing "attachments"
-                    $(this).data('live-search', 'true'); // add live search
-                }
-                if ($(this).is('[name*="reminder_form_id"]')) {
-                    // The element has a name containing "reminder_form_id"
-                    $(this).data('live-search', 'true'); // add live search
-                }
-                if ($(this).is('[name*="job_add_remove_groups"]')) {
-                    // The element has a name containing "job_add_remove_groups"
-                    $(this).data('live-search', 'true'); // add live search
-                }
-                if ($(this).is('[name*="selected_target_groups"]')) {
-                    // The element has a name containing "selected_target_groups"
-                    $(this).data('live-search', 'true'); // add live search
-                }
+                $(this).data('live-search', 'true'); // add live search
                 $(this).selectpicker();
             });
             $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
@@ -80,16 +65,10 @@ function check_condition_btns() {
  */
 function loadJobConfig() {
     if ($('#jobConfig').length > 0) {
-        var schemaUrl = window.location.protocol + "//" + window.location.host + BASE_PATH + "/schemas/jobConfig/jobConfig.json";
-        // get the schema with AJAX call
-        $.ajax({
-            dataType: "json",
-            url: schemaUrl,
-            success: (retrievedSchema) => {
-                createJSONEditor(retrievedSchema);
-                setDynamicEnums();
-            }
-        });
+        var jobConfigSchema = $('#jobConfig').data('schema');
+        createJSONEditor(jobConfigSchema);
+        setDynamicEnums();
+        $('#jobConfig').removeAttr('data-schema');
     }
 }
 

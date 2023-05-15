@@ -6,4 +6,4 @@
 <textarea id="jobConfigValue" name="<?php echo $this->name; ?>" class="selfhelpTextArea form-control d-none">
     <?php echo $this->value; ?>
 </textarea>
-<div id = "jobConfig" class="<?php echo $this->css; ?>"></div>
+<div id = "jobConfig" class="<?php echo $this->css; ?>" data-schema="<?php echo htmlspecialchars($this->get_json_schema(), ENT_QUOTES, 'UTF-8') ?>"></div>

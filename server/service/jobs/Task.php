@@ -11,7 +11,7 @@ require_once __DIR__ . "/BasicJob.php";
  * A task class repsonsible for tasks
  */
 class Task  extends BasicJob
-{    
+{
 
     /**
      * Creating a PHPMailer Instance.
@@ -27,6 +27,32 @@ class Task  extends BasicJob
     /* Private Methods *********************************************************/
 
     /**
+     * Execute task
+     * @param object $task_info
+     * The info for the executing task
+     * @param string $sent_by
+     * the type which the task queue execution was triggered
+     * @param int $id_users  
+     * the user to whom the task is executed
+     * @param int $execute_user_id  
+     * the user who executed the task, null if it was automated
+     * @return boolean
+     * Return the result of the task
+     */
+    private function execute_task($task_info, $sent_by, $user, $execute_user_id)
+    {
+        $res = true;
+        if ($task_info['config']['type'] == "add_group") {
+            // add group to user
+            $res = $this->add_group_to_user($task_info, $sent_by, $user['id_users'], $execute_user_id) && $res;
+        } else if ($task_info['config']['type'] == "remove_group") {
+            // remove group from user
+            $res = $this->remove_group_from_user($task_info, $sent_by, $user['id_users'], $execute_user_id)  && $res;
+        }
+        return $res;
+    }
+
+    /**
      * Execute task single     
      * @param array $task_info
      * Info for the task queue entry
@@ -34,7 +60,7 @@ class Task  extends BasicJob
      * the type which the task queue execution was triggered
      * @param int $execute_user_id  
      * the user who executed the task, null if it was automated
-     * @retval boolean
+     * @return boolean
      *  return if task was successfully executed
      */
     private function execute_task_single($task_info, $sent_by, $condition, $execute_user_id)
@@ -44,19 +70,13 @@ class Task  extends BasicJob
                 FROM scheduledJobs_users sj_u
                 WHERE sj_u.id_scheduledJobs = :sj_id";
         $users = $this->db->query_db($sql, array(":sj_id" => $task_info['id']));
-        $conditon = $task_info['config'];
+        $condition = $task_info['config'];
         $task_info['config'] = json_decode($task_info['config'], true);
-        $conditon = isset($task_info['config']['condition']) ? json_encode($task_info['config']['condition']) : $condition;
+        $condition = isset($task_info['config']['condition']) ? json_encode($task_info['config']['condition']) : $condition;
         foreach ($users as $user) {
-            if ($conditon == '' || $this->check_condition($conditon, $user['id_users'])) {
-                // check if no condition or condition fullfiled -> then execute
-                if ($task_info['config']['type'] == "add_group") {
-                    // add group to user
-                    $res = $this->add_group_to_user($task_info, $sent_by, $user['id_users'], $execute_user_id) && $res;
-                } else if ($task_info['config']['type'] == "remove_group") {
-                    // remove group from user
-                    $res = $this->remove_group_from_user($task_info, $sent_by, $user['id_users'], $execute_user_id)  && $res;
-                }
+            if ($condition == '' || $this->check_condition($condition, $user['id_users'])) {
+                // check if no condition or condition fulfilled -> then execute
+                $res = $this->execute_task($task_info, $sent_by, $user, $execute_user_id);
             } else {
                 $this->transaction->add_transaction(
                     transactionTypes_send_notification_fail,

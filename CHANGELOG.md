@@ -1,4 +1,8 @@
 # v6.2.1
+### New features
+ - dynamically load the schema for the `jobConfig`
+ - adjust scheduling `jobs` to be expandable and used by `plugins`
+
 ###  Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
 

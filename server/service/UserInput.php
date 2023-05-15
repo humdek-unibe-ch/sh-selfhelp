@@ -190,6 +190,26 @@ class UserInput
     }
 
     /**
+     * Get the job type
+     * @param object $job
+     * The job info
+     * @return string
+     * The job type
+     */
+    private function get_job_type($job)
+    {
+        if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
+            return jobTypes_task;
+        } else if (
+            $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
+            $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
+            $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
+        ) {
+            return jobTypes_notification;
+        }
+    }
+
+    /**
      * Fetch the page name to which the given section belongs.
      *
      * @param int $id_section
@@ -387,6 +407,25 @@ class UserInput
     }
 
     /**
+     * Get the task config
+     * @param object $job
+     * The job data
+     * @param $form_data
+     * The form data
+     * @return object
+     * Return the task config
+     */
+    private function get_task_config($job, $form_data)
+    {
+        $task_config = array(
+                "type" => $job[ACTION_JOB_TYPE],
+                "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
+                "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
+            );
+        return $task_config;
+    }
+
+    /**
      * Queue task
      * @param array $users
      * user id arrays
@@ -400,17 +439,12 @@ class UserInput
     private function queue_task($users, $job, $action, $form_data)
     {
         $result = array();
-        $task_config = array(
-            "type" => $job[ACTION_JOB_TYPE],
-            "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
-            "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
-        );
         $task = array(
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
             "date_to_be_executed" => $this->set_execution_date($action, $job),
             "id_users" => $users,
-            "config" => $task_config, //extra config for condition
+            "config" => $this->get_task_config($job, $form_data), //extra config for condition
             "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
             "condition" =>  isset($job['on_job_execute']['condition']['jsonLogic']) ? $job['on_job_execute']['condition']['jsonLogic'] : null,
         );
@@ -1728,13 +1762,10 @@ class UserInput
                                     );
                                 } else {
                                     $scheduling_result = null;
-                                    if ($job['job_type'] == ACTION_JOB_TYPE_ADD_GROUP || $job['job_type'] == ACTION_JOB_TYPE_REMOVE_GROUP) {
+                                    $job_type = $this->get_job_type($job);
+                                    if ($job_type == jobTypes_task) {
                                         $scheduling_result = $this->queue_task($users, $job, $action, $form_data);
-                                    } else if (
-                                        $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION ||
-                                        $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER ||
-                                        $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
-                                    ) {
+                                    } else if ($job_type == jobTypes_notification) {
                                         if ($job['notification']['notification_types'] == notificationTypes_email) {
                                             // the notification type is email                        
                                             $scheduling_result = $this->queue_mail($users, $job, $action, $form_data);

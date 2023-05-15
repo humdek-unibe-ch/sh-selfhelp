@@ -47,5 +47,19 @@ class JobConfigView extends FormFieldView
 
     /* Public Methods *********************************************************/
 
+    public function get_json_schema()
+    {
+        $filename = __DIR__ . "/../../../../schemas/jobConfig/jobConfig.json";
+        $fileHandle = fopen($filename, 'r');
+        $chunkSize = 4096; // Adjust the chunk size as needed
+
+        $jsonData = '';
+        while (!feof($fileHandle)) {
+            $jsonData .= fread($fileHandle, $chunkSize);
+        }
+        fclose($fileHandle);
+        // $decodedData = json_decode($jsonData, true); // Set the second parameter to true for associative array
+        return $jsonData;
+    }
 }
 ?>
