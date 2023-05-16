@@ -346,18 +346,7 @@ class UserInput
     private function check_config($config, $fields)
     {
         $result = array();
-        $form_values = array();
-        //prepare the values based on what type of form they come
-        foreach ($fields as $field_name => $field) {
-            if (isset($field['value'])) {
-                // it is a form field
-                $form_values[$field_name] = $field['value'];
-            } else {
-                // it is from external
-                $form_values[$field_name] = $field;
-            }
-        }
-
+        $form_values = $this->get_form_values($fields);
         // replace overwrite variables
         if (isset($config[ACTION_SELECTED_OVERWRITE_VARIABLES])) {
             foreach ($config[ACTION_SELECTED_OVERWRITE_VARIABLES] as $var_index => $variable) {
@@ -1835,6 +1824,28 @@ class UserInput
     public function setJobSchedulerService($job_scheduler)
     {
         $this->job_scheduler = $job_scheduler;
+    }
+
+    /**
+     * Get form values in an associative array with the key the name of the field
+     * @param array $fields
+     * the fields fo the form
+     * @return array
+     * Return an associative array with the form values 
+     */
+    public function get_form_values($fields){
+        $form_values = array();
+        //prepare the values based on what type of form they come
+        foreach ($fields as $field_name => $field) {
+            if (isset($field['value'])) {
+                // it is a form field
+                $form_values[$field_name] = $field['value'];
+            } else {
+                // it is from external
+                $form_values[$field_name] = $field;
+            }
+        }
+        return $form_values;
     }
 }
 ?>

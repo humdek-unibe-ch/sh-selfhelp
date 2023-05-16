@@ -381,6 +381,6 @@ class Services
     public function set_nav($nav)
     {
         $this->nav = $nav;
-    }
+    }    
 }
 ?>

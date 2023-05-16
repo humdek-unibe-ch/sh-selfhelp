@@ -1,9 +1,10 @@
-# v6.2.1
+# v6.3.0
 ### New features
  - dynamically load the schema for the `jobConfig`
  - adjust scheduling `jobs` to be expandable and used by `plugins`
+ - modify column `config` to be `longtext` in table `tasks`
 
-###  Bugfix
+### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
 - now `condition_on_execute` is properly used for jobs form type `tasks`
 
