@@ -439,12 +439,14 @@ class UserInput
     private function queue_task($users, $job, $action, $form_data)
     {
         $result = array();
+        $config = $this->get_task_config($job, $form_data); //extra config for condition
+        $config['condition'] = isset($job['on_job_execute']['condition']['jsonLogic']) ? $job['on_job_execute']['condition']['jsonLogic'] : null;
         $task = array(
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
             "date_to_be_executed" => $this->set_execution_date($action, $job),
             "id_users" => $users,
-            "config" => $this->get_task_config($job, $form_data), //extra config for condition
+            "config" => $config,
             "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
             "condition" =>  isset($job['on_job_execute']['condition']['jsonLogic']) ? $job['on_job_execute']['condition']['jsonLogic'] : null,
         );

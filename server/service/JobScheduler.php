@@ -127,7 +127,7 @@ class JobScheduler
         if (!$res) {
             throw new Exception('Error! Job status cannot be set');
         }
-    }       
+    }
 
     /* Public Methods *********************************************************/
 
@@ -156,14 +156,14 @@ class JobScheduler
                 if (!$this->schedule_task($job_id, $data)) {
                     throw new Exception('Error while scheduling the task');
                 }
-            }   
+            }
             $this->transaction->add_transaction(
                 transactionTypes_insert,
                 $tran_by,
                 $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null,
                 $this->transaction::TABLE_SCHEDULED_JOBS,
                 $job_id
-            );         
+            );
             $this->db->commit();
             return $job_id;
         } catch (Exception $e) {
@@ -230,20 +230,20 @@ class JobScheduler
     {
         try {
             $this->db->begin_transaction();
-            $execution_reult = true;
+            $execution_result = true;
             $id_users = $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null;
             $data['config'] = isset($data['config']) ? $data['config'] : '';
             if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email)) {
                 // send email
-                $execution_reult = $this->mail->send_entry($data['id'], $tran_by, $data['config'], $id_users);
+                $execution_result = $this->mail->send_entry($data['id'], $tran_by, $data['config'], $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_notification)) {
                 // send notification
-                $execution_reult = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);
+                $execution_result = $this->notification->send_entry($data['id'], $tran_by, $data['config'], $id_users);
             } else if ($data['id_jobTypes'] == $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task)) {
                 // execute task
-                $execution_reult = $this->task->execute_entry($data['id'], $tran_by, $data['config'], $id_users);
+                $execution_result = $this->task->execute_entry($data['id'], $tran_by, isset($data['config']['condition']) ? $data['config']['condition'] : null, $id_users);
             }
-            $status = $this->db->get_lookup_id_by_value(scheduledJobsStatus, $execution_reult ? scheduledJobsStatus_done : scheduledJobsStatus_failed);
+            $status = $this->db->get_lookup_id_by_value(scheduledJobsStatus, $execution_result ? scheduledJobsStatus_done : scheduledJobsStatus_failed);
             $this->set_status($data['id'], $status);
             $this->transaction->add_transaction(
                 transactionTypes_status_change,
@@ -252,10 +252,10 @@ class JobScheduler
                 $this->transaction::TABLE_SCHEDULED_JOBS,
                 $data['id'],
                 false,
-                "Status changed to " . ($execution_reult ? "done" : "failed")
+                "Status changed to " . ($execution_result ? "done" : "failed")
             );
             $this->db->commit();
-            return $execution_reult;
+            return $execution_result;
         } catch (Exception $e) {
             $this->db->rollback();
             return false;
