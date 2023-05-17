@@ -55,6 +55,7 @@ class TextareaView extends FormFieldView
         if($this->locked_after_submit == 1){
             $this->locked_after_submit = $this->value ? 1 : 0;
         }
+        $css = ($this->label == "") ? $this->css : "";
         $required = ($this->is_required) ? "required" : "";
         require __DIR__ . "/tpl_textarea.php";
     }

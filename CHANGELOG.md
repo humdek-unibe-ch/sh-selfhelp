@@ -7,7 +7,6 @@
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
 - now `condition_on_execute` is properly used for jobs form type `tasks`
-- properly load css classes for style `textarea`
 
 # v6.2.0
 ### New features
