@@ -103,9 +103,12 @@ class InputView extends FormFieldView
                     || ($this->value === null && $this->placeholder != ""))
                     $checked = "checked";
             }
-            else if($this->default_value != "")
+            else if($this->default_value != "" && $this->default_value != 0)
             {
-                $checked = "checked";
+                $checked = "checked";                
+            }
+            if ($this->model->get_db_field("checkbox_value")) {
+                $this->default_value = $this->model->get_db_field("checkbox_value");
             }
             $this->value = $this->default_value;
         }
