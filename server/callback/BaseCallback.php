@@ -10,6 +10,13 @@
  */
 abstract class BaseCallback
 {
+    /* Constants ************************************************/
+    const CALLBACK_NEW = 'callback_new';
+    const CALLBACK_ERROR = 'callback_error';
+    const CALLBACK_SUCCESS = 'callback_success';
+    const CALLBACK_STATUS = 'callback_status';
+    const CALLBACK_KEY = 'callback_key';
+
     /**
      *  The router instance is used to generate valid links.
      */
