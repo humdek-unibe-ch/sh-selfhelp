@@ -2,8 +2,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
-?>
-<div class="d-flex flex-grow-1">
+?> 
+<div class="d-flex flex-grow-1">      
     <div id="sidebar-container" class="sidebar-expanded">
         <div class="d-flex h-100 flex-column">
             <ul class="list-group sticky-top">
@@ -31,6 +31,9 @@
     <div id="properties" class="properties-expanded <?php echo $this->expand_ui_properties(); ?>" data-styles="<?php echo htmlspecialchars(json_encode($this->get_styles()), ENT_QUOTES, 'UTF-8'); ?>">
         <div class="d-flex h-100 flex-column">
             <ul class="list-group sticky-top">
+                <div id="cms-alerts">
+                    <?php $this->output_alerts(); ?>
+                </div>                
                 <div id="collapsePropertiesBtn" data-toggle="properties-collapse" class="ui-side-menu-button list-group-item list-group-item-action rounded-0 pt-0 pb-0 pr-2 d-flex align-items-center">
                     <div class="d-flex align-items-center w-100">
                         <span id="collapse-properties-icon" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Toggle Properties" class="fas"></span>
