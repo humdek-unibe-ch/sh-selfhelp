@@ -288,8 +288,8 @@ class JobScheduler
      */
     public function check_queue_and_execute($tran_by)
     {
-        $id_users = $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null;
-        $this->transaction->add_transaction(transactionTypes_check_scheduledJobse, $tran_by, $id_users);
+        $start_time = microtime(true);
+        $id_users = $tran_by == transactionBy_by_user ? $_SESSION['id_user'] : null;        
         $sql = 'SELECT *
                 FROM view_scheduledJobs
                 WHERE date_to_be_executed <= NOW() AND id_jobStatus = :status';
@@ -299,6 +299,9 @@ class JobScheduler
         foreach ($queue as $job) {
             $this->execute_job($job, $tran_by);
         }
+        $end_time = microtime(true);
+        $exec_time = $end_time - $start_time;
+        $this->transaction->add_transaction(transactionTypes_check_scheduledJobs, $tran_by, $id_users, null, null, false, "Jobs: " . count($queue) . "; Exec time: " . $exec_time);
     }
 }
 ?>

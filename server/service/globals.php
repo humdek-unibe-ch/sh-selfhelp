@@ -161,7 +161,7 @@ define('transactionTypes_send_notification_ok', 'send_notification_ok');
 define('transactionTypes_send_notification_fail', 'send_notification_fail');
 define('transactionTypes_execute_task_ok', 'execute_task_ok');
 define('transactionTypes_execute_task_fail', 'execute_task_fail');
-define('transactionTypes_check_scheduledJobse', 'check_scheduledJobs');
+define('transactionTypes_check_scheduledJobs', 'check_scheduledJobs');
 define('transactionBy_by_cron_job', 'by_cron_job');
 define('transactionBy_by_user', 'by_user');
 define('transactionBy_by_anonymous_user', 'by_anonymous_user');
