@@ -74,6 +74,8 @@
 .drag-ghost {
     opacity: 0.4;
     background-color: var(--primary) !important;
+    width: 200px;
+    height: 100px;
 }
 
 .ui-icon-button-white {

@@ -366,7 +366,7 @@ function update_new_data(data, elements, callback) {
     }
     $('.popover').remove(); // first remove all tooltips if they are active
     elements.forEach(element => {
-        $(element).empty().append($(data).find(element).children());        
+        $(element).empty().append($(data).find(element).children());
     });
     if (callback) {
         callback();
@@ -508,9 +508,10 @@ function initSortableElements() {
         fallbackOnBody: false,
         sort: true,
         animation: 150,
-        swapThreshold: 0.65,
+        swapThreshold: 0.85,
         ghostClass: 'drag-ghost',
         filter: ".ui-add-child",
+        direction: 'vertical',
         onEnd: function (evt) {
             try {
                 if (evt.from == evt.to) {

@@ -6,6 +6,7 @@
  - catch `checkbox_value` if sent for a `input` from type `checkbox`
  - add `fieldType` `password`
  - move the alert for saving CMS fields on the properties column
+ - improve the drag and drop of elements in the CMS page
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
