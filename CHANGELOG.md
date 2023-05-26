@@ -7,6 +7,7 @@
  - add `fieldType` `password`
  - move the alert for saving CMS fields on the properties column
  - improve the drag and drop of elements in the CMS page
+ - add new field type `panel`. In this field we can add extra elements in customization mode
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
