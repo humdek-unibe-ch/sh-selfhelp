@@ -1165,6 +1165,11 @@ class CmsView extends BaseView
                 "disabled" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
             ));
+        } else if ($field['type'] == "password") {
+            // hide the password
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => str_repeat("*", strlen($field['content']))
+            ));
         } else {
             // do not show the whole condition as it takes a lof of space. 
             $children[] = new BaseStyleComponent("rawText", array(
