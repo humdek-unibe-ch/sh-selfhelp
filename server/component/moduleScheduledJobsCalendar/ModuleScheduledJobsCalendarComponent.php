@@ -27,7 +27,8 @@ class ModuleScheduledJobsCalendarComponent extends BaseComponent
     public function __construct($services, $params)
     {
         $uid = isset($params['uid']) ? $params['uid'] : null;
-        $model = new ModuleScheduledJobsCalendarModel($services, $uid);
+        $aid = isset($params['aid']) ? $params['aid'] : -1;
+        $model = new ModuleScheduledJobsCalendarModel($services, $uid, $aid);
         $view = new ModuleScheduledJobsCalendarView($model);
         parent::__construct($model, $view);
     }

@@ -68,11 +68,21 @@ class ModuleScheduledJobsCalendarView extends BaseView
                                     "label" => "View",
                                     "css" => "flex-grow-0 mb-3",
                                     "id" => "scheduled-jobs-view-calendar-btn",
-                                    "url" => $this->model->get_link_url("moduleScheduledJobsCalendar", array("uid" => ":uid")),
+                                    "url" => $this->model->get_link_url("moduleScheduledJobsCalendar", array("uid" => ":uid", "aid"=>":aid")),
                                     "type" => "primary",
                                 )))
                             ))
                         )
+                    )),
+                    new BaseStyleComponent("select", array(
+                        "label" => "Filter for action",
+                        "value" => $this->model->get_selected_action(),
+                        "id" => "scheduled-jobs-calendar-selected-action",
+                        "name" => "action",
+                        "css" => '',
+                        "live_search" => true,
+                        "is_multiple" => false,
+                        "items" => $this->model->get_actions(),
                     )),
                     new BaseStyleComponent("div", array(
                         "css" => "scheduled-jobs-calendar-view"

@@ -25,8 +25,11 @@ function init_view_button() {
         event.preventDefault();
         var view_url = $(this).attr('href');
         var selected_user = $('#scheduled-jobs-calendar-selected-user').val();
+        var selected_action = $('#scheduled-jobs-calendar-selected-action').val();
         if (selected_user) {
             view_url = view_url.replace(':uid', selected_user);
+            view_url = view_url.replace(':aid', selected_action);
+            view_url = view_url.replace('/-1', '');
             window.location.href = view_url;
         } else {
             $.alert({
