@@ -112,6 +112,24 @@ class ModuleScheduledJobsModel extends BaseModel
         ));
     }
 
+    /**
+     * Return all transactions linked to a job
+     * @param int $sj_id
+     * Scheduled job id
+     * @return array
+     * The list of the transactions linked to this scheduled job
+     */
+    public function get_scheduledJobs_transactions($sj_id)
+    {
+        $sql = "SELECT transaction_id, transaction_time, transaction_type, transaction_by, user_name, transaction_verbal_log AS `log`
+                FROM view_scheduledJobs_transactions 
+                WHERE id = :sj_id
+                ORDER BY transaction_id DESC";
+        return $this->db->query_db($sql, array(
+            ":sj_id" => $sj_id
+        ));
+    }
+
     public function set_date_from($date_from)
     {
         $this->date_from = $date_from;

@@ -42,7 +42,7 @@ class TableView extends StyleView
      */
     public function output_content()
     {
-        if ($this->model->is_cms_page_editing() && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+        if (method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing() && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
             require __DIR__ . "/tpl_cms_table.php";
         } else {
             require __DIR__ . "/tpl_table.php";

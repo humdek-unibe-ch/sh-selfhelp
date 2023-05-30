@@ -8,6 +8,7 @@
  - move the alert for saving CMS fields on the properties column
  - improve the drag and drop of elements in the CMS page
  - add new field type `panel`. In this field we can add extra elements in customization mode
+ - #353 - adding transactions info to scheduled job id page
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;

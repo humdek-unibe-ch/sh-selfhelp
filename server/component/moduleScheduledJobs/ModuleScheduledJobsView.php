@@ -151,9 +151,9 @@ class ModuleScheduledJobsView extends BaseView
                     "title" => "Config",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                            "text" => $mail_entry['config']
+                        "text" => $mail_entry['config']
                     ))),
-                )),  
+                )),
                 new BaseStyleComponent("card", array(
                     "css" => "mb-3",
                     "title" => "Attachments",
@@ -252,7 +252,7 @@ class ModuleScheduledJobsView extends BaseView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $entry['config']
                     ))),
-                )),  
+                )),
             )
         ));
         $form->output_content();
@@ -310,17 +310,84 @@ class ModuleScheduledJobsView extends BaseView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $entry['description']
                     ))),
-                )), 
+                )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Config",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $entry['config']
                     ))),
-                )),                
+                )),
             )
         ));
         $form->output_content();
+    }
+
+    /**
+     * Get all the column names 
+     * @param array $table
+     * The table rows
+     * @return array
+     * Return all the columns names in an array
+     */
+    private function get_all_columns($table)
+    {
+        $column_names = array(); // Initialize an empty array
+
+        foreach ($table as $item) {
+            if (is_object($item)) {
+                // If the item is an object, get its properties
+                $objectProperties = get_object_vars($item);
+                $column_names = array_merge($column_names, $objectProperties);
+            } else if (is_array($item)) {
+                // If the item is an array, merge its values recursively
+                $column_names = array_merge($column_names, array_keys($item));
+            }
+        }
+
+        // Keep only the unique column names
+        return array_keys(array_flip($column_names));
+    }
+
+    /**
+     * Output a table with the job transactions
+     */
+    private function output_job_transactions()
+    {
+        $transactions = $this->model->get_scheduledJobs_transactions($this->model->get_sjid());
+        $column_names = $this->get_all_columns($transactions);
+        $transaction_rows = array();
+        foreach ($transactions as $key_transaction => $transaction) {
+            $transaction_cells = array();
+            foreach ($column_names as $key => $column_name) {
+                $transaction_cells[] =  new BaseStyleComponent("tableCell", array(
+                    "text_md" => isset($transaction[$column_name]) ? $transaction[$column_name] : "",
+                ));
+            }
+            $transaction_rows[] = new BaseStyleComponent("tableRow", array(
+                "children" => $transaction_cells
+            ));
+        }
+        $card = new BaseStyleComponent(
+            "card",
+            array(
+                "css" => "mb-3",
+                "is_expanded" => true,
+                "is_collapsible" => true,
+                "title" => 'Transactions for Job ID: ' . $this->model->get_sjid(),
+                "children" => array(
+                    new BaseStyleComponent(
+                        "table",
+                        array(
+                            "css" => "w-100",
+                            "column_names" => implode(', ', $column_names),
+                            "children" => $transaction_rows
+                        )
+                    )
+                )
+            )
+        );
+        $card->output_content();
     }
 
 
@@ -414,9 +481,10 @@ class ModuleScheduledJobsView extends BaseView
             $this->output_mail_form_view();
         } else if ($this->job_entry['type_code'] == jobTypes_notification) {
             $this->output_notification_form_view();
-        }else if ($this->job_entry['type_code'] == jobTypes_task) {
+        } else if ($this->job_entry['type_code'] == jobTypes_task) {
             $this->output_task_form_view();
         }
+        $this->output_job_transactions();
     }
 
 
