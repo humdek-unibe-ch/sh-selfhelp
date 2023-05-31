@@ -55,7 +55,8 @@ class Notificaitoner extends BasicJob
         $notification
             ->addRecipient($device_token)
             ->setTitle($data['subject'])
-            ->setBody($data['body'])
+            // ->setBody($data['body'])
+            ->setBody("<b>asddasdasd</b>")
             ->setColor('#20F037')
             ->setSound("default")
             ->setIcon("myIcon.png");

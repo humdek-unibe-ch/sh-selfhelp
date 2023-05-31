@@ -45,7 +45,7 @@ class VersionModel extends StyleModel
 
     /**
      * Get the plugin data as text_md
-     * @retval string
+     * @return string
      * Return markdown text for the plugins
      */
     public function get_plugins()
@@ -61,5 +61,21 @@ class VersionModel extends StyleModel
             | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Plugin [DB Info] |";
         }
         return $plugins_md;
+    }
+
+    /**
+     * Get the libraries data as text_md
+     * @return string
+     * Return markdown text for the libraries
+     */
+    public function get_libraries()
+    {
+        $libraries = $this->db->query_db('SELECT * FROM libraries ORDER BY `name`');
+        $libraries_md = '';
+        foreach ($libraries as $key => $library) {
+            $libraries_md = $libraries_md . "
+            | " . $library['name'] . " | " . $library['version'] . "   |" . $library['license'] . " | " . $library['comments'] . " |";
+        }
+        return $libraries_md;
     }
 }

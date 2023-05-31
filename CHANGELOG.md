@@ -10,6 +10,7 @@
  - add new field type `panel`. In this field we can add extra elements in customization mode
  - #353 - adding transactions info to scheduled job id page
  - #352 - filtering actions on calendar view
+ - #350 - add table `libraries`. The data in the table is loaded in the style `version` to visualize which libraries are used.
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;

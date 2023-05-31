@@ -36,6 +36,7 @@ class VersionView extends StyleView
         $db_version = $this->model->get_db_version();
         $app_version = rtrim(shell_exec("git describe --tags"));
         $plugins = $this->model->get_plugins();        
+        $libraries = $this->model->get_libraries();   
         $versionCard = new BaseStyleComponent("card", array(
             "css" => 'mb-3 '. $this->css,
             "is_expanded" => false,
@@ -50,6 +51,19 @@ class VersionView extends StyleView
             )
         ));
         $versionCard->output_content();
+
+        $librariesCard = new BaseStyleComponent("card", array(
+            "css" => 'mb-3 '. $this->css,
+            "is_expanded" => false,
+            "is_collapsible" => false,
+            "children" => array(
+                new BaseStyleComponent("markdown", array(
+                    "text_md" => "| Frameworks & Libraries | Version | License | Comments |
+                                    |-|-|-|-| ". $libraries,
+                ))
+            )
+        ));
+        $librariesCard->output_content();
     }	
 }
 ?>
