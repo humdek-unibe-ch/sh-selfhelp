@@ -15,6 +15,7 @@
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;
 - now `condition_on_execute` is properly used for jobs form type `tasks`
+- add margin to the home button on missing page
 
 # v6.2.0
 ### New features

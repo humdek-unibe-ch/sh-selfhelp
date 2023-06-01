@@ -57,3 +57,7 @@ WHERE `name` = 'impressum-ext-card';
 
 DELETE FROM sections
 WHERE `name` = 'impressum-ext-markdown';
+
+-- add margin to the home button on missing page
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'goHome-button'), get_field_id('css'), 0000000001, 0000000001, 'ml-3');
