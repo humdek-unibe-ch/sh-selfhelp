@@ -60,7 +60,7 @@ class SelectView extends FormFieldView
         $this->max = $this->model->get_db_field("max", 5);
         $this->disabled = $this->model->get_db_field("disabled", 0);
         $this->allow_clear = $this->model->get_db_field("allow_clear", 0);
-        $this->image_selector = $this->model->get_db_field("image_selector", 0);        
+        $this->image_selector = $this->model->get_db_field("image_selector", 0);     
     }
 
     /* Private Methods ********************************************************/
@@ -122,9 +122,13 @@ class SelectView extends FormFieldView
     {
         if($this->value === null)
             $this->value = $this->default_value;
+        
         $css = ($this->label == "") ? $this->css : "";
         $multiple = ($this->is_multiple) ? "multiple" : "";
         $required = ($this->is_required) ? "required" : "";
+        if ($this->is_multiple && !is_array($this->value)) {
+            $this->value = json_decode(html_entity_decode($this->value)); //if not array yet and if the select is multiple convert the json to an array
+        }
         if ($this->image_selector) {
             $this->prepare_imgs_paths();
             require __DIR__ . "/tpl_select_image.php";
@@ -143,8 +147,21 @@ class SelectView extends FormFieldView
                 }
             }
             $style['items'] = $this->items;
+        }
+        if ($this->is_multiple) {
+            $style['last_value'] = json_decode(html_entity_decode($style['last_value'])); //if not array yet and if the select is multiple convert the json to an array
         }        
         return $style;
+    }
+
+    /**
+     * Return field name 
+     * @return string
+     * The form name
+     */
+    public function get_field_name()
+    {
+        return $this->name . ($this->is_multiple ? "[]" : ""); // if it is multiple select make the form_name an array 
     }
 }
 ?>

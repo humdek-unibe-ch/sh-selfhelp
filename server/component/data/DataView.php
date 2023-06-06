@@ -128,7 +128,7 @@ class DataView extends BaseView
                         new BaseStyleComponent("select", array(
                             "label" => "Select form",
                             "value" => $this->model->get_selected_forms(),
-                            "name" => "forms[]",
+                            "name" => "forms",
                             "css" => 'mb-3',
                             "live_search" => true,
                             "is_multiple" => true,

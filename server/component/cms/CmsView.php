@@ -1001,7 +1001,7 @@ class CmsView extends BaseView
         } else if ($field['type'] == "select-group") {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => explode(',', $field['content']),
-                "name" => $field_name_prefix . "[content][]",
+                "name" => $field_name_prefix . "[content]",
                 "live_search" => true,
                 "is_multiple" => true,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('`groups`', 'id', array('name'))
@@ -1227,14 +1227,14 @@ class CmsView extends BaseView
                         new BaseStyleComponent("select", array(
                             "label" => "Select CMS Content Field Language",
                             "value" => explode(',', $_SESSION['cms_language']),
-                            "name" => "cms_language[]",
+                            "name" => "cms_language",
                             "items" => $languages_options,
                             "is_multiple" => true,
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "Select CMS Content Field Gender",
                             "value" => explode(',', $_SESSION['cms_gender']),
-                            "name" => "cms_gender[]",
+                            "name" => "cms_gender",
                             "items" => $gender_options,
                             "is_multiple" => true,
                         )),

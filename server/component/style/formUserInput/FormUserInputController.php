@@ -77,30 +77,34 @@ class FormUserInputController extends BaseController
                 $filter_rules[$id_section] = "sanitize_string";
             else if($style == "select" || $style == "radio")
                 $filter_rules[$id_section] = "trim|sanitize_string";
-            else if($style == "input")
-            {
+            else if ($style == "input") {
                 $type = $this->model->get_field_type($id_section);
-                if($type == "text" || $type == "checkbox" || $type == "month" || $type == "time" || $type == "datetime-local" || $type == "datetime"
-                    || $type == "week" || $type == "search" || $type == "tel" || $type == "date")
+                if (
+                    $type == "text" || $type == "checkbox" || $type == "month" || $type == "time" || $type == "datetime-local" || $type == "datetime"
+                    || $type == "week" || $type == "search" || $type == "tel" || $type == "date"
+                )
                     $filter_rules[$id_section] = "trim|sanitize_string";
-                else if($type == "color")
+                else if ($type == "color")
                     $validation_rules[$id_section] = "regex,/#[a-fA-F0-9]{6}/";
                 // else if($type == "date")
                 //     $validation_rules[$id_section] = "date";
-                else if($type == "email")
+                else if ($type == "email")
                     $validation_rules[$id_section] = "valid_email";
-                else if($type == "number" || $type == "range")
+                else if ($type == "number" || $type == "range")
                     $validation_rules[$id_section] = "numeric";
                 // else if($type == "time")
                 //    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
-                else if($type == "url")
+                else if ($type == "url")
                     $validation_rules[$id_section] = "valid_url";
                 else
                     $filter_rules[$id_section] = "sanitize_string";
-            }
-            else
+            } else
                 $filter_rules[$id_section] = "sanitize_string";
-            $post[$id_section] = $value;
+            if (is_array($value)) {
+                $post[$id_section] = json_encode($value); // save the data as json
+            } else {
+                $post[$id_section] = $value;
+            }
         }
         $gump->validation_rules($validation_rules);
         $gump->filter_rules($filter_rules);

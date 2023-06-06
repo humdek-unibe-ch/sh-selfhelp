@@ -50,7 +50,7 @@ class UserInsertView extends BaseView
     private function output_group_selection()
     {
         $select = new BaseStyleComponent("select", array(
-            "name" => "user_groups[]",
+            "name" => "user_groups",
             "is_multiple" => true,
             "live_search" => true,
             "items" => $this->model->get_group_options(),
