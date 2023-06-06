@@ -61,3 +61,15 @@ WHERE `name` = 'impressum-ext-markdown';
 -- add margin to the home button on missing page
 INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
 ((SELECT id FROM sections WHERE `name` = 'goHome-button'), get_field_id('css'), 0000000001, 0000000001, 'ml-3');
+
+
+-- add column anonymous_users to table cmsPreferences 
+CALL add_table_column('cmsPreferences', 'anonymous_users', "INT(11) DEFAULT '0'");
+
+DROP VIEW IF EXISTS view_cmsPreferences;
+CREATE VIEW view_cmsPreferences
+AS
+SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale, p.fcm_api_key, p.fcm_sender_id, p.anonymous_users
+FROM cmsPreferences p
+LEFT JOIN languages l ON (l.id = p.default_language_id)
+WHERE p.id = 1;

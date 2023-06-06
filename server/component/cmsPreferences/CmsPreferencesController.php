@@ -23,14 +23,15 @@ class CmsPreferencesController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if (isset($_POST['default_language_id']) && isset($_POST['callback_api_key'])) {    
-            $res = true;       
+        if (isset($_POST['default_language_id']) && isset($_POST['callback_api_key'])) {
+            $res = true;
             if ($res && $this->model->update_cmsPreferences(array(
                 'default_language_id' => $_POST['default_language_id'],
                 'callback_api_key' => $_POST['callback_api_key'],
                 'fcm_api_key' => $_POST['fcm_api_key'],
                 'fcm_sender_id' => $_POST['fcm_sender_id'],
-            )) !== false) {                
+                'anonymous_users' => isset($_POST['anonymous_users']) ? $_POST['anonymous_users'] : 0
+            )) !== false) {
                 $this->success = true;
                 $this->model->pull_cmsPreferences();
                 $this->success_msgs[] = "CMS Preferences were successfully updated";

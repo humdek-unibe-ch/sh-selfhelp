@@ -97,27 +97,59 @@ class CmsPreferencesView extends BaseView
                 "text" => $language['title']
             ));
         $cmsPreferencesChildren = array(
-            new BaseStyleComponent("select", array(
-                "label" => "CMS Content Language",
-                "value" => $this->model->get_cmsPreferences()['default_language_id'],
-                "name" => "default_language_id",
-                "items" => $options,
+            new BaseStyleComponent("descriptionItem", array(
+                "title" => "CMS Content Language",
+                "help" => "The default content language",
+                "locale" => "",
+                "children" => array(new BaseStyleComponent("select", array(
+                    "value" => $this->model->get_cmsPreferences()['default_language_id'],
+                    "name" => "default_language_id",
+                    "items" => $options,
+                    "css" => "mb-3",
+                )),),
             )),
-            new BaseStyleComponent("input", array(
-                "label" => "Callback API Key",
-                "value" => $this->model->get_cmsPreferences()['callback_api_key'],
-                "name" => "callback_api_key"
+            new BaseStyleComponent("descriptionItem", array(
+                "title" => "Callback API Key",
+                "help" => "Callback API key which is used for sending requests back to Selfhelp",
+                "locale" => "",
+                "children" => array(new BaseStyleComponent("input", array(
+                    "value" => $this->model->get_cmsPreferences()['callback_api_key'],
+                    "name" => "callback_api_key",
+                    "css" => "mb-3",
+                )),),
             )),
-            new BaseStyleComponent("input", array(
-                "label" => "FCM API Key",
-                "value" => $this->model->get_cmsPreferences()['fcm_api_key'],
-                "name" => "fcm_api_key"
+            new BaseStyleComponent("descriptionItem", array(
+                "title" => "FCM API Key",
+                "help" => "The API key from <code>Firebase</code>, used to send notifications.",
+                "locale" => "",
+                "children" => array(new BaseStyleComponent("input", array(
+                    "value" => $this->model->get_cmsPreferences()['fcm_api_key'],
+                    "name" => "fcm_api_key",
+                    "css" => "mb-3",
+                )),),
             )),
-            new BaseStyleComponent("input", array(
-                "label" => "FCM Sender ID",
-                "value" => $this->model->get_cmsPreferences()['fcm_sender_id'],
-                "name" => "fcm_sender_id"
+            new BaseStyleComponent("descriptionItem", array(
+                "title" => "FCM Sender ID",
+                "help" => "The sender ID from <code>Firebase</code>, used to send notifications.",
+                "locale" => "",
+                "children" => array(new BaseStyleComponent("input", array(
+                    "value" => $this->model->get_cmsPreferences()['fcm_sender_id'],
+                    "name" => "fcm_sender_id",
+                    "css" => "mb-3",
+                )),),
             )),
+            new BaseStyleComponent("descriptionItem", array(
+                "title" => "Anonymous Users",
+                "locale" => "",
+                "help" => "If enabled all the users can login with their  <code>User name</code> and <code>password</code>. All new users will not require an email for registration instead the users should answer 2 security questions.",
+                "children" => array(new BaseStyleComponent("input", array(
+                    "type_input" => "checkbox",
+                    "checkbox_value" => "1",
+                    "name" => "anonymous_users",
+                    "value" => isset($this->model->get_cmsPreferences()['anonymous_users']) ? $this->model->get_cmsPreferences()['anonymous_users'] : 0,
+                    
+                )),),
+            ))
         );
         $cmsPreferences = new BaseStyleComponent("card", array(
             "css" => "mb-3",
@@ -129,7 +161,8 @@ class CmsPreferencesView extends BaseView
                 "url" => $this->model->get_link_url("cmsPreferences"),
                 "url_cancel" => $this->model->get_link_url("cmsPreferences"),
                 "type" => "warning",
-                "children" => $cmsPreferencesChildren
+                "children" => $cmsPreferencesChildren,
+                "css" => "cms-preferences-form"
             ))),
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
         ));
@@ -156,6 +189,7 @@ class CmsPreferencesView extends BaseView
             "children" => array(
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "CMS Content Language",
+                    "help" => "The default content language",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->model->get_cmsPreferences()['default_language']
@@ -163,6 +197,7 @@ class CmsPreferencesView extends BaseView
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "Callback API Key",
+                    "help" => "Callback API key which is used for sending requests back to Selfhelp",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->model->get_cmsPreferences()['callback_api_key']
@@ -170,6 +205,7 @@ class CmsPreferencesView extends BaseView
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "FCM API Key",
+                    "help" => "The API key from <code>Firebase</code>, used to send notifications.",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->model->get_cmsPreferences()['fcm_api_key']
@@ -177,11 +213,20 @@ class CmsPreferencesView extends BaseView
                 )),
                 new BaseStyleComponent("descriptionItem", array(
                     "title" => "FCM Sender ID",
+                    "help" => "The sender ID from <code>Firebase</code>, used to send notifications.",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->model->get_cmsPreferences()['fcm_sender_id']
                     ))),
                 )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Anonymous Users",
+                    "locale" => "",
+                    "help" => "If enabled all the users can login with their  <code>User name</code> and <code>password</code>. All new users will not require an email for registration instead the users should answer 2 security questions.",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->model->get_cmsPreferences()['anonymous_users'] == 1 ? "true" : "false"
+                    ))),
+                ))
             ),
             "url_edit" => $this->model->get_link_url("cmsPreferencesUpdate")
         ));
@@ -197,8 +242,8 @@ class CmsPreferencesView extends BaseView
     {
         require __DIR__ . "/tpl_cmsPreferences.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }
@@ -210,6 +255,21 @@ class CmsPreferencesView extends BaseView
     {
         $this->output_controller_alerts_fail();
         $this->output_controller_alerts_success();
+    }
+
+    /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @return array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(
+            __DIR__ . "/css/cmsPreferences.css"
+        );
+        return parent::get_css_includes($local);
     }
 }
 ?>
