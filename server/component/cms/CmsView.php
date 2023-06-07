@@ -167,8 +167,11 @@ class CmsView extends BaseView
         );
 
         $pages = $this->model->get_pages();
-        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND));
+        $global_pages = $this->prepare_global_pages($this->model->get_global_pages());
+        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND));  
+        $expand_global_pages = $this->model->expand_global_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
+        $this->add_list_component("global-page-list", "Globals", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id(), ' ');
 
@@ -439,7 +442,8 @@ class CmsView extends BaseView
         $this->add_local_component($name, new BaseStyleComponent("card",
             array(
                 "css" => "mt-3 mb-3 ui-card-list menu-collapsed",
-                "is_expanded" =>  $this->model->get_services()->get_user_input()->is_new_ui_enabled() || $is_expanded_root, // if the new UI is enabled always expand the page index
+                // "is_expanded" =>  $this->model->get_services()->get_user_input()->is_new_ui_enabled() || $is_expanded_root, // if the new UI is enabled always expand the page index
+                "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content),
@@ -525,6 +529,21 @@ class CmsView extends BaseView
     }
 
     /**
+     * Prepare the url for all global pages
+     * @param array $pages
+     * The pages list
+     * @return array
+     * Return all global pages
+     */
+    private function prepare_global_pages($pages){
+        foreach ($pages as $key => $page) {
+            $url = $this->model->get_cms_item_url($page['id']);
+            $pages[$key]['url'] = $url;
+        }
+        return $pages;
+    }
+
+    /**
      * Remove item ny key value
      * @param array $items
      * The fields array list
@@ -537,6 +556,7 @@ class CmsView extends BaseView
      */
     private function remove_item_by_key_value($items, $keyName, $values){
         $itemKeys = array();
+        $globalPages = array();
         foreach ($values as $key => $value) {
             // $itemKeys[] = array_search($value, array_column($items, $keyName));
             $itemKeys = array_merge($itemKeys, array_keys(array_column($items, $keyName), $value));
@@ -1360,6 +1380,7 @@ class CmsView extends BaseView
      */
     private function output_lists()
     {
+        $this->output_local_component("global-page-list"); 
         $this->output_local_component("navigation-hierarchy-list");
         $this->output_local_component("page-list");        
         $this->output_local_component("page-section-list");

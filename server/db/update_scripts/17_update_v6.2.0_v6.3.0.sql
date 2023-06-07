@@ -73,3 +73,8 @@ SELECT p.callback_api_key, p.default_language_id, l.language as default_language
 FROM cmsPreferences p
 LEFT JOIN languages l ON (l.id = p.default_language_id)
 WHERE p.id = 1;
+
+-- remove 'sh_globals' page form the menu
+UPDATE pages 
+SET nav_position = NULL
+WHERE keyword = 'sh_globals';

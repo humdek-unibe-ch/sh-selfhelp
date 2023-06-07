@@ -2162,6 +2162,30 @@ class CmsModel extends BaseModel
         $sql = "SELECT name FROM styles;";
         return $this->db->query_db($sql, array());
     }
+
+    /**
+     * Get all global pages from the DB
+     * @return array
+     * Return the global pages
+     */
+    public function get_global_pages(){
+        return $this->db->fetch_pages(-1, $_SESSION['language'], 'AND IFNULL(id_actions,-1) = (SELECT id FROM actions WHERE `name` = "backend") AND parent = (SELECT id FROM pages WHERE keyword = "sh_globals")', 'ORDER BY nav_position');
+    }
+
+    /**
+     * Check if the parent page is the global and if it is then we have to expand the global pages
+     * @return boolean
+     * Return true if we have to expand the global pages
+     */
+    public function expand_global_pages()
+    {
+        $global_page_id = $this->db->fetch_page_id_by_keyword('sh_globals');
+        if (isset($this->page_info['parent'])) {
+            return (int)$this->page_info['parent'] == $global_page_id;
+        } else {
+            return false;
+        }
+    }
 }
 ?>
 

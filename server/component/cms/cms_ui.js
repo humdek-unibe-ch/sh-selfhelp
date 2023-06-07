@@ -1002,7 +1002,7 @@ function initEditToggle() {
                     // open properties card
                     toggle_collapsible_card($(data).find('#section-ui-card-properties > .card-header')); //function is defined in card.js
                 }
-                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", "#section-ui-navigation-hierarchy-list"]);
+                update_new_data(data, ["#ui-middle", '#section-ui-fields-holder', "#section-ui-page-list", '#section-ui-global-page-list', "#section-ui-navigation-hierarchy-list"]);
             },
             () => {
                 console.log('error');
@@ -1175,7 +1175,7 @@ function initSaveBtn() {
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
                 update_new_data(data, ['#ui-middle', '#section-ui-card-content>card-body', '#section-ui-card-properties>card-body', '#nav-menu',
-                    "#section-ui-navigation-hierarchy-list", "#header-position", ".style-section-page-order-wrapper", "#section-ui-page-list", "#cms-alerts"]);
+                    "#section-ui-navigation-hierarchy-list", "#header-position", ".style-section-page-order-wrapper", "#section-ui-page-list", '#section-ui-global-page-list', "#cms-alerts"]);
             }
         });
 
@@ -1322,7 +1322,7 @@ function initRemoveNavButtons() {
                 },
                 (data) => {
                     $(listElement).remove();
-                    refresh_cms_ui(['#section-ui-navigation-hierarchy-list', '#section-ui-page-list']);
+                    refresh_cms_ui(['#section-ui-navigation-hierarchy-list', '#section-ui-page-list', '#section-ui-global-page-list']);
                 },
                 () => {
                     console.log('error');
