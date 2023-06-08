@@ -94,6 +94,10 @@ INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_lang
 
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('title'), NULL, 'Page title');
 
+-- add new filed `enable_reset_password` from type checkbox
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'enable_reset_password', get_field_type_id('checkbox'), '0');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('enable_reset_password'), NULL, "If selected, the user can reset the password with the answers of his/her security questions. All 3 security questions` answers should match in order to reset the password.");
+
 -- security_question_01
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_01', get_field_type_id('textarea'), '1');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_01'), NULL, 'Security question 1 description');
