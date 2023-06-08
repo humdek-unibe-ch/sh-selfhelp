@@ -78,3 +78,78 @@ WHERE p.id = 1;
 UPDATE pages 
 SET nav_position = NULL
 WHERE keyword = 'sh_globals';
+
+-- add page type security_questions
+INSERT IGNORE INTO `pageType` (`name`) VALUES ('sh_security_questions');
+
+SET @id_page_globals = (SELECT id FROM pages WHERE keyword = 'sh_globals');
+-- add page security_questions
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'sh_security_questions', '/admin/security_questions', 'GET|POST', (SELECT id FROM actions WHERE `name` = 'backend' LIMIT 0,1), NULL, @id_page_globals, 0, 100, NULL, (SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'web'));
+-- set acl for the page
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'sh_security_questions'), '1', '0', '1', '0');
+
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('title'), '0000000001', 'Security Questions');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('title'), '0000000002', 'Security Questions');
+
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('title'), NULL, 'Page title');
+
+-- security_question_01
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_01', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_01'), NULL, 'Security question 1 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_01'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Was ist deine Lieblingsfarbe?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_01'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is your favorite color?');
+
+-- security_question_02
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_02', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_02'), NULL, 'Security question 2 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_02'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Wie hiess deine erste Schule?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_02'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What was the name of your first school?');
+
+-- security_question_03
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_03', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_03'), NULL, 'Security question 3 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_03'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Was ist dein Lieblingsfilm?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_03'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is your favorite movie?');
+
+-- security_question_04
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_04', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_04'), NULL, 'Security question 4 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_04'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'In welcher Stadt hast du deinen Ehepartner/Partner kennengelernt?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_04'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'In which city did you meet your spouse/partner?');
+
+-- security_question_05
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_05', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_05'), NULL, 'Security question 5 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_05'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Was ist dein Lieblingssportteam?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_05'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is your favorite sports team?');
+
+-- security_question_06
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_06', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_06'), NULL, 'Security question 6 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_06'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Wie lautet der Name deines besten Kindheitsfreunds?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_06'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is the name of your best childhood friend?');
+
+-- security_question_07
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_07', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_07'), NULL, 'Security question 7 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_07'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Was ist dein Lieblingsurlaubsziel?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_07'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is your favorite holiday destination?');
+
+-- security_question_08
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_08', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_08'), NULL, 'Security question 8 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_08'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Wie hiess dein erstes Haustier?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_08'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What was the name of your first pet?');
+
+-- security_question_09
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_09', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_09'), NULL, 'Security question 9 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_09'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Wie lautet der zweite Vorname deines ältesten Geschwisters?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_09'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is the middle name of your oldest sibling?');
+
+-- security_question_10
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'security_question_10', get_field_type_id('textarea'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_10'), NULL, 'Security question 10 description');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_10'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Was ist dein Lieblingsbuch?');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_10'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is your favorite book?');
