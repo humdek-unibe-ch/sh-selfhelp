@@ -142,14 +142,22 @@ class RegisterModel extends StyleModel
         return false;
     }
 
-    public function register_user_without_code($email){
-        $user = $this->user_model->is_user_invited($email); 
-        if ($user && $user['id'] > 0 ){
+    /**
+     * Register user without a code
+     * @param string @email
+     * The user email
+     * @return mixed
+     * User id or false
+     */
+    public function register_user_without_code($email)
+    {
+        $user = $this->user_model->is_user_invited($email);
+        if ($user && $user['id'] > 0) {
             // if the user already is created and we want to resend the activation link
             return $this->user_model->create_new_user($email, $user['code'], true);
         }
-        $code = $this->user_model->generate_and_add_code();        
-        if ($code === false){
+        $code = $this->user_model->generate_and_add_code();
+        if ($code === false) {
             return false;
         }
         return $this->register_user($email, $code);
@@ -160,8 +168,9 @@ class RegisterModel extends StyleModel
      * @return bool
      * Return the result
      */
-    public function is_anonymous_users(){
-        return $this->db->fetch_cmsPreferences()[0]['anonymous_users'];
+    public function is_anonymous_users()
+    {
+        return $this->db->is_anonymous_users();
     }
 
     /**
@@ -169,11 +178,12 @@ class RegisterModel extends StyleModel
      * @return array
      * Return the security questions in array to be used in a select
      */
-    public function get_security_questions(){
+    public function get_security_questions()
+    {
         $arr = array();
         $security_questions = $this->db->fetch_page_info(SH_SECURITY_QUESTIONS);
         foreach ($security_questions as $key => $value) {
-            if(strpos($key, 'security_question_') !== false){
+            if (strpos($key, 'security_question_') !== false) {
                 array_push($arr, array("value" => $key, "text" => $value));
             }
         }

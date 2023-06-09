@@ -733,5 +733,14 @@ class PageDb extends BaseDb
         return isset($res['id_languages']) ? $res['id_languages'] : false;
     }
 
+    /**
+     * Check if the settings are for anonymous_users
+     * @return bool
+     * Return the result
+     */
+    public function is_anonymous_users(){
+        return $this->fetch_cmsPreferences()[0]['anonymous_users'];
+    }
+
 }
 ?>

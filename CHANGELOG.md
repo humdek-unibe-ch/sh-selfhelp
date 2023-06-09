@@ -13,6 +13,7 @@
  - #350 - add table `libraries`. The data in the table is loaded in the style `version` to visualize which libraries are used.
  - move all `globals` from the main CMS menu to the pages on the left side on a separate holder
  - add global page with `security questions`
+ - add `anonymous users` option
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;

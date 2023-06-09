@@ -169,3 +169,6 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 
 -- add column security_questions to table users
 CALL add_table_column('users', 'security_questions', "VARCHAR(1000)");
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'anonymous_user_name_description', get_field_type_id('markdown'), '1');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('validate'), get_field_id('anonymous_user_name_description'), 'Please describe the process to the user', 'The text is shown for the user when they validate an anonymous user. Please use the field to describe the process to the user.');

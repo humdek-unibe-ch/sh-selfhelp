@@ -145,6 +145,16 @@ class ValidateView extends StyleView
      */
     private $ui_controller;    
 
+    /**
+     * If enabled the registration will be based on the logic for anonymous_users
+     */
+    private $anonymous_users = false;
+
+    /**
+     * The description for the anonymous user name
+     */
+    private $anonymous_user_name_description;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -181,6 +191,8 @@ class ValidateView extends StyleView
         $this->custom_form_name = $this->model->get_db_field("name");
         $this->value_name = $this->model->get_db_field("value_name", "");
         $this->value_gender = $this->model->get_db_field("value_gender", "");
+        $this->anonymous_users = $this->model->is_anonymous_users();
+        $this->anonymous_user_name_description = $this->model->get_db_field("anonymous_user_name_description");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -298,7 +310,11 @@ class ValidateView extends StyleView
             if ($this->value_name) {
                 $name = $this->value_name;
             }
-            require __DIR__ . "/tpl_validate.php";
+            if ($this->anonymous_users) {
+                require __DIR__ . "/tpl_validate_anonymous_user.php";
+            } else {
+                require __DIR__ . "/tpl_validate.php";
+            }
         }
         if($this->model->is_cms_page()
             || ($this->controller !== null && $this->controller->has_succeeded()

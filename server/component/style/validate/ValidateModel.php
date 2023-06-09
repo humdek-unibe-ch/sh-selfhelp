@@ -109,27 +109,28 @@ class ValidateModel extends StyleModel
      *  - Set user gender
      *  - Remove validation token
      *
-     * @param string $name
-     *  The name of the user.
      * @param string $pw
      *  The password hash of the user password.
      * @param int $gender
      *  The gender type id
+     * @param string $name
+     *  The name of the user.s
      * @retval bool
      *  True if the process was successful, false otherwise.
      */
-    public function activate_user($name, $pw, $gender)
+    public function activate_user($pw, $gender, $name = null)
     {
-        if(!$this->is_token_valid()) return false;
-        return $this->db->update_by_ids("users", array(
-            "name" => $name,
+        if (!$this->is_token_valid()) return false;
+        $user_data = array(
             "password" => $pw,
             "id_genders" => $gender,
             "token" => null,
             "id_status" => 3
-        ), array(
-            "id" => $this->uid,
-        ));
+        );
+        if ($name) {
+            $user_data['name'] = $name;
+        }
+        return $this->db->update_by_ids("users", $user_data, array("id" => $this->uid));
     }
 
     /**
@@ -181,8 +182,19 @@ class ValidateModel extends StyleModel
      * @return string 
      * Returns the page keyword
      */
-    public function get_redirect_page_keyword(){
+    public function get_redirect_page_keyword()
+    {
         return $this->redirect_page_keyword;
+    }
+
+    /**
+     * Check if the settings are for anonymous_users
+     * @return bool
+     * Return the result
+     */
+    public function is_anonymous_users()
+    {
+        return $this->db->is_anonymous_users();
     }
 
 }
