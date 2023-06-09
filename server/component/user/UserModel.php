@@ -820,6 +820,7 @@ class UserModel extends BaseModel
     {
         return $this->db->insert("users", array(
             "email" => $email,
+            "user_name" => $email,
             "token" => $token,
             "id_status" => $id_status,
         ));
