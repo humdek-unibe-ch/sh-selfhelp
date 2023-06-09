@@ -68,12 +68,27 @@ class LoginModel extends StyleModel
      *  The email address of the user.
      * @param string $password
      *  The password string entered by the user.
-     * @retval bool
+     * @return bool
      *  true if the check was successful, false otherwise.
      */
     public function check_login_credentials($email, $password)
     {
         return $this->login->check_credentials($email, $password);
+    }
+
+    /**
+     * A simple wrapper for the credential check in the login service based on user_name.
+     *
+     * @param string $user_name
+     *  The user_name of the user.
+     * @param string $password
+     *  The password string entered by the user.
+     * @return bool
+     *  true if the check was successful, false otherwise.
+     */
+    public function check_login_credentials_user_name($user_name, $password)
+    {
+        return $this->login->check_credentials_user_name($user_name, $password);
     }
 
     /**
@@ -87,6 +102,16 @@ class LoginModel extends StyleModel
     public function set_device_id_and_token($device_id, $device_token)
     {
         return $this->db->update_by_ids('users', array('device_id' => $device_id, 'device_token' => $device_token), array('id' => intval($_SESSION['id_user'])));
+    }
+
+    /**
+     * Check if the settings are for anonymous_users
+     * @return bool
+     * Return the result
+     */
+    public function is_anonymous_users()
+    {
+        return $this->db->is_anonymous_users();
     }
 }
 ?>

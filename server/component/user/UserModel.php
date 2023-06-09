@@ -431,6 +431,7 @@ class UserModel extends BaseModel
                 "email" => $user_name . "@unibe.ch",
                 "token" => $token,
                 "name" => $user_name,
+                "user_name" => $user_name,
                 "id_status" => USER_STATUS_INVITED,
                 "security_questions" => json_encode($security_questions)
             ));

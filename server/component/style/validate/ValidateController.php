@@ -52,7 +52,11 @@ class ValidateController extends BaseController
                     $this->success_msgs[] = $this->model->get_db_field('alert_success');
                 }
                 if ($this->model->get_redirect_page_keyword()) {
-                    $this->model->get_services()->get_login()->check_credentials($this->model->get_user_email(), $_POST['pw']);
+                    if ($model->is_anonymous_users()) {
+                        $this->model->get_services()->get_login()->check_credentials_user_name($this->model->get_user_name_generated(), $_POST['pw']);
+                    } else {
+                        $this->model->get_services()->get_login()->check_credentials($this->model->get_user_email(), $_POST['pw']);
+                    }
                     header('Location: ' . $this->model->get_link_url($this->model->get_redirect_page_keyword()));
                 }
             } else {

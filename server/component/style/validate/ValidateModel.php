@@ -36,6 +36,11 @@ class ValidateModel extends StyleModel
      */
     private $gender;
 
+     /**
+     * The user name
+     */
+    private $user_name;
+
     /**
      * The page keyword, if set it after successful validation the user is redirected to that page
      */
@@ -64,6 +69,7 @@ class ValidateModel extends StyleModel
         $this->email = null;
         $this->name = null;
         $this->gender = null;
+        $this->user_name = null;
         $page_keyword_id = $this->get_db_field("page_keyword");
         $this->redirect_page_keyword = $this->db->fetch_page_keyword_by_id($page_keyword_id);
         $data = $this->fetch_user_data($uid, $token);
@@ -72,6 +78,7 @@ class ValidateModel extends StyleModel
             $this->email = $data['email'];
             $this->name = $data['name'];
             $this->gender = $data['gender'];
+            $this->user_name = $data['user_name'];
         }
     }
 
@@ -91,7 +98,7 @@ class ValidateModel extends StyleModel
      */
     private function fetch_user_data($uid, $token)
     {
-        $sql = "SELECT u.email, u.name, g.name AS gender FROM users AS u
+        $sql = "SELECT u.email, u.name, g.name AS gender, user_name FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE u.token = :token AND u.id = :uid";
         $data = $this->db->query_db_first($sql, array(
@@ -164,6 +171,17 @@ class ValidateModel extends StyleModel
     public function get_user_name()
     {
         return $this->name;
+    }
+
+    /**
+     * Gets the user name - generated from anonymous.
+     *
+     * @retval string
+     *  The name of the activating user.
+     */
+    public function get_user_name_generated()
+    {
+        return $this->user_name;
     }
 
     /**

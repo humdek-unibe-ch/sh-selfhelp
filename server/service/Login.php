@@ -252,6 +252,43 @@ class Login
     }
 
     /**
+     * Check login credentials with the db and set the session variable if
+     * successful. If the check fails, the session variable is destroyed.
+     *
+     * @param string $user_name
+     *  The user_name of the user.
+     * @param string $password
+     *  The password string entered by the user.
+     * @return bool
+     *  true if the check was successful, false otherwise.
+     */
+    public function check_credentials_user_name($user_name, $password)
+    {
+        $sql = "SELECT u.id, u.password, g.name AS gender, g.id AS id_gender, id_languages FROM users AS u
+            LEFT JOIN genders AS g ON g.id = u.id_genders
+            WHERE user_name = :user_name AND `password` IS NOT NULL AND blocked <> '1'";
+        $user = $this->db->query_db_first($sql, array(':user_name' => $user_name));
+        if($user && password_verify($password, $user['password']))
+        {
+            $_SESSION['logged_in'] = true;
+            $_SESSION['id_user'] = $user['id'];
+            $_SESSION['gender'] = $user['id_gender'];
+            $_SESSION['user_gender'] = $user['id_gender'];
+            if(isset($user['id_languages'])){
+                 $_SESSION['user_language'] = $user['id_languages'];
+            }
+            $this->update_timestamp($user['id']);
+            return true;
+        }
+        else
+        {
+            $_SESSION['logged_in'] = false;
+            $_SESSION['id_user'] = GUEST_USER_ID;
+            return false;
+        }
+    }
+
+    /**
      * Change the password of the active user.
      *
      * @param string $password
