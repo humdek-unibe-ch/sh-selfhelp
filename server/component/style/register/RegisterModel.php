@@ -63,26 +63,7 @@ class RegisterModel extends StyleModel
         $res = $this->db->query_db_first($sql, array(':code' => $code));
         if($res) return true;
         else return false;
-    }
-
-    /**
-     * Claim a validation code for a user and make it unusable for any other
-     * registration.
-     *
-     * @param string $code
-     *  The code string entered by the user.
-     * @param int $uid
-     *  The id of the user claiming the coed.
-     * @retval bool
-     *  True if the check was successful, false otherwise.
-     */
-    private function claim_validation_code($code, $uid)
-    {
-        return $this->db->update_by_ids('validation_codes',
-            array('id_users' => $uid),
-            array('code' => $code)
-        );
-    }
+    }    
 
     /* Private Methods ********************************************************/
 
@@ -128,7 +109,7 @@ class RegisterModel extends StyleModel
                 $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
             }
             $uid = $this->user_model->create_new_user($email, $code, true);
-            if ($uid && $this->claim_validation_code($code, $uid) !== false) {
+            if ($uid && $this->user_model->claim_validation_code($code, $uid) !== false) {
                 if (!$skip_group) {
                     $this->user_model->add_groups_to_user($uid, $groupId);
                 }
@@ -153,7 +134,7 @@ class RegisterModel extends StyleModel
         if($this->check_validation_code($code))
         {
             $uid = $this->user_model->auto_create_user($email);
-            if($uid && $this->claim_validation_code($code, $uid) !== false)
+            if($uid && $this->user_model->claim_validation_code($code, $uid) !== false)
             {
                 return $uid;
             }
@@ -172,6 +153,56 @@ class RegisterModel extends StyleModel
             return false;
         }
         return $this->register_user($email, $code);
+    }
+
+    /**
+     * Check if the settings are for anonymous_users
+     * @return bool
+     * Return the result
+     */
+    public function is_anonymous_users(){
+        return $this->db->fetch_cmsPreferences()[0]['anonymous_users'];
+    }
+
+    /**
+     * Get the security questions and return them in array for a select style
+     * @return array
+     * Return the security questions in array to be used in a select
+     */
+    public function get_security_questions(){
+        $arr = array();
+        $security_questions = $this->db->fetch_page_info(SH_SECURITY_QUESTIONS);
+        foreach ($security_questions as $key => $value) {
+            if(strpos($key, 'security_question_') !== false){
+                array_push($arr, array("value" => $key, "text" => $value));
+            }
+        }
+        return $arr;
+    }
+
+    /**
+     * Register an anonymous user by inserting a new user entry into the database. This is
+     * only possible if a valid validation_code is provided.
+     * 
+     * Assign group to the user based on the validation code. If there is no group for the code assign to the default one: SUBJECT_GROUP_ID
+     *
+     * @param string $code
+     *  The code string entered by the user.
+     * @return mixed
+     *  The user id the new user if the registration was successful,
+     *  false otherwise.
+     */
+    public function register_anonymous_user($code, $security_questions)
+    {
+        if ($this->check_validation_code($code)) {
+            $group = $this->get_group_from_code($code);
+            $groups = explode(',', $this->get_db_field("group", SUBJECT_GROUP_ID)); // assign predefined group in the controller i not set the default group `subject`
+            if (!empty($group)) {
+                $groups = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it to them
+            }
+            return $this->user_model->create_new_anonymous_user($code, $groups, $security_questions);
+        }
+        return false;
     }
 }
 ?>

@@ -71,6 +71,26 @@ class RegisterView extends StyleView
      */
     private $type;
 
+    /**
+     * If enabled the registration will be based on the logic for anonymous_users
+     */
+    private $anonymous_users = false;
+
+    /**
+     * Label for security question 1
+     */
+    private $label_sec_q_1;
+
+    /**
+     * Label for security question 2
+     */
+    private $label_sec_q_2;
+
+    /**
+     * The description of the anonymous user registration process
+     */
+    private $anonymous_users_registration;
+
 
     /* Constructors ***********************************************************/
 
@@ -94,6 +114,10 @@ class RegisterView extends StyleView
         $this->success = $this->model->get_db_field("success");
         $this->type = $this->model->get_db_field("type", "success");
         $this->open_registration = $this->model->get_db_field("open_registration",false);
+        $this->anonymous_users = $this->model->is_anonymous_users();
+        $this->label_sec_q_1 = $this->model->get_db_field('label_security_question_1');
+        $this->label_sec_q_2 = $this->model->get_db_field('label_security_question_2');
+        $this->anonymous_users_registration = $this->model->get_db_field('anonymous_users_registration');
 
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(
@@ -122,14 +146,61 @@ class RegisterView extends StyleView
      */
     public function output_content()
     {
-        if($this->controller == null || !$this->controller->has_succeeded())
-        {
-            require __DIR__ . "/tpl_register.php";
+        if ($this->controller == null || !$this->controller->has_succeeded()) {
+            if ($this->anonymous_users) {
+                require __DIR__ . "/tpl_anonymous_users_register.php";
+            } else {
+                require __DIR__ . "/tpl_register.php";
+            }
         }
-        if($this->controller == null || $this->controller->has_succeeded())
-        {
+        if ($this->controller == null || $this->controller->has_succeeded()) {
             require __DIR__ . "/tpl_success.php";
         }
+    }
+
+    /**
+     * Output security questions for anonymous registration
+     */
+    public function output_security_questions()
+    {
+        $md_anonymous_users_registration =  new BaseStyleComponent("markdown", array(
+            "text_md" => $this->anonymous_users_registration,
+        ));
+        $md_anonymous_users_registration->output_content();
+        $sec_q_1 = new BaseStyleComponent("select", array(
+            "label" => $this->label_sec_q_1,
+            "id" => "security_question_1",
+            "name" => "security_question_1",
+            "css" => '',
+            "live_search" => false,
+            "is_multiple" => false,
+            "is_required" => true,
+            "items" => $this->model->get_security_questions(),
+        ));
+        $sec_q_1->output_content();
+        $sec_q_1_answer = new BaseStyleComponent("input", array(
+            "name" => "security_question_1_answer",
+            "is_required" => true,
+            "css" => "mb-3"
+        ));
+        $sec_q_1_answer->output_content();
+        $sec_q_2 = new BaseStyleComponent("select", array(
+            "label" => $this->label_sec_q_2,
+            "id" => "security_question_2",
+            "name" => "security_question_2",
+            "css" => '',
+            "live_search" => false,
+            "is_multiple" => false,
+            "is_required" => true,
+            "items" => $this->model->get_security_questions(),
+        ));
+        $sec_q_2->output_content();
+        $sec_q_2_answer = new BaseStyleComponent("input", array(
+            "name" => "security_question_2_answer",
+            "is_required" => true,
+            "css" => "mb-3"
+        ));
+        $sec_q_2_answer->output_content();
     }
 	
 }

@@ -174,7 +174,42 @@ class UserModel extends BaseModel
     private function get_email_activate_from_email_address(){
         $email_activate_fields = $this->db->fetch_page_info(SH_EMAIL);
         return isset($email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS]) && $email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS] != '' ? $email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS] : "noreply@" . $_SERVER['HTTP_HOST'];
+    }
 
+    /**
+     * Generate user_name
+     * @return string $user_name
+     * return the user name
+     */
+    private function generate_user_name()
+    {
+        $prefix = "U_";
+        $length = 6; // The length of the unique identifier
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        $user_name = $prefix . $randomString;
+        while ($this->user_name_exists($user_name)){
+            $this->generate_user_name();
+        }
+        return $user_name;
+    }
+
+    /**
+     * Check if the user name exists
+     * @param string $user_name
+     * User name
+     * @return boolean
+     * Return true if the user name exists and false otherwise
+     */
+    private function user_name_exists($user_name)
+    {
+        $sql = "SELECT id FROM users WHERE `name` = :user_name";
+        $res = $this->db->query_db_first($sql, array(":user_name" => $user_name));
+        return isset($res['id']);
     }
 
     /* Public Methods *********************************************************/
@@ -373,6 +408,46 @@ class UserModel extends BaseModel
         $mail['id_users'][] = $uid;
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
         return $uid;
+    }
+
+    /**
+     * Register anonymous user
+     * @param string $code
+     * The validation code,
+     * @param array $groups
+     * Array with groups that will be added to the user
+     * @param array $security_questions
+     * The security questions that the user selected and their answers
+     * @return string
+     * Return the url for the validation
+     */
+    public function create_new_anonymous_user($code, $groups, $security_questions)
+    {
+        try {
+            $this->db->begin_transaction();
+            $token = $this->login->create_token();
+            $user_name = $this->generate_user_name();
+            $uid = $this->db->insert("users", array(
+                "email" => $user_name . "@unibe.ch",
+                "token" => $token,
+                "name" => $user_name,
+                "id_status" => USER_STATUS_INVITED,
+                "security_questions" => json_encode($security_questions)
+            ));
+            if ($uid && $this->claim_validation_code($code, $uid) !== false) {
+                $this->add_groups_to_user($uid, $groups);
+            }
+            $url = $this->get_link_url("validate", array(
+                "uid" => $uid,
+                "token" => $token,
+                "mode" => "activate",
+            ));
+            $this->db->commit();
+            return $url;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
     }
 
     /**
@@ -1009,5 +1084,25 @@ class UserModel extends BaseModel
             $res['id'] = $uid;
         return $res;
     }
+
+    /**
+     * Claim a validation code for a user and make it unusable for any other
+     * registration.
+     *
+     * @param string $code
+     *  The code string entered by the user.
+     * @param int $uid
+     *  The id of the user claiming the coed.
+     * @retval bool
+     *  True if the check was successful, false otherwise.
+     */
+    public function claim_validation_code($code, $uid)
+    {
+        return $this->db->update_by_ids('validation_codes',
+            array('id_users' => $uid),
+            array('code' => $code)
+        );
+    }
+    
 }
 ?>

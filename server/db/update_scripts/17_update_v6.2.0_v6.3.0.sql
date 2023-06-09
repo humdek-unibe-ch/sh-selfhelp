@@ -157,3 +157,15 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, '
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_security_questions' LIMIT 0,1), get_field_id('security_question_10'), NULL, 'Security question 10 description');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_10'), (SELECT id FROM languages WHERE locale = 'de-CH' LIMIT 0,1), 'Was ist dein Lieblingsbuch?');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'sh_security_questions'), get_field_id('security_question_10'), (SELECT id FROM languages WHERE locale = 'en-GB' LIMIT 0,1), 'What is your favorite book?');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_security_question_1', get_field_type_id('text'), '1');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('register'), get_field_id('label_security_question_1'), 'Select security question 1', 'The label for the security question 1 when the anonymous registration is used');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_security_question_2', get_field_type_id('text'), '1');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('register'), get_field_id('label_security_question_2'), 'Select security question 2', 'The label for the security question 2 when the anonymous registration is used');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'anonymous_users_registration', get_field_type_id('markdown'), '1');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('register'), get_field_id('anonymous_users_registration'), 'Please describe the process to the user', 'The text is shown for the user when they register an anonymous user. Please use the field to describe the process to the user.');
+
+-- add column security_questions to table users
+CALL add_table_column('users', 'security_questions', "VARCHAR(1000)");

@@ -36,6 +36,23 @@ class RegisterController extends BaseController
             } else {
                 $this->fail = true;
             }
+        } else if (
+            $this->model->is_anonymous_users() && isset($_POST['type']) && $_POST['type'] == 'register' && isset($_POST['code']) &&
+            isset($_POST['security_question_1']) && isset($_POST['security_question_1_answer']) && isset($_POST['security_question_2']) && isset($_POST['security_question_2_answer'])
+        ) {
+            // register user anonymously
+            $security_questions = array(
+                $_POST['security_question_1'] => $_POST['security_question_1_answer'],
+                $_POST['security_question_2'] => $_POST['security_question_2_answer'],
+            );
+            $url = $model->register_anonymous_user($_POST['code'], $security_questions);
+            if (!$url) {
+                $this->fail = true;
+            } else {
+                // redirect directly to validation
+                header("Location: " . $url);
+                die();
+            }
         }
         if (isset($_POST['mobile']) && $_POST['mobile']) {
             if ($this->success) {
