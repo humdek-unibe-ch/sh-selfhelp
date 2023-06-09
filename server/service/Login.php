@@ -86,14 +86,14 @@ class Login
         } else if (!isset($_POST['mobile']) || !$_POST['mobile']) {
             // web calls only
             if (PHP_VERSION_ID < 70300) {
-                session_set_cookie_params(6000, '/; samesite=' . 'strict', null, true);
+                // session_set_cookie_params(6000, '/; samesite=' . 'strict', null, true);
             } else {
-                session_set_cookie_params(
-                    [
-                        'secure' => true,
-                        'samesite' => 'strict'
-                    ]
-                );
+                // session_set_cookie_params(
+                //     [
+                //         'secure' => true,
+                //         'samesite' => 'strict'
+                //     ]
+                // );
             }
         }
         session_start();
