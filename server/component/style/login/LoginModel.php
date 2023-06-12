@@ -113,5 +113,15 @@ class LoginModel extends StyleModel
     {
         return $this->db->is_anonymous_users();
     }
+
+    /**
+     * Check if enable reset password is active for anonymous users
+     * @return boolean
+     * Return the result of the check
+     */
+    public function is_reset_password_enabled()
+    {
+        return $this->db->fetch_page_info(SH_SECURITY_QUESTIONS)['enable_reset_password'];
+    }
 }
 ?>

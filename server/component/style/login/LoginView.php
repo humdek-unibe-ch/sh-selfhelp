@@ -115,11 +115,22 @@ class LoginView extends StyleView
     {
         $url = $this->model->get_link_url('login');
         $reset_url = $this->model->get_link_url('reset_password');
-        if($this->anonymous_users){
+        if ($this->anonymous_users) {
             require __DIR__ . "/tpl_login_anonymous_user.php";
-        }else{
+        } else {
             require __DIR__ . "/tpl_login.php";
-        }        
+        }
+    }
+
+    /**
+     * Render the reset password button.
+     */
+    public function output_reset_password()
+    {
+        $reset_url = $this->model->get_link_url('reset_password');
+        if ($this->model->is_reset_password_enabled()) {
+            require __DIR__ . "/tpl_reset_password.php";
+        }
     }
 
 }
