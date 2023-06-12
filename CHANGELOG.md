@@ -14,6 +14,7 @@
  - move all `globals` from the main CMS menu to the pages on the left side on a separate holder
  - add global page with `security questions`
  - add `anonymous users` option
+ - add `anonymous users` option to reset password if the security questions' answers match
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;

@@ -11,6 +11,13 @@ require_once __DIR__ . "/../emailFormBase/EmailFormBaseModel.php";
  */
 class ResetPasswordModel extends EmailFormBaseModel
 {
+    /* Private Properties******************************************************/
+
+    /**
+     * Reset user name
+     */
+    private $reset_user_name = false;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -87,6 +94,89 @@ class ResetPasswordModel extends EmailFormBaseModel
     public function perform_email_actions($mail)
     {
         return $this->user_set_new_token($mail);
+    }
+
+    /**
+     * Check if the settings are for anonymous_users
+     * @return bool
+     * Return the result
+     */
+    public function is_anonymous_users()
+    {
+        return $this->db->is_anonymous_users();
+    }
+
+    /**
+     * Check if enable reset password is active for anonymous users
+     * @return boolean
+     * Return the result of the check
+     */
+    public function is_reset_password_enabled()
+    {
+        return $this->db->fetch_page_info(SH_SECURITY_QUESTIONS)['enable_reset_password'];
+    }
+
+    /**
+     * Get reset user name if set from controller
+     * @return string 
+     * User name
+     */
+    public function get_reset_user_name(){
+        return $this->reset_user_name;
+    }
+
+    /**
+     * Set reset user name
+     * @param string $user_name
+     * The user name that is requested to be reset
+     */
+    public function set_reset_user_name($user_name){
+        $this->reset_user_name = $user_name;
+    }
+
+    /**
+     * Get the security questions for the user_name that should be reset
+     * @return string
+     * Return json with the security questions
+     */
+    public function get_user_security_questions()
+    {
+        $sql = "SELECT security_questions FROM users WHERE user_name = :user_name";
+        return $this->db->query_db_first($sql, array(":user_name" => $this->reset_user_name));
+    }
+
+    /**
+     * Get security questions
+     * @return array 
+     * Array with the security questions - labels
+     */
+    public function get_security_questions()
+    {
+        return $this->db->fetch_page_info(SH_SECURITY_QUESTIONS);
+    }    
+
+    /**
+     * Generate user token and return the reset url. It is used for anonymous user reset
+     * @return string
+     * The reset url
+     */
+    public function get_reset_url_for_anonymous_user(){
+        $token = $this->login->create_token();
+        $res = $this->db->update_by_ids("users", array("token" => $token),
+            array("user_name" => $this->get_reset_user_name()));
+        if(!$res) return false;
+        $sql = "SELECT id FROM users WHERE user_name = :user_name";
+        $user = $this->db->query_db_first($sql, array(":user_name" => $this->reset_user_name));
+        if(!$user || !isset($user['id'])){
+            return false;
+        }
+        $url = $this->get_link_url("validate", array(
+            "uid" => intval($user ['id']),
+            "token" => $token,
+            "mode" => "reset",
+        ));
+        $url = "https://" . $_SERVER['HTTP_HOST'] . $url;
+        return $url;
     }
 }
 ?>

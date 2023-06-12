@@ -7,7 +7,7 @@
 require_once __DIR__ . "/../../BaseComponent.php";
 require_once __DIR__ . "/ResetPasswordView.php";
 require_once __DIR__ . "/ResetPasswordModel.php";
-require_once __DIR__ . "/../emailFormBase/EmailFormBaseController.php";
+require_once __DIR__ . "/ResetPasswordController.php";
 
 /**
  * This is a style component that renders the password reste form, handles the
@@ -33,7 +33,7 @@ class ResetPasswordComponent extends BaseComponent
         $model = new ResetPasswordModel($services, $id, $params, $id_page, $entry_record);
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new EmailFormBaseController($model);
+            $controller = new ResetPasswordController($model);
         $view = new ResetPasswordView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
