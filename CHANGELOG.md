@@ -15,6 +15,7 @@
  - add global page with `security questions`
  - add `anonymous users` option
  - add `anonymous users` option to reset password if the security questions' answers match
+ - add `mobile_redirect_url` in the session that is sent to apps if needed
 
 ### Bugfix
 - bugfix the live search in the dropdown for selecting groups for job actions from type `add_group` or `remove_group`;

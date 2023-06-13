@@ -49,9 +49,13 @@ class RegisterController extends BaseController
             if (!$url) {
                 $this->fail = true;
             } else {
-                // redirect directly to validation
-                header("Location: " . $url);
-                die();
+                if (isset($_POST['mobile']) && $_POST['mobile']) {
+                    $_SESSION[MOBILE_REDIRECT_URL] = $url;
+                } else {
+                    // redirect directly to validation
+                    header("Location: " . $url);
+                    die();
+                }
             }
         }
         if (isset($_POST['mobile']) && $_POST['mobile']) {

@@ -232,4 +232,7 @@ define('ACTION_REPEATER_OCCURRENCES', 'occurrences');
 define('ACTION_REPEATER_FREQUENCY', 'frequency');
 define('ACTION_REPEATER_DAYS_OF_WEEK', 'daysOfWeek');
 define('ACTION_REPEATER_DAYS_OF_MONTH', 'daysOfMonth');
+
+/* Mobile */
+define('MOBILE_REDIRECT_URL', 'mobile_redirect_url');
 ?>

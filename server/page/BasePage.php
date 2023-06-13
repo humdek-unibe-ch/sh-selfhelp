@@ -615,6 +615,7 @@ abstract class BasePage
         $res['external_css'] = $this->get_external_css_for_mobile();
         $res['external_css'] = $res['external_css'] . ' ' . $this->get_global_custom_css();
         $res['languages'] = $this->services->get_db()->get_languages();
+        $res['redirect_url'] = isset($_SESSION[MOBILE_REDIRECT_URL]) ? $_SESSION[MOBILE_REDIRECT_URL] : false;
         return $res;
     }
 
