@@ -126,7 +126,7 @@ class SelectView extends FormFieldView
         $css = ($this->label == "") ? $this->css : "";
         $multiple = ($this->is_multiple) ? "multiple" : "";
         $required = ($this->is_required) ? "required" : "";
-        if ($this->is_multiple && !is_array($this->value)) {
+        if ($this->is_multiple && $this->value && !is_array($this->value)) {
             $this->value = json_decode(html_entity_decode($this->value)); //if not array yet and if the select is multiple convert the json to an array
         }
         if ($this->image_selector) {
