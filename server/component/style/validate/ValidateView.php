@@ -326,6 +326,20 @@ class ValidateView extends StyleView
     }
 
     /**
+     * Output the style for mobile
+     * @return object 
+     * Return te style
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['anonymous_users'] = $this->anonymous_users;
+        $style['user_name'] = $this->model->get_user_name();
+        $style['css_gender'] = $this->get_css_gender();
+        return $style;
+    }
+
+    /**
      * Get the css for the gender group. If there are default value the group is not displayed
      * @return string
      */

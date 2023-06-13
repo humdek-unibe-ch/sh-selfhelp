@@ -50,7 +50,7 @@ class RegisterController extends BaseController
                 $this->fail = true;
             } else {
                 if (isset($_POST['mobile']) && $_POST['mobile']) {
-                    $_SESSION[MOBILE_REDIRECT_URL] = $url;
+                    $_SESSION[MOBILE_REDIRECT_URL] = str_replace(BASE_PATH, "", $url); // base path is not needed in mobile
                 } else {
                     // redirect directly to validation
                     header("Location: " . $url);

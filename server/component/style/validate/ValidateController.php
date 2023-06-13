@@ -57,6 +57,10 @@ class ValidateController extends BaseController
                     } else {
                         $this->model->get_services()->get_login()->check_credentials($this->model->get_user_email(), $_POST['pw']);
                     }
+                    $_SESSION[MOBILE_REDIRECT_URL] = str_replace(BASE_PATH, "", $this->model->get_link_url($this->model->get_redirect_page_keyword())); // base path is not needed in mobile
+                    if (isset($_POST['mobile']) && $_POST['mobile']) {
+                        return;
+                    }
                     header('Location: ' . $this->model->get_link_url($this->model->get_redirect_page_keyword()));
                 }
             } else {

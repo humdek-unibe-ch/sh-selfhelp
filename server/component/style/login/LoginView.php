@@ -123,6 +123,18 @@ class LoginView extends StyleView
     }
 
     /**
+     * Output the style for mobile
+     * @return object 
+     * Return te style
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['anonymous_users'] = $this->anonymous_users;
+        return $style;
+    }
+
+    /**
      * Render the reset password button.
      */
     public function output_reset_password()
