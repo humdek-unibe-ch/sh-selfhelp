@@ -24,6 +24,7 @@ class ValidateController extends BaseController
         parent::__construct($model);
         $this->success = false;
         $this->fail = false;
+        $_SESSION[MOBILE_REDIRECT_URL] = null;
         if(isset($_POST['phone7h92jP']) && trim($_POST['phone7h92jP']) != "")
         {
             // Probably a bot

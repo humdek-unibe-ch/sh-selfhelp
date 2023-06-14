@@ -131,6 +131,7 @@ class LoginView extends StyleView
     {
         $style = parent::output_content_mobile();
         $style['anonymous_users'] = $this->anonymous_users;
+        $style['is_reset_password_enabled'] = intval($this->model->is_reset_password_enabled());
         return $style;
     }
 

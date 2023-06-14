@@ -21,6 +21,7 @@ class RegisterController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        $_SESSION[MOBILE_REDIRECT_URL] = null;
         if (isset($_POST['type']) && $_POST['type'] == 'register' && isset($_POST['email']) && isset($_POST['code'])) {
             $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
             $code = filter_var($_POST['code'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);

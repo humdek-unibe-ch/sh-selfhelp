@@ -64,6 +64,35 @@ class ResetPasswordView extends EmailFormBaseView
         }
     }
 
+    /**
+     * Output the style for mobile
+     * @return object 
+     * Return te style
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['anonymous_users'] = intval($this->model->is_anonymous_users());
+        $style['is_reset_password_enabled'] = intval($this->model->is_reset_password_enabled());
+        $user_security_questions = $this->model->get_user_security_questions();
+        $security_questions = $this->model->get_security_questions();
+        $security_questions_labels = array();
+        if ($user_security_questions) {
+            $user_security_questions = json_decode($user_security_questions['security_questions']);
+            foreach ($user_security_questions as $key => $value) {
+                $security_questions_labels[] = array(
+                    "id" => $key,
+                    "text" => $security_questions[$key]
+                );
+            }
+        }
+        $style['security_questions_labels'] = $security_questions_labels;
+        if(count($security_questions_labels) > 0){
+            $style['reset_user_name'] =  $this->model->get_reset_user_name();
+        }        
+        return $style;
+    }
+
 
     /**
      * Output reset form for anonymous users

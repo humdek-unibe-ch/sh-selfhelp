@@ -21,14 +21,19 @@ class ResetPasswordController extends EmailFormBaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        $_SESSION[MOBILE_REDIRECT_URL] = null;
         if (isset($_POST['reset_anonymous_user']) && $_POST['reset_anonymous_user'] && isset($_POST['user_name'])) {
             $model->set_reset_user_name($_POST['user_name']);
-            if(isset($_POST['reset_anonymous_user_sec_q']) && $_POST['reset_anonymous_user_sec_q']){
+            if (isset($_POST['reset_anonymous_user_sec_q']) && $_POST['reset_anonymous_user_sec_q']) {
                 $url = $this->check_security_questions($this->model);
                 if ($url) {
-                    // redirect directly to reset
-                    header("Location: " . $url);
-                    die();
+                    if (isset($_POST['mobile']) && $_POST['mobile']) {
+                        $_SESSION[MOBILE_REDIRECT_URL] = str_replace("https://" . $_SERVER['HTTP_HOST'] . BASE_PATH, "", $url); // base path is not needed in mobile
+                    } else {
+                        // redirect directly to validation
+                        header("Location: " . $url);
+                        die();
+                    }
                 }
             }
         } 
