@@ -1,3 +1,7 @@
+# v6.3.1
+### Bugfix
+ - fix an error when checking how many users are working on the same page
+
 # v6.3.0
 ### New features
  - dynamically load the schema for the `jobConfig`

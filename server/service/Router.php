@@ -304,10 +304,10 @@ class Router extends AltoRouter {
                 $sql = $sql . ' AND params = :params';
                 $res = $this->db->query_db($sql, array(":keyword" => $this->route['name'], ":params" => json_encode($this->route['params'])));
             }
-            if (count($res) > 1) {
+            if ($res && count($res) > 1) {
                 // more than 1 user is editing the page
                 return $res;
-            } else if (count($res) == 1) {
+            } else if ($res && count($res) == 1) {
                 // one user check is this user is the same as who checks
                 if ($res[0]['id_users'] == $_SESSION['id_user']) {
                     return false;
