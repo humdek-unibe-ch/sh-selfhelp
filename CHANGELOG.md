@@ -1,4 +1,4 @@
-# v6.3.0 (Unreleased)
+# v6.3.0
 ### New features
  - dynamically load the schema for the `jobConfig`
  - adjust scheduling `jobs` to be expandable and used by `plugins`
