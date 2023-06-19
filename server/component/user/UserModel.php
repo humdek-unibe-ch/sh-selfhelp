@@ -704,6 +704,7 @@ class UserModel extends BaseModel
                 "name" => $user["name"],
                 "code" => $user["code"],
                 "user_activity" => $user["user_activity"],
+                "user_type" => $user["user_type"],
                 "last_login" => $user["last_login"],
                 "status" => $state,
                 "blocked" => ($user['blocked'] == '1') ? true : false,

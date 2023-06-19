@@ -122,6 +122,11 @@ class UserSelectView extends BaseView
             $title = "Groups";
             $content = "The groups in which the user is assigned";
         }
+        else if($key === "user_type")
+        {
+            $title = "User Type";
+            $content = "The type of the user";
+        }
         else
             $content = $title = "bad key";
         require __DIR__ . "/tpl_user_attr_title.php";
@@ -359,6 +364,7 @@ class UserSelectView extends BaseView
             $code = $user['code'];
             $last_login = $user['last_login'];
             $activity = $user['user_activity'];
+            $user_type = $user['user_type'];
             $ac = $user['ac'];
             if($pc === 0 || $ac > $pc){
                 $progress = 1;
@@ -399,6 +405,7 @@ class UserSelectView extends BaseView
             $groups = $this->selected_user['groups'];
             $last_login = $this->selected_user['last_login'];
             $activity = $this->selected_user['user_activity'];
+            $user_type = $this->selected_user['user_type'];
             $progress = $this->model->get_user_progress($this->selected_user['id'], $this->model->calc_pages_for_progress());
             require __DIR__ . "/tpl_user.php";
         }

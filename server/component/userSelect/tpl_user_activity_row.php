@@ -10,6 +10,7 @@
     <td><?php echo $code; ?></td>
     <td><?php echo $user_name; ?></td>
     <td><?php echo $groups; ?></td>
+    <td><?php echo $user_type; ?></td>
     <td><?php echo $last_login; ?></td>
     <td><?php echo $activity; ?></td>    
     <td><?php $this->output_user_progress_bar($progress); ?></td>

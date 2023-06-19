@@ -13,6 +13,7 @@
                 <th scope="col"><?php $this->output_title("code"); ?></th>
                 <th scope="col"><?php $this->output_title("user_name"); ?></th>
                 <th scope="col"><?php $this->output_title("groups"); ?></th>
+                <th scope="col"><?php $this->output_title("user_type"); ?></th>
                 <th scope="col"><?php $this->output_title("login"); ?></th>
                 <th scope="col"><?php $this->output_title("activity"); ?></th>
                 <th scope="col"><?php $this->output_title("progress"); ?></th>
