@@ -1,6 +1,7 @@
 # v6.4.0
 ### New features
  - add user types to the user. All existing users will be set of type `user`
+ - update the Group management description
 
 # v6.3.1
 ### Bugfix
