@@ -1,3 +1,7 @@
+# v6.4.0
+### New features
+ - add user types to the user. All existing users will be set of type `user`
+
 # v6.3.1
 ### Bugfix
  - fix an error when checking how many users are working on the same page
