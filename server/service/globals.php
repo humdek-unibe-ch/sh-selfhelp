@@ -141,6 +141,7 @@ define('pageAccessTypes', 'pageAccessTypes');
 define('hookTypes', 'hookTypes');
 define('assetTypes', 'assetTypes');
 define('groupTypes', 'groupTypes');
+define('userTypes', 'userTypes');
 
 /* Lookup codes */
 /* Auto generate them from DB when new comes or a change is made*/
@@ -207,6 +208,7 @@ define('assetTypes_asset', 'asset');
 define('assetTypes_static', 'static');
 define('groupTypes_db_role', 'db_role');
 define('groupTypes_group', 'group');
+define('userTypes_user', 'user');
 
 /* Action config */
 define('ACTION_JOB_SCHEDULE_TYPES', 'job_schedule_types');
