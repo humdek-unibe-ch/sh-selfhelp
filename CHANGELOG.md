@@ -3,6 +3,9 @@
  - add user types to the user. All existing users will be set of type `user`
  - update the Group management description
 
+### Bugfix
+ -  adjust `entryRecord` to load children like `entryList` and now it properly load values of records in edit mode
+
 # v6.3.1
 ### Bugfix
  - fix an error when checking how many users are working on the same page

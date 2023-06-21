@@ -106,7 +106,13 @@ abstract class FormFieldView extends StyleView
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
         $this->locked_after_submit = $this->model->get_db_field("locked_after_submit", 0);
-        
+        if (method_exists($this->model, 'get_entry_record')) {
+            $this->entry_data = $this->model->get_entry_record();
+            if ($this->entry_data) {
+                // if entry data; take the value
+                $this->value = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+            }
+        }
     }
 
     /* Private Methods ********************************************************/
@@ -225,7 +231,14 @@ abstract class FormFieldView extends StyleView
         $style = parent::output_content_mobile(); 
         if (method_exists($this->model, 'get_form_field_value')){
             $style['last_value'] = $this->model->get_form_field_value();
-        }       
+        }      
+        if (method_exists($this->model, 'get_entry_record')) {
+            $this->entry_data = $this->model->get_entry_record();
+            if ($this->entry_data) {
+                // if entry data; take the value
+                $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+            }
+        } 
         return $style;
     }
 

@@ -98,6 +98,10 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         parent::__construct($services);
         $this->section_id = $id;
+        $this->params = $params;
+        $this->id_page = $id_page; 
+        $this->entry_record = $entry_record;
+        $this->style_name = $this->get_style_name_by_section_id($id);
         if(isset($params['parent_id'])){
             $this->parent_id = $params['parent_id'];
         }
@@ -112,22 +116,12 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->db_fields['id'] = array(
             "content" => $id,
             "type" => "internal",
-        );        
-        if ($this->style_name == 'entryRecord') {
-            //if it is entryView calculate the entry record
-            $res = $this->calc_entry_record();
-            $this->entry_record = $res;
-        } else {
-            // // take the inherit entry record
-            $this->entry_record = $entry_record;
-        }
+        );                                
         $fields = $this->db->fetch_section_fields($id);
-        $this->set_db_fields($fields);
+        $this->set_db_fields($fields);   
         if(!$this->style_name){
             return;
-        }
-        $this->params = $params;
-        $this->id_page = $id_page;  
+        }         
 
         $this->calc_condition();
 
@@ -791,6 +785,23 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function get_relation(){
         return $this->relation;
+    }
+
+    /**
+     * Get style name by section id
+     * @param int $id
+     * The section id
+     * @return mixed
+     * Return the style name or false
+     */
+    public function get_style_name_by_section_id($id)
+    {
+        $res = $this->db->fetch_section_info_by_id($id);
+        if ($res && isset($res['style'])) {
+            return $res['style'];
+        } else {
+            return false;
+        }
     }
     
 }

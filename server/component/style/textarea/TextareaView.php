@@ -48,7 +48,7 @@ class TextareaView extends FormFieldView
     {
         if($this->entry_data){
             // if entry data; reset the value
-            $this->value = $this->model->get_entry_value($this->entry_data, $this->model->get_db_field("value", "")); 
+            $this->value = $this->model->get_entry_value($this->entry_data, $this->value); 
         }
         if($this->value === null)
             $this->value = $this->default_value;
@@ -68,6 +68,16 @@ class TextareaView extends FormFieldView
         } else if ($this->type_input == "css") {
             require __DIR__ . "/tpl_css.php";
         }
+    }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        if($this->entry_data){
+            // if entry data; take the value
+            $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+        }
+        return $style;
     }
 }
 ?>

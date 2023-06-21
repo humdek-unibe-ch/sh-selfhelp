@@ -374,7 +374,7 @@ class FormUserInputModel extends StyleModel
     {
         $form_id = $this->user_input->get_form_id($form_name);
         $filter = " AND deleted = 0 AND record_id = " . $record_id;
-        return $this->$this->user_input->get_data($form_id, $filter, $own_entries_only);
+        return $this->user_input->get_data($form_id, $filter, $own_entries_only);
     }
 
     /**
