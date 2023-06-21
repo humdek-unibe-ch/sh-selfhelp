@@ -280,6 +280,7 @@ class Router extends AltoRouter {
      */
     public function get_other_users_editing_this_page()
     {
+        return false; // the query is slow it should be reworked
         $sensible_pages = $this->get_sensible_pages();
         if (in_array($this->route['name'], $sensible_pages)) {
             // check if anyone else is working on this page in the last 15 minutes and it is still on the page
