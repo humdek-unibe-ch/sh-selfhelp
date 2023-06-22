@@ -363,6 +363,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 '@project' => $_SESSION['project'],
                 '@user' => $user_name,
                 '__keyword__' => $this->router->get_keyword_from_url(),
+                '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
                 '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
             );
             if(strpos($field['content'], '__language__') !== false){
@@ -451,6 +452,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 '@project' => $_SESSION['project'],
                 '@user' => $user_name,
                 '__keyword__' => $this->router->get_keyword_from_url(),
+                '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
                 '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
             );
             if(strpos($data_config, '__language__') !== false){

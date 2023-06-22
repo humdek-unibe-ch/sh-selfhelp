@@ -75,7 +75,6 @@ class InputView extends FormFieldView
             if($this->label == "") $this->label = "&zwnj;";
         }
         $this->data_config = $this->model->get_db_field("data_config");
-        $this->value = $this->model->get_db_field("value", "");        
     }
 
     /** Private Methods */
@@ -88,10 +87,6 @@ class InputView extends FormFieldView
      */
     protected function output_form_field()
     {
-        if ($this->entry_data && $this->name_base != "delete_record_id") {
-            // if entry data; take the value
-            $this->value = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
-        }
         $autocomplete = '';
         if($this->disable_autocomplete) {
             $autocomplete = 'autocomplete="off"';
@@ -120,9 +115,6 @@ class InputView extends FormFieldView
         }
         else if($this->value === null)
             $this->value = $this->default_value;
-        if($this->entry_data){
-            $this->value = $this->model->get_entry_value($this->entry_data, $this->value); 
-        }
         if(
         $this->type == 'date' || $this->type == 'datetime') {
             require __DIR__ . "/tpl_input_date.php";

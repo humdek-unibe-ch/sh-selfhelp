@@ -110,7 +110,11 @@ abstract class FormFieldView extends StyleView
             $this->entry_data = $this->model->get_entry_record();
             if ($this->entry_data) {
                 // if entry data; take the value
-                $this->value = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+                if ($this->default_value && $this->default_value != '') {
+                    $this->value = $this->default_value;
+                } else {
+                    $this->value = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+                }
             }
         }
     }

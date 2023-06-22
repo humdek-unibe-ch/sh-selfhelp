@@ -19,11 +19,6 @@ class FormUserInputController extends BaseController
      */
     public $alert_success;
 
-    /**
-     * If a specific record is selected
-     */
-    private $record_id;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -32,11 +27,9 @@ class FormUserInputController extends BaseController
      * @param object $model
      *  The model instance of the login component.
      */
-    public function __construct($model, $record_id)
+    public function __construct($model)
     {
-        parent::__construct($model);
-        $this->record_id = $record_id;
-        
+        parent::__construct($model);        
     }
 
     /* Private Methods ********************************************************/
@@ -119,8 +112,8 @@ class FormUserInputController extends BaseController
      */
     private function has_access()
     {
-        if ($this->record_id > 0) {
-            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $this->record_id, $this->model->get_db_field("own_entries_only", 1));
+        if ($this->model->get_selected_record_id() > 0) {
+            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $this->model->get_selected_record_id(), $this->model->get_db_field("own_entries_only", 1));
             if ($entry_record) {
                 return true;
             } else {
@@ -203,8 +196,9 @@ class FormUserInputController extends BaseController
         }
         $redirect = $this->model->get_db_field("redirect_at_end", "");
         if(!(isset($_POST['mobile']) && $_POST['mobile']) && $res && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
-            $redirect = str_replace("/", "", $redirect);
-            header("Location: " . $this->model->get_link_url($redirect));
+            //$redirect = str_replace("/", "", $redirect);
+            $redirect_url = $this->model->get_link_url(str_replace("/", "", $redirect));
+            header("Location: " . ($redirect_url != '' ? $redirect_url : $redirect));
             die();
         }
     }

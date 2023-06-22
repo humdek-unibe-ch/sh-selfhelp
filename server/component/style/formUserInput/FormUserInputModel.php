@@ -433,5 +433,19 @@ class FormUserInputModel extends StyleModel
     public function reload_children(){
         $this->loadChildren();
     }
+
+    /**
+     * Get the selected record if there is one from entryRecord or entryList
+     * @return int
+     * Record id or -1;
+     */
+    public function get_selected_record_id()
+    {
+        $entry_record = $this->get_entry_record();
+        if ($entry_record) {
+            return $entry_record[ENTRY_RECORD_ID];
+        }
+        return -1;
+    }
 }
 ?>
