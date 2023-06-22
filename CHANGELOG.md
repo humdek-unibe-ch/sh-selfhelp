@@ -2,6 +2,7 @@
 ### New features
  - add user types to the user. All existing users will be set of type `user`
  - update the Group management description
+ - create class `Selfhelp` that initialize the application.
 
 ### Bugfix
  -  adjust `entryRecord` to load children like `entryList` and now it properly load values of records in edit mode
