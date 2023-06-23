@@ -6,6 +6,7 @@
 
 ### Bugfix
  -  adjust `entryRecord` to load children like `entryList` and now it properly load values of records in edit mode
+ - #358 - improve the time needed to check if multiple people are editing the same page
 
 # v6.3.1
 ### Bugfix

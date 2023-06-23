@@ -280,22 +280,24 @@ class Router extends AltoRouter {
      */
     public function get_other_users_editing_this_page()
     {
-        return false; // the query is slow it should be reworked
         $sensible_pages = $this->get_sensible_pages();
         if (in_array($this->route['name'], $sensible_pages)) {
             // check if anyone else is working on this page in the last 15 minutes and it is still on the page
             $res = array();
             $sql = "SELECT last_requests.*, u.`name` AS user_name, u.email
-                    FROM (SELECT ua1.id_users, ua1.keyword, ua1.params, JSON_UNQUOTE(JSON_EXTRACT(ua1.params, '$.pid')) AS id_pages, ua1.`timestamp`
-                    FROM user_activity ua1
-                    LEFT JOIN user_activity ua2
-                    ON ua1.id_users = ua2.id_users 
-                        AND ua1.`timestamp` < ua2.`timestamp` 
-                        AND NOT ua2.keyword LIKE 'ajax\_%'
-                    WHERE ua2.id_users IS NULL
-                    AND ua1.`timestamp` >= NOW() - INTERVAL 15 MINUTE
-                    GROUP BY ua1.id_users) AS last_requests
-                    INNER JOIN users u ON last_requests.id_users = u.id
+                    FROM (SELECT *, JSON_UNQUOTE(JSON_EXTRACT(params, '$.pid')) AS id_pages
+                    FROM user_activity
+                    WHERE `timestamp` >= NOW() - INTERVAL 15 MINUTE
+                    AND NOT keyword LIKE 'ajax\_%'
+                    AND (id_users, id) IN (
+                        SELECT id_users, MAX(id)
+                        FROM user_activity
+                        WHERE timestamp >= NOW() - INTERVAL 15 MINUTE
+                        AND NOT keyword LIKE 'ajax\_%'
+                        GROUP BY id_users
+                    )
+                    ORDER BY id DESC) AS last_requests
+                    INNER JOIN users u ON (last_requests.id_users = u.id)
                     WHERE keyword = :keyword";
             if ($this->route['name'] == 'cmsUpdate') {
                 // this page is special and we have to check only the page param, and not the current section. 
