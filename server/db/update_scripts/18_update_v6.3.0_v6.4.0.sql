@@ -231,3 +231,5 @@ END
 
 DELIMITER ;
 
+CALL add_unique_key('uploadTables','uploadTables_name','`name`');
+
