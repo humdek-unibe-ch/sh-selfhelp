@@ -45,7 +45,7 @@ BEGIN
 					SET @time_period_filter = '';					
 			END CASE;
             
-            SET @sql = CONCAT('select * from (select t.name as table_name, t.timestamp as timestamp, r.id as record_id, 
+            SET @sql = CONCAT('select * from (select r.id as record_id, 
 					r.timestamp as entry_date, r.id_users, u.name as user_name,', @sql, 
 					' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
@@ -53,7 +53,7 @@ BEGIN
 					inner join uploadCols col on (col.id = cell.id_uploadCols)
                     left join users u on (r.id_users = u.id)
 					where t.id = ', table_id_param, @user_filter, @time_period_filter,
-					' group by t.name, t.timestamp, r.id ) as r where 1=1  ', filter_param);
+					' group by r.id ) as r where 1=1  ', filter_param);
             -- select @sql;
             PREPARE stmt FROM @sql;
             EXECUTE stmt;

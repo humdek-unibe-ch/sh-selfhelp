@@ -135,5 +135,23 @@ class DataModel extends BaseModel
     {
         return $this->forms;
     }
+
+    /**
+     * Get form name by form id
+     * @param string $form_id
+     * Form id, type plus id
+     * @return string
+     * Return the form name
+     */
+    public function get_form_name($form_id)
+    {
+        $sql = "SELECT orig_name FROM view_data_tables WHERE form_id_plus_type = :form_id";
+        $res = $this->db->query_db_first($sql, array(":form_id" => $form_id));
+        if (isset($res['orig_name'])) {
+            return $res['orig_name'];
+        } else {
+            return '';
+        }
+    }
 }
 ?>

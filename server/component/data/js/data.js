@@ -6,10 +6,6 @@ $(document).ready(function () {
             dom: 'Bfrtip',
             buttons: [
                 'copy', 'csv', 'excel'
-            ],
-            "columnDefs": [
-                { "visible": false, "targets": 0 },
-                { "visible": false, "targets": 1 }
             ]
         });
 
