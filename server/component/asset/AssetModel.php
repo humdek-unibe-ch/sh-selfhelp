@@ -107,7 +107,8 @@ class AssetModel extends BaseModel
 
         while(($data = fgetcsv( $fh )) !== false) {
             $id_row = $this->db->insert("uploadRows", array(
-                "id_uploadTables" => $id_table
+                "id_uploadTables" => $id_table,
+                "id_users" => $_SESSION['id_user']
             ));
             if(!$id_row) {
                 fclose($fh);

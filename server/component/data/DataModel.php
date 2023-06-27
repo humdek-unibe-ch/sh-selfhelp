@@ -80,7 +80,8 @@ class DataModel extends BaseModel
         $formId = $formInfo[0];
         $formType = $formInfo[1];
         if ($user_ids == 'all') {
-            return $this->user_input->get_data($formId, '', false, $formType);
+            // add limit or the table will not load if too much data is shown
+            return $this->user_input->get_data($formId, 'LIMIT 0, 10000', false, $formType);
         } else {
             return $this->user_input->get_data_for_user($formId, $user_ids, '', $formType);
         }

@@ -3,6 +3,8 @@
  - add user types to the user. All existing users will be set of type `user`
  - update the Group management description
  - create class `Selfhelp` that initialize the application.
+ - add column `id_users` in table `uploadRows`. Adjust all upload table functionality to use the user from this column
+ - add extra filtering on `EXTERNAL_FORMS` via keywords: `LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR`
 
 ### Bugfix
  -  adjust `entryRecord` to load children like `entryList` and now it properly load values of records in edit mode

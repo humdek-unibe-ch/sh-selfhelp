@@ -887,7 +887,14 @@ class UserInput
     private function update_external_data($id_table, $record, $transaction_by, $data)
     {
         $col_ids = $this->get_columns_for_upload_table($id_table, $data);
-        $res = $this->db->execute_update_db("UPDATE uploadRows SET `timestamp` = NOW() WHERE id = :id;", array(':id' => $record['record_id'])); //update the timestamp of the row
+        $res = $this->db->execute_update_db(
+            "UPDATE uploadRows SET `timestamp` = NOW(), id_users = :id_users WHERE id = :id;",
+            array(
+                ':id' => $record['record_id'],
+                ":id_users" => $data['id_users']
+            )
+        ); //update the timestamp of the row
+        unset($data['id_users']); //once used - remove it
         foreach ($data as $key => $value) {
             // if it has a value it will be updated if it is not created yet it will be inserted
             $res = $res && $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
@@ -956,11 +963,13 @@ class UserInput
 
             /******************* SET ROW     *********************************/
             $id_row = $this->db->insert("uploadRows", array(
-                "id_uploadTables" => $id_table
+                "id_uploadTables" => $id_table,
+                "id_users" => $data['id_users']
             ));
             if (!$id_row) {
                 return false;
             }
+            unset($data['id_users']); //once used - remove it
             /******************* SET ROW     *********************************/
 
             /******************* SET CELLS   *********************************/
@@ -1438,13 +1447,14 @@ class UserInput
                     );
                 }
             } else if ($form_type == FORM_EXTERNAL) {
+                if (!$own_entries_only) {
+                    $user_id = -1;
+                }
                 $params = array(
                     ":form_id" => $form_id,
+                    ":user_id" => $user_id
                 );
-                if ($own_entries_only) {
-                    $filter = ' AND id_users = ' . intval($user_id) . ' ' . $filter;
-                }
-                $sql = 'CALL get_uploadTable_with_filter(:form_id, :filter)';
+                $sql = 'CALL get_uploadTable_with_filter(:form_id, :user_id, :filter)';
             }
             $params[':filter'] = $filter;
             if ($db_first) {
