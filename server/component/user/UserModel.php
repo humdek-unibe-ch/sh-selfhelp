@@ -174,29 +174,7 @@ class UserModel extends BaseModel
     private function get_email_activate_from_email_address(){
         $email_activate_fields = $this->db->fetch_page_info(SH_EMAIL);
         return isset($email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS]) && $email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS] != '' ? $email_activate_fields[PF_EMAIL_ACTIVATE_EMAIL_ADDRESS] : "noreply@" . $_SERVER['HTTP_HOST'];
-    }
-
-    /**
-     * Generate user_name
-     * @return string $user_name
-     * return the user name
-     */
-    private function generate_user_name()
-    {
-        $prefix = "U_";
-        $length = 6; // The length of the unique identifier
-        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[random_int(0, $charactersLength - 1)];
-        }
-        $user_name = $prefix . $randomString;
-        while ($this->user_name_exists($user_name)){
-            $this->generate_user_name();
-        }
-        return $user_name;
-    }
+    }    
 
     /**
      * Check if the user name exists
@@ -1097,6 +1075,28 @@ class UserModel extends BaseModel
             array('id_users' => $uid),
             array('code' => $code)
         );
+    }
+
+    /**
+     * Generate user_name
+     * @return string $user_name
+     * return the user name
+     */
+    public function generate_user_name()
+    {
+        $prefix = "U_";
+        $length = 6; // The length of the unique identifier
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        $user_name = $prefix . $randomString;
+        while ($this->user_name_exists($user_name)){
+            $this->generate_user_name();
+        }
+        return $user_name;
     }
     
 }
