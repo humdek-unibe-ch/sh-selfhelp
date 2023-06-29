@@ -117,15 +117,15 @@ BEGIN
             SET @time_period_filter = '';
             CASE 
 				WHEN filter_param LIKE '%LAST_HOUR%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= CURDATE() - INTERVAL 1 HOUR';
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 HOUR';
 				WHEN filter_param LIKE '%LAST_DAY%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= CURDATE() - INTERVAL 1 DAY';
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 DAY';
 				WHEN filter_param LIKE '%LAST_WEEK%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= CURDATE() - INTERVAL 1 WEEK';
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 WEEK';
 				WHEN filter_param LIKE '%LAST_MONTH%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= CURDATE() - INTERVAL 1 MONTH';
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 MONTH';
 				WHEN filter_param LIKE '%LAST_YEAR%' THEN
-					SET @time_period_filter = ' AND r.`timestamp` >= CURDATE() - INTERVAL 1 YEAR';
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 YEAR';
 				ELSE
 					SET @time_period_filter = '';					
 			END CASE;
@@ -149,6 +149,7 @@ END
 //
 
 DELIMITER ;
+
 
 
 DELIMITER //
