@@ -333,39 +333,53 @@ class Login
     public function delete_user($uid, $email, $transaction_by = transactionBy_by_system)
     {
         $sql = "SELECT email FROM users WHERE id = :id";
-        $user = $this->db->query_db_first($sql,
-            array(':id' => $uid));
-        if($email != $user['email']) return false;
-        $res = $this->db->remove_by_fk("users", "id", $uid);
-        if ($res) {
-            $this->delete_mails_for_user($email, $transaction_by);
-            // check for confirmation email and if it is set send it to the user
-            $email_templates = $this->db->fetch_page_info(SH_EMAIL);
-            if ($email_templates[PF_EMAIL_DELETE_PROFILE] != '' && $email_templates[PF_EMAIL_DELETE_PROFILE_SUBJECT] != '' && $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS] != '') {
-                $mail = array(
-                    "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
-                    "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
-                    "date_to_be_executed" => date('Y-m-d H:i:s', time()),
-                    "from_email" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
-                    "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
-                    "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
-                    "recipient_emails" => $email,
-                    "subject" => $email_templates[PF_EMAIL_DELETE_PROFILE_SUBJECT],
-                    "body" => $email_templates[PF_EMAIL_DELETE_PROFILE],
-                    "is_html" => 1,
-                    "description" => "Email Notification - Delete Profile"
-                );
-                $this->job_scheduler->add_and_execute_job($mail, $transaction_by);
-                if ($email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY] != '') {
-                    // send a copy of the  notification email to this email
-                    $mail['recipient_emails'] = $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY];
-                    $mail['body'] = 'User profile with email: ' . $email . ' was deleted!';
-                    $mail['subject'] = 'Notification for a deleted profile';
+        $user = $this->db->query_db_first(
+            $sql,
+            array(':id' => $uid)
+        );
+        if ($email != $user['email']) return false;
+        try {
+            $this->db->begin_transaction();
+            $res = $this->db->remove_by_fk("users", "id", $uid);
+            if ($res) {
+                $this->delete_mails_for_user($email, $transaction_by);
+                // check for confirmation email and if it is set send it to the user
+                $email_templates = $this->db->fetch_page_info(SH_EMAIL);
+                if ($email_templates[PF_EMAIL_DELETE_PROFILE] != '' && $email_templates[PF_EMAIL_DELETE_PROFILE_SUBJECT] != '' && $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS] != '') {
+                    $mail = array(
+                        "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+                        "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+                        "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+                        "from_email" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+                        "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+                        "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+                        "recipient_emails" => $email,
+                        "subject" => $email_templates[PF_EMAIL_DELETE_PROFILE_SUBJECT],
+                        "body" => $email_templates[PF_EMAIL_DELETE_PROFILE],
+                        "is_html" => 1,
+                        "description" => "Email Notification - Delete Profile"
+                    );
                     $this->job_scheduler->add_and_execute_job($mail, $transaction_by);
+                    if ($email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY] != '') {
+                        // send a copy of the  notification email to this email
+                        $mail['recipient_emails'] = $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY];
+                        $mail['body'] = 'User profile with email: ' . $email . ' was deleted!';
+                        $mail['subject'] = 'Notification for a deleted profile';
+                        $this->job_scheduler->add_and_execute_job($mail, $transaction_by);
+                    }
                 }
+            } else {
+                throw new Exception('User cannot be deleted!');
             }
+            if ($this->transaction->add_transaction(transactionTypes_delete, $transaction_by, $_SESSION['id_user'], $this->transaction::TABLE_USERS, $uid) === false) {
+                throw new Exception('User cannot be deleted!');
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
         }
-        return $res;
     }    
 
     /**
