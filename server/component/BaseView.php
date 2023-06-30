@@ -93,11 +93,14 @@ abstract class BaseView
 
     /**
      * Render the fail alerts of the controller.
+     * @param boolean $wrap_in_container 
+     * Default value is false, if enabled the alert will be wrapped in div with class container
      */
-    protected function output_controller_alerts_fail()
+    protected function output_controller_alerts_fail($wrap_in_container = false)
     {
         if ($this->controller === null) return;
         if (!$this->controller->has_failed()) return;
+        $children_alerts = array();
         foreach ($this->controller->get_error_msgs() as $idx => $msg) {
             $alert = new BaseStyleComponent("alert", array(
                 "id" => "controller-fail-" . $idx,
@@ -107,7 +110,18 @@ abstract class BaseView
                     "text" => $msg,
                 )))
             ));
-            $alert->output_content();
+            if ($wrap_in_container) {
+                $children_alerts[] = $alert;
+            } else {
+                $alert->output_content();
+            }
+        }
+        if ($wrap_in_container) {
+            $wrapper = new BaseStyleComponent("div", array(
+                "css" => 'container my-3',
+                "children" => $children_alerts
+            ));
+            $wrapper->output_content();
         }
     }
 
@@ -123,11 +137,14 @@ abstract class BaseView
 
     /**
      * Render the fail alerts of the controller.
+     * @param boolean $wrap_in_container 
+     * Default value is false, if enabled the alert will be wrapped in div with class container
      */
-    protected function output_controller_alerts_success()
+    protected function output_controller_alerts_success($wrap_in_container = false)
     {
         if ($this->controller === null) return;
         if (!$this->controller->has_succeeded()) return;
+        $children_alerts = array();
         foreach ($this->controller->get_success_msgs() as $idx => $msg) {
             $alert = new BaseStyleComponent("alert", array(
                 "id" => "controller-success-" . $idx,
@@ -137,7 +154,18 @@ abstract class BaseView
                     "text" => $msg,
                 )))
             ));
-            $alert->output_content();
+            if ($wrap_in_container) {
+                $children_alerts[] = $alert;
+            } else {
+                $alert->output_content();
+            }
+        }
+        if ($wrap_in_container) {
+            $wrapper = new BaseStyleComponent("div", array(
+                "css" => 'container my-3',
+                "children" => $children_alerts
+            ));
+            $wrapper->output_content();
         }
     }
 
