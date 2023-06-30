@@ -18,7 +18,6 @@ function initForm() {
                         {
                             text: confirmation['confirmation_continue'],
                             action: function () {
-                                // window.location = $(btn).attr('href');
                                 form.submit();
                             }
                         },
