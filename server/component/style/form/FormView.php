@@ -57,12 +57,33 @@ class FormView extends StyleView
      * DB field 'submit_and_send_lable' ('').
      * The label on the submit and send button
      */
-    protected $submit_and_send_lable;
+    protected $submit_and_send_label;
 
     /**
      * Entry data if the style is used in entry visualization
      */
     protected $entry_data;
+
+    /**
+     * DB field 'confirmation_title' (empty string).
+     * If set a modal is shown. This will be the header of the confirmation modal.
+     */
+    private $confirmation_title;
+
+    /**
+     * DB field 'confirmation_cancel' (empty string).
+     */
+    private $confirmation_cancel;
+
+    /**
+     * DB field 'confirmation_continue' (OK).
+     */
+    private $confirmation_continue;
+
+    /**
+     * DB field 'confirmation_message' ('Do you want to continue?').
+     */
+    private $confirmation_message;
 
 
     /* Constructors ***********************************************************/
@@ -76,7 +97,7 @@ class FormView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->url = $this->model->get_db_field("url");
+        $this->url = $this->model->get_db_field("url");        
         $this->type = $this->model->get_db_field("type", "primary");
         $this->label = $this->model->get_db_field("label", "Submit");
         $this->label_cancel = $this->model->get_db_field("label_cancel",
@@ -84,12 +105,16 @@ class FormView extends StyleView
         $this->cancel_url = $this->model->get_db_field("url_cancel");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
+        $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
+        $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
+        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message", '');
     }
 
     /* Private Methods ********************************************************/
 
     /**
-     * Render the canel button.
+     * Render the cancel button.
      */
     private function output_cancel()
     {
@@ -109,7 +134,14 @@ class FormView extends StyleView
      */
     public function output_content()
     {
-        if($this->url == "") return;
+        if ($this->url == "") return;
+        $data_confirmation = array();
+        if ($this->confirmation_title) {
+            $data_confirmation['confirmation_title'] = $this->confirmation_title;
+            $data_confirmation['confirmation_cancel'] = $this->confirmation_cancel;
+            $data_confirmation['confirmation_continue'] = $this->confirmation_continue;
+            $data_confirmation['confirmation_message'] = $this->confirmation_message;
+        }
         require __DIR__ . "/tpl_form.php";
     }
 
@@ -118,7 +150,7 @@ class FormView extends StyleView
      */
     public function output_submit_button()
     {
-        if($this->label) {
+        if ($this->label) {            
             require __DIR__ . "/tpl_submit_btn.php";
         }
     }
