@@ -130,6 +130,10 @@ class InputView extends FormFieldView
         $style = parent::output_content_mobile();
         $style['value']['content'] = $this->value;
         $style['value']['default'] = $this->default_value;
+        if(!$style['value']['content'] && $style['value']['default']){
+            // if there is no value, assigned the default value
+            $style['value']['content'] = $style['value']['default'];
+        }
         if ($this->entry_data && $this->name_base != "delete_record_id") {
             // if entry data; take the value
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
