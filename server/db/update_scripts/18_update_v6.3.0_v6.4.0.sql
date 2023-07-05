@@ -52,8 +52,9 @@ UPDATE uploadRows AS r
 INNER JOIN uploadCells AS cell ON cell.id_uploadRows = r.id
 INNER JOIN uploadCols AS col ON cell.id_uploadCols = col.id
 INNER JOIN uploadTables AS t ON col.id_uploadTables = t.id
-SET r.id_users = cell.value
-WHERE col.name LIKE "%id_users%";
+INNER JOIN users u ON u.id = cell.`value`
+SET r.id_users = cell.`value`
+WHERE col.`name` LIKE "%id_users%";
 
 
 DELIMITER //
