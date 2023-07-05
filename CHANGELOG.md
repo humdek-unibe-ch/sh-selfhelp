@@ -1,3 +1,7 @@
+# v6.4.1
+### Bugfix
+ - properly load edit and delete mode for entry in mobile app
+
 # v6.4.0
 ### New features
  - add user types to the user. All existing users will be set of type `user`

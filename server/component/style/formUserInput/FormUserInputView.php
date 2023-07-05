@@ -254,39 +254,6 @@ class FormUserInputView extends StyleView
             "submit_and_send_label" => $this->submit_and_send_label
         ));
         require __DIR__ . "/tpl_form.php";
-        // if ($this->selected_record_id > 0) {
-        //     // update mode; show delete button
-
-        //     $form_delete = new BaseStyleComponent("card", array(
-        //         "css" => "mt-3 mb-3",
-        //         "id" => "delete-card-" . $this->id_section,
-        //         "is_expanded" => false,
-        //         "type" => 'danger',
-        //         "is_collapsible" => true,
-        //         "title" => "Delete Entry",
-        //         "children" => array(
-        //             new BaseStyleComponent("form", array(
-        //                 "label" => 'Delete',
-        //                 "type" => 'danger',
-        //                 "url" => $this->get_delete_url(),
-        //                 "children" => array(
-        //                     new BaseStyleComponent("input", array(
-        //                         "type_input" => "hidden",
-        //                         "name" => "delete_record_id",
-        //                         "value" => $this->selected_record_id,
-        //                     )),
-        //                     new BaseStyleComponent("input", array(
-        //                         "type_input" => "hidden",
-        //                         "name" => "__form_name",
-        //                         "value" => htmlentities($this->name),
-        //                     ))
-        //                 )
-        //             ))
-        //         )
-        //     ));
-
-        //     $form_delete->output_content();
-        // }        
     }
 
     /**
@@ -307,58 +274,13 @@ class FormUserInputView extends StyleView
                 "value" => $this->selected_record_id,
                 "is_required" => 1
             ));
-            $style['children'][] = $selected_record_id->output_content_mobile();
+            $sel_field = $selected_record_id->output_content_mobile();
+            if (!$sel_field['value']['content']) {
+                $sel_field['value']['content'] = $this->selected_record_id;
+            }
+            $style['children'][] = $sel_field;
             $style = $this->propagate_input_fields_mobile($style, $entry_record);
         }
-        // if ($this->selected_record_id > 0) {
-        //     $form_delete = new BaseStyleComponent("card", array(
-        //         "css" => "mobile-mt-3 mobile-mb-3",
-        //         "is_expanded" => false,
-        //         "id" => "delete-card-" . $this->id_section,
-        //         "type" => 'danger',
-        //         "is_collapsible" => true,                
-        //         "title" => "Delete Entry",
-        //         "children" => array(
-        //             new BaseStyleComponent("form", array(
-        //                 "label" => 'Delete',
-        //                 "type" => 'danger',
-        //                 "close_modal_at_end" => 1,
-        //                 "redirect_at_end" => $this->model->get_db_field("redirect_at_end"),
-        //                 "url" => $this->get_delete_url(),
-        //                 "children" => array(
-        //                     new BaseStyleComponent("input", array(
-        //                         "type_input" => "hidden",
-        //                         "name" => "delete_record_id",
-        //                         "id" => "delete_record_id",
-        //                         "value" => $this->selected_record_id,
-        //                         "is_required" => 1
-        //                     )),
-        //                     new BaseStyleComponent("input", array(
-        //                         "type_input" => "hidden",
-        //                         "name" => "__form_name",
-        //                         "id" => "__form_name",
-        //                         "value" => htmlentities($this->name),
-        //                         "is_required" => 1
-        //                     ))
-        //                 )
-        //             ))
-        //         )
-        //     ));
-        //     if(!$entry_record){
-        //         // no data for that record or no access
-        //         $no_access = new BaseStyleComponent("markdown", array(
-        //             "text_md" => 'No access or no data for that record',
-        //         ));
-        //         return $no_access->output_content_mobile();
-        //     }
-        //     $holder = new BaseStyleComponent("div", array(
-        //         "css" => ""                
-        //     ));            
-        //     $new_style = $holder->output_content_mobile();
-        //     $new_style['children'][] = $style;
-        //     $new_style['children'][] = $form_delete->output_content_mobile();            
-        //     return $new_style;
-        // }
         return $style;
     }
 	
