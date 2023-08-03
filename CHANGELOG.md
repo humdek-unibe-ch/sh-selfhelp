@@ -1,3 +1,7 @@
+# v6.4.2 (Unpublished)
+### Bugfix
+ - fix upload static data file handling and error handling
+
 # v6.4.1
 ### Bugfix
  - properly load edit and delete mode for entry in mobile app

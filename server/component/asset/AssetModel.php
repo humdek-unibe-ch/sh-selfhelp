@@ -62,6 +62,7 @@ class AssetModel extends BaseModel
      */
     private function pp_insert_asset_file_static($path, $name, $overwrite)
     {
+        $name = pathinfo($name, PATHINFO_FILENAME); //remove extension
         $fh = fopen($path, 'r');
         if(!$fh) {
             return "postprocess: failed to open the uploaded file";
@@ -131,6 +132,7 @@ class AssetModel extends BaseModel
             }
         }
         fclose($fh);
+        $this->db->clear_cache();
         return true;
     }
 
@@ -318,7 +320,7 @@ class AssetModel extends BaseModel
         $exist = $this->db->query_db_first('SELECT id FROM assets WHERE `file_name` = :file_name', array(":file_name" => $asset['file_name']));
         if ($exist) {
             // update
-            return $this->db->update_by_ids('assets', $asset, array('id' => $exist['id']));
+            return $this->db->update_by_ids('assets', $asset, array('id' => $exist['id'])) !== false;
         } else {
             // insert
             return $this->db->insert("assets", $asset);

@@ -20,7 +20,7 @@
                     <?php $this->output_folder(); ?>
                     <div class="form-group col">
                         <label>Name</label>
-                        <input id="assetsFileName" type="text" class="form-control" name="name" placeholder="Enter a file name (no extension)" required>
+                        <input id="assetsFileName" type="text" class="form-control" name="name" placeholder="Enter a file name" required>
                     </div>
                     <div class="form-group col">
                         <label>File</label>

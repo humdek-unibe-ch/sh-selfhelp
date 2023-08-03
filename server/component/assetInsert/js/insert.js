@@ -4,7 +4,7 @@ $(document).ready(function() {
         $label.html($(this).val());
         $label.removeClass("text-muted");
         var fileName = $(this).val().replace('C:\\fakepath\\','');
-        fileName = removeFileExtension(fileName);
+        // fileName = removeFileExtension(fileName);
         $('#assetsFileName').val(fileName); //automatically fill the name; if the users want they can change it
     });
     $('#asset-upload-form').submit(function() {
