@@ -55,7 +55,7 @@ class AssetInsertController extends BaseController
             }
             $name = filter_var($_POST['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $this->name = $name;
-            $target = $model->get_server_path($mode) . '/' . $this->name;
+            $target = $model->get_server_path($mode) . '/' . $info['basename'];
             if(!isset($_POST['overwrite']) && file_exists($target))
             {
                 $this->fail = true;
