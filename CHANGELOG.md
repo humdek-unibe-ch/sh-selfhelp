@@ -1,6 +1,7 @@
-# v6.4.2 (Unpublished)
+# v6.4.2
 ### Bugfix
  - fix upload static data file handling and error handling
+ - fix default user for automated tasks' executions
 
 # v6.4.1
 ### Bugfix
