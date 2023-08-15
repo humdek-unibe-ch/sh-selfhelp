@@ -39,7 +39,7 @@ class Task  extends BasicJob
      * @return boolean
      * Return the result of the task
      */
-    private function execute_task($task_info, $sent_by, $user, $execute_user_id)
+    private function execute_task($task_info, $sent_by, $user, $execute_user_id = null)
     {
         $res = true;
         if ($task_info['config']['type'] == "add_group") {
@@ -63,7 +63,7 @@ class Task  extends BasicJob
      * @return boolean
      *  return if task was successfully executed
      */
-    private function execute_task_single($task_info, $sent_by, $condition, $execute_user_id)
+    private function execute_task_single($task_info, $sent_by, $condition, $execute_user_id = null)
     {
         $res = true;
         $sql = "SELECT *
