@@ -1,3 +1,7 @@
+# v6.4.3
+### Bugfix
+ - #363 - fix callback requests and data export requests
+
 # v6.4.2
 ### Bugfix
  - fix upload static data file handling and error handling
