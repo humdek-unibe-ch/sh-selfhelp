@@ -15,6 +15,19 @@ require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
 
+function create_exportData_page($services, $selector, $option = null, $id = null)
+{
+    $page = new ExportPage($services);
+    $page->output($selector, $option, $id);
+}
+
+// create callback request
+function create_callback_page($services, $class, $method)
+{
+    $callback = new CallbackRequest($services, $class, $method);
+    $callback->print_json();
+}
+
 /**
  * A class that initialize Selfhelp
  */
@@ -107,18 +120,6 @@ class Selfhelp
     {
         $ajax = new AjaxRequest($services, $class_name, $method_name, $keyword);
         $ajax->print_json();
-    }
-    private function create_exportData_page($services, $selector, $option = null, $id = null)
-    {
-        $page = new ExportPage($services);
-        $page->output($selector, $option, $id);
-    }
-
-    // create callback request
-    private function create_callback_page($services, $class, $method)
-    {
-        $callback = new CallbackRequest($services, $class, $method);
-        $callback->print_json();
     }
 
     /**
