@@ -944,7 +944,7 @@ class UserInput
             if ($record) {
                 // the record exists, do not insert it, update it
                 $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
-                return $res;
+                return $res ? $record['record_id'] : $res;
             }
         }
         /******************* SET TABLE *********************************/
@@ -992,7 +992,7 @@ class UserInput
 
             /******************* SET CELLS   *********************************/
         }
-        return true;
+        return isset($id_row) ? $id_row : $res;
     }
 
     /**

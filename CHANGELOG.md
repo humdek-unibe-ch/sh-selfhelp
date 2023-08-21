@@ -1,6 +1,7 @@
 # v6.4.4 (Unpublished)
 ### Bugfix
  - updating external row data is for the current user only
+ - insert external row or update external row return the row id on success
 
 
 # v6.4.3
