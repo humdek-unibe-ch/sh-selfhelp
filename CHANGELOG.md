@@ -1,3 +1,8 @@
+# v6.4.4 (Unpublished)
+### Bugfix
+ - updating external row data is for the current user only
+
+
 # v6.4.3
 ### Bugfix
  - #363 - fix callback requests and data export requests

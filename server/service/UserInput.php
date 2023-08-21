@@ -936,9 +936,9 @@ class UserInput
             $record = $this->get_data(
                 $id_table,
                 $filter,
-                false,
+                ($data['id_users'] > 1), // if there is user we update only own data
                 FORM_EXTERNAL,
-                null,
+                $data['id_users'],
                 true
             );
             if ($record) {
