@@ -1,7 +1,8 @@
-# v6.4.4 (Unpublished)
+# v6.4.4
 ### Bugfix
  - updating external row data is for the current user only
  - insert external row or update external row return the row id on success
+ - fix notification body when the action is sent
 
 
 # v6.4.3
