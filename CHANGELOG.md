@@ -1,6 +1,7 @@
-# v6.4.5 (Unpublished)
+# v6.4.5
 ### Bugfix
- - fix giving permissions to a new user on SelfHelp installation for MYSQL8
+ - fix giving permissions to a new user on SelfHelp installation for MySQL8
+ - adjust old SQL scripts containing groups to be `groups` in order to work with MySQL8
 
 # v6.4.4
 ### Bugfix
