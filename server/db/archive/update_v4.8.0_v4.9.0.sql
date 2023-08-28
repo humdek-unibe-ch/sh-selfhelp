@@ -326,7 +326,7 @@ AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
@@ -344,7 +344,7 @@ INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
 LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
 LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
-LEFT JOIN groups g on (sg.id_groups = g.id)
+LEFT JOIN `groups` g on (sg.id_groups = g.id)
 LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
 LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
@@ -366,12 +366,12 @@ AS
 SELECT u.id, u.email, u.name, u.last_login, us.name AS status,
 us.description, u.blocked, vc.code,
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS groups_ids,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 GROUP_CONCAT(DISTINCT ch.name SEPARATOR '; ') AS chat_rooms_names
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN chatRoom_users chu ON u.id = chu.id_users
 LEFT JOIN chatRoom ch ON ch.id = chu.id_chatRoom
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
@@ -575,14 +575,14 @@ CASE
     WHEN u.name = 'tpf' THEN 'tpf'    
     ELSE IFNULL(vc.code, '-') 
 END AS code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups,
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
 (SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
 u.intern
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
-LEFT JOIN groups g ON g.id = ug.id_groups
+LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 WHERE u.intern <> 1 AND u.id_status > 0
 GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
@@ -747,7 +747,7 @@ CREATE VIEW view_formActions
 AS
 SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
 CASE 
@@ -760,7 +760,7 @@ INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleTypes)
 LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
 LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
-LEFT JOIN groups g on (fg.id_groups = g.id)
+LEFT JOIN `groups` g on (fg.id_groups = g.id)
 GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value, f.form_name, form_reminder_name;
 DROP VIEW IF EXISTS view_formActionsReminders;
 CREATE VIEW view_formActionsReminders

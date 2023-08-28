@@ -509,7 +509,7 @@ AS
 SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
 GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
@@ -930,7 +930,7 @@ CREATE VIEW view_formActions
 AS
 SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
 fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS groups, 
+GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
 GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
 schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
 CASE 
@@ -943,7 +943,7 @@ INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
 INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleTypes)
 LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
 LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
-LEFT JOIN groups g on (fg.id_groups = g.id)
+LEFT JOIN `groups` g on (fg.id_groups = g.id)
 GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value;
 DROP VIEW IF EXISTS view_formActionsReminders;
 CREATE VIEW view_formActionsReminders
