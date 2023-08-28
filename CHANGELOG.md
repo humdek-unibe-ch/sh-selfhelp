@@ -1,3 +1,7 @@
+# v6.4.5 (Unpublished)
+### Bugfix
+ - fix giving permissions to a new user on SelfHelp installation for MYSQL8
+
 # v6.4.4
 ### Bugfix
  - updating external row data is for the current user only
