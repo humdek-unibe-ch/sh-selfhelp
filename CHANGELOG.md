@@ -1,3 +1,6 @@
+# v6.4.6
+ - enable `log_bin_trust_function_creators` during installation
+
 # v6.4.5
 ### Bugfix
  - fix giving permissions to a new user on SelfHelp installation for MySQL8
