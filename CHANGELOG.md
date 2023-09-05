@@ -1,3 +1,6 @@
+# v6.4.7
+ - add slashes to json strings when loaded from form actions
+
 # v6.4.6
  - enable `log_bin_trust_function_creators` during installation
 

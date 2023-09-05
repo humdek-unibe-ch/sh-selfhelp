@@ -699,7 +699,7 @@ class PageDb extends BaseDb
                 if (is_array($calc_formula_values[$res])) {
                     return json_encode($calc_formula_values[$res]);
                 } else {
-                    return isset($calc_formula_values[$res]) ? $calc_formula_values[$res] : $res . ' is not set';
+                    return isset($calc_formula_values[$res]) ? addslashes($calc_formula_values[$res]) : $res . ' is not set';
                 }
             } else {
                 // return '';
@@ -710,7 +710,7 @@ class PageDb extends BaseDb
             if (is_array($var_value)) {
                 $field_content = preg_replace('#\{\{' . $var . '\}\}#s', json_encode($var_value), $field_content);
             } else if($var && $var_value) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', $var_value, $field_content);
+                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
             }
         }
         return $is_array ? json_decode($field_content, true) : $field_content;
