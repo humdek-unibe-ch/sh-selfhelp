@@ -57,8 +57,7 @@ class VersionModel extends StyleModel
             $res = shell_exec($git_command);
             $plugin_v = $res ? rtrim($res) : '';
             $plugins_md = $plugins_md . "
-            | " . $plugin['name'] . " | " . $plugin_v . "   | | Plugin |
-            | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Plugin [DB Info] |";
+            | " . $plugin['name'] . " | " . $plugin_v . " |" . $plugin['version'] . "   | | Plugin |";
         }
         return $plugins_md;
     }
