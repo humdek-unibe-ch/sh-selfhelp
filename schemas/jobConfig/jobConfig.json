@@ -396,6 +396,7 @@
 				"job_schedule_types": {
 					"type": "string",
 					"title": "Schedule type",
+					"format": "select2",
 					"options": {
 						"grid_columns": 12
 					},

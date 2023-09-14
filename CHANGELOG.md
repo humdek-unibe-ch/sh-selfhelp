@@ -1,5 +1,9 @@
 # v6.4.8
- - merge `db version` and `git version` in one row for `Impressum`
+### Bugfix 
+  - fix in `formActions` proper selection for `Schedule type`
+
+ ### New features
+  - merge `db version` and `git version` in one row for `Impressum`
 
 # v6.4.7
  - add slashes to json strings when loaded from form actions

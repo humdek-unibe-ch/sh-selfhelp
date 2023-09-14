@@ -30,8 +30,12 @@ function createJSONEditor(schema) {
         check_condition_btns();
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
-                $(this).data('live-search', 'true'); // add live search
-                $(this).selectpicker();
+                if ($(this).prop('name').includes('job_schedule_types') || $(this).prop('name').includes('reminder_form_id')) {
+                    // skip
+                } else {
+                    $(this).data('live-search', 'true'); // add live search
+                    $(this).selectpicker();
+                }
             });
             $('#jobConfigValue').val(JSON.stringify(editor.getValue()));
             check_condition_btns();
@@ -147,7 +151,6 @@ async function setDynamicEnums() {
     editor.schema.definitions.schedule_time_ref.properties.send_on.enumSource = prepareEnumSource(get_time_intervals_text());
     editor.schema.definitions.job_ref.properties.reminder_form_id.enumSource = prepareEnumSource(get_forms());
     editor.schema.definitions.notification_ref.properties.attachments.items.enum = attachments;
-
     createJSONEditor(editor.schema); // after changes the forms should be recreated
 }
 
