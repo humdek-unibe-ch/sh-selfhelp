@@ -89,7 +89,9 @@ class Selfhelp
         // Allow from any origin
         if (
             isset($_SERVER['HTTP_ORIGIN']) &&
-            (strpos($_SERVER['HTTP_ORIGIN'], 'https://46.126.153.11') !== false ||
+            (
+                // strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost') !== false || // used for testing
                 strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
                 strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
         ) {
