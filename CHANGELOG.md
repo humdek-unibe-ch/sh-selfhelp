@@ -1,3 +1,7 @@
+# v6.4.9 (Unpublished)
+### Bugfix
+ - `showUserInput` - properly show the label of the field
+
 # v6.4.8
 ### Bugfix 
   - fix in `formActions` proper selection for `Schedule type`

@@ -91,8 +91,8 @@ class UserInput
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, json_encode($conds), [__FUNCTION__]);
         $get_result = $this->db->get_cache()->get($key);
         $fields_db = array();
-        $gender = $_SESSION['gender'];
-        $language = $_SESSION['language'];
+        $gender = $this->db->query_db_first('SELECT `name` FROM genders WHERE id = :id', array(":id" => $_SESSION['gender']))['name'];
+        $language = $this->db->query_db_first('SELECT locale FROM languages WHERE id = :id', array(":id" => $_SESSION['language']))['locale'];
         if ($get_result !== false) {
             $fields_db = $get_result;
         } else {
