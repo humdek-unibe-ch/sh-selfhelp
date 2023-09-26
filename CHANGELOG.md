@@ -1,6 +1,7 @@
 # v6.4.9 (Unpublished)
 ### Bugfix
  - `showUserInput` - properly show the label of the field
+ - `select` - properly display items for mobile
 
 # v6.4.8
 ### Bugfix 
