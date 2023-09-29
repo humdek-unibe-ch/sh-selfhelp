@@ -2,6 +2,7 @@
 ### Bugfix
  - `showUserInput` - properly show the label of the field
  - `select` - properly display items for mobile
+ - massively improve loading large amount of data in `admin/data` view
 
 # v6.4.8
 ### Bugfix 

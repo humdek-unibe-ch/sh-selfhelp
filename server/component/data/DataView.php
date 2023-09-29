@@ -52,24 +52,35 @@ class DataView extends BaseView
                 $formId = isset($formId['form']) ? $formId['form'] : $formId;
                 $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
                 if (!empty($formFields)) {
-                    // loop over the rows, outputting them
+                    // Initialize an array to store table rows
+                    $tableRows = [];
+                
+                    // Build table head
                     $tableHead = '<thead><tr>';
-                    $tableBody = '<tbody>';
                     if (count($formFields) > 0) {
                         foreach (array_keys($formFields[0]) as $key => $value) {
-                            $tableHead = $tableHead . '<th>' . $value . '</th>';
+                            $tableHead .= '<th>' . $value . '</th>';
                         }
                     }
+                    $tableHead .= '</tr></thead>';
+                
+                    // Build table body
+                    $tableBody = '<tbody>';
                     foreach ($formFields as $field) {
-                        $tableBody = $tableBody . '<tr>';
+                        $row = '<tr>';
                         foreach (array_values($field) as $key => $value) {
-                            $tableBody = $tableBody . '<td>' . $value . '</td>';
+                            $row .= '<td>' . $value . '</td>';
                         }
-                        $tableBody = $tableBody . '</tr>';
+                        $row .= '</tr>';
+                        $tableRows[] = $row; // Add the row to the array
                     }
-                    $tableHead = $tableHead . '</tr></thead>';
-                    $tableBody = $tableBody . '</tbody>';
+                    $tableBody .= implode('', $tableRows);
+                    $tableBody .= '</tbody>';
+                
                     $formName = $this->model->get_form_name($formId);
+                
+                    // Build the card content
+                    $table = '<table class="adminData w-100 table dataTable table-sm table-hover">' . $tableHead . $tableBody . '</table>';
                     $card = new BaseStyleComponent("card", array(
                         "css" => "mb-3 card card-success",
                         "is_expanded" => true,
@@ -77,12 +88,13 @@ class DataView extends BaseView
                         "title" => $formName,
                         "children" => array(
                             new BaseStyleComponent("markdown", array(
-                                "text_md" => '<table class="adminData w-100 table dataTable table-sm table-hover">' . $tableHead . $tableBody . '</table>'
+                                "text_md" => $table
                             ))
                         )
                     ));
                     $card->output_content();
                 }
+                
             }
         }
     }
