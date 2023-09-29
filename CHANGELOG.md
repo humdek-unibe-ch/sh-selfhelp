@@ -2,13 +2,13 @@
 ### Bugfix
  - `showUserInput` - properly show the label of the field
  - `select` - properly display items for mobile
- - massively improve loading large amount of data in `admin/data` view
+ - massively improve loading large amount of data in `admin/data` view and remove the limit to `10000` rows
 
 # v6.4.8
 ### Bugfix 
   - fix in `formActions` proper selection for `Schedule type`
 
- ### New features
+### New features
   - merge `db version` and `git version` in one row for `Impressum`
 
 # v6.4.7
