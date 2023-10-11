@@ -139,8 +139,102 @@ abstract class BaseModel
 
         return $arr;
     }
+    
 
     /* Protected Methods *********************************************************/
+
+    /**
+     * Fetch the data from the database base on the JSON configuration
+     * @param array $data_config
+     * Json configuration
+     * @retval array
+     * array with the retrieved fields and their values
+     */
+    protected function fetch_data($data_config)
+    {
+        $result = array();
+        try {
+            foreach ($data_config as $key => $config) {
+                // loop configs; DB requests
+                $table_id = $this->user_input->get_form_id($config['table'], $config['type']);
+                $data = null;
+                if ($table_id) {
+                    if ($config['type'] === FORM_EXTERNAL) {
+                        $filter = "ORDER BY record_id ASC";
+                        if ($config['retrieve'] === 'last') {
+                            $filter = "ORDER BY record_id DESC";
+                        }
+                    } else {
+                        $filter = "ORDER BY edit_time ASC";
+                        if ($config['retrieve'] === 'last') {
+                            $filter = "ORDER BY edit_time DESC";
+                        }
+                    }
+                    if (isset($config['filter']) && $config['filter'] != '') {
+                        // if specific filter is used, overwrite it.
+                        $filter = $config['filter'];
+                    }
+                    $current_user = true; //default value
+                    if(isset($config['current_user'])){
+                        // get the config value if it is set
+                        $current_user = $config['current_user'];
+                    }
+                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type']);
+                    $data = array_filter($data, function ($value) {
+                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
+                    });
+                    if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
+                        // return all fields
+                        if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
+                            $all_values = array();
+                            foreach ($data as $key => $value) {
+                                foreach ($value as $field_name => $field_value) {
+                                    $all_values[$field_name][] = $field_value;
+                                }
+                            }
+                            foreach ($all_values as $key => $value) {
+                                if ($config['retrieve'] === 'all') {
+                                    $all_values[$key] = implode(',', $value);
+                                } else {
+                                    $all_values[$key] = json_encode($value);
+                                }
+                            }
+                            $result = array_merge($result, $all_values);
+                        } else {
+                            $result = array_merge($result, $data[0]);
+                        }
+                    } else if (isset($config['fields'])) {
+                        // return only the selected fields
+                        foreach ($config['fields'] as $key => $field) {
+                            // loop fields
+                            $i = 0;
+                            $field_value = '';
+                            $all_values = array();
+                            foreach ($data as $key => $row) {
+                                $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value                                
+                                if ($config['retrieve'] != 'all' && $config['retrieve'] != 'all_as_array') {
+                                    $field_value = $val;
+                                    break; // we don need the others;
+                                } else {
+                                    $all_values[] = $val;
+                                }
+                                $i++;
+                            }
+                            if ($config['retrieve'] === 'all') {
+                                $field_value = implode(',', $all_values);
+                            } else if ($config['retrieve'] === 'all_as_array') {
+                                $field_value = json_encode($all_values);
+                            }
+                            $result[$field['field_holder']] = ($field_value == '' ? $field['not_found_text'] : $field_value);
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            return false;
+        }
+        return $result;
+    }
     
 
     /* Public Methods *********************************************************/
