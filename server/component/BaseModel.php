@@ -147,10 +147,12 @@ abstract class BaseModel
      * Fetch the data from the database base on the JSON configuration
      * @param array $data_config
      * Json configuration
+     * @param int $user_id
+     * Show the data for that user
      * @retval array
      * array with the retrieved fields and their values
      */
-    protected function fetch_data($data_config)
+    protected function fetch_data($data_config, $user_id = null)
     {
         $result = array();
         try {
@@ -179,7 +181,7 @@ abstract class BaseModel
                         // get the config value if it is set
                         $current_user = $config['current_user'];
                     }
-                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type']);
+                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type'], $user_id);
                     $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
                     });
