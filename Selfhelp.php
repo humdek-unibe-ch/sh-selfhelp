@@ -90,12 +90,12 @@ class Selfhelp
         if (
             isset($_SERVER['HTTP_ORIGIN']) &&
             (
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58:8100') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58:8100') !== false || // used for testing
+                // strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58:8100') !== false || // used for testing
                 strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
                 strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
         ) {
