@@ -138,6 +138,13 @@ class InputView extends FormFieldView
             // if entry data; take the value
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
         }
+        if($this->type == "checkbox") {
+            $style['value']['content'] = 0;
+            if ($this->default_value == "") {
+            } else if (($this->value !== null && $this->value !== "")) {
+                $style['value']['content'] = 1;
+            }
+        }
         return $style;
     }
 

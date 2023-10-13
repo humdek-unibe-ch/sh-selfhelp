@@ -1,5 +1,6 @@
 # v6.4.10 (Not published)
  - move data config fetch in `BaseModel` from `StyleModel`
+ - #364 - fix settings for notifications in SelfHelp mobile app
 
 # v6.4.9
 ### Bugfix
