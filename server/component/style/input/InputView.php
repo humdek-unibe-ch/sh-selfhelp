@@ -49,6 +49,16 @@ class InputView extends FormFieldView
      */
     private $data_config; 
 
+    /**
+     * This number will determine the minimum character size required for your input. The input will need to have at least this many characters to be valid
+     */
+    private $min;
+
+    /**
+     * This number will determine the maximum character size allowed for your input. The input should not exceed this character limit to be valid.
+     */
+    private $max;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -75,6 +85,8 @@ class InputView extends FormFieldView
             if($this->label == "") $this->label = "&zwnj;";
         }
         $this->data_config = $this->model->get_db_field("data_config");
+        $this->min = $this->model->get_db_field('min');
+        $this->max = $this->model->get_db_field('max');
     }
 
     /** Private Methods */
