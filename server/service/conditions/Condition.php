@@ -95,6 +95,49 @@ class Condition
     }
 
     /**
+     * Check if there is dynamic dates with structure __current_date__@-2 days, __current_date__@(https://www.php.net/manual/en/function.strtotime.php)
+     * @param string $j_condition
+     * The json condition string
+     * @return string
+     * Return the modified string
+     */
+    private function calculate_dynamic_dates($j_condition){
+        // Define a regular expression pattern to match "__current_date__@-X month"
+        $pattern = '/"__current_date__@(-\d+ days?)"/';
+
+        // Find all matches in the input string
+        preg_match_all($pattern, $j_condition, $matches);
+
+        // Get the current date
+        $currentDate = date('Y-m-d');
+
+        // Iterate through the matches and replace with adjusted date
+        foreach ($matches[0] as $match) {
+            // Extract the number of months to adjust
+            preg_match('/(-\d+) days?/', $match, $dayMatch);
+
+            // Check if $dayMatch[1] is a valid integer
+            if ($dayMatch && is_numeric($dayMatch[1])) {
+                $daysToAdjust = (int)$dayMatch[1];
+                // Ensure that the adjustment is within a reasonable range
+                if ($daysToAdjust >= -1000 && $daysToAdjust <= 1000) {
+                    // Calculate the new date
+                    $newDate = date('Y-m-d',strtotime("$currentDate $daysToAdjust" . " days"));
+
+                    // Replace the match with the new date
+                    $j_condition = str_replace($match, "\"$newDate\"", $j_condition);
+                    return $j_condition;
+                }
+            } else {
+                // Handle invalid input
+                // You may want to log an error or handle it differently based on your application's requirements
+                return $j_condition;
+            }
+        }
+        return $j_condition;
+    }
+
+    /**
      * Use the JsonLogic libarary to compute whether the json condition is true
      * or false.
      *
@@ -119,6 +162,7 @@ class Condition
         if ($condition === null || $condition === "")
             return true;
         $j_condition = json_encode($condition);
+        $j_condition = $this->calculate_dynamic_dates($j_condition); // check for any dynamic dates __current_date__@-2 days
         $j_condition = str_replace('__current_date__', date('Y-m-d'), $j_condition); // replace __current_date__
         $j_condition = str_replace('__current_date_time__', date('Y-m-d H:i'), $j_condition); // replace __current_date_time__
         $j_condition = str_replace('__current_time__', date('H:i'), $j_condition); // replace __current_time__

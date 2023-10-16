@@ -741,7 +741,7 @@ class PageDb extends BaseDb
      * Return the last user login date
      */
     public function get_user_last_login_date($id_users){
-        $sql = "SELECT last_login
+        $sql = "SELECT COALESCE(last_login, 'never') AS last_login
                 FROM users u                
                 WHERE u.id = :uid";
         $res = $this->query_db_first($sql, array(
