@@ -24,6 +24,16 @@ class TextareaView extends FormFieldView
      */
     private $type_input;
 
+    /**
+     * This number will determine the minimum character size required for your input. The input will need to have at least this many characters to be valid
+     */
+    private $min;
+
+    /**
+     * This number will determine the maximum character size allowed for your input. The input should not exceed this character limit to be valid.
+     */
+    private $max;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -37,6 +47,8 @@ class TextareaView extends FormFieldView
         parent::__construct($model);
         $this->placeholder = $this->model->get_db_field("placeholder");
         $this->type_input = $this->model->get_db_field('type_input');        
+        $this->min = $this->model->get_db_field('min');
+        $this->max = $this->model->get_db_field('max');
     }
 
     /* Protected Methods ********************************************************/

@@ -1,7 +1,8 @@
-# v6.4.10 (Not published)
+# v6.5.0 (Not published)
  - move data config fetch in `BaseModel` from `StyleModel`
  - #364 - fix settings for notifications in SelfHelp mobile app
  - #362 - add option for `Last Login`, where we can use `never` or we can use date as `__current_date__` where it is replaced by the current date or `__current_date__@-5 days` where it takes the date for 5 days ago. It only can be used with days + and - days after `@`
+ - #331 - add fields `min` and `max` for characters size in style `textarea`
 
 # v6.4.9
 ### Bugfix
