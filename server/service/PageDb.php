@@ -734,6 +734,23 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Get the user last login date
+     * @param $id_users
+     * The id of the user
+     * @return string
+     * Return the last user login date
+     */
+    public function get_user_last_login_date($id_users){
+        $sql = "SELECT last_login
+                FROM users u                
+                WHERE u.id = :uid";
+        $res = $this->query_db_first($sql, array(
+            ':uid' => $id_users
+        ));
+        return isset($res['last_login']) ? $res['last_login'] : false;
+    }
+
+    /**
      * Check if the settings are for anonymous_users
      * @return bool
      * Return the result

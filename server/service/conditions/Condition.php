@@ -84,6 +84,17 @@ class Condition
     }
 
     /**
+     * Get the user last login date
+     * @param $id_users
+     * The id of the user
+     * @return string
+     * Return the last user login date
+     */
+    private function get_user_last_login_date($id_users){        
+        return $this->db->get_user_last_login_date($id_users);
+    }
+
+    /**
      * Use the JsonLogic libarary to compute whether the json condition is true
      * or false.
      *
@@ -118,6 +129,10 @@ class Condition
         if(strpos($j_condition, '__language__') !== false){
             $language = $this->get_user_language_id($id_users);
             $j_condition = str_replace('__language__', $language, $j_condition); // replace __language__
+        }
+        if(strpos($j_condition, '__last_login__') !== false){
+            $last_login = $this->get_user_last_login_date($id_users);
+            $j_condition = str_replace('__last_login__', $last_login, $j_condition); // replace __last_login__
         }
         // replace form field keywords with the actual values.
         $pattern = '~"' . $this->user_input->get_input_value_pattern() . '"~';

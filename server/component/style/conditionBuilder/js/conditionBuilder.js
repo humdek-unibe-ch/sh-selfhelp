@@ -207,6 +207,12 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
                     width: 'auto',
                     liveSearchStyle: 'contains',
                 }
+            }, {
+                id: '__last_login__',
+                label: 'Last Login',
+                type: 'string',
+                input: 'text',
+                operators: ['equal', 'not_equal', 'less', 'less_or_equal', 'greater', 'greater_or_equal', 'between_dates']
             }
         ],
         // rules: rules_basic
