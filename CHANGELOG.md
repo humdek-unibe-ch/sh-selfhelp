@@ -5,6 +5,7 @@
  - #331 - add fields `min` and `max` for characters size in style `textarea`
  - #331 - add fields `min` and `max` for characters size in style `input`
  - #330 - check the user locale and if the locale exists it is loaded as default for request
+ - #330 - check the user locale and if the locale exists it is loaded as default for request (for mobile)
 
 # v6.4.9
 ### Bugfix

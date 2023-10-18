@@ -138,8 +138,10 @@ class Selfhelp
         $router = $services->get_router();
         $db = $services->get_db();
         $debug_start_time = microtime(true);
-        $_SESSION['user_language'] = isset($_POST['id_languages']) && $_POST['id_languages'] > 1 ? $_POST['id_languages'] : LANGUAGE;
-        $_SESSION['language'] = isset($_POST['id_languages']) && $_POST['id_languages'] > 1 ? $_POST['id_languages'] : LANGUAGE;
+        if(isset($_POST['id_languages'])){
+            $_SESSION['user_language'] = $_POST['id_languages'];    
+            $_SESSION['language'] = $_POST['id_languages'];
+        }
         if (isset($_SESSION['id_user'])) {
             $db->update_by_ids('users', array("id_languages" => $_SESSION['user_language']), array('id' => $_SESSION['id_user'])); // set the language in the user table
         }
