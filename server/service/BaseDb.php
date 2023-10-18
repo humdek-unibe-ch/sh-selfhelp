@@ -706,6 +706,42 @@ class BaseDb {
     }
 
     /**
+     * Fetch language by locale.
+     *
+     * @param string $locale
+     *  The locale of the language.
+     * @retval array
+     *  An array with the following keys:
+     *   'id':      The id of the language.
+     *   'locale':  
+     *   'language':
+     *   'csv_separator'
+     */
+    public function fetch_language_by_locale($locale)
+    {
+        $sql = "SELECT * FROM languages WHERE locale = :locale";
+        $res = $this->query_db_first($sql, array(":locale" => $locale));
+        if (!$res) {
+            // cannot find the locale, lets try to find something from the same language, the first one with the lowest id
+            $local_language = explode('-', $locale);
+            if (!isset($local_language[0])) {
+                return null;
+            }
+            $locale = '%' . $local_language[0] . '-%';
+            $sql = "SELECT * FROM languages WHERE locale LIKE (:locale) ORDER BY id ASC;";
+            $res = $this->query_db_first($sql, array(":locale" => $locale));
+            if(!$res) return null;
+        };
+        return array(
+            "lid" => $res['id'],
+            "locale" => $res['locale'],
+            "language" => $res['language'],
+            "csv_separator" => $res['csv_separator']
+        );
+    }
+
+
+    /**
      * Get cache
      * @return object
      * Return the cache instance

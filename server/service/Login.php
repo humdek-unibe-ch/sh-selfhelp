@@ -58,6 +58,16 @@ class Login
         $this->init_session();
     }
 
+    private function use_user_locale(){        
+        $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        // Replace underscores with hyphens
+        $locale = str_replace('_', '-', $locale);
+        $language = $this->db->fetch_language_by_locale($locale);
+        if (isset($language)) {
+            $_SESSION['user_language'] = $language['lid'];
+        }
+    }
+
     /**
      * Initialise the php session.
      */
@@ -102,6 +112,9 @@ class Login
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->db->get_default_language();
         if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
+        
+        $this->use_user_locale();
+
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
         if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
             "pid" => null,
