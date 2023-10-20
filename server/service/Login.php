@@ -115,8 +115,12 @@ class Login
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->db->get_default_language();
-        if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
+        if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;        
         $this->use_user_locale();
+        if (isset($_SESSION['id_user'])) {
+            // if the user set a language already use it
+            $_SESSION['user_language'] = $this->db->get_user_language_id($_SESSION['id_user']);
+        }
 
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
         if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
