@@ -236,7 +236,7 @@ class FormUserInputView extends StyleView
         if ($this->selected_record_id > 0) {
             $children[] = new BaseStyleComponent("input", array(
                 "type_input" => "hidden",
-                "name" => "selected_record_id",
+                "name" => SELECTED_RECORD_ID,
                 "value" => $this->selected_record_id,
             ));
         }
@@ -269,8 +269,8 @@ class FormUserInputView extends StyleView
         if ($this->selected_record_id > 0) {
             $selected_record_id = new BaseStyleComponent("input", array(
                 "type_input" => "hidden",
-                "name" => "selected_record_id",
-                "id" => "selected_record_id",
+                "name" => SELECTED_RECORD_ID,
+                "id" => SELECTED_RECORD_ID,
                 "value" => $this->selected_record_id,
                 "is_required" => 1
             ));
