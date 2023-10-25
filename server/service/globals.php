@@ -28,6 +28,7 @@ define('NAME_PATTERN', '[a-zA-Z0-9_-]+'); // pattern used for naming
 define('MAX_USER_COUNT', 100000);
 
 define('ENTRY_RECORD_ID', 'record_id');
+define('SELECTED_RECORD_ID', 'selected_record_id');
 
 /* Static DB Content */
 define('GUEST_USER_ID', 1);

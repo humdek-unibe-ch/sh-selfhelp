@@ -138,8 +138,8 @@ class FormUserInputController extends BaseController
         if (isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value'])) {
             $_POST[ENTRY_RECORD_ID] = $_POST[ENTRY_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
-        if (isset($_POST['selected_record_id']) && isset($_POST['selected_record_id']['value'])) {
-            $_POST['selected_record_id'] = $_POST['selected_record_id']['value']; // normalize the variable when it comes from mobile call
+        if (isset($_POST[SELECTED_RECORD_ID]) && isset($_POST[SELECTED_RECORD_ID]['value'])) {
+            $_POST[SELECTED_RECORD_ID] = $_POST[SELECTED_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
         if (isset($_POST['delete_record_id']) && isset($_POST['delete_record_id']['value'])) {
             $_POST['delete_record_id'] = $_POST['delete_record_id']['value']; // normalize the variable when it comes from mobile call
@@ -176,7 +176,7 @@ class FormUserInputController extends BaseController
         }
         else
         {            
-            $res = isset($_POST['selected_record_id']) ? $this->model->update_user_input($user_input, $_POST['selected_record_id']) : $this->model->save_user_input($user_input);
+            $res = isset($_POST[SELECTED_RECORD_ID]) ? $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) : $this->model->save_user_input($user_input);
             if($res === false)
             {
                 $this->fail = true;

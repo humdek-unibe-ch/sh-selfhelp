@@ -7,6 +7,7 @@
  - #330 - check the user locale and if the locale exists it is loaded as default for request
  - #330 - check the user locale and if the locale exists it is loaded as default for request (for mobile)
  - add get all fields function in the basic `StyleView`
+ - add global variable `SELECTED_RECORD_ID`
 
 ### Bugfix
  - #364 - fix settings for notifications in SelfHelp mobile app
