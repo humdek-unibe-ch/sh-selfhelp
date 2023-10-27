@@ -45,7 +45,7 @@ class InternalPage
         foreach($this->sections as $section)
         {
             $this->base->add_component("section-" . $section['id'],
-                new StyleComponent($services, intval($section['id'])));
+                new StyleComponent($services, intval($section['id']), array('missing'=>true)));
         }
     }
 
@@ -61,6 +61,14 @@ class InternalPage
         foreach($this->sections as $section)
         {
             $this->base->output_component("section-" . $section['id']);
+        }
+    }
+
+    public function output_content_mobile()
+    {
+        foreach($this->sections as $section)
+        {
+            $this->base->output_component_mobile("section-" . $section['id']);
         }
     }
 }

@@ -1,0 +1,326 @@
+/************************* UI CMS **********************************************************************************************/
+
+.ui-section-btn {
+    cursor: pointer;
+    height: 36px;
+    padding: 10px;
+    pointer-events: auto;
+}
+
+.ui-menu-btn {
+    cursor: pointer;
+    pointer-events: auto;
+    height: 36px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: -10px;
+}
+
+.ui-menu-holder {
+    border: 1.5px solid;
+    border-color: var(--primary);
+    height: 27px;
+}
+
+.ui-section-holder {
+    border: 1.5px solid;
+    position: relative;
+    border-color: var(--secondary);
+}
+
+#ui-middle {
+    width: calc(100% - 720px);
+}
+
+.ui-buttons-holder {
+    display: none;
+    top: -18px;
+    bottom: -18px;
+    left: -18px;
+    right: -18px;
+    pointer-events: none;
+}
+
+.ui-section-holder:hover {
+    border-color: var(--primary);
+}
+
+.ui-section-holder:hover>.ui-buttons-holder {
+    display: flex !important;
+    z-index: 100;
+}
+
+.grabbable {
+    cursor: move;
+    /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+/* (Optional) Apply a "closed-hand" cursor during drag operation. */
+.grabbable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.section-children-ui-cms {
+    min-height: 50px;
+    border: 1.5px dotted !important;
+    border-color: var(--secondary) !important;
+}
+
+.drag-ghost {
+    opacity: 0.4;
+    background-color: var(--primary) !important;
+    width: 200px;
+    height: 100px;
+}
+
+.ui-icon-button-white {
+    background-image: radial-gradient(at center, white 20%, transparent 20%);
+}
+
+.ui-card-list {
+    border-radius: 0;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    margin: 0px !important;
+}
+
+#sidebar-container {
+    border-right: 1px solid rgba(0, 0, 0, .125);
+}
+
+#properties {
+    border-left: 1px solid rgba(0, 0, 0, .125);
+}
+
+#properties .section-children-ui-cms {
+    border: none !important;
+}
+
+#collapsePropertiesBtn {
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+#collapseBtn {
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+#sidebar-container .ui-card-list .card-body {
+    max-height: 400px;
+    overflow: auto;
+    padding: 0.4rem !important;
+}
+
+.ui-card-list .card-header {
+    background-color: var(--white);
+}
+
+.ui-card-list .card-header:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.ui-card-properties {
+    border-radius: 0;
+    max-width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, .125) !important;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    margin-bottom: 0 !important;
+}
+
+.properties-fields {
+    outline: #ebebeb 1px solid;
+    border: none !important;
+}
+
+.ui-card-properties>.card-header {
+    display: none !important;
+}
+
+.ui-card-properties>.card-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 !important;
+}
+
+.ui-card-properties form>button {
+    position: fixed;
+    bottom: 0.5rem;
+    right: 0.5rem;
+}
+
+.ui-card-properties form>.form-cancel-btn {
+    display: none;
+}
+
+/* .ui-card-properties form > .btn {
+    display: none;
+} */
+
+.ui-breadcrumb {
+    border-top: 1px solid rgba(0, 0, 0, .125);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+    background-color: var(--white);
+}
+
+.ui-sidebar {
+    background-color: #e9ecef;
+}
+
+/* Menu item*/
+.ui-side-menu-button {
+    cursor: pointer;
+    height: 50px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+
+#ui-cms>.section-view {
+    margin: 0 !important;
+    border: none;
+}
+
+#ui-cms>.card>.card-body {
+    padding: 0.5rem;
+}
+
+#ui-cms>.section-view>.card-header {
+    display: none !important;
+}
+
+.sidebar-expanded {
+    min-width: 220px;
+    max-width: 300px;
+}
+
+.sidebar-expanded #collapseBtn {
+    justify-content: flex-end;
+}
+
+.sidebar-collapsed {
+    min-width: 62px;
+}
+
+.properties-expanded {
+    min-width: 420px;
+}
+
+#ui-middle>.sticky-top>.alert {
+    margin: 0;
+    border-radius: 0;
+}
+
+#ui-middle>.sticky-top ol {
+    margin-bottom: 0;
+}
+
+.footer-holder {
+    display: none !important;
+}
+
+.ui-cms-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#collapsePropertiesBtn {
+    height: 50px;
+}
+
+.properties-collapsed {
+    display: flex;
+}
+
+.toggle.ui-toggle {
+    border-radius: 0px;
+    width: 100% !important;
+    min-height: 50px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+
+.toggle.ui-toggle .toggle-handle {
+    border-color: #ffc107;
+    border: solid 1.2px #ffc107;
+}
+
+.toggle.ui-toggle .toggle-handle:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.ui-toggle>.toggle-group>.toggle-on,
+.toggle-off {
+    display: flex;
+    align-items: center;
+    padding: .75rem 1.25rem !important;
+}
+
+.ui-toggle>.toggle-group>.toggle-off {
+    background-color: var(--white);
+    color: #495057;
+}
+
+.ui-toggle>.toggle-group>.toggle-off:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-menu {
+    z-index: 1021;
+}
+
+#left-side-scroll-area {
+    max-height: calc(100vh - 50px);
+    overflow: auto;
+}
+
+.input-autocomplete-value {
+    max-width: 70px;
+}
+
+#ui-add-section-modal .modal-dialog {
+    max-width: 80% !important;
+}
+
+.ui-marked-section {
+    border-color: var(--success);
+}
+
+.ui-marked-section:hover {
+    border-color: var(--success);
+}
+
+.ui-nav-help {
+    max-width: 420px;
+}
+
+.ui-dotted-border {
+    border: 1.5px dotted !important;
+    border-color: var(--secondary) !important;
+}
+
+.sticky-top #multiple-users-warning #section-multiple-users-warning-alert {
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+#cms-alerts .alert {
+    margin: 0;
+    border-radius: 0;
+    border-left: 0;
+    border-bottom: 0;
+    border-right: 0;
+}

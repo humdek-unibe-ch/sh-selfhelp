@@ -42,15 +42,39 @@ class FooterView extends BaseView
     }
 
     /**
+     * Render all footer languages.
+     */
+    private function output_footer_languages()
+    {
+        $languages = $this->model->get_languages();
+        $options = [];
+        foreach ($languages as $language)
+            array_push($options, array(
+                "value" => $language['id'],
+                "text" => $language['title']
+            ));
+        if (count($options) > 1) {
+            //show footer only if there are more than 1 language
+            $langOptions = new BaseStyleComponent("select", array(
+                //"label" => "CMS Content Language",
+                "css" => "text-dark smallOverwitten",
+                "value" => $_SESSION['user_language'],
+                "name" => "default_language_locale",
+                "items" => $options,
+            ));
+            $langOptions->output_content();
+        }
+    }
+
+    /**
      * Render all footer links.
      */
     private function output_footer_links()
     {
         $pages = $this->model->get_pages();
         $first = true;
-        foreach($pages as $key => $page_name)
-        {
-            if(!$first) echo "|";
+        foreach ($pages as $key => $page_name) {
+            if (!$first) echo "|";
             $this->output_footer_link($key, $page_name);
             $first = false;
         }
@@ -72,11 +96,31 @@ class FooterView extends BaseView
     }
 
     /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        if (empty($local)) {
+            $local = array(__DIR__ . "/footer.js");
+        }
+        return parent::get_js_includes($local);
+    }
+
+    /**
      * Render the footer view.
      */
     public function output_content()
     {
         require __DIR__ . "/tpl_footer.php";
+    }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

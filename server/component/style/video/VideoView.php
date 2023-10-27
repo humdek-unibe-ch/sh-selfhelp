@@ -78,5 +78,22 @@ class VideoView extends StyleView
         $fluid = $this->is_fluid ? "img-fluid" : "";
         require __DIR__ . "/tpl_video.php";
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $sources = [];
+        if (is_array($this->sources)) {
+            foreach ($this->sources as $source) {
+                if (!isset($source["source"]) || !isset($source["type"])) continue;
+                $curSource = [];
+                $curSource['source'] = ASSET_FOLDER . '/' . $source["source"];
+                $curSource['type'] = $source["type"];
+                $sources[] = $curSource;
+            }
+        }
+        $style['sources']['content'] = $sources;
+        return $style;
+    }
 }
 ?>

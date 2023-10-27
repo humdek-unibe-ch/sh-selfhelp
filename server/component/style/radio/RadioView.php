@@ -59,6 +59,7 @@ class RadioView extends FormFieldView
             $value = htmlspecialchars($field['value']);
             $text = $field['text'];
             $checked = ($value == $this->value) ? "checked" : "";
+            $required = ($this->is_required) ? "required" : "";
             require __DIR__ . "/tpl_radio.php";
         }
     }
@@ -73,7 +74,7 @@ class RadioView extends FormFieldView
         if(!is_array($this->items)) return;
         if($this->value === null)
             $this->value = $this->default_value;
-        $css = ($this->label == "") ? $this->css : "";
+        $css = ($this->label == "") ? $this->css : "";        
         require __DIR__ . "/tpl_radio_group.php";
     }
 }

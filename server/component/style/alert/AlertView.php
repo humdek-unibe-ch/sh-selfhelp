@@ -64,5 +64,6 @@ class AlertView extends StyleView
         $type = "alert-" . $this->type;
         require __DIR__ . "/tpl_alert.php";
     }
+
 }
 ?>

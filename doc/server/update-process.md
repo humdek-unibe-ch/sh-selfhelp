@@ -48,17 +48,11 @@ cd gulp
 gulp
 ```
 
-### 5. Merge the DB Update Script with the Initial DB File
+### 5. DB Update Script
 
-If no DB update script was necessary for this release, skip this step.
+Create DB update script in folder `update_scripts` 
 
-In order to keep the initial DB file up to date it must be merged with the DB update script that was created for this release.
-To do this perform the following steps:
- 1. Create a new clean Database by importing the file `server/db/selfhelp_initial.sql`.
- 2. Apply the DB update script
- 3. Verify that the updates were performed correctly
- 4. Export the updated content of the database and save it as `server/db/selfhelp_initial.sql`
- 5. (If required) adapt the file `server/db/privileges_default.sql`
+Use a prefix with number for the update script version. 
 
 ### 6. Add and Commit the Changed Files
 

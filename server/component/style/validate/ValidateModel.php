@@ -26,6 +26,26 @@ class ValidateModel extends StyleModel
      */
     private $email;
 
+     /**
+     * The user_name of the user to validate.
+     */
+    private $name;
+
+     /**
+     * The gender of the user to validate.
+     */
+    private $gender;
+
+     /**
+     * The user name
+     */
+    private $user_name;
+
+    /**
+     * The page keyword, if set it after successful validation the user is redirected to that page
+     */
+    private $redirect_page_keyword;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -49,12 +69,16 @@ class ValidateModel extends StyleModel
         $this->email = null;
         $this->name = null;
         $this->gender = null;
+        $this->user_name = null;
+        $page_keyword_id = $this->get_db_field("page_keyword");
+        $this->redirect_page_keyword = $this->db->fetch_page_keyword_by_id($page_keyword_id);
         $data = $this->fetch_user_data($uid, $token);
         if($data)
         {
             $this->email = $data['email'];
             $this->name = $data['name'];
             $this->gender = $data['gender'];
+            $this->user_name = $data['user_name'];
         }
     }
 
@@ -74,7 +98,7 @@ class ValidateModel extends StyleModel
      */
     private function fetch_user_data($uid, $token)
     {
-        $sql = "SELECT u.email, u.name, g.name AS gender FROM users AS u
+        $sql = "SELECT u.email, u.name, g.name AS gender, user_name FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE u.token = :token AND u.id = :uid";
         $data = $this->db->query_db_first($sql, array(
@@ -92,27 +116,28 @@ class ValidateModel extends StyleModel
      *  - Set user gender
      *  - Remove validation token
      *
-     * @param string $name
-     *  The name of the user.
      * @param string $pw
      *  The password hash of the user password.
      * @param int $gender
      *  The gender type id
+     * @param string $name
+     *  The name of the user.s
      * @retval bool
      *  True if the process was successful, false otherwise.
      */
-    public function activate_user($name, $pw, $gender)
+    public function activate_user($pw, $gender, $name = null)
     {
-        if(!$this->is_token_valid()) return false;
-        return $this->db->update_by_ids("users", array(
-            "name" => $name,
+        if (!$this->is_token_valid()) return false;
+        $user_data = array(
             "password" => $pw,
             "id_genders" => $gender,
             "token" => null,
             "id_status" => 3
-        ), array(
-            "id" => $this->uid,
-        ));
+        );
+        if ($name) {
+            $user_data['name'] = $name;
+        }
+        return $this->db->update_by_ids("users", $user_data, array("id" => $this->uid));
     }
 
     /**
@@ -149,6 +174,17 @@ class ValidateModel extends StyleModel
     }
 
     /**
+     * Gets the user name - generated from anonymous.
+     *
+     * @retval string
+     *  The name of the activating user.
+     */
+    public function get_user_name_generated()
+    {
+        return $this->user_name;
+    }
+
+    /**
      * Gets the user gender.
      *
      * @retval string
@@ -158,5 +194,26 @@ class ValidateModel extends StyleModel
     {
         return $this->gender;
     }
+
+    /**
+     * Get the page_keyword
+     * @return string 
+     * Returns the page keyword
+     */
+    public function get_redirect_page_keyword()
+    {
+        return $this->redirect_page_keyword;
+    }
+
+    /**
+     * Check if the settings are for anonymous_users
+     * @return bool
+     * Return the result
+     */
+    public function is_anonymous_users()
+    {
+        return $this->db->is_anonymous_users();
+    }
+
 }
 ?>

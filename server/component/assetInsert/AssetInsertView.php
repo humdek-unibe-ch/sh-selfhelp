@@ -29,7 +29,7 @@ class AssetInsertView extends BaseView
      * @param object $controller
      *  The controller instance of the component.
      * @param string $mode
-     *  Specifies the insert mode (either 'css' or 'asset').
+     *  Specifies the insert mode (either 'css', 'asset', or 'static').
      */
     public function __construct($model, $controller, $mode)
     {
@@ -58,7 +58,7 @@ class AssetInsertView extends BaseView
      */
     public function get_js_includes($local = array())
     {
-        $local = array(__DIR__ . "/insert.js");
+        $local = array(__DIR__ . "/js/insert.js");
         return parent::get_js_includes($local);
     }
 
@@ -75,11 +75,40 @@ class AssetInsertView extends BaseView
         }
         else
         {
+            $title = array(
+                "css" => "Upload a CSS File",
+                "asset" => "Upload an Asset File",
+                "static" => "Upload a Static Data File",
+            );
             $cancel_url = $this->model->get_link_url("assetSelect");
             $action_url = $this->model->get_link_url("assetInsert",
                 array('mode' => $this->mode));
             require __DIR__ . "/tpl_insert.php";
         }
+    }
+
+    /**
+     * Output the folder input control
+     */
+    public function output_folder()
+    {
+        require __DIR__ . "/tpl_folder.php";
+    }
+
+    /**
+     * Output the folders which will be used in the datalist
+     */
+    public function output_folders()
+    {
+        $folders = $this->model->get_assets_folders();
+        foreach ($folders as $key => $folder) {
+            require __DIR__ . "/tpl_folder_option.php";
+        }                
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

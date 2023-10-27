@@ -49,9 +49,9 @@ class EmailFormModel extends EmailFormBaseModel
      * @param int $id
      *  The section id of the navigation wrapper.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params=array())
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params);
         $this->admins = $this->get_db_field("admins", array());
         $this->email_admins = $this->get_db_field("email_admins");
         $this->do_store = $this->get_db_field('do_store', false);
@@ -97,13 +97,30 @@ class EmailFormModel extends EmailFormBaseModel
      */
     private function send_email_user($address)
     {
-        $to = $this->mail->create_single_to($address);
-        $msg_html = $this->is_html ? $this->parsedown->text($this->email_user) : null;
-        foreach($this->attachments_user as $idx => $attachment)
-            $this->attachments_user[$idx] = ASSET_SERVER_PATH . "/" . $attachment;
-
-        return $this->mail->send_mail($this->from, $to, $this->subject_user,
-            $this->email_user, $msg_html, $this->attachments_user);
+        $attachments = array();
+        foreach ($this->attachments_user as $idx => $attachment) {
+            $attachments[] = array(
+                "attachment_name" => $attachment,
+                "attachment_path" => ASSET_SERVER_PATH . "/" . $attachment,
+                "attachment_url" => ASSET_PATH . "/" . $attachment
+            );
+        }
+        $mail = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+            "from_email" => $this->from['address'],
+            "from_name" => PROJECT_NAME,
+            "reply_to" => $this->from['address'],
+            "recipient_emails" => $address,
+            "subject" => $this->subject_user,
+            "body" => $this->email_user,
+            "is_html" => $this->is_html,
+            "description" => "Email from style EmailForm to the user",
+            "attachments" => $attachments
+        );
+        $mail['id_users'][] = $_SESSION['id_user'];
+        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_anonymous_user);
     }
 
     /**
@@ -115,12 +132,23 @@ class EmailFormModel extends EmailFormBaseModel
     private function send_emails_admin($address)
     {
         $msg = str_replace('@email', $address, $this->email_admins);
-        $msg_html = $this->is_html ? $this->parsedown->text($msg) : null;
         $subject = "Interested User for Platform " . $_SESSION['project'];
         foreach($this->admins as $admin)
         {
-            $to = $this->mail->create_single_to($admin);
-            $this->mail->send_mail($this->from, $to, $subject, $msg, $msg_html);
+            $mail = array(
+                "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+                "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+                "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+                "from_email" => $this->from['address'],
+                "from_name" => PROJECT_NAME,
+                "reply_to" => $this->from['address'],
+                "recipient_emails" => $admin,
+                "subject" => $subject,
+                "body" => $msg,
+                "is_html" => $this->is_html,
+                "description" => "Email from style EmailForm to the admins"
+            );
+            $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_anonymous_user);
         }
     }
 
@@ -139,7 +167,7 @@ class EmailFormModel extends EmailFormBaseModel
     {
         $res = $this->add_email($mail);
         if($res)
-            $res = $this->send_email_user($mail);
+            $this->send_email_user($mail);
         if($res)
             $this->send_emails_admin($mail);
         return $res;

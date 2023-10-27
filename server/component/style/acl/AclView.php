@@ -113,5 +113,6 @@ class AclView extends StyleView
     {
         require __DIR__ . "/tpl_acl.php";
     }
+	
 }
 ?>

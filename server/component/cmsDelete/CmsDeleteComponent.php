@@ -40,11 +40,13 @@ class CmsDeleteComponent extends CmsComponent
      *              selected.
      *   'ssid':    The id of the section that is currently selected
      *              (only relevant for navigation pages).
+     * @param number $id_cms_page
+     *  The id of the current cms page being loaded
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_cms_page)
     {
         $this->acl = $services->get_acl();
-        $model = new CmsModel($services, $params, "delete");
+        $model = new CmsModel($services, $params, "delete", $id_cms_page);
         $controller = new CmsDeleteController($model);
         $model->update_delete_properties();
         $view = new CmsDeleteView($model, $controller);

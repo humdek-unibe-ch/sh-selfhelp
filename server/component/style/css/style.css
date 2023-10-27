@@ -8,3 +8,56 @@
 {
     cursor: pointer;
 }
+
+.pdfA4 {
+    min-width: 760px;
+    width: 760px;
+    max-width: 760px !important;
+}
+
+.pdfA4Img {
+    max-width: 760px !important;
+}
+
+.pdfA4ImgGraph {
+    min-width: 760px;
+    width: 760px;
+    max-width: 760px !important;
+}
+
+.graphToImg {
+    min-width: 1110px !important;
+    display: none;
+}
+
+.pdfA4Col-3 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.pdfA4Col-sm {
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.pdfA4Col-sm-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.pdfA4Col-sm-4 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.fixedHolder textarea {
+    max-height: 300px !important;
+}
+
+.fixedHolder .db-fields {
+    max-height: 300px !important;
+}

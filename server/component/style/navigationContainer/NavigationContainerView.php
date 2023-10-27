@@ -54,5 +54,6 @@ class NavigationContainerView extends StyleView
         $text = str_replace("@title", $this->title, $this->text_md);
         require __DIR__ . "/tpl_container.php";
     }
+	
 }
 ?>

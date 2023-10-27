@@ -55,5 +55,6 @@ class ModalView extends StyleView
     {
         require __DIR__ . "/tpl_modal.php";
     }
+	
 }
 ?>

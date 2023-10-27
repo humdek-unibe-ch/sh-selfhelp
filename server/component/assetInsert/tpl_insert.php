@@ -6,7 +6,7 @@
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
     <div class="jumbotron">
-        <h1>Upload <code><?php echo $this->mode; ?></code> File</h1>
+        <h1><?php echo $title[$this->mode]; ?></h1>
         <p>Browse for the file you want to upload and provide a name under which the file will be stored on the server.</p>
     </div>
     <div class="card mb-3">
@@ -15,11 +15,12 @@
         </div>
         <div class="card-body">
             <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg mr-3"></i>Uploading the file to the server</div>
-            <form id="asset-upload-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
+            <form id="asset-upload-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>                
                 <div class="row">
+                    <?php $this->output_folder(); ?>
                     <div class="form-group col">
                         <label>Name</label>
-                        <input type="text" class="form-control" name="name" placeholder="Enter a file name (no extension)" required>
+                        <input id="assetsFileName" type="text" class="form-control" name="name" placeholder="Enter a file name" required>
                     </div>
                     <div class="form-group col">
                         <label>File</label>

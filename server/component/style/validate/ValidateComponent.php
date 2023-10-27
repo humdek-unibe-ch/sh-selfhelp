@@ -51,8 +51,9 @@ class ValidateComponent extends BaseComponent
         {
             $uid_session = $_SESSION['id_user'];
             $_SESSION['id_user'] = $uid;
-            $ui_model = new FormUserInputModel($services, $id);
-            $ui_controller = new FormUserInputController($ui_model);
+            $ui_model = new FormUserInputModel($services, $id, $params, -1, array());
+            $ui_controller = new FormUserInputController($ui_model, -1);
+            $ui_controller->execute();
             $_SESSION['id_user'] = $uid_session;
             if(!$ui_controller->has_failed())
                 $controller = new ValidateController($model);

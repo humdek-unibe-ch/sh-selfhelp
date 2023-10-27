@@ -25,10 +25,16 @@ class ConditionalContainerComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the database section item to be rendered.
+     * @param array $params
+     *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new ConditionalContainerModel($services, $id);
+        $model = new ConditionalContainerModel($services, $id, $params, $id_page, $entry_record);
         $view = new ConditionalContainerView($model);
         parent::__construct($model, $view);
     }

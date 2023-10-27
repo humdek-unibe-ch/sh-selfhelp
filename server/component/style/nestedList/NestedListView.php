@@ -144,8 +144,12 @@ class NestedListView extends StyleView
     {
         foreach($children as $index => $item)
         {
-            if($id_active == $this->get_id($item['id']))
-                return $item['title'];
+            if($id_active == $this->get_id($item['id'])) {
+                if(array_key_exists("title", $item))
+                    return $item['title'];
+                else
+                    return "";
+            }
             if(isset($item['children']))
             {
                 $res = $this->get_child_active($item['children'], $id_active);
@@ -292,5 +296,6 @@ class NestedListView extends StyleView
         else
             $this->output_list($this->css);
     }
+	
 }
 ?>

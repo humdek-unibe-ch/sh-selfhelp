@@ -11,6 +11,12 @@ require_once __DIR__ . "/../BaseModel.php";
  */
 class NavModel extends BaseModel
 {
+    /**
+     * The profile menu structure. This is kept seperate from the rest of the
+     * menu because it will be rendered on the right.
+     */
+    private $profile = array("title" => "", "children" => array());
+
     /* Constructors ***********************************************************/
 
     /**
@@ -22,54 +28,28 @@ class NavModel extends BaseModel
      */
     public function __construct($services)
     {
-        parent::__construct($services);        
+        parent::__construct($services);
     }
 
     /* Private Methods ********************************************************/
 
     /**
-     * Fetches all children page links of a page from the database.
+     * Defines the structure of a single page navigation item.
      *
-     * @param int $id_parent
-     *  The id of the parent page.
+     * @param array $page
+     *  An associative array of a single page entry returned by a db querry.
      * @retval array
-     *  An array prepared by NavModel::prepare_pages.
+     *  A \<page array\> with the keys
+     *  - `title`: The title of the page
+     *  - `keyword`: To the route identifier
+     *  - `id_navigation_section`: The ID of a navigation section which allows
+     *    to link the parent navigation page as a menu
+     *  - `children`: \<page array\>
      */
-    private function fetch_children($id_parent)
+    private function prepare_page($page)
     {
-        $locale_cond = $this->db->get_locale_condition();
-        $sql = "SELECT p.id, p.keyword, p.id_navigation_section, pft.content AS title
-            FROM pages AS p
-            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE p.parent = :parent AND $locale_cond AND f.name = 'label'
-            AND p.nav_position IS NOT NULL
-            ORDER BY p.nav_position";
-        $pages_db = $this->db->query_db($sql, array(":parent" => $id_parent));
-        return $this->prepare_pages($pages_db);
-    }
-
-    /**
-     * Fetches all root page links that are placed in the navbar from the
-     * database.
-     *
-     * @retval array
-     *  An array prepared by NavModel::prepare_pages.
-     */
-    private function fetch_pages()
-    {
-        $locale_cond = $this->db->get_locale_condition();
-        $sql = "SELECT p.id, p.keyword, p.id_navigation_section, pft.content AS title
-            FROM pages AS p
-            LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
-            LEFT JOIN languages AS l ON l.id = pft.id_languages
-            LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE p.nav_position IS NOT NULL AND $locale_cond AND f.name = 'label'
-            AND p.parent IS NULL
-            ORDER BY p.nav_position";
-        $pages_db = $this->db->query_db($sql, array());
-        return $this->prepare_pages($pages_db);
+        $page["children"] = array();
+        return $page;
     }
 
     /**
@@ -79,25 +59,55 @@ class NavModel extends BaseModel
      * @param array $pages_db
      *  An associative array returned by a db querry.
      * @retval array
-     *  A \<page array\> of the from
-     *   \<keyword\> =>
-     *      "title" => \<page_title\>
-     *      "children" => \<page array\>
-     *  where the keyword corresponds to the route identifier.
+     *  A herarchical array of page items where ecah item is defined
+     *  NavModel::prepare_page. The key of each page is the page id.
      */
     private function prepare_pages($pages_db)
     {
         $pages = array();
-        foreach($pages_db as $item)
-        {
-            if($this->acl->has_access_select($_SESSION['id_user'], $item['id']))
-            {
-                $children = $this->fetch_children(intval($item['id']));
-                $pages[$item['keyword']] = array(
-                    "id_navigation_section" => $item['id_navigation_section'],
-                    "title" => $item['title'],
-                    "children" => $children
+        foreach($pages_db as $key => $item) {
+            $pages_db[$key]['acl'] = $this->acl->has_access_select(
+                $_SESSION['id_user'], $item['id']);
+            if($item['keyword'] === "profile-link") {
+                $this->profile = array(
+                    "id" => $item['id'],
+                    "title" => $item["title"] .= ' (' . $this->db->fetch_user_name() . ')',
+                    "keyword" => $item['keyword'],                    
+                    "is_active" => false,
+                    "avatar" => $this->user_input->get_avatar($_SESSION['id_user']),
+                    "children" => array()
                 );
+            }
+            else if($item['parent'] === NULL
+                    && $item['nav_position'] !== NULL
+                    && $pages_db[$key]['acl']) {
+                $item['is_active'] = false;
+                if($this->is_link_active($item['keyword'])) {
+                    $item['is_active'] = true;
+                }
+                $pages[$item['id']] = $this->prepare_page($item);
+            }
+        }
+
+        foreach($pages_db as $item) {
+            $item['is_active'] = false;
+            if($this->is_link_active($item['keyword'])) {
+                $item['is_active'] = true;
+            }
+            if($item['parent'] === $this->profile['id']) {
+                $this->profile['children'][$item['id']] = $this->prepare_page($item);
+                if($item['is_active']) {
+                    $this->profile['is_active'] = true;
+                }
+            }
+            else if($item['parent'] !== NULL
+                    && $item['nav_position'] !== NULL
+                    && $item['acl']
+                    && array_key_exists($item['parent'], $pages)) {
+                $pages[$item['parent']]['children'][$item['id']] = $this->prepare_page($item);
+                if($item['is_active']) {
+                    $pages[$item['parent']]['is_active'] = true;
+                }
             }
         }
         return $pages;
@@ -143,22 +153,12 @@ class NavModel extends BaseModel
     public function get_login() { return $this->db->get_link_title("login"); }
 
     /**
-     * Return the number of new messages.
+     * Checks whether the login page is currently active.
      *
-     * @retval int
-     *  The number of new messages.
+     * @retval bool
+     *  True if the login page is active, fale otherwise
      */
-    public function get_new_message_count()
-    {
-        $sql = "SELECT count(cr.id_chat) AS count FROM chatRecipiants AS cr
-            WHERE cr.is_new = '1' AND cr.id_users = :uid";
-        $res = $this->db->query_db_first($sql,
-            array(":uid" => $_SESSION['id_user']));
-        if($res)
-            return intval($res['count']);
-        else
-            return 0;
-    }
+    public function get_login_active() { return $this->is_link_active("login"); }    
 
     /**
      * Fetches the name of the profile page from the database.
@@ -166,27 +166,41 @@ class NavModel extends BaseModel
      * @retval string
      *  The name of the profile page.
      */
-    public function get_profile() {
-        $keyword = "profile-link";
-        $db_page = $this->db->fetch_page_info($keyword);
-        $pages = $this->prepare_pages(array($db_page));
-        if(array_key_exists($keyword, $pages))
-        {
-            $profile = $pages[$keyword];
-            $profile["title"] .= ' (' . $this->db->fetch_user_name() . ')';
-            return $profile;
-        }
-        else
-            return array("title" => "", "children" => array());
-    }
+    public function get_profile() { return $this->profile; }
 
     /**
      * Fetches all page links that are placed in the navbar from the database.
+     * @return array
+     *  An array prepared by NavModel::prepare_pages.
+     */
+    public function get_pages() {
+        $backend = false;
+        if($this->router->route && isset($this->router->route['name'])){
+            $page_info = $this->db->fetch_page_info($this->router->route['name']);
+            if($page_info && isset($page_info['action'])){
+                $backend = ($page_info['action'] == PAGE_ACTION_BACKEND || $page_info['action'] == PAGE_ACTION_COMPONENT);
+            }
+        }
+        $backend_id_sql = '((SELECT id FROM actions WHERE `name` = "' . PAGE_ACTION_BACKEND . '"),(SELECT id FROM actions WHERE `name` = "' . PAGE_ACTION_COMPONENT . '"))';
+        if ($backend) {
+            $filter = 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_mobile . '") AND (id_actions IN ' . $backend_id_sql . ' OR IFNULL(id_actions, -1) = -1)';
+        } else {
+            $filter = 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_mobile . '") AND IFNULL(id_actions,-1) NOT IN ' . $backend_id_sql;
+        }
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], $filter, 'ORDER BY nav_position');
+        return $this->pages = $this->prepare_pages($pages_db);
+    }
+
+    /**
+     * Fetches all page links that are placed in the navbar from the database foe mobile.
      *
      * @retval array
      *  An array prepared by NavModel::prepare_pages.
      */
-    public function get_pages() { return $this->fetch_pages(); }
+    public function get_pages_mobile() {
+        $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_web . '")', 'ORDER BY nav_position');
+        return $this->pages = $this->prepare_pages($pages_db);
+     }
 
     /**
      * Checks whether a route exists.
@@ -198,16 +212,5 @@ class NavModel extends BaseModel
      */
     public function has_route($route) { return $this->router->has_route($route); }
 
-    /**
-     * Checks whether user has access to the chat. If not later the icon is not visualized
-     *
-     * @param string $key
-     *  The page name of the chat; in this case "contact"
-     * @retval bool
-     *  True if the user has access to the chat.
-     */
-    public function has_access_to_chat($key){
-        return $this->acl->has_access_select($_SESSION['id_user'], $this->db->fetch_page_id_by_keyword($key)); 
-    }
 }
 ?>

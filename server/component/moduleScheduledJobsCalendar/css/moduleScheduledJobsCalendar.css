@@ -1,0 +1,77 @@
+.scheduled-jobs-calendar-event {
+    padding: 2px;
+    flex-wrap: wrap;
+    border: 1.5px solid;
+    white-space: normal;
+    margin-bottom: 3px;
+    font-size: 12px;
+}
+
+.scheduled-jobs-calendar-event .fc-event-time {
+    font-weight: 700;
+    display: inline-block;
+    margin-right: 0 !important;
+    font-size: 12px;
+}
+
+.scheduled-jobs-calendar-event .fc-daygrid-event-dot {
+    margin: 0 4px 0 0;
+}
+
+.scheduled-jobs-calendar-add_group .fc-event-time span {
+    color: rgb(28, 165, 28);
+}
+
+.scheduled-jobs-calendar-remove_group .fc-event-time span {
+    color: rgb(249, 0, 212);
+}
+
+.scheduled-jobs-calendar-event .fc-event-title {
+    font-weight: 400;
+    display: block;
+    width: 100%;
+    border-top: dotted 1px;
+    border-color: inherit;
+    color: var(--dark);
+}
+
+.scheduled-jobs-calendar-done .fc-daygrid-event-dot {
+    border-color: green;
+}
+
+.scheduled-jobs-calendar-failed .fc-daygrid-event-dot {
+    border-color: red;
+}
+
+.fc-list-event-title .fc-daygrid-event-dot {
+    display: none;
+}
+
+.scheduled-jobs-calendar-done {
+    border-color: green;
+}
+
+.scheduled-jobs-calendar-failed {
+    border-color: red;
+}
+
+.fc-daygrid-week-number {
+    background-color: transparent !important;
+}
+
+.context-menu-item {
+    display: flex !important;
+    align-items: center;
+    padding: 0 0.5em !important;
+}
+
+.context-menu-item .fas {
+    position: relative !important;
+    top: inherit !important;
+    left: inherit !important;
+    margin-right: 0.5em !important;
+}
+
+.scheduled-jobs-calendar-deleted {
+    border-color: orange;
+}

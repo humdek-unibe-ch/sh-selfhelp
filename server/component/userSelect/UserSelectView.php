@@ -36,24 +36,6 @@ class UserSelectView extends BaseView
     /* Private Methods ********************************************************/
 
     /**
-     * Return the last login string
-     *
-     * @param string $data
-     *  The data string as it was returned by the DB
-     * @retval string
-     *  A human-readable time stamp with verbose additions.
-     */
-    private function get_last_login($data)
-    {
-        $days = round((time() - strtotime($data)) / (60*60*24)) . " day";
-        if($days > 1) $days .= "s";
-        $last_login = "never";
-        if($data !== null)
-            $last_login = $data . " (" . $days . " ago)";
-        return $last_login;
-    }
-
-    /**
      * Render the button to create a new user.
      */
     private function output_button()
@@ -115,6 +97,11 @@ class UserSelectView extends BaseView
             $title = "User Code";
             $content = "The validation code associated to the user.";
         }
+        else if($key === "user_name")
+        {
+            $title = "User Name";
+            $content = "Selected user name by the user";
+        }
         else if($key === "login")
         {
             $title = "Last Login";
@@ -135,10 +122,10 @@ class UserSelectView extends BaseView
             $title = "Groups";
             $content = "The groups in which the user is assigned";
         }
-        else if($key === "chat_rooms_names")
+        else if($key === "user_type")
         {
-            $title = "Chat";
-            $content = "The chats rooms names in whcih the user is assigned";
+            $title = "User Type";
+            $content = "The type of the user";
         }
         else
             $content = $title = "bad key";
@@ -186,7 +173,7 @@ class UserSelectView extends BaseView
             "type" => "danger",
             "children" => array(
                 new BaseStyleComponent("plaintext", array(
-                    "text" => "Cleaning user data will remove all activity logs as well as all input data entered by this user. This cannot be undone.",
+                    "text" => "Cleaning user data will remove all activity logs as well as all input data entered by this user. It will also remove all scheduled actions for that user. This cannot be undone.",
                     "is_paragraph" => true,
                 )),
                 new BaseStyleComponent("form", array(
@@ -195,6 +182,34 @@ class UserSelectView extends BaseView
                         array("uid" => $this->selected_user['id'],
                             "mode" => "clean")),
                     "type" => "danger",
+                )),
+            )
+        ));
+        $card->output_content();
+    }
+
+    /**
+     * Render the card to send activation email to the user.
+     */
+    private function output_user_send_activation_email()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Email Activation",
+            "type" => "info",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "This will send an activation email to the user",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Send Activation Email",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "activation_email")),
+                    "type" => "info",
                 )),
             )
         ));
@@ -305,6 +320,7 @@ class UserSelectView extends BaseView
         $this->output_user_groups();
         if($this->model->can_modify_user())
         {
+            $this->output_user_send_activation_email();
             if(!$this->selected_user["blocked"])
                 $this->output_user_blocking();
             else
@@ -357,23 +373,34 @@ class UserSelectView extends BaseView
      * Render the activity table content.
      */
     private function output_user_activity_rows()
-    {
-        foreach($this->model->get_users() as $user)
+    {   
+        $pc = $this->model->calc_pages_for_progress();
+        foreach($this->model->fetch_users() as $user)
         {
-            $url = $user['url'];
             $id = $user['id'];
-            $email = $user['title'];
-            $state = $user['status'];
+            $url = $this->model->get_link_url("userSelect", array("uid" => $id));
+            $email = $user['email'];
+            $user_name = $user['name'];
+            if ($user['blocked'] == 1) {
+                $state = 'blocked';
+            } else {
+                $state = $user['status'];
+            }
             $desc = $user['description'];
             $groups = $user['groups'];
-            $chat_rooms_names = $user['chat_rooms_names'];
             $row_state = "";
             if(strpos($state, "blocked") !== false)
                 $row_state = "table-warning";
-            $code = $this->model->get_user_code($id) ?? "-";
-            $last_login = $this->get_last_login($user['last_login']);
-            $activity = $this->model->get_user_activity($id);
-            $progress = $this->model->get_user_progress($id);
+            $code = $user['code'];
+            $last_login = $user['last_login'];
+            $activity = $user['user_activity'];
+            $user_type = $user['user_type'];
+            $ac = $user['ac'];
+            if($pc === 0 || $ac > $pc){
+                $progress = 1;
+            } else {
+                $progress = $ac/$pc;
+            }
             require __DIR__ . "/tpl_user_activity_row.php";
         }
     }
@@ -403,12 +430,13 @@ class UserSelectView extends BaseView
         {
             $state = $this->selected_user['status'];
             $code = $this->selected_user['code'] ?? "-";
+            $user_name = $this->selected_user['name'];
             $desc = $this->selected_user['description'];
             $groups = $this->selected_user['groups'];
-            $chat_rooms_names = $this->selected_user['chat_rooms_names'];
-            $last_login = $this->get_last_login($this->selected_user['last_login']);
-            $activity = $this->model->get_user_activity($this->selected_user['id']);
-            $progress = $this->model->get_user_progress($this->selected_user['id']);
+            $last_login = $this->selected_user['last_login'];
+            $activity = $this->selected_user['user_activity'];
+            $user_type = $this->selected_user['user_type'];
+            $progress = $this->model->get_user_progress($this->selected_user['id'], $this->model->calc_pages_for_progress());
             require __DIR__ . "/tpl_user.php";
         }
         else
@@ -471,6 +499,11 @@ class UserSelectView extends BaseView
     public function output_content()
     {
         require __DIR__ . "/tpl_main.php";
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

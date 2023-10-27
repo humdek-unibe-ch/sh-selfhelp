@@ -26,19 +26,6 @@ class NavView extends BaseView
 
     /* Private Methods ********************************************************/
 
-    /**
-     * Render the contact link.
-     */
-    private function output_nav_contact()
-    {
-        $key = 'contact';
-        if(!$this->model->has_route($key))
-            return;
-        $active = ($this->model->is_link_active($key)) ? "active" : "";
-        $url = $this->model->get_link_url($key);
-        $accessToChat = $this->model->has_access_to_chat($key) ? "" : "d-none";
-        require __DIR__ .'/tpl_contact.php';
-    }
 
     /**
      * Render all navigation links.
@@ -46,75 +33,109 @@ class NavView extends BaseView
     private function output_nav_items()
     {
         $pages = $this->model->get_pages();
-        foreach($pages as $key => $page)
-        {
+        foreach ($pages as $page) {
             $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
-            if(empty($page['children']))
-                $this->output_nav_item($key, $page['title'], $nav_child);
-            else
-                $this->output_nav_menu($key, $page['title'], $page['children']);
+            if (empty($page['children'])) {
+                $this->output_nav_item($page, $nav_child);
+            } else {
+                $this->output_nav_menu($page, false);
+            }
+        }
+    }
+
+    /**
+     * Return icon value for web if it exists
+     * @param string $icon
+     * icon value form cms
+     * @retval string or false
+     * Return the icon value or false if none set 
+     */
+    private function get_icon($icon)
+    {   
+        if(!$icon){
+            return false;
+        }
+        $icons = explode(' ', $icon);
+        if (count($icons) > 0) {
+            foreach ($icons as $key => $iconValue) {
+                if (strpos($iconValue, 'mobile-') === 0) {
+                    // not needed for web
+                } else {
+                    return $iconValue;
+                }
+            }
+            return false;
+        } else {
+            return false;
         }
     }
 
     /**
      * Render a navigation link, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
+     * @param string $page
+     *  The page info.
      * @param int $nav_child
      *  The id of the target navigation section (only relevant for navigation
      *  pages).
      */
-    private function output_nav_item($key, $page_name, $nav_child=null)
+    private function output_nav_item($page, $nav_child=null)
     {
-        $active = ($this->model->is_link_active($key)) ? "active" : "";
+        $active = (isset($page['is_active']) && $page['is_active']) ? "active" : "";
+        $page_name = $page['title'];
         $params = array();
         if($nav_child !== null)
-            $params['nav'] = $nav_child;
-        $url = $this->model->get_link_url($key, $params);
+            $params['nav'] = $nav_child;        
+        $icon = $this->get_icon($page['icon']);
+        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
         require __DIR__ . "/tpl_nav_item.php";
+    }
+
+    /**
+     *  Render login link
+     */
+    private function output_login(){
+        $this->output_nav_item($this->model->get_services()->get_db()->fetch_page_info('login'), null);
     }
 
     /**
      * Render a navigation menu, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
-     * @param array $children
-     *  An array of page items (see NavModel::prepare_pages).
+     * @param string $page
+     *  The page info
      * @param bool $right
      *  If set to true the nemu is aligned to the right of the navbar. If set
      *  to false, the menu is left aligned (default).
      */
-    private function output_nav_menu($key, $page_name, $children, $right=false)
+    private function output_nav_menu($page, $right = false)
     {
+        $page_name = $page['title'];
+        $children = $page['children'];
+        $is_active = $page['is_active'] ?? false;
         $align = ($right) ? "dropdown-menu-right" : "";
-        $active = ($this->model->is_link_active($key)) ? "active" : "";
+        $active = ($is_active) ? "active" : "";
+        $icon = $this->get_icon($page['icon']);
         require __DIR__ . "/tpl_nav_menu.php";
     }
 
     /**
      * Render a menu item, given a keyword and a page name.
      *
-     * @param string $key
-     *  The identification string of a route.
-     * @param string $page_name
-     *  The title of the page the link is pointing to.
+     * @param array $page
+     *  The page info
      * @param int $nav_child
      *  The id of the target navigation section (only relevant for navigation
      *  pages).
      */
-    private function output_nav_menu_item($key, $page_name, $nav_child)
+    private function output_nav_menu_item($page, $nav_child)
     {
-        $active = ($this->model->is_link_active($key)) ? "active" : "";
+        $active = (isset($page['is_active']) && $page['is_active']) ? "active" : "";
+        $page_name = $page['title'];
         $params = array();
         if($nav_child !== null)
             $params['nav'] = $nav_child;
-        $url = $this->model->get_link_url($key, $params);
+        $icon = $this->get_icon($page['icon']);
+        $url = ($page['action'] == PAGE_ACTION_BACKEND && $page['id_type'] != 1 ? $this->model->get_cms_item_url($page['id']) :  $this->model->get_link_url($page['keyword'], $params));
         require __DIR__ . "/tpl_nav_menu_item.php";
     }
 
@@ -126,26 +147,38 @@ class NavView extends BaseView
      */
     private function output_nav_menu_items($children)
     {
-        foreach($children as $key => $page)
+        foreach($children as $page)
         {
             if(empty($page['children']))
             {
                 $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
-                $this->output_nav_menu_item($key, $page['title'], $nav_child);
+                $this->output_nav_menu_item($page, $nav_child);
             }
-            else
-                $this->output_nav_menu($key, $page['title'], $page['children']);
+            else{
+                $this->output_nav_menu($page, false);
+            }
         }
+    }    
+
+    /**
+     * Render the profile menu.
+     */
+    private function output_profile()
+    {
+        $profile = $this->model->get_profile();
+        $profile['icon'] = $profile['avatar'] ?? '';
+        $this->output_nav_menu($profile, true); 
     }
 
     /**
-     * Render the pill indicating new messages.
+     * Render icon
      */
-    private function output_new_messages()
-    {
-        $count = $this->model->get_new_message_count();
-        if($count)
-            require __DIR__ .'/tpl_new_messages.php';
+    private function output_icon($icon){
+        if ($icon && (strpos($icon, '.png') !== false || strpos($icon, '.jpg') !== false)) {
+            require __DIR__ . '/tpl_custom_icon.php';
+        } else if ($icon) {
+            require __DIR__ . '/tpl_icon.php';
+        }
     }
 
     /* Public Methods *********************************************************/
@@ -157,11 +190,64 @@ class NavView extends BaseView
     {
         $home_url = $this->model->get_link_url("home");
         $home = $this->model->get_home();
+        $login_is_active = $this->model->get_login_active();
         $login = $this->model->get_login();
-        $profile = $this->model->get_profile();
-        $profile_title = $profile["title"];
-        $profile_children = $profile["children"];
-        require __DIR__ . "/tpl_nav.php";
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            require __DIR__ . "/../cms/tpl_new_ui/tpl_nav.php";
+        }else{
+            require __DIR__ . "/tpl_nav.php";
+        }        
+    }    
+
+    public function output_content_mobile()
+    {
+        $res = $this->model->get_pages_mobile();
+        $home = array(
+            'id_navigation_section' => null,
+            'title' => $this->model->get_home(),
+            'keyword' => 'home',
+            'url' => '/home',
+            'icon' => 'mobile-home',
+            'children' => array(),
+            'is_active' => false
+        );    
+        array_unshift($res, $home);
+        foreach ($res as $key => $value) {
+            unset($res[$key]['is_active']);
+            if (isset($value['children'])) {
+                foreach ($value['children'] as $subNavKey => $subNav) {
+                    unset($value['children'][$subNavKey]['is_active']);
+                }
+                $res[$key]['children'] = array_values($value['children']);
+            }
+        }
+
+        foreach ($res as $arr_key => $page) {
+            // get navigation page url corectly
+            $key = $page['keyword'];
+            $nav_child = $this->model->get_first_nav_section($page['id_navigation_section']);
+            if ($nav_child !== null) {
+                $params['nav'] = $nav_child;
+                $res[$arr_key]['url'] = str_replace($_SERVER['CONTEXT_PREFIX'], '', $this->model->get_link_url($key, $params));
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of css include files the component requires.
+     */
+    public function get_css_includes($local = array())
+    {
+        $local = array(
+            __DIR__ . "/css/nav.css"
+        );
+        return parent::get_css_includes($local);
     }
 }
 ?>

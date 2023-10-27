@@ -7,8 +7,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title><?php echo $title; ?></title>
-<meta http-equiv="Content-Security-Policy" content="<?php echo $this->get_csp_rules(); ?>" />
-<meta http-equiv="WebKit-CSP" content="<?php echo $this->get_csp_rules(); ?>" />
+<link rel="icon" type="image/x-icon" href="<?php echo BASE_PATH . '/favicon.ico'; ?>">
+<meta http-equiv="Content-Security-Policy" content="<?php echo $this->getCspRules(); ?>" />
+<meta http-equiv="WebKit-CSP" content="<?php echo $this->getCspRules(); ?>" />
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <?php
     $this->output_meta_tags();
@@ -19,8 +20,14 @@
     $this->output_js_includes();
 ?>
     <script><?php echo $this->get_js_constants() ?></script>
+    <style type="text/css">
+        <?php $this->output_custom_css(); ?>        
+    </style>
+ <?php
+    $this->output_js_includes_after();
+?>   
 </head>
-<body>
+<body class="ui-cms-body">
 <?php
     $this->output_warnings();
     $this->output_base_content();

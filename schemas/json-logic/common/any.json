@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file://../common/any.json",
+
+  "title": "All",
+  "description": "Any valid JSON Logic data source.",
+
+  "oneOf": [
+    { "$ref": "all-operators.json" },
+
+    { "$ref": "all-types.json" }
+  ]
+}

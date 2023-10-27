@@ -67,7 +67,8 @@ class DescriptionItemView extends StyleView
         $this->gender = $this->model->get_db_field("gender");
         $this->alt = $this->model->get_db_field("alt");
         $this->type = $this->model->get_db_field("type_input");
-        $this->help = $this->model->get_db_field("help");
+        $this->display = $this->model->get_db_field("display");
+        $this->help = $this->model->get_db_field("help");        
     }
 
     /* Private Methods ********************************************************/
@@ -109,7 +110,7 @@ class DescriptionItemView extends StyleView
      */
     private function output_small_text()
     {
-        if($this->locale == "" && $this->gender == "") return;
+        if(($this->locale == "" && $this->gender == "") || $this->display == 0) return; // if display is 0 fields does not need gender or language
         if($this->gender == "")
             require __DIR__ . "/tpl_locale.php";
         else
@@ -127,5 +128,6 @@ class DescriptionItemView extends StyleView
         $border = "border-top";
         require __DIR__ . "/tpl_item.php";
     }
+	
 }
 ?>

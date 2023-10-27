@@ -23,10 +23,16 @@ class JsonModel extends StyleModel
      *  class definition BasePage for a list of all services.
      * @param int $id
      *  The id of the section id of the chat wrapper.
+     * @param array $params
+     *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=array())
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Private Methodes *******************************************************/
@@ -100,7 +106,7 @@ class JsonModel extends StyleModel
         foreach($j_array as $key => $item)
         {
             // check if a json style key was misspelled
-            if($key[0] === "_" && $key !== "_baseStyle"
+            if(is_string($key) && $key[0] === "_" && $key !== "_baseStyle"
                 && $key !== "_name" && $key !== "_fields")
             {
                 return $this->json_style_return_error($is_child,

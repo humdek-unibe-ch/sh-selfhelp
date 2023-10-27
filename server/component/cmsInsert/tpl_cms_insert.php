@@ -37,7 +37,11 @@
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="type" value="1" disabled>
-                        <label class="form-check-label">Custom</label>
+                        <label class="form-check-label">Backend</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="type" value="5" disabled>
+                        <label class="form-check-label">Ajax</label>
                     </div>
                     <small class="form-text text-muted">The page type specified how the page content will be assembled. It is recommended to either use the type <code>Sections</code> or <code>Navigation</code>. Pages of type <code>Component</code> and <code>Custom</code> require PHP programming and cannot be handled by the CMS.</small>
                 </div>
@@ -57,6 +61,12 @@
                         <label class="form-check-label">Headless Page</label>
                     </div>
                     <small class="form-text text-muted">A headless page will <strong>not</strong> render any header or footer.</small>
+                </div>
+                <div class="form-group">
+                    <div class="form-check form-check-inline w-100">
+                        <?php $this->output_page_access_type(); ?>
+                    </div>
+                    <small class="form-text text-muted">Page access type: mobile, web or mobile_and_web</small>
                 </div>
                 <div id="protocol-list" class="form-group d-none">
                     <div>

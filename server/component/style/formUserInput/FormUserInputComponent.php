@@ -32,16 +32,26 @@ class FormUserInputComponent extends BaseComponent
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of this navigation component.
+     * @param array $params
+     *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new FormUserInputModel($services, $id);
+        $record_id = isset($params['record_id']) ? intval($params['record_id']) : -1;
+        $model = new FormUserInputModel($services, $id, $params, $id_page, $entry_record);        
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new FormUserInputController($model);
-        $view = new FormUserInputView($model, $controller);
-
+            $controller = new FormUserInputController($model, $record_id);
+        $view = new FormUserInputView($model, $controller, $record_id);
         parent::__construct($model, $view, $controller);
+        if ($this->controller && !isset($_POST[ENTRY_RECORD_ID])) {
+            // dont execute it if it is from entry; It will be handled later
+            $this->controller->execute();
+        }
     }
 }
 ?>

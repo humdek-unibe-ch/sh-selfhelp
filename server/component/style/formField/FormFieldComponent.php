@@ -54,6 +54,16 @@ abstract class FormFieldComponent extends BaseComponent
     }
 
     /**
+     * Set form_id
+     * @param $form_id integer
+     * the id of the form
+     */
+    public function set_form_id($form_id)
+    {
+        $this->model->set_form_id($form_id);
+    }
+
+    /**
      * Update the value of the form field view.
      *
      * @param string $value

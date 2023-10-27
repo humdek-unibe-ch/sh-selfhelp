@@ -69,30 +69,37 @@ class GroupModel extends BaseModel
      */
     private function fetch_group($gid)
     {
-        $sql = "SELECT g.name, g.description FROM groups AS g
-            WHERE g.id = :gid";
+        $sql = "SELECT g.name, g.description, l.lookup_code AS group_type 
+                FROM `groups` AS g
+                INNER JOIN lookups l ON (g.id_group_types = l.id)
+                WHERE g.id = :gid";
         $res = $this->db->query_db_first($sql, array(":gid" => $gid));
         if(!$res) return null;
         return array(
             "id" => $gid,
             "name" => $res['name'],
             "desc" => $res['description'],
+            "group_type" => $res['group_type']
         );
     }
 
     /**
      * Fetch the list of groups
-     *
-     * @retval array
+     * @param string $group_type
+     * The group type - db_role or group
+     * @return array
      *  A list of db items where each item has the keys
      *   'id':      The id of the group.
      *   'name':    The name of the group.
      */
-    private function fetch_groups()
+    private function fetch_groups($group_type)
     {
-        $sql = "SELECT g.id, g.name FROM groups AS g
-            ORDER BY g.name";
-        return $this->db->query_db($sql);
+        $sql = "SELECT g.id, g.`name`
+                FROM `groups` AS g
+                INNER JOIN lookups l ON (g.id_group_types = l.id) 
+                WHERE l.lookup_code = :group_type
+                ORDER BY g.name";
+        return $this->db->query_db($sql, array("group_type" => $group_type));
     }
 
     /**
@@ -112,19 +119,57 @@ class GroupModel extends BaseModel
     {
         $acl = array();
         $sql = "SELECT p.id, p.keyword FROM pages AS p ORDER BY p.keyword";
+        if ($this->selected_group && $this->selected_group['group_type'] == groupTypes_group) {
+            $sql = "SELECT p.id, p.keyword 
+                    FROM pages AS p 
+                    INNER JOIN pageType t ON (p.id_type = t.id)
+                    WHERE t.`name` = 'experiment' 
+                    ORDER BY p.keyword";
+        }
         $pages = $this->db->query_db($sql);
-        foreach($pages as $page)
-        {
-            $pid = intval($page['id']);
-            $acl[$page['keyword']] = array(
-                "name" => $page['keyword'],
-                "acl" => array(
-                    "select" => $this->acl->has_access_select($id, $pid, $is_group),
-                    "insert" => $this->acl->has_access_insert($id, $pid, $is_group),
-                    "update" => $this->acl->has_access_update($id, $pid, $is_group),
-                    "delete" => $this->acl->has_access_delete($id, $pid, $is_group),
-                )
-            );
+        if ($id == null && $is_group) {
+            // prefill empty gacl which is needed for the simple acl            
+            foreach ($pages as $page) {
+                $pid = intval($page['id']);
+                $acl[$page['keyword']] = array(
+                    "name" => $page['keyword'],
+                    "acl" => array(
+                        "select" => false,
+                        "insert" => false,
+                        "update" => false,
+                        "delete" => false,
+                    )
+                );
+            }
+        } else {
+            $acl_db = $is_group ? $this->acl->get_access_levels_db_group_all_pages($id) : $this->acl->get_access_levels_db_user_all_pages($id);
+            foreach ($pages as $page) {
+                $group_access_for_page_index = array_search($page['keyword'], array_column($acl_db, 'keyword'));
+                if ($group_access_for_page_index !== false) {
+                    // se set the permisions after we found them
+                    $group_access_for_page = $acl_db[$group_access_for_page_index];
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => isset($group_access_for_page) && $group_access_for_page['acl_select'] == 1,
+                            "insert" => isset($group_access_for_page) && $group_access_for_page['acl_insert'] == 1,
+                            "update" => isset($group_access_for_page) && $group_access_for_page['acl_update'] == 1,
+                            "delete" => isset($group_access_for_page) && $group_access_for_page['acl_delete'] == 1,
+                        )
+                    );
+                } else {
+                    // no permissions exists for this page, set them all to false
+                    $acl[$page['keyword']] = array(
+                        "name" => $page['keyword'],
+                        "acl" => array(
+                            "select" => false,
+                            "insert" => false,
+                            "update" => false,
+                            "delete" => false,
+                        )
+                    );
+                }                
+            }
         }
         return $acl;
     }
@@ -185,25 +230,6 @@ class GroupModel extends BaseModel
     }
 
     /**
-     * Check whether the chat administration permissions corresponding to
-     * a certain level are given.
-     *
-     * @param array $acl
-     *  An array of ACL rights. See UserModel::fetch_acl_by_id.
-     * @param string $lvl
-     *  The level of access e.g. select, insert, update, or delete.
-     * @retval bool
-     *  True if update access is allowed, false otherwise.
-     */
-    private function get_chat_access($acl, $lvl)
-    {
-        $res = $acl["admin-link"]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"]["select"];
-        $res &= $acl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl];
-        return $res;
-    }
-
-    /**
      * Check whether the cms permissions allow to modify pages.
      *
      * @param array $acl
@@ -233,8 +259,8 @@ class GroupModel extends BaseModel
     private function get_core_access($acl, $lvl)
     {
         $res = true;
-        if($lvl == "select")
-            $res &= $acl["request"]["acl"]["select"];
+        // if($lvl == "select")
+            // $res &= $acl["request"]["acl"]["select"];
         $res &= $this->get_access($acl, "core", $lvl);
         return $res;
     }
@@ -439,7 +465,7 @@ class GroupModel extends BaseModel
      */
     public function delete_group($gid)
     {
-        return $this->db->remove_by_fk("groups", "id", $gid);
+        return $this->db->remove_by_fk("`groups`", "id", $gid);
     }
 
     /**
@@ -493,6 +519,16 @@ class GroupModel extends BaseModel
      */  
     public function get_admin_group_rights(){
        return $this->fetch_acl_by_id(ADMIN_GROUP_ID, true);
+    }
+
+    /**
+     * Get the ACL info for a user and when someone want to change rights, this is the maximum what they can assign
+     *
+     * @retval array
+     *  See UserModel::fetch_acl_by_id.
+     */  
+    public function get_user_acl($uid){
+       return $this->fetch_acl_by_id($uid, false);
     }
 
     /**
@@ -560,15 +596,6 @@ class GroupModel extends BaseModel
                 "delete" => $this->get_data_access($acl, "delete"),
             ),
         );
-        $sgacl["chat"] = array(
-            "name" => "Chat Management",
-            "acl" => array(
-                "select" => $this->get_chat_access($acl, "select"),
-                "insert" => $this->get_chat_access($acl, "insert"),
-                "update" => $this->get_chat_access($acl, "update"),
-                "delete" => $this->get_chat_access($acl, "delete"),
-            ),
-        );
         return $sgacl;
     }
 
@@ -608,20 +635,20 @@ class GroupModel extends BaseModel
     /**
      * Get a list of groups and prepares the list such that it can be passed to a
      * list component.
-     *
-     * @retval array
+     * @param string $group_type
+     * The group type  
+     * @return array
      *  An array of items where each item has the following keys:
      *   'id':      The id of the group.
      *   'title':   The name of the group.
      *   'url':     The url pointing to the group.
      */
-    public function get_groups()
+    public function get_groups($group_type = groupTypes_group)
     {
         $res = array();
-        foreach($this->fetch_groups() as $group)
+        foreach($this->fetch_groups($group_type) as $group)
         {
             $id = intval($group["id"]);
-            if(!$this->is_group_allowed($id)) continue;
             $res[] = array(
                 "id" => $id,
                 "title" => $group["name"],
@@ -660,14 +687,17 @@ class GroupModel extends BaseModel
      *  The name of the group to be added.
      * @param string $desc
      *  The description of the group to be added.
-     * @retval int
+     * @param string $group_type
+     * The group type that we want to create: group or db_role
+     * @return int
      *  The id of the new group or false if the process failed.
      */
-    public function insert_new_group($name, $desc)
+    public function insert_new_group($name, $desc, $group_type)
     {
-        return $this->db->insert("groups", array(
+        return $this->db->insert("`groups`", array(
             "name" => $name,
             "description" => $desc,
+            "id_group_types" => $this->db->get_lookup_id_by_code(groupTypes, $group_type)
         ));
     }
 
@@ -680,21 +710,7 @@ class GroupModel extends BaseModel
      */
     public function is_group_allowed($id_group)
     {
-        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'],
-                $id_group);
-    }
-
-    /**
-     * Set the access level for the chat administration page.
-     *
-     * @param string $lvl
-     *  The level of access to be set e.g. select, insert, update, or delete.
-     */
-    public function set_chat_access($lvl)
-    {
-        $this->gacl["admin-link"]["acl"]["select"] = true;
-        $this->gacl["chatAdmin" . ucfirst($lvl)]["acl"]["select"] = true;
-        $this->gacl["chatAdmin" . ucfirst($lvl)]["acl"][$lvl] = true;
+        return $this->acl->is_user_of_higer_level_than_group($_SESSION['id_user'], $id_group);
     }
 
     /**
@@ -706,8 +722,8 @@ class GroupModel extends BaseModel
      */
     public function set_core_access($lvl)
     {
-        if($lvl == "select")
-            $this->gacl["request"]["acl"]["select"] = true;
+        // if($lvl == "select")
+            // $this->gacl["request"]["acl"]["select"] = true;
         $this->set_access("core", $lvl);
     }
 

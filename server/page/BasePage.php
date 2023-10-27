@@ -8,6 +8,7 @@ require_once __DIR__ . "/InternalPage.php";
 require_once __DIR__ . "/../component/style/StyleComponent.php";
 require_once __DIR__ . "/../component/nav/NavComponent.php";
 require_once __DIR__ . "/../component/footer/FooterComponent.php";
+require_once __DIR__ . "/../component/style/StyleView.php";
 
 /**
  * This abstract class serves as staring point for pages.
@@ -26,6 +27,11 @@ abstract class BasePage
      * An array of js include paths.
      */
     private $js_includes;
+
+    /**
+     * An array of js include paths which shouldbe loaded after the styles' JS
+     */
+    private $js_includes_after;
 
     /**
      * An array of components assigned to this page.
@@ -80,6 +86,21 @@ abstract class BasePage
      */
     protected $services;
 
+    /**
+     * A flag to indicate whether the acl check was successful or not.
+     */
+    protected $acl_pass = false;
+
+    /**
+     * Page Access type, it can be mobile, web and mobile_and_web
+     */
+    protected $pageAccessType;
+
+    /**
+     * Page object containing all the info for the page
+     */
+    protected $page;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -93,33 +114,66 @@ abstract class BasePage
      */
     public function __construct($services, $keyword)
     {
+        $this->services = $services;
         $this->render_nav = true;
         $this->render_footer = true;
         $this->keyword = $keyword;
         $this->components = array();
-        $this->css_includes = array(
-            "/css/ext/bootstrap.min.css",
+        $this->css_includes = array(            
+            "/css/ext/bootstrap.min.css",          
+            // "/css/ext/bootstrap3.3.1.min.css",  
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
+            "/css/ext/bootstrap-select.min.css",
+            "/css/ext/jquery-confirm.min.css",
+            "/css/ext/flatpickr.min.css",
+            "/css/ext/iconselect.css",
+            "/css/ext/editor.main.css",
+            "/css/ext/query-builder.default.min.css",
+            "/css/ext/query-builder.bootstrap.css",            
+            "/css/ext/bootstrap4-toggle.min.css",      
+            "/css/ext/easymde.min.css",   
+            "/css/ext/dataTables.contextualActions.min.css",             
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
+            "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",
             "/js/ext/datatables.min.js",
-            "/js/ext/mermaid.min.js",
+            "/js/ext/bootstrap-select.min.js",
+            "/js/ext/jquery-confirm.min.js",
+            "/js/ext/flatpickr.min.js",
+            "/js/ext/html2pdf.bundle.min.js",
+            "/js/ext/iconselect.js",
+            "/js/ext/iscroll.js",
+            "/js/ext/jquery-ui.min.js",
+            "/js/ext/jsoneditor.min.js",
+            "/js/ext/moment.min.js",
+            "/js/ext/jquery-extendext.js",
+            "/js/ext/query-builder.standalone.min.js",
+            "/js/ext/bootstrap4-toggle.min.js",
+            "/js/ext/easymde.min.js",
+            "/js/ext/dataTables.contextualActions.min.js",
+            "/js/ext/css-format-monaco.min.js" 
+        );
+        $this->js_includes_after = array(
+            "/js/ext/loader.js",
         );
         if(DEBUG == 0)
         {
-            $this->css_includes[] = "/css/ext/styles.min.css";
-            $this->js_includes[] = "/js/ext/styles.min.js";
+            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->get_git_version();
+            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->get_git_version();
         }
         $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
             $this->css_includes);
         $this->add_main_include_files(JS_SERVER_PATH, "/js/", "js",
             $this->js_includes);
-        if(DEBUG == 1)
-            $this->collect_style_includes();
-        $this->services = $services;
+        if(DEBUG == 1) {
+            $this->collect_style_includes();            
+        }
+        if($this->is_cms_page()){
+            $this->collect_plugin_includes();
+        }        
         $this->fetch_page_info($keyword);
         if($this->id_navigation_section != null)
             $this->services->set_nav(new Navigation(
@@ -129,15 +183,27 @@ abstract class BasePage
             new NavComponent($this->services));
         $this->add_component("footer",
             new FooterComponent($this->services));
+        $acl = $this->services->get_acl();
+        $this->acl_pass = $acl->has_access($_SESSION['id_user'],
+                $this->id_page, $this->required_access_level);
     }
 
-    /* Private Metods *********************************************************/
+    /* Private Methods *********************************************************/
+
+    /**
+     * render the git version
+     */
+    private function get_git_version(){
+        return rtrim(shell_exec("git describe --tags"));
+    }
 
     /**
      * Iterate through all styles and collect all js and css files.
      */
     private function collect_style_includes()
     {
+        $js_includes = array();
+        $css_includes = array();
         if($handle = opendir(STYLE_SERVER_PATH)) {
             $this->add_main_include_files(
                 STYLE_SERVER_PATH . '/css',
@@ -158,16 +224,94 @@ abstract class BasePage
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/css',
                     STYLE_PATH . '/' . $file . '/css/', 'css',
-                    $this->css_includes
+                    $css_includes
                 );
                 $this->add_main_include_files(
                     STYLE_SERVER_PATH . '/' . $file . '/js',
                     STYLE_PATH . '/' . $file . '/js/', 'js',
-                    $this->js_includes
+                    $js_includes
                 );
             }
             closedir($handle);
         }
+        sort($js_includes);
+        sort($css_includes);
+        $this->js_includes = array_merge($this->js_includes, $js_includes);
+        $this->css_includes = array_merge($this->css_includes, $css_includes);
+    }
+
+    /**
+     * Iterate through all plugins and collect all js and css files.
+     */
+    private function collect_plugin_includes()
+    {
+        $js_includes = array();
+        $css_includes = array();
+        if(DEBUG){
+            $css_location = '/css/';
+            $js_location = '/js/';
+        }else{
+            $css_location = '/css/ext/';
+            $js_location = '/js/ext/';
+        }
+        if($handle = opendir(PLUGIN_SERVER_PATH)) {
+            $this->add_main_include_files(
+                PLUGIN_SERVER_PATH . $css_location,
+                PLUGIN_PATH . $css_location, 'css',
+                $this->css_includes
+            );
+            $this->add_main_include_files(
+                PLUGIN_SERVER_PATH . $js_location,
+                PLUGIN_PATH . $js_location, 'js',
+                $this->js_includes
+            );
+            while (false !== ($file = readdir($handle))) {
+                if (filetype(PLUGIN_SERVER_PATH . '/' . $file) !== "dir" || $file === "." || $file === ".." || $file === "js" || $file === "css") {
+                    continue;
+                }
+                if (DEBUG) {
+                    $component_path = PLUGIN_SERVER_PATH . '/' . $file . '/server/component/style';
+                    $plugin_path = PLUGIN_PATH . '/' . $file . '/server/component/style';
+                    if (file_exists($component_path) && $handle2 = opendir($component_path)) {
+                        while (false !== ($dir = readdir($handle2))) {
+                            if (filetype($component_path . '/' . $dir) !== "dir" || $dir === "." || $dir === ".." || $dir === "js" || $dir === "css") {
+                                continue;
+                            }
+                            $this->add_main_include_files(
+                                $component_path . '/' . $dir    . $css_location,
+                                $plugin_path  . '/' . $dir    . $css_location,
+                                'css',
+                                $css_includes
+                            );
+                            $this->add_main_include_files(
+                                $component_path . '/' . $dir    . $js_location,
+                                $plugin_path . '/' . $dir   . $js_location,
+                                'js',
+                                $js_includes
+                            );
+                        }
+                    }
+                } else {
+                    $this->add_main_include_files(
+                        PLUGIN_SERVER_PATH . '/' . $file    . $css_location,
+                        PLUGIN_PATH . '/' . $file    . $css_location,
+                        'css',
+                        $css_includes
+                    );
+                    $this->add_main_include_files(
+                        PLUGIN_SERVER_PATH . '/' . $file    . $js_location,
+                        PLUGIN_PATH . '/' . $file   . $js_location,
+                        'js',
+                        $js_includes
+                    );
+                }
+            }
+            closedir($handle);
+        }
+        sort($js_includes);
+        sort($css_includes);
+        $this->js_includes = array_merge($this->js_includes, $js_includes);
+        $this->css_includes = array_merge($this->css_includes, $css_includes);
     }
 
     /**
@@ -221,14 +365,15 @@ abstract class BasePage
      * @retval string
      *  A string of valid csp rules.
      */
-    private function get_csp_rules()
+    private function getCspRules()
     {
-        return "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-"
-            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' data: https://via.placeholder.com/";
+        $csp_rules = "default-src 'self'; font-src 'self' data:;  style-src 'self' 'unsafe-inline'; object-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-"
+            . base64_encode(hash('sha256', $this->get_js_constants(), true)) . "'; img-src 'self' blob: data: https://via.placeholder.com/;";
+        return $csp_rules;
     }
 
     /**
-     * Fetch the main page information from the database.
+     * Fetch the main page information from the database and add transaction to the logs
      *
      * @param string $keyword
      *  The keyword identifying the page.
@@ -237,14 +382,40 @@ abstract class BasePage
     {
         $db = $this->services->get_db();
         $info = $db->fetch_page_info($keyword);
+        $transaction = $this->services->get_transaction();
+        $transaction->add_transaction(            
+            transactionTypes_select,
+            transactionBy_by_user,
+            $_SESSION['id_user'],
+            $transaction::TABLE_PAGES,
+            $info['id']
+        );
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
+        $this->pageAccessType = $db->get_lookup_code_by_id(intval($info['id_pageAccessTypes']));
         $this->required_access_level = $info['access_level'];
+        $this->page = $info;
         if($info['is_headless']) $this->disable_navigation();
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
+        $this->set_last_user_page();
+    }
+
+    /**
+     * Set the last unique page that the user visited in his/her SESSION
+     */
+    private function set_last_user_page()
+    {
+        $curr_url = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        if (!isset($_SESSION['last_user_page']) && isset($_SERVER['HTTP_REFERER'])) {
+            // if the variable is not set assign it
+            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        } else if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != $curr_url) {
+            // if it is set but the current url is from a new page, reassign the page
+            $_SESSION['last_user_page'] = $_SERVER['HTTP_REFERER'];
+        }
     }
 
     /**
@@ -269,7 +440,21 @@ abstract class BasePage
     {
         $this->js_includes = array_unique(array_merge($this->js_includes,
             $this->get_js_includes()));
+        /* sort($this->js_includes); */
         foreach($this->js_includes as $js_include)
+        {
+            $router = $this->services->get_router();
+            $include_path = $router->get_asset_path($js_include);
+            require __DIR__ . '/tpl_js_include.php';
+        }
+    }
+
+    /**
+     * Add page include files and render the js include directives at hte last postion.
+     */
+    private function output_js_includes_after()
+    {
+        foreach($this->js_includes_after as $js_include)
         {
             $router = $this->services->get_router();
             $include_path = $router->get_asset_path($js_include);
@@ -296,15 +481,17 @@ abstract class BasePage
         $msg = null;
         $date = null;
         $time = null;
-        $fields = $this->services->get_db()->fetch_page_fields('home');
-        foreach($fields as $field)
-        {
-            if($field['name'] === "maintenance")
-                $msg = $field['content'];
-            else if($field['name'] === "maintenance_date")
-                $date = $field['content'];
-            else if($field['name'] === "maintenance_time")
-                $time = $field['content'];
+        $maintenance_fields = $this->services->get_db()->fetch_page_info(SH_MAINTENANCE);
+        if ($maintenance_fields) {
+            if (isset($maintenance_fields[PF_MAINTENANCE])) {
+                $msg = $maintenance_fields[PF_MAINTENANCE];
+            }
+            if (isset($maintenance_fields[PF_MAINTENANCE_DATE])) {
+                $date = $maintenance_fields[PF_MAINTENANCE_DATE];
+            }
+            if (isset($maintenance_fields[PF_MAINTENANCE_TIME])) {
+                $time = $maintenance_fields[PF_MAINTENANCE_TIME];
+            }
         }
         if($msg && $date && $time)
         {
@@ -321,6 +508,30 @@ abstract class BasePage
         }
     }
 
+    private function get_external_css_for_mobile(){
+        $path = CSS_SERVER_PATH;
+        $extension = 'css';
+        if(!file_exists($path)) return;
+        $files = array();
+        if($handle = opendir($path)) {
+            while(false !== ($file = readdir($handle)))
+            {
+                if(filetype($path . '/' . $file) === "dir") continue;
+                $files[] = $file;
+            }
+            closedir($handle);
+        }
+        natcasesort($files);
+        $css_content = '';
+        foreach($files as $file)
+        {
+            $file_parts = pathinfo($file);
+            if($file_parts['extension'] === $extension)
+                $css_content .= file_get_contents($path . '/' . $file);
+        }
+        return $css_content;
+    }
+
     /* Protected Abstract Methods ***********************************************/
 
     /**
@@ -328,6 +539,12 @@ abstract class BasePage
      * This function needs to be implemented by the class extending the BasePage.
      */
     abstract protected function output_content();
+
+    /**
+     * Render the content of the page.
+     * This function needs to be implemented by the class extending the BasePage.
+     */
+    abstract protected function output_content_mobile();
 
     /* Protected Methods ******************************************************/
 
@@ -353,11 +570,9 @@ abstract class BasePage
      */
     protected function output_base_content()
     {
-        $acl = $this->services->get_acl();
         $login= $this->services->get_login();
         if($this->render_nav) $this->output_component("nav");
-        if($acl->has_access($_SESSION['id_user'],
-                $this->id_page, $this->required_access_level))
+        if($this->acl_pass)
             $this->output_content();
         else if($login->is_logged_in())
         {
@@ -373,16 +588,53 @@ abstract class BasePage
     }
 
     /**
+     * Render the content of the page.
+     */
+    public function output_base_content_mobile()
+    {
+        $res = [];
+        $login= $this->services->get_login();
+        if($this->render_nav){ 
+            $res['navigation'] = $this->output_component_mobile("nav");
+        }
+        if($this->acl_pass)
+            $res['content'] = $this->output_content_mobile();
+        else if($login->is_logged_in())
+        {
+            $page = new InternalPage($this, "no_access");
+            $page->output_content_mobile();
+        }
+        else
+        {
+            $page = new InternalPage($this, "no_access_guest");
+            $page->output_content_mobile();
+        }
+        // if($this->render_footer) $this->output_component("footer");
+        $res['title'] = $this->title;
+        $res['avatar'] = $this->services->get_user_input()->get_avatar($_SESSION['id_user']);
+        $res['external_css'] = $this->get_external_css_for_mobile();
+        $res['external_css'] = $res['external_css'] . ' ' . $this->get_global_custom_css();
+        $res['languages'] = $this->services->get_db()->get_languages();
+        $res['redirect_url'] = isset($_SESSION[MOBILE_REDIRECT_URL]) ? $_SESSION[MOBILE_REDIRECT_URL] : false;
+        return $res;
+    }
+
+    /**
      * Render the meta tags of the page.
      */
     protected function output_meta_tags()
     {
         $description = "";
         $db = $this->services->get_db();
-        $fields = $db->fetch_page_fields('home');
-        foreach($fields as $field)
-            if($field['name'] === "description")
-                $description = $field['content'];
+        if (isset($this->page['description'])) {
+            // if the page has description assign it
+            $description = $this->page['description'];
+        } else {
+            // get home description and use it
+            $home_id = $db->fetch_page_id_by_keyword('home');
+            $fields = $db->fetch_pages($home_id, $_SESSION['language']);
+            $description = isset($fields['description']) ? $fields['description'] : '';
+        }        
         require __DIR__ . "/tpl_meta.php";
     }
 
@@ -402,10 +654,27 @@ abstract class BasePage
         if(array_key_exists($key, $this->components))
             throw new Exception("Component $key already exists.");
         $this->components[$key] = $component;
-        $this->css_includes = array_merge($this->css_includes,
-            $component->get_css_includes());
-        $this->js_includes = array_merge($this->js_includes,
-            $component->get_js_includes());
+        $this->css_includes = array_merge($this->css_includes, $component->get_css_includes());
+        $this->js_includes = array_merge($this->js_includes, $component->get_js_includes());
+        if ($component->get_view() instanceof  StyleView) {
+            $this->add_children_js_css($component->get_view()->get_children());
+        }
+    }
+
+    /**
+     * Load recursively all js and css needed for all children
+     * @param array $children
+     * The children from which we want to load the js and css
+     */
+    public function add_children_js_css($children)
+    {
+        foreach ($children as $key => $child) {
+            $this->js_includes = array_merge($this->js_includes, $child->get_js_includes());
+            $this->css_includes = array_merge($this->css_includes, $child->get_css_includes());
+            if ($child->get_view() instanceof  StyleView) {
+                $this->add_children_js_css($child->get_view()->get_children());
+            }
+        }
     }
 
     /**
@@ -463,6 +732,39 @@ abstract class BasePage
         $component = $this->get_component($key);
         if($component != null)
             $component->output_content();
+    }
+
+    public function output_component_mobile($key)
+    {
+        $component = $this->get_component($key);
+        if($component != null)
+            return $component->output_content_mobile();
+    }
+
+    /**
+     * Checks whether the current page is a CMS page.
+     *
+     * @retval bool
+     *  true if the current page is a CMS page, false otherwise.
+     */
+    public function is_cms_page()
+    {
+        return ($this->services->get_router()->is_active("cms")
+            || $this->services->get_router()->is_active("cmsSelect")
+            || $this->services->get_router()->is_active("cmsUpdate")
+            || $this->services->get_router()->is_active("cmsInsert")
+            || $this->services->get_router()->is_active("cmsDelete")
+        );
+
+    }
+
+    public function get_global_custom_css(){
+        $global_css_page = $this->services->get_db()->fetch_page_info(SH_GLOBAL_CSS);
+        return isset($global_css_page[PF_GLOBAL_CUSTOM_CSS]) ? $global_css_page[PF_GLOBAL_CUSTOM_CSS] : '';
+    }
+
+    public function output_custom_css(){
+        echo $this->get_global_custom_css();        
     }
 }
 ?>

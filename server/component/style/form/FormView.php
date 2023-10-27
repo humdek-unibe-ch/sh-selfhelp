@@ -47,6 +47,45 @@ class FormView extends StyleView
      */
     private $cancel_url;
 
+    /**
+     * DB field 'submit_and_send_email' (false).
+     * If set to true the form will have one more submit button which will send an email with the form data to the user
+     */
+    protected $submit_and_send_email;
+
+    /**
+     * DB field 'submit_and_send_lable' ('').
+     * The label on the submit and send button
+     */
+    protected $submit_and_send_label;
+
+    /**
+     * Entry data if the style is used in entry visualization
+     */
+    protected $entry_data;
+
+    /**
+     * DB field 'confirmation_title' (empty string).
+     * If set a modal is shown. This will be the header of the confirmation modal.
+     */
+    private $confirmation_title;
+
+    /**
+     * DB field 'confirmation_cancel' (empty string).
+     */
+    private $confirmation_cancel;
+
+    /**
+     * DB field 'confirmation_continue' (OK).
+     */
+    private $confirmation_continue;
+
+    /**
+     * DB field 'confirmation_message' ('Do you want to continue?').
+     */
+    private $confirmation_message;
+
+
     /* Constructors ***********************************************************/
 
     /**
@@ -58,18 +97,24 @@ class FormView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->url = $this->model->get_db_field("url");
+        $this->url = $this->model->get_db_field("url");        
         $this->type = $this->model->get_db_field("type", "primary");
         $this->label = $this->model->get_db_field("label", "Submit");
         $this->label_cancel = $this->model->get_db_field("label_cancel",
             "Cancel");
         $this->cancel_url = $this->model->get_db_field("url_cancel");
+        $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
+        $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
+        $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
+        $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
+        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message", '');
     }
 
     /* Private Methods ********************************************************/
 
     /**
-     * Render the canel button.
+     * Render the cancel button.
      */
     private function output_cancel()
     {
@@ -77,7 +122,7 @@ class FormView extends StyleView
             "label" => $this->label_cancel,
             "type" => "secondary",
             "url" => $this->cancel_url,
-            "css" => "float-right",
+            "css" => "float-right form-cancel-btn",
         ));
         $button->output_content();
     }
@@ -89,8 +134,49 @@ class FormView extends StyleView
      */
     public function output_content()
     {
-        if($this->url == "") return;
+        if ($this->url == "") return;
+        $data_confirmation = array();
+        if ($this->confirmation_title) {
+            $data_confirmation['confirmation_title'] = $this->confirmation_title;
+            $data_confirmation['confirmation_cancel'] = $this->confirmation_cancel;
+            $data_confirmation['confirmation_continue'] = $this->confirmation_continue;
+            $data_confirmation['confirmation_message'] = $this->confirmation_message;
+        }
         require __DIR__ . "/tpl_form.php";
+    }
+
+    /**
+     * Render the submit button.
+     */
+    public function output_submit_button()
+    {
+        if ($this->label) {            
+            require __DIR__ . "/tpl_submit_btn.php";
+        }
+    }
+
+    /**
+     * Render the submit and send button.
+     */
+    public function output_submit_and_send_button()
+    {
+        if ($this->submit_and_send_email) {
+            $custom_css = $this->label ? 'ml-3' : ''; // if submit button is shown, add left margin 
+            require __DIR__ . "/tpl_submit_and_send_btn.php";
+        }
+    }
+
+    /**
+     * Output form children. If it is in cms mode then output them wrapped in a div with `section-children-ui-cms` class
+     */
+    public function output_form_children()
+    {
+        // if ($this->model->is_cms_page()) {
+        if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], 'admin/cms_update') !== false) { // ugly hack, it should be replaced
+            require __DIR__ . "/tpl_cms_children_holder.php";
+        } else {
+            $this->output_children();
+        }
     }
 }
 ?>

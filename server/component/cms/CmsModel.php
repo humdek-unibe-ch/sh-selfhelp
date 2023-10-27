@@ -21,6 +21,13 @@ class CmsModel extends BaseModel
     private $all_accessible_sections;
 
     /**
+     * All reference sections the user has select access to. The access rights of sections
+     * are inherited from pages. This means that all sections associated to a
+     * page are accessible if the page is accessible.
+     */
+    private $all_reference_sections;
+
+    /**
      * All sections that are not assigned to any page.
      */
     private $all_unassigned_sections;
@@ -94,6 +101,11 @@ class CmsModel extends BaseModel
      */
     private $section_path;
 
+    /**
+     * The ID of the cms page
+     */
+    private $id_cms_page;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -115,10 +127,13 @@ class CmsModel extends BaseModel
      *                wheter to access pages, sections, navigations.
      * @param string $mode
      *  The mode of the page: 'select', 'update', 'insert', or 'delete'
+     * @param number $id_cms_page
+     *  The id of the current cms page being loaded
      */
-    public function __construct($services, $params, $mode)
+    public function __construct($services, $params, $mode, $id_cms_page)
     {
         parent::__construct($services);
+        $this->id_cms_page = $id_cms_page;
         $this->mode = $mode;
         $this->id_page = isset($params["pid"]) ? intval($params["pid"]) : null;
         $this->id_root_section = (isset($params["sid"]) && $params["sid"] != 0)
@@ -135,6 +150,8 @@ class CmsModel extends BaseModel
         $this->page_hierarchy = array();
         $this->navigation_hierarchy = array();
         $this->all_accessible_sections = array();
+        $this->all_reference_sections = array();
+        $this->set_all_reference_sections();
     }
 
     /* Private Methods ********************************************************/
@@ -150,14 +167,20 @@ class CmsModel extends BaseModel
      *  The children of the list item which is an array of list items.
      * @param string $url
      *  The target url of the list item.
+     * @param int $parent_id
+     * the parent id of the section
+     * @param string $relation
+     * the relation of the section. Is it attached to page or another section, etc
      */
-    private function add_list_item($id, $title, $children, $url)
+    private function add_list_item($id, $title, $children, $url, $parent_id = null, $relation = null)
     {
         return array(
             "id" => $id,
             "title" => $title,
             "children" => $children,
-            "url" => $url
+            "url" => $url,
+            "parent_id" => $parent_id,
+            "relation" => $relation
         );
     }
 
@@ -181,18 +204,30 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->has_access($this->mode, $id))
                 continue;
-            $root_idx = $this->get_item_index(intval($item['parent']),
-                $root_items);
-            array_push($root_items[$root_idx]['children'],
-                $this->add_list_item($id, $item['keyword'], array(),
-                    $this->get_item_url($id)));
+            $root_idx = $this->get_item_index(intval($item['parent']), $root_items);
+            if ($root_idx >= 0) {
+                $title = ($item['nav_position'] != '' ? '<i class="fas fa-bars"></i> ' : '') . $item['keyword']; // add menu icon for the pages that are in the menu
+                $page = $this->add_list_item(
+                    $id,
+                    $title,
+                    array(),
+                    $this->get_cms_item_url($id)
+                );
+                $page['action'] = $item['action'];
+                array_push(
+                    $root_items[$root_idx]['children'],
+                    $page
+                );
+            }
         }
         return $root_items;
     }
 
     /**
      * Add a new list item.
-     *
+     * 
+     * @param array $field
+     * filed object with properties described under
      * @param int $id
      *  The id of the field.
      * @param int $id_language
@@ -209,26 +244,37 @@ class CmsModel extends BaseModel
      *  The type of the field as defined in the db table fieldType.
      * @param string $relation
      *  A string indication to what the field content relates. By this string
-     *  the differnet db access actions are decided.
+     *  the different db access actions are decided.
      * @param mixed $content
      *  The content of the field.
      * @param string $gender
      *  The gender the content is associated with.
+     * @param int $hidden
+     *  1 the field is hidden 0 not
+     * @param int $is_required
+     *  1 the field needs a value, 2 it does not need a value
+     * @param string $pattern
+     * if there is some special pattern for the field
+     * @param string $label
+     * if the value is set it will be used as label
      */
-    private function add_property_item($id, $id_language, $id_gender, $name,
-        $help, $locale, $type, $relation, $content, $gender="")
+    private function add_property_item($field)
     {
         return array(
-            "id" => $id,
-            "id_language" => $id_language,
-            "id_gender" => $id_gender,
-            "name" => $name,
-            "help" => $this->parsedown->text($help),
-            "locale" => $locale,
-            "type" => $type,
-            "relation" => $relation,
-            "content" => $content,
-            "gender" => $gender,
+            "id" => isset($field['id'])?$field['id']:null,
+            "id_language" => isset($field['id_language'])?$field['id_language']:ALL_LANGUAGE_ID,
+            "id_gender" => isset($field['id_gender'])?$field['id_gender']:MALE_GENDER_ID,
+            "name" => $field['name'],
+            "help" => isset($field['help']) ?  $this->parsedown->text($field['help']) : '',
+            "locale" => isset($field['locale'])?$field['locale']:'',
+            "type" => $field['type'],
+            "relation" => $field['relation'],
+            "content" => $field['content'],
+            "gender" => isset($field['gender'])?$field['gender']:'',
+            "hidden" => isset($field['hidden'])?$field['hidden']:0,
+            "is_required" => isset($field['is_required'])?$field['is_required']:0,
+            "format" => isset($field['format'])?$field['format']:'',
+            "label" => isset($field['label'])?$field['label']:''
         );
     }
 
@@ -257,9 +303,9 @@ class CmsModel extends BaseModel
      *  A prepared hierarchical array of unassigned section items such that it
      *  can be passed to a list style.
      */
-    private function fetch_unassigned_sections()
+    public function fetch_unassigned_sections()
     {
-        if($this->relation === "page_nav" || $this->relation === "section_nav")
+        if($this->relation === RELATION_PAGE_NAV || $this->relation === RELATION_SECTION_NAV)
             $where = "AND st.id = :sid";
         else
             $where = "AND st.id != :sid";
@@ -346,62 +392,9 @@ class CmsModel extends BaseModel
             else
                 $children = array();
             $res[] = $this->add_list_item($id_item, $item_db['name'], $children,
-                $this->get_item_url($this->id_page, $id_item));
+                $this->get_cms_item_url($this->id_page, $id_item));
         }
         return $res;
-    }
-
-    /**
-     * Fetch the 'all' language content of a specific page field.
-     *
-     * @param int $id_page
-     *  The id of the page the field is part of.
-     * @param int $id_field
-     *  The id of the field from which the translations shall be fetched.
-     * @retval array
-     *  An array with one database item.
-     */
-    private function fetch_page_field_independent($id_page, $id_field)
-    {
-        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
-            FROM languages AS l
-            LEFT JOIN pages_fields_translation AS pft
-            ON l.id = pft.id_languages AND pft.id_pages = :pid
-            AND pft.id_fields = :fid
-            WHERE l.locale = 'all'";
-
-        return $this->db->query_db($sql,
-            array(":pid" => $id_page, ":fid" => $id_field));
-    }
-
-    /**
-     * Fetch all translations of the content of a specific page field,
-     * except the 'all' language.
-     *
-     * @param int $id_page
-     *  The id of the page the field is part of.
-     * @param int $id_field
-     *  The id of the field from which the translations shall be fetched.
-     * @retval array
-     *  An array of database items.
-     */
-    private function fetch_page_field_languages($id_page, $id_field)
-    {
-        if($_SESSION['cms_language'] === "all")
-            $where = "WHERE l.locale <> :lang";
-        else
-            $where = "WHERE l.locale = :lang";
-        $sql = "SELECT l.locale AS locale, l.id AS id_language, pft.content
-            FROM languages AS l
-            LEFT JOIN pages_fields_translation AS pft
-            ON l.id = pft.id_languages AND pft.id_pages = :pid
-            AND pft.id_fields = :fid $where";
-
-        return $this->db->query_db($sql, array(
-            ":pid" => $id_page,
-            ":fid" => $id_field,
-            ":lang" => $_SESSION['cms_language'],
-        ));
     }
 
     /**
@@ -414,15 +407,24 @@ class CmsModel extends BaseModel
      */
     private function fetch_page_fields($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
-            pf.default_value, pf.help
-            FROM pages AS p
-            LEFT JOIN pages_fields AS pf ON pf.id_pages = p.id
-            LEFT JOIN fields AS f ON f.id = pf.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE p.id = :id
-            ORDER BY ft.position, f.display, f.name";
-        return $this->db->query_db($sql, array(":id" => $id));
+        $lang = isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : 1;
+        $sql = "SELECT 1*p.id AS id_pages, 1*f.id AS id, f.display, f.name, ft.id as id_fieldType, ft.name AS type,
+        pf.default_value, pf.help, l.locale AS locale, 1*l.id AS id_language,
+        'male' AS gender, ".MALE_GENDER_ID." AS id_gender,
+        (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND id_fields = f.id AND id_languages = l.id LIMIT 0,1) AS content,
+        :relation AS relation, 0 as hidden
+        FROM pages AS p
+        LEFT JOIN pageType pt ON (pt.id = p.id_type)
+        LEFT JOIN pageType_fields AS pf ON (pf.id_pageType = pt.id)
+        LEFT JOIN fields AS f ON f.id = pf.id_fields
+        LEFT JOIN fieldType AS ft ON ft.id = f.id_type        
+        JOIN languages AS l ON ((l.id = 1 AND f.display = 0) OR (f.display = 1 AND l.id > 1))
+        WHERE p.id = :id
+        HAVING (id_language = 1 OR id_language IN (".$lang."))
+        ORDER BY ft.position, f.display, f.name";
+        return $this->db->query_db($sql, array(
+            ":id" => $id, ":relation" => RELATION_PAGE_FIELD
+        ));
     }
 
     /**
@@ -459,12 +461,14 @@ class CmsModel extends BaseModel
                 WHERE sn.child = :id";
             $section = $this->db->query_db_first($sql,
                 array(":id" => $this->id_root_section));
-            if($section)
-                $pages[] = $this->add_list_item($this->id_root_section,
+            if ($section) {
+                $pages[] = $this->add_list_item(
+                    $this->id_root_section,
                     $section['name'],
                     $this->fetch_section_hierarchy($this->id_root_section),
-                    $this->get_item_url($this->id_page, $this->id_root_section,
-                        $this->id_root_section));
+                    $this->get_cms_item_url($this->id_page, $this->id_root_section, $this->id_root_section)
+                );
+            }
         }
         return $pages;
     }
@@ -494,45 +498,6 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch all translations of the content of a specific section field,
-     * except the 'all' language.
-     *
-     * @param int $id_section
-     *  The id of the section the field is part of.
-     * @param int $id_field
-     *  The id of the field from which the translations shall be fetched.
-     * @retval array
-     *  An array of database items.
-     */
-    private function fetch_section_field_languages($id_section, $id_field)
-    {
-        $data = array(
-            ":sid" => $id_section,
-            ":fid" => $id_field,
-            ":lang" => $_SESSION['cms_language'],
-        );
-
-        if($_SESSION['cms_language'] === "all")
-            $where = "WHERE l.locale <> :lang";
-        else
-            $where = "WHERE l.locale = :lang";
-        if($_SESSION['cms_gender'] !== "both")
-        {
-            $where .= " AND g.name = :gender";
-            $data[":gender"] = $_SESSION['cms_gender'];
-        }
-        $sql = "SELECT l.locale AS locale, l.id AS id_language, sft.content,
-            g.name AS gender, g.id AS id_gender
-            FROM languages AS l
-            JOIN genders AS g
-            LEFT JOIN sections_fields_translation AS sft
-            ON l.id = sft.id_languages AND sft.id_sections = :sid
-            AND sft.id_fields = :fid AND sft.id_genders = g.id $where";
-
-        return $this->db->query_db($sql, $data);
-    }
-
-    /**
      * Fetch the children of a section from the database and return a
      * heirarchical array such that it can be passed to a list style.
      *
@@ -546,7 +511,7 @@ class CmsModel extends BaseModel
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
      */
-    private function fetch_section_hierarchy($id, $recursion=true)
+    public function fetch_section_hierarchy($id, $recursion=true)
     {
         $db_sections = $this->db->fetch_section_children($id);
         return $this->prepare_section_list($db_sections, $recursion);
@@ -563,16 +528,31 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
-            sf.default_value, sf.help
-            FROM sections AS s
-            LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
-            LEFT JOIN fields AS f ON f.id = sf.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            WHERE s.id = :id
-            ORDER BY ft.position, f.display, f.name";
-        return $this->db->query_db($sql, array(":id" => $id));
+        $lang = isset($_SESSION['cms_language']) ? $_SESSION['cms_language'] : 1;
+        $gender = isset($_SESSION['cms_gender']) ? $_SESSION['cms_gender'] : 1;
+        $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.id as id_fieldType, ft.name AS type,
+        sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
+        IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1), sf.default_value) AS content,
+        g.name AS gender, 1*g.id AS id_gender,
+        CASE
+            WHEN ft.name = 'style-list' THEN :RELATION_SECTION_CHILDREN
+            ELSE :RELATION_SECTION_FIELD
+        END AS relation, s.name AS section_name, st.name AS style_name
+        FROM sections AS s
+        LEFT JOIN styles AS st ON st.id = s.id_styles
+        LEFT JOIN styles_fields AS sf ON sf.id_styles = st.id
+        LEFT JOIN fields AS f ON f.id = sf.id_fields
+        LEFT JOIN fieldType AS ft ON ft.id = f.id_type
+        JOIN genders g on (g.id = 1 or (f.display = 1))
+        JOIN languages AS l ON ((l.id = 1 AND f.display = 0) OR (f.display = 1 AND l.id > 1))
+        WHERE s.id = :id AND sf.disabled = 0
+        HAVING id_gender IN (" . $gender . ") AND (id_language = 1 OR id_language IN (" . $lang . "))
+        ORDER BY ft.position, f.display, f.name";
+        return $this->db->query_db($sql, array(
+            ":id" => $id,
+            ":RELATION_SECTION_CHILDREN" => RELATION_SECTION_CHILDREN,
+            ":RELATION_SECTION_FIELD" => RELATION_SECTION_FIELD,
+        ));
     }
 
     /**
@@ -591,27 +571,7 @@ class CmsModel extends BaseModel
             if($items[$idx]['id'] == $id)
                 return $idx;
         return -1;
-    }
-
-    /**
-     * Generate and return the url of a list item.
-     *
-     * @param int $pid
-     *  The page id.
-     * @param int $sid
-     *  The root section id or the active section id if no root section is
-     *  available.
-     * @param int $ssid
-     *  The active section id.
-     * @return string
-     *  The generated url.
-     */
-    private function get_item_url($pid, $sid=null, $ssid=null)
-    {
-        if($sid == $ssid) $ssid = null;
-        return $this->router->generate("cmsSelect",
-            array("pid" => $pid, "sid" => $sid, "ssid" => $ssid));
-    }
+    }    
 
     /**
      * Get the current last position of a list of children.
@@ -648,9 +608,18 @@ class CmsModel extends BaseModel
             $id = intval($item["id"]);
             if(!$this->has_access($this->mode, $id))
                 continue;
-            $url = $this->get_item_url($id);
-            array_push($res, $this->add_list_item($id, $item['keyword'], array(),
-                $url));
+            $url = $this->get_cms_item_url($id);
+            $title = $item['keyword'];
+            if($item['nav_position'] != ''){
+                if($item['action'] == PAGE_ACTION_BACKEND){
+                    $title = '<i class="fas fa-tools"></i> ' . $item['keyword']; // add backend icon for the pages that are in the menu
+                }else{
+                    $title = '<i class="fas fa-bars"></i> ' . $item['keyword']; // add menu icon for the pages that are in the menu
+                }
+            }
+            $page = $this->add_list_item($id, $title, array(), $url);
+            $page['action'] = $item['action'];
+            array_push($res, $page);
         }
         return $res;
     }
@@ -684,9 +653,14 @@ class CmsModel extends BaseModel
                 $id_root = $id;
                 $id_child = null;
             }
-            $res[] = $this->add_list_item($id,
-                $item['name'], $children,
-                $this->get_item_url($this->id_page, $id_root, $id_child));
+            $res[] = $this->add_list_item(
+                $id,
+                $item['name'],
+                $children,
+                $this->get_cms_item_url($this->id_page, $id_root, $id_child),
+                $item['parent_id'],
+                $item['relation']
+            );
         }
         return $res;
     }
@@ -726,6 +700,34 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Fetch all reference sections where the user has select access and add them to the
+     * corresponding private property. The access rights of sections are
+     * inherited from the pages.
+     */
+    private function set_all_reference_sections()
+    {
+        $sql = "SELECT s.id, s.name, s.id_styles,
+        COALESCE(ps.id_pages, psn.id_pages) AS pid
+        FROM sections AS s
+        INNER JOIN styles st on(s.id_styles = st.id)
+        LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
+        LEFT JOIN sections_navigation AS psn ON psn.child = s.id
+        LEFT JOIN pages AS pp ON pp.id = ps.id_pages
+        LEFT JOIN pages AS pn ON pn.id = psn.id_pages
+        WHERE st.name = 'refContainer' ";
+        $ref_sections = $this->db->query_db($sql);
+        $sections = array();
+        foreach($ref_sections as $section)
+        {
+            $id = intval($section['id']);
+            $sections[$id] = $this->add_list_item(
+                array($id, intval($section['id_styles'])), $section['name'],
+                array(), "");
+        }
+        $this->all_reference_sections = $sections;
+    }
+
+    /**
      * Sets the default acl rights for the newly created page.
      *
      * @param int $pid
@@ -738,6 +740,8 @@ class CmsModel extends BaseModel
         $this->acl->grant_access_levels(ADMIN_GROUP_ID, $pid, 4, true);
         $this->acl->grant_access_levels(EXPERIMENTER_GROUP_ID, $pid, 1, true);
         $this->acl->grant_access_levels(SUBJECT_GROUP_ID, $pid, 1, true);
+        $this->acl->grant_access_levels($_SESSION['id_user'], $pid, 4, false);
+        //TO DO grant access to creator
         if($is_open)
             $this->acl->grant_access_levels(GUEST_USER_ID, $pid, 1, false);
     }
@@ -868,7 +872,7 @@ class CmsModel extends BaseModel
      * @param int $id
      *  The parent section id (in case of a navigation page this is the field
      *  id_navigation_section).
-     * @param array $order
+     * @param string $order
      *  An indexed list of values where the index is the current position and
      *  the value the new poition number.
      * @retval bool
@@ -895,7 +899,7 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  The id of the parent page.
-     * @param array $order
+     * @param string $order
      *  An indexed list of values where the index is the current position and
      *  the value the new poition number.
      * @retval bool
@@ -948,7 +952,7 @@ class CmsModel extends BaseModel
      *
      * @param int $id
      *  The id of the parent section.
-     * @param array $order
+     * @param string $order
      *  An indexed list of values where the index is the current position and
      *  the value the new poition number.
      * @retval bool
@@ -971,36 +975,30 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Update a field of the current section.
+     * Adjust the hierarchy after an element is removed
      *
-     * @param int $id
-     *  The id of the field to update.
-     * @param int $id_language
-     *  The id of the language of the field.
-     * @param int $id_gender
-     *  The id of the target gender of the field.
-     * @param string $content
-     *  The new content.
-     * @retval bool
-     *  True if the update operation is successful, false otherwise.
+     * @param int $id_section
+     *  The id of the section the link is pointing to.
+     * @param string $relation
+     *  The database relation to know whether the link targets the navigation
+     *  or children list and whether the parent is a page or a section.
+     * 
      */
-    private function update_section_fields_db($id, $id_language, $id_gender,
-        $content)
+    public function adjust_hierarchy($id_section, $relation)
     {
-        $id_section = $this->get_active_section_id();
-        if($id_section == null && $this->is_navigation())
-            $id_section = $this->page_info['id_navigation_section'];
-        $update = array(
-            "content" => $content
-        );
-        $insert = array(
-            "content" => $content,
-            "id_fields" => $id,
-            "id_languages" => $id_language,
-            "id_sections" => $id_section,
-            "id_genders" => $id_gender,
-        );
-        return $this->db->insert("sections_fields_translation", $insert, $update);
+        $sql = "SET @row_number = -1;  
+                UPDATE sections_hierarchy
+                SET position = (@row_number:=@row_number + 1) * 10
+                WHERE parent = :id_section
+                ORDER by position;";
+        if ($relation == RELATION_PAGE_CHILDREN) {
+            $sql = "SET @row_number = -1;  
+                UPDATE pages_sections
+                SET position = (@row_number:=@row_number + 1) * 10
+                WHERE id_pages = :id_section
+                ORDER by position;";
+        }
+        $this->db->execute_update_db($sql, array(":id_section" => $id_section));
     }
 
     /* Public Methods *********************************************************/
@@ -1018,6 +1016,18 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to delete sections.
+     *
+     * @retval bool
+     *  True if the current user can delete sections, false otherwise.
+     */
+    public function can_delete_section()
+    {
+        $style_group = $this->get_style_group($this->get_active_section_id());
+        return $style_group['id'] != STYLE_GROUP_INTERN_ID;
+    }
+
+    /**
      * Checks whether the current user is allowed to create new child pages.
      *
      * @retval bool
@@ -1027,7 +1037,7 @@ class CmsModel extends BaseModel
     {
         return ($this->can_create_new_page()
             && $this->get_active_section_id() == null
-            && $this->page_info['parent'] == null
+            && $this->page_info && $this->page_info['parent'] == null
             && ($this->page_info['id_type'] == EXPERIMENT_PAGE_ID
                 || $this->page_info['id_type'] == OPEN_PAGE_ID));
     }
@@ -1042,6 +1052,30 @@ class CmsModel extends BaseModel
     {
         return $this->acl->has_access_insert($_SESSION['id_user'],
             $this->db->fetch_page_id_by_keyword("cmsInsert"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to import sections.
+     *
+     * @retval bool
+     *  True if the current user can import sections, false otherwise.
+     */
+    public function can_import_section()
+    {
+        return $this->acl->has_access_insert($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsImport"));
+    }
+
+    /**
+     * Checks whether the current user is allowed to export sections.
+     *
+     * @retval bool
+     *  True if the current user can export sections, false otherwise.
+     */
+    public function can_export_section()
+    {
+        return $this->id_root_section > 0 && $this->acl->has_access_select($_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("cmsExport"));
     }
 
     /**
@@ -1066,11 +1100,13 @@ class CmsModel extends BaseModel
      *  is required.
      * @param int $parent
      *  The id of the parent page or null if a root page is created.
+     * @param int $id_pageAccessTypes
+     *  Page type access. It could be mobile, web or mobile_web
      * @retval int
      *  The id of the created page.
      */
     public function create_new_page($keyword, $url, $protocol, $action,
-        $position, $is_headless, $is_open, $parent)
+        $position, $is_headless, $is_open, $parent, $id_pageAccessTypes)
     {
         $nav_id = null;
         $page_type = $is_open ? OPEN_PAGE_ID : EXPERIMENT_PAGE_ID;
@@ -1089,6 +1125,7 @@ class CmsModel extends BaseModel
             "nav_position" => $position ? 999 : null,
             "parent" => $parent,
             "is_headless" => $is_headless ? 1 : 0,
+            "id_pageAccessTypes" => $id_pageAccessTypes
         ));
         $this->set_new_page_acl($pid, $is_open);
         if($position)
@@ -1141,6 +1178,18 @@ class CmsModel extends BaseModel
     }
 
     /**
+     * Returns an array of all reference section that are accessible by the current user.
+     *
+     * @retval array
+     *  a list of key => value pairs where the key is the id of a section and
+     *  the value a list item (see CmsModel::add_list_item).
+     */
+    public function get_reference_sections()
+    {
+        return $this->all_reference_sections;
+    }
+
+    /**
      * Gets the currently active page id.
      *
      * @retval int
@@ -1160,7 +1209,7 @@ class CmsModel extends BaseModel
      */
     public function get_active_root_section_id()
     {
-        if($this->page_info['id_navigation_section'] != null)
+        if($this->page_info && $this->page_info['id_navigation_section'] != null)
             return $this->id_root_section;
         return null;
     }
@@ -1179,6 +1228,17 @@ class CmsModel extends BaseModel
             return $this->id_root_section;
         else
             return null;
+    }
+
+    /**
+     * Getter function for the cms page id.
+     *
+     * @retval number
+     *  The ID of the cms page
+     */
+    public function get_cms_page_id()
+    {
+        return $this->id_cms_page;
     }
 
     /**
@@ -1249,38 +1309,6 @@ class CmsModel extends BaseModel
     }
 
     /**
-     * Fetch all languages from the database.
-     *
-     * @retval array
-     *  As array of items where each item has the following keys:
-     *   - 'locale':    The short notation of the language.
-     *   - 'language':  The langaige name.
-     */
-    public function get_languages()
-    {
-        $sql = "SELECT locale, language FROM languages WHERE id > 1";
-        return $this->db->query_db($sql);
-    }
-
-    /**
-     * Fetch the css string of the current section from the db.
-     *
-     * @retval string
-     *  The css string from the current section.
-     */
-    public function get_css($id_section = null)
-    {
-        if($id_section === null)
-            $id_section = $this->get_active_section_id();
-        $css = $this->db->select_by_fks("sections_fields_translation", array(
-            "id_sections" => $id_section,
-            "id_fields" => CSS_FIELD_ID,
-            "id_languages" => 1,
-        ));
-        return $css['content'];
-    }
-
-    /**
      * Get the current page acl mode.
      *
      * @retval string
@@ -1332,10 +1360,14 @@ class CmsModel extends BaseModel
     {
         $parent_clause = $parent ? "AND parent = :pid" : "AND parent is NULL";
         $sql = "SELECT id, keyword AS title FROM pages
-            WHERE nav_position IS NOT NULL AND id_type <> 1
+            WHERE nav_position IS NOT NULL AND id_actions <> " . INTERNAL_PAGE_ID . " AND id_type <> 1
             $parent_clause
             ORDER BY nav_position";
-        return $this->db->query_db($sql, array(":pid" => $parent));
+        if($parent){
+            return $this->db->query_db($sql, array(":pid" => $parent));
+        }else{
+            return $this->db->query_db($sql);
+        }
     }
 
     /**
@@ -1362,52 +1394,41 @@ class CmsModel extends BaseModel
     public function get_page_properties()
     {
         $res = array();
-        $page_title = $this->fetch_page_field_languages($this->id_page,
-            LABEL_FIELD_ID);
-        foreach($page_title as $content)
-        {
+        if ($this->page_info) {
             $res[] = $this->add_property_item(
-                LABEL_FIELD_ID,
-                intval($content['id_language']),
-                MALE_GENDER_ID,
-                "title",
-                "The title of the page. This field is used as\n - HTML title of the page\n - Menu name in the header",
-                $content['locale'],
-                "text",
-                "page_field",
-                $content['content'],
-                ""
+                array(
+                    "name" => "keyword",
+                    "help" => "The page keyword must be unique, otherwise the page creation will fail. <b>Note that the page keyword can contain numbers, letters, - and _ characters</b>",
+                    "type" => "text",
+                    "relation" => RELATION_PAGE,
+                    "content" => $this->page_info['keyword'],
+                    "is_required" => 1,
+                    "format" => "[a-zA-Z0-9_-]+",
+                    "label" => "Keyword",
+                )
+            );
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "id_pageAccessTypes",
+                    "help" => "Select for what content the page will be loaded",
+                    "type" => "select-platform",
+                    "relation" => RELATION_PAGE,
+                    "content" => $this->page_info['id_pageAccessTypes'],
+                    "label" => "Page Access Type",
+                )
+            );
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "is_headless",
+                    "help" => "A headless page will <b>not</b> render any header or footer.",
+                    "type" => "checkbox",
+                    "relation" => RELATION_PAGE,
+                    "content" => $this->page_info['is_headless'],
+                    "label" => "Headless Page",
+                )
             );
         }
-        $fields = $this->fetch_page_fields($this->id_page);
-        foreach($fields as $field)
-        {
-            $relation = "page_field";
-            $id = intval($field['id']);
-            if($field['display'] == '1')
-            {
-                $contents = $this->fetch_page_field_languages(
-                    $this->id_page, $id);
-            }
-            else
-                $contents = $this->fetch_page_field_independent($this->id_page,
-                    $id);
-            foreach($contents as $content)
-            {
-                $res[] = $this->add_property_item(
-                    $id,
-                    intval($content['id_language']),
-                    MALE_GENDER_ID,
-                    $field['name'],
-                    $field['help'],
-                    $content['locale'],
-                    $field['type'],
-                    "page_field",
-                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
-                    ""
-                );
-            }
-        }
+        $res = array_merge($res, $this->fetch_page_fields($this->id_page));
         if($this->is_navigation())
         {
             // add navigation section fields
@@ -1416,33 +1437,28 @@ class CmsModel extends BaseModel
             foreach($section_fields as $section_field)
                 $res[] = $section_field;
         }
-        if($this->page_info['action'] === "sections")
+        if ($this->page_info && $this->page_info['action'] === "sections") {
             $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "sections",
-                "",
-                "",
-                "style-list",
-                "page_children",
-                $this->page_sections_static,
-                ""
+                array(
+                    "name" => "sections",
+                    "label" => "Sections",
+                    "type" => "style-list",
+                    "relation" => RELATION_PAGE_CHILDREN,
+                    "content" => $this->page_sections_static,
+                )
             );
-        if($this->is_navigation())
+        }
+        if ($this->is_navigation()) {
             $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "navigation",
-                "",
-                "",
-                "style-list",
-                "page_nav",
-                $this->fetch_navigation_items(
-                    $this->page_info['id_navigation_section'], false),
-                ""
+                array(
+                    "name" => "navigation",
+                    "label" => "Navigation",
+                    "type" => "style-list",
+                    "relation" => RELATION_PAGE_NAV,
+                    "content" => $this->fetch_navigation_items($this->page_info['id_navigation_section'], false)
+                )
             );
+        }
         return $res;
     }
 
@@ -1501,59 +1517,55 @@ class CmsModel extends BaseModel
             $id_section = $this->get_active_section_id();
         $res = array();
         $fields = $this->fetch_style_fields_by_section_id($id_section);
-        foreach($fields as $field)
-        {
-            $relation = "section_field";
-            $id = intval($field['id']);
-            if($field['display'] == '1')
-            {
-                $contents = $this->fetch_section_field_languages(
-                    $id_section, $id);
-            }
-            else if($field['type'] == "style-list")
-            {
-                $relation = "section_children";
-                $contents = array(array(
-                    "id_language" => $id,
-                    "id_gender" => MALE_GENDER_ID,
-                    "locale" => "",
-                    "content" => $this->fetch_section_hierarchy($id_section, false),
-                    "gender" => "",
-                ));
-            }
-            else
-                $contents = $this->fetch_section_field_independent($id_section,
-                    $id);
-            foreach($contents as $content)
-            {
-                $res[] = $this->add_property_item(
-                    $id,
-                    intval($content['id_language']),
-                    intval($content['id_gender']),
-                    $field['name'],
-                    $field['help'],
-                    $content['locale'],
-                    $field['type'],
-                    $relation,
-                    ($content['content'] == "") ? $field['default_value'] : $content['content'],
-                    $content['gender']
-                );
-            }
-        }
-        if($this->is_navigation_root_item())
+        if ($fields) {
             $res[] = $this->add_property_item(
-                null,
-                ALL_LANGUAGE_ID,
-                MALE_GENDER_ID,
-                "navigation",
-                "",
-                "",
-                "style-list",
-                "section_nav",
-                $this->fetch_navigation_items($id_section, false),
-                ""
+                array(
+                    "name" => "section_name",
+                    "help" => "Section name. <b>Note that the section name can contain only numbers, letters, - and _ characters</b>",
+                    "type" => "text",
+                    "relation" => RELATION_SECTION,
+                    // "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
+                    "content" => $fields[0]['section_name'],
+                    "is_required" => 0,
+                    "format" => "[a-zA-Z0-9_-]+",
+                    "label" => "Section name",
+                )
             );
+        }
+        $res = array_merge($res, $fields);
+        if ($this->is_navigation_root_item()) {
+            $res[] = $this->add_property_item(
+                array(
+                    "name" => "navigation",
+                    "label" => "Navigation",
+                    "type" => "style-list",
+                    "relation" => RELATION_SECTION_NAV,
+                    "content" => $this->fetch_navigation_items($id_section, false)
+                )
+            );
+        }
         return $res;
+    }
+
+    /**
+     * Fetch and return the style group given a section id.
+     *
+     * @param number $id
+     *  The id of the section
+     * @retval array
+     *  An array of style group items where each item has the following keys:
+     *   - id:          The id of the style group.
+     *   - name:        The name of the style group.
+     *   - description: The description of the style group.
+     */
+    public function get_style_group($id)
+    {
+        $sql = "SELECT sg.* FROM styleGroup AS sg
+            LEFT JOIN styles AS s ON s.id_group = sg.id
+            LEFT JOIN sections AS sct ON sct.id_styles = s.id
+            WHERE sct.id = :id";
+        return $this->db->query_db_first($sql,
+            array("id" => $id));
     }
 
     /**
@@ -1648,10 +1660,12 @@ class CmsModel extends BaseModel
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
      * @retval int
      *  The id of the newly created section or false on failure.
      */
-    public function insert_new_section($name, $id_style, $relation)
+    public function insert_new_section($name, $id_style, $relation, $position = null)
     {
         $res = true;
         if(!$this->acl->has_access_update($_SESSION['id_user'],
@@ -1661,9 +1675,12 @@ class CmsModel extends BaseModel
             "id_styles" => $id_style
         ));
         if(!$new_id) return false;
-        $res &= $this->insert_section_link($new_id, $relation);
-        if($res) return $new_id;
-        else return false;
+        $res &= $this->insert_section_link($new_id, $relation, $position);
+        if($res) {
+            return $new_id;
+        }
+
+        return false;
     }
 
     /**
@@ -1674,44 +1691,50 @@ class CmsModel extends BaseModel
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
      * @retval bool
      *  True if the insert operation is successful, false otherwise.
      */
-    public function insert_section_link($id, $relation)
+    public function insert_section_link($id, $relation, $position = null)
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
-        if($relation == "page_children")
+        if($relation == RELATION_PAGE_CHILDREN)
         {
             $sections = $this->db->fetch_page_sections_by_id($this->id_page);
-            return $this->db->insert("pages_sections", array(
+            $res = $this->db->insert("pages_sections", array(
                 "id_pages" => $this->get_active_page_id(),
                 "id_sections" => $id,
-                "position" => $this->get_last_position($sections)
+                "position" => $position ? $position : $this->get_last_position($sections)
             ));
+            $this->adjust_hierarchy($this->get_active_page_id(), $relation);
+            return $res;
         }
-        else if($relation == "section_children")
+        else if($relation == RELATION_SECTION_CHILDREN)
         {
             $sections = $this->db->fetch_section_children(
                 $this->get_active_section_id());
-            return $this->db->insert("sections_hierarchy", array(
+            $res = $this->db->insert("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id,
-                "position" => $this->get_last_position($sections)
+                "position" => $position ? $position : $this->get_last_position($sections)
             ));
+            $this->adjust_hierarchy($this->get_active_section_id(), $relation);
+            return $res;
         }
-        else if($relation == "page_nav" || $relation == "section_nav")
+        else if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
         {
-            if($relation == "page_nav")
+            if($relation == RELATION_PAGE_NAV)
                 $id_parent = $this->page_info["id_navigation_section"];
-            else if($relation == "section_nav")
+            else if($relation == RELATION_SECTION_NAV)
                 $id_parent = $this->get_active_section_id();
             $sections = $this->db->fetch_nav_children($id_parent);
             return $this->db->insert("sections_navigation", array(
                 "parent" => $id_parent,
                 "child" => $id,
                 "id_pages" => $this->id_page,
-                "position" => $this->get_last_position($sections)
+                "position" => $position ? $position : $this->get_last_position($sections)
             ));
         }
     }
@@ -1724,7 +1747,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation()
     {
-        return ($this->page_info['id_navigation_section'] != null);
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null);
     }
 
     /**
@@ -1736,7 +1759,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation_item()
     {
-        return ($this->page_info['id_navigation_section'] != null
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null
             && $this->id_root_section != null);
     }
 
@@ -1749,7 +1772,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation_main()
     {
-        return ($this->page_info['id_navigation_section'] != null
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null
             && $this->id_root_section == null);
     }
 
@@ -1762,7 +1785,7 @@ class CmsModel extends BaseModel
      */
     public function is_navigation_root_item()
     {
-        return ($this->page_info['id_navigation_section'] != null
+        return ($this->page_info && $this->page_info['id_navigation_section'] != null
             && $this->id_root_section != null
             && $this->id_section == null);
     }
@@ -1780,29 +1803,74 @@ class CmsModel extends BaseModel
      */
     public function remove_section_association($id_section, $relation)
     {
-        if(!$this->acl->has_access_update($_SESSION['id_user'],
-            $this->get_active_page_id())) return false;
-        if($relation == "page_children")
-            return $this->db->remove_by_ids("pages_sections", array(
+        if (!$this->acl->has_access_update(
+            $_SESSION['id_user'],
+            $this->get_active_page_id()
+        )) return false;
+        if ($relation == RELATION_PAGE_CHILDREN) {
+            $res = $this->db->remove_by_ids("pages_sections", array(
                 "id_pages" => $this->id_page,
                 "id_sections" => $id_section
             ));
-        else if($relation == "section_children")
-            return $this->db->remove_by_ids("sections_hierarchy", array(
+            $this->adjust_hierarchy($this->id_page, $relation);
+            return $res;
+        } else if ($relation == RELATION_SECTION_CHILDREN) {
+            $res = $this->db->remove_by_ids("sections_hierarchy", array(
                 "parent" => $this->get_active_section_id(),
                 "child" => $id_section
             ));
-        else if($relation == "page_nav" || $relation == "section_nav")
-        {
-            if($relation == "page_nav")
-                $id_parent = $this->page_info["id_navigation_section"];
-            else if($relation == "section_nav")
-                $id_parent = $this->get_active_section_id();
+            $this->adjust_hierarchy($this->get_active_section_id(), $relation);
+            return $res;
+        } else if ($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV) {
+            if ($relation == RELATION_PAGE_NAV)
+            $id_parent = $this->page_info["id_navigation_section"];
+            else if ($relation == RELATION_SECTION_NAV)
+            $id_parent = $this->get_active_section_id();
             return $this->db->remove_by_ids("sections_navigation", array(
                 "parent" => $id_parent,
                 "child" => $id_section
             ));
         }
+    }
+
+    /**
+     * Delete all unassigned sections and their children recursively
+     * @retval boolean
+     */
+    public function delete_all_unassigned_sections()
+    {
+        try {
+            $this->db->begin_transaction();
+            $all_unassigned_sections = $this->fetch_unassigned_sections();
+            while(count($all_unassigned_sections) > 0){
+                // delete all sections with their children
+                if($this->delete_unassigned_sections($all_unassigned_sections) === false){
+                    $this->db->rollback();
+                    return false;    
+                }
+                $all_unassigned_sections = $this->fetch_unassigned_sections();
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * Delete all unassinged sections without their children, only the sections
+     * @param array $all_unassigned_sections all sections, array by ids
+     * @retval boolean
+     */
+    public function delete_unassigned_sections($all_unassigned_sections)
+    {        
+        foreach ($all_unassigned_sections as $key => $value) {
+            if ($this->delete_section($key) === false) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1837,21 +1905,21 @@ class CmsModel extends BaseModel
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
-        if($relation == "page_field")
-            return $this->update_page_fields_db($id, $id_language, $content);
-        else if($relation == "section_field")
+        if($relation == RELATION_PAGE_FIELD)
+            return $this->update_page_fields_db($id, $id_language, $content);        
+        else if($relation == RELATION_SECTION_FIELD)
             return $this->update_section_fields_db($id, $id_language, $id_gender,
                 $content);
-        else if($relation == "section_children")
+        else if($relation == RELATION_SECTION_CHILDREN)
             return $this->update_section_children_order_db(
                 $this->get_active_section_id(), $content);
-        else if($relation == "page_children")
+        else if($relation == RELATION_PAGE_CHILDREN)
             return $this->update_page_children_order_db(
                 $this->id_page, $content);
-        else if($relation == "page_nav")
+        else if($relation == RELATION_PAGE_NAV)
             return $this->update_nav_order_db(
                 $this->page_info['id_navigation_section'], $content);
-        else if($relation == "section_nav")
+        else if($relation == RELATION_SECTION_NAV)
             return $this->update_nav_order_db(
                 $this->get_active_section_id(), $content);
     }
@@ -1865,7 +1933,8 @@ class CmsModel extends BaseModel
     {
         $this->update_page_hierarchy();
         $this->update_page_sections();
-        $this->set_all_accessible_sections();
+        // $this->set_all_accessible_sections();
+        $this->set_all_reference_sections();
         $this->all_unassigned_sections = $this->fetch_unassigned_sections();
     }
 
@@ -1947,5 +2016,176 @@ class CmsModel extends BaseModel
         $this->update_page_sections();
         $this->navigation_hierarchy = $this->fetch_navigation_hierarchy();
     }
+
+    public function get_db(){
+        return $this->db;
+    }
+
+    /**
+     * Return a list of group items the user can grant access to the page.The
+     * list is prepared such that it can be passed to a select form. 
+     * Groups: Admin, therapist and subject are not in the list as they recieve the access by default
+     *
+     * @retval array
+     *  An array of group items where each item has the following keys:
+     *   'value':   The id of the group.
+     *   'text':    The name of the group.
+     */
+    public function get_groups_grant_access_to_page($uid)
+    {
+        $groups = array();
+        $sql = "SELECT g.id AS value, g.name AS text FROM `groups` AS g
+            LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
+            WHERE ug.id_users IS NULL
+            ORDER BY g.name";
+        $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
+        foreach ($groups_db as $group) {
+                $groups[] = $group;
+        }
+        return $groups;
+    }
+
+    /**
+     * Update a field of the current section.
+     *
+     * @param int $id
+     *  The id of the field to update.
+     * @param int $id_language
+     *  The id of the language of the field.
+     * @param int $id_gender
+     *  The id of the target gender of the field.
+     * @param string $content
+     *  The new content.
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_section_fields_db($id, $id_language, $id_gender,
+        $content, $id_section = null)
+    {        
+        if ($id_section === null && isset($_POST['id_section'])) {
+            // if the id is coming in the post parameter set it
+            $id_section = $_POST['id_section'];
+        }
+        if($id_section === null)
+            $id_section = $this->get_active_section_id();
+        if($id_section == null && $this->is_navigation())
+            $id_section = $this->page_info['id_navigation_section'];        
+        $update = array(
+            "content" => $content
+        );
+        $insert = array(
+            "content" => $content,
+            "id_fields" => $id,
+            "id_languages" => $id_language,
+            "id_sections" => $id_section,
+            "id_genders" => $id_gender,
+        );
+        return $this->db->insert("sections_fields_translation", $insert, $update);
+    }    
+
+    /**
+     * Update the page table
+     *
+     * @param array $page_fields
+     *  It contains the column and the value that should be assigned
+     * @param string $position
+     *  The position string if the new page should appear in the navbar, null otherwise.
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_page($page_fields, $position = null)
+    {        
+        $res = $this->db->update_by_ids(
+            "pages",
+            $page_fields,
+            array("id" => $this->id_page)
+        );
+        if($position){
+            $this->update_page_order($position, $this->get_parent_page_id($this->id_page));
+        }
+        return $res;
+    }
+
+    /**
+     * Update the section table
+     *
+     * @param array $section_fields
+     * it contains the column and the value that should be assigned
+     * @retval bool
+     *  True if the update operation is successful, false otherwise.
+     */
+    public function update_section($section_fields)
+    {
+        if(isset($section_fields['section_name'])){
+            $section_fields['name'] = $section_fields['section_name']; // use the real column name form the DB, it was used section_name otherwise it was overwritten by styles which have field `name`
+            unset($section_fields['section_name']);
+        }
+        return $this->db->update_by_ids(
+            "sections",
+            $section_fields,
+            array("id" => isset($_POST['id_section']) ? $_POST['id_section'] : $this->id_root_section)
+            // array("id" => ($this->id_root_section ? $this->id_root_section : (isset($_POST['id_section']) ? $_POST['id_section'] : $this->id_root_section)))
+        );
+    }
+
+    /**
+     * Get the id of the root section
+     * @return int 
+     * Return the id of the root section
+     */
+    public function get_id_root_section()
+    {
+        return $this->id_root_section;
+    }
+
+    /**
+     * Get the parent page id if there is one
+     * @param int $page_id 
+     * the page id that we want to get parent
+     * @retval int or null
+     * return the parent id or null
+     */
+    public function get_parent_page_id($page_id)
+    {
+        $sql = "SELECT parent FROM pages WHERE id = :page_id";
+        $res = $this->db->query_db_first($sql, array("page_id" => $page_id));
+        return $res ? $res['parent'] : -1;
+    }
+
+    /**
+     * Get all styles
+     * @return array
+     * Return all styles' names in array
+     */
+    public function get_styles()
+    {
+        $sql = "SELECT name FROM styles;";
+        return $this->db->query_db($sql, array());
+    }
+
+    /**
+     * Get all global pages from the DB
+     * @return array
+     * Return the global pages
+     */
+    public function get_global_pages(){
+        return $this->db->fetch_pages(-1, $_SESSION['language'], 'AND IFNULL(id_actions,-1) = (SELECT id FROM actions WHERE `name` = "backend") AND parent = (SELECT id FROM pages WHERE keyword = "sh_globals")', 'ORDER BY nav_position');
+    }
+
+    /**
+     * Check if the parent page is the global and if it is then we have to expand the global pages
+     * @return boolean
+     * Return true if we have to expand the global pages
+     */
+    public function expand_global_pages()
+    {
+        $global_page_id = $this->db->fetch_page_id_by_keyword('sh_globals');
+        if (isset($this->page_info['parent'])) {
+            return (int)$this->page_info['parent'] == $global_page_id;
+        } else {
+            return false;
+        }
+    }
 }
 ?>
+

@@ -81,6 +81,12 @@ class ValidateView extends StyleView
     private $gender_female;
 
     /**
+     * DB field 'gender_divers' (empty string)
+     * The female gender string.
+     */
+    private $gender_divers;
+
+    /**
      * DB field 'label_activate' (empty string)
      * The label of the submit button.
      */
@@ -117,9 +123,37 @@ class ValidateView extends StyleView
     private $custom_form_name;
 
     /**
+     * DB field 'name_description' (empty string)
+     * The name description
+     */
+    private $name_description;
+
+    /**
+     * DB field 'value_gender' (empty string)
+     * The default value of the gender. If set it will be hidden
+     */
+    private $value_gender;
+
+    /**
+     * DB field 'value_name' (empty string)
+     * The default value of the user name. If set it will be hidden
+     */
+    private $value_name;
+
+    /**
      * The controller instance of the formUserInput component.
      */
-    private $ui_controller;
+    private $ui_controller;    
+
+    /**
+     * If enabled the registration will be based on the logic for anonymous_users
+     */
+    private $anonymous_users = false;
+
+    /**
+     * The description for the anonymous user name
+     */
+    private $anonymous_user_name_description;
 
     /* Constructors ***********************************************************/
 
@@ -148,12 +182,17 @@ class ValidateView extends StyleView
         $this->gender_label = $this->model->get_db_field("label_gender");
         $this->gender_male = $this->model->get_db_field("gender_male");
         $this->gender_female = $this->model->get_db_field("gender_female");
+        $this->gender_divers = $this->model->get_db_field("gender_divers", "divers");
         $this->activate_label = $this->model->get_db_field("label_activate");
         $this->alert_fail = $this->model->get_db_field("alert_fail");
         $this->alert_success = $this->model->get_db_field("alert_success");
         $this->success = $this->model->get_db_field("success");
         $this->login_action_label = $this->model->get_db_field("label_login");
         $this->custom_form_name = $this->model->get_db_field("name");
+        $this->value_name = $this->model->get_db_field("value_name", "");
+        $this->value_gender = $this->model->get_db_field("value_gender", "");
+        $this->anonymous_users = $this->model->is_anonymous_users();
+        $this->anonymous_user_name_description = $this->model->get_db_field("anonymous_user_name_description");
         $this->add_local_component("alert-fail",
             new BaseStyleComponent("alert", array(
                 "type" => "danger",
@@ -192,21 +231,51 @@ class ValidateView extends StyleView
     /**
      * Render to user-defined input fields.
      */
-    private function output_custom_fields()
+    private function check_custom_fields()
     {
-        if(count($this->children) === 0) return;
+        if (count($this->children) === 0) {
+            require __DIR__ . "/tpl_cms_children_holder.php";
+        } else {
+            if (
+                method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() &&
+                method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
+                $this->model->get_services()->get_user_input()->is_new_ui_enabled()
+            ) {
+                require __DIR__ . "/tpl_custom_fields_edit.php";
+            } else {
+                $this->output_custom_fields();
+            }            
+        }        
+    }
+
+    /**
+     * Output custom fields
+     */
+    private function output_custom_fields() {
         $input = new BaseStyleComponent('input', array(
             'type_input' => 'hidden',
             'name' => '__form_name',
             'value' => $this->custom_form_name,
         ));
         $input->output_content();
-        foreach($this->children as $child)
-        {
-            $input = $child->get_style_instance();
-            if(is_a($input, "FormFieldComponent"))
-                $input->enable_user_input();
+        $this->output_custom_fields_children($this->children);
+        foreach ($this->children as $child) {
             $child->output_content();
+        }
+    }
+    
+    /**
+     * Recursively load children fields and enable them if they are form fields
+     * @param array $children
+     * The children elements that we will loop
+     */
+    private function output_custom_fields_children($children){
+        foreach ($children as $child) {
+            $input = $child->get_style_instance();
+            if (is_a($input, "FormFieldComponent")){
+                $input->enable_user_input();                
+            }
+            $this->output_custom_fields_children($child->get_children());
         }
     }
 
@@ -223,8 +292,29 @@ class ValidateView extends StyleView
             $gender = $this->model->get_user_gender();
             $male_checked = ($gender === "male") ? "checked" : "";
             $female_checked = ($gender === "female") ? "checked" : "";
+            $divers_checked = ($gender === "divers") ? "checked" : "";
+            if ($this->value_gender) {
+                switch ($this->value_gender) {
+                    case MALE_GENDER_ID:
+                        $male_checked = "checked";
+                        break;
+                    case FEMALE_GENDER_ID:
+                        $female_checked = "checked";
+                        break;
+                    case DIVERS_GENDER_ID:
+                        $divers_checked = "checked";
+                        break;
+                }
+            }
             $name = $this->model->get_user_name();
-            require __DIR__ . "/tpl_validate.php";
+            if ($this->value_name) {
+                $name = $this->value_name;
+            }
+            if ($this->anonymous_users) {
+                require __DIR__ . "/tpl_validate_anonymous_user.php";
+            } else {
+                require __DIR__ . "/tpl_validate.php";
+            }
         }
         if($this->model->is_cms_page()
             || ($this->controller !== null && $this->controller->has_succeeded()
@@ -233,6 +323,36 @@ class ValidateView extends StyleView
             $url = $this->model->get_link_url("login");
             require __DIR__ . "/tpl_success.php";
         }
+    }
+
+    /**
+     * Output the style for mobile
+     * @return object 
+     * Return te style
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['anonymous_users'] = $this->anonymous_users;
+        $style['user_name'] = $this->model->get_user_name();
+        $style['css_gender'] = $this->get_css_gender();
+        return $style;
+    }
+
+    /**
+     * Get the css for the gender group. If there are default value the group is not displayed
+     * @return string
+     */
+    public function get_css_gender(){
+        return $this->value_gender ? "d-none": "";
+    }
+
+    /**
+     * Get the css for the name group. If there are default value the group is not displayed
+     * @return string
+     */
+    public function get_css_name(){
+        return $this->value_name ? "d-none": "";
     }
 }
 ?>

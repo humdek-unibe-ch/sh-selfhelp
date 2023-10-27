@@ -27,7 +27,7 @@
                     <input type="email" class="form-control" name="email" placeholder="Enter email" required>
                 </div>
                 <div class="form-group">
-                    <label>Assign User to Groups (Use <kbd>Crtl</kbd> or <kbd>Shift</kbd> to select or unselect multiple elements)</label>
+                    <label>Assign User to Groups (You can select multiple groups)</label>
                     <?php $this->output_group_selection(); ?>
                 </div>
                 <button type="submit" class="btn btn-primary">Create</button>

@@ -74,6 +74,23 @@ class CmsInsertView extends BaseView
         $list->output_content();
     }
 
+    /**
+     * Render select with all the page access types.
+     */
+    private function output_page_access_type()
+    {
+        $items = $this->get_lookups(pageAccessTypes);
+        $access_types = new BaseStyleComponent("select", array(
+            "label" => "Page Access Type:",
+            "value" => $this->model->get_services()->get_db()->get_lookup_id_by_code(pageAccessTypes, pageAccessTypes_mobile_and_web),
+            "css" => "w-100",
+            "is_required" => true,
+            "name" => "id_pageAccessTypes",
+            "items" => $items,
+        ));
+        $access_types->output_content();
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -126,6 +143,11 @@ class CmsInsertView extends BaseView
                 array("pid" => $this->model->get_active_page_id()));
             require __DIR__ . "/tpl_cms_insert.php";
         }
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

@@ -1,0 +1,3 @@
+.dropdown-toggle-no-carret::after {
+    display: none !important;
+}

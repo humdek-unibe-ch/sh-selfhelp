@@ -34,14 +34,50 @@ class CmsView extends BaseView
     {
         parent::__construct($model, $controller);
         $_SESSION['active_section_id'] = $this->model->get_active_section_id();
+        $_SESSION['id_root_section'] = $this->model->get_id_root_section();
+        $_SESSION['id_page'] = $this->model->get_active_page_id();
         $this->page_info = $this->model->get_page_info();
         $this->create_settings_card();
-        $this->add_local_component("new_page", new BaseStyleComponent("button",
+        $this->add_local_component("new_page", new BaseStyleComponent("link",
             array(
-                "label" => "Create New Page",
                 "url" => $this->model->get_link_url("cmsInsert"),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
+                "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                "children" => array(
+                    new BaseStyleComponent("markdownInline", array(
+                        "text_md_inline" => '<div><span id="collapse-icon" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Create New Page" class="fas fa-file fa-fw"></span><span id="collapse-text" class="ml-1 menu-collapsed">Create New Page</span></div>',
+                        "css" => ""
+                    ))
+                )
+            )
+        ));
+        if (!$this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // show import section only for the old UI
+            $this->add_local_component("import", new BaseStyleComponent("link",
+                array(
+                    "url" => $this->model->get_link_url("cmsImport", array(
+                        "type" => "section"
+                    )),
+                    "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                    "children" => array(
+                        new BaseStyleComponent("markdownInline", array(
+                            "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-upload fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                            "css" => ""
+                        ))
+                    )
+                )
+            ));
+        }
+        $this->add_local_component("page_preview", new BaseStyleComponent("link",
+            array(
+                "url" => $this->model->get_link_url($this->page_info ? $this->page_info['keyword'] : '', array("nav" => $this->model->get_active_root_section_id())),
+                "css" => "ui-side-menu-button list-group-item list-group-item-action",
+                "open_in_new_tab" => true,
+                "children" => array(
+                    new BaseStyleComponent("markdownInline", array(
+                        "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-eye fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Page Preview"></span><span id="collapse-text" class="ml-1 menu-collapsed">Page Preview</span></div>',
+                        "css" => ""
+                    ))
+                )
             )
         ));
         $this->add_local_component("new_child_page",
@@ -81,6 +117,33 @@ class CmsView extends BaseView
                 ),
             ))
         );
+        $this->add_local_component(
+            "export_section",
+            new BaseStyleComponent("card", array(
+                "css" => "mb-3",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Export Section",
+                "type" => "primary",
+                "children" => array(
+                    new BaseStyleComponent("plaintext", array(
+                        "text" => "Exporting a section will create a JSON file that contains information about the section and all its children.",
+                        "is_paragraph" => true,
+                    )),
+                    new BaseStyleComponent("button", array(
+                        "label" => "Export Section",
+                        "url" => $this->model->get_link_url(
+                            "cmsExport",
+                            array(
+                                "type" => "section",
+                                "id" => $this->model->get_active_section_id()
+                            )
+                        ),
+                        "type" => "primary",
+                    )),
+                ),
+            ))
+        );
         $this->add_local_component("delete_section",
             new BaseStyleComponent("card", array(
                 "css" => "mb-3",
@@ -104,14 +167,21 @@ class CmsView extends BaseView
         );
 
         $pages = $this->model->get_pages();
+        $global_pages = $this->prepare_global_pages($this->model->get_global_pages());
+        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND));  
+        $expand_global_pages = $this->model->expand_global_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
+        $this->add_list_component("global-page-list", "Globals", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
         $this->add_list_component("page-list", "Page Index", $pages, "page",
-            $expand_pages, $this->model->get_active_page_id());
+            $expand_pages, $this->model->get_active_page_id(), ' ');
 
         $page_sections = $this->model->get_page_sections();
-        $this->add_list_component("page-section-list", "Page Sections",
-            $page_sections, "sections-page", true,
-            $this->model->get_active_section_id());
+        if(!$this->model->get_services()->get_user_input()->is_new_ui_enabled()){
+            // if it is old UI show sections            
+            $this->add_list_component("page-section-list", "Page Sections",
+                $page_sections, "sections-page", true,
+                $this->model->get_active_section_id());
+        }
 
         $this->add_list_component("navigation-hierarchy-list",
             "Navigation Hierarchy", $this->model->get_navigation_hierarchy(),
@@ -182,17 +252,32 @@ class CmsView extends BaseView
             foreach($page_sections as $section)
                 $page_components[] = new StyleComponent(
                     $this->model->get_services(),
-                    intval($section['id']));
+                    intval($section['id']), $section,
+                    $this->model->get_cms_page_id());
         else
             $page_components[] = new StyleComponent(
                 $this->model->get_services(),
-                $this->model->get_active_root_section_id());
-        if(count($page_components) == 0)
-        {
+                $this->model->get_active_root_section_id(), array(),
+                $this->model->get_cms_page_id());
+        if (count($page_components) == 0) {
             $text = new BaseStyleComponent("plaintext", array(
                 "text" => "No CMS view available for this page."
             ));
-            $page_components[] = $text;
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                $new_section = new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_new_ui/tpl_empty_page_add_section.php",
+                    "items" => array(
+                        "data_section" => array(
+                            "can_have_children" => $this->model->get_mode() == "update",
+                            "children" => 0,
+                            "relation" => 'RELATION_PAGE_CHILDREN'
+                        ),
+                        "page_keyword" => $this->page_info ? $this->page_info["keyword"] : '',
+                        "page_id" => $this->page_info ? intval($this->page_info['id']): null
+                    ),
+                ));
+                $page_components[] = $new_section;
+            }
         }
         $this->add_local_component("page-view",
             new BaseStyleComponent("card", array(
@@ -200,12 +285,18 @@ class CmsView extends BaseView
                 "title" => "Page View",
                 "is_collapsible" => true,
                 "is_expanded" => ($this->model->get_active_section_id() == null),
-                "css" => "mb-3 section-view",
+                "css" => "mb-3 section-view w-100",
                 "children" => $page_components,
             ))
         );
-        if($this->model->get_active_section_id() != null)
-            $this->add_local_component("section-view",
+        if ($this->model->get_active_section_id() != null){
+            $section_path = $this->model->get_section_path();
+            $params = isset($section_path[count($section_path) - 1]) ? isset($section_path[count($section_path) - 1]) : array();
+            if (!is_array($params)) {
+                $params = array();
+            }
+            $this->add_local_component(
+                "section-view",
                 new BaseStyleComponent("card", array(
                     "css" => "mb-3 section-view",
                     "is_collapsible" => true,
@@ -213,10 +304,15 @@ class CmsView extends BaseView
                     "id" => "section-view",
                     "children" => array(new StyleComponent(
                         $this->model->get_services(),
-                        $this->model->get_active_section_id()
+                        $this->model->get_active_section_id(),
+                        $params,
+                        $this->model->get_cms_page_id()
                     ))
                 ))
             );
+        }
+
+        // debug
     }
 
     /* Private Methods ********************************************************/
@@ -238,11 +334,78 @@ class CmsView extends BaseView
             array(
                 "type" => $type,
                 "children" => array(
-                    new BaseStyleComponent("plaintext", array("text" => $msg))
+                    new BaseStyleComponent("plaintext", array("text" => "[".date("H:i:s")."] " . $msg))
                 ),
                 "is_dismissable" => true
             )
         ));
+    }
+
+    /**
+     * Get the nav help card content
+     */
+    private function get_nav_help_card(){
+        return new BaseStyleComponent("card", array(
+                "css" => "ui-card-list properties-fields ui-nav-help",
+                "title"=>"Help",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "children" => array(
+                    new BaseStyleComponent("template", array(
+                        "path" => __DIR__ . "/tpl_intro_nav.php"
+                    ))
+                )
+            ));
+    }
+
+    /**
+     * Get the page header items for page reordering
+     * @retval array
+     * The items needed for the page header reordering
+     */
+    private function get_page_header()
+    {        
+        $current_page = $this->model->get_active_page_id();
+        $pages = $this->model->get_pages_header($this->model->get_parent_page_id($current_page));
+        $page_info = $this->model->get_db()->fetch_page_by_id($current_page);
+        $position_value = "";
+        foreach ($pages as $idx => $page) {
+            $position_value .= (string)($idx * 10) . ",";
+            if ($current_page != intval($page["id"])) {
+                $pages[$idx]["css"] = "fixed text-muted";
+            }
+        }
+        $position_value = rtrim($position_value, ",");
+        $page_header = array();
+
+        $page_header[] = new BaseStyleComponent("template", array(
+            "path" => __DIR__ . "/tpl_new_ui/tpl_page_header_position.php",
+            "items" => array(
+                "position_value" => $position_value,
+                "checked" => isset($page_info['nav_position']) ? "checked" : ""
+            ),
+        ));
+        if ($page_info && $page_info['nav_position'] == "") {
+            // the page is not in nav, add it to the list
+            $pages[] = array("id" => $current_page, "title" => $page_info['keyword']);
+        }
+        $page_header[] = new BaseStyleComponent("div", array(
+            "css" => "d-none",
+            "id" => "page-order-wrapper",
+            "children" => array(
+                new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => true,
+                    "is_editable" => true,
+                    "items" => $pages,
+                )),
+                new BaseStyleComponent("input", array(
+                    "value" => $page_info ? $page_info['nav_position'] : '',
+                    "name" => "nav_position",
+                    "type_input" => "hidden"
+                ))
+            )
+        ));
+        return $page_header;
     }
 
     /**
@@ -278,13 +441,130 @@ class CmsView extends BaseView
         ));
         $this->add_local_component($name, new BaseStyleComponent("card",
             array(
-                "css" => "mb-3",
+                "css" => "mt-3 mb-3 ui-card-list menu-collapsed",
+                // "is_expanded" =>  $this->model->get_services()->get_user_input()->is_new_ui_enabled() || $is_expanded_root, // if the new UI is enabled always expand the page index
                 "is_expanded" => $is_expanded_root,
                 "is_collapsible" => true,
                 "title" => $title,
                 "children" => array($content),
+                "id" => "ui-" . $name
             )
         ));
+    }
+
+    /**
+     * Creates the view of section and page fields.
+     *
+     * @param array $fields
+     *  The fields array where each field is defined in
+     * @param boolean $is_new_ui = false
+     * If true, the fields are loaded for the new UI
+     *  CmsModel::add_property_item.
+     * @retval array
+     *  Return array with fields to be displayed.
+     */
+    private function get_children_fields_view_mode($fields, $is_new_ui)
+    {
+        $children = [];
+        $content_fields = [];
+        $properties = [];
+        foreach ($fields as $field) {
+            $new_field_item = $this->create_field_item($field);
+            if ($new_field_item) {
+                if ($is_new_ui && $field['type']) {
+                    if (isset($field['display']) && $field['display'] == 1) {
+                        $content_fields[] = $new_field_item;
+                    } else {
+                        $properties[] = $new_field_item;
+                    }
+                } else {
+                    $children[] = $new_field_item;
+                }
+            }
+        }
+        if (count($content_fields) > 0) {
+            // if there are content fields we put them in a card
+            $card_content_fields = new BaseStyleComponent("card", array(
+                "css" => "ui-card-list",
+                "id" => "ui-card-content",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Content",
+                "children" => $content_fields
+            ));
+            $children[] = $card_content_fields;
+        }
+
+        if (count($properties) > 0) {
+            // if there are content fields we put them in a card
+            if (!$this->model->get_id_root_section()) {
+                // if there is no root section it is page
+                // add page reordering and header positions                
+                $properties[] = new BaseStyleComponent("descriptionItem", array(
+                    "gender" => '',
+                    "title" => 'Header Position',
+                    "type_input" => 'checkbox',
+                    "locale" => '',
+                    "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                    "display" => 0,
+                    "css" => 'mb-0 d-none',
+                    "children" => $this->get_page_header()
+                ));
+            }
+
+            $card_properties_fields = new BaseStyleComponent("card", array(
+                "css" => "ui-card-list properties-fields",
+                "id" => "ui-card-properties",
+                "is_expanded" => false,
+                "is_collapsible" => true,
+                "title" => "Properties",
+                "children" => $properties
+            ));
+            $children[] = $card_properties_fields;
+            if($this->model->is_navigation_main()){
+                $children[] = $this->get_nav_help_card();
+            }
+        }
+        return $children;
+    }
+
+    /**
+     * Prepare the url for all global pages
+     * @param array $pages
+     * The pages list
+     * @return array
+     * Return all global pages
+     */
+    private function prepare_global_pages($pages){
+        foreach ($pages as $key => $page) {
+            $url = $this->model->get_cms_item_url($page['id']);
+            $pages[$key]['url'] = $url;
+        }
+        return $pages;
+    }
+
+    /**
+     * Remove item ny key value
+     * @param array $items
+     * The fields array list
+     * @param string $keyName
+     * The key name that we check
+     * @param array $values
+     * the list with the values that we want to remove
+     * @return array
+     * Return the modified array
+     */
+    private function remove_item_by_key_value($items, $keyName, $values){
+        $itemKeys = array();
+        $globalPages = array();
+        foreach ($values as $key => $value) {
+            // $itemKeys[] = array_search($value, array_column($items, $keyName));
+            $itemKeys = array_merge($itemKeys, array_keys(array_column($items, $keyName), $value));
+        }
+        foreach ($itemKeys as $key => $keyValue) {
+            unset($items[$keyValue]);
+        }
+        return $items;
     }
 
     /**
@@ -293,30 +573,42 @@ class CmsView extends BaseView
      */
     private function add_page_property_list()
     {
+        $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
         $children = array();
-        $children[] = new BaseStyleComponent("template", array(
-            "path" => __DIR__ . "/tpl_page_properties.php",
-            "items" => array(
-                "keyword_title" => "Name:",
-                "keyword" => $this->page_info['keyword'],
-                "url_title" => "Url:",
-                "url" => $this->page_info['url'],
-                "protocol_title" => "Protocol:",
-                "protocol" => $this->page_info['protocol'],
-            ),
-        ));
+        if ($is_new_ui) {
+            // show page properties and make them editable
+        } else {
+            $children[] = new BaseStyleComponent("template", array(
+                "path" => __DIR__ . "/tpl_page_properties.php",
+                "items" => array(
+                    "keyword_title" => "Name:",
+                    "keyword" => $this->page_info['keyword'],
+                    "url_title" => "Url:",
+                    "url" => $this->page_info['url'],
+                    "protocol_title" => "Protocol:",
+                    "protocol" => $this->page_info['protocol'],
+                    "page_access_title" => "Page Access:",
+                    "page_access" => $this->model->get_db()->get_lookup_value_by_id($this->page_info['id_pageAccessTypes'])
+                ),
+            ));
+        }
         $fields = $this->model->get_page_properties();
 
         $url_edit = "";
         if($this->model->get_mode() == "update")
         {
-            $children[] = $this->create_field_form($fields);
+            if ($this->page_info && $this->page_info['id_actions'] == 1) {
+                // if page is custom remove the option for editing some fields
+                $fields = $this->remove_item_by_key_value($fields, 'name', array("keyword", "id_pageAccessTypes","is_headless", "icon", "title", "description"));
+            }
+            $children[] =  $this->create_field_form($fields, $is_new_ui);
             $type = "warning";
         }
         else
         {
-            foreach($fields as $field)
-                $children[] = $this->create_field_item($field);
+            $fields_view_mode = $this->get_children_fields_view_mode($fields, $is_new_ui);
+            $children = array_merge($children, $fields_view_mode);
+
             $type = "light";
             if($this->model->has_access("update",
                     $this->model->get_active_page_id()))
@@ -325,7 +617,8 @@ class CmsView extends BaseView
         }
         $this->add_local_component("page-fields",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3",
+                "css" => "mb-3 ui-card-properties properties-collapsed",  
+                "id" => "ui-fields-holder",
                 "is_collapsible" => false,
                 "is_expanded" => true,
                 "title" => "Page Properties",
@@ -342,17 +635,21 @@ class CmsView extends BaseView
      */
     private function add_section_field_list()
     {
+        $is_new_ui = $this->model->get_services()->get_user_input()->is_new_ui_enabled();
         $children = array();
         $section_info = $this->model->get_section_info();
-        $children[] = new BaseStyleComponent("template", array(
-            "path" => __DIR__ . "/tpl_section_properties.php",
-            "items" => array(
-                "section_name_title" => "Section Name:",
-                "section_name" => $section_info['name'],
-                "section_style_title" => "Section Style:",
-                "section_style" => $section_info['style']
-            ),
-        ));
+        if (!$this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // if old UI show static name and style type
+            $children[] = new BaseStyleComponent("template", array(
+                "path" => __DIR__ . "/tpl_section_properties.php",
+                "items" => array(
+                    "section_name_title" => "Section Name:",
+                    "section_name" => $section_info['name'],
+                    "section_style_title" => "Section Style:",
+                    "section_style" => $section_info['style']
+                ),
+            ));
+        }
         $type = ($this->model->get_mode() == "update") ? "warning" : "light";
         $fields = $this->model->get_section_properties();
         $url_edit = "";
@@ -365,13 +662,13 @@ class CmsView extends BaseView
         }
         else if($this->model->get_mode() == "update")
         {
-            $children[] = $this->create_field_form($fields, true);
+            $children[] = $this->create_field_form($fields, $is_new_ui);
             $type = "warning";
         }
         else
         {
-            foreach($fields as $field)
-                $children[] = $this->create_field_item($field);
+            $fields_view_mode = $this->get_children_fields_view_mode($fields, $is_new_ui);
+            $children = array_merge($children, $fields_view_mode);
             $type = "light";
             if($this->model->has_access("update",
                     $this->model->get_active_page_id()))
@@ -380,7 +677,8 @@ class CmsView extends BaseView
         }
         $this->add_local_component("section-fields",
             new BaseStyleComponent("card", array(
-                "css" => "mb-3",
+                "css" => "mb-3 ui-card-properties properties-collapsed",
+                "id" => "ui-fields-holder",
                 "is_collapsible" => false,
                 "title" => "Section Properties",
                 "children" => $children,
@@ -395,14 +693,17 @@ class CmsView extends BaseView
      *
      * @param array $fields
      *  The fields array where each field is defined in
+     * @param boolean $is_new_ui = false
+     * If true, the fields are loaded for the new UI
      *  CmsModel::add_property_item.
-     * @param bool $render_margin
-     *  A flag indicating whether the margin checkboxes should be rendered.
      * @retval object
      *  A form component.
      */
-    private function create_field_form($fields, $render_margin=false)
+    private function create_field_form($fields, $is_new_ui = false)
     {
+        $content_fields = [];
+        $properties = [];
+
         $form_items = array();
         $form_items[] = new BaseStyleComponent("input", array(
             "value" => "update",
@@ -410,33 +711,140 @@ class CmsView extends BaseView
             "type_input" => "hidden",
         ));
 
-        if($render_margin)
-        {
-            $css = $this->model->get_css();
-            $form_items[] = new BaseStyleComponent("descriptionItem", array(
-                "title" => "CSS",
-                "locale" => "all",
-                "children" => array(new BaseStyleComponent("input", array(
-                    "value" => $css,
-                    "name" => "css",
-                    "type_input" => "text",
-                ))),
-            ));
+        $form_items[] = new BaseStyleComponent("input", array(
+            "value" => $this->model->get_active_section_id(),
+            "name" => "id_section",
+            "type_input" => "hidden",
+        ));
+
+        if ($is_new_ui) {
+            foreach ($fields as $field) {
+                if (isset($field['display']) && $field['display'] == 1) {
+                    // it is a content field
+                    $new_field = $this->create_field_form_item($field);
+                    if ($new_field) {
+                        $content_fields[] = $new_field;
+                    }
+                } else {
+                    // it is a property field
+                    $new_field = $this->create_field_form_item($field);
+                    if ($new_field) {
+                        $properties[] = $new_field;
+                    }
+                }
+            }
+            if (!$this->model->get_id_root_section()) {
+                // if there is no root section it is page
+                // add page reordering and header positions    
+                if ($this->page_info && $this->page_info['id_actions'] > 1) {
+                    $properties[] = new BaseStyleComponent("descriptionItem", array(
+                        "gender" => '',
+                        "title" => 'Header Position',
+                        "type_input" => 'checkbox',
+                        "locale" => '',
+                        "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                        "display" => 0,
+                        "css" => 'mb-0',
+                        "children" => $this->get_page_header()
+                    ));
+                }
+            }
+            if (count($content_fields) > 0) {
+                // if there are content fields we put them in a card
+                $card_content_fields = new BaseStyleComponent("card", array(
+                    "css" => "ui-card-list",
+                    "id" => "ui-card-content",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "title" => "Content",
+                    "children" => $content_fields
+                ));
+                $form_items[] = $card_content_fields;
+            }
+
+            if (count($properties) > 0) {
+                // if there are content fields we put them in a card
+                $card_properties_fields = new BaseStyleComponent("card", array(
+                    "css" => "ui-card-list properties-fields",
+                    "id" => "ui-card-properties",
+                    "is_expanded" => false,
+                    "is_collapsible" => true,
+                    "title" => "Properties",
+                    "children" => $properties
+                ));
+                $form_items[] = $card_properties_fields;
+            }
+        } else {
+            foreach ($fields as $field) {
+                $new_field = $this->create_field_form_item($field);
+                if ($new_field) {
+                    $form_items[] = $new_field;
+                }                
+            }
+            if ($this->page_info && $this->page_info['id_actions'] > 1 && !$this->model->get_id_root_section()) {
+                $form_items[] = new BaseStyleComponent("descriptionItem", array(
+                    "gender" => '',
+                    "title" => 'Header Position',
+                    "type_input" => 'checkbox',
+                    "locale" => '',
+                    "help" => 'When activated, once the page title field is set, the page will appear in the header at the specified position (drag and drop). If not activated, the page will <strong>not</strong> appear in the header.',
+                    "display" => 0,
+                    "css" => 'mb-0',
+                    "children" => $this->get_page_header()
+                ));
+            }
         }
-
-        foreach($fields as $field)
-            $form_items[] = $this->create_field_form_item($field);
-
+        if($this->model->is_navigation_main()){
+            $form_items[] = $this->get_nav_help_card();
+        }
+        $section_info = $this->model->get_section_info();
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            $export_btn = new BaseStyleComponent("button", array(
+                "label" => "Export " . ($this->model->get_id_root_section() ? 'section' : 'page'),
+                "url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsExport", array("type" => "section", "id" => $this->model->get_active_section_id())) : null,
+                "css" => "w-100 mb-2 btn-sm",
+                "id" => "new-ui-export"
+            ));
+            $delete_btn = new BaseStyleComponent("button", array(
+                "label" => "Delete " . ($this->model->get_id_root_section() ? 'section' : 'page'),
+                "url" => '#',
+                "type" => "danger",
+                "css" => "w-100 btn-sm",
+                "id" => "new-ui-delete",
+                "data" => array(
+                    "name" => $this->model->get_id_root_section() ? $section_info['name'] : ($this->model->get_page_info() ? $this->model->get_page_info()['keyword'] : ''),
+                    "id" => $this->model->get_id_root_section() ? $this->model->get_id_root_section() : $this->model->get_active_page_id(),
+                    "del_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsDelete", $this->model->get_current_url_params()) : $this->model->get_link_url("cmsDelete", array("pid" => $this->model->get_active_page_id())),
+                    "cms_url" => $this->model->get_id_root_section() ? $this->model->get_link_url("cmsUpdate", array("pid" => $this->model->get_active_page_id(), "mode" => UPDATE, "type" => "prop")) : $this->model->get_link_url("cmsSelect", array("pid" => null)),
+                    "relation" => $this->model->get_id_root_section() ? RELATION_SECTION : RELATION_PAGE
+                )
+            ));
+            $buttons = array(
+                new BaseStyleComponent("button", array(
+                    "label" => "Create New Child Page",
+                    "url" => $this->model->get_id_root_section() || !$this->model->can_create_new_child_page() ? null : $this->model->get_link_url("cmsInsert", array("pid" => $this->model->get_active_page_id())),
+                    "css" => "w-100 mb-2 btn-sm",
+                    "id" => "new-ui-create-child-page"
+                )),
+                $export_btn
+            );
+            if ($this->page_info && $this->page_info['id_actions'] > 1) {
+                $buttons[] = $delete_btn;
+            }
+            $form_items[] = new BaseStyleComponent("div", array(
+                "css" => "w-100 p-2",
+                "children" => $buttons
+            ));            
+        }
 
         $params = $this->model->get_current_url_params();
         return new BaseStyleComponent("form", array(
             "url" => $_SERVER['REQUEST_URI'],
-            "label" => "Submit Changes",
+            "label" => "Save",
             "type" => "warning",
             "children" => $form_items,
             "url_cancel" => $this->model->get_link_url("cmsSelect", $params),
         ));
-
     }
 
     /**
@@ -444,11 +852,16 @@ class CmsView extends BaseView
      *
      * @param array $field
      *  the field array with keys as definde in CmsModel::add_property_item.
-     * @retval object
+     * @retval object or false
      *  A descriptionItem component.
      */
     private function create_field_form_item($field)
     {
+        if ($field['type'] == "style-list" && $this->model->get_services()->get_user_input()->is_new_ui_enabled() && 
+            $field['relation'] != RELATION_SECTION_NAV && $field['relation'] != RELATION_PAGE_NAV) {                
+            // children are not needed for the new UI unless they are showing the navigation pages and sections
+            return false;
+        }
         $children = array();
         $field_name_prefix = "fields[" . $field['name'] . "]["
             . $field['id_language'] . "]" . "[" . $field['id_gender'] . "]";
@@ -469,33 +882,39 @@ class CmsView extends BaseView
         ));
         $field_name_content = $field_name_prefix . "[content]";
         if(in_array($field['type'],
-                array("text", "number", "markdown-inline", "time", "date")))
+                array("text", "number", "markdown-inline", "time", "date", "password")))
             $children[] = new BaseStyleComponent("input", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
+                "is_required" => isset($field['is_required']) ? $field['is_required'] : 0,
+                "format" => isset($field['format']) ? $field['format'] : '',
             ));
         if($field['type'] === "checkbox")
             $children[] = new BaseStyleComponent("input", array(
                 "value" => ($field['content'] != '0') ? $field['content'] : "",
-                "name" => $field_name_content,
+                "name" => $field_name_content,            
                 "type_input" => $field['type'],
             ));
-        else if(in_array($field['type'], array("textarea", "markdown", "json", "code", "email")))
+        else if(in_array($field['type'], array("textarea", "markdown", "json", "code", "email", "dynamic_json", "css")))
             $children[] = new BaseStyleComponent("textarea", array(
                 "value" => $field['content'],
                 "name" => $field_name_content,
+                "css" => "style-" . $field['type'],
+                "type_input" => $field['type'],
             ));
         else if($field['type'] == "type-input")
         {
             $children[] = new BaseStyleComponent("select", array(
                 "value" => ($field['content'] == "") ? "text" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
+                "type_input" => $field['type'],
                 "items" => array(
                     array("value" => "checkbox", "text" => "checkbox"),
                     array("value" => "color", "text" => "color"),
                     array("value" => "date", "text" => "date"),
                     array("value" => "datetime-local", "text" => "datetime-local"),
+                    array("value" => "datetime", "text" => "datetime"),
                     array("value" => "email", "text" => "email"),
                     array("value" => "month", "text" => "month"),
                     array("value" => "number", "text" => "number"),
@@ -515,6 +934,7 @@ class CmsView extends BaseView
             $children[] = new BaseStyleComponent("select", array(
                 "value" => ($field['content'] == "") ? "primary" : $field['content'],
                 "name" => $field_name_prefix . "[content]",
+                "type_input" => $field['type'],
                 "items" => array(
                     array("value" => "primary", "text" => "primary"),
                     array("value" => "secondary", "text" => "secondary"),
@@ -527,26 +947,142 @@ class CmsView extends BaseView
                     array("value" => "none", "text" => "none"),
                 ),
             ));
-        }
-        else if($field['type'] == "style-list")
-        {
+        } else if ($field['type'] == "style-list") {
             $children[] = new BaseStyleComponent("input", array(
                 "value" => "",
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => "hidden",
             ));
-            $children[] = new BaseStyleComponent("sortableList", array(
-                "is_sortable" => true,
-                "is_editable" => true,
-                "items" => $field['content'],
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                $params = $this->model->get_current_url_params();
+                $params['type'] = $field['relation'];
+                $params_insert = $params;
+                $params_insert['mode'] = "insert";
+                $insert_target = "";
+                if ($this->model->has_access(
+                    "insert",
+                    $this->model->get_active_page_id()
+                ))
+                    $insert_target = $this->model->get_link_url(
+                        "cmsUpdate",
+                        $params_insert
+                    );
+                $delete_target = "";
+                $params_delete = $params;
+                $params_delete['mode'] = "delete";
+                $params_delete['did'] = ":did";
+                if ($this->model->has_access(
+                    "delete",
+                    $this->model->get_active_page_id()
+                ))
+                    $delete_target = $this->model->get_link_url(
+                        "cmsUpdate",
+                        $params_delete
+                    );
+                $children[] = new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => true,
+                    "is_editable" => true,
+                    "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
+                    "url_add" => $insert_target,
+                    "url_delete" => $delete_target,
+                    "css" => 'ui-children-list'
+                ));
+            } else {
+                 $children[] = new BaseStyleComponent("sortableList", array(
+                    "is_sortable" => true,
+                    "is_editable" => true,
+                    "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
+                ));
+            }
+        }
+        else if($field['type'] == "data-source")
+        {
+            $children[] = new BaseStyleComponent("autocomplete", array(
+                "value" => $field['content'],
+                "name_value_field" => $field_name_content,
+                "placeholder" => "Search for a stored Data Source",
+                "name" => "data_source_search",
+                "callback_class" => "AjaxSearch",
+                "callback_method" => "search_data_source",
+                "show_value" => true
             ));
         }
+        else if($field['type'] == "anchor-section")
+        {
+            $children[] = new BaseStyleComponent("autocomplete", array(
+                "value" => $field['content'],
+                "name_value_field" => $field_name_content,
+                "placeholder" => "Search for an Anchor Section Name",
+                "name" => "anchor_section_search",
+                "callback_class" => "AjaxSearch",
+                "callback_method" => "search_anchor_section",
+                "show_value" => true
+            ));
+        } else if ($field['type'] == "select-group") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => explode(',', $field['content']),
+                "name" => $field_name_prefix . "[content]",
+                "live_search" => true,
+                "is_multiple" => true,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('`groups`', 'id', array('name'))
+            ));
+        } else if ($field['type'] == "select-platform") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'id', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
+            ));
+        } else if ($field['type'] == "select-formName") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'), 'WHERE internal <> 1')
+            ));
+        } else if ($field['type'] == "select-plugin") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
+            ));
+        } else if ($field['type'] == "condition") {
+            $children[] = new BaseStyleComponent("conditionBuilder", array(
+                "value" => $field['content'],
+                "name" => $field_name_content
+            ));
+        } else if ($field['type'] == "data-config") {
+            $children[] = new BaseStyleComponent("dataConfigBuilder", array(
+                "value" => $field['content'],
+                "name" => $field_name_content
+            ));
+        } else if ($field['type'] == "select-page-keyword") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "max" => 10,
+                "live_search" => 1,
+                "is_required" => 0,
+                "allow_clear" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
+            ));
+        }
+
         return new BaseStyleComponent("descriptionItem", array(
-            "gender" => $field['gender'],
-            "title" => $field['name'],
+            "gender" => isset($field['gender']) ? $field['gender'] : '',
+            "title" => isset($field['label']) ? $field['label'] : $field['name'],
             "type_input" => $field['type'],
-            "locale" => $field['locale'],
-            "help" => $field['help'],
+            "locale" => isset($field['gender']) ? $field['locale'] : '',
+            "help" => isset($field['help']) ?  $this->model->get_services()->get_parsedown()->text($field['help']) : '',
+            "display" => isset($field['display']) ? $field['display'] : 0,
+            "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
         ));
     }
@@ -556,11 +1092,15 @@ class CmsView extends BaseView
      *
      * @param array $field
      *  the field array with keys as definde in CmsModel::add_property_item.
-     * @retval object
+     * @retval object or false
      *  A descriptionItem component.
      */
     private function create_field_item($field)
     {
+        if ($field['type'] == "style-list" && $this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // children are not needed for the new UI
+            return false;
+        }
         $children = array();
         if($field['type'] == "style-list")
         {
@@ -583,7 +1123,7 @@ class CmsView extends BaseView
                     $params_delete);
             $children[] = new BaseStyleComponent("sortableList", array(
                 "is_editable" => true,
-                "items" => $field['content'],
+                "items" => (in_array($field['relation'], array(RELATION_PAGE_CHILDREN, RELATION_PAGE_NAV, RELATION_SECTION_NAV)) ? $field['content'] : $this->model->fetch_section_hierarchy($field['id_sections'], false)),
                 "label_add" => "Add",
                 "url_add" => $insert_target,
                 "url_delete" => $delete_target,
@@ -594,18 +1134,79 @@ class CmsView extends BaseView
                 "path" => __DIR__ . "/tpl_checkbox_field.php",
                 "items" => array("is_checked" => ($field['content'] != "0")),
             ));
-        else if($field['content'] != null)
+        else if ($field['type'] == "select-group") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('`groups`', 'id', array('name'))
+            ));
+        }
+        else if ($field['type'] == "select-platform") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'id', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => pageAccessTypes))
+            ));
+        }
+        else if ($field['type'] == "select-formName") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'), 'WHERE internal <> 1')
+            ));
+        }
+        else if($field['type'] == "select-plugin")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('lookups', 'lookup_code', array('lookup_value'), 'WHERE type_code=:tcode', array(":tcode" => plugins))
+            ));
+        }
+        else if($field['type'] == "condition")
+        {
+            // do not show the whole condition as it takes a lof of space. 
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => $field['content'] && json_decode($field['content']) ? 'exists' : $field['content']
+            ));
+        } else if ($field['type'] == "data-config") {
+            // do not show the whole condition as it takes a lof of space. 
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => $field['content'] && json_decode($field['content']) ? 'exists' : $field['content']
+            ));
+        } else if ($field['type'] == "select-page-keyword") {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => $field['content'],
+                "name" => $field['name'],
+                "disabled" => 1,
+                "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
+            ));
+        } else if ($field['type'] == "password") {
+            // hide the password
+            $children[] = new BaseStyleComponent("rawText", array(
+                "text" => str_repeat("*", strlen($field['content']))
+            ));
+        } else {
+            // do not show the whole condition as it takes a lof of space. 
             $children[] = new BaseStyleComponent("rawText", array(
                 "text" => $field['content']
             ));
-        return new BaseStyleComponent("descriptionItem", array(
-            "gender" => $field['gender'],
-            "title" => $field['name'],
-            "locale" => $field['locale'],
+        }
+        $ar = array(
+            "gender" => isset($field['gender']) ? $field['gender'] : '',
+            "title" => isset($field['label']) ? $field['label'] : $field['name'],
+            "locale" => isset($field['gender']) ? $field['locale'] : '',
             "alt" => "field is not set",
-            "help" => $field['help'],
+            "help" => isset($field['help']) ?  $this->model->get_services()->get_parsedown()->text($field['help']) : '',
+            "display" => isset($field['display']) ? $field['display'] : 0,
+            "css" => ($field['hidden']  == 1 ? 'd-none' : ($this->model->get_services()->get_user_input()->is_new_ui_enabled() ? 'border-0' : '')),
             "children" => $children
-        ));
+        );
+        return new BaseStyleComponent("descriptionItem", $ar);
     }
 
     /**
@@ -614,38 +1215,62 @@ class CmsView extends BaseView
      */
     private function create_settings_card()
     {
-        $languages = $this->model->get_languages();
-        $options = array(array("value" => "all", "text" => "All Languages"));
-        foreach($languages as $language)
-            $options[] = array(
-                "value" => $language['locale'],
+        $languages = $this->model->get_db()->fetch_languages();
+        $genders = $this->model->get_db()->fetch_genders();
+        foreach ($languages as $language) {
+            $languages_options[] = array(
+                "value" => $language['id'],
                 "text" => $language['language']
             );
-        $tpl_items = array(
-            "checked_male" => ($_SESSION['cms_gender'] === "male") ? "checked" : "",
-            "checked_female" => ($_SESSION['cms_gender'] === "female") ? "checked" : "",
-            "checked_both" => ($_SESSION['cms_gender'] === "both") ? "checked" : "",
-        );
-
-        $this->add_local_component("settings-card", new BaseStyleComponent("card",
+        }
+        foreach ($genders as $gender) {
+            $gender_options[] = array(
+                "value" => $gender['id'],
+                "text" => $gender['name']
+            );
+        }
+        $this->add_local_component("settings-card", new BaseStyleComponent(
+            "card",
             array(
-                "css" => "mb-3",
+                "css" => "mb-3 menu-collapsed ui-card-list",
                 "is_expanded" => false,
                 "is_collapsible" => true,
-                "title" => "Settings",
+                "title" => "CMS Settings",
+                "id" => "cms-settings",
                 "children" => array(new BaseStyleComponent("form", array(
-                    "url" => $this->model->get_link_url("cmsSelect",
-                        $this->model->get_current_url_params()),
+                    "url" => $this->model->get_link_url(
+                        "cmsSelect",
+                        $this->model->get_current_url_params()
+                    ),
+                    "label" => "Save",
                     "children" => array(
                         new BaseStyleComponent("select", array(
-                            "label" => "Select CMS Content Language",
-                            "value" => $_SESSION['cms_language'],
+                            "label" => "Select CMS Content Field Language",
+                            "value" => explode(',', $_SESSION['cms_language']),
                             "name" => "cms_language",
-                            "items" => $options,
+                            "items" => $languages_options,
+                            "is_multiple" => true,
                         )),
-                        new BaseStyleComponent("template", array(
-                            "path" => __DIR__ . "/tpl_gender_radio.php",
-                            "items" => $tpl_items,
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select CMS Content Field Gender",
+                            "value" => explode(',', $_SESSION['cms_gender']),
+                            "name" => "cms_gender",
+                            "items" => $gender_options,
+                            "is_multiple" => true,
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select CMS Preview Language",
+                            "value" => $_SESSION['language'],
+                            "name" => "language",
+                            "items" => $languages_options,
+                            "is_multiple" => false,
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select CMS Preview Gender",
+                            "value" => $_SESSION['gender'],
+                            "name" => "gender",
+                            "items" => $gender_options,
+                            "is_multiple" => false,
                         ))
                     )
                 ))),
@@ -671,8 +1296,13 @@ class CmsView extends BaseView
      */
     private function output_breadcrumb()
     {
-        if($this->model->get_active_page_id() != null)
-            require __DIR__ . "/tpl_breadcrumb.php";
+        if($this->model->get_active_page_id() != null){
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                require __DIR__ . "/tpl_new_ui/tpl_breadcrumb.php";
+            } else {
+                require __DIR__ . "/tpl_breadcrumb.php";
+            }
+        }            
     }
 
     /**
@@ -701,21 +1331,48 @@ class CmsView extends BaseView
     }
 
     /**
+     * Render the page preview button.
+     */
+    private function output_page_preview_button()
+    {
+        if ($this->page_info && $this->page_info['id_actions'] > 1) {
+            $this->output_local_component("page_preview");
+        }
+    }
+
+    /**
+     * Render the import page/section button.
+     */
+    private function output_import_button()
+    {
+        if($this->model->can_import_section())
+            $this->output_local_component("import");
+    }
+
+    /**
      * Renders the description list components.
      */
     private function output_fields()
     {
         $this->output_local_component("page-fields");
         $this->output_local_component("section-fields");
-        if($this->model->can_create_new_child_page())
-            $this->output_local_component("new_child_page");
-        if($this->model->can_delete_page())
-        {
-            if($this->model->get_active_section_id() == null)
-                $this->output_local_component("delete_page");
-            else
-                $this->output_local_component("delete_section");
-        }
+        if (!$this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            // if not new UI output these
+            if($this->model->can_create_new_child_page())
+                $this->output_local_component("new_child_page");
+            if ($this->model->can_export_section()) {
+                $this->output_local_component("export_section");
+            }
+            if($this->model->can_delete_page())
+            {
+                if($this->model->get_active_section_id() == null) {
+                    $this->output_local_component("delete_page");
+                }
+                else if($this->model->can_delete_section()) {
+                    $this->output_local_component("delete_section");
+                }
+            }     
+        }   
     }
 
     /**
@@ -723,8 +1380,9 @@ class CmsView extends BaseView
      */
     private function output_lists()
     {
-        $this->output_local_component("page-list");
+        $this->output_local_component("global-page-list"); 
         $this->output_local_component("navigation-hierarchy-list");
+        $this->output_local_component("page-list");        
         $this->output_local_component("page-section-list");
         $this->output_local_component("settings-card");
     }
@@ -734,10 +1392,15 @@ class CmsView extends BaseView
      */
     private function output_page_content()
     {
-        if($this->model->get_active_page_id() == null)
+        if ($this->model->get_active_page_id() == null)
             require __DIR__ . "/tpl_intro_cms.php";
-        else
-            require __DIR__ . "/tpl_cms.php";
+        else {
+            if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                require __DIR__ . "/tpl_new_ui/tpl_cms.php";
+            } else {
+                require __DIR__ . "/tpl_cms.php";
+            }
+        }
     }
 
     /**
@@ -770,12 +1433,23 @@ class CmsView extends BaseView
      */
     private function output_page_preview()
     {
-        if($this->model->is_navigation_main())
-            require __DIR__ . "/tpl_intro_nav.php";
-        else
-        {
-            $this->output_local_component("section-view");
-            $this->output_local_component("page-view");
+        if ($this->page_info && $this->page_info['id_actions'] > 1) {
+            if ($this->model->is_navigation_main() && !$this->model->get_services()->get_user_input()->is_new_ui_enabled())
+                require __DIR__ . "/tpl_intro_nav.php";
+            else {
+                if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+                    // show section if a section is selected otherwise show the whole page
+                    $section_view = $this->get_local_component('section-view');
+                    if ($section_view != null) {
+                        $this->output_local_component("section-view");
+                    } else {
+                        $this->output_local_component("page-view");
+                    }
+                } else {
+                    $this->output_local_component("section-view");
+                    $this->output_local_component("page-view");
+                }
+            }
         }
     }
 
@@ -791,6 +1465,9 @@ class CmsView extends BaseView
     public function get_css_includes($local = array())
     {
         $local = array(__DIR__ . "/cms.css");
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            array_push($local, __DIR__ . "/cms_ui.css");
+        }
         return parent::get_css_includes($local);
     }
 
@@ -804,6 +1481,10 @@ class CmsView extends BaseView
     public function get_js_includes($local = array())
     {
         $local = array(__DIR__ . "/cms.js");
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            array_push($local, __DIR__ . "/../cmsImport/js/import.js");
+            array_push($local, __DIR__ . "/cms_ui.js");
+        }
         return parent::get_js_includes($local);
     }
 
@@ -812,7 +1493,90 @@ class CmsView extends BaseView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_main.php";
+        if ($this->model->get_services()->get_user_input()->is_new_ui_enabled()) {
+            require __DIR__ . "/tpl_new_ui/tpl_main.php";
+        } else {
+            require __DIR__ . "/tpl_main.php";
+        }
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
+
+    /**
+     * Render the modal for the new UI for add section if it is needed
+     */
+    public function output_modal_add_section()
+    {
+        if (
+            method_exists($this->model, "is_cms_page") && $this->model->is_cms_page() &&
+            method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing() &&
+            $this->model->get_services()->get_user_input()->is_new_ui_enabled()
+        ) {
+            $import_url = $this->model->get_link_url("cmsImport", array("type" => RELATION_SECTION));
+            require __DIR__ . "/tpl_new_ui/tpl_modal_add_section.php";
+        }
+    }
+
+    /**
+     * Render output new section
+     */
+    public function output_add_new_section()
+    {
+        $styles = $this->model->get_style_list();
+        require __DIR__ . "/tpl_new_ui/tpl_add_new_section.php";
+    }
+
+    /**
+     * Render output add unassigned section
+     */
+    public function output_add_unassigned_section()
+    {
+        $unassigned_sections = $this->model->fetch_unassigned_sections();
+        require __DIR__ . "/tpl_new_ui/tpl_add_unassigned_section.php";
+    }
+
+    /**
+     * Render output add reference section
+     */
+    public function output_add_reference_section()
+    {
+        $reference_sections = $this->model->get_reference_sections();
+        require __DIR__ . "/tpl_new_ui/tpl_add_reference_section.php";
+    }
+
+    /**
+     * Get all styles
+     * @return array
+     * Return all styles' names in array
+     */
+    public function get_styles()
+    {
+        $res = $this->model->get_styles();
+        $res[] = array("name" => "import"); // add custom init function from cms
+        return $res;
+    }
+
+    /**
+     * Output ui middle elements when they are needed
+     */
+    public function output_ui_middle()
+    {
+        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
+            // do not load
+        } else {
+            require __DIR__ . "/tpl_new_ui/tpl_ui_middle.php";
+        }
+    }
+
+    public function expand_ui_properties(){
+        if (isset($this->page_info['action']) && $this->page_info['action'] == PAGE_ACTION_BACKEND) {
+            return 'flex-grow-1';
+        } else {
+            return '';
+        }
     }
 }
 ?>

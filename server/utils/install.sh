@@ -34,6 +34,8 @@ echo "Start installation"
 # got to install script folder. Keep it as a basic path 
 cd /home/$user/$name/server/utils
 
+sudo -u $user mkdir ../../static
+sudo chmod 777 ../../static
 sudo chmod 777 ../../assets
 sudo chmod 777 ../../css
 echo "Prepare the asset and css folder"
@@ -49,10 +51,10 @@ sudo -u $user sed -i "s/__password__/${password}/g" ../db/create_db.sql
 sudo mysql < ../db/create_db.sql
 echo "Creating database $name"
 
-sudo mysql -D $name < ../db/selfhelp_initial.sql
+cat ../db/update_scripts/*.sql  > "../db/install_selfhelp.sql"
+
+sudo mysql -D $name < ../db/install_selfhelp.sql
 echo "Databse $name initialized!"
-sudo mysql -u $name -p$password -D $name < ../db/FUN_PRO_VIEWS/fun_pro_views.sql
-echo "Functions, views and proceuderes are created!"
 
 echo "Setting up appache"
 sudo -u $user cp ../../server/apache.default.conf ../../server/apache.conf
@@ -63,5 +65,5 @@ sudo ln -s /home/$user/$name/server/apache.conf $name.conf
 cd ../sites-enabled
 sudo ln -s ../sites-available/$name.conf .
 sudo service apache2 restart
-echo "https://selfhelp.psy.unibe.ch/$name should be online!"
-echo "Installation is done!"
+echo "Installation is completed!"
+

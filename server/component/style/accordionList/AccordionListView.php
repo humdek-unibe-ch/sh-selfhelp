@@ -201,5 +201,6 @@ class AccordionListView extends StyleView
     {
         require __DIR__ . "/tpl_accordion_list.php";
     }
+
 }
 ?>

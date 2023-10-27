@@ -59,9 +59,9 @@ class LinkView extends StyleView
     public function output_content()
     {
         if($this->url == "") return;
-        if($this->label == "") $this->label = htmlspecialchars($this->url);
         $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
         require __DIR__ . "/tpl_link.php";
     }
+	
 }
 ?>

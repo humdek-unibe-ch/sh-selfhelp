@@ -4,18 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+require_once __DIR__ . "/../BaseView.php";
 
 /**
  * The view class of the data component. Extends UserSelectView. It needs the user table
  */
-class DataView extends UserSelectView
+class DataView extends BaseView
 {
     /* Private Properties *****************************************************/
-
-    /**
-     * An array of all user input forms.
-     */
-    private $forms;
 
     /* Constructors ***********************************************************/
 
@@ -24,11 +20,12 @@ class DataView extends UserSelectView
      *
      * @param object $model
      *  The model instance of the user insert component.
+     * @param object $controller
+     *  The controller instance of the user insert component.
      */
-    public function __construct($model)
+    public function __construct($model, $controller)
     {
-        parent::__construct($model);
-        $this->forms = $this->model->get_forms();
+        parent::__construct($model, $controller);
     }
 
     /* Private Methods ********************************************************/
@@ -46,40 +43,58 @@ class DataView extends UserSelectView
      */
     private function output_tables_data()
     {
-        foreach ($this->forms as $form) {
-            $formFields = $this->model->getFormFields($form['form_id']);
-            if (!empty($formFields)) {
-                // loop over the rows, outputting them
-                $tableHead = '<thead><tr>';
-                $tableBody = '<tbody>';
-                if (count($formFields) > 0) {
-                    foreach (array_keys($formFields[0]) as $key => $value) {
-                        $tableHead = $tableHead . '<th>' . $value . '</th>';
+        $forms = $this->model->get_selected_forms();
+        if ($forms) {
+            if ($forms[0] == 'all') {
+                $forms = $this->model->get_forms();
+            }
+            foreach ($forms as $keyForm => $formId) {
+                $formId = isset($formId['form']) ? $formId['form'] : $formId;
+                $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
+                if (!empty($formFields)) {
+                    // Initialize an array to store table rows
+                    $tableRows = [];
+                
+                    // Build table head
+                    $tableHead = '<thead><tr>';
+                    if (count($formFields) > 0) {
+                        foreach (array_keys($formFields[0]) as $key => $value) {
+                            $tableHead .= '<th>' . $value . '</th>';
+                        }
                     }
-                }
-                foreach ($formFields as $field) {
-                    $tableBody = $tableBody . '<tr>';
-                    foreach (array_values($field) as $key => $value) {
-                        $tableBody = $tableBody . '<td>' . $value . '</td>';
+                    $tableHead .= '</tr></thead>';
+                
+                    // Build table body
+                    $tableBody = '<tbody>';
+                    foreach ($formFields as $field) {
+                        $row = '<tr>';
+                        foreach (array_values($field) as $key => $value) {
+                            $row .= '<td>' . $value . '</td>';
+                        }
+                        $row .= '</tr>';
+                        $tableRows[] = $row; // Add the row to the array
                     }
-                    $tableBody = $tableBody . '</tr>';
+                    $tableBody .= implode('', $tableRows);
+                    $tableBody .= '</tbody>';
+                
+                    $formName = $this->model->get_form_name($formId);
+                
+                    // Build the card content
+                    $table = '<table class="adminData w-100 table dataTable table-sm table-hover">' . $tableHead . $tableBody . '</table>';
+                    $card = new BaseStyleComponent("card", array(
+                        "css" => "mb-3 card card-success",
+                        "is_expanded" => true,
+                        "is_collapsible" => true,
+                        "title" => $formName,
+                        "children" => array(
+                            new BaseStyleComponent("markdown", array(
+                                "text_md" => $table
+                            ))
+                        )
+                    ));
+                    $card->output_content();
                 }
-                $tableHead = $tableHead . '</tr></thead>';
-                $tableBody = $tableBody . '</tbody>';
-                $formName = $form['form_name'];
-
-                $card = new BaseStyleComponent("card", array(
-                    "css" => "mb-3 card card-success",
-                    "is_expanded" => true,
-                    "is_collapsible" => true,
-                    "title" => $formName,
-                    "children" => array(
-                        new BaseStyleComponent("markdown", array(
-                            "text_md" => '<table class="adminData w-100 table">' . $tableHead . $tableBody . '</table>'
-                        ))
-                    )
-                ));
-                $card->output_content();
+                
             }
         }
     }
@@ -89,20 +104,59 @@ class DataView extends UserSelectView
      */
     private function output_config_panel()
     {
-        $this->output_user_activity();
-    }
-
-    /**
-     * Show info for the selected user
-     */
-    public function get_selected_user()
-    {
-        if ($this->model->get_uid()) {
-            $user = $this->model->get_selected_user();
-            return $user['code'] . ' ' . $user['email'];
-        } else {
-            return 'All';
-        }
+        $forms = $this->model->get_forms();
+        $options = array();
+        $options[] = array(
+            "value" => 'all',
+            "text" => 'All'
+        );
+        foreach ($forms as $form)
+            $options[] = array(
+                "value" => $form['form_id'] . '-' . $form['type'],
+                "text" => $form['form_name']
+            );
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3 card",
+            "is_expanded" => true,
+            "type" => 'primary',
+            "is_collapsible" => false,
+            "title" => 'Search Panel',
+            "children" => array(
+                new BaseStyleComponent("form", array(
+                    "label" => "Search",
+                    "url" => $this->model->get_link_url("data"),
+                    "url_cancel" => $this->model->get_link_url("data"),
+                    "children" => array(
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select user",
+                            "value" => $this->model->get_selected_users(),
+                            "name" => "users",
+                            "css" => 'mb-3',
+                            "live_search" => true,
+                            "is_multiple" => false,
+                            "items" => $this->model->get_users(),
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Select form",
+                            "value" => $this->model->get_selected_forms(),
+                            "name" => "forms",
+                            "css" => 'mb-3',
+                            "live_search" => true,
+                            "is_multiple" => true,
+                            "items" => $options,
+                        )),
+                        new BaseStyleComponent("input", array(
+                            "label" => "Filter",
+                            "type_input" => "text",
+                            "name" => "filter",
+                            "id" => "dataFilter",
+                            "placeholder" => "Type to filter all forms' data simultaneously",
+                        )),
+                    )
+                )),
+            )
+        ));
+        $card->output_content();
     }
 
     /* Public Methods *********************************************************/
@@ -126,6 +180,11 @@ class DataView extends UserSelectView
     public function output_content()
     {
         require __DIR__ . "/tpl_data.php";
+    }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

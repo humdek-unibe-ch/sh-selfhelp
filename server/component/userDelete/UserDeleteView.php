@@ -70,7 +70,7 @@ class UserDeleteView extends BaseView
                         array("uid" => $this->selected_user['id'])),
                     "children" => array(
                         new BaseStyleComponent("input", array(
-                            "type_input" => "email",
+                            "type_input" => "text",
                             "name" => "email",
                             "is_required" => true,
                             "css" => "mb-3",
@@ -97,6 +97,11 @@ class UserDeleteView extends BaseView
         }
         else
             require __DIR__ . "/tpl_user_delete.php";
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

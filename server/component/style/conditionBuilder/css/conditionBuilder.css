@@ -1,0 +1,22 @@
+.condition_builder_modal_holder .modal-dialog {
+    max-width: 80% !important;
+    z-index: 1000 0;
+}
+
+.condition_builder_modal_holder .modal-dialog .modal-header {
+    background: var(--secondary);
+    color: var(--white)
+}
+
+.condition_builder_modal_holder .btn-group {
+    margin-bottom: .25rem;
+}
+
+.condition_builder_modal_holder .btn-group button {
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.condition_builder .bootstrap-select {
+    width: auto !important;
+}

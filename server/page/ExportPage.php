@@ -56,9 +56,9 @@ class ExportPage extends BasePage
      */
     private function get_separator()
     {
-        $sql = "SELECT csv_separator FROM languages WHERE locale = :locale";
+        $sql = "SELECT csv_separator FROM languages WHERE id = :id_languages";
         $res = $this->services->get_db()->query_db_first($sql, array(
-            ':locale' => $_SESSION['language']
+            ':id_languages' => $_SESSION['language']
         ));
         if($res)
             return $res['csv_separator'];
@@ -83,13 +83,7 @@ class ExportPage extends BasePage
         if($selector !== "user_input_form"){
             // get and post difference - we cannot set header later in get request
             header('Content-Disposition: attachment; filename=' . date("Y-m-d\TH:i:s") . 'Z_' . $selector . '.csv');
-        }
-        // log user activity on export pages
-        $this->services->get_db()->insert("user_activity", array(
-            "id_users" => $_SESSION['id_user'],
-            "url" => $_SERVER['REQUEST_URI'],
-            "id_type" => 2,
-        ));        
+        }   
 
         // create a file pointer connected to the output stream
         $output = fopen('php://output', 'w');
@@ -138,7 +132,7 @@ class ExportPage extends BasePage
     private function export_user_input($output)
     {
 
-        $fields = $this->services->get_user_input()->get_input_fields();
+        $fields = $this->services->get_user_input()->get_input_fields(array(), true);
 
         // output the column headings
         if(count($fields) > 0)
@@ -160,8 +154,7 @@ class ExportPage extends BasePage
     private function export_user_input_form($output, $form_id)
     {
         $fileName = null;  
-        $sql = 'call get_form_data(' . $form_id . ')';
-        $fields = $this->services->get_db()->query_db($sql);
+        $fields = $this->services->get_user_input()->get_data($form_id, '', false);
 
         // output the column headings
         if(count($fields) > 0)
@@ -235,6 +228,8 @@ class ExportPage extends BasePage
      * DB).
      */
     protected function output_content() {}
+
+    protected function output_content_mobile() {}
 
     /**
      * See BasePage::output_meta_tags()

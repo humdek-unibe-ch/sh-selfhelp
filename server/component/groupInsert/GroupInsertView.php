@@ -15,16 +15,24 @@ class GroupInsertView extends BaseView
     /* Constructors ***********************************************************/
 
     /**
+     * What group type we create
+     */
+    private $group_type;
+
+    /**
      * The constructor. Here all the main style components are created.
      *
      * @param object $model
      *  The model instance of the user insert component.
-     * @param object $controller
+     * @param object $controller 
      *  The controller instance of the user insert component.
+     * @param string $group_type
+     * The group type that we want to create: group or db_role
      */
-    public function __construct($model, $controller)
+    public function __construct($model, $controller, $group_type)
     {
         parent::__construct($model, $controller);
+        $this->group_type = $group_type;
     }
 
     /* Private Methods ********************************************************/
@@ -67,10 +75,37 @@ class GroupInsertView extends BaseView
         }
         else
         {
-            $action_url = $this->model->get_link_url("groupInsert");
+            $action_url = $this->model->get_link_url("groupInsert", array("type"=>$this->group_type));
             $cancel_url = $this->model->get_link_url("groupSelect");
             require __DIR__ . "/tpl_insert_group.php";
         }
+    }
+
+    /**
+     * Output DB role Jumbotron
+     */
+    public function output_jumbotron()
+    {
+        if ($this->group_type == groupTypes_db_role) {
+            require __DIR__ . "/tpl_db_role_jumbotron.php";
+        }else if ($this->group_type == groupTypes_group) {
+            require __DIR__ . "/tpl_group_jumbotron.php";
+        }
+    }
+
+    /**
+     * Output acl for db role
+     */
+    public function output_acl_tmpl()
+    {
+        if ($this->group_type == groupTypes_db_role) {
+            require __DIR__ . "/tpl_group_acl.php";
+        }
+    }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

@@ -19,6 +19,21 @@ class TextareaView extends FormFieldView
      */
     private $placeholder;
 
+    /**
+     * The type of the text area
+     */
+    private $type_input;
+
+    /**
+     * This number will determine the minimum character size required for your input. The input will need to have at least this many characters to be valid
+     */
+    private $min;
+
+    /**
+     * This number will determine the maximum character size allowed for your input. The input should not exceed this character limit to be valid.
+     */
+    private $max;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -31,6 +46,9 @@ class TextareaView extends FormFieldView
     {
         parent::__construct($model);
         $this->placeholder = $this->model->get_db_field("placeholder");
+        $this->type_input = $this->model->get_db_field('type_input');        
+        $this->min = $this->model->get_db_field('min');
+        $this->max = $this->model->get_db_field('max');
     }
 
     /* Protected Methods ********************************************************/
@@ -40,13 +58,38 @@ class TextareaView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if($this->entry_data){
+            // if entry data; reset the value
+            $this->value = $this->model->get_entry_value($this->entry_data, $this->value); 
+        }
         if($this->value === null)
             $this->value = $this->default_value;
+        if($this->locked_after_submit == 1){
+            $this->locked_after_submit = $this->value ? 1 : 0;
+        }
         $css = ($this->label == "") ? $this->css : "";
         $required = ($this->is_required) ? "required" : "";
         require __DIR__ . "/tpl_textarea.php";
     }
 
     /* Public Methods *********************************************************/
+
+    public function output_monaco_editor(){
+        if ($this->type_input == "json") {
+            require __DIR__ . "/tpl_json.php";
+        } else if ($this->type_input == "css") {
+            require __DIR__ . "/tpl_css.php";
+        }
+    }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        if($this->entry_data){
+            // if entry data; take the value
+            $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+        }
+        return $style;
+    }
 }
 ?>

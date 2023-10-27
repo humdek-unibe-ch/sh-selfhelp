@@ -90,11 +90,52 @@ class UserUpdateView extends BaseView
                         array("uid" => $this->selected_user['id'])),
                     "children" => array(
                         new BaseStyleComponent("select", array(
-                            "name" => "groups[]",
+                            "name" => "groups",
                             "is_multiple" => true,
+                            "live_search" => true,
                             "items" => $this->model->get_new_group_options(
                                 $this->selected_user['id']),
                             "css" => "mb-3",
+                        )),
+                    )
+                )),
+            )
+        ));
+        $form->output_content();
+    }
+
+    /**
+     * Render the form to send activation email to a user.
+     */
+    private function output_form_activation_email()
+    {
+        $form = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Send Activation Email",
+            "type" => "info",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "The user will recive an activation email",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Send Email",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array(
+                            "uid" => $this->selected_user['id'],
+                            "mode" => "activation_email",
+                        )
+                    ),
+                    "type" => "info",
+                    "url_cancel" => $this->model->get_link_url("userSelect",
+                        array("uid" => $this->selected_user['id'])),
+                    "children" => array(
+                        new BaseStyleComponent("input", array(
+                            "type_input" => "hidden",
+                            "name" => "activation_email",
+                            "value" => $this->selected_user['email']
                         )),
                     )
                 )),
@@ -308,6 +349,8 @@ class UserUpdateView extends BaseView
             require __DIR__ . "/tpl_success_block.php";
         else if($type === "unblock")
             require __DIR__ . "/tpl_success_unblock.php";
+         else if($type === "activation_email")
+            require __DIR__ . "/tpl_success_activation_email.php";
         else if($type === "clean")
             require __DIR__ . "/tpl_success_clean.php";
         else if($type === "impersonate")
@@ -343,6 +386,13 @@ class UserUpdateView extends BaseView
         $url_user = $this->model->get_link_url("userSelect",
             array("uid" => $this->selected_user['id']));
         $url_users = $this->model->get_link_url("userSelect");
+        if($this->mode == "activation_email")
+        {
+            if($this->controller->has_succeeded())
+                require __DIR__ . "/tpl_success.php";
+            else
+                require __DIR__ . "/tpl_activation_email.php";
+        }
         if($this->mode == "block")
         {
             if($this->controller->has_succeeded())
@@ -386,6 +436,11 @@ class UserUpdateView extends BaseView
             else
                 require __DIR__ . "/tpl_rm_group.php";
         }
+    }
+
+    public function output_content_mobile()
+    {
+        echo 'mobile';
     }
 }
 ?>

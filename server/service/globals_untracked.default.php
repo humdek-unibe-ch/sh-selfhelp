@@ -4,10 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+define('REDIRECT_ON_LOGIN', true);
 define('PROJECT_NAME', '__experiment_name__');
 define('DEBUG', 0);
-define('LANGUAGE', 'de-CH');
+define('CORS', true);
+define('LANGUAGE', 2); // German
 define('BASE_PATH', '/' . PROJECT_NAME);
+define('SHOW_PHP_INFO', false);
 
 define('DBSERVER', 'localhost');
 define('DBNAME', '__experiment_name__');

@@ -31,7 +31,7 @@ class CmsUpdateComponent extends CmsComponent
      * CmsUpdateController class and passes the view, controller, an d model
      * instance to the constructor of the parent class.
      *
-     * @param array $services
+     * @param object $services
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      * @param array $params
@@ -49,11 +49,13 @@ class CmsUpdateComponent extends CmsComponent
      *                 - update: update the propertiy fields of a section or page.
      *                 - insert: add a new section to a section or a page.
      *                 - delete: remove a section from a section or a page.
+     * @param number $id_cms_page
+     *  The id of the current cms page being loaded
      */
-    public function __construct($services, $params)
+    public function __construct($services, $params, $id_cms_page)
     {
         $this->acl = $services->get_acl();
-        $model = new CmsModel($services, $params, "update");
+        $model = new CmsModel($services, $params, "update", $id_cms_page);
         $controller = new CmsUpdateController($model);
         if($params["mode"] == "update")
         {
@@ -64,7 +66,8 @@ class CmsUpdateComponent extends CmsComponent
         {
             $update_prop_method = "update_" . $params["mode"] . "_properties";
             $model->$update_prop_method();
-            $view = new CmsUpdateView($model, $controller, $params["mode"]);
+            $type = isset($params["type"]) ? $params["type"] : null;
+            $view = new CmsUpdateView($model, $controller, $params["mode"], $type);
         }
         parent::__construct($model, $view, $controller);
     }

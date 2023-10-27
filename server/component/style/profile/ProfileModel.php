@@ -21,10 +21,16 @@ class ProfileModel extends StyleModel
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The id of the section to which this style is assigned.
+     * @param array $params
+     *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /**
@@ -100,6 +106,13 @@ class ProfileModel extends StyleModel
             $val = 1;
         $this->db->update_by_ids('users', array('is_reminded' => $val),
             array('id' => $_SESSION['id_user']));
+    }
+
+    public function get_profile_title()
+    {
+        $page_id = $this->db->fetch_page_id_by_keyword('profile-link');
+        $profile_page = $this->db->fetch_pages($page_id, $_SESSION['language']);
+        return $profile_page["title"] . ' (' . $this->db->fetch_user_name() . ')';
     }
 }
 ?>

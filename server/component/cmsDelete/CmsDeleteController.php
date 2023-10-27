@@ -75,6 +75,7 @@ class CmsDeleteController extends BaseController
                     $this->error_msgs[] = "Failed to delete the section: The verification text does not match with the section name.";
                 }
             }
+            $this->model->get_db()->clear_cache();
         }
     }
 

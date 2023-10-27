@@ -16,12 +16,23 @@ class ShowUserInputView extends StyleView
     /* Private Properties *****************************************************/
 
     /**
+     * DB field 'anchor' (empty string).
+     * The id of a anchor section to jump to on delete submit.
+     */
+    protected $anchor;
+
+    /**
      * DB field 'source' (empty string).
      * The name of the form from which the data will be fetched for the current
      * user. If this field is left empty, the userData style will not be
      * rendered.
      */
     private $source;
+
+    /**
+     * The source string transformed into a alphanumeric string.
+     */
+    private $source_an;
 
     /**
      * DB field 'is_log' (false).
@@ -73,9 +84,11 @@ class ShowUserInputView extends StyleView
     {
         parent::__construct($model, $controller);
         $this->source = $this->model->get_db_field("source");
+        $this->anchor = $this->model->get_db_field("anchor");
+        $this->source_an = $this->model->convert_to_alphanumeric($this->source);
         $this->is_log = $this->model->get_db_field("is_log", false);
-        $this->label = $this->model->get_db_field("label_date_time", "Date");
-        $this->label_delete = $this->model->get_db_field("label_delete", "Remove");
+        $this->label = $this->model->get_db_field("label_date_time", "Entry Date");
+        $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
         $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
         $this->can_delete = $this->label_delete != "";
@@ -113,7 +126,7 @@ class ShowUserInputView extends StyleView
         }
         if($this->can_delete)
         {
-            $target = "modal-" . $this->source;
+            $target = "modal-" . $this->source_an;
             require __DIR__ . "/tpl_delete.php";
         }
     }
@@ -172,12 +185,19 @@ class ShowUserInputView extends StyleView
     {
         $rows = array();
         $header = array($this->label);
-        foreach($fields as $field)
-        {
-            $header[] = $field['field_label'];
-            if(!isset($rows[$field['timestamp']]))
+        foreach($fields as $field) {
+            $header[] = ($field['field_label'] == '' ? $field['field_name'] : $field['field_label']);
+            if (isset($field['id_user_input_record']) && false) { // always show the timestamp, we dont need the record id
+                // new visualization based on row id
+                if (!isset($rows[$field['id_user_input_record']]))
+                $rows[$field['id_user_input_record']] = array($field['id_user_input_record']);
+                $rows[$field['id_user_input_record']][intval($field['id'])] = $field['value'];
+            } else {
+                // legacy
+                if (!isset($rows[$field['timestamp']]))
                 $rows[$field['timestamp']] = array($field['timestamp']);
-            $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
+                $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
+            }
         }
         $header = array_unique($header);
         if($this->can_delete)
@@ -204,16 +224,18 @@ class ShowUserInputView extends StyleView
      */
     private function output_modal()
     {
+        $anchor = $this->anchor ? "#section-" . $this->anchor : "";
         $modal = new BaseStyleComponent('modal', array(
-            'id' => "modal-" . $this->source,
+            'id' => "modal-" . $this->source_an,
             'title' => $this->delete_title,
             'children' => array(
                 new BaseStyleComponent('markdown', array(
                     "text_md" => $this->delete_content,
                 )),
                 new BaseStyleComponent('form', array(
+                    "id" => $this->id_section,
                     "type" =>'danger',
-                    'url' => $_SERVER['REQUEST_URI'],
+                    'url' => $_SERVER['REQUEST_URI'] . $anchor,
                     'label' => $this->label_delete,
                     'children' => array(
                         new BaseStyleComponent('input', array(
@@ -238,6 +260,14 @@ class ShowUserInputView extends StyleView
         $fields = $this->model->get_user_data($this->source);
         if(count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
+    }
+
+    public function output_content_mobile()
+    {        
+        $style = parent::output_content_mobile();
+        $style['fields'] = $this->model->get_user_data($this->source);
+        $style['can_delete'] = $this->can_delete;
+        return $style;
     }
 }
 ?>

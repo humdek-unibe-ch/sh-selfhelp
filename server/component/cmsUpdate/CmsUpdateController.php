@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseController.php";
+require_once __DIR__ . "/../style/StyleComponent.php";
 /**
  * The controller class of the cms update component.
  */
@@ -67,17 +68,56 @@ class CmsUpdateController extends BaseController
         $this->remove_fail= false;
         $this->bad_fields = array();
         if(!isset($_POST['mode'])) return;
-        else if($_POST['mode'] == "update" && isset($_POST["fields"]))
-            $this->update($_POST["fields"]);
-        else if($_POST['mode'] == "insert"
-                && isset($_POST['relation']) && $_POST['relation'] != "")
+        if($_POST['mode'] == "update" && isset($_POST["fields"]))
+        {
+            $style = null;
+            $section_id = $this->model->get_active_section_id();
+            if($section_id != null) {
+                $style = new StyleComponent(
+                    $this->model->get_services(),
+                    $section_id
+                );
+            }
+            if($style != null) {
+                $style->cms_pre_update_callback($model, $_POST["fields"]);
+            }
+            $res = $this->update($_POST["fields"], $style);
+            if($res && $style != null) {
+                $style->cms_post_update_callback($model, $_POST["fields"]);
+            }
+        } else if ($_POST['mode'] == "insert" && isset($_POST['relation']) && $_POST['relation'] != "") {
             $this->insert();
-        else if($_POST['mode'] == "delete" && $_POST['relation'] != "")
             $this->delete();
-
+        } else if ($_POST['mode'] == "change_parent" && isset($_POST['relation']) && $_POST['relation'] != "") {
+            $this->insert();
+        } else if ($_POST['mode'] == "delete" && isset($_POST['delete_all_unassigned_sections'])) {
+            if ($_POST['delete_all_unassigned_sections'] == 'DELETE_ALL') {
+                if ($this->model->delete_all_unassigned_sections()) {
+                    $this->success = true;
+                } else {
+                    $this->fail = true;
+                    $this->error_msgs[] = "Verification failed!";
+                }
+            } else {
+                $this->fail = true;
+                $this->error_msgs[] = "Verification failed!";
+            }
+        } else if ($_POST['mode'] == "delete" && $_POST['relation'] != "") {
+            $this->delete();
+        }
+        $this->model->get_db()->clear_cache();
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Check if a JSON value is dynamically set with {{}} and if it is accept it
+     * @return boolean
+     */
+    private function check_json_for_dynamic_content($value){
+        preg_match('~{{.*?}}~s', $value, $matches, PREG_OFFSET_CAPTURE);
+        return isset($matches[0]) && $matches[0][0];
+    }
 
     /**
      * Checks whether the content of a input field corresponds to the xpected
@@ -94,7 +134,7 @@ class CmsUpdateController extends BaseController
         {
             if($value === "") return true;
             json_decode($value, true);
-            return (json_last_error() === JSON_ERROR_NONE);
+            return (json_last_error() === JSON_ERROR_NONE) || $this->check_json_for_dynamic_content($value);
         }
         if($type === "number")
             return is_numeric($value);
@@ -117,6 +157,7 @@ class CmsUpdateController extends BaseController
                 "color",
                 "date",
                 "datetime-local",
+                "datetime",
                 "email",
                 "month",
                 "number",
@@ -149,15 +190,30 @@ class CmsUpdateController extends BaseController
      */
     private function insert()
     {
-        if(isset($_POST['add-section-link'])
-                && $_POST['add-section-link'] != "")
-            $this->insert_section_link(intval($_POST['add-section-link']),
-                $_POST['relation']);
-
-        else if(isset($_POST['section-name']) && isset($_POST['section-style']))
-            $this->insert_new_section(htmlspecialchars($_POST['section-name']),
-                intval($_POST['section-style']), $_POST['relation']);
-
+        if (
+            isset($_POST['add-section-link']) && $_POST['add-section-link'] != ""
+        ) {
+            $this->insert_section_link(intval($_POST['add-section-link']), $_POST['relation'], isset($_POST['position']) ? $_POST['position'] : null);
+            header('Location: ' . $this->model->get_link_url("cmsUpdate", array(
+                "type" => "prop",
+                "mode" => "update",
+                "pid" => $this->model->get_active_page_id(),
+                "sid" => $_POST['add-section-link'],
+                "ssid" => null
+            )));
+            return $_POST['add-section-link'];
+        } else if (isset($_POST['section-name']) && isset($_POST['section-style'])) {
+            $section_name = htmlspecialchars($_POST['section-name']);
+            $section_style_id = intval($_POST['section-style']);
+            $relation = $_POST['relation'];
+            $id = $this->insert_new_section(
+                $section_name,
+                $section_style_id,
+                $relation,
+                isset($_POST['position']) ? $_POST['position'] : null
+            );
+            return $id;
+        }
     }
 
     /**
@@ -169,10 +225,12 @@ class CmsUpdateController extends BaseController
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
      */
-    private function insert_section_link($id, $relation)
+    private function insert_section_link($id, $relation, $position = null)
     {
-        if($this->model->insert_section_link($id, $relation))
+        if($this->model->insert_section_link($id, $relation, $position))
         {
             $this->insert_success = true;
             $this->model->set_mode("select");
@@ -192,15 +250,23 @@ class CmsUpdateController extends BaseController
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param int position
+     * The position where the section should be inserted. If not set we assign the last position
+     * 
      */
-    private function insert_new_section($name, $id_style, $relation)
+    private function insert_new_section($name, $id_style, $relation, $position = null)
     {
-        $new_id = $this->model->insert_new_section($name, $id_style, $relation);
+        $new_id = $this->model->insert_new_section($name, $id_style, $relation, $position);
+        if($new_id != null) {
+            $style = new StyleComponent($this->model->get_services(), $new_id);
+            $style->cms_post_create_callback($this->model, $name,
+                $id_style, $relation, $new_id);
+        }
         if($new_id)
         {
             $this->insert_success = true;
             $sid = $this->model->get_active_root_section_id();
-            if($relation == "page_nav" || $relation == "section_nav")
+            if($relation == RELATION_PAGE_NAV || $relation == RELATION_SECTION_NAV)
             {
                 $sid = $new_id;
                 $new_id = null;
@@ -248,15 +314,14 @@ class CmsUpdateController extends BaseController
      *   'id':      The id of the field.
      *   'content'  The content of the field.
      *   'relation' The database relation of the field.
+     * @retval boolean
+     *  True if all updates were successful, false if the update did not take
+     *  place.
      */
     private function update($fields)
     {
-        if(isset($_POST['css']))
-        {
-            $css = filter_var($_POST['css'], FILTER_SANITIZE_STRING);
-            $this->model->update_db(CSS_FIELD_ID, 1, 1, $css, "section_field");
-        }
-
+        $page_fields = array();
+        $section_fields = array();
         foreach($fields as $name => $languages)
         {
             if(!is_array($languages))
@@ -264,7 +329,7 @@ class CmsUpdateController extends BaseController
                 if(DEBUG == 1)
                     echo "Error: A field must be an array in CmsController::update_fields()";
                 continue;
-            }
+            }            
             foreach($languages as $id_language => $genders)
             {
                 if(!is_array($genders))
@@ -280,7 +345,7 @@ class CmsUpdateController extends BaseController
                     if($type == "checkbox")
                         $content = isset($field['content']) ? 1 : 0;
                     else
-                        $content = $field['content'];
+                        $content = isset($field['content']) ? $field['content'] : "";
                     $relation = $field['relation'];
                     if($type == "internal")
                     {
@@ -292,8 +357,24 @@ class CmsUpdateController extends BaseController
                     if($this->check_content($type, $content))
                     {
                         $content = $this->secure_field($type, $content);
-                        $res = $this->model->update_db($id, $id_language,
-                            $id_gender, $content, $relation);
+                        if(is_array($content)){
+                            $content = implode(',', $content);
+                        }
+                        if ($relation == RELATION_PAGE) {
+                            $page_fields[$name] = $content;
+                            $res = true;
+                        }else if($relation == RELATION_SECTION){
+                            $section_fields[$name] = $content;
+                            $res = true;
+                        } else {
+                            $res = $this->model->update_db(
+                                $id,
+                                $id_language,
+                                $id_gender,
+                                $content,
+                                $relation
+                            );
+                        }
                     }
                     else
                         $this->bad_fields[$name][$id_language] = $field;
@@ -305,8 +386,44 @@ class CmsUpdateController extends BaseController
                 }
             }
         }
-        if($this->update_success_count >= 0 && $this->update_fail_count == 0)
+        if (count($page_fields) > 0) {
+            // update page fields in table pages
+            $position = null;
+            if(isset($_POST['set-position']))
+            {
+                $position = array();
+                foreach(explode(',', $_POST['set-position']) as $item){
+                    $position[] = filter_var($item, FILTER_SANITIZE_NUMBER_INT);
+                }
+                if ($_POST['nav_position'] == "") {
+                    // the page has no nav position apply one
+                    $page_fields['nav_position'] = 999;
+                } 
+            } else {
+                $page_fields['nav_position'] = null;
+            }
+            $res = $this->model->update_page($page_fields, $position);
+            if ($res && $res >= 0) {
+                $this->update_success_count = $this->update_success_count + $res;
+            } else if ($res === false) {
+                $this->update_fail_count++;
+            }
+        }
+        if (count($section_fields) > 0) {
+            // update section fields in table sections
+            $res = $this->model->update_section($section_fields);
+            if ($res && $res >= 0) {
+                $this->update_success_count = $this->update_success_count + $res;
+            } else if ($res === false) {
+                // only on false count as failed
+                $this->update_fail_count++;
+            }
+        }
+        if($this->update_success_count >= 0 && $this->update_fail_count == 0) {
             $this->model->set_mode("select");
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -21,6 +21,12 @@ class ContainerView extends StyleView
      */
     private $is_fluid;
 
+    /**
+     * DB field 'export_pdf' (false).
+     * If set to true the container offers export PDF functionality. All children in the container will be exported in a PDF file with javascript
+     */
+    private $export_pdf;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -33,6 +39,7 @@ class ContainerView extends StyleView
     {
         parent::__construct($model);
         $this->is_fluid = $this->model->get_db_field('is_fluid', false);
+        $this->export_pdf = $this->model->get_db_field('export_pdf', false);
     }
 
     /* Public Methods *********************************************************/
@@ -45,5 +52,21 @@ class ContainerView extends StyleView
         $fluid = ($this->is_fluid) ? "-fluid" : "";
         require __DIR__ . "/tpl_container.php";
     }
+
+
+    public function output_export_pdf_btn()
+    {
+        if ($this->export_pdf) {
+            require __DIR__ . "/tpl_exportPDF_btn.php";
+        }
+    }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();        
+        $style['css'] = $style['css'] . ' ' . ($this->is_fluid ? "mobile-container-fluid" : "mobile-container");
+        return $style;
+    }
+
 }
 ?>

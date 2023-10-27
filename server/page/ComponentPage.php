@@ -38,11 +38,13 @@ class ComponentPage extends BasePage
     public function __construct($services, $keyword, $params)
     {
         parent::__construct($services, $keyword);
+        if(!$this->acl_pass)
+            return;
         $componentClass = ucfirst($keyword) . "Component";
         if(class_exists($componentClass))
         {
             $this->componentInstance = new $componentClass($this->services,
-                $params);
+                $params, $this->id_page);
             $this->add_component("comp", $this->componentInstance);
         }
     }
@@ -60,6 +62,17 @@ class ComponentPage extends BasePage
             $this->output_component("comp");
         else
         {
+            $page = new InternalPage($this, "missing");
+            $page->output_content();
+        }
+    }
+
+    protected function output_content_mobile()
+    {
+        if ($this->componentInstance && $this->componentInstance->has_access()
+        )
+            $this->output_component("comp");
+        else {
             $page = new InternalPage($this, "missing");
             $page->output_content();
         }

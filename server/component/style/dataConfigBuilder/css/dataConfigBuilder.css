@@ -1,0 +1,155 @@
+.data_config_builder .card-title.level-1 {
+    display: flex !important;
+    align-items: center;
+    flex-direction: row-reverse;
+    border-bottom: 1px solid var(--secondary);
+    padding: 0.5rem 15px 0.5rem 0.5rem;
+}
+
+.data_config_builder .card-title.level-3 {
+    display: flex !important;
+    align-items: center;
+    flex-direction: row-reverse;
+    border-bottom: 1px solid var(--secondary);
+    margin-right: -15px;
+    padding: 0.5rem 15px 0.5rem 0;
+}
+
+.data_config_builder .card-title.level-2,
+.card-title.level-4 {
+    float: right;
+    display: flex !important;
+    align-items: center;
+    flex-direction: row-reverse;
+}
+
+.data_config_builder label {
+    margin: 0;
+}
+
+.data_config_builder .btn-group {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+.data_config_builder h3 .btn-group {
+    display: block !important;
+}
+
+.data_config_builder h3 {
+    font-size: 1rem;
+}
+
+.data_config_builder .nav-link {
+    padding: 0.25rem 0.5rem;
+    font-size: .875rem;
+}
+
+.json-editor-btn-add {
+    background-color: var(--success);
+}
+
+.json-editor-btn-delete,
+.json-editor-btn-subtract {
+    background-color: var(--danger);
+}
+
+.data_config_builder .nav-link {
+    color: var(--dark);
+}
+
+.data_config_builder .nav-link.active {
+    background-color: var(--secondary) !important;
+    color: var(--white) !important;
+}
+
+.data_config_builder .btn:focus,
+.btn:active,
+.btn:target,
+.btn:hover,
+.btn:focus-visible,
+.btn:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.json-editor-btn-collapse.btn:active {
+    color: var(--dark) !important;
+    background-color: transparent !important;
+}
+
+.data_config_builder .json-editor-btn-collapse {
+    /* display: none; */
+    border: 0;
+    color: inherit;
+    background: inherit;
+    margin: 0;
+}
+
+.data_config_builder .json-editor-btn-collapse .fa-caret-down::before {
+    content: "\f102";
+}
+
+.data_config_builder .json-editor-btn-collapse .fa-caret-right::before {
+    content: "\f103";
+}
+
+.data_config_builder_modal_holder .modal-dialog {
+    max-width: 95% !important;
+    z-index: 1000;
+}
+
+.data_config_builder_modal_holder .modal-dialog .modal-header {
+    background: var(--secondary);
+    color: var(--white)
+}
+
+.data_config_builder_modal_holder .btn-group button {
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.data_config_builder_holder {
+    min-height: 80vh;
+}
+
+.data_config_builder_modal_holder .modal-body {
+    padding: 0;
+    background-color: var(--light);
+}
+
+#Data-Source .nav {
+    padding-left: 0.25rem;
+}
+
+#Data-Source {
+    padding: 0;
+}
+
+.data_config_builder>.je-noindent>.row {
+    margin: 0;
+}
+
+#Data-Source>.je-object__container>p {
+    border-top: 1px solid;
+    margin-right: -15px;
+    font-style: italic;
+}
+
+#Field>.je-object__container>p {
+    border-top: 1px solid;
+    margin-right: -15px;
+    font-style: italic;
+}
+
+#data_config_builder_modal_holder .bootstrap-select {
+    border: 1px solid;
+}
+
+#data_config_builder_modal_holder select {
+    border: 1px solid;
+}
+
+#data_config_builder_modal_holder input {
+    border: 1px solid;
+}

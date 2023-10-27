@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+
 /**
  * The class to define the basic functionality of a model.
  */
@@ -44,6 +45,11 @@ abstract class BaseModel
     protected $parsedown;
 
     /**
+     * The instance instance that is used to log transactions in the database.
+     */
+    protected $transaction;
+
+    /**
      * User input handler.
      */
     protected $user_input;
@@ -52,6 +58,11 @@ abstract class BaseModel
      * Mail handler.
      */
     protected $mail;
+
+    /**
+     * JobScheduler handler.
+     */
+    protected $job_scheduler;
 
     /**
      * An associative array holding the different available services. See the
@@ -80,10 +91,11 @@ abstract class BaseModel
         $this->db = $services->get_db();
         $this->acl = $services->get_acl();
         $this->login = $services->get_login();
-        $this->mail = $services->get_mail();
+        $this->transaction = $services->get_transaction();
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
+        $this->job_scheduler = $services->get_job_scheduler();
     }
 
     /** Private Methods *******************************************************/
@@ -104,7 +116,162 @@ abstract class BaseModel
             array("nav" => $id));
     }
 
+    /**
+     * Set default settings for a curl call
+     */
+    static private function get_default_curl_settings($data)
+    {
+        $arr = array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 100,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER => $data['header']
+        );
+
+        if (DEBUG) {
+            //skip ssl checks for local testing
+            $arr[CURLOPT_SSL_VERIFYHOST] = false;
+            $arr[CURLOPT_SSL_VERIFYPEER] = false;
+        }
+
+        return $arr;
+    }
+    
+
+    /* Protected Methods *********************************************************/
+
+    /**
+     * Fetch the data from the database base on the JSON configuration
+     * @param array $data_config
+     * Json configuration
+     * @param int $user_id
+     * Show the data for that user
+     * @retval array
+     * array with the retrieved fields and their values
+     */
+    protected function fetch_data($data_config, $user_id = null)
+    {
+        $result = array();
+        try {
+            foreach ($data_config as $key => $config) {
+                // loop configs; DB requests
+                $table_id = $this->user_input->get_form_id($config['table'], $config['type']);
+                $data = null;
+                if ($table_id) {
+                    if ($config['type'] === FORM_EXTERNAL) {
+                        $filter = "ORDER BY record_id ASC";
+                        if ($config['retrieve'] === 'last') {
+                            $filter = "ORDER BY record_id DESC";
+                        }
+                    } else {
+                        $filter = "ORDER BY edit_time ASC";
+                        if ($config['retrieve'] === 'last') {
+                            $filter = "ORDER BY edit_time DESC";
+                        }
+                    }
+                    if (isset($config['filter']) && $config['filter'] != '') {
+                        // if specific filter is used, overwrite it.
+                        $filter = $config['filter'];
+                    }
+                    $current_user = true; //default value
+                    if(isset($config['current_user'])){
+                        // get the config value if it is set
+                        $current_user = $config['current_user'];
+                    }
+                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type'], $user_id);
+                    $data = array_filter($data, function ($value) {
+                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
+                    });
+                    if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
+                        // return all fields
+                        if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
+                            $all_values = array();
+                            foreach ($data as $key => $value) {
+                                foreach ($value as $field_name => $field_value) {
+                                    $all_values[$field_name][] = $field_value;
+                                }
+                            }
+                            foreach ($all_values as $key => $value) {
+                                if ($config['retrieve'] === 'all') {
+                                    $all_values[$key] = implode(',', $value);
+                                } else {
+                                    $all_values[$key] = json_encode($value);
+                                }
+                            }
+                            $result = array_merge($result, $all_values);
+                        } else {
+                            $result = array_merge($result, $data[0]);
+                        }
+                    } else if (isset($config['fields'])) {
+                        // return only the selected fields
+                        foreach ($config['fields'] as $key => $field) {
+                            // loop fields
+                            $i = 0;
+                            $field_value = '';
+                            $all_values = array();
+                            foreach ($data as $key => $row) {
+                                $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value                                
+                                if ($config['retrieve'] != 'all' && $config['retrieve'] != 'all_as_array') {
+                                    $field_value = $val;
+                                    break; // we don need the others;
+                                } else {
+                                    $all_values[] = $val;
+                                }
+                                $i++;
+                            }
+                            if ($config['retrieve'] === 'all') {
+                                $field_value = implode(',', $all_values);
+                            } else if ($config['retrieve'] === 'all_as_array') {
+                                $field_value = json_encode($all_values);
+                            }
+                            $result[$field['field_holder']] = ($field_value == '' ? $field['not_found_text'] : $field_value);
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            return false;
+        }
+        return $result;
+    }
+    
+
     /* Public Methods *********************************************************/
+
+    /**
+     * Checks whether the current page is a CMS page.
+     *
+     * @retval bool
+     *  true if the current page is a CMS page, false otherwise.
+     */
+    public function is_cms_page()
+    {
+        return ($this->is_link_active("cms")
+            || $this->is_link_active("cmsSelect")
+            || $this->is_link_active("cmsUpdate")
+            || $this->is_link_active("cmsInsert")
+            || $this->is_link_active("cmsDelete")
+        );
+
+    }
+
+    /**
+     * Checks whether the current page is a CMS page which is edited by the user.
+     * Either in update, delete or insert mode
+     *
+     * @retval bool
+     *  true if the current page is a CMS page, false otherwise.
+     */
+    public function is_cms_page_editing()
+    {
+        return ($this->is_link_active("cmsUpdate") ||
+                $this->is_link_active("cmsInsert") ||
+                $this->is_link_active("cmsDelete")
+        );
+    }
 
     /**
      * Generates the url of a link, given a router keyword.
@@ -119,10 +286,7 @@ abstract class BaseModel
      */
     public function get_link_url($key, $params=array())
     {
-        if($this->router->has_route($key))
-            return $this->router->generate($key, $params);
-        else
-            return "";
+        return $this->router->get_link_url($key, $params);
     }
 
     /**
@@ -136,12 +300,6 @@ abstract class BaseModel
      */
     public function is_link_active($key)
     {
-        $sql = "SELECT pj.keyword FROM pages AS p
-            LEFT JOIN pages AS pj ON p.id = pj.parent
-            WHERE p.keyword = :keyword AND pj.keyword IS NOT NULL";
-        $matches = $this->db->query_db($sql, array(":keyword" => $key));
-        foreach($matches as $match)
-            if($this->router->is_active($match['keyword'])) return true;
         return $this->router->is_active($key);
     }
 
@@ -155,6 +313,18 @@ abstract class BaseModel
     {
         return $this->children;
     }
+
+    /**
+     * Set the child components.
+     *
+     * @param array $children
+     *  An array of style components.
+     */
+    public function set_children($children)
+    {
+        $this->children = $children;
+    }
+
 
     /**
      * Get the model services.
@@ -227,6 +397,95 @@ abstract class BaseModel
         if($this->nav != null)
             return $this->nav->get_navigation_items();
         return array();
+    }    
+
+    /**
+     * Get a list of languages and prepares the list such that it can be passed to a
+     * list component.
+     *
+     * @retval array
+     *  An array of items where each item has the following keys:
+     *   'id':      The id of the language.
+     *   'locale':   
+     *   'language':   
+     *   'csv_separator':
+     */
+    public function get_languages()
+    {
+        return $this->db->get_languages();
     }
+
+    /**
+     * get user groups from the database.
+     *
+     *  @retval array
+     *  value int,
+     *  text string
+     */
+    public function get_groups()
+    {
+        $groups = array();
+        foreach ($this->db->select_table("`groups`") as $group) {
+            array_push($groups, array("value" => intval($group['id']), "text" => $group['name']));
+        }
+        return $groups;
+    }
+
+    /**
+     * Generate and return the url of a list item.
+     *
+     * @param int $pid
+     *  The page id.
+     * @param int $sid
+     *  The root section id or the active section id if no root section is
+     *  available.
+     * @param int $ssid
+     *  The active section id.
+     * @return string
+     *  The generated url.
+     */
+    public function get_cms_item_url($pid, $sid=null, $ssid=null)
+    {
+        if ($sid == $ssid) $ssid = null;
+        if ($this->get_services()->get_user_input()->is_new_ui_enabled() && $this->is_link_active("cmsUpdate")) {
+            return $this->router->generate("cmsUpdate", array("pid" => $pid, "sid" => $sid, "ssid" => $ssid, "mode" => UPDATE, "type" => "prop"));
+        } else {
+            return $this->router->generate(
+                "cmsSelect",
+                array("pid" => $pid, "sid" => $sid, "ssid" => $ssid)
+            );
+        }
+    }
+
+    /**
+     * Execute curl calls
+     * @param array $data
+     * request_type, url, post_params
+     * @return bool || object
+     *  false or response
+     */
+    static public function execute_curl_call($data)
+    {
+        // curl module should be installed
+        // sudo apt-get install php-curl
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, BaseModel::get_default_curl_settings($data));
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $data['request_type']);
+            curl_setopt($curl, CURLOPT_URL, $data['URL']);
+            if (isset($data['post_params'])) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data['post_params']);
+            }
+
+            $response = curl_exec($curl);
+            $response = json_decode($response, true);
+
+            curl_close($curl);
+            return $response;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    
 }
 ?>

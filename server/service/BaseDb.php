@@ -9,12 +9,26 @@
  *
  * @author moiri
  */
+
+require_once __DIR__ . "/Cache.php";
+require_once __DIR__ . "/ExtendedPdo.php";
+
 class BaseDb {
 
     /**
      * The DB handler.
      */
     private $dbh = null;
+
+    /**
+     * @var int the current transaction depth
+     */
+    protected $_transactionDepth = 0;
+
+    /**
+     * The cache instance
+     */
+    protected $cache;
 
     /**
      * Open connection to mysql database
@@ -26,8 +40,9 @@ class BaseDb {
      * @param string $names:    charset (optional, default: utf8)
      */
     public function __construct($server, $dbname, $username, $password, $names="utf8") {
+        $this->cache = new Cache();
         try {
-            $this->dbh = new PDO(
+            $this->dbh = new ExtendedPdo(
                 "mysql:host=$server;dbname=$dbname;charset=$names",
                 $username, $password, array(PDO::ATTR_PERSISTENT => true)
             );
@@ -110,16 +125,20 @@ class BaseDb {
      *  An associative array with value key pairs where the keys are variable
      *  identifiers used in the query (e.g ':id') which will be replaced with
      *  the associated value on query execution.
-     *
+     * @param enum $fetch_style
+     *  Controls how the next row will be returned to the caller. Refer to the
+     *  [official documentation](https://www.php.net/manual/en/pdostatement.fetch.php)
+     *  for more information.
      * @retval array
      *  An array with all row entries or false if no entry was selected.
      */
-    public function query_db($sql, $arguments=array())
+    public function query_db($sql, $arguments=array(),
+        $fetch_style=PDO::FETCH_ASSOC)
     {
         try {
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($arguments);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $stmt->fetchAll($fetch_style);
         }
         catch(PDOException $e)
         {
@@ -138,16 +157,20 @@ class BaseDb {
      *  An associative array with value key pairs where the keys are variable
      *  identifiers used in the query (e.g ':id') which will be replaced with
      *  the associated value on query execution.
-     *
+     * @param enum $fetch_style
+     *  Controls how the next row will be returned to the caller. Refer to the
+     *  [official documentation](https://www.php.net/manual/en/pdostatement.fetch.php)
+     *  for more information.
      * @retval array
      *  All row entries or false if no entry was selected.
      */
-    public function query_db_first($sql, $arguments=array())
+    public function query_db_first($sql, $arguments=array(),
+        $fetch_style=PDO::FETCH_ASSOC)
     {
         try {
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute($arguments);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            return $stmt->fetch($fetch_style);
         }
         catch(PDOException $e)
         {
@@ -428,22 +451,30 @@ class BaseDb {
      *  The name of the db table.
      * @param array $cols
      *  An array of db collumn names.
-     * @param array $entries
+     * @param array $data
      *  A matrix of values.
      * @retval int
      *  The last inserted id if succeded, false otherwise.
      */
-    public function insert_mult($table, $cols, $entries) {
+    public function insert_mult($table, $cols, $data) {
         try {
-            $data = array();
+            $db_data = array();
             $columnStr = "(" . implode(',', $cols) . ")";
-            $valueStr = implode(',', array_map(function($entry) {
-                      return "(" . implode(',', $entry) . ")";
-                }, $entries));
+            $valueStr = implode(',', array_map(
+                function($row, $row_idx) use ($cols, &$db_data)
+                {
+                    return "(" . implode(',', array_map(
+                        function($value, $col_idx) use ($cols, &$db_data, $row_idx)
+                        {
+                            $id = ":".($row_idx * count($cols) + $col_idx);
+                            $db_data[$id] = $value;
+                            return $id;
+                        }, $row, array_keys($row))) . ")";
+                }, $data, array_keys($data)));
             $sql = "INSERT INTO ".$table
                 .$columnStr." VALUES ".$valueStr;
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute($data);
+            $stmt->execute($db_data);
             $new_id = $this->dbh->lastInsertId();
             if($new_id > 0) return $new_id; // might be zero if no id is available
             else return true;
@@ -487,13 +518,236 @@ class BaseDb {
             $insertStr = rtrim($insertStr, ", ");
             $sql = "UPDATE ".$table." SET ".$insertStr.$where_cond;
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute($data);
-            return $stmt->rowCount();
+            $success = $stmt->execute($data);
+            if ($success !== false) {
+                return $stmt->rowCount();
+            } else {
+                return false;
+            }
         }
         catch(PDOException $e) {
             if(DEBUG == 1) echo "BaseDb::update_by_ids: ".$e->getMessage();
             return false;
         }
+    }
+
+    /**
+     * Get lookups for given type.
+     *
+     * @param string $lookupType
+     *  The type of the lookup
+     * @retval array
+     *  An array with all row entries for the given lookuptype
+     */
+    public function get_lookups($lookupType) {
+        try {
+            $stmt = $this->dbh->prepare("SELECT * FROM lookups WHERE type_code = :code");
+            $stmt->execute(array(':code' => $lookupType));
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch(PDOException $e) {
+            if(DEBUG == 1) echo "BaseDb::select_table: ".$e->getMessage();
+        }
+    }
+
+    /**
+     * Get the id of a lookup value
+     *
+     * @param string $type
+     *  The lookup type
+     * @param string $value
+     *  The lookup value
+     * @retval int
+     *  the id of the value
+     */
+    public function get_lookup_id_by_value($type, $value)
+    {
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_LOOKUPS, $value, [__FUNCTION__, $type]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $val = $this->query_db_first(
+                'SELECT id FROM lookups WHERE lookup_value = :value AND type_code = :type_code;',
+                array(
+                    ':value' => $value,
+                    ":type_code" => $type
+                )
+            );
+            $res = $val ? $val["id"] : null;
+            $this->cache->set($key, $res);
+            return $res;
+        }
+    }
+
+    /**
+     * Get the id of a lookup value
+     *
+     * @param string $type
+     *  The lookup type
+     * @param string $code
+     *  The lookup code
+     * @retval int
+     *  the id of the lookup code
+     */
+    public function get_lookup_id_by_code($type, $code)
+    {
+        $key = $this->cache->generate_key($this->cache::CACHE_TYPE_LOOKUPS, $code, [__FUNCTION__, $type]);
+        $get_result = $this->cache->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $val = $this->query_db_first(
+                'SELECT id FROM lookups WHERE lookup_code = :code AND type_code = :type_code;',
+                array(
+                    ':code' => $code,
+                    ":type_code" => $type
+                )
+            );
+            $res = $val ? $val["id"] : null;
+            $this->cache->set($key, $res);
+            return $res;
+        }
+    }
+
+    /**
+     * Get the lookup value by id
+     *
+     * @param int $id
+     *  The lookup id
+     * @retval string
+     *  the lookup value
+     */
+    public function get_lookup_value_by_id($id)
+    {
+        $val = $this->query_db_first(
+            'SELECT lookup_value FROM lookups WHERE id = :id;',
+            array(
+                ':id' => $id
+            )
+        );
+        return $val['lookup_value'];
+    }
+
+    /**
+     * Get the lookup code by id
+     *
+     * @param int $id
+     *  The lookup id
+     * @retval string
+     *  the lookup code
+     */
+    public function get_lookup_code_by_id($id)
+    {
+        $val = $this->query_db_first(
+            'SELECT lookup_code FROM lookups WHERE id = :id;',
+            array(
+                ':id' => $id
+            )
+        );
+        return $val['lookup_code'];
+    }
+
+    /**
+     * Begin PDO DB transanction
+     */
+    public function begin_transaction(){
+        $this->dbh->beginTransaction();
+    }
+
+    /**
+     * commit PDO DB transanction
+     */
+    public function commit(){
+        $this->dbh->commit();
+    }
+
+    /**
+     * rollback PDO DB transanction
+     */
+    public function rollback()
+    {
+        $this->dbh->rollback();
+        $this->cache->clear_cache(); // on rollback clear cache
+    }
+
+    /**
+     * Get the callback key from the preferences table
+     * @retval string 
+     */
+    public function get_callback_key(){
+        $sql = "SELECT callback_api_key FROM cmsPreferences;";
+        return $this->query_db_first($sql)['callback_api_key'];
+    }
+
+    /**
+     * Fetch the user data from the db.
+     *
+     * @param int $lid
+     *  The id of the language to fetch.
+     * @retval array
+     *  An array with the following keys:
+     *   'id':      The id of the language.
+     *   'locale':  
+     *   'language':
+     *   'csv_separator'
+     */
+    public function fetch_language($lid)
+    {
+        $sql = "SELECT * FROM languages WHERE id = :lid";
+        $res = $this->query_db_first($sql, array(":lid" => $lid));
+        if(!$res) return null;
+        return array(
+            "lid" => $lid,
+            "locale" => $res['locale'],
+            "language" => $res['language'],
+            "csv_separator" => $res['csv_separator']
+        );
+    }
+
+    /**
+     * Fetch language by locale.
+     *
+     * @param string $locale
+     *  The locale of the language.
+     * @retval array
+     *  An array with the following keys:
+     *   'id':      The id of the language.
+     *   'locale':  
+     *   'language':
+     *   'csv_separator'
+     */
+    public function fetch_language_by_locale($locale)
+    {
+        $sql = "SELECT * FROM languages WHERE locale = :locale";
+        $res = $this->query_db_first($sql, array(":locale" => $locale));
+        if (!$res) {
+            // cannot find the locale, lets try to find something from the same language, the first one with the lowest id
+            $local_language = explode('-', $locale);
+            if (!isset($local_language[0])) {
+                return null;
+            }
+            $locale = '%' . $local_language[0] . '-%';
+            $sql = "SELECT * FROM languages WHERE locale LIKE (:locale) ORDER BY id ASC;";
+            $res = $this->query_db_first($sql, array(":locale" => $locale));
+            if(!$res) return null;
+        };
+        return array(
+            "lid" => $res['id'],
+            "locale" => $res['locale'],
+            "language" => $res['language'],
+            "csv_separator" => $res['csv_separator']
+        );
+    }
+
+
+    /**
+     * Get cache
+     * @return object
+     * Return the cache instance
+     */
+    public function get_cache(){
+        return $this->cache;
     }
 }
 ?>

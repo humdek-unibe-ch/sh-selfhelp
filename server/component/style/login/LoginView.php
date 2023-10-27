@@ -58,6 +58,12 @@ class LoginView extends StyleView
      */
     private $type;
 
+    /**
+     * If enabled the registration will be based on the logic for anonymous_users
+     */
+    private $anonymous_users = false;
+
+
 
     /* Constructors ***********************************************************/
 
@@ -79,7 +85,7 @@ class LoginView extends StyleView
         $this->reset_label = $this->model->get_db_field('label_pw_reset');
         $this->login_title = $this->model->get_db_field('login_title');
         $this->type = $this->model->get_db_field("type", "dark");
-
+        $this->anonymous_users = $this->model->is_anonymous_users();
         $this->add_local_component("alert", new BaseStyleComponent("alert",
             array(
                 "children" => array(new BaseStyleComponent("plaintext", array(
@@ -109,7 +115,36 @@ class LoginView extends StyleView
     {
         $url = $this->model->get_link_url('login');
         $reset_url = $this->model->get_link_url('reset_password');
-        require __DIR__ . "/tpl_login.php";
+        if ($this->anonymous_users) {
+            require __DIR__ . "/tpl_login_anonymous_user.php";
+        } else {
+            require __DIR__ . "/tpl_login.php";
+        }
     }
+
+    /**
+     * Output the style for mobile
+     * @return object 
+     * Return te style
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['anonymous_users'] = $this->anonymous_users;
+        $style['is_reset_password_enabled'] = intval($this->model->is_reset_password_enabled());
+        return $style;
+    }
+
+    /**
+     * Render the reset password button.
+     */
+    public function output_reset_password()
+    {
+        $reset_url = $this->model->get_link_url('reset_password');
+        if ($this->model->is_reset_password_enabled()) {
+            require __DIR__ . "/tpl_reset_password.php";
+        }
+    }
+
 }
 ?>

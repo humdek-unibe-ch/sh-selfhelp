@@ -13,10 +13,12 @@
                     <dd class="col"><code><?php echo $state; ?></code> &ndash; <small class="text-muted"><?php echo $desc; ?></small></dd>
                     <dt class="col-12"><?php $this->output_title('code'); ?></dt>
                     <dd class="col"><code><?php echo $code; ?></code></dd>  
+                    <dt class="col-12"><?php $this->output_title('user_name'); ?></dt>
+                    <dd class="col"><code><?php echo $user_name; ?></code></dd>  
                     <dt class="col-12"><?php $this->output_title('groups'); ?></dt>
-                    <dd class="col"><?php echo $groups; ?></dd>   
-                    <dt class="col-12"><?php $this->output_title('chat_rooms_names'); ?></dt>
-                    <dd class="col"><?php echo $chat_rooms_names; ?></dd>                    
+                    <dd class="col"><?php echo $groups; ?></dd>                     
+                    <dt class="col-12"><?php $this->output_title('user_type'); ?></dt>
+                    <dd class="col"><?php echo $user_type; ?></dd>                     
                     <dt class="col-12"><?php $this->output_title('login'); ?></dt>
                     <dd class="col"><?php echo $last_login; ?></dd>
                     <dt class="col-12"><?php $this->output_title('activity'); ?></dt>

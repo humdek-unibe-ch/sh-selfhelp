@@ -15,6 +15,11 @@ class DivView extends StyleView
     /* Constructors ***********************************************************/
 
     /**
+     * Id used for html element
+     */
+    private $id;
+
+    /**
      * The constructor.
      *
      * @param object $model
@@ -23,6 +28,7 @@ class DivView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->id = $this->model->get_db_field("id", $this->id_section);
     }
 
     /* Public Methods *********************************************************/
@@ -34,5 +40,6 @@ class DivView extends StyleView
     {
         require __DIR__ . "/tpl_div.php";
     }
+	
 }
 ?>

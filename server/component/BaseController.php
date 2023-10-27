@@ -19,12 +19,12 @@ abstract class BaseController
     /**
      * The success status.
      */
-    protected $success;
+    public $success;
 
     /**
      * The fail status.
      */
-    protected $fail;
+    public $fail;
 
     /**
      * The error messages to be set if a failure occurred.

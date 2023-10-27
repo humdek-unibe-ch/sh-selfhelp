@@ -55,5 +55,6 @@ class PlaintextView extends StyleView
         else
             echo htmlspecialchars($this->text);
     }
+	
 }
 ?>

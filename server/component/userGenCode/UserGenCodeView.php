@@ -100,5 +100,11 @@ class UserGenCodeView extends BaseView
             require __DIR__ . "/tpl_generate_codes.php";
         }
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
+	
 }
 ?>

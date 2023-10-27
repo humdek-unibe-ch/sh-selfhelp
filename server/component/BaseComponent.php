@@ -7,11 +7,34 @@
 spl_autoload_register(function ($class_name) {
     $folder = str_replace("Component", "", $class_name);
     $folder = lcfirst(str_replace("View", "", $folder));
+    $folder = lcfirst(str_replace("Init", "", $folder));
+    $folder = lcfirst(str_replace("Model", "", $folder));
+    $folder = lcfirst(str_replace("Controller", "", $folder));
     $file = "/" . $folder . "/" . $class_name . ".php";
-    if(file_exists(__DIR__ . "/style" . $file))
+    if (file_exists(__DIR__ . "/style" . $file))
         require_once __DIR__ . "/style" . $file;
-    else if(file_exists(__DIR__ . $file))
+    else if (file_exists(__DIR__ . $file))
         require_once __DIR__ . $file;
+    else {
+        // check plugins
+        if($handle = opendir(PLUGIN_SERVER_PATH)) {
+            while(false !== ($dir = readdir($handle))){                
+                if(filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir"){                    
+                    $plugin_path = __DIR__ . '/../plugins/' . $dir . '/server/component';
+                    if (file_exists($plugin_path . "/style" . $file)) {
+                        require_once $plugin_path . "/style" . $file;
+                        break;
+                    } else if (file_exists($plugin_path . $file)) {
+                        require_once $plugin_path . $file;
+                        break;
+                    } else if (file_exists($plugin_path . '/' . $class_name . '.php')) {
+                        require_once $plugin_path . '/' . $class_name . '.php';
+                        break;
+                    }
+                }
+            }
+        }
+    }
 });
 /**
  * The class to define the basic functionality of a component.
@@ -57,6 +80,8 @@ abstract class BaseComponent
         $this->model = $model;
     }
 
+    /* Protected Methods ******************************************************/
+
     /* Public Methods *********************************************************/
 
     /**
@@ -64,8 +89,55 @@ abstract class BaseComponent
      */
     public function output_content()
     {
-        if($this->view)
-            $this->view->output_content();
+        if($this->view){
+            if (method_exists($this->view, 'output_debug')) {
+                $this->view->output_debug();
+            }
+            if (
+                method_exists($this->model, 'get_condition_result') &&
+                !$this->model->get_condition_result()['result']
+                && $this->model->get_style_name() != "conditionalContainer"
+                && !(method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing())
+            ) {
+                //condition not meat, do not load unless it is conditional container. Conditional container could have a child conditionFailed
+                // load in CMS edit mode but not if it is in cms view mode
+                return;
+            }
+            if (
+                method_exists($this->model, 'is_cms_page') && $this->model->is_cms_page() &&
+                method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing() &&
+                method_exists($this->view, 'output_style_for_cms') && $this->model->get_services()->get_user_input()->is_new_ui_enabled()
+            ) {
+                // load the page in the CMS 
+                // wrap each style in UI CMS Holder that keep the information for the style
+                $params = $this->model->get_params();
+                if (isset($params['missing']) && $params['missing']) {
+                    $this->view->output_content();
+                } else {
+                    $this->view->output_style_for_cms();
+                }
+            } else {
+                $this->view->output_content();
+            }
+        }
+    }
+
+    /**
+     * Render the component view for mobile
+     */
+    public function output_content_mobile()
+    {
+        if ($this->view) {
+            if (
+                method_exists($this->model, 'get_condition_result') &&
+                !$this->model->get_condition_result()['result']
+                && $this->model->get_style_name() != "conditionalContainer"
+            ) {
+                //condition not meat, do not load unless it is conditional container. Conditional container could have a child conditionFailed
+                return;
+            }
+            return $this->view->output_content_mobile();
+        }
     }
 
     /**

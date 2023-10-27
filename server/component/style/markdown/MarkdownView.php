@@ -21,6 +21,12 @@ class MarkdownView extends StyleView
      */
     private $text_md;
 
+    /**
+     * DB field 'data_config' (empty string).
+     * If some value is loaded from the upload tables
+     */
+    private $data_config;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -33,7 +39,10 @@ class MarkdownView extends StyleView
     {
         parent::__construct($model);
         $this->text_md = $this->model->get_db_field('text_md');
+        $this->data_config = $this->model->get_db_field("data_config");
     }
+
+    /** Private Methods */
 
     /* Public Methods *********************************************************/
 
@@ -42,14 +51,13 @@ class MarkdownView extends StyleView
      */
     public function output_content()
     {
-        if(is_a($this->model, "BaseStyleModel"))
-        {
+        if (is_a($this->model, "BaseStyleModel")) {
             $pd = new ParsedownExtension();
             $md = $pd->text($this->text_md);
-        }
-        else
+        } else
             $md = $this->text_md;
         require __DIR__ . "/tpl_markdown.php";
     }
+
 }
 ?>

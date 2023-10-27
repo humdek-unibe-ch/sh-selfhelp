@@ -8,11 +8,15 @@ require_once __DIR__ . "/globals.php";
 require_once __DIR__ . "/Acl.php";
 require_once __DIR__ . "/PageDb.php";
 require_once __DIR__ . "/Login.php";
-require_once __DIR__ . "/Mailer.php";
+require_once __DIR__ . "/jobs/Mailer.php";
 require_once __DIR__ . "/Navigation.php";
 require_once __DIR__ . "/ParsedownExtension.php";
 require_once __DIR__ . "/Router.php";
 require_once __DIR__ . "/UserInput.php";
+require_once __DIR__ . "/Transaction.php";
+require_once __DIR__ . "/JobScheduler.php";
+require_once __DIR__ . "/conditions/Condition.php";
+require_once __DIR__ . "/Hooks.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -37,9 +41,9 @@ class Services
     private $login = null;
 
     /**
-     * An instance of the PHPMailer service to handle outgoing emails.
+     * An instance of the transaction class used for loging.
      */
-    private $mail = null;
+    private $transaction = null;
 
     /**
      * The instance to the navigation service which allows to switch between
@@ -59,14 +63,31 @@ class Services
     private $router = null;
 
     /**
-     * The User input service instnce to handle user input data.
+     * The User input service instance to handle user input data.
      */
     private $user_input = null;
 
     /**
+     * The JobSheduler service instance to handle jobs scheduling and execution.
+     */
+    private $job_scheduler;
+
+    /**
+     * The hooks service instance to handle hooks execution.
+     */
+    private $hooks;
+
+    /**
+     * The condition service instance to handle conditional logic.
+     */
+    private $condition;
+
+    /**
+     * @param bool $fullMode
+     * By default it is full mode and load all services. In some cases for cronjobs we do not need all the services and then we can select $fullMode false
      * The constructor.
      */
-    public function __construct()
+    public function __construct($fullMode = true)
     {
         $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
 
@@ -74,19 +95,37 @@ class Services
         $this->router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
         $this->init_router_routes();
 
-        $this->acl = new Acl($this->db);
+        $this->transaction = new Transaction($this->db);                
+        
 
-        $this->login = new Login($this->db,
-            $this->is_experimenter_page($this->router->route['name']),
-            $this->does_redirect($this->router->route['name']));
+        $this->user_input = new UserInput($this->db, $this->transaction);
 
-        $this->mail = new Mailer($this->db);
+        $this->condition = new Condition($this->db, $this->user_input, $this->router);
 
-        $this->user_input = new UserInput($this->db);
+        $this->user_input->setConditionService($this->condition);
+
+        $mail = new Mailer($this->db, $this->transaction, $this->user_input, $this->router, $this->condition);        
+
+        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $this->condition, $this->user_input);
+        $this->user_input->setJobSchedulerService($this->job_scheduler);
+        
+        if ($fullMode) {
+            $this->login = new Login(
+                $this->db,
+                $this->transaction,
+                $this->job_scheduler,
+                $this->is_experimenter_page($this->router->route ? $this->router->route['name'] : $this->router->route),
+                $this->does_redirect($this->router->route ? $this->router->route['name'] : $this->router->route)
+            );
+            $this->acl = new Acl($this->db);        
+        }
 
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
+        if ($fullMode) {
+            $this->hooks = new Hooks($this);
+        }
     }
 
     /**
@@ -99,7 +138,13 @@ class Services
      */
     private function does_redirect($keyword)
     {
+        if(defined('REDIRECT_ON_LOGIN') && !REDIRECT_ON_LOGIN)
+            return false;
+        if (!$keyword) {
+            return false;
+        }
         return !$this->is_login_page($keyword)
+            && !$this->is_script_page($keyword)
             && !$this->is_open_page($keyword);
     }
 
@@ -138,6 +183,21 @@ class Services
     }
 
     /**
+     * Checks wether the current page is a page executing a script.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is a script page, false otherwise.
+     */
+    private function is_script_page($keyword)
+    {
+        if($keyword === "request" || $keyword === "callback")
+            return true;
+        return false;
+    }
+
+    /**
      * Checks wether the current page is an experimenter page.
      *
      * @param string $keyword
@@ -147,6 +207,10 @@ class Services
      */
     private function is_experimenter_page($keyword)
     {
+        if (!$keyword) {
+            // the route does not exists
+            return false;
+        }
         $sql = "SELECT * FROM pages WHERE keyword = :kw AND id_type = :type";
         $res = $this->db->query_db_first($sql, array(':kw' => $keyword,
             ':type' => EXPERIMENT_PAGE_ID));
@@ -193,6 +257,17 @@ class Services
     }
 
     /**
+     * Get the service class Transaction.
+     *
+     * @retval object
+     *  The Transaction service class.
+     */
+    public function get_transaction()
+    {
+        return $this->transaction;
+    }
+
+    /**
      * Get the service class Login.
      *
      * @retval object
@@ -201,17 +276,6 @@ class Services
     public function get_login()
     {
         return $this->login;
-    }
-
-    /**
-     * Get the service class Mailer.
-     *
-     * @retval object
-     *  The Mailer service class.
-     */
-    public function get_mail()
-    {
-        return $this->mail;
     }
 
     /**
@@ -259,6 +323,56 @@ class Services
     }
 
     /**
+     * Get the service class JobScheduler.
+     *
+     * @retval object
+     *  The JobScheduler service class.
+     */
+    public function get_job_scheduler()
+    {
+        return $this->job_scheduler;
+    }
+
+    /**
+     * Get the service class Condition.
+     *
+     * @retval object
+     *  The Condition service class.
+     */
+    public function get_condition()
+    {
+        return $this->condition;
+    }
+
+    /**
+     * Get the service class Hooks.
+     *
+     * @retval object
+     *  The Hooks service class.
+     */
+    public function get_hooks()
+    {
+        return $this->hooks;
+    }
+
+    /**
+     * Checks whether the current page is a page redirected base page.
+     *
+     * @param string $keyword
+     *  The keyword of the page to check.
+     * @retval bool
+     *  True if the page is a script page, false otherwise.
+     */
+    public function is_redirected_page($keyword)
+    {
+        if($keyword === "missing"
+                || $keyword === "no_access"
+                || $keyword === "no_access_guest")
+            return true;
+        return false;
+    }
+
+    /**
      * Set the service class Navigation.
      *
      * @param object $nav
@@ -267,6 +381,6 @@ class Services
     public function set_nav($nav)
     {
         $this->nav = $nav;
-    }
+    }    
 }
 ?>

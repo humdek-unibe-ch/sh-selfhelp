@@ -10,6 +10,13 @@
  */
 abstract class BaseCallback
 {
+    /* Constants ************************************************/
+    const CALLBACK_NEW = 'callback_new';
+    const CALLBACK_ERROR = 'callback_error';
+    const CALLBACK_SUCCESS = 'callback_success';
+    const CALLBACK_STATUS = 'callback_status';
+    const CALLBACK_KEY = 'callback_key';
+
     /**
      *  The router instance is used to generate valid links.
      */
@@ -19,6 +26,11 @@ abstract class BaseCallback
      *  The db instance which grants access to the DB.
      */
     protected $db;
+
+    /**
+     * The transaction instance which logs to the DB.
+     */
+    protected $transaction = null;
 
     /**
      * The instance to the navigation service which allows to switch between
@@ -46,6 +58,11 @@ abstract class BaseCallback
      * User input handler.
      */
     protected $user_input;
+    
+    /**
+     * Job Scheduler handler.
+     */
+    protected $job_scheduler;
 
     /**
      * The constructor.
@@ -62,6 +79,8 @@ abstract class BaseCallback
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
+        $this->transaction = $services->get_transaction();
+        $this->job_scheduler = $services->get_job_scheduler();
     }
 
     /**

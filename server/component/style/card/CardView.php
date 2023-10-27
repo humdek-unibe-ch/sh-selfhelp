@@ -70,7 +70,7 @@ class CardView extends StyleView
 
     /* Private Methods ********************************************************/
 
-    /**
+    /**     
      * Render the card header if a title is set. The card can be collapsible
      * or always open.
      */
@@ -91,6 +91,18 @@ class CardView extends StyleView
             require __DIR__ . "/tpl_edit_button.php";
     }
 
+    /**
+     * Render the expand icon.
+     */
+    private function output_expand_icon()
+    {
+        if($this->is_collapsible)
+        {
+            $direction = $this->is_expanded ? "up" : "down";
+            require __DIR__ . "/tpl_expand_icon.php";
+        }
+    }
+
     /* Public Methods *********************************************************/
 
     /**
@@ -101,6 +113,8 @@ class CardView extends StyleView
         $show = $this->is_expanded ? "show" : "";
         $collapse = $this->is_collapsible ? "collapse" : "";
         require __DIR__ . "/tpl_card.php";
-    }
+    }    
+
+	
 }
 ?>

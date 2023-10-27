@@ -68,8 +68,7 @@ class UserUpdateComponent extends UserComponent
      */
     public function has_access()
     {
-        if(!in_array($this->mode, array("block", "unblock", "add_group",
-            "rm_group", "clean", "impersonate")))
+        if(!in_array($this->mode, array("block", "unblock", "add_group","rm_group", "clean", "impersonate", "activation_email")))
             return false;
         if($this->did != null)
         {

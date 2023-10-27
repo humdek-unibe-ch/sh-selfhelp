@@ -25,10 +25,16 @@ class ShowUserInputModel extends StyleModel
      *  class definition basepage for a list of all services.
      * @param int $id
      *  The section id of the navigation wrapper.
+     * @param array $params
+     *  The list of get parameters to propagate.
+     * @param number $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id)
+    public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id);
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Public Methods *********************************************************/
@@ -60,6 +66,19 @@ class ShowUserInputModel extends StyleModel
     {
         $this->db->update_by_ids('user_input', array('removed' => 1),
             array('id' => $id));
+    }
+
+    /**
+     * Wrapper function to convert a string to alphanumeric values.
+     *
+     * @param string $str
+     *  The string to convert
+     * @retval
+     *  The converted string
+     */
+    public function convert_to_alphanumeric($str)
+    {
+        return $this->user_input->convert_to_valid_html_id($str);
     }
 }
 ?>

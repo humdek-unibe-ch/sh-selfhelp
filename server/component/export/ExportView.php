@@ -104,5 +104,10 @@ class ExportView extends BaseView
         $text = $this->model->get_text();
         require __DIR__ . "/tpl_export.php";
     }
+	
+	public function output_content_mobile()
+    {
+        echo 'mobile';
+    }
 }
 ?>

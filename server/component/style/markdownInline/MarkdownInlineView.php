@@ -51,5 +51,6 @@ class MarkdownInlineView extends StyleView
             $md = $this->text_md_inline;
         require __DIR__ . "/tpl_markdown.php";
     }
+	
 }
 ?>

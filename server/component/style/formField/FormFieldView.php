@@ -75,6 +75,17 @@ abstract class FormFieldView extends StyleView
      */
     protected $name_base;
 
+    /**
+     * Entry data if the style is used in entry visualization
+     */
+    protected $entry_data;
+
+    /**
+     * DB field 'locked_after_submit' ('').
+     * If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.
+     */
+    protected $locked_after_submit;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -94,6 +105,18 @@ abstract class FormFieldView extends StyleView
         $this->label = $this->model->get_db_field("label");
         $this->is_required = $this->model->get_db_field("is_required", false);
         $this->required = ($this->is_required) ? "required" : "";
+        $this->locked_after_submit = $this->model->get_db_field("locked_after_submit", 0);
+        if (method_exists($this->model, 'get_entry_record')) {
+            $this->entry_data = $this->model->get_entry_record();
+            if ($this->entry_data) {
+                // if entry data; take the value
+                if ($this->default_value && $this->default_value != '') {
+                    $this->value = $this->default_value;
+                } else {
+                    $this->value = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+                }
+            }
+        }
     }
 
     /* Private Methods ********************************************************/
@@ -179,17 +202,15 @@ abstract class FormFieldView extends StyleView
 
         if($this->show_db_value())
             $this->value = $this->model->get_form_field_value();
-
-        if($this->is_user_input())
-            $this->name = $this->name_base . "[value]";
-        else
-            $this->name = $this->name_base;
+    
+        $this->name = $this->get_name();
 
         if($this->label == "")
             $this->output_base_form_field();
         else
             require __DIR__ . "/tpl_label.php";
     }
+
 
     /**
      * Public setter for the value.
@@ -201,5 +222,29 @@ abstract class FormFieldView extends StyleView
     {
         $this->value = $value;
     }
+
+    public function get_name(){
+        if($this->is_user_input())
+            return $this->name_base . "[value]";
+        else
+            return $this->name_base;
+    }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile(); 
+        if (method_exists($this->model, 'get_form_field_value')){
+            $style['last_value'] = $this->model->get_form_field_value();
+        }      
+        if (method_exists($this->model, 'get_entry_record')) {
+            $this->entry_data = $this->model->get_entry_record();
+            if ($this->entry_data) {
+                // if entry data; take the value
+                $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
+            }
+        } 
+        return $style;
+    }
+
 }
 ?>

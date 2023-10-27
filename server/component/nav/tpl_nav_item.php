@@ -5,6 +5,7 @@
 ?>
 <li class="nav-item">
     <a class="nav-link <?php echo $active; ?>" href="<?php echo $url; ?>">
+        <?php $this->output_icon($icon); ?>
         <?php echo $page_name; ?>
     </a>
 </li>

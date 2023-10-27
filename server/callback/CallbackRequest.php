@@ -5,8 +5,20 @@
 ?>
 <?php
 spl_autoload_register(function ($class_name) {
-    if(strpos($class_name, "Callback") === 0)
-        require_once __DIR__ . '/' . $class_name . ".php";
+    if (strpos($class_name, "Callback") === 0) {
+        if (file_exists(__DIR__ . '/' . $class_name . ".php")) {
+            require_once __DIR__ . '/' . $class_name . ".php";
+        } else if ($handle = opendir(PLUGIN_SERVER_PATH)) {
+            while (false !== ($dir = readdir($handle))) {
+                if (filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir") {
+                    $plugin_path = __DIR__ . '/../plugins/' . $dir . '/server/callback/';
+                    if (file_exists($plugin_path . $class_name . ".php")) {
+                        require_once $plugin_path . $class_name . ".php";
+                    }
+                }
+            }
+        }
+    }
 });
 
 /**
@@ -34,7 +46,7 @@ class CallbackRequest
     /* Constructors ***********************************************************/
 
     /**
-     * The constructor.
+     * The constructor. Only public methods are accessible
      *
      * @param object $services
      *  The service handler instance which holds all services
@@ -44,7 +56,7 @@ class CallbackRequest
      *  The name of the method to be called on the instcane of
      *  AjaxRequest::class_name.
      */
-    public function __construct($services, $class_name, $method_name=null)
+    public function __construct($services, $class_name, $method_name = null)
     {
         $this->services = $services;
         $this->class_name = $class_name;
@@ -60,21 +72,27 @@ class CallbackRequest
      */
     public function print_json()
     {
+        // only public methods are accessible for a call
         $success = false;
-        if(class_exists($this->class_name))
-        {
+        if (class_exists($this->class_name)) {
             $instance = new $this->class_name($this->services);
-            if(!method_exists($instance, $this->method_name))
+            if (!method_exists($instance, $this->method_name)) {
                 $data = "Request '$this->class_name' has no method '$this->method_name'";
-            else
-            {
-                $data = call_user_func_array(array($instance, $this->method_name),
-                    array($_POST));
-                $success = ($data !== null);
+            } else {
+                $reflection = new ReflectionMethod($instance, $this->method_name);
+                if ($reflection->isPublic()) {
+                    $data = call_user_func_array(
+                        array($instance, $this->method_name),
+                        array($_POST)
+                    );
+                    $success = ($data !== null);
+                } else {
+                    $data = "Request '$this->class_name' method '$this->method_name'" . " is not public";                    
+                }
             }
+        } else {
+            $data = "Unknown request class '" . $this->class_name . "'";
         }
-        else
-            $data = "Unknown request class '".$this->class_name."'";
     }
 }
 ?>

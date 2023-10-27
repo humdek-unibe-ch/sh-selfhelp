@@ -1,0 +1,69 @@
+.mailQueue-row {
+    cursor: pointer;
+}
+
+.searchPanel {
+    display: flex;
+    align-items: center;
+}
+
+.searchPanel .input-group .dropdown {
+    border: 1px solid #ced4da;
+}
+
+table.dataTable td.details-control:before {
+    content: '\f0fe';
+    font-weight: 400;
+    font-family: 'Font Awesome\ 5 Free';
+    cursor: pointer;
+    color: var(--success);
+    top: calc(50% - 11px) !important;
+    position: absolute;
+}
+
+table.dataTable tr.shown td.details-control:before {
+    content: '\f146';
+    color: var(--danger);
+}
+
+.details-control {
+    padding: 0;
+    position: relative;
+}
+
+.recipients {
+    max-width: 400px;
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.sj-select-checkbox {
+    padding: 0 !important;
+}
+
+.sj-select-checkbox:before {
+    margin-top: 0 !important;
+    top: calc(50% - 5px) !important;
+}
+
+.sj-select-checkbox:after {
+    top: 50% !important;
+    margin-top: -18px !important;
+}
+
+#mailQueue tbody tr.selected {
+    color: white;
+    background-color: #eeeeee;
+}
+
+#mailQueue tbody td {
+  vertical-align: middle;
+}
+
+.scheduled-jobs-side-buttons{
+    min-width: 200px;
+}
+
+.scheduled-jobs-holder{
+    max-width: calc(100% - 200px - 1rem);
+}

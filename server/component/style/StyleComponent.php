@@ -6,6 +6,7 @@
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
 require_once __DIR__ . "/BaseStyleComponent.php";
+require_once __DIR__ . "/SimpleStyleComponent.php";
 require_once __DIR__ . "/StyleModel.php";
 
 /**
@@ -27,6 +28,11 @@ class StyleComponent extends BaseComponent
     /* Private Properties *****************************************************/
 
     /**
+     * The ID of the section.
+     */
+    private $id_section;
+
+    /**
      * The component instance of the style.
      */
     private $style = null;
@@ -36,6 +42,16 @@ class StyleComponent extends BaseComponent
      * invalid.
      */
     private $is_style_known;
+
+    /**
+     * The parent id if it exists
+     */
+    private $parent_id;
+
+    /**
+     * The relation if the component. Does it belong ot a page or a section, etc
+     */
+    private $relation;
 
     /* Constructors ***********************************************************/
 
@@ -50,19 +66,25 @@ class StyleComponent extends BaseComponent
      *  The id of the database section item to be rendered.
      * @param array $params
      *  An array of parameter that will be passed to the style component.
+     * @param int $id_page
+     *  The id of the parent page
+     * @param array $entry_record
+     *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params=array())
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record = array())
     {
+        $this->id_section = $id;
+        if(isset($params['parent_id'])){
+            $this->parent_id = $params['parent_id'];
+        }
+        if(isset($params['relation'])){
+            $this->relation = $params['relation'];
+        }
         $model = null;
         $this->is_style_known = true;
         // get style name and type
         $db = $services->get_db();
-        $sql = "SELECT s.name, t.name AS type
-            FROM styles AS s
-            LEFT JOIN styleType AS t ON t.id = s.id_type
-            LEFT JOIN sections AS sec ON sec.id_styles = s.id
-            WHERE sec.id = :id";
-        $style = $db->query_db_first($sql, array(":id" => $id));
+        $style = $db->get_style_component_info($id);
         if(!$style) {
             $this->is_style_known = false;
             return;
@@ -70,19 +92,32 @@ class StyleComponent extends BaseComponent
 
         if($style['type'] == "view")
         {
-            $model = new StyleModel($services, $id, $params);
-            $this->style = new BaseStyleComponent($model->get_style_name(),
-                array( "children" => $model->get_children()),
-                $model->get_db_fields());
+            $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
+            $this->style = new SimpleStyleComponent($model);
         }
         else if($style['type'] == "component" || $style['type'] == "navigation")
         {
             $className = ucfirst($style['name']) . "Component";
-            if(class_exists($className))
-                $this->style = new $className($services, $id, $params);
-            if($this->style === null || !$this->style->has_access())
-                $this->style = new BaseStyleComponent("unknownStyle",
-                    array("style_name" => $style['name']));
+           if (class_exists($className)) {
+                $this->style = new $className($services, $id, $params, $id_page, $entry_record);
+            }
+            if ($this->style === null) {
+                $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
+                $this->style = new BaseStyleComponent(
+                    "unknownStyle",
+                    array("style_name" => $style['name'])
+                );
+            } else if (!$this->style->has_access()) {
+                // print access denied or something
+                $this->style = new BaseStyleComponent("alert", array(
+                    "type" => "danger",
+                    "children" => array(new BaseStyleComponent("plaintext", array(
+                        "text" => 'No Access'
+                    )))
+                ));
+            } else {
+                $model = $this->style->get_model();
+            }
         }
         else
         {
@@ -108,6 +143,14 @@ class StyleComponent extends BaseComponent
     }
 
     /**
+     * Get the ID of the section.
+     */
+    public function get_id_section()
+    {
+        return $this->id_section;
+    }
+
+    /**
      * Returns the reference to the instance of a style class.
      *
      * @retval reference
@@ -129,6 +172,60 @@ class StyleComponent extends BaseComponent
     public function &get_child_section_by_name($name)
     {
         return $this->model->get_child_section_by_name($name);
+    }
+
+    /**
+     * A wrapper function to call the model cms create callback after the
+     * creation takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param string $section_name
+     *  The name of the new section.
+     * @param int $section_style_id
+     *  The style ID of the new section.
+     * @param string $relation
+     *  The database relation to know whether the link targets the navigation
+     *  or children list and whether the parent is a page or a section.
+     * @param int $id
+     *  The ID of the new section.
+     */
+    public function cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id)
+    {
+        $this->model->cms_post_create_callback($cms_model, $section_name,
+        $section_style_id, $relation, $id);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback after the
+     * update takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param array $data
+     *  The submitted data fields to be updated
+     */
+    public function cms_post_update_callback($cms_model, $data)
+    {
+        $this->model->cms_post_update_callback($cms_model, $data);
+    }
+
+    /**
+     * A wrapper function to call the model cms update callback before the
+     * update takes place.
+     *
+     * @param object $cms_model
+     *  The CMS model instance. This is handy to perform operations on db
+     *  fields and such.
+     * @param array $data
+     *  The submitted data fields to be updated
+     */
+    public function cms_pre_update_callback($cms_model, $data)
+    {
+        $this->model->cms_pre_update_callback($cms_model, $data);
     }
 }
 ?>

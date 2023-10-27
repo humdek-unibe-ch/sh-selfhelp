@@ -1,0 +1,1 @@
+All plugins are installed in this folder

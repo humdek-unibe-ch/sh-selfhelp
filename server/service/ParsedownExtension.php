@@ -121,15 +121,15 @@ class ParsedownExtension extends Parsedown
     {
         $link = parent::inlineLink($excerpt);
 
-        if($link['element']['attributes']['href'][0] === '!')
+        if($link && $link['element']['attributes']['href'][0] === '!')
         {
             $link['element']['attributes']['target'] = '_blank';
             $link['element']['attributes']['href'] =
                 substr($link['element']['attributes']['href'], 1);
         }
-        if($link !== null)
-            $link['element']['attributes']['href'] =
-                $this->router->get_url($link['element']['attributes']['href']);
+        if ($link !== null && $this->router) {
+            $link['element']['attributes']['href'] = $this->router->get_url($link['element']['attributes']['href']);
+        }
 
         return $link;
     }
