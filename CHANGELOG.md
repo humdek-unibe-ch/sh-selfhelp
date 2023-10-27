@@ -8,7 +8,7 @@
  - #330 - check the user locale and if the locale exists it is loaded as default for request (for mobile)
  - add get all fields function in the basic `StyleView`
  - add global variable `SELECTED_RECORD_ID`
- - !16 - add `impersonate` functionality
+ - !16 - add `impersonate` functionality (only for `TPF` user)
 
 ### Bugfix
  - #364 - fix settings for notifications in SelfHelp mobile app

@@ -444,8 +444,7 @@ class Login
      */
     public function impersonate_user($uid)
     {
-        $sql = "SELECT u.id, g.name AS gender FROM users AS u
-            LEFT JOIN genders AS g ON g.id = u.id_genders
+        $sql = "SELECT u.id, id_genders AS gender, id_languages AS `language` FROM users AS u
             WHERE u.id = :uid AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':uid' => $uid));
         if($user) {
@@ -453,6 +452,11 @@ class Login
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
             $_SESSION['user_gender'] = $user['gender'];
+            $_SESSION['user_language'] = $user['language'];
+            $_SESSION['language'] = $user['language'];
+            $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];    
+            unset($_SESSION['user_name']); // remove the user name session 
+            $this->db->clear_cache();// clear cache for our user
             return true;
         }
         else
