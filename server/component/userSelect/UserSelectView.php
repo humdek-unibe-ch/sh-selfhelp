@@ -282,6 +282,34 @@ class UserSelectView extends BaseView
         $card->output_content();
     }
 
+    /**
+     * Render the card to block a user.
+     */
+    private function output_user_impersonate()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => "Impersonate User",
+            "type" => "danger",
+            "children" => array(
+                new BaseStyleComponent("plaintext", array(
+                    "text" => "Impersonating a user allows to act on behlaf of the impersonated user. This is intended for debugging purposes in order to see what the impersonated user sees.",
+                    "is_paragraph" => true,
+                )),
+                new BaseStyleComponent("form", array(
+                    "label" => "Impersonate User",
+                    "url" => $this->model->get_link_url("userUpdate",
+                        array("uid" => $this->selected_user['id'],
+                            "mode" => "impersonate")),
+                    "type" => "danger",
+                )),
+            )
+        ));
+        $card->output_content();
+    }
+
 
     /**
      * Render the cards to manipulate a user, i.e. block, unblock. add/remove
@@ -301,6 +329,8 @@ class UserSelectView extends BaseView
         }
         if($this->model->can_delete_user())
             $this->output_user_delete();
+        if($this->model->can_impersonate_user())
+            $this->output_user_impersonate();
     }
 
     /**

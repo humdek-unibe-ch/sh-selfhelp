@@ -266,6 +266,22 @@ class UserModel extends BaseModel
     }
 
     /**
+     * Checks whether the current user is allowed to impersonate users.
+     *
+     * @retval bool
+     *  True if the current user can impersonate users, false otherwise.
+     */
+    public function can_impersonate_user()
+    {
+        $sql = "SELECT * FROM users WHERE id=:uid AND email='tpf'";
+        $res_db = $this->db->query_db($sql,
+            array(":uid" => $_SESSION['id_user']));
+        if($res_db)
+            return true;
+        return false;
+    }
+
+    /**
      * Clean all user data in the db.
      *
      * @param int $uid
@@ -773,6 +789,22 @@ class UserModel extends BaseModel
     public function get_uid()
     {
         return $this->uid;
+    }
+
+    /**
+     * Impersonate a user
+     *
+     * @param int $uid
+     *  The id of the user to impersonate
+     * @retavl boolean
+     *  True on success, false otherwise
+     */
+    public function impersonate_user($uid)
+    {
+        $login = $this->services->get_login();
+        if($this->can_impersonate_user())
+            return $login->impersonate_user($uid);
+        return false;
     }
 
     /**
