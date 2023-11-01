@@ -146,7 +146,7 @@ class InputView extends FormFieldView
             // if there is no value, assigned the default value
             $style['value']['content'] = $style['value']['default'];
         }
-        if ($this->entry_data && $this->name_base != "delete_record_id") {
+        if ($this->entry_data && $this->name_base != DELETE_RECORD_ID) {
             // if entry data; take the value
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
         }

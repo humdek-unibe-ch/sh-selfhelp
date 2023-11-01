@@ -141,8 +141,8 @@ class FormUserInputController extends BaseController
         if (isset($_POST[SELECTED_RECORD_ID]) && isset($_POST[SELECTED_RECORD_ID]['value'])) {
             $_POST[SELECTED_RECORD_ID] = $_POST[SELECTED_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
-        if (isset($_POST['delete_record_id']) && isset($_POST['delete_record_id']['value'])) {
-            $_POST['delete_record_id'] = $_POST['delete_record_id']['value']; // normalize the variable when it comes from mobile call
+        if (isset($_POST[DELETE_RECORD_ID]) && isset($_POST[DELETE_RECORD_ID]['value'])) {
+            $_POST[DELETE_RECORD_ID] = $_POST[DELETE_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
 
         if(!$this->has_access()){
@@ -162,16 +162,16 @@ class FormUserInputController extends BaseController
             } else {
                 $this->error_msgs = $gump->get_errors_array(true);
             }
-        }else if(isset($_POST['delete_record_id'])){
-            $res =  $this->model->delete_user_input($_POST['delete_record_id']);
+        }else if(isset($_POST[DELETE_RECORD_ID])){
+            $res =  $this->model->delete_user_input($_POST[DELETE_RECORD_ID]);
             if ($res === false) {
                 $this->fail = true;
                 $this->error_msgs[] = "The record was not deleted";
             } else {
                 $this->success = true;
-                $this->alert_success = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+                $this->alert_success = "The record: " . $_POST[DELETE_RECORD_ID] . " was deleted.";
                 if ($this->alert_success !== "")
-                    $this->success_msgs[] = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+                    $this->success_msgs[] = "The record: " . $_POST[DELETE_RECORD_ID] . " was deleted.";
             }
         }
         else
