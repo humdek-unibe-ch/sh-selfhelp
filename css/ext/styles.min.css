@@ -13,8 +13,8 @@ div.alert>:last-child{margin-bottom:0!important}
 .progress-bar.bg-light,.progress-bar.bg-warning{color:#212529}
 pre.db-fields{white-space:pre-wrap;padding-top:3px}
 .dropdown-toggle-no-carret::after{display:none!important}
-td.user-input-item{white-space:pre-wrap}
 .slider-legend{margin-top:-8px}.slider-legend-item{position:absolute}
+td.user-input-item{white-space:pre-wrap}
 .btn-new,.children-list>li{padding:.25rem .5rem}.children-list.sortable>li{cursor:move}.children-list>li:hover{background-color:#f8f9fa}.children-list.sortable>li.sortable-chosen{background-color:#fff}.children-list.sortable>li.sortable-ghost{background-color:#d4edda;color:#155724}.btn-new{border-radius:0}
 
 .json{max-height:500px;height:100px}

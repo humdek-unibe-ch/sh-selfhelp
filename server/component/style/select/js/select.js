@@ -91,7 +91,9 @@ function setClearButton(button) {
                         e.stopPropagation();
                         $dropdown.removeClass(noCaretClass)
                         $(self).val('').selectpicker('refresh');
-                        unsavedChanges.push(self);
+                        if (typeof unsavedChanges !== 'undefined'){
+                            unsavedChanges.push(self);
+                        }
                         $(this).remove();
                     })
             )
