@@ -74,7 +74,6 @@ function setClearButton(button) {
 
     if ($(self).data("allow-clear") !== true)
         return false;
-    console.log($(self).val() ? true : false);
     if ($dropdown.find(`.${clearClass}`).length == 0) {
         $dropdown.addClass(noCaretClass)
             .append(
