@@ -62,7 +62,10 @@ class Login
      * Check the default user locale and if we have the same we assign it.
      * If there is not the same we check for the same language not locale.
      */
-    private function use_user_locale(){        
+    private function use_user_locale(){    
+        if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            return;
+        }
         $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
         // Replace underscores with hyphens
         $locale = str_replace('_', '-', $locale);
@@ -114,8 +117,8 @@ class Login
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
-        if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->db->get_default_language();
-        if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;        
+        if(!isset($_SESSION['language']) || $_SESSION['language'] == '') $_SESSION['language'] = $this->db->get_default_language();
+        if(!isset($_SESSION['user_language']) || $_SESSION['user_language'] == '') $_SESSION['user_language'] = LANGUAGE;        
         $this->use_user_locale();
         if (isset($_SESSION['id_user'])) {
             // if the user set a language already use it

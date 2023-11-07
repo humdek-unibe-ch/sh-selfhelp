@@ -227,7 +227,7 @@ class PageDb extends BaseDb
         }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
         if ($page_id > 0) {
-            $page_info = $this->fetch_pages($page_id, isset($_SESSION['language']) ? $_SESSION['language'] : LANGUAGE);
+            $page_info = $this->fetch_pages($page_id, isset($_SESSION['language']) && $_SESSION['language'] != '' ? $_SESSION['language'] : LANGUAGE);
             if ($page_info && $page_info["protocol"]) {
                 $protocols = explode("|", $page_info["protocol"]);
                 if (in_array("DELETE", $protocols)) {
