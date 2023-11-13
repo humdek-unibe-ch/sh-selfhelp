@@ -1,4 +1,4 @@
-# v6.5.1 (Unpublished)
+# v6.5.1
 ### New features
  - #368 - when `debug` is enabled in `console.log` is printed the field object and what data is retrieved. 
 
