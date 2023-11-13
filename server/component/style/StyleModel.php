@@ -77,6 +77,11 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected $relation;
 
+    /**
+     * Keep data that can be printed out for debugging
+     */
+    protected $debug_data;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -101,7 +106,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->params = $params;
         $this->id_page = $id_page; 
         $this->entry_record = $entry_record;
-        $this->style_name = $this->get_style_name_by_section_id($id);
+        $this->style_name = $this->get_style_name_by_section_id($id);        
         if(isset($params['parent_id'])){
             $this->parent_id = $params['parent_id'];
         }
@@ -259,6 +264,8 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected function calc_dynamic_values($field, $data_config, $user_name, $user_code){
         //adjust entry records 
+        $this->debug_data['field'] = $field;
+        $this->debug_data['data_config'] = $data_config;
         if ($this->entry_record) {
             //adjust entry value
             $field['content'] = $this->get_entry_value($this->entry_record, $field['content']);
@@ -273,6 +280,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
                 '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
             );
+            $this->debug_data['global_vars'] = $global_vars;
             if(strpos($field['content'], '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
@@ -296,8 +304,11 @@ class StyleModel extends BaseModel implements IStyleModel
                         }
                     }
                 }
+                $this->debug_data['data_config_retrieved'] = $fields;
             }
-        }        
+        }      
+        $this->debug_data['new_field_content'] = $field['content'];
+        $this->debug_data['new_field_content_object'] = $field['content'] ? json_decode($field['content']) : false;
         return $field['content'];
     }
 
@@ -711,6 +722,16 @@ class StyleModel extends BaseModel implements IStyleModel
         } else {
             return false;
         }
+    }
+
+    /**
+     * Get the debug data
+     * @return object
+     * Return the debug data
+     */
+    public function get_debug_data()
+    {
+        return $this->debug_data;
     }
     
 }

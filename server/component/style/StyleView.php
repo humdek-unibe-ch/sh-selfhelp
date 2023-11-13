@@ -146,7 +146,8 @@ abstract class StyleView extends BaseView
         $debug = $this->model->get_db_field('debug', false);
         if ($debug) {
             $res = $this->model->get_condition_result();
-            echo '<pre class="alert alert-warning">';
+            $debug_data = $this->model->get_debug_data();
+            echo '<pre class="alert alert-warning data-debug" data-debug="' . htmlspecialchars(json_encode($debug_data), ENT_QUOTES, 'UTF-8'). '">';
             var_dump($res);
             echo "</pre>";
         }

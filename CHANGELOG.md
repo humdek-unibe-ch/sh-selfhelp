@@ -1,3 +1,7 @@
+# v6.5.1 (Unpublished)
+### New features
+ - #368 - when `debug` is enabled in `console.log` is printed the field object and what data is retrieved. 
+
 # v6.5.0
 ### New features
  - move data config fetch in `BaseModel` from `StyleModel` 
