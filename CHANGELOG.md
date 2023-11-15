@@ -1,3 +1,7 @@
+# v6.5.2
+### Bugfix
+ - properly set default language on a new user 
+
 # v6.5.1
 ### New features
  - #368 - when `debug` is enabled in `console.log` is printed the field object and what data is retrieved. 

@@ -122,7 +122,10 @@ class Login
         $this->use_user_locale();
         if (isset($_SESSION['id_user'])) {
             // if the user set a language already use it
-            $_SESSION['user_language'] = $this->db->get_user_language_id($_SESSION['id_user']);
+            $user_language_from_db = $this->db->get_user_language_id($_SESSION['id_user']);
+            if ($user_language_from_db) {
+                $_SESSION['user_language'] = $user_language_from_db;
+            }            
         }
 
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
