@@ -1,6 +1,7 @@
 # v6.5.2
 ### Bugfix
  - properly set default language on a new user 
+ - `REDIRECT_ON_LOGIN` do not redirect if the last keyword was starting with `ajax_`
 
 # v6.5.1
 ### New features
