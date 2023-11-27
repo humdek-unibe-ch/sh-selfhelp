@@ -1,6 +1,7 @@
 # v6.5.3 (Not published)
 ### New features
  - `data_config` - `all_fields` is enabled by default and it is set to `true`
+ - add `live_search` to `tables` and `fields` in the `data config builder`
 
 # v6.5.2
 ### Bugfix
