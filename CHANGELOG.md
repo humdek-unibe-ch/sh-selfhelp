@@ -1,3 +1,7 @@
+# v6.5.3 (Not published)
+### New features
+ - `data_config` - `all_fields` is enabled by default and it is set to `true`
+
 # v6.5.2
 ### Bugfix
  - properly set default language on a new user 

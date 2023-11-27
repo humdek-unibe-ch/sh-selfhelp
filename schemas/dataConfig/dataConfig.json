@@ -27,6 +27,7 @@
                 "title": "Data for the logged user",
                 "description": "If true, the loaded data is for the logged user, if false the loaded data is for all users in the system",
                 "propertyOrder": 4,
+                "default": true,
                 "options": {
                     "grid_columns": 6
                 }
@@ -36,6 +37,7 @@
                 "title": "All fields",
                 "description": "If true, it loads all fields for the selected table",
                 "propertyOrder": 5,
+                "default": true,
                 "options": {
                     "grid_columns": 6
                 }
@@ -123,7 +125,8 @@
         "required": [
             "type",
             "table",
-            "retrieve"
+            "retrieve",
+            "all_fields"
         ],
         "if": {
             "properties": {
