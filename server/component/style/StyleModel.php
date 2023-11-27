@@ -419,6 +419,7 @@ class StyleModel extends BaseModel implements IStyleModel
             }
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
+                "meta" => $field['meta'],
                 "type" => $field['type'],
                 "id" => $field['id'],
                 "default" => $default,
