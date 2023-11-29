@@ -21,9 +21,8 @@ $(document).ready(function () {
 
 function initConditionBuilder() {
     var condBuilderBtns = $('.conditionBuilderBtn');
-    meta = $('input[name^="fields[condition]"][name$="[meta]"]')[0];
-    console.log($(meta).val());
     if (condBuilderBtns.length > 0) {
+        var meta = $('input[name^="fields[condition]"][name$="[meta]"]')[0];
         var condition = $("textarea[name*='condition']")[0];
         condBuilderBtns.each(function () {
             $(this).off('click').click(() => {
@@ -34,7 +33,6 @@ function initConditionBuilder() {
                     $(this).attr('data-dismiss', 'modal');
                     $(this).off('click').click(function () {
                         var rules = $('.condition_builder').queryBuilder('getRules');
-                        console.log('rules', rules);
                         $(meta).val(JSON.stringify(rules));
                         $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
                         $(condition).trigger('change');
@@ -61,7 +59,7 @@ function initConditionBuilder() {
 
 
 // prepare the condition builder and the rules that can be added
-async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
+async function prepareConditionBuilder(jqueryBuilderJsonInput) {
 
     var groups = await getGroups();
 
@@ -221,18 +219,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
     var rules = null;
 
     try {
-        if (jqueryBuilderJsonInput) {
-            rules = JSON.parse(jqueryBuilderJsonInput);
-        } else {
-            try {
-                var actionConfig = JSON.parse(monacoEditor.getModel().getValue());
-                if (actionConfig && actionConfig['condition_jquerBuilderJson']) {
-                    rules = actionConfig['condition_jquerBuilderJson'];
-                }
-            } catch (error) {
-
-            }
-        }
+        rules = JSON.parse(jqueryBuilderJsonInput);
     } catch (error) {
         console.log('Rules cannot be parsed');
     }
@@ -244,11 +231,6 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
 
     if ($('.condition_builder').length > 0) {
         $('.condition_builder').queryBuilder(queryStructure);
-    } else if ($('.action_condition_builder').length > 0) {
-        $('.action_condition_builder').queryBuilder(queryStructure);
-        if (queryStructure['rules']) {
-            $('.action_condition_builder').queryBuilder('setRules', queryStructure.rules);
-        }
     }
 }
 
