@@ -188,11 +188,6 @@ class ModuleFormsActionView extends BaseView
                             "name" => 'condition',
                             "css" => "d-none"
                         )),
-                        new BaseStyleComponent("textarea", array(
-                            "value" => $this->action['condition_jquery_builder_json'] ?? '',
-                            "name" => 'condition_jquery_builder_json',
-                            "css" => "d-none"
-                        )),
                         new BaseStyleComponent("JobConfig", array(
                             "type_input" => "json",
                             "id" => "config",

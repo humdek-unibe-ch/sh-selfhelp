@@ -21,11 +21,9 @@ $(document).ready(function () {
 
 function initConditionBuilder() {
     var condBuilderBtns = $('.conditionBuilderBtn');
-    meta = $('.conditionBuilderBtn').data('meta');
-    console.log(meta);
+    meta = $('input[name^="fields[condition]"][name$="[meta]"]')[0];
+    console.log($(meta).val());
     if (condBuilderBtns.length > 0) {
-        var jqueryBuilderJsonInput = $("textarea[name*='jquery_builder_json']")[0];
-        console.log(jqueryBuilderJsonInput);
         var condition = $("textarea[name*='condition']")[0];
         condBuilderBtns.each(function () {
             $(this).off('click').click(() => {
@@ -37,8 +35,7 @@ function initConditionBuilder() {
                     $(this).off('click').click(function () {
                         var rules = $('.condition_builder').queryBuilder('getRules');
                         console.log('rules', rules);
-                        $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
-                        $(jqueryBuilderJsonInput).trigger('change');
+                        $(meta).val(JSON.stringify(rules));
                         $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
                         $(condition).trigger('change');
                         $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
@@ -55,13 +52,11 @@ function initConditionBuilder() {
         });
 
         // get groups and prepare the condition builder    
-        // prepareConditionBuilder($(jqueryBuilderJsonInput).val());
-        prepareConditionBuilder(meta);
+        prepareConditionBuilder($(meta).val());
     }
+
+    // ********************************************* CONDITION BUILDER *****************************************
 }
-
-// ********************************************* CONDITION BUILDER *****************************************
-
 
 
 
@@ -241,8 +236,6 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
     } catch (error) {
         console.log('Rules cannot be parsed');
     }
-
-    rules = meta;
 
     if (rules) {
         // load the rules if they exist
@@ -429,6 +422,8 @@ async function getLanguages() {
     return languages;
 }
 
+//********************************************** FUNCTIONS *****************************************************
+
 function calcMonacoEditorSize(editor, object) {
     // calculate the size of the editor based on the code
     // we keep max size 500px
@@ -443,4 +438,3 @@ function calcMonacoEditorSize(editor, object) {
     editor.layout();
 }
 
-//********************************************** FUNCTIONS *****************************************************

@@ -14,3 +14,7 @@ JOIN (
 ) AS sft_temp ON sft.id_sections = sft_temp.id_sections
 SET sft.meta = sft_temp.content
 WHERE sft.id_fields = (SELECT id FROM `fields` WHERE `name` = 'condition' LIMIT 1);
+
+-- delete field `jquery_builder_json`
+DELETE FROM `fields`
+WHERE `name` = 'jquery_builder_json';

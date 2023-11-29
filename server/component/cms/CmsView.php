@@ -719,15 +719,14 @@ class CmsView extends BaseView
 
         if ($is_new_ui) {
             foreach ($fields as $field) {
+                $new_field = $this->create_field_form_item($field);
                 if (isset($field['display']) && $field['display'] == 1) {
-                    // it is a content field
-                    $new_field = $this->create_field_form_item($field);
+                    // it is a content field                    
                     if ($new_field) {
                         $content_fields[] = $new_field;
                     }
                 } else {
                     // it is a property field
-                    $new_field = $this->create_field_form_item($field);
                     if ($new_field) {
                         $properties[] = $new_field;
                     }
@@ -875,6 +874,14 @@ class CmsView extends BaseView
             "name" => $field_name_prefix . "[type]",
             "type_input" => "hidden",
         ));
+        if ((array_key_exists('meta', $field))) {
+            // if the field has meta, pass it
+            $children[] = new BaseStyleComponent("input", array(
+                "value" => $field['meta'] ? htmlentities($field['meta']) : null,
+                "name" => $field_name_prefix . "[meta]",
+                "type_input" => "hidden",
+            ));
+        }
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",

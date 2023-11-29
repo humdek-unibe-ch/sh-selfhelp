@@ -3,6 +3,8 @@
  - `data_config` - `all_fields` is enabled by default and it is set to `true`
  - add `live_search` to `tables` and `fields` in the `data config builder`
  - remove `actionConfig`, it was deprecated and replaced by `jobConfig`
+ - remove field `jquery_builder_json`
+ - add field `meta` in `sections_fields_translation` which is used for meta building custom fields that need more data
 
 # v6.5.2
 ### Bugfix

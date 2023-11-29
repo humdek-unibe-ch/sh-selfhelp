@@ -372,7 +372,8 @@ class CmsUpdateController extends BaseController
                                 $id_language,
                                 $id_gender,
                                 $content,
-                                $relation
+                                $relation,
+                                (isset($field['meta']) ? $field['meta'] : null)
                             );
                         }
                     }
