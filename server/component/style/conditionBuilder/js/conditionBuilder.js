@@ -429,4 +429,18 @@ async function getLanguages() {
     return languages;
 }
 
+function calcMonacoEditorSize(editor, object) {
+    // calculate the size of the editor based on the code
+    // we keep max size 500px
+    var contentHeight = editor.getModel().getLineCount() * 19;
+    if (contentHeight < 100) {
+        contentHeight = 100;
+    }
+    if (contentHeight > 500) {
+        contentHeight = 500;
+    }
+    $(object).height(contentHeight);
+    editor.layout();
+}
+
 //********************************************** FUNCTIONS *****************************************************
