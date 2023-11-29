@@ -1056,7 +1056,8 @@ class CmsView extends BaseView
         } else if ($field['type'] == "condition") {
             $children[] = new BaseStyleComponent("conditionBuilder", array(
                 "value" => $field['content'],
-                "name" => $field_name_content
+                "name" => $field_name_content,
+                "meta" => $field['meta']
             ));
         } else if ($field['type'] == "data-config") {
             $children[] = new BaseStyleComponent("dataConfigBuilder", array(

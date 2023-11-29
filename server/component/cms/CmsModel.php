@@ -533,6 +533,7 @@ class CmsModel extends BaseModel
         $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.id as id_fieldType, ft.name AS type,
         sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
         IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1), sf.default_value) AS content,
+        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1) AS meta,
         g.name AS gender, 1*g.id AS id_gender,
         CASE
             WHEN ft.name = 'style-list' THEN :RELATION_SECTION_CHILDREN
