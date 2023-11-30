@@ -46,7 +46,7 @@ class TextareaView extends FormFieldView
     {
         parent::__construct($model);
         $this->placeholder = $this->model->get_db_field("placeholder");
-        $this->type_input = $this->model->get_db_field('type_input');        
+        $this->type_input = $this->model->get_db_field('type_input');
         $this->min = $this->model->get_db_field('min');
         $this->max = $this->model->get_db_field('max');
     }
@@ -58,13 +58,13 @@ class TextareaView extends FormFieldView
      */
     protected function output_form_field()
     {
-        if($this->entry_data){
+        if ($this->entry_data) {
             // if entry data; reset the value
-            $this->value = $this->model->get_entry_value($this->entry_data, $this->value); 
+            $this->value = $this->model->get_entry_value($this->entry_data, $this->value);
         }
-        if($this->value === null)
+        if ($this->value === null)
             $this->value = $this->default_value;
-        if($this->locked_after_submit == 1){
+        if ($this->locked_after_submit == 1) {
             $this->locked_after_submit = $this->value ? 1 : 0;
         }
         $css = ($this->label == "") ? $this->css : "";
@@ -74,18 +74,19 @@ class TextareaView extends FormFieldView
 
     /* Public Methods *********************************************************/
 
-    public function output_monaco_editor(){
+    public function output_monaco_editor()
+    {
         if ($this->type_input == "json") {
-            $this->output_json_mapper();
+            $this->output_json();
         } else if ($this->type_input == "css") {
             require __DIR__ . "/tpl_css.php";
         }
     }
 
     public function output_content_mobile()
-    {        
+    {
         $style = parent::output_content_mobile();
-        if($this->entry_data){
+        if ($this->entry_data) {
             // if entry data; take the value
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
         }
@@ -93,11 +94,32 @@ class TextareaView extends FormFieldView
     }
 
     /**
-     * Output the modal form for the JSON mapper
+     * Output JSON field
      */
-    public function output_json_mapper(){
+    public function output_json()
+    {
+        $button_label = 'Add JSON mapping';
+        $button_class = "btn-primary";
+        if (isset($this->value)) {
+            if ($this->value) {
+                $button_label = 'Edit JSON mapping';
+                $button_class = "btn-warning";
+            }
+        }
+        $field_name = '';
+        $pattern = '/\[([^\]]+)\]/';
+        if (preg_match($pattern, $this->name, $matches)) {
+            // $matches[1] will contain the word between the first pair of square brackets
+            $field_name = $matches[1];
+        }
+        require __DIR__ . "/tpl_json.php";
+    }
+
+    /** Output the modal form for the JSON mapper */
+    public function output_json_mapper_modal()
+    {
         $modal = new BaseStyleComponent('modal', array(
-            'title' => "JSON Mapper",
+            'title' => 'JSON Mapper <span class="json-mapper-title-field rounded bg-light text-dark btn-sm"></span>',
             "css" => "json_mapper_modal_holder",
             'children' => array(
                 new BaseStyleComponent("div", array(
@@ -116,22 +138,7 @@ class TextareaView extends FormFieldView
                 ))
             ),
         ));
-        // $modal->output_content();
-        $button_label = 'Add JSON mapping';
-        $button_class = "btn-primary";
-        if(isset($this->value)){
-            if($this->value){
-                $button_label = 'Edit JSON mapping';
-                $button_class = "btn-warning";
-            }
-        }
-        $field_name = '';
-        $pattern = '/\[([^\]]+)\]/';
-        if (preg_match($pattern, $this->name, $matches)) {
-            // $matches[1] will contain the word between the first pair of square brackets
-            $field_name = $matches[1];
-        }
-        require __DIR__ . "/tpl_json.php";
+        $modal->output_content();
     }
 }
 ?>

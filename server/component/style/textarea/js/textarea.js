@@ -46,6 +46,32 @@ function initJsonFields() {
                 $(jsonValueField).trigger('change');
             });
         });
+
+        $(jsonMappingButton).off('click').click(() => {
+            var jsonModalHolder = $(this).find('.json_mapper_modal_holder')[0];
+            var jsonModalTitleField = $(this).find('.json-mapper-title-field')[0];
+            $(jsonModalHolder).modal({
+                backdrop: false
+            });
+            var saveMapperBtn = $(this).find('.saveJsonMapper')[0];
+            $(saveMapperBtn).attr('data-dismiss', 'modal');
+            $(jsonModalTitleField).html(jsonFieldName);
+            $(saveMapperBtn).off('click').click(function () {
+                // var rules = $('.condition_builder').queryBuilder('getRules');
+                // $(meta).val(JSON.stringify(rules));
+                // $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
+                // $(condition).trigger('change');
+                // $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
+                // if (rules) {
+                //     $('.conditionBuilderBtn').addClass('btn-warning');
+                //     $('.conditionBuilderBtn').html('Edit Condition');
+                // } else {
+                //     $('.conditionBuilderBtn').addClass('btn-primary');
+                //     $('.conditionBuilderBtn').html('Add Condition');
+                // }
+            })
+        });
+
     })
 }
 

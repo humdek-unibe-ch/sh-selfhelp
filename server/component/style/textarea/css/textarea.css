@@ -2,3 +2,26 @@
     max-height: 500px;
     height: 100px;
 }
+
+.json_mapper_modal_holder .modal-dialog {
+    max-width: 80% !important;
+    z-index: 1000 0;
+}
+
+.json_mapper_modal_holder .modal-dialog .modal-header {
+    background: var(--secondary);
+    color: var(--white)
+}
+
+.json_mapper_modal_holder .btn-group {
+    margin-bottom: .25rem;
+}
+
+.json_mapper_modal_holder .btn-group button {
+    border: solid;
+    border-radius: 5px !important;
+}
+
+.json_mapper_modal_holder .bootstrap-select {
+    width: auto !important;
+}

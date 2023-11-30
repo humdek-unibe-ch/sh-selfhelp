@@ -8,4 +8,5 @@
     <button type="button" class="w-100 mt-1 btn json-mapping-btn btn-sm <?php echo $button_class; ?>" data-name="<?php echo $field_name; ?>">
         <?php echo $button_label; ?>
     </button>
+    <?php $this->output_json_mapper_modal(); ?>
 </div>
