@@ -5,6 +5,7 @@
  - remove `actionConfig`, it was deprecated and replaced by `jobConfig`
  - remove field `jquery_builder_json`
  - add field `meta` in `sections_fields_translation` which is used for meta building custom fields that need more data
+ - add [jstree](https://github.com/vakata/jstree) library
 
 # v6.5.2
 ### Bugfix

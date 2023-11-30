@@ -134,6 +134,7 @@ abstract class BasePage
             "/css/ext/bootstrap4-toggle.min.css",      
             "/css/ext/easymde.min.css",   
             "/css/ext/dataTables.contextualActions.min.css",             
+            "/css/ext/jstree3.3.16.min.css"   
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -154,7 +155,8 @@ abstract class BasePage
             "/js/ext/bootstrap4-toggle.min.js",
             "/js/ext/easymde.min.js",
             "/js/ext/dataTables.contextualActions.min.js",
-            "/js/ext/css-format-monaco.min.js" 
+            "/js/ext/css-format-monaco.min.js", 
+            "/js/ext/jstree3.3.16.min.js" 
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",

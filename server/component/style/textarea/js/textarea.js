@@ -16,31 +16,34 @@ function initTextarea() {
 }
 
 function initJsonFields() {
-    $('.json').each(function () {
+    $('.json-mapping').each(function () {
         // load the monaco editor for json fields
-        var json = $(this)[0];
-        if ($(json).data(jsonEditorInit)) {
+        var jsonMappingButton = $(this).find('.json-mapping-btn')[0];
+        var jsonElement = $(this).find('.json')[0];
+        var jsonFieldName = $(jsonMappingButton).data('name');
+        var jsonValueField = $('textarea[name*="[' + jsonFieldName + ']"][name*="[content]"]');
+        if ($(jsonMappingButton).data(jsonEditorInit)) {
             // already initialized do not do it again
             return;
         }
-        $(json).data(jsonEditorInit, true);
+        $(jsonMappingButton).data(jsonEditorInit, true);
         require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
 
         require(['vs/editor/editor.main'], function () {
             var editorOptions = {
-                value: $(json).prev().val(),
+                value: jsonValueField.val(),
                 language: 'json',
                 automaticLayout: true,
                 renderLineHighlight: "none"
             }
-            var editorConfig = monaco.editor.create(json, editorOptions);
+            var editorConfig = monaco.editor.create(jsonElement, editorOptions);
             editorConfig.getAction('editor.action.formatDocument').run().then(() => {
-                calcMonacoEditorSize(editorConfig, json);
+                calcMonacoEditorSize(editorConfig, jsonElement);
             });
             editorConfig.onDidChangeModelContent(function (e) {
-                $(json).prev().val(editorConfig.getValue());
-                calcMonacoEditorSize(editorConfig, json);
-                $(json).prev().trigger('change');
+                $(jsonValueField).val(editorConfig.getValue());
+                calcMonacoEditorSize(editorConfig, jsonElement);
+                $(jsonValueField).trigger('change');
             });
         });
     })

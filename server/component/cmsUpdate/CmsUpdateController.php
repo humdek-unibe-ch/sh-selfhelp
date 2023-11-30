@@ -132,7 +132,7 @@ class CmsUpdateController extends BaseController
     {
         if($type === "json")
         {
-            if($value === "") return true;
+            if($value === "" || $value == "    ") return true;
             json_decode($value, true);
             return (json_last_error() === JSON_ERROR_NONE) || $this->check_json_for_dynamic_content($value);
         }

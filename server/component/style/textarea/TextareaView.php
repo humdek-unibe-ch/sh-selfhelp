@@ -76,7 +76,7 @@ class TextareaView extends FormFieldView
 
     public function output_monaco_editor(){
         if ($this->type_input == "json") {
-            require __DIR__ . "/tpl_json.php";
+            $this->output_json_mapper();
         } else if ($this->type_input == "css") {
             require __DIR__ . "/tpl_css.php";
         }
@@ -90,6 +90,48 @@ class TextareaView extends FormFieldView
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
         }
         return $style;
+    }
+
+    /**
+     * Output the modal form for the JSON mapper
+     */
+    public function output_json_mapper(){
+        $modal = new BaseStyleComponent('modal', array(
+            'title' => "JSON Mapper",
+            "css" => "json_mapper_modal_holder",
+            'children' => array(
+                new BaseStyleComponent("div", array(
+                    "css" => "json_mapper"
+                )),
+                new BaseStyleComponent("div", array(
+                    "css" => "modal-footer",
+                    "children" => array(
+                        new BaseStyleComponent("button", array(
+                            "label" => "Save",
+                            "url" => "#",
+                            "type" => "secondary",
+                            "css" => "saveJsonMapper bnt-sm"
+                        )),
+                    )
+                ))
+            ),
+        ));
+        // $modal->output_content();
+        $button_label = 'Add JSON mapping';
+        $button_class = "btn-primary";
+        if(isset($this->value)){
+            if($this->value){
+                $button_label = 'Edit JSON mapping';
+                $button_class = "btn-warning";
+            }
+        }
+        $field_name = '';
+        $pattern = '/\[([^\]]+)\]/';
+        if (preg_match($pattern, $this->name, $matches)) {
+            // $matches[1] will contain the word between the first pair of square brackets
+            $field_name = $matches[1];
+        }
+        require __DIR__ . "/tpl_json.php";
     }
 }
 ?>

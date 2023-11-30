@@ -58,7 +58,6 @@ class ConditionBuilderView extends FormFieldView
      */
     public function output_builder()
     {
-        $meta = $this->model->get_db_field('meta');
         $modal = new BaseStyleComponent('modal', array(
             'title' => "Condition Builder",
             "css" => "condition_builder_modal_holder",
