@@ -25,3 +25,12 @@
 .json_mapper_modal_holder .bootstrap-select {
     width: auto !important;
 }
+
+.json_mapped_items {
+    width: 300px;
+    height: 400px;
+}
+
+.json_mapper_modal_holder .modal-body {
+    padding: 0;
+}
