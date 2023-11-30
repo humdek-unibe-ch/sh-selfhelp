@@ -123,7 +123,10 @@ class TextareaView extends FormFieldView
             "css" => "json_mapper_modal_holder",
             'children' => array(
                 new BaseStyleComponent("div", array(
-                    "css" => "json_mapper"
+                    "css" => "json_tree"
+                )),
+                new BaseStyleComponent("div", array(
+                    "css" => "json_tree"
                 )),
                 new BaseStyleComponent("div", array(
                     "css" => "modal-footer",

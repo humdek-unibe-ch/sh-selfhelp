@@ -50,12 +50,40 @@ function initJsonFields() {
         $(jsonMappingButton).off('click').click(() => {
             var jsonModalHolder = $(this).find('.json_mapper_modal_holder')[0];
             var jsonModalTitleField = $(this).find('.json-mapper-title-field')[0];
+            var jsonTree = $(this).find('.json_tree')[0];
+            var jsonTreePath = $(this).find('.json_tree_path');
+            console.log(jsonTreePath);
             $(jsonModalHolder).modal({
                 backdrop: false
             });
             var saveMapperBtn = $(this).find('.saveJsonMapper')[0];
             $(saveMapperBtn).attr('data-dismiss', 'modal');
             $(jsonModalTitleField).html(jsonFieldName);
+            var jsonData = {};
+            try {
+                jsonData = JSON.parse(jsonValueField.val());
+                const jsTreeData = transformToJsTreeFormat(jsonData, jsonFieldName + '.', jsonFieldName);
+                console.log(jsTreeData);
+                console.log(jsonData);
+                $(jsonTree).jstree({
+                    core: {
+                        data: jsTreeData
+                    }
+                });
+                $(jsonTree).on('select_node.jstree', function (e, data) {
+                    // Get the clicked node
+                    var clickedNode = data.node;
+
+                    // Access the 'value' property of the clicked node
+                    var nodeValue = clickedNode.original;
+
+
+                    // Do something with the node value
+                    console.log('Clicked Node Value:', nodeValue);
+                });
+            } catch (error) {
+
+            }
             $(saveMapperBtn).off('click').click(function () {
                 // var rules = $('.condition_builder').queryBuilder('getRules');
                 // $(meta).val(JSON.stringify(rules));
@@ -73,6 +101,51 @@ function initJsonFields() {
         });
 
     })
+}
+
+/**
+ * Removes the last dot ('.') character from the end of a string if present.
+ *
+ * @param {string} inputString - The input string that may contain a trailing dot.
+ * @returns {string} - The modified string with the trailing dot removed, or the original string if no dot is found.
+ */
+function removeLastDot(inputString) {
+    if (inputString.endsWith('.')) {
+        return inputString.slice(0, -1); // Remove the last character
+    }
+    return inputString; // Return unchanged if it doesn't end with a dot
+}
+
+/**
+ * Transforms a nested object into a jsTree-compatible data structure while modifying text and value properties.
+ *
+ * @param {Object} obj - The input nested object to transform.
+ * @param {string} [path=''] - The path to the current object (used for building text and value properties).
+ * @param {string} [rootNodeName=''] - The name of the root node.
+ * @returns {Object} - The transformed jsTree-compatible data structure.
+ */
+function transformToJsTreeFormat(obj, path = '', rootNodeName = '') {
+    const jsTreeData = {
+        text: removeLastDot(path || rootNodeName), // Use the provided path or rootNodeName as the text
+        value: removeLastDot((path || rootNodeName).replace(rootNodeName + ".", "")),
+        children: []
+    };
+
+    for (let key in obj) {
+        if (typeof obj[key] === 'object') {
+            // Recursively process nested objects
+            const childNode = transformToJsTreeFormat(obj[key], path + key + '.', rootNodeName);
+            jsTreeData.children.push(childNode);
+        } else {
+            // Add leaf node
+            jsTreeData.children.push({
+                text: path + key,
+                value: (path + key).replace(rootNodeName + ".", "")
+            });
+        }
+    }
+
+    return jsTreeData;
 }
 
 function check_textarea_locked_after_submit() {
