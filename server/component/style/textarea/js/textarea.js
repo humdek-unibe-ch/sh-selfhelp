@@ -22,6 +22,14 @@ function initJsonFields() {
         var jsonElement = $(this).find('.json')[0];
         var jsonFieldName = $(jsonMappingButton).data('name');
         var jsonValueField = $('textarea[name*="[' + jsonFieldName + ']"][name*="[content]"]');
+        var jsonMetaField = $('input[name*="[' + jsonFieldName + ']"][name*="[meta]"]');
+        console.log('meta', jsonFieldName, jsonMetaField);
+        var meta = {};
+        try {
+            meta = JSON.parse(jsonMetaField.val());
+        } catch (error) {
+            console.log('Meta for ' + jsonFieldName + ' cannot be parsed' );
+        }
         if ($(jsonMappingButton).data(jsonEditorInit)) {
             // already initialized do not do it again
             return;
@@ -62,7 +70,7 @@ function initJsonFields() {
             var jsonData = {};
             try {
                 jsonData = JSON.parse(jsonValueField.val());
-                const jsTreeData = transformToJsTreeFormat(jsonData, jsonFieldName + '.', jsonFieldName);
+                const jsTreeData = transformToJsTreeFormat(jsonData, '')['children'];
                 console.log(jsTreeData);
                 console.log(jsonData);
                 $(jsonTree).jstree({
@@ -120,27 +128,26 @@ function removeLastDot(inputString) {
  * Transforms a nested object into a jsTree-compatible data structure while modifying text and value properties.
  *
  * @param {Object} obj - The input nested object to transform.
- * @param {string} [path=''] - The path to the current object (used for building text and value properties).
- * @param {string} [rootNodeName=''] - The name of the root node.
+ * @param {string} [path=''] - The path to the current object (used for building text and value properties). 
  * @returns {Object} - The transformed jsTree-compatible data structure.
  */
-function transformToJsTreeFormat(obj, path = '', rootNodeName = '') {
+function transformToJsTreeFormat(obj, path = '') {
     const jsTreeData = {
-        text: removeLastDot(path || rootNodeName), // Use the provided path or rootNodeName as the text
-        value: removeLastDot((path || rootNodeName).replace(rootNodeName + ".", "")),
+        text: removeLastDot(path), // Use the provided path or rootNodeName as the text
+        value: removeLastDot(path),
         children: []
     };
 
     for (let key in obj) {
         if (typeof obj[key] === 'object') {
             // Recursively process nested objects
-            const childNode = transformToJsTreeFormat(obj[key], path + key + '.', rootNodeName);
+            const childNode = transformToJsTreeFormat(obj[key], path + key + '.');
             jsTreeData.children.push(childNode);
         } else {
             // Add leaf node
             jsTreeData.children.push({
                 text: path + key,
-                value: (path + key).replace(rootNodeName + ".", "")
+                value: (path + key)
             });
         }
     }
