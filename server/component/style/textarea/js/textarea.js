@@ -226,6 +226,12 @@ function initCssFields() {
     })
 }
 
+/**
+ * Reloads and updates a list of mapped items displayed in a container.
+ *
+ * @param {Object} meta - The meta object containing item data.
+ * @param {jQuery|HTMLElement} jsonMappedItems - The container element where mapped items are displayed.
+ */
 function reloadMappedItems(meta, jsonMappedItems) {
     $(jsonMappedItems).empty(); // cleat the mapped items
     for (let item in meta) {
@@ -244,10 +250,8 @@ function reloadMappedItems(meta, jsonMappedItems) {
             closeBtn.click(function () { 
                 console.log('click');
                 var currentItem = item;
-                var currentRow = row;
-                $(this).parent().remove();
-
-                delete meta[currentItem];                
+                $(this).parent().remove(); // remove the row on click
+                delete meta[currentItem]; // remove the value from the meta object        
             });
             row.append(closeBtn);
             row.append(label);
