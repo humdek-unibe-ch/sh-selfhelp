@@ -255,23 +255,25 @@ class StyleModel extends BaseModel implements IStyleModel
      * The field which we are checking
      * @param object $data_config
      * The data config as json object
-     * @param $user_name
+     * @param string $user_name
      * the user_name
-     * @param $user_code
+     * @param string $user_code
      * the user_code
+     * @param string $field_key = 'content'
+     * The field key that we want to take some dynamic data. The default one is `content`
      * @return string
      * Return the field content
      */
-    protected function calc_dynamic_values($field, $data_config, $user_name, $user_code){
+    protected function calc_dynamic_values($field, $data_config, $user_name, $user_code, $field_key = 'content'){
         //adjust entry records 
         $this->debug_data['field'] = $field;
         $this->debug_data['data_config'] = $data_config;
         if ($this->entry_record) {
             //adjust entry value
-            $field['content'] = $this->get_entry_value($this->entry_record, $field['content']);
+            $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key]);
         }
         // replace the field content with the global variables
-        if ($field['content']) {
+        if ($field[$field_key]) {
             $global_vars = array(
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
@@ -281,35 +283,62 @@ class StyleModel extends BaseModel implements IStyleModel
                 '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
             );
             $this->debug_data['global_vars'] = $global_vars;
-            if(strpos($field['content'], '__language__') !== false){
+            if(strpos($field[$field_key], '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
             }
-            $field['content'] = $this->db->replace_calced_values($field['content'], $global_vars);
-            $field['content'] = str_replace('@user_code', $user_code, $field['content']);
-            $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
-            $field['content'] = str_replace('@user', $user_name, $field['content']);
+            $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $global_vars);
+            $field[$field_key] = str_replace('@user_code', $user_code, $field[$field_key]);
+            $field[$field_key] = str_replace('@project', $_SESSION['project'], $field[$field_key]);
+            $field[$field_key] = str_replace('@user', $user_name, $field[$field_key]);
             $global_values = $this->db->get_global_values(); 
             if($global_values){
-                $field['content'] = $this->db->replace_calced_values($field['content'],  $global_values);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key],  $global_values);
             }
             if ($data_config && $field['name'] != 'data_config') {
                 // if there is data_config set and the field is not data_config, try to get dynamic data
                 $fields = $this->retrieve_data($data_config);
-                $field['content'] = $this->db->replace_calced_values($field['content'], $fields);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
                         if ($field_name[0] == '@') {
-                            $field['content'] = str_replace($field_name, $field_value, $field['content']);
+                            $field[$field_key] = str_replace($field_name, $field_value, $field[$field_key]);
                         }
                     }
                 }
                 $this->debug_data['data_config_retrieved'] = $fields;
             }
-        }      
-        $this->debug_data['new_field_content'] = $field['content'];
-        $this->debug_data['new_field_content_object'] = $field['content'] ? json_decode($field['content']) : false;
-        return $field['content'];
+        }
+        $this->debug_data['new_field_' . $field_key] = $field[$field_key];
+        $this->debug_data['new_field_' . $field_key . '_object'] = $field[$field_key] ? json_decode($field[$field_key]) : false;
+        return $field[$field_key];
+    }
+
+    /**
+     * Set JSON mapping data based on meta information.
+     *
+     * This function takes a reference to a field array and modifies its 'content' 
+     * structure based on the provided 'meta' data, which is represented as key-value pairs.
+     *
+     * @param array &$field - A reference to the field array to be modified.
+     *                       It should have 'content' and 'meta' sub-arrays.
+     * @return void
+     */
+    private function set_json_mapping(&$field)
+    {
+        $current = &$field['content'];
+        foreach ($field['meta'] as $key => $map_value) {
+            $map = explode(".",
+                $key
+            );
+            foreach ($map as $key_map) {
+                if (!isset($current[$key_map])) {
+                    $current[$key_map] = [];
+                }
+                $current = &$current[$key_map];
+            }
+            $current = $map_value;
+        }
     }
 
     /* Protected Methods ******************************************************/
@@ -398,6 +427,10 @@ class StyleModel extends BaseModel implements IStyleModel
             
             // load dynamic data if needed
             $field['content'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code);
+            if(isset($field['meta']) && $field['meta']){
+                $field['meta'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code, 'meta');    
+            }
+            
 
             $default = $field["default_value"] ?? "";
             if ($field['name'] == "url") {
@@ -407,7 +440,12 @@ class StyleModel extends BaseModel implements IStyleModel
             } else if ($field['type'] == "markdown-inline") {
                 $field['content'] = $this->parsedown->line($field['content']);
             } else if ($field['type'] == "json") {
+                // the field is json, check the JSON mapper if there are some mapping in the meta field                
                 $field['content']  = $field['content'] ? json_decode($field['content'], true) : array();
+                if(isset($field['meta']) && $field['meta']){
+                    $field['meta'] = json_decode($field['meta'], true);
+                    $this->set_json_mapping($field);
+                }
                 /* $field['content'] = $this->json_style_parse($field['content']); */
             } else if ($field['type'] == "condition") {
                 $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
