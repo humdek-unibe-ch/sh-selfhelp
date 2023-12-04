@@ -28,7 +28,7 @@ function initJsonFields() {
         try {
             meta = JSON.parse(jsonMetaField.val());
         } catch (error) {
-            console.log('Meta for ' + jsonFieldName + ' cannot be parsed' );
+            console.log('Meta for ' + jsonFieldName + ' cannot be parsed');
         }
         if ($(jsonMappingButton).data(jsonEditorInit)) {
             // already initialized do not do it again
@@ -58,9 +58,12 @@ function initJsonFields() {
         $(jsonMappingButton).off('click').click(() => {
             var jsonModalHolder = $(this).find('.json_mapper_modal_holder')[0];
             var jsonModalTitleField = $(this).find('.json-mapper-title-field')[0];
+            var jsonModalErrorStatusField = $(this).find('.json-mapper-error-status')[0];
+            var jsonMappedItems = $(this).find('.json_mapped_items')[0];
             var jsonTree = $(this).find('.json_tree')[0];
             var jsonTreePath = $(this).find('.json_tree_path');
             console.log(jsonTreePath);
+            reloadMappedItems(meta, jsonMappedItems); // load the existing values
             $(jsonModalHolder).modal({
                 backdrop: false
             });
@@ -75,7 +78,10 @@ function initJsonFields() {
                 console.log(jsonData);
                 $(jsonTree).jstree({
                     core: {
-                        data: jsTreeData
+                        data: jsTreeData,
+                        themes: {
+                            icons: false
+                        }
                     }
                 });
                 $(jsonTree).on('select_node.jstree', function (e, data) {
@@ -84,27 +90,20 @@ function initJsonFields() {
 
                     // Access the 'value' property of the clicked node
                     var nodeValue = clickedNode.original;
-
-
+                    if (!(nodeValue.text in meta)) {
+                        meta[nodeValue.text] = "";
+                    }
                     // Do something with the node value
-                    console.log('Clicked Node Value:', nodeValue);
+                    reloadMappedItems(meta, jsonMappedItems);
+                    console.log('Clicked Node Value:', nodeValue, clickedNode);
                 });
             } catch (error) {
 
             }
             $(saveMapperBtn).off('click').click(function () {
-                // var rules = $('.condition_builder').queryBuilder('getRules');
-                // $(meta).val(JSON.stringify(rules));
-                // $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
-                // $(condition).trigger('change');
-                // $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
-                // if (rules) {
-                //     $('.conditionBuilderBtn').addClass('btn-warning');
-                //     $('.conditionBuilderBtn').html('Edit Condition');
-                // } else {
-                //     $('.conditionBuilderBtn').addClass('btn-primary');
-                //     $('.conditionBuilderBtn').html('Add Condition');
-                // }
+                console.log(meta);
+                $(jsonMetaField).val(JSON.stringify(meta));
+                $(jsonMetaField).trigger('change');
             })
         });
 
@@ -225,4 +224,35 @@ function initCssFields() {
             cssFormatMonaco(monaco);
         });
     })
+}
+
+function reloadMappedItems(meta, jsonMappedItems) {
+    $(jsonMappedItems).empty(); // cleat the mapped items
+    for (let item in meta) {
+        if (meta.hasOwnProperty(item)) {
+            var row = $('<div/>').addClass('d-flex align-items-center bg-white m-2 p-2 border rounded text-dark');
+            var label = $('<label/>').text(item).addClass('mb-0 pl-2 pr-2 mr-2 font-weight-bold');
+            var input = $('<input/>').attr('type', 'text').addClass('rounded border ml-auto border-dark pl-2 pr-2');
+            input.val(meta[item]);
+            input.change(function () {
+                // on change add the value in the meta
+                var inputValue = $(this).val();
+                var currentItem = item;
+                meta[currentItem] = inputValue;
+            })
+            var closeBtn = $('<i/>').addClass("far fa-window-close text-danger fa-lg pointer mr-2");
+            closeBtn.click(function () { 
+                console.log('click');
+                var currentItem = item;
+                var currentRow = row;
+                $(this).parent().remove();
+
+                delete meta[currentItem];                
+            });
+            row.append(closeBtn);
+            row.append(label);
+            row.append(input);
+            $(jsonMappedItems).append(row);
+        }
+    }
 }
