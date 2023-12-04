@@ -23,7 +23,6 @@ function initJsonFields() {
         var jsonFieldName = $(jsonMappingButton).data('name');
         var jsonValueField = $('textarea[name*="[' + jsonFieldName + ']"][name*="[content]"]');
         var jsonMetaField = $('input[name*="[' + jsonFieldName + ']"][name*="[meta]"]');
-        console.log('meta', jsonFieldName, jsonMetaField);
         var meta = {};
         try {
             meta = JSON.parse(jsonMetaField.val());
@@ -62,7 +61,6 @@ function initJsonFields() {
             var jsonMappedItems = $(this).find('.json_mapped_items')[0];
             var jsonTree = $(this).find('.json_tree')[0];
             var jsonTreePath = $(this).find('.json_tree_path');
-            console.log(jsonTreePath);
             reloadMappedItems(meta, jsonMappedItems); // load the existing values
             $(jsonModalHolder).modal({
                 backdrop: false
@@ -74,8 +72,6 @@ function initJsonFields() {
             try {
                 jsonData = JSON.parse(jsonValueField.val());
                 const jsTreeData = transformToJsTreeFormat(jsonData, '')['children'];
-                console.log(jsTreeData);
-                console.log(jsonData);
                 $(jsonTree).jstree({
                     core: {
                         data: jsTreeData,
@@ -95,13 +91,11 @@ function initJsonFields() {
                     }
                     // Do something with the node value
                     reloadMappedItems(meta, jsonMappedItems);
-                    console.log('Clicked Node Value:', nodeValue, clickedNode);
                 });
             } catch (error) {
 
             }
             $(saveMapperBtn).off('click').click(function () {
-                console.log(meta);
                 $(jsonMetaField).val(JSON.stringify(meta));
                 $(jsonMetaField).trigger('change');
             })
@@ -248,7 +242,6 @@ function reloadMappedItems(meta, jsonMappedItems) {
             })
             var closeBtn = $('<i/>').addClass("far fa-window-close text-danger fa-lg pointer mr-2");
             closeBtn.click(function () { 
-                console.log('click');
                 var currentItem = item;
                 $(this).parent().remove(); // remove the row on click
                 delete meta[currentItem]; // remove the value from the meta object        
