@@ -7,6 +7,7 @@
  - add field `meta` in `sections_fields_translation` which is used for meta building custom fields that need more data
  - #369 - Add extra mapping for JSON fields
     -  add [jstree](https://github.com/vakata/jstree) library
+ - field's tooltip is shown on `click` not `hover` anymore
 
 # v6.5.2
 ### Bugfix
