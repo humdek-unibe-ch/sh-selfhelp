@@ -1,3 +1,7 @@
 .dropdown-toggle-no-carret::after {
     display: none !important;
 }
+
+.dropdown-menu .text {
+    text-wrap: wrap;
+}

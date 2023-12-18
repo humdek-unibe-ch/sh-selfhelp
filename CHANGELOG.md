@@ -9,6 +9,9 @@
     -  add [jstree](https://github.com/vakata/jstree) library
  - field's tooltip is shown on `click` not `hover` anymore
 
+ ### Bugfix
+  - dropdown select - wrap long options
+
 # v6.5.2
 ### Bugfix
  - properly set default language on a new user 
