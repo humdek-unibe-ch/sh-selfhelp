@@ -220,7 +220,7 @@ class ChatAdminModel extends BaseModel
             WHEN (SELECT COUNT(*) FROM users_groups mods WHERE mods.id_users = u.id AND mods.id_groups = :gid) > 0 THEN 1
             ELSE 0
         END AS is_mod
-        FROM users AS u
+        FROM `users` AS u
         LEFT JOIN chatRoom_users AS cru ON cru.id_users = u.id
         LEFT JOIN users_groups AS ug ON ug.id_users = u.id
         WHERE cru.id_chatRoom = :rid
@@ -267,7 +267,7 @@ class ChatAdminModel extends BaseModel
      */
     public function get_user_email($id)
     {
-        $sql = "SELECT email FROM users WHERE id = :id";
+        $sql = "SELECT email FROM `users` WHERE id = :id";
         $res = $this->db->query_db_first($sql, array(':id' => $id));
         if ($res)
             return $res['email'];

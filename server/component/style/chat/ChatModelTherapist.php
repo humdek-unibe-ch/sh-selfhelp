@@ -46,10 +46,10 @@ class ChatModelTherapist extends ChatModel
      */
     protected function get_chat_items_spec()
     {
-        $sql = "SELECT c.id AS cid, sender.id AS uid, sender.name AS name,
+        $sql = "SELECT c.id AS cid, sender.id AS uid, sender.`name` AS name,
             c.content AS msg, c.timestamp, receiver.is_new
             FROM chat AS c
-            LEFT JOIN users AS sender ON sender.id = c.id_snd
+            LEFT JOIN `users` AS sender ON sender.id = c.id_snd
             LEFT JOIN chatRecipiants AS receiver ON c.id = receiver.id_chat
             WHERE (c.id_rcv_group = :gid AND (
                 (receiver.id_users = :me
@@ -74,7 +74,7 @@ class ChatModelTherapist extends ChatModel
      */
     public function get_selected_user_name()
     {
-        $sql = "SELECT name FROM users WHERE id = :uid";
+        $sql = "SELECT name FROM `users` WHERE id = :uid";
         $name = $this->db->query_db_first($sql, array(":uid" => $this->uid));
         if ($name)
             return $name["name"];
@@ -91,7 +91,7 @@ class ChatModelTherapist extends ChatModel
      */
     public function get_GroupSubjects()
     {
-        $sql = "SELECT DISTINCT u.id, u.name, vc.code, ug.id_groups,
+        $sql = "SELECT DISTINCT u.id, u.`name`, vc.code, ug.id_groups,
                 (SELECT COUNT(cr.id_chat) AS count FROM chatRecipiants AS cr
                     LEFT JOIN chat AS c ON c.id = cr.id_chat
                     WHERE cr.is_new = '1' AND cr.id_users = :me
@@ -105,11 +105,11 @@ class ChatModelTherapist extends ChatModel
                             where ug2.id_users = u.id and keyword = 'chatTherapist'
 							GROUP BY ug2.id_users, acl.id_pages, p.keyword ) = 0)
                         AND (c.id_snd = u.id OR c.id_rcv = u.id) AND c.id_rcv_group = :gid) AS count
-                FROM users AS u
+                FROM `users` AS u
                 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
                 LEFT JOIN validation_codes vc on vc.id_users = u.id
                 WHERE ug.id_groups = :gid
-                ORDER BY count DESC, u.name";
+                ORDER BY count DESC, u.`name`";
         return $this->db->query_db($sql, array(
             ":gid" => $this->gid,
             ":me" => $_SESSION["id_user"]

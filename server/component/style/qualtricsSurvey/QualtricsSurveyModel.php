@@ -147,7 +147,7 @@ class QualtricsSurveyModel extends StyleModel
             if (isset($survey_info['participant_variable']) && $survey_info['participant_variable'] != '') {
                 $user_code = $this->db->query_db_first('SELECT code
                                         FROM validation_codes vc
-                                        INNER JOIN users u ON (u.id = vc.id_users)
+                                        INNER JOIN `users` u ON (u.id = vc.id_users)
                                         WHERE u.id = :id', array(':id' => $_SESSION['id_user']));
                 if (isset($user_code['code'])) {
                     $survey_link =  $survey_link . '?' . $survey_info['participant_variable'] . '=' . $user_code['code'];

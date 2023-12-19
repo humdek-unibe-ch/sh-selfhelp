@@ -272,7 +272,7 @@ class CmsModel extends BaseModel
         else
             $where = "AND st.id != :sid";
         $sections = array();
-        $sql = "SELECT s.id, s.name, s.id_styles FROM sections AS s
+        $sql = "SELECT s.id, s.`name`, s.id_styles FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             LEFT JOIN sections_hierarchy AS sh ON s.id = sh.child
             LEFT JOIN pages_sections AS ps ON s.id = ps.id_sections
@@ -280,7 +280,7 @@ class CmsModel extends BaseModel
             WHERE sh.child IS NULL AND ps.id_sections IS NULL
             AND sn.child IS NULL AND (s.owner IS NULL OR s.owner = :uid)
             AND st.id_type <> 3 $where
-            ORDER BY s.name";
+            ORDER BY s.`name`";
         $sections_db = $this->db->query_db($sql, array(
             ":uid" => $_SESSION["id_user"],
             ":sid" => NAVIGATION_CONTAINER_STYLE_ID,
@@ -422,14 +422,14 @@ class CmsModel extends BaseModel
      */
     private function fetch_page_fields($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+        $sql = "SELECT f.id, f.display, f.`name`, ft.`name` AS `type`,
             pf.default_value, pf.help
             FROM pages AS p
             LEFT JOIN pages_fields AS pf ON pf.id_pages = p.id
             LEFT JOIN fields AS f ON f.id = pf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             WHERE p.id = :id
-            ORDER BY ft.position, f.display, f.name";
+            ORDER BY ft.position, f.display, f.`name`";
         return $this->db->query_db($sql, array(":id" => $id));
     }
 
@@ -462,7 +462,7 @@ class CmsModel extends BaseModel
         $pages = array();
         if($this->is_navigation_item())
         {
-            $sql = "SELECT s.name FROM sections_navigation AS sn
+            $sql = "SELECT s.`name` FROM sections_navigation AS sn
                 LEFT JOIN sections AS s ON sn.child = s.id
                 WHERE sn.child = :id";
             $section = $this->db->query_db_first($sql,
@@ -526,11 +526,11 @@ class CmsModel extends BaseModel
             $where = "WHERE l.locale = :lang";
         if($_SESSION['cms_gender'] !== "both")
         {
-            $where .= " AND g.name = :gender";
+            $where .= " AND g.`name` = :gender";
             $data[":gender"] = $_SESSION['cms_gender'];
         }
         $sql = "SELECT l.locale AS locale, l.id AS id_language, sft.content,
-            g.name AS gender, g.id AS id_gender
+            g.`name` AS gender, g.id AS id_gender
             FROM languages AS l
             JOIN genders AS g
             LEFT JOIN sections_fields_translation AS sft
@@ -571,7 +571,7 @@ class CmsModel extends BaseModel
      */
     private function fetch_style_fields_by_section_id($id)
     {
-        $sql = "SELECT f.id, f.display, f.name, ft.name AS type,
+        $sql = "SELECT f.id, f.display, f.`name`, ft.`name` AS `type`,
             sf.default_value, sf.help
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -579,7 +579,7 @@ class CmsModel extends BaseModel
             LEFT JOIN fields AS f ON f.id = sf.id_fields
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             WHERE s.id = :id AND sf.disabled = 0
-            ORDER BY ft.position, f.display, f.name";
+            ORDER BY ft.position, f.display, f.`name`";
         return $this->db->query_db($sql, array(":id" => $id));
     }
 
@@ -706,7 +706,7 @@ class CmsModel extends BaseModel
      */
     private function set_all_accessible_sections()
     {
-        $sql = "SELECT s.id, s.name, s.id_styles,
+        $sql = "SELECT s.id, s.`name`, s.id_styles,
             COALESCE(ps.id_pages, psn.id_pages) AS pid
             FROM sections AS s
             LEFT JOIN pages_sections AS ps ON ps.id_sections = s.id
@@ -1249,9 +1249,9 @@ class CmsModel extends BaseModel
      */
     public function get_field_info($name)
     {
-        $sql = "SELECT f.id AS id, t.name AS type FROM fieldType AS t
+        $sql = "SELECT f.id AS id, t.`name` AS type FROM fieldType AS t
             LEFT JOIN fields AS f on t.id = f.id_type
-            WHERE f.name = :name";
+            WHERE f.`name` = :name";
         $info = $this->db->query_db_first($sql, array(":name" => $name));
         return $info;
     }
@@ -2042,10 +2042,10 @@ class CmsModel extends BaseModel
     public function get_groups_grant_access_to_page($uid)
     {
         $groups = array();
-        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+        $sql = "SELECT g.id AS value, g.`name` AS text FROM `groups` AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
             WHERE ug.id_users IS NULL
-            ORDER BY g.name";
+            ORDER BY g.`name`";
         $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
         foreach ($groups_db as $group) {
                 $groups[] = $group;

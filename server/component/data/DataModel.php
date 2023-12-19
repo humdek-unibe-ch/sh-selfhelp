@@ -56,7 +56,7 @@ class DataModel extends BaseModel
             "url" => $_SERVER['REQUEST_URI'],
             "id_type" => 2,
         ));
-        $sql = 'select cast(s.id as unsigned) as form_id, ifnull(sft_if.content, s.name) as form_name 
+        $sql = 'select cast(s.id as unsigned) as form_id, ifnull(sft_if.content, s.`name`) as form_name 
                 from sections s
                 inner join view_styles st on (s.id_styles = st.style_id)
                 LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = s.id AND sft_if.id_fields = 57
@@ -105,7 +105,7 @@ class DataModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, email, code, name 
-                FROM users u 
+                FROM `users` u 
                 LEFT JOIN validation_codes c on (c.id_users = u.id)
                 WHERE id_status = :active_status";
         $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
@@ -134,7 +134,7 @@ class DataModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, name 
-                FROM groups;";
+                FROM `groups`;";
         $groups = $this->db->query_db($sql);
         foreach ($groups as $val) {
             $value = ('group_' . intval($val['id']));

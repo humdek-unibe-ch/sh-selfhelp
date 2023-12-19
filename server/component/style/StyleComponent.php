@@ -65,7 +65,7 @@ class StyleComponent extends BaseComponent
         $this->is_style_known = true;
         // get style name and type
         $db = $services->get_db();
-        $sql = "SELECT s.name, t.name AS type
+        $sql = "SELECT s.`name`, t.`name` AS `type`
             FROM styles AS s
             LEFT JOIN styleType AS t ON t.id = s.id_type
             LEFT JOIN sections AS sec ON sec.id_styles = s.id

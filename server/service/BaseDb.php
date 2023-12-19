@@ -370,7 +370,7 @@ class BaseDb {
                         $tableName = ltrim($i, "id_");
                         $join .= " LEFT JOIN ".rtrim($tableName, "0..9")." t"
                             .$tableNb." ON t0.".$i." = t".$tableNb.".id";
-                        $sql .= "t".$tableNb.".name AS name_".$tableName.", ";
+                        $sql .= "t".$tableNb.".`name` AS name_".$tableName.", ";
                         $sql .= "t".$tableNb.".id AS id_".$tableName.", ";
                     }
                 }

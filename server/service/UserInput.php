@@ -64,9 +64,9 @@ class UserInput
         if( $this->field_attrs === NULL)
             $this->set_field_attrs();
         $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
-            g.name AS gender, vc.code, id_user_input_record
+            g.`name` AS gender, vc.code, id_user_input_record
             FROM user_input AS ui
-            LEFT JOIN users AS u ON u.id = ui.id_users
+            LEFT JOIN `users` AS u ON u.id = ui.id_users
             LEFT JOIN genders AS g ON g.id = u.id_genders
             LEFT JOIN validation_codes AS vc on vc.id_users = ui.id_users
             WHERE 1";
@@ -74,7 +74,7 @@ class UserInput
         $language = $_SESSION['language'];
         foreach($conds as $key => $value)
         {
-            if($key === "g.name") $gender = $value;
+            if($key === "g.`name`") $gender = $value;
             $sql .= " AND " . $key . " = '" . $value . "'";
         }
         $fields_db = $this->db->query_db($sql);
@@ -250,7 +250,7 @@ class UserInput
     {
         $db_cond = array();
         if(isset($filter["gender"]))
-            $db_cond["g.name"] = $filter["gender"];
+            $db_cond["g.`name`"] = $filter["gender"];
         if(isset($filter["id_section"]))
             $db_cond["ui.id_sections"] = $filter["id_section"];
         if(isset($filter["id_user"]))
@@ -408,7 +408,7 @@ class UserInput
     public function set_field_attrs()
     {
         $this->field_attrs = array();
-        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
+        $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.`name` AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.`name` AS gender, l.locale AS language FROM user_input AS ui
             LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
             LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
             LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
