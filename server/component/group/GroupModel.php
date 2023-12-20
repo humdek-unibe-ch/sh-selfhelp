@@ -451,7 +451,7 @@ class GroupModel extends BaseModel
      */
     public function delete_group($gid)
     {
-        return $this->db->remove_by_fk("groups", "id", $gid);
+        return $this->db->remove_by_fk("`groups`", "id", $gid);
     }
 
     /**
@@ -677,8 +677,8 @@ class GroupModel extends BaseModel
      */
     public function insert_new_group($name, $desc)
     {
-        return $this->db->insert("groups", array(
-            "name" => $name,
+        return $this->db->insert("`groups`", array(
+            "`name`" => $name,
             "description" => $desc,
         ));
     }
