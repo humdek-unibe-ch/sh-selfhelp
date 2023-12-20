@@ -678,7 +678,7 @@ class GroupModel extends BaseModel
     public function insert_new_group($name, $desc)
     {
         return $this->db->insert("`groups`", array(
-            "`name`" => $name,
+            "name" => $name,
             "description" => $desc,
         ));
     }
