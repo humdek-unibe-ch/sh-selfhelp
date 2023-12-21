@@ -186,7 +186,7 @@ abstract class BaseModel
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
                     });
                     if ($config['retrieve'] === 'JSON' && count($data) > 0) {
-                        $result[$config['type'] . '.' . $config['table']] = json_encode($data);
+                        $result[$config['type'] . '.' . $config['table']] = $data;
                     } else if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
                         if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
