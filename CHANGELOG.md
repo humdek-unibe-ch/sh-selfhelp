@@ -1,3 +1,7 @@
+# v6.6.1
+### New features
+ - add in `data_config` new return type - `JSON`. It returns all the data as one array parsed as `JSON`. The variable is stored as Type.table. For example: INTERNAL table `test`, the data can be piped with  {{INTERNAL.test}}
+
 # v6.6.0
 ### New features
  - `data_config` - `all_fields` is enabled by default and it is set to `true`
