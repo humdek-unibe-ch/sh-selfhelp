@@ -185,7 +185,7 @@ abstract class BaseModel
                     $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
                     });
-                    if ($config['retrieve'] === 'JSON' && count($data) > 0) {
+                    if ($config['retrieve'] === 'JSON') {
                         $result[$config['type'] . '.' . $config['table']] = $data;
                     } else if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
