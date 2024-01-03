@@ -1,3 +1,7 @@
+# v6.7.0
+### New features
+ - add `toggle_switch` field to style `input`, when enabled and the type is checkbox, then the input will be loaded as toggle switch
+
 # v6.6.1
 ### New features
  - add in `data_config` new return type - `JSON`. It returns all the data as one array parsed as `JSON`. The variable is stored as Type.table. For example: INTERNAL table `test`, the data can be piped with  {{INTERNAL.test}}
