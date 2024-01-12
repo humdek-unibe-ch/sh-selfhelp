@@ -1196,7 +1196,7 @@ class CmsView extends BaseView
         } else if ($field['type'] == "password") {
             // hide the password
             $children[] = new BaseStyleComponent("rawText", array(
-                "text" => str_repeat("*", strlen($field['content']))
+                "text" => str_repeat("*", strlen(isset($field['content']) ? $field['content'] : '1111'))
             ));
         } else {
             // do not show the whole condition as it takes a lof of space. 

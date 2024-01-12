@@ -1,3 +1,6 @@
+# v6.7.1 (Unpublished)
+ 
+
 # v6.7.0
 ### New features
  - add `toggle_switch` field to style `input`, when enabled and the type is checkbox, then the input will be loaded as toggle switch
