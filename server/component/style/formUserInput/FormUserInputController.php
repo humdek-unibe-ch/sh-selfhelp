@@ -176,13 +176,13 @@ class FormUserInputController extends BaseController
         }
         else
         {            
-            $res = isset($_POST[SELECTED_RECORD_ID]) ? $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) : $this->model->save_user_input($user_input);
-            if($res === false)
+            $record_id = isset($_POST[SELECTED_RECORD_ID]) ? $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) : $this->model->save_user_input($user_input);
+            if($record_id === false)
             {
                 $this->fail = true;
                 $this->error_msgs[] = "An unexpected problem occurred. Please Contact the Server Administrator";
             }
-            else if($res > 0)
+            else if($record_id > 0)
             {
                 if(isset($_POST['btnSubmitAndSend']) && $_POST['btnSubmitAndSend'] == 'send_email'){
                     $this->model->send_feedback_email();
@@ -190,12 +190,12 @@ class FormUserInputController extends BaseController
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
-                $this->model->queue_job_from_actions(actionTriggerTypes_finished);
+                $this->model->queue_job_from_actions(actionTriggerTypes_finished, $record_id);
                 $this->model->reload_children();
             }
         }
         $redirect = $this->model->get_db_field("redirect_at_end", "");
-        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $res && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
+        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $record_id && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
             //$redirect = str_replace("/", "", $redirect);
             $redirect_url = $this->model->get_link_url(str_replace("/", "", $redirect));
             header("Location: " . ($redirect_url != '' ? $redirect_url : $redirect));

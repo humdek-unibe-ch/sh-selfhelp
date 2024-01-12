@@ -259,13 +259,11 @@ class FormUserInputModel extends StyleModel
      * @param array $user_input
      *  The array of input key => value pairs where the key is the name of the
      *  input field.
-     * @retval int
-     *  The number of affected rows in the database or false if an error
-     *  ocurred.
+     * @return int|false
+     *  Return the record if or false on error
      */
     public function save_user_input($user_input)
     {
-        $count = 0;
         $id_record = null;
         if ($this->is_log() || !$this->has_form_data()) {
             $id_record = $this->db->insert("user_input_record", array());
@@ -283,15 +281,13 @@ class FormUserInputModel extends StyleModel
 
             if ($res === false)
                 return false;
-            else
-                $count += $res;
         }
         $this->db->commit();
         $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
         // Once data is entered to the uiser input database the attributes in
         // the user_input service needs to be updated.
         $this->user_input->set_field_attrs();
-        return $count;
+        return $id_record;
     }
 
     /**
@@ -302,26 +298,22 @@ class FormUserInputModel extends StyleModel
      *  input field.
      * @param int $record_id
      * The record id
-     * @retval int
-     *  The number of affected rows in the database or false if an error
-     *  ocurred.
+     * @return int|false
+     * Return the updated record id or false on error
      */
     public function update_user_input($user_input, $record_id)
     {
-        $count = 0;
         foreach ($user_input as $id => $value) {
             $res = $this->update_entry_with_record_id($id, $value, $record_id);
             if ($res === false) {
                 return false;
-            } else {
-                $count += $res;
             }
         }
         // Once data is entered to the uiser input database the attributes in
         // the user_input service needs to be updated.
         $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
         $this->user_input->set_field_attrs();
-        return $count;
+        return $record_id;
     }
 
     /**
@@ -419,13 +411,14 @@ class FormUserInputModel extends StyleModel
      * @param string $trigger_type
      * Form started or finished
      */
-    public function queue_job_from_actions($trigger_type){
+    public function queue_job_from_actions($trigger_type, $record_id = null)
+    {
         $form_data = array(
             "trigger_type" => $trigger_type,
             "form_name" => $this->get_db_field("name"),
             "form_id" => $this->section_id,
             "form_type" => FORM_INTERNAL,
-            "form_fields" => $_POST
+            "form_fields" => ($record_id ? array_merge($_POST, array('record_id' => $record_id)) : $_POST)
         );
         $this->user_input->queue_job_from_actions($form_data);
     }
