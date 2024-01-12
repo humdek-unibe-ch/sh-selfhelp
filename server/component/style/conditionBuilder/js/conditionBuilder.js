@@ -219,7 +219,9 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
     var rules = null;
 
     try {
-        rules = JSON.parse(jqueryBuilderJsonInput);
+        if (jqueryBuilderJsonInput) {
+            rules = JSON.parse(jqueryBuilderJsonInput);
+        }
     } catch (error) {
         console.log('Rules cannot be parsed');
     }
