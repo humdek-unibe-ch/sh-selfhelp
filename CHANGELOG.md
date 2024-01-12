@@ -4,6 +4,7 @@
 
 ### Bugfix
  - #379 - properly escape the naming pattern
+ - #381 - fix the extra space in all `textarea` inputs
  
 
 # v6.7.0

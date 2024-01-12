@@ -1404,7 +1404,7 @@ class CmsModel extends BaseModel
                     "relation" => RELATION_PAGE,
                     "content" => $this->page_info['keyword'],
                     "is_required" => 1,
-                    "format" => "[a-zA-Z0-9_-]+",
+                    "format" => NAME_PATTERN,
                     "label" => "Keyword",
                 )
             );
@@ -1528,7 +1528,7 @@ class CmsModel extends BaseModel
                     // "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
                     "content" => $fields[0]['section_name'],
                     "is_required" => 0,
-                    "format" => "[a-zA-Z0-9_-]+",
+                    "format" => NAME_PATTERN,
                     "label" => "Section name",
                 )
             );
