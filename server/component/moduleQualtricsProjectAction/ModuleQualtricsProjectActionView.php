@@ -89,7 +89,7 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     private function get_groups()
     {
         $groups = array();
-        foreach ($this->model->get_services()->get_db()->select_table("groups") as $group) {
+        foreach ($this->model->get_services()->get_db()->select_table("`groups`") as $group) {
             array_push($groups, array("value" => intval($group['id']), "text" => $group['name']));
         }
         return $groups;

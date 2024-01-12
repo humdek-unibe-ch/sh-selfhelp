@@ -88,7 +88,7 @@ class Mailer extends PHPMailer
         foreach ($mail_info_recipients as $mail) {
             unset($to['to']);
             $to['to'][] = array('address' => $mail, 'name' => $mail);
-            $user_name = $this->db->query_db_first('SELECT name FROM users WHERE email = :email', array(":email"=>trim($mail)))['name'];
+            $user_name = $this->db->query_db_first('SELECT name FROM `users` WHERE email = :email', array(":email"=>trim($mail)))['name'];
             $msg_send = str_replace('@user_name', $user_name, $msg);
             if($msg_html){
                 $msg_html_send = str_replace('@user_name', $user_name, $msg_html);

@@ -74,7 +74,7 @@ class CallbackSetGroup extends BaseCallback
      */
     private function getGroupId($group)
     {
-        $sql = "SELECT id FROM groups
+        $sql = "SELECT id FROM `groups`
             WHERE name = :group";
         $res = $this->db->query_db_first($sql, array(':group' => $group));
         return  !isset($res['id']) ? -1 : $res['id'];

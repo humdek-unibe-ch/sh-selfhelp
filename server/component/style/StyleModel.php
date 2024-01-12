@@ -83,7 +83,7 @@ class StyleModel extends BaseModel implements IStyleModel
             "type" => "internal",
         );
 
-        $sql = "SELECT s.id, sec.name, s.name AS style, t.name AS type
+        $sql = "SELECT s.id, sec.`name`, s.`name` AS style, t.`name` AS type
             FROM styles AS s
             LEFT JOIN styleType AS t ON t.id = s.id_type
             LEFT JOIN sections AS sec ON sec.id_styles = s.id

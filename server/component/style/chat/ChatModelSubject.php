@@ -41,7 +41,7 @@ class ChatModelSubject extends ChatModel
      */
     protected function get_chat_items_spec()
     {
-        $sql = "SELECT c.id AS cid, sender.id AS uid, sender.name AS name,
+        $sql = "SELECT c.id AS cid, sender.id AS uid, sender.`name` AS `name`,
             c.content AS msg, c.timestamp, receiver.is_new
             FROM chat AS c
             LEFT JOIN users AS sender ON sender.id = c.id_snd

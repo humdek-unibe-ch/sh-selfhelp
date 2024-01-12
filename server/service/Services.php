@@ -123,7 +123,7 @@ class Services
      */
     private function init_router_routes()
     {
-        $sql = "SELECT p.protocol, p.url, a.name AS action, p.keyword FROM pages AS p
+        $sql = "SELECT p.protocol, p.url, a.`name` AS action, p.keyword FROM pages AS p
             LEFT JOIN actions AS a ON a.id = p.id_actions
             WHERE protocol IS NOT NULL";
         $pages = $this->db->query_db($sql, array());

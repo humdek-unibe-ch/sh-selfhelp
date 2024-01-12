@@ -195,7 +195,7 @@ class ExportPage extends BasePage
         }
         $this->fputcsv_wrap($output, $header);
         $sql = "SELECT u.email, vc.code, vc.consumed, vc.created FROM validation_codes AS vc
-            LEFT JOIN users AS u ON u.id = vc.id_users
+            LEFT JOIN `users` AS u ON u.id = vc.id_users
             WHERE 1";
         if($option === "open")
             $sql .= " AND id_users IS NULL";

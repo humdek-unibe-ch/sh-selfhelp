@@ -98,7 +98,7 @@ class FormUserInputModel extends StyleModel
         $sql = "SELECT sft.content
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
-            WHERE f.name = 'label' AND sft.id_sections = :id";
+            WHERE f.`name` = 'label' AND sft.id_sections = :id";
         $label = $this->db->query_db_first($sql,
             array(":id" => $id_section));
         if($label) return $label["content"];
@@ -116,7 +116,7 @@ class FormUserInputModel extends StyleModel
      */
     public function get_field_style($id_section)
     {
-        $sql = "SELECT st.name FROM styles AS st
+        $sql = "SELECT st.`name` FROM styles AS st
             LEFT JOIN sections AS s ON s.id_styles = st.id
             WHERE s.id = :id";
         $style = $this->db->query_db_first($sql,
@@ -139,7 +139,7 @@ class FormUserInputModel extends StyleModel
         $sql = "SELECT sft.content
             FROM sections_fields_translation AS sft
             LEFT JOIN fields AS f ON f.id = sft.id_fields
-            WHERE f.name = 'type_input' AND sft.id_sections = :id";
+            WHERE f.`name` = 'type_input' AND sft.id_sections = :id";
         $type = $this->db->query_db_first($sql,
             array(":id" => $id_section));
         if($type) return $type["content"];

@@ -36,7 +36,7 @@ class AjaxSearch extends BaseAjax
      */
     public function search_user_chat($data)
     {
-        $sql = "SELECT u.email AS value, u.id AS id FROM users AS u
+        $sql = "SELECT u.email AS value, u.id AS id FROM `users` AS u
             LEFT JOIN chatRoom_users AS cru ON cru.id_users = u.id
             WHERE u.email LIKE :search AND u.id > 2
                 AND (cru.id_chatRoom IS NULL OR cru.id_chatRoom != :rid)";
@@ -80,11 +80,11 @@ class AjaxSearch extends BaseAjax
      */
     public function search_anchor_section($data)
     {
-        $sql = "SELECT s.name AS value, CAST(s.id AS unsigned) AS id FROM sections AS s
+        $sql = "SELECT s.`name` AS value, CAST(s.id AS unsigned) AS id FROM sections AS s
             LEFT JOIN styles AS st ON s.id_styles = st.id
             WHERE (s.id_styles = 14 OR s.id_styles = 12 OR s.id_styles = 11
                     OR s.id_styles = 3 OR s.id_styles = 39 OR s.id_styles = 24)
-                AND s.name LIKE :search ORDER BY value";
+                AND s.`name` LIKE :search ORDER BY value";
         return $this->db->query_db($sql, array(
             'search' => "%".$data['search']."%"
         ));

@@ -42,11 +42,11 @@ class BasicJob
      */
     private function get_user_group($groupName, $id_users)
     {
-        $sql = "select g.name as group_name
-                from users u
+        $sql = "select g.`name` as group_name
+                from `users` u
                 inner join users_groups ug on (u.id = ug.id_users)
-                inner join groups g on (ug.id_groups = g.id)
-                where g.name = :group and u.id = :uid";
+                inner join `groups` g on (ug.id_groups = g.id)
+                where g.`name` = :group and u.id = :uid";
         $res = $this->db->query_db_first($sql, array(
             ':group' => $groupName,
             ':uid' => $id_users
