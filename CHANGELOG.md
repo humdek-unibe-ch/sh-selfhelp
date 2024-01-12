@@ -1,6 +1,9 @@
 # v6.7.1 (Unpublished)
 ### New features
  - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
+
+### Bugfix
+ - #379 - properly escape the naming pattern
  
 
 # v6.7.0
