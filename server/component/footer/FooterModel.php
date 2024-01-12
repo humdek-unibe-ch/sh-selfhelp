@@ -42,7 +42,7 @@ class FooterModel extends BaseModel
             LEFT JOIN pages_fields_translation AS pft ON pft.id_pages = p.id
             LEFT JOIN languages AS l ON l.id = pft.id_languages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
-            WHERE p.footer_position > 0 AND $locale_cond AND f.name = 'label'
+            WHERE p.footer_position > 0 AND $locale_cond AND f.`name` = 'label'
             ORDER BY p.footer_position";
         $pages_db = $this->db->query_db($sql, array());
         $pages = array();

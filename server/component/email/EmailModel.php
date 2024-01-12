@@ -37,10 +37,10 @@ class EmailModel extends BaseModel
      */
     public function get_emails()
     {
-        $sql = "SELECT DISTINCT f.id, f.name FROM fields AS f
+        $sql = "SELECT DISTINCT f.id, f.`name` FROM fields AS f
             LEFT JOIN fieldType AS ft ON ft.id = f.id_type
             LEFT JOIN pages_fields_translation AS pft ON pft.id_fields = f.id
-            WHERE ft.name = 'email' AND pft.content IS NOT NULL ORDER BY name";
+            WHERE ft.`name` = 'email' AND pft.content IS NOT NULL ORDER BY name";
 
         $emails_db = $this->db->query_db($sql, array(':type' => EMAIL_TYPE_ID));
         $emails = array();

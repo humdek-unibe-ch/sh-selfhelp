@@ -177,7 +177,7 @@ class ModuleScheduledJobsModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, email, code, name 
-                FROM users u 
+                FROM `users` u 
                 LEFT JOIN validation_codes c on (c.id_users = u.id)
                 WHERE id_status = :active_status";
         $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
@@ -196,7 +196,7 @@ class ModuleScheduledJobsModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, name 
-                FROM groups;";
+                FROM `groups`;";
         $users = $this->db->query_db($sql);
         foreach ($users as $val) {
             array_push($arr, array("value" => ('group_' . intval($val['id'])), "text" => $val['name']));
@@ -225,14 +225,14 @@ class ModuleScheduledJobsModel extends BaseModel
         }
         if (count($gids) > 0) {
             $sql = "SELECT email
-                    FROM users u
+                    FROM `users` u
                     INNER JOIN users_groups g on (u.id = g.id_users)
                     WHERE g.id_groups IN (" . implode(",", $gids) . ") AND email NOT IN ('admin','sysadmin','tpf');";
             $emails = $this->db->query_db($sql);
         }
         if (count($uids) > 0) {
             $sql = "SELECT email
-                    FROM users u
+                    FROM `users` u
                     WHERE id IN (" . implode(",", $uids) . ") AND email NOT IN ('admin','sysadmin','tpf');";
             $emails = array_merge($emails, $this->db->query_db($sql));
         }
@@ -277,7 +277,7 @@ class ModuleScheduledJobsModel extends BaseModel
         }
         if (count($gids) > 0) {
             $sql = "SELECT u.id
-                    FROM users u
+                    FROM `users` u
                     INNER JOIN users_groups g on (u.id = g.id_users)
                     WHERE g.id_groups IN (" . implode(",", $gids) . ") AND email NOT IN ('admin','sysadmin','tpf');";
             $users_from_groups = $this->db->query_db($sql);

@@ -80,6 +80,22 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
     }
 
     /**
+     * get user groups from the database.
+     *
+     *  @retval array
+     *  value int,
+     *  text string
+     */
+    private function get_groups()
+    {
+        $groups = array();
+        foreach ($this->model->get_services()->get_db()->select_table("`groups`") as $group) {
+            array_push($groups, array("value" => intval($group['id']), "text" => $group['name']));
+        }
+        return $groups;
+    }
+
+    /**
      * get time intervals from 0 to 60
      *
      *  @retval array

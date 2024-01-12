@@ -74,7 +74,7 @@ class ValidateModel extends StyleModel
      */
     private function fetch_user_data($uid, $token)
     {
-        $sql = "SELECT u.email, u.name, g.name AS gender FROM users AS u
+        $sql = "SELECT u.email, u.`name`, g.`name` AS gender FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE u.token = :token AND u.id = :uid";
         $data = $this->db->query_db_first($sql, array(

@@ -124,7 +124,7 @@ abstract class ChatModel extends StyleModel
             'field_name' => 'chat',
         ));
         if (count($field_chat) === 0 || $field_chat[0]['value'] !== "") {
-            $sql = "SELECT email FROM users WHERE id = :id";
+            $sql = "SELECT email FROM `users` WHERE id = :id";
             $email = $this->db->query_db_first($sql, array(':id' => $id));
             $mail = array(
                 "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
@@ -174,12 +174,12 @@ abstract class ChatModel extends StyleModel
      */
     private function fetch_groups()
     {
-        $sql = "SELECT g.id, g.name 
-                FROM groups AS g
+        $sql = "SELECT g.id, g.`name` 
+                FROM `groups` AS g
                 INNER JOIN acl_groups acl ON (acl.id_groups = g.id)
                 INNER JOIN pages p ON (acl.id_pages = p.id) 
                 INNER JOIN users_groups ug ON (ug.id_groups = g.id) 
-                INNER JOIN users u ON (u.id = ug.id_users)
+                INNER JOIN `users` u ON (u.id = ug.id_users)
                 WHERE g.id > 2 AND acl.acl_select = 1 AND p.keyword = 'chatSubject' AND u.id = :uid
                 ORDER BY g.id";
         return $this->db->query_db($sql, array(":uid"=>$_SESSION['id_user']));
@@ -258,7 +258,7 @@ abstract class ChatModel extends StyleModel
      */
     public function is_user_in_group($user_id)
     {
-        $sql = "SELECT u.id, u.name
+        $sql = "SELECT u.id, u.`name`
                 FROM users AS u
                 INNER JOIN users_groups AS ug ON ug.id_users = u.id
                 WHERE ug.id_groups = :gid and u.id = :uid";

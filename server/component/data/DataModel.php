@@ -110,7 +110,7 @@ class DataModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, email, code, name 
-                FROM users u 
+                FROM `users` u 
                 LEFT JOIN validation_codes c on (c.id_users = u.id)
                 WHERE id_status = :active_status";
         $users = $this->db->query_db($sql, array(':active_status' => USER_STATUS_ACTIVE));
@@ -139,7 +139,7 @@ class DataModel extends BaseModel
     {
         $arr = array();
         $sql = "SELECT id, name 
-                FROM groups;";
+                FROM `groups`;";
         $groups = $this->db->query_db($sql);
         foreach ($groups as $val) {
             $value = ('group_' . intval($val['id']));

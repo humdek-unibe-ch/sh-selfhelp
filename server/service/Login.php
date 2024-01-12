@@ -117,7 +117,7 @@ class Login
         ));
         if(count($field) === 0 || $field[0]['value'] !== "")
             $val = 1;
-        $sql = "UPDATE users SET last_login = now(), is_reminded = :field
+        $sql = "UPDATE `users` SET last_login = now(), is_reminded = :field
             WHERE id = :id";
         return $this->db->execute_update_db($sql, array(
             ':id' => $id,
@@ -138,7 +138,7 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT u.id, u.password, g.name AS gender FROM users AS u
+        $sql = "SELECT u.id, u.password, g.`name` AS gender FROM `users` AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
@@ -201,7 +201,7 @@ class Login
      */
     public function delete_user($uid, $email)
     {
-        $sql = "SELECT email FROM users WHERE id = :id";
+        $sql = "SELECT email FROM `users` WHERE id = :id";
         $user = $this->db->query_db_first($sql,
             array(':id' => $uid));
         if($email != $user['email']) return false;
@@ -237,7 +237,7 @@ class Login
         if(!$this->is_logged_in())
             return $url;
 
-        $sql = "SELECT last_url FROM users WHERE id = :uid";
+        $sql = "SELECT last_url FROM `users` WHERE id = :uid";
         $url_db = $this->db->query_db_first($sql,
             array(':uid' => $_SESSION['id_user']));
 

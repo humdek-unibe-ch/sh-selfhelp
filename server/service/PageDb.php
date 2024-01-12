@@ -87,7 +87,7 @@ class PageDb extends BaseDb
      */
     public function fetch_accessible_pages()
     {
-        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.name AS action
+        $sql = "SELECT p.id, p.keyword, p.url, p.parent, a.`name` AS `action`
             FROM pages AS p
             LEFT JOIN actions AS a ON p.id_actions = a.id
             WHERE p.id_type != :type
@@ -188,7 +188,7 @@ class PageDb extends BaseDb
      */
     public function fetch_section_info_by_id($id)
     {
-        $sql = "SELECT s.id, s.name, s.id_styles, st.name AS style
+        $sql = "SELECT s.id, s.`name`, s.id_styles, st.`name` AS style
             FROM sections AS s
             LEFT JOIN styles AS st ON st.id = s.id_styles
             WHERE s.id = :id";
@@ -247,7 +247,7 @@ class PageDb extends BaseDb
                 FROM pages_fields_translation AS pft
                 LEFT JOIN languages AS l ON l.id = pft.id_languages
                 LEFT JOIN fields AS f ON f.id = pft.id_fields
-                WHERE pft.id_pages = :id AND $locale_cond AND f.name = 'label'";
+                WHERE pft.id_pages = :id AND $locale_cond AND f.`name` = 'label'";
             $info = $this->query_db_first($sql,
                 array(":id" => $page_info["id"]));
             if($info)
@@ -267,7 +267,7 @@ class PageDb extends BaseDb
      */
     public function fetch_nav_children($id)
     {
-        $sql = "SELECT sn.child AS id, s.name, sn.position
+        $sql = "SELECT sn.child AS id, s.`name`, sn.position
             FROM sections_navigation AS sn
             LEFT JOIN sections AS s ON sn.child = s.id
             WHERE sn.parent = :id
@@ -299,7 +299,7 @@ class PageDb extends BaseDb
      */
     public function fetch_page_sections($keyword)
     {
-        $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner,
+        $sql = "SELECT ps.id_sections AS id, s.id_styles, s.`name`, s.owner,
             ps.position
             FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
@@ -337,7 +337,7 @@ class PageDb extends BaseDb
     public function fetch_page_fields($keyword)
     {
         $locale_cond = $this->get_locale_condition();
-        $sql = "SELECT f.id AS id, f.name, pft.content, ft.name AS type
+        $sql = "SELECT f.id AS id, f.`name`, pft.content, ft.`name` AS type
             FROM pages_fields_translation AS pft
             LEFT JOIN fields AS f ON f.id = pft.id_fields
             LEFT JOIN languages AS l ON l.id = pft.id_languages
@@ -357,7 +357,7 @@ class PageDb extends BaseDb
      */
     public function fetch_section_children($id)
     {
-        $sql = "SELECT s.id, s.name, s.id_styles, sh.position
+        $sql = "SELECT s.id, s.`name`, s.id_styles, sh.position
             FROM sections_hierarchy AS sh
             LEFT JOIN sections AS s ON s.id = sh.child
             WHERE sh.parent = :id

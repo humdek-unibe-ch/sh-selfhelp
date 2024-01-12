@@ -93,7 +93,7 @@ class UserModel extends BaseModel
      */
     private function fetch_user_groups($uid)
     {
-        $sql = "SELECT g.id, g.name AS title FROM groups AS g
+        $sql = "SELECT g.id, g.`name` AS title FROM `groups` AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id
             WHERE ug.id_users = :uid";
         $res_db = $this->db->query_db($sql, array(":uid" => $uid));
@@ -174,7 +174,7 @@ class UserModel extends BaseModel
             LEFT JOIN pages AS p ON p.id = pft.id_pages
             LEFT JOIN fields AS f ON f.id = pft.id_fields
             LEFT JOIN languages AS l ON l.id = pft.id_languages
-            WHERE p.keyword = 'email' AND f.name = :field
+            WHERE p.keyword = 'email' AND f.`name` = :field
             AND l.locale = :lang";
         $res = $this->db->query_db_first($sql, array(
             ':lang' => $_SESSION['language'],
@@ -542,8 +542,8 @@ class UserModel extends BaseModel
     public function get_group_options()
     {
         $groups = array();
-        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
-            ORDER BY g.name";
+        $sql = "SELECT g.id AS `value`, g.`name` AS `text` FROM `groups` AS g
+            ORDER BY g.`name`";
         $groups_db = $this->db->query_db($sql);
         foreach ($groups_db as $group) {
                 $groups[] = $group;
@@ -563,10 +563,10 @@ class UserModel extends BaseModel
     public function get_new_group_options($uid)
     {
         $groups = array();
-        $sql = "SELECT g.id AS value, g.name AS text FROM groups AS g
+        $sql = "SELECT g.id AS `value`, g.`name` AS `text` FROM `groups` AS g
             LEFT JOIN users_groups AS ug ON ug.id_groups = g.id AND ug.id_users = :uid
             WHERE ug.id_users IS NULL
-            ORDER BY g.name";
+            ORDER BY g.`name`";
         $groups_db = $this->db->query_db($sql, array(":uid" => $uid));
         foreach ($groups_db as $group) {
                 $groups[] = $group;
@@ -584,7 +584,7 @@ class UserModel extends BaseModel
     public function get_rm_group_name()
     {
         if($this->did == null) return "";
-        $sql = "SELECT name FROM groups WHERE id = :gid";
+        $sql = "SELECT name FROM `groups` WHERE id = :gid";
         $res = $this->db->query_db_first($sql, array(":gid" => $this->did));
         return $res["name"];
     }
@@ -776,7 +776,7 @@ class UserModel extends BaseModel
     {
         $user_id = -1;
         $sql = "SELECT id
-        FROM users 
+        FROM `users` 
         WHERE email = :email AND id_status = :user_status_interested";
         $res = $this->db->query_db_first($sql, array(
             ":email" => $email,
@@ -821,7 +821,7 @@ class UserModel extends BaseModel
     {
         $user_id = -1;
         $sql = "SELECT id
-        from users u
+        from `users` u
         inner join validation_codes vc on (vc.id_users = u.id)
         where vc.code = :code and id_status = :user_status_auto_created";
         $res = $this->db->query_db_first($sql, array(

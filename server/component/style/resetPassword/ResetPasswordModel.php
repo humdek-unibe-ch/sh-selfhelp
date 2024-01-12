@@ -38,7 +38,7 @@ class ResetPasswordModel extends EmailFormBaseModel
      */
     private function user_set_new_token($email)
     {
-        $sql = "SELECT id FROM users WHERE email = :email";
+        $sql = "SELECT id FROM `users` WHERE email = :email";
         $uid = $this->db->query_db_first($sql, array(":email" => $email));
         if(!$uid) return false;
         $token = $this->login->create_token();

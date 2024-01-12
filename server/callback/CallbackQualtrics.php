@@ -300,9 +300,9 @@ class CallbackQualtrics extends BaseCallback
     private function is_user_in_group($uid, $id_groups)
     {
         $sql = 'SELECT DISTINCT u.id
-                FROM users AS u
+                FROM `users` AS u
                 INNER JOIN users_groups AS ug ON ug.id_users = u.id
-                INNER JOIN groups g ON g.id = ug.id_groups
+                INNER JOIN `groups` g ON g.id = ug.id_groups
                 WHERE u.id = :uid and g.id in (' . $id_groups . ');';
         $user = $this->db->query_db_first(
             $sql,
@@ -1157,7 +1157,7 @@ class CallbackQualtrics extends BaseCallback
      */
     private function getGroupId($group)
     {
-        $sql = "SELECT id FROM groups
+        $sql = "SELECT id FROM `groups`
             WHERE name = :group";
         $res = $this->db->query_db_first($sql, array(':group' => $group));
         return  !isset($res['id']) ? -1 : $res['id'];

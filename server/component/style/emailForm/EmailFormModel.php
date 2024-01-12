@@ -79,7 +79,7 @@ class EmailFormModel extends EmailFormBaseModel
         $uid = $this->user->insert_new_user($address, NULL, 1);
         if($uid === false)
         {
-            $sql = "SELECT * FROM users WHERE email = :email";
+            $sql = "SELECT * FROM `users` WHERE email = :email";
             $res = $this->db->query_db_first($sql, array(':email' => $address));
             if(!$res)
                 return false;

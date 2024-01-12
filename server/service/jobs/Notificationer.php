@@ -85,7 +85,7 @@ class Notificaitoner extends BasicJob
         $res = true;
         $sql = "SELECT u.email, u.device_token, u.id AS id_users
                 FROM scheduledJobs_users sj_u
-                INNER JOIN users u ON (sj_u.id_users = u.id)
+                INNER JOIN `users` u ON (sj_u.id_users = u.id)
                 WHERE sj_u.id_scheduledJobs = :sj_id";
         $notifications = $this->db->query_db($sql, array(":sj_id" => $notification_info['id']));
         foreach ($notifications as $notification) {

@@ -60,7 +60,7 @@ class CmsExportModel extends BaseModel
      */
     private function fetch_section_children($parent_id)
     {
-        $sql = "SELECT parent, child, sh.position, parent.name as psarent_section_name, children.section_name as children_section_name,
+        $sql = "SELECT parent, child, sh.position, parent.`name` as psarent_section_name, children.section_name as children_section_name,
                 content, style_name, field_name, locale, gender, children.id_styles, children.id_fields
                 FROM sections_hierarchy sh
                 INNER JOIN sections parent ON (sh.parent = parent.id)
