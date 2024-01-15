@@ -1792,10 +1792,13 @@ class UserInput
                 }
             }
 
-            $scheduled_reminders = $this->get_scheduled_reminders_for_delete($form_data);
-            if ($scheduled_reminders && count($scheduled_reminders) > 0) {
-                $this->delete_reminders($scheduled_reminders);
-                $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
+            if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
+                // only check to delete the reminder if the survey is finished
+                $scheduled_reminders = $this->get_scheduled_reminders_for_delete($form_data);
+                if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                    $this->delete_reminders($scheduled_reminders);
+                    $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
+                }
             }
 
             $end_time = microtime(true);

@@ -9,6 +9,7 @@
  - #379 - properly escape the naming pattern
  - #381 - fix the extra space in all `textarea` inputs
  - #378 - update help text for field `url` in styles: `link` and `button`
+ - #383 - delete `reminder` only the data trigger is `finished` and not `started`
  
 
 # v6.7.0
