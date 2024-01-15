@@ -2,10 +2,12 @@
 ### New features
  - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
  - add new style `checkbox`, deprecate  the `checkbox` type in style `input`
+ - add better `help` text to all fields `redirect_at_end`
 
 ### Bugfix
  - #379 - properly escape the naming pattern
  - #381 - fix the extra space in all `textarea` inputs
+ - #378 - update help text for field `url` in styles: `link` and `button`
  
 
 # v6.7.0

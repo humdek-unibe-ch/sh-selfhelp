@@ -3,12 +3,7 @@ UPDATE version
 SET version = 'v6.8.0';
 
 UPDATE styles_fields
-SET `help` = 'Link styles allow to render different types of links:
-
-- `button` renders a button-style link with several predefined colour schemes.
-- `link` renders a standard link but allows to open the target in a new tab.
-
-Links can refer to elements within the WebApp.
+SET `help` = 'Links can refer to elements within SelfHelp
 Use the following syntax to achieve this:
  - link to back (browser functionality) `#back`
  - link to the last unique visited page `#last_user_page`
@@ -18,8 +13,22 @@ Use the following syntax to achieve this:
  - link to root_section on a nav_page `#nav_page_name/nav_section_name`
  - link to anchor on root_section on nav_page `#nav_page_name/nav_section_name#wrapper_name`
  
-Please use relative paths unles the `url` is an external link.'
+Please use relative paths unless the `url` is an external link.'
 WHERE id_styles IN (get_style_id('link'), get_style_id('button')) AND id_fields = get_field_id('url');
+
+UPDATE styles_fields
+SET `help` = 'Redirect `url` after the execution
+Use the following syntax to achieve this:
+ - link to back (browser functionality) `#back`
+ - link to the last unique visited page `#last_user_page`
+ - link to asset `%asset_name`
+ - link to page `#page_name`
+ - link to anchor on page `#page_name#wrapper_name`
+ - link to root_section on a nav_page `#nav_page_name/nav_section_name`
+ - link to anchor on root_section on nav_page `#nav_page_name/nav_section_name#wrapper_name`
+ 
+Please use relative paths unless the `url` is an external link.'
+WHERE id_fields = get_field_id('redirect_at_end');
 
 -- Add new style checkbox
 INSERT IGNORE INTO `styles` (`name`, `id_type`, id_group, `description`) VALUES ('checkbox', '1', (select id from styleGroup where `name` = 'Mobile' limit 1), 'Exacute shortcut commands in the mobile app that can open native windows. The functinality is based on [capacitor-native-settings](https://github.com/RaphaelWoude/capacitor-native-settings)');
