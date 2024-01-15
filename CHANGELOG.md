@@ -3,6 +3,7 @@
  - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
  - add new style `checkbox`, deprecate  the `checkbox` type in style `input`
  - add better `help` text to all fields `redirect_at_end`
+ - remove `toggle_switch` field from style `input` after creation of ne style `checkbox`. Now the new style contains the field `toggle_switch`
 
 ### Bugfix
  - #379 - properly escape the naming pattern
