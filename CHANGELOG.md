@@ -1,6 +1,7 @@
-# v6.7.1 (Unpublished)
+# v6.8.0 (Unpublished)
 ### New features
  - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
+ - add new style `checkbox`, deprecate  the `checkbox` type in style `input`
 
 ### Bugfix
  - #379 - properly escape the naming pattern

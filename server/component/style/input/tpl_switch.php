@@ -6,6 +6,6 @@
 <!-- Rounded switch -->
 <label class="switch">
      Label
-    <input class="selfhelpInput <?php echo $css_input; ?>" data-locked_after_submit="<?php echo $this->locked_after_submit; ?>" type="checkbox" name="<?php echo $this->name; ?>" value="<?php echo $this->value; ?>" <?php echo $checked; ?> <?php echo $this->required; ?>>
+    <input class="selfhelpInput <?php echo $css_input; ?>" data-locked_after_submit="<?php echo $this->locked_after_submit; ?>" type="checkbox" name="<?php echo $this->name; ?>"  <?php echo $checked; ?> <?php echo $this->required; ?>>
     <span class="slider round"></span>
 </label>
