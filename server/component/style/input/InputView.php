@@ -59,11 +59,6 @@ class InputView extends FormFieldView
      */
     private $max;
 
-    /**
-     * When enabled and the type is checkbox, then the input will be loaded as toggle switch
-     */
-    private $toggle_switch;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -92,7 +87,6 @@ class InputView extends FormFieldView
         $this->data_config = $this->model->get_db_field("data_config");
         $this->min = $this->model->get_db_field('min');
         $this->max = $this->model->get_db_field('max');
-        $this->toggle_switch = $this->model->get_db_field('toggle_switch', 0);
     }
 
     /** Private Methods */
@@ -139,8 +133,6 @@ class InputView extends FormFieldView
             require __DIR__ . "/tpl_input_date.php";
         } else if ($this->type == 'time') {
             require __DIR__ . "/tpl_input_time.php";
-        } else if ($this->type == 'checkbox' && $this->toggle_switch == 1) {
-            require __DIR__ . "/tpl_switch.php";
         } else {            
             require __DIR__ . "/tpl_input.php";
         }
