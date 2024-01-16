@@ -71,8 +71,6 @@ class CheckboxView extends FormFieldView
     {
         $checked = $this->value != '' ? 'checked' : null;
         if ($this->toggle_switch == 1) {
-            $this->css_group = "custom-control custom-switch";
-            $this->css_label = "custom-control-label";
             require __DIR__ . "/tpl_switch.php";
         } else {
             require __DIR__ . "/tpl_checkbox.php";
@@ -85,6 +83,8 @@ class CheckboxView extends FormFieldView
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();
+        $style['value']['content'] = $style['last_value'] ? $style['last_value'] : '';
+        $style['value']['default'] = $style['checkbox_value']['content'];
         if ($this->entry_data && $this->name_base != DELETE_RECORD_ID) {
             // if entry data; take the value
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
