@@ -44,4 +44,7 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('is_required'), 0, 'If enabled the form can only be submitted if the checkbox is `checked`');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('locked_after_submit'), 0, 'If selected and if the field is used in a form that is not `is_log`, once the value is set, the field will not be able to be edited anymore.');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('name'), '', 'The name of the input form field. This name must be unique within a form.');
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('value'), '', 'What value is saved when the input is checked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('value'), '', 'The value of the input');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'checkbox_value', get_field_type_id('text'), 0);
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('checkbox_value'), 1, 'What value will be saved when the control is checked.');

@@ -32,6 +32,11 @@ class CheckboxView extends FormFieldView
      */
     private $toggle_switch;
 
+    /**
+     * What is the value when the control is checked
+     */
+    private $checkbox_value;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -48,9 +53,10 @@ class CheckboxView extends FormFieldView
         $this->section_id = $id;
         $this->data_config = $this->model->get_db_field("data_config");
         $this->toggle_switch = $this->model->get_db_field('toggle_switch', 0);
+        $this->checkbox_value = $this->model->get_db_field('checkbox_value', 1);
         $this->css_group = "form-check";
         $this->css_label = "form-check-label";
-        if($this->label == "") $this->label = "&zwnj;";
+        if ($this->label == "") $this->label = "&zwnj;";
     }
 
     /** Private Methods */
@@ -63,7 +69,7 @@ class CheckboxView extends FormFieldView
      */
     protected function output_form_field()
     {
-        $checked = null;
+        $checked = $this->value != '' ? 'checked' : null;
         if ($this->toggle_switch == 1) {
             $this->css_group = "custom-control custom-switch";
             $this->css_label = "custom-control-label";
