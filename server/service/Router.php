@@ -101,11 +101,15 @@ class Router extends AltoRouter {
             $sql = "SELECT id FROM sections WHERE name = :name";
             if(count($names) === 2)
             {
-                $section_id = $this->db->query_db_first($sql,
-                    array(":name" => $names[1]));
-                if($section_id)
-                    $link = $this->generate($name,
-                        array('nav' => intval($section_id['id'])));
+                $section_id = $this->db->query_db_first($sql, array(":name" => $names[1]));
+                if ($section_id) {
+                    $link = $this->generate(
+                        $name,
+                        array('nav' => intval($section_id['id']))
+                    );
+                } else {
+                    $link = $this->generate($name) . '/' .  $names[1];
+                }
             }
             else
                 $link = $this->generate($name);
