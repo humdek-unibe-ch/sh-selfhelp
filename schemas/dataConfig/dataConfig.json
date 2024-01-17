@@ -121,6 +121,42 @@
                         "not_found_text"
                     ]
                 }
+            },
+            "map_fields": {
+                "type": "array",
+                "title": "Map fields",
+                "format": "tabs",
+                "propertyOrder": 8,
+                "items": {
+                    "type": "object",
+                    "title": "Map Field",
+                    "description": "Map fields to new field names when the return is 'JSON'",
+                    "format": "grid-strict",
+                    "properties": {
+                        "field_name": {
+                            "propertyOrder": 1,
+                            "type": "string",
+                            "title": "Field name",
+                            "description": "Take values from this field and map it to ",
+                            "options": {
+                                "grid_columns": 6
+                            }
+                        },
+                        "field_new_name": {
+                            "propertyOrder": 2,
+                            "type": "string",
+                            "title": "New field name",
+                            "description": "The new name that will be created with values from the selected field",
+                            "options": {
+                                "grid_columns": 6
+                            }
+                        }
+                    },
+                    "required": [
+                        "field_name",
+                        "field_new_name"
+                    ]
+                }
             }
         },
         "required": [

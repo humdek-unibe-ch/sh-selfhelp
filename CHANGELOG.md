@@ -4,6 +4,7 @@
  - add new style `checkbox`, deprecate  the `checkbox` type in style `input`
  - add better `help` text to all fields `redirect_at_end`
  - remove `toggle_switch` field from style `input` after creation of ne style `checkbox`. Now the new style contains the field `toggle_switch`
+ - add `map_fields` in `data_config` when a `JSON` is returned.
 
 ### Bugfix
  - #379 - properly escape the naming pattern

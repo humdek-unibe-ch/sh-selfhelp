@@ -185,7 +185,21 @@ abstract class BaseModel
                     $data = array_filter($data, function ($value) {
                         return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
                     });
-                    if ($config['retrieve'] === 'JSON') {
+                    if ($config['retrieve'] === 'JSON') {                        
+                        // check if there are map fields defined, and if there are create the new fields with the selected values
+                        if(isset($config['map_fields'])){
+                            $map_fields = array();
+                            foreach ($config['map_fields'] as $key => $value) {
+                                $map_fields[$value['field_name']] = $value['field_new_name'];
+                            }
+                            if(count($map_fields) > 0){
+                                foreach ($data as $d_key => $d_value) {
+                                    foreach ($map_fields as $m_key => $m_value) {
+                                        $data[$d_key][$m_value] = $d_value[$m_key];
+                                    }
+                                }
+                            }
+                        }
                         $result[$config['type'] . '.' . $config['table']] = $data;
                     } else if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
