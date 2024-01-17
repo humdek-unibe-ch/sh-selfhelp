@@ -87,8 +87,12 @@ class CardView extends StyleView
      */
     private function output_edit_button()
     {
-        if($this->url_edit != "")
+        if ($this->url_edit != "") {
+            if (method_exists($this->model, 'get_services')) {
+                $this->url_edit = $this->model->get_services()->get_router()->get_url($this->url_edit);
+            }
             require __DIR__ . "/tpl_edit_button.php";
+        }
     }
 
     /**
