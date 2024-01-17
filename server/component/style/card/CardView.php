@@ -89,6 +89,7 @@ class CardView extends StyleView
     {
         if ($this->url_edit != "") {
             if (method_exists($this->model, 'get_services')) {
+                // check if it is style used by the user and not internal. If this is the case load based on keyword
                 $this->url_edit = $this->model->get_services()->get_router()->get_url($this->url_edit);
             }
             require __DIR__ . "/tpl_edit_button.php";
