@@ -66,6 +66,10 @@ class CardView extends StyleView
         $this->url_edit = $this->model->get_db_field("url_edit");
         $this->title = $this->model->get_db_field("title");
         $this->type = $this->model->get_db_field("type", "light");
+        if ($this->url_edit != "" && method_exists($this->model, 'get_services')) {
+            // check if it is style used by the user and not internal. If this is the case load based on keyword
+            $this->url_edit = $this->model->get_services()->get_router()->get_url($this->url_edit);
+        }
     }
 
     /* Private Methods ********************************************************/
@@ -88,10 +92,6 @@ class CardView extends StyleView
     private function output_edit_button()
     {
         if ($this->url_edit != "") {
-            if (method_exists($this->model, 'get_services')) {
-                // check if it is style used by the user and not internal. If this is the case load based on keyword
-                $this->url_edit = $this->model->get_services()->get_router()->get_url($this->url_edit);
-            }
             require __DIR__ . "/tpl_edit_button.php";
         }
     }
@@ -119,6 +119,16 @@ class CardView extends StyleView
         $collapse = $this->is_collapsible ? "collapse" : "";
         require __DIR__ . "/tpl_card.php";
     }    
+
+    /**
+     * Render the style view for mobile.
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();          
+        $style['url_edit']['content'] = $this->url_edit;
+        return $style;
+    } 
 
 	
 }
