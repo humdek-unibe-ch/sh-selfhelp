@@ -50,6 +50,10 @@ class LoopModel extends StyleModel
                 return;
             }
             foreach ($loop as $key => $entry_record) {
+                // add parent entry records if they exist with prefix p_
+                foreach ($this->entry_record as $parent_key => $parent_value) {
+                    $entry_record['p_' . $parent_key] = $parent_value;
+                }
                 foreach ($db_children as $child) {
                     $new_child = new StyleComponent(
                         $this->services,

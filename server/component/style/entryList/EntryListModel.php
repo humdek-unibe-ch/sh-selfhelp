@@ -105,6 +105,15 @@ class EntryListModel extends StyleModel
         return $this->entry_list;
     }
 
+    /**
+     * Loads child components based on the current context.
+     *
+     * If the current page is a CMS page, it loads child components using the parent's implementation.
+     * Otherwise, it initializes properties, retrieves entry list data, and fetches section children
+     * to create new StyleComponent instances for each entry record.
+     *
+     * @return void
+     */
     public function loadChildren()
     {
         if ($this->is_cms_page()) {
@@ -117,6 +126,10 @@ class EntryListModel extends StyleModel
                 return;
             }
             foreach ($entry_list as $key => $entry_record) {
+                // add parent entry records if they exist with prefix p_
+                foreach ($this->entry_record as $parent_key => $parent_value) {
+                    $entry_record['p_' . $parent_key] = $parent_value;
+                }
                 foreach ($db_children as $child) {
                     $new_child = new StyleComponent(
                         $this->services,
