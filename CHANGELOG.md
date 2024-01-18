@@ -17,6 +17,7 @@
  - #383 - delete `reminder` only the data trigger is `finished` and not `started`
  - `card` - properly use `keyword` in field `url_edit`
  - `redirect_at_end` url for forms work properly based on #keywords
+ - `ui-preferences` - improve the check for settings
  
 
 # v6.7.0

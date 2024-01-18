@@ -1331,6 +1331,8 @@ class UserInput
             if ($form_id) {
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
+            }else{
+                $this->ui_pref = false;
             }
         }
         return $this->ui_pref;
