@@ -14,6 +14,7 @@
  - #378 - update help text for field `url` in styles: `link` and `button`
  - #383 - delete `reminder` only the data trigger is `finished` and not `started`
  - `card` - properly use `keyword` in field `url_edit`
+ - `redirect_at_end` url for forms work properly based on #keywords
  
 
 # v6.7.0

@@ -220,7 +220,7 @@ class FormUserInputView extends StyleView
             "value" => $this->is_log,
         ));
         $redirect_link = str_replace("/", "", $this->redirect_at_end);
-        $redirect_link = $this->model->get_link_url($redirect_link);
+        $redirect_link = $this->model->get_services()->get_router()->get_url($redirect_link);
         $children[] = new BaseStyleComponent("input", array(
             "type_input" => "hidden",
             "name" => "redirect_at_end",
@@ -281,6 +281,9 @@ class FormUserInputView extends StyleView
             $style['children'][] = $sel_field;
             $style = $this->propagate_input_fields_mobile($style, $entry_record);
         }
+        $redirect_link = str_replace("/", "", $this->redirect_at_end);
+        $redirect_link = $this->model->get_services()->get_router()->get_url($redirect_link);
+        $style['redirect_at_end']['content'] = $redirect_link;
         return $style;
     }
 	

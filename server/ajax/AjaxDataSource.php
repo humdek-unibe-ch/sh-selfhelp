@@ -317,8 +317,10 @@ class AjaxDataSource extends BaseAjax
         }
         $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, $data['type'], null, true);
         $res = array();
-        foreach ($res_db as $key => $value) {
-            array_push($res, $key);
+        if ($res_db) {
+            foreach ($res_db as $key => $value) {
+                array_push($res, $key);
+            }
         }
         return json_encode($res);
     }

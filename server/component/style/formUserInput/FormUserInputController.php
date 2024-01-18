@@ -197,7 +197,7 @@ class FormUserInputController extends BaseController
         $redirect = $this->model->get_db_field("redirect_at_end", "");
         if(!(isset($_POST['mobile']) && $_POST['mobile']) && $record_id && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
             //$redirect = str_replace("/", "", $redirect);
-            $redirect_url = $this->model->get_link_url(str_replace("/", "", $redirect));
+            $redirect_url = $this->model->get_services()->get_router()->get_url(str_replace("/", "", $redirect));
             header("Location: " . ($redirect_url != '' ? $redirect_url : $redirect));
             die();
         }
