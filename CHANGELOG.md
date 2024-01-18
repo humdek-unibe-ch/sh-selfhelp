@@ -8,6 +8,7 @@
  - add fields `color_background`, `color_border` and `color_text` in style `div`. They can be used to set the color for the div and its children. The fields can be set dynamically with `interpolation` input. Ex.: {{var_name}}
  - add field `load_as_table` in style `entryList` - If enabled, the children are loaded inside a table.
  - show `entry_record` in the debug
+ - add parent data from `entryLists` when used in nested situations. It is added with prefix `p_`. Check the values with debug in the console.
 
 ### Bugfix
  - #379 - properly escape the naming pattern
