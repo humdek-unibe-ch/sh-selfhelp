@@ -59,3 +59,6 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 
 INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('color_text', get_field_type_id('color'), '0');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('div'), get_field_id('color_text'), '', 'Set a color that will be used for the text inside the `div`');
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('load_as_table', get_field_type_id('checkbox'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryList'), get_field_id('load_as_table'), 0, 'If enabled, the children are loaded inside a table.');
