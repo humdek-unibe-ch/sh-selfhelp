@@ -184,12 +184,14 @@ class FormUserInputView extends StyleView
      */
     protected function propagate_input_fields_mobile($style, $entry_record)
     {
-        foreach ($style['children'] as $key => $child) {
-            if (isset($child["name"]) && isset($entry_record[$child["name"]["content"]])) {
-                $style['children'][$key]["value"]["content"] = $entry_record[$child["name"]["content"]];
+        foreach ($style['children'] as $key => &$child) {
+            if (isset($child["name"]["content"]) && isset($entry_record[$child["name"]["content"]])) {
+                $child["value"]["content"] = $entry_record[$child["name"]["content"]];
             }
-            // if($style['children'])
-            $style['children'][$key] = $this->propagate_input_fields_mobile($style['children'][$key], $entry_record);
+    
+            if (isset($child['children']) && is_array($child['children'])) {
+                $child = $this->propagate_input_fields_mobile($child, $entry_record);
+            }
         }
         return $style;
     }
