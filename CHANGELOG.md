@@ -5,6 +5,7 @@
  - add better `help` text to all fields `redirect_at_end`
  - remove `toggle_switch` field from style `input` after creation of ne style `checkbox`. Now the new style contains the field `toggle_switch`
  - add `map_fields` in `data_config` when a `JSON` is returned.
+ - add fields `color_background`, `color_border` and `color_text` in style `div`. They can be used to set the color for the div and its children. The fields can be set dynamically with `interpolation` input. Ex.: {{var_name}}
 
 ### Bugfix
  - #379 - properly escape the naming pattern

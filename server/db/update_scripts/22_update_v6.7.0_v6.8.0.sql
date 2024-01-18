@@ -48,3 +48,14 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'checkbox_value', get_field_type_id('text'), 0);
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('checkbox'), get_field_id('checkbox_value'), 1, 'What value will be saved when the control is checked.');
+
+-- Add new field type `color` and fields `color_background` and `color_border` to style div
+INSERT IGNORE INTO `fieldType` (`name`, `position`) VALUES ('color', 9);
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('color_background', get_field_type_id('color'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('div'), get_field_id('color_background'), '', 'Set a color that will be used as a `background color` for the `div`');
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('color_border', get_field_type_id('color'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('div'), get_field_id('color_border'), '', 'Set a color that will be used as a `border color` for the `div`. If the color is set, a border will be automatically added.');
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('color_text', get_field_type_id('color'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('div'), get_field_id('color_text'), '', 'Set a color that will be used for the text inside the `div`');

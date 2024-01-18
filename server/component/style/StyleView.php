@@ -21,6 +21,13 @@ abstract class StyleView extends BaseView
     protected $css;
 
     /**
+     * DB field 'css_mobile' (null)
+     * This field can hold a list of comma seperated css classes. These css
+     * classes will be assigned to style wrapper element.
+     */
+    protected $css_mobile;
+
+    /**
      * DB field 'id' (null)
      * The id of the section.
      */
@@ -62,6 +69,7 @@ abstract class StyleView extends BaseView
             if(method_exists($model, "get_db_field"))
             {
                 $this->css = $model->get_db_field("css", null);
+                $this->css_mobile = $model->get_db_field("css_mobile", null);
                 $this->fields = $model->get_db_fields();
                 $this->id_section = $model->get_db_field("id", null);
                 $this->css = $this->css . " selfHelp-locale-" . $_SESSION['user_language_locale'];

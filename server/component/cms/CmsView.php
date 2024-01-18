@@ -1081,6 +1081,13 @@ class CmsView extends BaseView
                 "allow_clear" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
             ));
+        } else if ($field['type'] == "color") {
+            $children[] = new BaseStyleComponent("input", array(
+                "value" => $field['content'],
+                "name" => $field_name_content,
+                "type_input" => 'text',
+                "is_required" => 0,
+            ));
         }
 
         return new BaseStyleComponent("descriptionItem", array(
