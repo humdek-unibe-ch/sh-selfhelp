@@ -271,6 +271,7 @@ class StyleModel extends BaseModel implements IStyleModel
         if ($this->entry_record) {
             //adjust entry value
             $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key]);
+            $this->debug_data['entry_record'] = $this->entry_record;
         }
         // replace the field content with the global variables
         if ($field[$field_key]) {

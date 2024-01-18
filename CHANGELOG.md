@@ -7,6 +7,7 @@
  - add `map_fields` in `data_config` when a `JSON` is returned.
  - add fields `color_background`, `color_border` and `color_text` in style `div`. They can be used to set the color for the div and its children. The fields can be set dynamically with `interpolation` input. Ex.: {{var_name}}
  - add field `load_as_table` in style `entryList` - If enabled, the children are loaded inside a table.
+ - show `entry_record` in the debug
 
 ### Bugfix
  - #379 - properly escape the naming pattern
