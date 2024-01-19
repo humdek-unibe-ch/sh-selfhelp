@@ -126,6 +126,27 @@ class FormUserInputController extends BaseController
         }
     }
 
+    /**
+     * Check if entry is a record and check if the user has access to delete it or update it
+     * @retval boolean
+     * true if it is ok and false if no access
+     */
+    private function has_access_delete($delete_record_id)
+    {
+        if ($delete_record_id > 0) {
+            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $delete_record_id, $this->model->get_db_field("own_entries_only", 1));
+            if ($entry_record) {
+                return true;
+            } else {
+                // no access
+                return false;
+            }
+        } else {
+            // not a specific case
+            return true;
+        }
+    }
+
     public function execute(){   
         if(count($_POST) === 0){
             $this->model->queue_job_from_actions(actionTriggerTypes_started);
@@ -162,8 +183,11 @@ class FormUserInputController extends BaseController
             } else {
                 $this->error_msgs = $gump->get_errors_array(true);
             }
-        }else if(isset($_POST[DELETE_RECORD_ID])){
-            $res =  $this->model->delete_user_input($_POST[DELETE_RECORD_ID]);
+        } else if (isset($_POST[DELETE_RECORD_ID])) {
+            $res = false;
+            if ($this->has_access_delete($_POST[DELETE_RECORD_ID])) {
+                $res = $this->model->delete_user_input($_POST[DELETE_RECORD_ID]);
+            }
             if ($res === false) {
                 $this->fail = true;
                 $this->error_msgs[] = "The record was not deleted";
@@ -195,7 +219,7 @@ class FormUserInputController extends BaseController
             }
         }
         $redirect = $this->model->get_db_field("redirect_at_end", "");
-        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $record_id && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
+        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
             //$redirect = str_replace("/", "", $redirect);
             $redirect_url = $this->model->get_services()->get_router()->get_url(str_replace("/", "", $redirect));
             header("Location: " . ($redirect_url != '' ? $redirect_url : $redirect));
