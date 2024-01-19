@@ -100,15 +100,14 @@ class FormView extends StyleView
         $this->url = $this->model->get_db_field("url");        
         $this->type = $this->model->get_db_field("type", "primary");
         $this->label = $this->model->get_db_field("label", "Submit");
-        $this->label_cancel = $this->model->get_db_field("label_cancel",
-            "Cancel");
+        $this->label_cancel = $this->model->get_db_field("label_cancel", "Cancel");
         $this->cancel_url = $this->model->get_db_field("url_cancel");
         $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
         $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
         $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
         $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
         $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
-        $this->confirmation_message = $this->model->get_db_field("confirmation_message", '');
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message");
     }
 
     /* Private Methods ********************************************************/

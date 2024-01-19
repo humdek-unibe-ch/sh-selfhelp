@@ -106,6 +106,13 @@ class FormUserInputView extends StyleView
      */
     private $confirmation_message;
 
+    /**
+     * DB field 'url_cancel' (empty string).
+     * The target url when the cancel button is clicked.  If left empty, the
+     * cancel button will not be rendered
+     */
+    private $url_cancel;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -131,9 +138,10 @@ class FormUserInputView extends StyleView
         $this->redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
         $this->selected_record_id = $this->model->get_selected_record_id(); // if selected_record_id > 0 the form is in edit mode
         $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
-        $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
-        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
-        $this->confirmation_message = $this->model->get_db_field("confirmation_message", '');
+        $this->confirmation_cancel = $this->model->get_db_field("label_cancel", '');
+        $this->confirmation_continue = $this->model->get_db_field("label_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("label_message", '');
+        $this->url_cancel = $this->model->get_db_field("url_cancel", '');
     }
 
     private function get_delete_url()
@@ -283,6 +291,7 @@ class FormUserInputView extends StyleView
             "confirmation_cancel" => $this->confirmation_cancel,
             "confirmation_continue" => $this->confirmation_continue,
             "confirmation_message" => $this->confirmation_message,
+            "url_cancel" => $this->model->get_services()->get_router()->get_url($this->url_cancel),
         ));
         require __DIR__ . "/tpl_form.php";
     }
@@ -315,6 +324,7 @@ class FormUserInputView extends StyleView
         $redirect_link = str_replace("/", "", $this->redirect_at_end);
         $redirect_link = $this->model->get_services()->get_router()->get_url($redirect_link);
         $style['redirect_at_end']['content'] = $redirect_link;
+        $style['url_cancel']['content'] = $this->model->get_services()->get_router()->get_url($this->url_cancel);
         return $style;
     }
 	

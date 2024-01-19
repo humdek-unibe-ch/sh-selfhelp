@@ -1,6 +1,4 @@
 # v6.8.0 (Unpublished)
-### `Breaking Changes`
-
 ### New features
  - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
  - add new style `checkbox`, deprecate  the `checkbox` type in style `input`
@@ -11,7 +9,7 @@
  - add field `load_as_table` in style `entryList` - If enabled, the children are loaded inside a table.
  - show `entry_record` in the debug
  - add parent data from `entryLists` and `loop` when used in nested situations. It is added with prefix `p_`. Check the values with debug in the console.
- - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message` fields for styles `formUserInputLog` and `formUserInputRecord`
+ - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message`, `url_cancel` fields for styles `formUserInputLog` and `formUserInputRecord`
 
 ### Bugfix
  - #379 - properly escape the naming pattern
