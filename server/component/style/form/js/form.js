@@ -2,6 +2,14 @@ $(document).ready(function () {
     initForm();
 });
 
+/**
+ * Initializes confirmation dialogs for all forms on the page.
+ * If a form has data attributes for confirmation, it shows a confirmation dialog
+ * before submitting the form.
+ *
+ * @function
+ * @returns {void}
+ */
 function initForm() {
     $("form").each(function () {
         var confirmation = $(this).data('confirmation');

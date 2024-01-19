@@ -62,3 +62,14 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 
 INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('load_as_table', get_field_type_id('checkbox'), '0');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryList'), get_field_id('load_as_table'), 0, 'If enabled, the children are loaded inside a table.');
+
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputLog'), get_field_id('confirmation_title'), '', 'Confirmation title for the modal when the button is clicked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputLog'), get_field_id('label_cancel'), '', 'Cancel button label on the confirmation modal');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputLog'), get_field_id('label_continue'), 'OK', 'Continue button for the modal when the button is clicked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputLog'), get_field_id('label_message'), 'Do you want to continue?', 'The message shown on the modal');
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('confirmation_title'), '', 'Confirmation title for the modal when the button is clicked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('label_cancel'), '', 'Cancel button label on the confirmation modal');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('label_continue'), 'OK', 'Continue button for the modal when the button is clicked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('label_message'), 'Do you want to continue?', 'The message shown on the modal');

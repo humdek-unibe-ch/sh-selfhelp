@@ -85,6 +85,27 @@ class FormUserInputView extends StyleView
      */
     protected $redirect_at_end;   
 
+    /**
+     * DB field 'confirmation_title' (empty string).
+     * If set a modal is shown. This will be the header of the confirmation modal.
+     */
+    private $confirmation_title;
+
+    /**
+     * DB field 'confirmation_cancel' (empty string).
+     */
+    private $confirmation_cancel;
+
+    /**
+     * DB field 'confirmation_continue' (OK).
+     */
+    private $confirmation_continue;
+
+    /**
+     * DB field 'confirmation_message' ('Do you want to continue?').
+     */
+    private $confirmation_message;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -109,6 +130,10 @@ class FormUserInputView extends StyleView
         $this->own_entries_only = $this->model->get_db_field("own_entries_only", 1);
         $this->redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
         $this->selected_record_id = $this->model->get_selected_record_id(); // if selected_record_id > 0 the form is in edit mode
+        $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
+        $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
+        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message", '');
     }
 
     private function get_delete_url()
@@ -253,7 +278,11 @@ class FormUserInputView extends StyleView
             // "id" => ($this->id_section . isset($this->entry_data[ENTRY_RECORD_ID]) ? ' ' . $this->entry_data[ENTRY_RECORD_ID] : ''),
             "id" => $this->id_section,
             "submit_and_send_email" => $this->submit_and_send_email,
-            "submit_and_send_label" => $this->submit_and_send_label
+            "submit_and_send_label" => $this->submit_and_send_label,
+            "confirmation_title" => $this->confirmation_title,
+            "confirmation_cancel" => $this->confirmation_cancel,
+            "confirmation_continue" => $this->confirmation_continue,
+            "confirmation_message" => $this->confirmation_message,
         ));
         require __DIR__ . "/tpl_form.php";
     }
