@@ -146,12 +146,16 @@ class SelectView extends FormFieldView
                     $this->items[$key]['text'] = ASSET_FOLDER . '/' . $item['text'];
                 }
             }            
-        }
-        $style['items'] = $this->items;
+        }        
         if ($this->is_multiple) {
             $style['last_value'] = $style['last_value'] ? json_decode(html_entity_decode($style['last_value'])) : $style['last_value']; //if not array yet and if the select is multiple convert the json to an array
             $style['value']['content'] = json_decode(html_entity_decode($style['value']['content']));
-        }        
+        }
+        $items = array();        
+        foreach ($this->items as $key => $value) {
+            $items[] = $value;
+        }
+        $style['items'] = $items;
         return $style;
     }
 
