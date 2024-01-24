@@ -61,6 +61,10 @@ class ProgressBarView extends StyleView
         $this->type = $this->model->get_db_field("type", "primary");
         $this->is_striped = $this->model->get_db_field("is_striped", true);
         $this->has_label = $this->model->get_db_field("has_label", true);
+        if (!is_numeric($this->count)) {
+            // if the count is not numeric set it to 0
+            $this->count = 0;
+        }
     }
 
     /* Private Methods ********************************************************/

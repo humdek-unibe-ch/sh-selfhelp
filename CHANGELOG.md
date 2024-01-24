@@ -1,3 +1,7 @@
+# v6.9.0
+### New features
+ - set field type for field `count` in style `progressBar` to `text`. This way the field can be dynamically loaded with interpolation. It still should be a number otherwise it is assigned to `0`
+
 # v6.8.0
 ### New features
  - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
