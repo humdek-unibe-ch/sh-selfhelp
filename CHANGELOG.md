@@ -1,4 +1,4 @@
-# v6.9.0
+# v6.9.0 (Unpublished)
 ### New features
  - set field type for field `count` in style `progressBar` to `text`. This way the field can be dynamically loaded with interpolation. It still should be a number otherwise it is assigned to `0`
 
