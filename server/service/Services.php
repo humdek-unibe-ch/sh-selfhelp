@@ -123,9 +123,7 @@ class Services
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
-        if ($fullMode) {
-            $this->hooks = new Hooks($this);
-        }
+        $this->hooks = new Hooks($this);
     }
 
     /**

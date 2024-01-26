@@ -13,6 +13,25 @@ require_once __DIR__ . "/../service/Router.php";
 require_once __DIR__ . "/../service/UserInput.php";
 require_once __DIR__ . "/../service/conditions/Condition.php";
 require_once __DIR__ . "/../service/JobScheduler.php";
+require_once __DIR__ . "/../service/Services.php";
+
+
+spl_autoload_register(function ($class_name) {
+    $folder = lcfirst(str_replace("Hooks", "", $class_name));
+    $globals_file = __DIR__ . '/../plugins/' . $folder . '/server/service/globals.php';
+    $hooks_file = __DIR__ . '/../plugins/' . $folder . '/server/component/' . $class_name . '.php';
+    if (substr($class_name, -strlen('Hooks')) === 'Hooks') {
+        // load only for hooks
+        if (file_exists($globals_file)) {
+            // load the global files in the hooks if exists
+            require_once $globals_file;
+        }
+        if (file_exists($hooks_file)) {
+            // load the hooks
+            require_once $hooks_file;
+        }
+    }
+});
 
 /**
  * SETUP
@@ -29,36 +48,22 @@ require_once __DIR__ . "/../service/JobScheduler.php";
  * that should be send within the time and schedule events for them.
  */
 class ScheduledJobsQueue
-{    
-
-    /**
-     * The db instance which grants access to the DB.
-     */
-    private $db = null;
-
-    /**
-     * The transaction instance which logs to the DB.
-     */
-    private $transaction = null;
+{
 
     /**
      * An instance of the PHPMailer service to handle outgoing emails.
      */
     private $job_scheduler = null;
 
+    private $services = null;
+
     /**
      * The constructor.
      */
     public function __construct()
     {
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
-        $this->transaction = new Transaction($this->db);
-        $router = new Router($this->db, BASE_PATH);
-        $router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
-        $user_input = new UserInput($this->db, $this->transaction);
-        $condition = new Condition($this->db, $user_input,$router);
-        $mail = new Mailer($this->db, $this->transaction, $user_input, $router, $condition);
-        $this->job_scheduler = new JobScheduler($this->db, $this->transaction, $mail, $condition, $user_input);
+        $this->services = new Services(false);
+        $this->job_scheduler = $this->services->get_job_scheduler();
     }
 
     /**
