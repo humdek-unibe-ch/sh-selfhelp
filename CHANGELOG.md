@@ -1,4 +1,4 @@
-# v6.9.1 (Unpublished)
+# v6.9.1
 ### New features
  - add `.docx` files for installation guides
 
