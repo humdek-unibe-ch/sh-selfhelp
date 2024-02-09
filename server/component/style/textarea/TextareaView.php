@@ -34,6 +34,11 @@ class TextareaView extends FormFieldView
      */
     private $max;
 
+    /**
+     * Show JSON mapper, default true
+     */
+    private $json_mapper;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -49,6 +54,7 @@ class TextareaView extends FormFieldView
         $this->type_input = $this->model->get_db_field('type_input');
         $this->min = $this->model->get_db_field('min');
         $this->max = $this->model->get_db_field('max');
+        $this->json_mapper = $this->model->get_db_field('json_mapper', true);
     }
 
     /* Protected Methods ********************************************************/
@@ -97,7 +103,16 @@ class TextareaView extends FormFieldView
      * Output JSON field
      */
     public function output_json()
+    {                
+        require __DIR__ . "/tpl_json.php";
+    }
+
+    /** Output the the JSON mapper button*/
+    public function output_json_mapper_button()
     {
+        if (!$this->json_mapper) {
+            return;
+        }
         $button_label = 'Add JSON mapping';
         $button_class = "btn-primary";
         if (isset($this->value)) {
@@ -112,12 +127,15 @@ class TextareaView extends FormFieldView
             // $matches[1] will contain the word between the first pair of square brackets
             $field_name = $matches[1];
         }
-        require __DIR__ . "/tpl_json.php";
+        require __DIR__ . "/tpl_json_mapper_btn.php";
     }
 
     /** Output the modal form for the JSON mapper */
     public function output_json_mapper_modal()
     {
+        if (!$this->json_mapper) {
+            return;
+        }
         $modal = new BaseStyleComponent('modal', array(
             'title' => 'JSON Mapper <span class="json-mapper-title-field rounded bg-light text-dark btn-sm"></span> <span class="json-mapper-error-status rounded bg-danger text-light btn-sm d-none">Error</span>',
             "css" => "json_mapper_modal_holder",

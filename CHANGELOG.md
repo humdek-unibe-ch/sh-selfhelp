@@ -1,3 +1,7 @@
+# v6.9.2 (Unpublished)
+### New features
+ - add internal field `json_mapper` in style  `textarea`. When false, no mapper is loaded
+
 # v6.9.1
 ### New features
  - add `.docx` files for installation guides
