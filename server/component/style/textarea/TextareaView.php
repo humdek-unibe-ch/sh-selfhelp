@@ -103,7 +103,16 @@ class TextareaView extends FormFieldView
      * Output JSON field
      */
     public function output_json()
-    {                
+    {         
+        $field_name = '';
+        $pattern = '/\[([^\]]+)\]/';
+        if (preg_match($pattern, $this->name, $matches)) {
+            // $matches[1] will contain the word between the first pair of square brackets
+            $field_name = $matches[1];
+        } 
+        if($field_name == ''){
+            $field_name = $this->name;
+        }
         require __DIR__ . "/tpl_json.php";
     }
 
@@ -120,13 +129,7 @@ class TextareaView extends FormFieldView
                 $button_label = 'Edit JSON mapping';
                 $button_class = "btn-warning";
             }
-        }
-        $field_name = '';
-        $pattern = '/\[([^\]]+)\]/';
-        if (preg_match($pattern, $this->name, $matches)) {
-            // $matches[1] will contain the word between the first pair of square brackets
-            $field_name = $matches[1];
-        }
+        }        
         require __DIR__ . "/tpl_json_mapper_btn.php";
     }
 

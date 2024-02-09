@@ -20,8 +20,11 @@ function initJsonFields() {
         // load the monaco editor for json fields
         var jsonMappingButton = $(this).find('.json-mapping-btn')[0];
         var jsonElement = $(this).find('.json')[0];
-        var jsonFieldName = $(jsonMappingButton).data('name');
+        var jsonFieldName = $(this).data('name');
         var jsonValueField = $('textarea[name*="[' + jsonFieldName + ']"][name*="[content]"]');
+        if (jsonValueField.length == 0) {
+            jsonValueField = $('textarea[name*="' + jsonFieldName + '"]');
+        }
         var jsonMetaField = $('input[name*="[' + jsonFieldName + ']"][name*="[meta]"]');
         var meta = {};
         try {
@@ -241,7 +244,7 @@ function reloadMappedItems(meta, jsonMappedItems) {
                 meta[currentItem] = inputValue;
             })
             var closeBtn = $('<i/>').addClass("far fa-window-close text-danger fa-lg pointer mr-2");
-            closeBtn.click(function () { 
+            closeBtn.click(function () {
                 var currentItem = item;
                 $(this).parent().remove(); // remove the row on click
                 delete meta[currentItem]; // remove the value from the meta object        
