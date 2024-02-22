@@ -1,6 +1,7 @@
 # v6.9.2 (Unpublished)
 ### New features
  - add internal field `json_mapper` in style  `textarea`. When false, no mapper is loaded
+ - add `get_plugin_db_version` in `BaseHooks` and now load the information from the plugin instead of SelfHelp
 
 # v6.9.1
 ### New features
