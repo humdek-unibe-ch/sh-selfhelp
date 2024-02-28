@@ -700,18 +700,30 @@ class PageDb extends BaseDb
             $is_array = true;
             $field_content = json_encode($field_content);
         }
-        $field_content = preg_replace_callback('~{{.*?}}~s', function ($m) use ($calc_formula_values) {
-            $res = trim(str_replace("{{", "", str_replace("}}", "", $m[0])));
-            if (isset($calc_formula_values[$res])) {
-                if (is_array($calc_formula_values[$res])) {
-                    return json_encode($calc_formula_values[$res]);
+        $field_content = preg_replace_callback('~{{({{)?(.*?)(}})?}}~s', function ($m) use ($calc_formula_values) {
+            // Extracting the variable name
+            $res = trim(isset($m[2]) ? $m[2] : '');
+            
+            // Check if the variable name is not empty
+            if (!empty($res)) {
+                // Check if the variable exists in the $calc_formula_values array
+                if (isset($calc_formula_values[$res])) {
+                    // Check if the match has exactly four curly braces
+                    if (isset($m[1]) && isset($m[3])) {
+                        // Return the value of the variable enclosed with double curly braces
+                        return '{{' . addslashes($calc_formula_values[$res]) . '}}';
+                    } else {
+                        // Return the original pattern if the match doesn't have exactly four curly braces
+                        return $m[0];
+                    }
                 } else {
-                    return isset($calc_formula_values[$res]) ? addslashes($calc_formula_values[$res]) : $res . ' is not set';
+                    // Return the original pattern if the variable is not found
+                    return $m[0];
                 }
             } else {
-                // return '';
+                // Return empty string if no variable name found
+                return '';
             }
-            return str_replace(" ", "", $m[0]);
         }, $field_content);
         foreach ($calc_formula_values as $var => $var_value) {
             if (is_array($var_value)) {
