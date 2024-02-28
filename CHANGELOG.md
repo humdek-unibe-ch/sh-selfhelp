@@ -1,4 +1,4 @@
-# v6.9.3 (Unpublished)
+# v6.9.3
 ### New features
  - in `debug` mode print the `global` values in console.log
  - improve `interpolation` when a variable is used between 4 brackets it will return 2 brackets with the value. In this case it could be pulled form global variables one more time. Example: `{{my_var}}` returns `my value` while `{{{{my_var}}}}` will return `{{my value}}`
