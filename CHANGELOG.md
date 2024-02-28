@@ -1,3 +1,7 @@
+# v6.9.3 (Unpublished)
+### New features
+ - in `debug` mode print the `global` values in console.log
+
 # v6.9.2
 ### New features
  - add internal field `json_mapper` in style  `textarea`. When false, no mapper is loaded

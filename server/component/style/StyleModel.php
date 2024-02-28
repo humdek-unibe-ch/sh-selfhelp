@@ -292,7 +292,8 @@ class StyleModel extends BaseModel implements IStyleModel
             $field[$field_key] = str_replace('@user_code', $user_code, $field[$field_key]);
             $field[$field_key] = str_replace('@project', $_SESSION['project'], $field[$field_key]);
             $field[$field_key] = str_replace('@user', $user_name, $field[$field_key]);
-            $global_values = $this->db->get_global_values(); 
+            $global_values = $this->db->get_global_values();
+            $this->debug_data['global_values'] = $global_values; 
             if($global_values){
                 $field[$field_key] = $this->db->replace_calced_values($field[$field_key],  $global_values);
             }
