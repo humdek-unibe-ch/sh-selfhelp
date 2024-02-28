@@ -696,14 +696,14 @@ class PageDb extends BaseDb
     public function replace_calced_values($field_content, $calc_formula_values)
     {
         $is_array = false;
-        if(is_array($field_content)){
+        if (is_array($field_content)) {
             $is_array = true;
             $field_content = json_encode($field_content);
         }
         $field_content = preg_replace_callback('~{{({{)?(.*?)(}})?}}~s', function ($m) use ($calc_formula_values) {
             // Extracting the variable name
             $res = trim(isset($m[2]) ? $m[2] : '');
-            
+
             // Check if the variable name is not empty
             if (!empty($res)) {
                 // Check if the variable exists in the $calc_formula_values array
@@ -728,7 +728,7 @@ class PageDb extends BaseDb
         foreach ($calc_formula_values as $var => $var_value) {
             if (is_array($var_value)) {
                 $field_content = preg_replace('#\{\{' . $var . '\}\}#s', json_encode($var_value), $field_content);
-            } else if($var && $var_value) {
+            } else if ($var && $var_value) {
                 $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
             }
         }
