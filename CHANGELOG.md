@@ -1,3 +1,7 @@
+# v6.9.4
+### Bugfix
+ - properly `interpolate` variables which has value `0`, `false` or `''`
+
 # v6.9.3
 ### New features
  - in `debug` mode print the `global` values in console.log
