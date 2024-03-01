@@ -1,3 +1,7 @@
+# v6.10.0 (Unpublished)
+### New features
+ - add style `dataContainer` - all prepared data in that style is propagated to all children
+
 # v6.9.4
 ### Bugfix
  - properly `interpolate` variables which has value `0`, `false` or `''`

@@ -82,6 +82,11 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected $debug_data;
 
+    /**
+     * keep the interpolation data
+     */
+    protected $interpolation_data;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -272,6 +277,7 @@ class StyleModel extends BaseModel implements IStyleModel
             //adjust entry value
             $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key]);
             $this->debug_data['entry_record'] = $this->entry_record;
+            $this->interpolation_data['entry_record'] = $this->entry_record;
         }
         // replace the field content with the global variables
         if ($field[$field_key]) {
@@ -284,6 +290,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
             );
             $this->debug_data['global_vars'] = $global_vars;
+            $this->interpolation_data['global_vars'] = $global_vars;
             if(strpos($field[$field_key], '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
@@ -294,6 +301,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $field[$field_key] = str_replace('@user', $user_name, $field[$field_key]);
             $global_values = $this->db->get_global_values();
             $this->debug_data['global_values'] = $global_values; 
+            $this->interpolation_data['global_values'] = $global_values; 
             if($global_values){
                 $field[$field_key] = $this->db->replace_calced_values($field[$field_key],  $global_values);
             }
@@ -309,6 +317,7 @@ class StyleModel extends BaseModel implements IStyleModel
                     }
                 }
                 $this->debug_data['data_config_retrieved'] = $fields;
+                $this->interpolation_data['data_config_retrieved'] = $fields;
             }
         }
         $this->debug_data['new_field_' . $field_key] = $field[$field_key];
@@ -778,6 +787,16 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_debug_data()
     {
         return $this->debug_data;
+    }
+
+    /**
+     * Get the interpolation data
+     * @return object
+     * Return the interpolation data
+     */
+    public function get_interpolation_data()
+    {
+        return $this->interpolation_data;
     }
     
 }
