@@ -1,4 +1,4 @@
-# v6.10.0 (Unpublished)
+# v6.10.0
 ### New features
  - #456 add style `dataContainer` - all prepared data in that style is propagated to all children 
 
