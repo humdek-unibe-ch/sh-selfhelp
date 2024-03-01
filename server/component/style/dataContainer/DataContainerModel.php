@@ -64,6 +64,9 @@ class DataContainerModel extends StyleModel
                     $entry_record = array_merge($entry_record, $interpolation_data['data_config_retrieved']);
                 }
             }
+            $debug_data = $this->get_debug_data();
+            $debug_data['interpolation_data'] = $entry_record;
+            $this->set_debug_data($debug_data);
             $db_children = $this->db->fetch_section_children($this->section_id);
             foreach ($db_children as $child) {
                 $new_child = new StyleComponent(

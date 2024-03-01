@@ -790,6 +790,18 @@ class StyleModel extends BaseModel implements IStyleModel
     }
 
     /**
+     * Get the debug data
+     * @param object $debug_data
+     * Debug data object
+     * @return object
+     * Return the debug data
+     */
+    public function set_debug_data($debug_data)
+    {
+        $this->debug_data = $debug_data;
+    }
+
+    /**
      * Get the interpolation data
      * @return object
      * Return the interpolation data
