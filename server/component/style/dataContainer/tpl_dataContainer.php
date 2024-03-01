@@ -4,6 +4,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="<?php echo $this->css; ?>">
-    data container
     <?php $this->output_children(); ?>
 </div>
