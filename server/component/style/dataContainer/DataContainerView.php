@@ -40,5 +40,12 @@ class DataContainerView extends StyleView
         require __DIR__ . "/tpl_dataContainer.php";
     }
 
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style['style_name'] = 'div'; // this style could be handled by the div style
+        return $style;
+    }
+
 }
 ?>
