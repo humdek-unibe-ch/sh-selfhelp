@@ -33,13 +33,16 @@ class DataContainerView extends StyleView
     /* Public Methods *********************************************************/
 
     /**
-     * Render the footer view.
+     * Render the view.
      */
     public function output_content()
     {
         require __DIR__ . "/tpl_dataContainer.php";
     }
 
+    /**
+     * Return the mobile json structure for rendering
+     */
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();
