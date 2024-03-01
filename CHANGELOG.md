@@ -1,6 +1,9 @@
 # v6.10.0 (Unpublished)
 ### New features
- - add style `dataContainer` - all prepared data in that style is propagated to all children
+ - #456 add style `dataContainer` - all prepared data in that style is propagated to all children 
+
+### Bugfix
+ - #457 - do not overwrite `device_token` when tested with preview app
 
 # v6.9.4
 ### Bugfix

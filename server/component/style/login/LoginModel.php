@@ -101,6 +101,10 @@ class LoginModel extends StyleModel
      */
     public function set_device_id_and_token($device_id, $device_token)
     {
+        if ($device_token == 'WEB') {
+            // do not write down the 'WEB' as token when sent from the app preview
+            return;
+        }
         return $this->db->update_by_ids('users', array('device_id' => $device_id, 'device_token' => $device_token), array('id' => intval($_SESSION['id_user'])));
     }
 
