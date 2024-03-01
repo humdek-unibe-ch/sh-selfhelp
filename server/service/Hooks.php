@@ -36,10 +36,10 @@ class Hooks
     public function __construct($services)
     {
         $this->db = $services->get_db();
+        // $this->db->clear_cache();
         $this->services = $services;
         $this->schedule_hook_on_function_execute();
-        $this->schedule_hook_overwrite_return();
-        // $this->db->clear_cache();
+        $this->schedule_hook_overwrite_return();        
     }
 
     /* Private Methods *********************************************************/
@@ -118,7 +118,7 @@ class Hooks
                                 $parameters = $reflector->getMethod($func)->getParameters();
                                 $argsKeys = array();
                                 foreach ($parameters as $key => $parameter) {
-                                    if (isset($args[$key])) {
+                                    if (array_key_exists($key, $args )) {
                                         $argsKeys[$parameter->name] = $args[$key];
                                     }
                                 }

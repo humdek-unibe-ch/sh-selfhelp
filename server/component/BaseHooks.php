@@ -53,7 +53,7 @@ class BaseHooks extends BaseModel
 
         $params = array();
         foreach ($parameters as $key => $parameter) {
-            if (isset($args[$parameter->name])) {
+            if (array_key_exists($parameter->name, $args )) {
                 $params[] = $args[$parameter->name];
             }
         }
