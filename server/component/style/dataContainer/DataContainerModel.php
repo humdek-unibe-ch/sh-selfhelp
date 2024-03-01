@@ -30,7 +30,7 @@ class DataContainerModel extends StyleModel
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, $params, $id_page, $entry_record);        
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
     }
 
     /* Private Methods *********************************************************/
@@ -46,22 +46,20 @@ class DataContainerModel extends StyleModel
             // $entry_record = $this->get_entry_record();
             $interpolation_data = $this->get_interpolation_data();
             $entry_record = array();
-            if (isset($interpolation_data['global_vars'])) {
-                $entry_record = array_merge($entry_record, $interpolation_data['global_vars']);
-            }
-            if (isset($interpolation_data['global_values'])) {
-                $entry_record = array_merge($entry_record, $interpolation_data['global_values']);
-            }
-            if (isset($interpolation_data['data_config_retrieved'])) {
-                $scope = $this->get_db_field("scope", "");
-                if ($scope) {
-                    $scoped_vars = array();
-                    foreach ($interpolation_data['data_config_retrieved'] as $key => $value) {
-                        $scoped_vars[$scope. '_' . $key] = $value; // add the scope prefix
+            foreach ($interpolation_data as $key => $value) {
+                if ($key == 'data_config_retrieved') {
+                    $scope = $this->get_db_field("scope", "");
+                    if ($scope) {
+                        $scoped_vars = array();
+                        foreach ($interpolation_data['data_config_retrieved'] as $key => $value) {
+                            $scoped_vars[$scope . '_' . $key] = $value; // add the scope prefix
+                        }
+                        $entry_record = array_merge($entry_record, $scoped_vars);
+                    } else {
+                        $entry_record = array_merge($entry_record, $interpolation_data['data_config_retrieved']);
                     }
-                    $entry_record = array_merge($entry_record, $scoped_vars);
-                } else {
-                    $entry_record = array_merge($entry_record, $interpolation_data['data_config_retrieved']);
+                }else{
+                    $entry_record = array_merge($entry_record, $interpolation_data[$key]);    
                 }
             }
             $debug_data = $this->get_debug_data();
