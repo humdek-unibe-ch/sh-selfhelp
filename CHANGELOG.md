@@ -1,3 +1,7 @@
+# v6.10.1 (Unpublished)
+### Bugfix 
+ - #455 - fix the `altorouter` link in create new page
+
 # v6.10.0
 ### New features
  - #456 add style `dataContainer` - all prepared data in that style is propagated to all children 
