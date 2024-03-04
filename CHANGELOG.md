@@ -2,6 +2,7 @@
 ### Bugfix 
  - #455 - fix the `altorouter` link in create new page
  - fix `altorouter` links in `impressum`
+ - #458 - fix delete page bug
 
 # v6.10.0
 ### New features
