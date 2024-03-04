@@ -5,6 +5,7 @@
  - #458 - fix delete page bug
  - #459 - do not load the links in CMS edit mode
  - #453 - set default gender to `admin`
+ - #454 - change password - not sanitized
 
 # v6.10.0
 ### New features
