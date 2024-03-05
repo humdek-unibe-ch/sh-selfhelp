@@ -39,7 +39,22 @@ class LoopModel extends StyleModel
 
     /* Public Methods *********************************************************/
 
-    public function loadChildren()
+    /**
+     * Loads children components for the current component.
+     * 
+     * If the current page is a CMS page, it loads children using the parent class method.
+     * Otherwise, it fetches children components from the database based on the section ID and a looping structure defined in the style.
+     * Each loop iteration represents a set of entry records to be used when creating child components.
+     * The looping structure allows for flexible creation of child components based on different data sets.
+     * 
+     * If a 'scope' is specified in the style, it is used as a prefix for variable names within each loop iteration,
+     * ensuring variable names are unique and avoiding conflicts.
+     * 
+     * @param array $entry_record An optional array containing additional entry record data.
+     * 
+     * @return void
+     */
+    public function loadChildren($entry_record = array())
     {
         if ($this->is_cms_page()) {
             parent::loadChildren();
@@ -49,11 +64,20 @@ class LoopModel extends StyleModel
             if (!$loop || count($loop) == 0) {
                 return;
             }
-            foreach ($loop as $key => $entry_record) {
-                // add parent entry records if they exist with prefix p_
-                foreach ($this->entry_record as $parent_key => $parent_value) {
-                    $entry_record['p_' . $parent_key] = $parent_value;
+            foreach ($loop as $loop_key => $loop_record) {
+                // add scope prefix
+                $scope = $this->get_db_field("scope", "");
+                if ($scope !== '') {
+                    foreach ($loop_record as $key_loop_record => $loop_record_value) {
+                        $scoped_array = array();
+                        foreach ($loop_record as $key => $value) {
+                            $scoped_array[$scope . '_' .  $key] = $value;
+                        }
+                        $loop_record = $scoped_array;
+                    }
                 }
+                $entry_record = array_merge($loop_record, $entry_record); // merge with already existing parent entry
+
                 foreach ($db_children as $child) {
                     $new_child = new StyleComponent(
                         $this->services,

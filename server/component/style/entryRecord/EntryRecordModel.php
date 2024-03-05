@@ -55,8 +55,11 @@ class EntryRecordModel extends StyleModel
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        parent::__construct($services, $id, $params, $id_page, $entry_record);                
+        parent::__construct($services, $id, $params, $id_page, $entry_record);
         $this->init_properties();
+        if ($this->entry_record) {
+            $this->entry_record = array_merge($this->entry_record, $entry_record);
+        }
     }
 
     /* Private Methods *********************************************************/
@@ -77,9 +80,20 @@ class EntryRecordModel extends StyleModel
         return $entry_data;
     }
 
+    /**
+     * Initializes properties for the current component.
+     *
+     * This method retrieves necessary data from the database fields, initializes class properties,
+     * and prepares the entry record for the component based on the provided parameters.
+     * If a form ID is available, it fetches the entry record for the specified record ID.
+     * Additionally, if a scope prefix is specified in the database field, it adds the prefix to each entry record key.
+     *
+     * @return void
+     */
     private function init_properties()
     {
-        $this->record_id = isset($this->params['record_id']) ? intval($this->params['record_id']) : -1;
+        $url_param = $this->get_db_field("url_param", "record_id");
+        $this->record_id = isset($this->params[$url_param]) ? intval($this->params[$url_param]) : -1;
         $formInfo = explode('-', $this->get_db_field("formName"));
         $this->form_id = $formInfo[0];
         if (isset($formInfo[1])) {
@@ -89,7 +103,19 @@ class EntryRecordModel extends StyleModel
         $this->filter = $this->get_db_field("filter", "");
         if ($this->form_id) {
             $this->entry_record = $this->fetch_entry_record($this->record_id);
+            if ($this->entry_record) {
+                // add scope prefix
+                $scope = $this->get_db_field("scope", "");
+                if ($scope !== '') {
+                    $scoped_array = array();
+                    foreach ($this->entry_record as $key => $value) {
+                        $scoped_array[$scope . '_' .  $key] = $value;
+                    }
+                    $this->entry_record = $scoped_array;
+                }
+            }
         }
+        $this->debug_data['current_entry_record'] = $this->entry_record;
     }
 
     /* Public Methods *********************************************************/
@@ -103,13 +129,25 @@ class EntryRecordModel extends StyleModel
         return $this->entry_record;
     }
 
-    public function loadChildren()
+    /**
+     * Loads children components for the current component.
+     *
+     * If the current page is a CMS page, it loads children using the parent class method.
+     * Otherwise, it initializes properties, merges the provided entry record with the existing parent entry,
+     * and fetches children components from the database based on the section ID.
+     * Each child component is instantiated as a StyleComponent object and added to the list of children.
+     *
+     * @param array $entry_record An optional array containing additional entry record data.
+     * 
+     * @return void
+     */
+    public function loadChildren($entry_record = array())
     {
         if ($this->is_cms_page()) {
             parent::loadChildren();
         } else {
             $this->init_properties();
-            $entry_record = $this->get_entry_record();
+            $entry_record = array_merge($this->get_entry_record(), $entry_record); // merge with already existing parent entry
             $db_children = $this->db->fetch_section_children($this->section_id);
             foreach ($db_children as $child) {
                 $new_child = new StyleComponent(

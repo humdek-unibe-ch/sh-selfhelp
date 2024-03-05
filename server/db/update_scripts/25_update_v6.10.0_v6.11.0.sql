@@ -14,6 +14,12 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 -- add `scope` field to style `entryRecord`
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecord'), get_field_id('scope'), '', 'If the variable `scope` is defined, it serves as a prefix for naming the variables');
 
+-- add `scope` field to style `entryList`
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryList'), get_field_id('scope'), '', 'If the variable `scope` is defined, it serves as a prefix for naming the variables');
+
+-- add `scope` field to style `loop`
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('loop'), get_field_id('scope'), '', 'If the variable `scope` is defined, it serves as a prefix for naming the variables');
+
 -- set gender to admin
 UPDATE users
 SET id_genders = 1

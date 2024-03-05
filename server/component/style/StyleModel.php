@@ -136,7 +136,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->calc_condition();
 
         if (($this->is_cms_page() || $this->condition_result['result'])) {
-            $this->loadChildren();
+            $this->loadChildren($this->entry_record);
         }
                 
     }
