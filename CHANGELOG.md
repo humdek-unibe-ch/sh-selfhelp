@@ -10,6 +10,7 @@
 ### New features
  - #461 - add field `url_param` to style `entryRecord` - The `url_param` field specifies the name of the URL parameter that will be extracted from the URL. This parameter is utilized to filter the form based on the `record_id` and return a single entry. When the specified URL parameter is present in the URL, its value is used as the `record_id` to fetch the corresponding entry from the database. This allows for dynamic filtering of the form entries based on the value provided in the URL.
  - #461 - add field `scope` to styles `entryRecord`, `entryList` and `loop`. The 'scope' field serves as a prefix for variable naming within the context of the style. If set, it is appended to the beginning of variable names, allowing for better organization and distinction of variables within the style. For example, if the 'scope' is set to "item", variables within the style will be prefixed with "item_", such as "item_title", "item_description", etc. Using a scope helps to avoid naming conflicts and provides clarity in variable usage within the style.
+ - #461 - add as global variables all parameters that comes form the URL. The parameters variable name is with prefix and suffix `__`. Example for URL: `/nested/[i:main_id]/[i:sub_id]` will generate global parameters: `__main_id__` and `__sub_id__`
 
 # v6.10.0
 ### New features

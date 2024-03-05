@@ -281,14 +281,7 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         // replace the field content with the global variables
         if ($field[$field_key]) {
-            $global_vars = array(
-                '@user_code' => $user_code,
-                '@project' => $_SESSION['project'],
-                '@user' => $user_name,
-                '__keyword__' => $this->router->get_keyword_from_url(),
-                '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
-                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
-            );
+            $global_vars = $this->get_global_vars($user_code, $user_name);
             $this->debug_data['global_vars'] = $global_vars;
             $this->interpolation_data['global_vars'] = $global_vars;
             if(strpos($field[$field_key], '__language__') !== false){
@@ -410,14 +403,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $data_config = $this->get_entry_value($this->entry_record, $data_config);
             }
             // if data_config is set replace if there are any globals
-            $global_vars = array(
-                '@user_code' => $user_code,
-                '@project' => $_SESSION['project'],
-                '@user' => $user_name,
-                '__keyword__' => $this->router->get_keyword_from_url(),
-                '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
-                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
-            );
+            $global_vars = $this->get_global_vars($user_code, $user_name);
             if(strpos($data_config, '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
@@ -809,6 +795,28 @@ class StyleModel extends BaseModel implements IStyleModel
     public function get_interpolation_data()
     {
         return $this->interpolation_data;
+    }
+
+    /**
+     * Retrieves global variables for use within the application.
+     *
+     * @param string $user_code The user's unique code.
+     * @param string $user_name The user's name.
+     * @return array An array containing global variables such as user code, project, user name, keywords, and platform.
+     */
+    public function get_global_vars($user_code, $user_name)
+    {
+        $global_vars = array(
+                '@user_code' => $user_code,
+                '@project' => $_SESSION['project'],
+                '@user' => $user_name,
+                '__keyword__' => $this->router->get_keyword_from_url(),
+                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
+            );
+        foreach ($this->params as $key => $value) {
+            $global_vars['__' . $key . '__'] = $value;
+        }
+        return $global_vars;
     }
     
 }
