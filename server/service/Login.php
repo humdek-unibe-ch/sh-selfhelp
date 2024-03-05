@@ -397,9 +397,6 @@ class Login
             } else {
                 throw new Exception('User cannot be deleted!');
             }
-            if ($this->transaction->add_transaction(transactionTypes_delete, $transaction_by, $_SESSION['id_user'], $this->transaction::TABLE_USERS, $uid) === false) {
-                throw new Exception('User cannot be deleted!');
-            }
             $this->db->commit();
             return true;
         } catch (Exception $e) {
