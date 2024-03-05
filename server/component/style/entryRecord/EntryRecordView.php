@@ -34,6 +34,20 @@ class EntryRecordView extends StyleView
      */
     private function output_entry_record()
     {
+        $entry_record = $this->model->get_entry_record();
+        if (!$entry_record) {
+            // no data for that record
+            // get the missing page and load it
+            $cms_edit = method_exists($this->model, "is_cms_page_editing") && $this->model->is_cms_page_editing();
+            if (!$cms_edit) {
+                //show missing only if not in CMS mode
+                $sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
+                foreach ($sections as $section) {
+                    $missing_styles =  new StyleComponent($this->model->get_services(), intval($section['id']));
+                    $missing_styles->output_content();
+                }
+            }
+        }
         $this->output_children();
     }
 

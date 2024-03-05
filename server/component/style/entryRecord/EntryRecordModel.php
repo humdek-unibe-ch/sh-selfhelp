@@ -149,6 +149,8 @@ class EntryRecordModel extends StyleModel
             $this->init_properties();
             if ($this->get_entry_record()) {
                 $entry_record = array_merge($this->get_entry_record(), $entry_record); // merge with already existing parent entry
+            } else {
+                return;
             }
             $db_children = $this->db->fetch_section_children($this->section_id);
             foreach ($db_children as $child) {
