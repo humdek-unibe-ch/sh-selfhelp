@@ -113,6 +113,12 @@ class FormUserInputView extends StyleView
      */
     private $url_cancel;
 
+    /**
+     * DB field 'label_cancel' ('Cancel').
+     * The label of the cancel button.
+     */
+    private $label_cancel;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -142,6 +148,7 @@ class FormUserInputView extends StyleView
         $this->confirmation_continue = $this->model->get_db_field("label_continue", '');
         $this->confirmation_message = $this->model->get_db_field("label_message", '');
         $this->url_cancel = $this->model->get_db_field("url_cancel", '');
+        $this->label_cancel = $this->model->get_db_field("label_cancel", '');
     }
 
     private function get_delete_url()
@@ -279,6 +286,7 @@ class FormUserInputView extends StyleView
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
+            "label_cancel" => $this->label_cancel,
             "type" => $this->type,
             "url" => $url,
             "children" => $children,
