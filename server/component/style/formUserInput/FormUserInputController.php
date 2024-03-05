@@ -218,11 +218,10 @@ class FormUserInputController extends BaseController
                 $this->model->reload_children();
             }
         }
-        $redirect = $this->model->get_db_field("redirect_at_end", "");
-        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
-            //$redirect = str_replace("/", "", $redirect);
-            $redirect_url = $this->model->get_services()->get_router()->get_url(str_replace("/", "", $redirect));
-            header("Location: " . ($redirect_url != '' ? $redirect_url : $redirect));
+        $redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
+        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $redirect_at_end != "" && !isset($_POST[ENTRY_RECORD_ID])){
+            $redirect_at_end = $this->model->get_services()->get_router()->get_url($redirect_at_end);
+            header("Location: " . $redirect_at_end);
             die();
         }
     }
