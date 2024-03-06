@@ -4,5 +4,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <option value="<?php echo $value; ?>" <?php echo $selected; ?>>
-    <?php echo $text; ?>
+    <?php echo html_entity_decode($text); ?>
 </option>

@@ -10,6 +10,7 @@
  - #389 - fix `label_cancel` in `formUserInputLog` and `formUserInputRecord`
  - #387 - fix the redirect issue. Now function `get_url` from the `router` is used
  - #385 - fix delete user account from profile
+ - #388 - fix special character that were not loaded correctly when dynamic items were used and had special characters
 
 ### New features
  - #461 - add field `url_param` to style `entryRecord` - The `url_param` field specifies the name of the URL parameter that will be extracted from the URL. This parameter is utilized to filter the form based on the `record_id` and return a single entry. When the specified URL parameter is present in the URL, its value is used as the `record_id` to fetch the corresponding entry from the database. This allows for dynamic filtering of the form entries based on the value provided in the URL.
