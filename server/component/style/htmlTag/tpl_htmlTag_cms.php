@@ -3,6 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<?php $this->open_tag(); ?>
+<div>
     <?php $this->output_children(); ?>
-<?php $this->close_tag(); ?>
+</div>

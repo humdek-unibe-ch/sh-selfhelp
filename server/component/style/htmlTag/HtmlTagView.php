@@ -20,6 +20,11 @@ class HtmlTagView extends StyleView
     private $id;
 
     /**
+     * The selected html tag for the style to represent
+     */
+    private $html_tag;
+
+    /**
      * The constructor.
      *
      * @param object $model
@@ -29,6 +34,7 @@ class HtmlTagView extends StyleView
     {
         parent::__construct($model);
         $this->id = $this->model->get_db_field("id", $this->id_section);
+        $this->html_tag = $this->model->get_db_field("html_tag", null);
     }
 
     /* Public Methods *********************************************************/
@@ -38,8 +44,24 @@ class HtmlTagView extends StyleView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_htmlTag.php";
+        if (!$this->html_tag) {
+            // if not set does no return anything
+            return;
+        }
+        if (method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing()) {
+            require __DIR__ . "/tpl_htmlTag_cms.php";
+        } else {
+            require __DIR__ . "/tpl_htmlTag.php";
+        }        
     }
-	
+
+    public function open_tag()
+    {
+        echo '<' . $this->html_tag . ' class="' . $this->css . '">';
+    }
+    public function close_tag()
+    {
+        echo '</' . $this->html_tag . '>';
+    }
 }
 ?>
