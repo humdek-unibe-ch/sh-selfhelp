@@ -49,13 +49,13 @@ echo "Prepare the asset and css folder"
 
 # Set global variables of the experiment
 sudo -u "$user" cp ../service/globals_untracked.default.php ../service/globals_untracked.php
-sudo -u "$user" sed -i "s/__experiment_name__/${name}/g" ../service/globals_untracked.php
+sudo -u "$user" sed -i "s/__project_name__/${name}/g" ../service/globals_untracked.php
 sudo -u "$user" sed -i "s/__password__/${password}/g" ../service/globals_untracked.php
 echo "Set the global variables of the experiment"
 
 # Create and initialize the database
 sudo -u "$user" cp ../db/create_db.default.sql ../db/create_db.sql
-sudo -u "$user" sed -i "s/__experiment_name__/${name}/g" ../db/create_db.sql
+sudo -u "$user" sed -i "s/__project_name__/${name}/g" ../db/create_db.sql
 sudo -u "$user" sed -i "s/__password__/${password}/g" ../db/create_db.sql
 sudo mysql < ../db/create_db.sql
 echo "Creating database $name"
@@ -63,14 +63,4 @@ echo "Creating database $name"
 cat ../db/update_scripts/*.sql  > "../db/install_selfhelp.sql"
 sudo mysql -D $name < ../db/install_selfhelp.sql
 echo "Database $name initialized!"
-
-# Setting up Apache
-sudo -u "$user" cp ../../server/apache.default.conf ../../server/apache.conf
-sudo -u "$user" sed -i "s/__experiment_name__/${name}/g" ../../server/apache.conf
-sudo -u "$user" sed -i "s/__user__/${user}/g" ../../server/apache.conf
-cd /etc/apache2/sites-available
-sudo ln -s "$SCRIPT_DIR/../../server/apache.conf" "$name.conf"
-cd ../sites-enabled
-sudo ln -s ../sites-available/$name.conf .
-sudo service apache2 restart
 echo "Installation is completed!"

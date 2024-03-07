@@ -5,16 +5,16 @@
 ?>
 <?php
 define('REDIRECT_ON_LOGIN', true);
-define('PROJECT_NAME', '__experiment_name__');
+define('PROJECT_NAME', '__project_name__');
 define('DEBUG', 0);
 define('CORS', true);
 define('LANGUAGE', 2); // German
-define('BASE_PATH', '/' . PROJECT_NAME);
+#define('BASE_PATH', '/' . PROJECT_NAME);
+define('BASE_PATH', '');
 define('SHOW_PHP_INFO', false);
 
 define('DBSERVER', 'localhost');
-define('DBNAME', '__experiment_name__');
-define('DBUSER', '__experiment_name__');
+define('DBNAME', '__project_name__');
+define('DBUSER', '__project_name__');
 define('DBPW', '__password__');
-define('CALLBACK_KEY', "__callback_key__");
 ?>
