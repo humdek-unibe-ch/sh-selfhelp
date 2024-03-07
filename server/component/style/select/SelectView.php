@@ -168,5 +168,26 @@ class SelectView extends FormFieldView
     {
         return $this->name . ($this->is_multiple ? "[]" : ""); // if it is multiple select make the form_name an array 
     }
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @return array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $locale = 'de_CH';
+        if (isset($_SESSION['user_language_locale'])) {
+            $locale =  str_replace('-', '_', $_SESSION['user_language_locale']);
+        }
+        if (empty($local)) {
+            $local = array(
+                __DIR__ . "/js/i18n/defaults-" . $locale . ".min.js"
+            );
+        }
+        return parent::get_js_includes($local);
+    }
 }
 ?>
