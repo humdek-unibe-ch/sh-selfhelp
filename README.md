@@ -26,9 +26,9 @@ Currently available styles include, but are not limited to, alert boxes, buttons
   - `cd server/utils/`
   - `sudo ./install.sh -n __project_name__ -p __db_password__`
 ## Configure Apache for SelfHelp
- - Create Apache site for SelfHelp. Create `/etc/apache2/sites-available/selfhelp.conf` with following lines:  
+ - Create Apache site for SelfHelp. Create `/etc/apache2/sites-available/selfhelp.conf` with following lines where you adjust `__project_name__`, `__project_path__` and `__cert_folder__` for the SSL files:  
  ```
- Define PROJECT_NAME selfhelp
+ Define PROJECT_NAME __project_name__
  Define PROJECT_PATH __project_path__
  Define PROJECT_PATH_SERVER ${PROJECT_PATH}/server
 
@@ -93,12 +93,5 @@ Currently available styles include, but are not limited to, alert boxes, buttons
  - Enable the site with: `sudo a2ensite selfhelp`
  - Enable URL rewriting with: `sudo a2enmod rewrite`
  - Finally, reload apache2 to apply all these changes: `sudo service apache2 reload`
-
-
-PHP 8.1 Installation
-
- - `sudo add-apt-repository ppa:ondrej/php`
- - `sudo apt install php8.1`
- - `sudo apt-get install php8.1-fpm php8.1-mysql libapache2-mod-php8.1 libapache2-mod-fcgid php8.1-apcu php8.1-uopz php8.1-mbstring php8.1-intl -y`
 
 
