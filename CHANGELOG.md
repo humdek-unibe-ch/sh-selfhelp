@@ -1,4 +1,4 @@
-# v6.11.0 (Unpublished)
+# v6.11.0
 ### Bugfix 
  - #455 - fix the `altorouter` link in create new page
  - fix `altorouter` links in `impressum`
