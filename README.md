@@ -27,7 +27,7 @@ Currently available styles include, but are not limited to, alert boxes, buttons
   - `sudo ./install.sh -n __project_name__ -p __db_password__`
 ## Configure Apache for SelfHelp
  - Create Apache site for SelfHelp. Create `/etc/apache2/sites-available/selfhelp.conf` with following lines:  
- `
+ ```
  Define PROJECT_NAME selfhelp
  Define PROJECT_PATH __project_path__
  Define PROJECT_PATH_SERVER ${PROJECT_PATH}/server
@@ -88,7 +88,8 @@ Currently available styles include, but are not limited to, alert boxes, buttons
     SSLCertificateKeyFile /etc/letsencrypt/live/__cert_folder__/privkey.pem
     Include /etc/letsencrypt/options-ssl-apache.conf
 
-</VirtualHost>`
+</VirtualHost>
+```
  - Enable the site with: `sudo a2ensite selfhelp`
  - Enable URL rewriting with: `sudo a2enmod rewrite`
  - Finally, reload apache2 to apply all these changes: `sudo service apache2 reload`
