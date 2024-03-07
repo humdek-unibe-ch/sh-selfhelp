@@ -11,6 +11,9 @@ helpFunction()
    exit 1 # Exit script after printing help
 }
 
+# Get the directory of the script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 while getopts "n:p:u:" opt
 do
    case "$opt" in
@@ -31,10 +34,10 @@ fi
 # Begin script in case all parameters are correct
 echo "Start installation"
 
-# got to install script folder. Keep it as a basic path 
-cd /home/$user/$name/server/utils
+# Go to install script folder
+cd "$SCRIPT_DIR"
 
-sudo -u $user mkdir ../../static
+sudo -u "$user" mkdir -p ../../static
 sudo chmod 777 ../../static
 sudo chmod 777 ../../assets
 sudo chmod 777 ../../css
@@ -61,7 +64,7 @@ sudo -u $user cp ../../server/apache.default.conf ../../server/apache.conf
 sudo -u $user sed -i "s/__experiment_name__/${name}/g" ../../server/apache.conf
 sudo -u $user sed -i "s/__user__/${user}/g" ../../server/apache.conf
 cd /etc/apache2/sites-available
-sudo ln -s /home/$user/$name/server/apache.conf $name.conf
+sudo ln -s "$SCRIPT_DIR/../../server/apache.conf" "$name.conf"
 cd ../sites-enabled
 sudo ln -s ../sites-available/$name.conf .
 sudo service apache2 restart
