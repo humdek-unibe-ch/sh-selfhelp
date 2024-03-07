@@ -20,7 +20,7 @@ Currently available styles include, but are not limited to, alert boxes, buttons
   - `sudo apt install mysql-server`
   - `sudo apt-get install php php-fpm php-mysql libapache2-mod-php libapache2-mod-fcgid php-apcu php-uopz php-mbstring php8-intl -y`
 ## Install SelfHelp
-  - `git clone https://github.com/humdek-unibe-ch/sh-selfhelp.git` __project_name__
+  - `sudo git clone https://github.com/humdek-unibe-ch/sh-selfhelp.git` __project_name__
   - `cd ` __project_name__
   - `git checkout ` __latest_release__
   - `cd server/utils/`
@@ -75,10 +75,7 @@ Currently available styles include, but are not limited to, alert boxes, buttons
     SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
     SSLCipherSuite          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
     SSLHonorCipherOrder     off
-    SSLSessionTickets       off
-
-    SSLUseStapling On
-    SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
+    SSLSessionTickets       off    
 
     ErrorLog ${APACHE_LOG_DIR}/error-${PROJECT_NAME}.log
     CustomLog ${APACHE_LOG_DIR}/access-${PROJECT_NAME}.log combined
@@ -90,6 +87,9 @@ Currently available styles include, but are not limited to, alert boxes, buttons
     Include /etc/letsencrypt/options-ssl-apache.conf
 
 </VirtualHost>
+
+SSLUseStapling On
+SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
 ```
  - Enable the site with: `sudo a2ensite selfhelp`
  - Enable URL rewriting with: `sudo a2enmod rewrite`
