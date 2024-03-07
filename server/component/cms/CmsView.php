@@ -936,6 +936,17 @@ class CmsView extends BaseView
                 ),
             ));
         }
+        else if($field['type'] == "html-tags")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => ($field['content'] == "") ? "text" : $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "type_input" => $field['type'],
+                "items" => array(
+                    array("value" => "checkbox", "text" => "checkbox"),                    
+                ),
+            ));
+        }
         else if($field['type'] == "style-bootstrap")
         {
             $children[] = new BaseStyleComponent("select", array(

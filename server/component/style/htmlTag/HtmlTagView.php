@@ -10,7 +10,7 @@ require_once __DIR__ . "/../StyleView.php";
  * The view class of the div style component.
  * A div style is a container that allows to wrap content into a div tag.
  */
-class TagView extends StyleView
+class HtmlTagView extends StyleView
 {
     /* Constructors ***********************************************************/
 
@@ -38,7 +38,7 @@ class TagView extends StyleView
      */
     public function output_content()
     {
-        require __DIR__ . "/tpl_tag.php";
+        require __DIR__ . "/tpl_htmlTag.php";
     }
 	
 }
