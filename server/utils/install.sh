@@ -36,6 +36,7 @@ echo "Start installation"
 
 # Go to install script folder
 cd "$SCRIPT_DIR"
+echo "Scrit dir: $SCRIPT_DIR"
 
 sudo -u "$user" mkdir -p ../../static
 sudo chmod 777 ../../static
