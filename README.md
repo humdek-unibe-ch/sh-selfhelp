@@ -24,6 +24,7 @@ Currently available styles include, but are not limited to, alert boxes, buttons
   - `cd ` __project_name__
   - `git checkout ` __latest_release__
   - `cd server/utils/`
+  - `sudo su`
   - `sudo ./install.sh -n __project_name__ -p __db_password__`
 ## Configure Apache for SelfHelp
  - Create Apache site for SelfHelp. Create `/etc/apache2/sites-available/selfhelp.conf` with following lines where you adjust `__project_name__`, `__project_path__` and `__cert_folder__` for the SSL files:  
