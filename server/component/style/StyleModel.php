@@ -157,30 +157,6 @@ class StyleModel extends BaseModel implements IStyleModel
     }    
 
     /**
-     * Get the entry record;
-     * @retval array;
-     * The entry record;
-     */
-    private function calc_entry_record(){
-        $record_id = isset($this->params['record_id']) ? intval($this->params['record_id']) : -1;
-        if ($record_id > 0) {
-            $formInfo = explode('-', $this->get_db_field("formName"));
-            $form_id = $formInfo[0];
-            if (isset($formInfo[1])) {
-                $form_type = $formInfo[1];
-            } else {
-                return;
-            }
-            $own_entries_only =  $this->get_db_field("own_entries_only", 1);
-            $filter = " AND deleted = 0 AND record_id = " . $record_id;
-            $data = $this->user_input->get_data($form_id, $filter, $own_entries_only, $form_type);
-            return $data && count($data) > 0 ? $data[0] : false; // return the first record
-        } else {
-            return;
-        }
-    }
-
-    /**
      * Get entries values if there are any set
      * @param $condition
      * The condition value array
