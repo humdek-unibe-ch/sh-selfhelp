@@ -76,7 +76,7 @@ class LoopModel extends StyleModel
                         $loop_record = $scoped_array;
                     }
                 }
-                $entry_record = array_merge($loop_record, $entry_record); // merge with already existing parent entry
+                $entry_record = array_merge($entry_record, $loop_record); // merge with already existing parent entry
 
                 foreach ($db_children as $child) {
                     $new_child = new StyleComponent(
