@@ -436,7 +436,7 @@ class FormUserInputModel extends StyleModel
     {
         $entry_record = $this->get_entry_record();
         if ($entry_record) {
-            return $entry_record[ENTRY_RECORD_ID];
+            return isset($entry_record[ENTRY_RECORD_ID]) ? $entry_record[ENTRY_RECORD_ID] : -1;
         }
         return -1;
     }
