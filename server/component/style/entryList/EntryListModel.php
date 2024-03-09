@@ -162,7 +162,7 @@ class EntryListModel extends StyleModel
             }
             foreach ($entry_list as $key => $list_record) {
                 // add parent entry records if they exist with prefix p_                
-                $entry_record = array_merge($list_record, $entry_record); // merge with already existing parent entry
+                $entry_record = array_merge($entry_record, $list_record); // merge with already existing parent entry
                 foreach ($db_children as $child) {
                     $new_child = new StyleComponent(
                         $this->services,

@@ -1,5 +1,6 @@
 # v6.11.1 (Unpublished)
 ### Bugfix 
+ - fix the usage of `array_merge` in `entryList`. Now next child properly overwrite the previous child
 
 # v6.11.0
 ### Bugfix 
