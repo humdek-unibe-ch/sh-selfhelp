@@ -778,5 +778,15 @@ class PageDb extends BaseDb
         return $this->fetch_cmsPreferences()[0]['anonymous_users'];
     }
 
+    /**
+     * render the git version
+     */
+    public function get_git_version()
+    {
+        $res = shell_exec("git describe --tags");
+        $app_version = $res ? rtrim($res) : 'Set www-data as owner';
+        return $app_version;
+    }
+
 }
 ?>

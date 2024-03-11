@@ -34,7 +34,7 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('htmlTag'), get_field_id('children'), 0, 'Children that can be added to the style. Each child will be loaded inside the tag');
 
 -- Add new field type `html-tag` and field `html_tag` in style tag
-INSERT INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'html-tag', '5');
-INSERT INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'html_tag', get_field_type_id('html-tag'), '0');
-INSERT INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'html-tag', '5');
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'html_tag', get_field_type_id('html-tag'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('htmlTag'), get_field_id('html_tag'), '', 'Select HTML tag from the list');

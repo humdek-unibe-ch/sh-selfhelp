@@ -2,6 +2,7 @@
 ### Bugfix 
  - fix the usage of `array_merge` in `entryList`. Now next child properly overwrite the previous child
  - fix `cronjob` loading Hooks from `plugins`
+ - check if the git version is retrieved before trying to show it
 
 # v6.11.0
 ### Bugfix 

@@ -81,7 +81,7 @@ class VersionModel extends StyleModel
         foreach ($plugins as $key => $plugin) {
             $git_command = 'cd server/plugins/' . $key . ' && git describe --tags';
             $res = shell_exec($git_command);
-            $plugin_v = $res ? rtrim($res) : '';
+            $plugin_v = $res ? rtrim($res) : 'Set www-data as owner';
             $plugins_md = $plugins_md . "
             | " . $key . " | " . $plugin_v . " |" . $plugin . "   | | Plugin |";
         }

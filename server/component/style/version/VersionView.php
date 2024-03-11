@@ -34,7 +34,8 @@ class VersionView extends StyleView
     public function output_content()
     {        
         $db_version = $this->model->get_db_version();
-        $app_version = rtrim(shell_exec("git describe --tags"));
+        $res = $this->model->get_services()->get_db()->get_git_version();
+        $app_version = $res ? rtrim($res) : 'Set www-data as owner';
         $plugins = $this->model->get_plugins();        
         $libraries = $this->model->get_libraries();   
         $versionCard = new BaseStyleComponent("card", array(

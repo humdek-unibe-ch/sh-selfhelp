@@ -264,7 +264,7 @@ abstract class BaseView
      */
     public function get_app_version()
     {
-        echo rtrim(shell_exec("git describe --tags"));
+        echo $this->model->get_services()->get_db()->get_git_version();
     }
 
     /**

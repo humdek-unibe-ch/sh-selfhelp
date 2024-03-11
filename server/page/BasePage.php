@@ -163,8 +163,8 @@ abstract class BasePage
         );
         if(DEBUG == 0)
         {
-            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->get_git_version();
-            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->get_git_version();
+            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->services->get_db()->get_git_version();
+            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->services->get_db()->get_git_version();
         }
         $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
             $this->css_includes);
@@ -190,14 +190,7 @@ abstract class BasePage
                 $this->id_page, $this->required_access_level);
     }
 
-    /* Private Methods *********************************************************/
-
-    /**
-     * render the git version
-     */
-    private function get_git_version(){
-        return rtrim(shell_exec("git describe --tags"));
-    }
+    /* Private Methods *********************************************************/    
 
     /**
      * Iterate through all styles and collect all js and css files.
