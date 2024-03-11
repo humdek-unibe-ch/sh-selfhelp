@@ -96,4 +96,6 @@ SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
  - Enable URL rewriting with: `sudo a2enmod rewrite`
  - Finally, reload apache2 to apply all these changes: `sudo service apache2 reload`
 
-
+## Update
+ - run the `sql` files in the correct order from folder `server/db/update_scripts`.
+ - after update clear the `cache`. Now as a workaround it could be done from page `cms->preferences`,  on save of this page the cache is cleared
