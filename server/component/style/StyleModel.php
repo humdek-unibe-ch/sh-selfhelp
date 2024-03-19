@@ -419,7 +419,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field['content'] = $this->parsedown->line($field['content']);
             } else if ($field['type'] == "json") {
                 // the field is json, check the JSON mapper if there are some mapping in the meta field                
-                $field['content']  = $field['content'] ? json_decode($field['content'], true) : array();
+                $field['content']  = $field['content'] ? json_decode(stripslashes($field['content']), true) : array();
                 if(isset($field['meta']) && $field['meta']){
                     $field['meta'] = json_decode($field['meta'], true);
                     $this->set_json_mapping($field);

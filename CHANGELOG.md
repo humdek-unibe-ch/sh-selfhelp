@@ -1,3 +1,7 @@
+# v6.11.3
+### Bugfix 
+ - `stripslashes` - the JSON value for `select` style
+
 # v6.11.2
 ### Bugfix 
  - properly set `scope` to `loopStyle`
