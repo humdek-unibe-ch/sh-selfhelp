@@ -1,3 +1,7 @@
+# v6.11.2 (Unpublished)
+### Bugfix 
+ - properly set `scope` to `loopStyle`
+
 # v6.11.1
 ### Bugfix 
  - fix the usage of `array_merge` in `entryList`. Now next child properly overwrite the previous child

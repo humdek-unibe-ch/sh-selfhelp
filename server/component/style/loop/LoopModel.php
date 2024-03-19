@@ -68,13 +68,11 @@ class LoopModel extends StyleModel
                 // add scope prefix
                 $scope = $this->get_db_field("scope", "");
                 if ($scope !== '') {
-                    foreach ($loop_record as $key_loop_record => $loop_record_value) {
-                        $scoped_array = array();
-                        foreach ($loop_record as $key => $value) {
-                            $scoped_array[$scope . '_' .  $key] = $value;
-                        }
-                        $loop_record = $scoped_array;
+                    $scoped_array = array();
+                    foreach ($loop_record as $key => $value) {
+                        $scoped_array[$scope . '_' .  $key] = $value;
                     }
+                    $loop_record = $scoped_array;
                 }
                 $entry_record = array_merge($entry_record, $loop_record); // merge with already existing parent entry
 
