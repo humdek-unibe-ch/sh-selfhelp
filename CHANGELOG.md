@@ -1,6 +1,7 @@
 # v6.11.2 (Unpublished)
 ### Bugfix 
  - properly set `scope` to `loopStyle`
+ - properly escape `array` when is replaced as dynamic value
 
 # v6.11.1
 ### Bugfix 
