@@ -4,12 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. 
  */
 $(document).ready(function () {
-    setTimeout(() => {
-        $('.data-debug').each(function () {
-            var debug_data = $(this).data('debug');
-            console.log(debug_data['field']['section_name']);
-            console.log(debug_data);
-            $(this).removeData('debug').removeAttr('data-debug');
-        });
-    }, 1000);
+    $('.data-debug').each(function () {
+        var debug_data = $(this).data('debug');
+        console.log(debug_data['field']['section_name']);
+        console.log(debug_data);
+        $(this).removeData('debug').removeAttr('data-debug');
+    });
 });
