@@ -19,3 +19,4 @@ server/db/install_selfhelp.sql
 vendor
 composer.json
 composer.lock
+phpstan.neon
