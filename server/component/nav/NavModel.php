@@ -188,7 +188,7 @@ class NavModel extends BaseModel
             $filter = 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_mobile . '") AND IFNULL(id_actions,-1) NOT IN ' . $backend_id_sql;
         }
         $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], $filter, 'ORDER BY nav_position');
-        return $this->pages = $this->prepare_pages($pages_db);
+        return $this->prepare_pages($pages_db);
     }
 
     /**
@@ -199,7 +199,7 @@ class NavModel extends BaseModel
      */
     public function get_pages_mobile() {
         $pages_db = $this->db->fetch_pages(-1, $_SESSION['language'], 'AND id_pageAccessTypes != (SELECT id FROM lookups WHERE lookup_code = "' . pageAccessTypes_web . '")', 'ORDER BY nav_position');
-        return $this->pages = $this->prepare_pages($pages_db);
+        return $this->prepare_pages($pages_db);
      }
 
     /**

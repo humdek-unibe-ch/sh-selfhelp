@@ -29,13 +29,13 @@ function create_callback_page($services, $class, $method)
 }
 
 /**
- * A class that initialize Selfhelp
+ * A class that initialize SelfHelp
  */
 class Selfhelp
 {
 
     /**
-     * Creating a Selfhelp Instance.
+     * Creating a SelfHelp Instance.
      */
     public function __construct()
     {

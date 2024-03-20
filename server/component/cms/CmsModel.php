@@ -106,6 +106,11 @@ class CmsModel extends BaseModel
      */
     private $id_cms_page;
 
+    /**
+     * The id used for deletion
+     */
+    private $id_delete;
+
     /* Constructors ***********************************************************/
 
     /**

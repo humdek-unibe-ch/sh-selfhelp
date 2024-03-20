@@ -1,3 +1,6 @@
+# v6.11.4 (Unpublished)
+ - fixes for php 8.3
+
 # v6.11.3
 ### Bugfix 
  - `stripslashes` - the JSON value for `select` style
