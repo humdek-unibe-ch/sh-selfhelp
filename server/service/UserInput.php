@@ -206,6 +206,8 @@ class UserInput
             $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
         ) {
             return jobTypes_notification;
+        } else {
+            return '';
         }
     }
 
@@ -1342,7 +1344,7 @@ class UserInput
      * Get the notification settings
      * @param int $id_users
      * The user for who we check the settings. If not set we use the session user
-     * @return array or false
+     * @return array | false
      * return the UI preferences row or false if it is not set
      */
     public function get_user_notification_settings($id_users = null)
@@ -1355,6 +1357,7 @@ class UserInput
             $res = $this->get_data($form_id, '', true, FORM_INTERNAL, $id_users);
             return $res ? $res[0] : false;
         }
+        return false;
     }
 
 

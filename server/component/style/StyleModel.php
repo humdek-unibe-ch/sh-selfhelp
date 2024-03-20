@@ -755,8 +755,6 @@ class StyleModel extends BaseModel implements IStyleModel
      * Get the debug data
      * @param object $debug_data
      * Debug data object
-     * @return object
-     * Return the debug data
      */
     public function set_debug_data($debug_data)
     {
@@ -797,4 +795,3 @@ class StyleModel extends BaseModel implements IStyleModel
     
 }
 ?>
-

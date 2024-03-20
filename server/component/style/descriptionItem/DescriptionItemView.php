@@ -51,6 +51,11 @@ class DescriptionItemView extends StyleView
      */
     private $help;
 
+    /**
+     * Display, whether the description needs language and gender
+     */
+    private $display;
+
     /* Constructors ***********************************************************/
 
     /**

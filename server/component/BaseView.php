@@ -279,7 +279,7 @@ abstract class BaseView
      * Check and output an alert for the multiple users editing the same page
      * @param boolean $return_component
      * If true, the function will return the component instead of outputting it. Default value is false
-     * @return object
+     * @return object | void
      * If a value is returned, it returns the alert
      */
     public function output_check_multiple_users($return_component = false)

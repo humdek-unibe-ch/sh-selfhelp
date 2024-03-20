@@ -911,11 +911,11 @@ class GUMP
      *
      * @param string $field
      * @param array  $input
-     * @param null   $param
+     * @param string   $param
      *
      * @return mixed
      */
-    protected function validate_contains($field, $input, $param = null)
+    protected function validate_contains($field, $input, $param = '')
     {
         if (!isset($input[$field])) {
             return;
