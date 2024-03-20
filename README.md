@@ -99,3 +99,7 @@ SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
 ## Update
  - run the `sql` files in the correct order from folder `server/db/update_scripts`.
  - after update clear the `cache`. Now as a workaround it could be done from page `cms->preferences`,  on save of this page the cache is cleared
+
+
+## Code check
+ - for code check use [PHPStan](https://phpstan.org)
