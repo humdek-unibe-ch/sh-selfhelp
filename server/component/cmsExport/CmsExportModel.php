@@ -157,7 +157,7 @@ class CmsExportModel extends BaseModel
         $this->json['time'] = date("Y-m-d H:i:s");
         $this->json['platform'] = PROJECT_NAME;
         $this->json['version'] = array(
-            "application" => $this->db->get_git_version(),
+            "application" => $this->db->get_git_version(__DIR__),
             "database" => $this->db->query_db_first('SELECT version FROM version')['version']
         );
         if ($this->type == 'section') {

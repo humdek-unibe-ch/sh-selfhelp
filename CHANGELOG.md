@@ -1,3 +1,7 @@
+# v6.12.1 (Unpublished)
+### New features
+ - add global function to pull git version
+
 # v6.12.0
 ### Bugfix 
  - fixes for php 8.3

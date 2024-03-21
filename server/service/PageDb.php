@@ -783,13 +783,23 @@ class PageDb extends BaseDb
     }
 
     /**
-     * render the git version
+     * Retrieves the current Git version tag from the specified directory.
+     *
+     * @param string $dir The directory containing the Git repository.
+     * @param string $git_command The command to execute to retrieve the Git version tag.
+     * @return string|null The Git version tag if available, or null if not found.
      */
-    public function get_git_version()
+    public function get_git_version($dir, $git_command = 'git describe --tags')
     {
-        $res = shell_exec("git describe --tags");
-        $app_version = $res ? rtrim($res) : 'Set www-data as owner';
-        return $app_version;
+        if ($git_command == 'git describe --tags') {
+            //change dir only here
+            chdir($dir);
+        }
+        $version = shell_exec($git_command);
+        if ($version) {
+            $version = rtrim($version);
+        }
+        return $version;
     }
 
 }

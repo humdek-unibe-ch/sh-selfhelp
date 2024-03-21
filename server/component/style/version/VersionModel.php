@@ -79,9 +79,9 @@ class VersionModel extends StyleModel
         }
         $plugins_md = '';
         foreach ($plugins as $key => $plugin) {
-            $git_command = 'cd server/plugins/' . $key . ' && git describe --tags';
-            $res = shell_exec($git_command);
-            $plugin_v = $res ? rtrim($res) : 'Set www-data as owner';
+            $git_command = 'cd ' . PLUGIN_SERVER_PATH . '/' . $key . ' && git describe --tags';
+            $res = $this->db->get_git_version(__DIR__, $git_command);
+            $plugin_v = $res ? rtrim($res) : 'No data';
             $plugins_md = $plugins_md . "
             | " . $key . " | " . $plugin_v . " |" . $plugin . "   | | Plugin |";
         }

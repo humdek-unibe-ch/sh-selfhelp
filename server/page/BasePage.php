@@ -163,8 +163,8 @@ abstract class BasePage
         );
         if(DEBUG == 0)
         {
-            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->services->get_db()->get_git_version();
-            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->services->get_db()->get_git_version();
+            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->services->get_db()->get_git_version(__DIR__);
+            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->services->get_db()->get_git_version(__DIR__);
         }
         $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
             $this->css_includes);

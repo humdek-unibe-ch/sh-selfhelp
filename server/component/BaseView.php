@@ -264,7 +264,7 @@ abstract class BaseView
      */
     public function get_app_version()
     {
-        echo $this->model->get_services()->get_db()->get_git_version();
+        echo $this->model->get_services()->get_db()->get_git_version(__DIR__);
     }
 
     /**
@@ -312,6 +312,6 @@ abstract class BaseView
             // return empty div
             return new BaseStyleComponent("div", array("id" => "multiple-users-warning-div"));
         }
-    }
+    }        
 }
 ?>
