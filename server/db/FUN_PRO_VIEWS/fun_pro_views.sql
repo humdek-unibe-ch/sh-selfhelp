@@ -22,6 +22,29 @@ END
 
 DELIMITER ;
 DELIMITER //
+DROP PROCEDURE IF EXISTS add_index //
+CREATE PROCEDURE add_index(param_table VARCHAR(100), param_index_name VARCHAR(100), param_index_column VARCHAR(1000))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*)
+            FROM information_schema.STATISTICS 
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+            AND `index_name` = param_index_name
+		) > 0,
+        "SELECT 'The index already exists in the table'",
+        CONCAT('CREATE INDEX ', param_index_name, ' ON ', param_table, ' (', param_index_column, ');')
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+DELIMITER //
 DROP PROCEDURE IF EXISTS add_table_column //
 CREATE PROCEDURE add_table_column(param_table VARCHAR(100), param_column VARCHAR(100), param_column_type VARCHAR(500))
 BEGIN	
@@ -117,7 +140,7 @@ DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
 BEGIN 
-	SET @@group_concat_max_len = 32000;
+	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
 	SELECT
 	  GROUP_CONCAT(DISTINCT
@@ -149,7 +172,7 @@ DROP FUNCTION IF EXISTS get_page_fields_helper //
 CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
 -- page_id -1 returns all pages
 BEGIN 
-	SET @@group_concat_max_len = 32000;
+	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
 	SELECT
 	  GROUP_CONCAT(DISTINCT
@@ -176,7 +199,7 @@ DROP FUNCTION IF EXISTS get_sections_fields_helper //
 CREATE FUNCTION get_sections_fields_helper(section_id INT, language_id INT, gender_id INT) RETURNS TEXT
 -- section_id -1 returns all sections
 BEGIN 
-	SET @@group_concat_max_len = 32000;
+	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
 	SELECT
 	  GROUP_CONCAT(DISTINCT
@@ -200,7 +223,7 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_cmsPreferences;
 CREATE VIEW view_cmsPreferences
 AS
-SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale, p.fcm_api_key, p.fcm_sender_id
+SELECT p.callback_api_key, p.default_language_id, l.language as default_language, l.locale, p.fcm_api_key, p.fcm_sender_id, p.anonymous_users
 FROM cmsPreferences p
 LEFT JOIN languages l ON (l.id = p.default_language_id)
 WHERE p.id = 1;
@@ -321,7 +344,7 @@ DELIMITER ;
 drop view if exists view_uploadTables;
 create view view_uploadTables
 as
-select t.id as table_id, r.id as row_id, r.timestamp as entry_date, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp
+select t.id as table_id, r.id as row_id, r.timestamp as entry_date, col.id as col_id, t.name as table_name, col.name as col_name, cell.value as value, t.timestamp, r.id_users
 from uploadTables t
 inner join uploadRows r on (t.id = r.id_uploadTables)
 inner join uploadCells cell on (cell.id_uploadRows = r.id)
@@ -339,20 +362,21 @@ WHERE `name` = 'internal');
 DROP VIEW IF EXISTS view_data_tables;
 CREATE VIEW view_data_tables
 AS
-SELECT 'dynamic' AS `type`, form_id AS id, form_name AS orig_name, concat(form_name, '_dynamic') AS `table_name`, CONCAT(form_id,"-","dynamic") AS form_id_plus_type, internal
+SELECT 'INTERNAL' AS `type`, form_id AS id, form_name AS orig_name, concat(form_name, '_dynamic') AS `table_name`, CONCAT(form_id,"-","INTERNAL") AS form_id_plus_type, internal
 FROM view_form
 
 UNION
 
-SELECT 'static' AS `type`, id AS id, `name` AS orig_name, CONCAT(`name`, '_static') AS `table_name`, CONCAT(FLOOR(id),"-","static") AS form_id_plus_type, 0  AS internal
+SELECT 'EXTERNAL' AS `type`, id AS id, `name` AS orig_name, CONCAT(`name`, '_static') AS `table_name`, CONCAT(FLOOR(id),"-","EXTERNAL") AS form_id_plus_type, 0  AS internal
 FROM uploadTables;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
 
-CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, filter_param VARCHAR(1000) )
+CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, user_id_param INT, filter_param VARCHAR(1000))
+-- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
 BEGIN
-    SET @@group_concat_max_len = 32000;
+    SET @@group_concat_max_len = 32000000;
     SET @sql = NULL;
     SELECT
     GROUP_CONCAT(DISTINCT
@@ -364,26 +388,44 @@ BEGIN
         )
     ) INTO @sql
     FROM  uploadTables t
-	INNER JOIN uploadRows r on (t.id = r.id_uploadTables)
-	INNER JOIN uploadCells cell on (cell.id_uploadRows = r.id)
-	INNER JOIN uploadCols col on (col.id = cell.id_uploadCols)
-    WHERE t.id = table_id_param;
+	INNER JOIN uploadCols col on (t.id = col.id_uploadTables)
+    WHERE t.id = table_id_param AND col.`name` != 'id_users';
 
     IF (@sql is null) THEN
         SELECT table_name from view_uploadTables where 1=2;
     ELSE
         BEGIN
-            SET @sql = CONCAT('select * from (select t.name as table_name, t.timestamp as timestamp, r.id as record_id, r.timestamp as entry_date, ', IF(@sql LIKE '%id_users%', @sql, CONCAT(@sql,', -1 AS id_users')), 
-                ' from uploadTables t
+			SET @user_filter = '';
+            IF user_id_param > 0 THEN
+				SET @user_filter = CONCAT(' AND r.id_users = ', user_id_param);
+            END IF;	
+            
+            SET @time_period_filter = '';
+            CASE 
+				WHEN filter_param LIKE '%LAST_HOUR%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 HOUR';
+				WHEN filter_param LIKE '%LAST_DAY%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 DAY';
+				WHEN filter_param LIKE '%LAST_WEEK%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 WEEK';
+				WHEN filter_param LIKE '%LAST_MONTH%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 MONTH';
+				WHEN filter_param LIKE '%LAST_YEAR%' THEN
+					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 YEAR';
+				ELSE
+					SET @time_period_filter = '';					
+			END CASE;
+            
+            SET @sql = CONCAT('select * from (select r.id as record_id, 
+					r.timestamp as entry_date, r.id_users, u.name as user_name,', @sql, 
+					' from uploadTables t
 					inner join uploadRows r on (t.id = r.id_uploadTables)
 					inner join uploadCells cell on (cell.id_uploadRows = r.id)
 					inner join uploadCols col on (col.id = cell.id_uploadCols)
-					where t.id = ', table_id_param,
-					' group by t.name, t.timestamp, r.id ) as r where 1=1  ', filter_param);
-			IF LOCATE('id_users', @sql) THEN
-				-- get user_name if there is id_users column
-				SET @sql = CONCAT('select v.*, u.name as user_name from (', @sql, ')  as v left join users u on (v.id_users = u.id) where 1=1  ', filter_param);
-			END IF;			
+                    left join users u on (r.id_users = u.id)
+					where t.id = ', table_id_param, @user_filter, @time_period_filter,
+					' group by r.id ) as r where 1=1  ', filter_param);
+            -- select @sql;
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
@@ -399,7 +441,7 @@ DROP PROCEDURE IF EXISTS get_uploadTable //
 
 CREATE PROCEDURE get_uploadTable( table_id_param INT )
 BEGIN
-    CALL get_uploadTable_with_filter(table_id_param, '');
+    CALL get_uploadTable_with_filter(table_id_param, -1, '');
 END
 //
 
@@ -509,7 +551,7 @@ DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
 
 CREATE PROCEDURE get_form_data_for_user_with_filter( form_id_param INT, user_id_param INT, filter_param VARCHAR(1000) )
 BEGIN  
-    SET @@group_concat_max_len = 32000;
+    SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
 	SELECT get_form_fields_helper(form_id_param) INTO @sql;	
 	
@@ -517,16 +559,15 @@ BEGIN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select * from (select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
+		SET @sql = CONCAT('select * from (select  record.id as record_id, max(edit_time) as edit_time, u.id as user_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
 		left join sections field on (ui.id_sections = field.id)
 		left join sections form  on (ui.id_section_form = form.id)
 		left join user_input_record record  on (ui.id_user_input_record = record.id)
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
-		LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
 		where form.id = ', form_id_param, ' and u.id = ', user_id_param,
-		' group by u.id, sft_if.content, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
+		' group by u.id, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
 
 		
 		PREPARE stmt FROM @sql;
@@ -657,26 +698,27 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_users;
 CREATE VIEW view_users
 AS
-SELECT u.id, u.email, u.name, 
+SELECT u.id, u.email, u.`name`, 
 IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
-us.name AS status,
+us.`name` AS `status`,
 us.description, u.blocked, 
 CASE
-	WHEN u.name = 'admin' THEN 'admin'
-    WHEN u.name = 'tpf' THEN 'tpf'    
+	WHEN u.`name` = 'admin' THEN 'admin'
+    WHEN u.`name` = 'tpf' THEN 'tpf'    
     ELSE IFNULL(vc.code, '-') 
 END AS code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`,
+GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
 (SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
-(SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) as ac,
-u.intern
+(SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) AS ac,
+u.intern, u.id_userTypes, l_user_type.lookup_code AS user_type_code, l_user_type.lookup_value AS user_type
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
 LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
+INNER JOIN lookups l_user_type ON u.id_userTypes = l_user_type.id
 WHERE u.intern <> 1 AND u.id_status > 0
-GROUP BY u.id, u.email, u.name, u.last_login, us.name, us.description, u.blocked, vc.code, user_activity
+GROUP BY u.id, u.email, u.`name`, u.last_login, us.`name`, us.description, u.blocked, vc.`code`, user_activity
 ORDER BY u.email;
 DROP VIEW IF EXISTS view_sections_fields;
 CREATE VIEW view_sections_fields
@@ -721,14 +763,16 @@ CASE
 END AS message,
 sj_mq.id_mailQueue,
 id_jobTypes,
-id_jobStatus
+id_jobStatus,
+a.id_formActions
 FROM scheduledJobs sj
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)
 INNER JOIN lookups l_types ON (l_types.id = sj.id_jobTypes)
 LEFT JOIN scheduledJobs_mailQueue sj_mq on (sj_mq.id_scheduledJobs = sj.id)
 LEFT JOIN mailQueue mq on (mq.id = sj_mq.id_mailQueue)
 LEFT JOIN scheduledJobs_notifications sj_n on (sj_n.id_scheduledJobs = sj.id)
-LEFT JOIN notifications n on (n.id = sj_n.id_notifications);
+LEFT JOIN notifications n on (n.id = sj_n.id_notifications)
+LEFT JOIN scheduledJobs_formActions a on (a.id_scheduledJobs = sj.id);
 DROP VIEW IF EXISTS view_scheduledJobs_transactions;
 CREATE VIEW view_scheduledJobs_transactions
 AS
@@ -775,22 +819,21 @@ DROP PROCEDURE IF EXISTS get_form_data_with_filter //
 
 CREATE PROCEDURE get_form_data_with_filter( form_id_param INT, filter_param VARCHAR(1000) )
 BEGIN  
-    SET @@group_concat_max_len = 32000;
+    SET @@group_concat_max_len = 32000000;
 	SELECT get_form_fields_helper(form_id_param) INTO @sql;	
 	
     IF (@sql is null) THEN
 		select user_id, form_name from view_user_input where 1=2;
     ELSE 
 		begin
-		SET @sql = CONCAT('select * from (select u.id as user_id, sft_if.content as form_name, max(edit_time) as edit_time, record.id as record_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
+		SET @sql = CONCAT('select * from (select record.id as record_id, max(edit_time) as edit_time, u.id as user_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
 		left join sections field on (ui.id_sections = field.id)
 		left join sections form  on (ui.id_section_form = form.id)
 		left join user_input_record record  on (ui.id_user_input_record = record.id)
-		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
-		LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-		where form.id = ', form_id_param, ' group by u.id, sft_if.content, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
+		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57		
+		where form.id = ', form_id_param, ' group by u.id, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
 
 		
 		PREPARE stmt FROM @sql;
@@ -805,53 +848,30 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_formActions;
 CREATE VIEW view_formActions
 AS
-SELECT fa.id as id, fa.name as action_name, fa.id_forms as id_forms, f.form_name,
-fa.id_formProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
-GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
-schedule_info, fa.id_formActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_forms_reminder, 
-CASE 
-	WHEN action_type.lookup_value = 'Reminder' THEN f_reminder.form_name 
-    ELSE NULL
-END as form_reminder_name, fa.id_formActions
+SELECT fa.id AS id, fa.`name` AS action_name, orig_name AS form_name,
+fa.id_formProjectActionTriggerTypes, trig.lookup_value AS trigger_type, trig.lookup_code AS trigger_type_code,
+config,
+CASE
+	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
+	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
+END AS id_forms
 FROM formActions fa 
-INNER JOIN view_form f ON (fa.id_forms = f.form_id)
 INNER JOIN lookups trig ON (trig.id = fa.id_formProjectActionTriggerTypes)
-INNER JOIN lookups action_type ON (action_type.id = fa.id_formActionScheduleTypes)
-LEFT JOIN view_form f_reminder ON (fa.id_forms_reminder = f_reminder.form_id)
-LEFT JOIN formActions_groups fg on (fg.id_formActions = fa.id)
-LEFT JOIN `groups` g on (fg.id_groups = g.id)
-GROUP BY fa.id, fa.name, fa.id_forms, fa.id_formProjectActionTriggerTypes, trig.lookup_value, f.form_name, form_reminder_name;
-DROP VIEW IF EXISTS view_formActionsReminders;
-CREATE VIEW view_formActionsReminders
+LEFT JOIN formActions_EXTERNAL ex ON (fa.id = ex.id_formActions)
+LEFT JOIN formActions_INTERNAL inter ON (fa.id = inter.id_formActions)
+LEFT JOIN view_data_tables dt ON (dt.form_id_plus_type = CASE
+	WHEN ex.id_forms > 0 THEN CONCAT(FLOOR(ex.id_forms), '-EXTERNAL')
+	WHEN inter.id_forms > 0 THEN CONCAT(FLOOR(inter.id_forms), '-INTERNAL')
+END);
+DROP VIEW IF EXISTS view_scheduledJobs_reminders;
+CREATE VIEW view_scheduledJobs_reminders
 AS
-SELECT u.id as user_id, u.email, u.name AS user_name, code, sj.id AS id_scheduledJobs,
-sj.status_code as status_code, sj.status AS status, r.id_forms AS id_forms,
-fa.id_formActions,
-	(SELECT sess.date_to_be_executed 
-	FROM scheduledJobs sess 
-    INNER JOIN scheduledJobs_formActions sj_fa2 on (sj_fa2.id_scheduledJobs = sess.id)
-	INNER JOIN formActions fa2 ON (fa2.id = sj_fa2.id_formActions)
-    WHERE fa2.id = fa.id_formActions 
-    ORDER BY sess.date_to_be_executed DESC
-    LIMIT 0, 1) AS session_start_date,
-(SELECT CAST(JSON_EXTRACT(fa2.schedule_info, '$.valid') AS UNSIGNED)
-FROM formActions fa2
-WHERE fa2.id = fa.id_formActions) AS valid,
-(SELECT sess.date_to_be_executed 
-	FROM scheduledJobs sess 
-    INNER JOIN scheduledJobs_formActions sj_fa2 on (sj_fa2.id_scheduledJobs = sess.id)
-	INNER JOIN formActions fa2 ON (fa2.id = sj_fa2.id_formActions)
-    WHERE fa2.id = fa.id_formActions 
-    ORDER BY sess.date_to_be_executed DESC
-    LIMIT 0, 1) + INTERVAL (SELECT CAST(JSON_EXTRACT(fa2.schedule_info, '$.valid') AS UNSIGNED)
-FROM formActions fa2
-WHERE fa2.id = fa.id_formActions) MINUTE AS valid_till
-FROM formActionsReminders r
-INNER JOIN view_users u ON (u.id = r.id_users)
-LEFT JOIN view_scheduledJobs sj ON (sj.id = r.id_scheduledJobs) 
-LEFT JOIN scheduledJobs_formActions sj_fa on (sj_fa.id_scheduledJobs = sj.id)
-LEFT JOIN formActions fa ON (fa.id = sj_fa.id_formActions);
+SELECT r.id_scheduledJobs, r.id_forms_INTERNAL, r.id_forms_EXTERNAL,
+r.session_start_date, r.session_end_date, sju.id_users,l_status.lookup_code as job_status_code, l_status.lookup_value as job_status
+FROM scheduledJobs_reminders r
+INNER JOIN scheduledJobs sj ON (sj.id = r.id_scheduledJobs)
+INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
+INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus);
 DROP VIEW IF EXISTS view_user_codes;
 CREATE VIEW view_user_codes
 AS
@@ -872,7 +892,7 @@ DROP PROCEDURE IF EXISTS get_page_fields //
 CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, default_language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
 BEGIN  
 	-- page_id -1 returns all pages
-    SET @@group_concat_max_len = 32000;
+    SET @@group_concat_max_len = 32000000;
 	SELECT get_page_fields_helper(page_id, language_id, default_language_id) INTO @sql;	
 	
     IF (@sql is null) THEN	
@@ -914,7 +934,7 @@ DROP PROCEDURE IF EXISTS get_sections_fields //
 CREATE PROCEDURE get_sections_fields( section_id INT, language_id INT, gender_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
 BEGIN  
 	-- section_id -1 returns all sections
-    SET @@group_concat_max_len = 32000;
+    SET @@group_concat_max_len = 32000000;
 	SELECT get_sections_fields_helper(section_id, language_id, gender_id) INTO @sql;	
 	
     IF (@sql is null) THEN	

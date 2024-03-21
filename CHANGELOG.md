@@ -1,6 +1,7 @@
 # v6.12.0 (Unpublished)
 ### Bugfix 
  - fixes for php 8.3
+ - increase `group_concat_max_len` to `32000000` in the dynamic data procedures
 
 # v6.11.3
 ### Bugfix 
