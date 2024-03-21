@@ -1,4 +1,5 @@
-# v6.11.4 (Unpublished)
+# v6.12.0 (Unpublished)
+### Bugfix 
  - fixes for php 8.3
 
 # v6.11.3

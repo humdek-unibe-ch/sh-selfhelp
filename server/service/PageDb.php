@@ -725,12 +725,16 @@ class PageDb extends BaseDb
                 return '';
             }
         }, $field_content);
-        foreach ($calc_formula_values as $var => $var_value) {
-            if (is_array($var_value)) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value)), $field_content);
-            } else if ($var && $var_value !== null) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
+        try {
+            foreach ($calc_formula_values as $var => $var_value) {
+                if (is_array($var_value)) {
+                    $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value)), $field_content);
+                } else if ($var && $var_value !== null) {
+                    $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
+                }
             }
+        } catch (\Throwable $th) {
+            return $field_content;
         }
         return $is_array ? json_decode($field_content, true) : $field_content;
     }

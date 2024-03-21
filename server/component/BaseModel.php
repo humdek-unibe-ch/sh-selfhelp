@@ -182,9 +182,11 @@ abstract class BaseModel
                         $current_user = $config['current_user'];
                     }
                     $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type'], $user_id);
-                    $data = array_filter($data, function ($value) {
-                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
-                    });
+                    if ($data) {
+                        $data = array_filter($data, function ($value) {
+                            return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
+                        });
+                    }
                     if ($config['retrieve'] === 'JSON') {                        
                         // check if there are map fields defined, and if there are create the new fields with the selected values
                         if(isset($config['map_fields'])){
