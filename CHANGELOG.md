@@ -3,6 +3,9 @@
  - add global function to pull git version
  - return `is_headless` property for pages from a `mobile` request
 
+### Bugfix 
+ - improve `uploadTable` save
+
 # v6.12.0
 ### Bugfix 
  - fixes for php 8.3

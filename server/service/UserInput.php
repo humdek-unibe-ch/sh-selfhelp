@@ -895,11 +895,12 @@ class UserInput
                 ':id' => $record['record_id'],
                 ":id_users" => $data['id_users']
             )
-        ); //update the timestamp of the row
+        ) !== false; //update the timestamp of the row
         unset($data['id_users']); //once used - remove it
         foreach ($data as $key => $value) {
             // if it has a value it will be updated if it is not created yet it will be inserted
-            $res = $res && $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $res = $res && $current_res;
         }
         if ($res) {
             $this->transaction->add_transaction(transactionTypes_update, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table);
