@@ -48,6 +48,11 @@ abstract class BasePage
      */
     private $render_footer;
 
+    /**
+     * Is page headless
+     */
+    private $is_headless;
+
     /* Protected Properties ***************************************************/
 
     /**
@@ -392,6 +397,7 @@ abstract class BasePage
         $this->required_access_level = $info['access_level'];
         $this->page = $info;
         if($info['is_headless']) $this->disable_navigation();
+        $this->is_headless = $info['is_headless'];
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
@@ -606,6 +612,7 @@ abstract class BasePage
         }
         // if($this->render_footer) $this->output_component("footer");
         $res['title'] = $this->title;
+        $res['is_headless'] = $this->is_headless;
         $res['avatar'] = $this->services->get_user_input()->get_avatar($_SESSION['id_user']);
         $res['external_css'] = $this->get_external_css_for_mobile();
         $res['external_css'] = $res['external_css'] . ' ' . $this->get_global_custom_css();
