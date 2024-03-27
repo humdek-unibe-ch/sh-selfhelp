@@ -5,7 +5,7 @@
 
 ### Bugfix 
  - improve `uploadTable` save
- - [Issue](https://github.com/humdek-unibe-ch/sh-selfhelp_app/issues/11) - decode the special characters
+ - [sh-selfhelp_app issue](https://github.com/humdek-unibe-ch/sh-selfhelp_app/issues/11) - decode the special characters
 
 # v6.12.0
 ### Bugfix 
