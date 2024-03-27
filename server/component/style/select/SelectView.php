@@ -153,6 +153,8 @@ class SelectView extends FormFieldView
         }
         $items = array();        
         foreach ($this->items as $key => $value) {
+            $value['value'] = html_entity_decode($value['value']);
+            $value['text'] = html_entity_decode($value['text']);
             $items[] = $value;
         }
         $style['items'] = $items;
