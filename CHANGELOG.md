@@ -1,4 +1,4 @@
-# v6.12.1 (Unpublished)
+# v6.12.1
 ### New features
  - add global function to pull git version
  - return `is_headless` property for pages from a `mobile` request
