@@ -4,7 +4,7 @@
  - return `is_headless` property for pages from a `mobile` request
 
 ### Bugfix 
- - improve `uploadTable` save
+ - improve `uploadTable` - EXTERNAL save
  - [sh-selfhelp_app issue](https://github.com/humdek-unibe-ch/sh-selfhelp_app/issues/11) - decode the special characters
 
 # v6.12.0
