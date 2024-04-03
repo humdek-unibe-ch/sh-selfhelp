@@ -1,3 +1,7 @@
+# v6.12.2 (Unpublished)
+### New features
+ - improve style `descriptionItem`. Now the help close only when click outside of the help modal. Add automatic button for code copy
+
 # v6.12.1
 ### New features
  - add global function to pull git version
