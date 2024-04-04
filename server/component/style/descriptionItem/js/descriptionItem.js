@@ -13,29 +13,29 @@ $(document).ready(function () {
  * @returns {void}
  */
 function initDescriptionItem() {
-    $(function () {
-        $('[data-toggle="popover"]').popover({
+
+    $('[data-toggle="popover"]').each(function () {
+        // Get the title with the close button
+        var titleWithCloseButton = 'Hint <a class="close close-hint" href="#">&times;</a>';
+
+        // Initialize popover for each element
+        $(this).popover({
             html: true,
+            title: titleWithCloseButton,
             placement: 'top'
         }).on('shown.bs.popover', function () {
             addCopyToClipboard();
+            $('.close-hint').off('click').click(function () {
+                $('[data-toggle="popover"]').popover('hide');
+            });
         });
-        $('[data-toggle="popover"]').click(function (e) {
-            e.stopPropagation();
-        });
-    });
-    $(document).off('click').click(function (e) {
-        if (($('.popover').has(e.target).length == 0) || $(e.target).is('.close')) {
-            $('[data-toggle="popover"]').popover('hide');
-        }
     });
 }
 
 /**
  * Adds a copy icon to each <pre> element containing <code>, enabling users to copy the code inside.
- * @param {HTMLElement} element - The parent element to search within for <pre> elements containing <code>.
  */
-function addCopyToClipboard(element) {
+function addCopyToClipboard() {
     $('pre > code').each(function () {
         var preElement = $(this).parent();
         // Check if the icon already exists to avoid duplicates
