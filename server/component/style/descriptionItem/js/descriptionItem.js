@@ -1,4 +1,18 @@
 $(document).ready(function () {
+    initDescriptionItem();
+});
+
+/**
+ * Initializes description items with popover functionality.
+ * Popovers are activated on elements with the attribute data-toggle="popover".
+ * Popovers are configured to be HTML-enabled and placed on top of the triggering element.
+ * After a popover is shown, this function attaches a copy-to-clipboard functionality to it.
+ * Popovers are hidden when clicking outside of them or on elements with the class 'close'.
+ * 
+ * @function initDescriptionItem
+ * @returns {void}
+ */
+function initDescriptionItem() {
     $(function () {
         $('[data-toggle="popover"]').popover({
             html: true,
@@ -10,12 +24,12 @@ $(document).ready(function () {
             e.stopPropagation();
         });
     });
-    $(document).click(function (e) {
+    $(document).off('click').click(function (e) {
         if (($('.popover').has(e.target).length == 0) || $(e.target).is('.close')) {
             $('[data-toggle="popover"]').popover('hide');
         }
     });
-});
+}
 
 /**
  * Adds a copy icon to each <pre> element containing <code>, enabling users to copy the code inside.

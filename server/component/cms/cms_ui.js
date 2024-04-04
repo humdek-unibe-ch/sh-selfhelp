@@ -46,6 +46,7 @@ function init_ui_cms() {
         initRemoveNavButtons();
         initPageOrder(); // in cms.js
         initStyles();
+        initDescriptionItem();
     } catch (error) {
         console.log(error);
         refresh_cms_ui();
