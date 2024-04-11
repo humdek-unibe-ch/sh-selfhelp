@@ -1,9 +1,10 @@
-# v6.12.2 (Unpublished)
+# v6.12.2
 ### New features
  - improve style `descriptionItem`. Now the help close only when click outside of the help modal. Add automatic button for code copy
 
 ### Bugfix 
  - strip slashes for `JSON` field only when the style is `select` 
+ - #480 - fix SQL script `v6.12.0` by enabling `log_bin_trust_function_creators` and then disabling once the script is over
 
 # v6.12.1
 ### New features
