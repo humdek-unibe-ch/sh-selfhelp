@@ -2,6 +2,9 @@
 ### New features
  - improve style `descriptionItem`. Now the help close only when click outside of the help modal. Add automatic button for code copy
 
+### Bugfix 
+ - strip slashes for `JSON` field only when the style is `select` 
+
 # v6.12.1
 ### New features
  - add global function to pull git version
