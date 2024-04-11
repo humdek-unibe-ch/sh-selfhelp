@@ -2,6 +2,8 @@
 UPDATE version
 SET version = 'v6.12.0';
 
+SET GLOBAL log_bin_trust_function_creators = 1;
+
 DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
@@ -311,3 +313,5 @@ END
 //
 
 DELIMITER ;
+
+SET GLOBAL log_bin_trust_function_creators = 0;
