@@ -156,8 +156,6 @@ class Login
             else if($this->redirect)
                 $this->update_last_url($_SESSION['id_user'], null);
         }
-        // Regenerate session ID to invalidate the old session ID
-        session_regenerate_id(true);
         // session_write_close(); // otherwise it blocks request, check later if session is used anywhere else to assign data.
     }
 

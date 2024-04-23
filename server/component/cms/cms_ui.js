@@ -1056,7 +1056,7 @@ function adjustPropertiesHeight() {
 function initDeleteBtn() {
     $('#new-ui-delete').off('click').on('click', function () {
         var delData = $('#new-ui-delete').data('data');
-        confirmation('<p>This will delete the page <code>' + delData['name'] + '</code> and all the data associated to this page.<p>Children elements are not affected.</p></p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the keyword of the page.</p> <input id="deleteValue" type="text" class="form-control" >', () => {
+        confirmation('<p>This will delete <code>' + delData['name'] + '</code> and all the data associated to it.<p>Children elements are not affected.</p></p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the keyword of the page.</p> <input id="deleteValue" type="text" class="form-control" >', () => {
             if ($("#deleteValue").val() == delData['name']) {
                 var redirect_url = null;
                 var refresh = false;
@@ -1084,6 +1084,8 @@ function initDeleteBtn() {
                             // we want to delete from the section itself
                             // after deletion go to the page
                             location.href = delData['cms_url'];
+                        } else if (refresh) {
+                            location.reload();
                         }
                     },
                     () => {
@@ -1091,7 +1093,7 @@ function initDeleteBtn() {
                             title: 'Error!',
                             content: 'The ' + delData['relation'] + ' was not deleted!',
                         });
-                    });                
+                    });
             } else {
                 $.alert({
                     title: 'CMS UI',
