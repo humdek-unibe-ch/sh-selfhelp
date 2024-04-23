@@ -2,6 +2,7 @@
 ### Bugfix 
  - #482 - fix `CMS Preferences` typo
  - #480 - `READS SQL DATA DETERMINISTIC` to the functions and procedures
+ - #483 - change the type of field `label` from `text` to `markdown-inline`
 
 # v6.12.2
 ### New features
