@@ -891,7 +891,7 @@ class CmsView extends BaseView
         if(in_array($field['type'],
                 array("text", "number", "markdown-inline", "time", "date", "password")))
             $children[] = new BaseStyleComponent("input", array(
-                "value" => $field['content'],
+                "value" => isset($field['content']) ? htmlspecialchars($field['content']) : '',
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
                 "is_required" => isset($field['is_required']) ? $field['is_required'] : 0,

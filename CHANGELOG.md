@@ -3,6 +3,7 @@
  - #482 - fix `CMS Preferences` typo
  - #480 - `READS SQL DATA DETERMINISTIC` to the functions and procedures
  - #483 - change the type of field `label` from `text` to `markdown-inline`
+ - #477 - Fix HTML tags in the style `markdownInline`
 
 ### New features
  - rename `Globals` to `Configurations`
