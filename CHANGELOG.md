@@ -4,6 +4,9 @@
  - #480 - `READS SQL DATA DETERMINISTIC` to the functions and procedures
  - #483 - change the type of field `label` from `text` to `markdown-inline`
 
+### New features
+ - rename `Globals` to `Configurations`
+
 # v6.12.2
 ### New features
  - improve style `descriptionItem`. Now the help close only when click outside of the help modal. Add automatic button for code copy
