@@ -3,6 +3,8 @@ DROP FUNCTION IF EXISTS get_page_fields_helper //
 
 CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
 -- page_id -1 returns all pages
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;

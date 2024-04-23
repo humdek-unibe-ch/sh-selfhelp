@@ -3,6 +3,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_form_data_with_filter //
 
 CREATE PROCEDURE get_form_data_with_filter( form_id_param INT, filter_param VARCHAR(1000) )
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
     SET @@group_concat_max_len = 32000000;
 	SELECT get_form_fields_helper(form_id_param) INTO @sql;	

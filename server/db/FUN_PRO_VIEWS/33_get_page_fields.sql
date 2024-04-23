@@ -3,6 +3,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_page_fields //
 
 CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, default_language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
 	-- page_id -1 returns all pages
     SET @@group_concat_max_len = 32000000;

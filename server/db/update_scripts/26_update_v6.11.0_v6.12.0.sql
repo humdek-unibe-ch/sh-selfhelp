@@ -2,12 +2,12 @@
 UPDATE version
 SET version = 'v6.12.0';
 
-SET GLOBAL log_bin_trust_function_creators = 1;
-
 DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -41,6 +41,8 @@ DROP FUNCTION IF EXISTS get_page_fields_helper //
 
 CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
 -- page_id -1 returns all pages
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -69,6 +71,8 @@ DROP FUNCTION IF EXISTS get_sections_fields_helper //
 
 CREATE FUNCTION get_sections_fields_helper(section_id INT, language_id INT, gender_id INT) RETURNS TEXT
 -- section_id -1 returns all sections
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -98,6 +102,8 @@ DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
 
 CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, user_id_param INT, filter_param VARCHAR(1000))
 -- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
+READS SQL DATA
+DETERMINISTIC
 BEGIN
     SET @@group_concat_max_len = 32000000;
     SET @sql = NULL;
@@ -165,6 +171,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
 
 CREATE PROCEDURE get_form_data_for_user_with_filter( form_id_param INT, user_id_param INT, filter_param VARCHAR(1000) )
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
     SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -200,6 +208,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_form_data_with_filter //
 
 CREATE PROCEDURE get_form_data_with_filter( form_id_param INT, filter_param VARCHAR(1000) )
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
     SET @@group_concat_max_len = 32000000;
 	SELECT get_form_fields_helper(form_id_param) INTO @sql;	
@@ -233,6 +243,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_page_fields //
 
 CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, default_language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
 	-- page_id -1 returns all pages
     SET @@group_concat_max_len = 32000000;
@@ -276,6 +288,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_sections_fields //
 
 CREATE PROCEDURE get_sections_fields( section_id INT, language_id INT, gender_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
 	-- section_id -1 returns all sections
     SET @@group_concat_max_len = 32000000;
@@ -313,5 +327,3 @@ END
 //
 
 DELIMITER ;
-
-SET GLOBAL log_bin_trust_function_creators = 0;

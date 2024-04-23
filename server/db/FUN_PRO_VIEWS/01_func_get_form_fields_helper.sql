@@ -2,6 +2,8 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;

@@ -3,6 +3,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_sections_fields //
 
 CREATE PROCEDURE get_sections_fields( section_id INT, language_id INT, gender_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
 	-- section_id -1 returns all sections
     SET @@group_concat_max_len = 32000000;
