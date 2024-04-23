@@ -917,7 +917,6 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => $field['type'],
                 "items" => array(
-                    array("value" => "checkbox", "text" => "checkbox"),
                     array("value" => "color", "text" => "color"),
                     array("value" => "date", "text" => "date"),
                     array("value" => "datetime-local", "text" => "datetime-local"),
