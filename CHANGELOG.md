@@ -6,6 +6,7 @@
 
 ### New features
  - rename `Globals` to `Configurations`
+ - #478 - add `SESSION_TIMEOUT` in `globals_untracked.php`, the default value is 3600 seconds = 1 hour.
 
 # v6.12.2
 ### New features

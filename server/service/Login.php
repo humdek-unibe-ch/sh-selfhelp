@@ -113,7 +113,12 @@ class Login
                 );
             }
         }
-        session_start();
+        // Update the session configuration
+        ini_set('session.gc_maxlifetime', SESSION_TIMEOUT);
+        ini_set('session.cookie_lifetime', SESSION_TIMEOUT);
+        ini_set('session.gc_probability',1);
+        ini_set('session.gc_divisor',1); 
+        session_start();                
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
@@ -153,6 +158,8 @@ class Login
             else if($this->redirect)
                 $this->update_last_url($_SESSION['id_user'], null);
         }
+        // Regenerate session ID to invalidate the old session ID
+        session_regenerate_id(true);
         // session_write_close(); // otherwise it blocks request, check later if session is uesed naywhere else to assgin data.
     }
 
