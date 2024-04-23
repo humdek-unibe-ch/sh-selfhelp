@@ -1,3 +1,7 @@
+# v6.13.0 (Unpublished)
+### Bugfix 
+ - #482 - fix `CMS Preferences` typo
+
 # v6.12.2
 ### New features
  - improve style `descriptionItem`. Now the help close only when click outside of the help modal. Add automatic button for code copy
