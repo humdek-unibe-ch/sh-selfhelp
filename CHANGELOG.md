@@ -6,6 +6,7 @@
  - #477 - fix HTML tags in the style `markdownInline`
  - #476 - reload page after the section is deleted
  - #485 - add condition to reminder if the reminder is `mail`, now it was added only for `notifications`
+ - #466 - fix dropdown selection in `Form Actions`
 
 ### New features
  - rename `Globals` to `Configurations`
