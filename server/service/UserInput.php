@@ -65,7 +65,7 @@ class UserInput
      *  db column and the value to the db value.
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
-     * @retval array
+     * @return array
      *  An array of field items where eeach item has the following keys:
      *  - 'id'            A unique id of the field
      *  - 'user_code'     A unique string that connects values to a user without
@@ -379,7 +379,7 @@ class UserInput
      * The original action row, which the dynamic data check is not applied
      * @param array $blocks
      * The selected blocks which will be executed
-     * @return object;
+     * @return array;
      * Return the update blocks with the new counters for the action and not modified action
      */
     private function update_randomization_count($action, $not_modified_action, $blocks)
@@ -403,16 +403,16 @@ class UserInput
      * The job data
      * @param $form_data
      * The form data
-     * @return object
+     * @return array
      * Return the task config
      */
     private function get_task_config($job, $form_data)
     {
         $task_config = array(
-                "type" => $job[ACTION_JOB_TYPE],
-                "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
-                "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
-            );
+            "type" => $job[ACTION_JOB_TYPE],
+            "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
+            "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
+        );
         return $task_config;
     }
 
@@ -422,9 +422,9 @@ class UserInput
      * user id arrays
      * @param array $action
      * the action information
-     * @param object $form_data
+     * @param array $form_data
      * The form data
-     * @return string
+     * @return array[]
      *  log text what actions was done;
      */
     private function queue_task($users, $job, $action, $form_data)
@@ -465,8 +465,23 @@ class UserInput
         );
     }
 
-    private function send_reminder($parent_date_to_be_executed, $users, $reminder, $action, $form_data)
+    /**
+     * Sends a reminder to a user based on provided parameters.
+     *
+     * @param string $parent_date_to_be_executed The date/time of the parent job to which the reminder is associated.
+     * @param array $user An array containing user information.
+     * @param array $reminder An array containing reminder information.
+     * @param array $action An array containing action information.
+     * @param array $form_data An array containing form data associated with the reminder.
+     * @return array An array containing the result of the reminder sending operation.
+     */
+    private function send_reminder($parent_date_to_be_executed, $user, $reminder, $action, $form_data)
     {
+        $result = array();
+        if (isset($reminder['condition']["jsonLogic"]) && !$this->condition->compute_condition($reminder['condition']["jsonLogic"], $user)['result']) {
+            $result['condition'] = "Reminder action condition is not met";
+            return $result;
+        }
         $reminder_dates = null;
         $date_to_be_executed = date('Y-m-d H:i:s', strtotime('+' . $reminder[ACTION_JOB_SCHEDULE_TIME]['send_after'] . ' ' . $reminder[ACTION_JOB_SCHEDULE_TIME]['send_after_type'], strtotime($parent_date_to_be_executed)));
         if ($reminder['schedule_time']['parent_job_type_hidden'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY) {
@@ -476,10 +491,11 @@ class UserInput
             );
         }
         if ($reminder['notification']['notification_types'] == notificationTypes_email) {
-            return  $this->queue_mail($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_mail(array($user), $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         } else if ($reminder['notification']['notification_types'] == notificationTypes_push_notification) {
-            return  $this->queue_notification($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_notification(array($user), $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         }
+        return $result;
     }
 
     /**
@@ -488,9 +504,9 @@ class UserInput
      * user id arrays
      * @param array $action
      * the action information
-     * @param object $form_data
+     * @param array $form_data
      * The form data
-     * @return string
+     * @return array[]
      *  log text what actions was done;
      */
     private function queue_mail($users, $job, $action, $form_data, $date_to_be_executed = null, $reminder_dates = null)
@@ -560,7 +576,7 @@ class UserInput
                 if (isset($job['reminders'])) {
                     $reminders_result = array();
                     foreach ($job['reminders'] as $reminder_idx => $reminder) {
-                        $reminders_result[] = $this->send_reminder($mail['date_to_be_executed'], $users, $reminder, $action, $form_data);
+                        $reminders_result[] = $this->send_reminder($mail['date_to_be_executed'], $user_id, $reminder, $action, $form_data);
                     }
                 }
                 $result[] = 'Mail was queued for user: ' . $user_id . ' when form: ' . $form_data['form_name'] . ' ' . $action['trigger_type'];
@@ -593,9 +609,9 @@ class UserInput
      * user id arrays
      * @param array $action
      * the action information
-     * @param object $form_data
+     * @param array $form_data
      * The form data
-     * @retval string
+     * @return array[]
      *  log text what actions was done;
      */
     private function queue_notification($users, $job, $action, $form_data, $date_to_be_executed = null, $reminder_dates = null)
@@ -672,9 +688,9 @@ class UserInput
     /**
      * Calculate the execution date. If there is a repeater it takes it into account and 
      * recalculate the date properly
-     * @param object $action
+     * @param array $action
      * The action
-     * @param object $job
+     * @param array $job
      * The selected job
      * @return string
      * Return the execution date in string format
@@ -761,7 +777,7 @@ class UserInput
      * Calculate the date when the email should be sent when it is on weekday type
      * @param array $schedule_info
      * Schedule info from the action
-     * @retval string
+     * @return string
      * the date in sting format for MySQL
      */
     private function calc_date_on_weekday($schedule_info)
@@ -782,7 +798,7 @@ class UserInput
 
     /**
      * Get the scheduled reminders for the user and this survey
-     * @retval array
+     * @return array
      * all scheduled reminders
      */
     private function get_scheduled_reminders_for_delete($form_data)
@@ -1048,7 +1064,7 @@ class UserInput
      *   - 'removed'      Selects all fields matching the removed flag
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1088,7 +1104,7 @@ class UserInput
     /**
      * Get all input fields submitted by male users.
      *
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1100,7 +1116,7 @@ class UserInput
     /**
      * Get all input fields submitted by female users.
      *
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1114,7 +1130,7 @@ class UserInput
      *
      * @param int $field_id
      *  The field_id to match.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1128,7 +1144,7 @@ class UserInput
      *
      * @param string $field_name
      *  The field_name to match.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1142,7 +1158,7 @@ class UserInput
      *
      * @param string $keyword
      *  The page keyword to match.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1157,7 +1173,7 @@ class UserInput
      * @param string $name
      *  The navigation section name to match. All navigation sections containing
      *  the given name are considered.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1173,7 +1189,7 @@ class UserInput
      *  A field identifier of the form `@<form_name>#<field_name>`.
      * @param int $uid
      *  The id of a user.
-     * @retval mixed
+     * @return mixed
      *  On success, the value corresponding to the requested form field, null in
      *  case of a bad pattern syntax, and the empty string if no value was found.
      */
@@ -1199,7 +1215,7 @@ class UserInput
     /**
      * Returns the regular expression to find a form field
      *
-     * @retval string the regular expression that finds a field identifier of
+     * @return string the regular expression that finds a field identifier of
      * the form `@<form_name>#<field_name>`.
      */
     static public function get_input_value_pattern()
@@ -1264,7 +1280,7 @@ class UserInput
      * the id of the input field section
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
-     *@retval array
+     *@return array
      * Collect attributes for each existing user input field.
      * The following attributes are set:
      *  - 'page'  The name of the parent page of the field.
@@ -1322,7 +1338,7 @@ class UserInput
 
     /**
      * Get the UI preferences row for the user. If it is not set returns false
-     * @retval array or false
+     * @return array or false
      * return the UI preferences row or false if it is not set
      */
     public function get_ui_preferences()
@@ -1333,7 +1349,7 @@ class UserInput
             if ($form_id) {
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
-            }else{
+            } else {
                 $this->ui_pref = false;
             }
         }
@@ -1380,7 +1396,7 @@ class UserInput
      * The name of the form or table     
      * @param int $form_type
      * Internal or external form, it loads different table based on this value
-     * @retval array
+     * @return array
      * the result of the fetched form row
      */
     public function get_form_id($name, $form_type = FORM_INTERNAL)
@@ -1423,7 +1439,7 @@ class UserInput
      * Show the data for that user
      * @param boolean $db_first
      * If true it returns the first row. 
-     * @retval array
+     * @return array
      * the result of the fetched data
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_INTERNAL, $user_id = null, $db_first = false)
@@ -1484,7 +1500,7 @@ class UserInput
      * Internal or external form, it loads different table based on this value
      * @param boolean $db_first
      * If true it returns the first row. 
-     * @retval array
+     * @return array
      * the result of the fetched data
      */
     public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_INTERNAL, $db_first = false)
@@ -1519,7 +1535,7 @@ class UserInput
      * The table name where we want to save the data
      * @param array $data
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
-     * @return array
+     * @return array | false
      * return array with the result containing result and message
      */
     public function save_external_data($transaction_by, $table_name, $data, $updateBasedOn = null)
@@ -1599,9 +1615,9 @@ class UserInput
     /**
      * Fetch the label of a form field from the database if available.
      *
-     * @param intval $id_section
+     * @param int $id_section
      *  The section id of the form field from which the label will be fetched.
-     * @retval string
+     * @return string
      *  The label of the form field or the empty string if the label is not
      *  available.
      */
@@ -1629,9 +1645,9 @@ class UserInput
     /**
      * Fetch the style of a form field from the database if available.
      *
-     * @param intval $id_section
+     * @param int $id_section
      *  The section id of the form field from which the style will be fetched.
-     * @retval string
+     * @return string
      *  The style of the form field or the empty string if the style is not
      *  available.
      */
@@ -1657,7 +1673,7 @@ class UserInput
 
     /**
      * Check if any job should be queued based on the registered actions
-     * @param object $form_data
+     * @param array $form_data
      * The form data
      * @return string
      *  log text what jobs were scheduled;
@@ -1674,7 +1690,7 @@ class UserInput
             $start_date = date("Y-m-d H:i:s");
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
-            foreach ($actions as $action) {     
+            foreach ($actions as $action) {
                 $not_modified_action = array_slice($action, 0); //create a copy of the original action
                 $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
 
@@ -1851,7 +1867,8 @@ class UserInput
      * @return array
      * Return an associative array with the form values 
      */
-    public function get_form_values($fields){
+    public function get_form_values($fields)
+    {
         $form_values = array();
         //prepare the values based on what type of form they come
         foreach ($fields as $field_name => $field) {

@@ -11,6 +11,7 @@
  - rename `Globals` to `Configurations`
  - #478 - add `SESSION_TIMEOUT` in `globals_untracked.php`, the default value is 3600 seconds = 1 hour.
  - #475 - remove `checkbox` option from `input` style. For the inputs already set to `checkbox` will continue to work.
+ - #485 - add `condition` and `condition_on_execute` for reminders 
 
 # v6.12.2
 ### New features
