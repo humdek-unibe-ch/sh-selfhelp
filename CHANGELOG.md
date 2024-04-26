@@ -1,4 +1,4 @@
-# v6.13.0 (Unpublished)
+# v6.13.0
 ### Bugfix 
  - #482 - fix `CMS Preferences` typo
  - #480 - `READS SQL DATA DETERMINISTIC` to the functions and procedures
