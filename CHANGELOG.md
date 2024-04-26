@@ -1,3 +1,8 @@
+# v6.13.1
+### Bugfix 
+ - check if `SESSION_TIMEOUT` is defined
+ - add `SESSION_TIMEOUT` to  `globals_untracked.default.php`
+
 # v6.13.0
 ### Bugfix 
  - #482 - fix `CMS Preferences` typo

@@ -114,8 +114,9 @@ class Login
             }
         }
         // Update the session configuration
-        ini_set('session.gc_maxlifetime', SESSION_TIMEOUT);
-        ini_set('session.cookie_lifetime', SESSION_TIMEOUT);
+        $session_timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
+        ini_set('session.gc_maxlifetime', $session_timeout);
+        ini_set('session.cookie_lifetime', $session_timeout);
         session_start();                
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
