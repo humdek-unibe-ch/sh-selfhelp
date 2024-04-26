@@ -691,12 +691,36 @@
 		},
 		"reminder_ref": {
 			"type": "object",
+            "format": "grid-strict",
 			"options": {
 				"disable_collapse": true,
 				"disable_edit_json": true,
 				"disable_properties": true
 			},
 			"properties": {
+                "condition": {
+					"title": "Condition",
+					"$ref": "#/definitions/condition_ref",
+					"options": {
+						"grid_columns": 6
+					}
+				},
+				"on_job_execute": {
+					"type": "object",
+					"options": {
+						"disable_collapse": true,
+						"disable_edit_json": true,
+						"disable_properties": true,
+						"compact": true,
+						"grid_columns": 6
+					},
+					"properties": {
+						"condition": {
+							"title": "Condition on job execute",
+							"$ref": "#/definitions/condition_ref_on_execute"
+						}
+					}
+				},
 				"form_id": {
 					"type": "string",
 					"template": "{{reminder_form_id}}",
@@ -706,7 +730,7 @@
 					"options": {
 						"hidden": true
 					}
-				},
+				},               
 				"schedule_time": {
 					"$ref": "#/definitions/schedule_time_reminder_ref"
 				},
