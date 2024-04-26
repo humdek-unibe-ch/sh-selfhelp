@@ -560,6 +560,7 @@ class UserInput
                 if (isset($job['reminders'])) {
                     $reminders_result = array();
                     foreach ($job['reminders'] as $reminder_idx => $reminder) {
+                        $reminder['on_job_execute'] = $job['on_job_execute']; // inherit the parent condition on execute
                         $reminders_result[] = $this->send_reminder($mail['date_to_be_executed'], $users, $reminder, $action, $form_data);
                     }
                 }

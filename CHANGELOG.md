@@ -5,6 +5,7 @@
  - #483 - change the type of field `label` from `text` to `markdown-inline`
  - #477 - fix HTML tags in the style `markdownInline`
  - #476 - reload page after the section is deleted
+ - #485 - add condition to reminder if the reminder is `mail`, now it was added only for `notifications`
 
 ### New features
  - rename `Globals` to `Configurations`
