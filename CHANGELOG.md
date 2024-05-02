@@ -3,6 +3,7 @@
  - when queuing notifications check if the parameter is array.
  - keep info for all executed blocks from all actions. Does not overwrite them.
  - check actions with repetitions for `weeks` or `months` if the days and week days selected. If they were not the system entered in indefinite while loop.
+ - update `jobConfig.json` schema that it requires at least one day of the week to be selected when the repetition is weekly or at least one day of the month to be selected if the repetition is monthly based.
 
 # v6.13.1
 ### Bugfix 

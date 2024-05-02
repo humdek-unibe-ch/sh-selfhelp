@@ -238,7 +238,11 @@
 							"Sunday"
 						]
 					},
-					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency."
+					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency.",
+                    "minItems": 1,  
+                    "dependencies": {
+                        "frequency": ["week"]
+                    }
 				},
 				"daysOfMonth": {
 					"type": "array",
@@ -292,7 +296,11 @@
 							31
 						]
 					},
-					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency."
+					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency.",
+                    "minItems": 1,  
+                    "dependencies": {
+                        "frequency": ["month"]
+                    }
 				}
 			}
 		},
@@ -669,7 +677,7 @@
 					"type": "string",
 					"format": "markdown",
 					"title": "Body",
-					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
+					"description": "Use @user_name if you want to address the user who triggered the action with their user name",
 					"options": {
 						"grid_columns": 12,
 						"simplemde": {
