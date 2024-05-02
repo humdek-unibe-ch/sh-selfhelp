@@ -490,10 +490,11 @@ class UserInput
                 "session_end_date" => date('Y-m-d H:i:s', strtotime('+' . $reminder[ACTION_JOB_SCHEDULE_TIME]['valid'] . ' ' . $reminder[ACTION_JOB_SCHEDULE_TIME]['valid_type'], strtotime($date_to_be_executed)))
             );
         }
+        $users_arr = is_array($user) ? $user : array($user); // check if the users are array, if they are not make it array
         if ($reminder['notification']['notification_types'] == notificationTypes_email) {
-            return  $this->queue_mail(array($user), $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_mail($users_arr, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         } else if ($reminder['notification']['notification_types'] == notificationTypes_push_notification) {
-            return  $this->queue_notification(array($user), $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_notification($users_arr, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         }
         return $result;
     }
@@ -1809,7 +1810,7 @@ class UserInput
                         }
                         $executed_blocks[] = $curr_block;
                     }
-                    $result['executed_blocks'] = $executed_blocks;
+                    $result['executed_blocks'] = array_merge(isset($result['executed_blocks']) ? $result['executed_blocks'] : array(),  $executed_blocks);
                 }
             }
 

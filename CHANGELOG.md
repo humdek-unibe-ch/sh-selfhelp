@@ -1,3 +1,8 @@
+# v6.13.2 (Unpublished)
+### Bugfix 
+ - when queuing notifications check if the parameter is array.
+ - keep info for all executed blocks from all actions. Does not overwrite them.
+
 # v6.13.1
 ### Bugfix 
  - check if `SESSION_TIMEOUT` is defined
