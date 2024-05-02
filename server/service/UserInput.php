@@ -709,11 +709,15 @@ class UserInput
             // Loop as many occurrences we have 
             while (count($schedule_dates) < $repeater[ACTION_REPEATER_OCCURRENCES]) {
                 if (($repeater[ACTION_REPEATER_FREQUENCY] == 'day')
-                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && in_array(date('l', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_WEEK]))
-                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && in_array(date('d', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_MONTH]))
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && count($repeater[ACTION_REPEATER_DAYS_OF_WEEK]) > 0 && in_array(date('l', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_WEEK]))
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && count($repeater[ACTION_REPEATER_DAYS_OF_MONTH]) > 0 && in_array(date('d', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_MONTH]))
                 ) {
-                    // Event occurs on this day, schedule it
+                    // Event occurs on this day, schedule it                    
                     $schedule_dates[] = date('Y-m-d H:i:s', strtotime($start_date_time, strtotime($current_date))); // add the new date with the time that we already calculated in the start date
+                } else if (($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && count($repeater[ACTION_REPEATER_DAYS_OF_WEEK]) == 0)
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && count($repeater[ACTION_REPEATER_DAYS_OF_MONTH]) == 0)
+                ) {
+                    throw new Exception("Error while parsing repeat dates", 1);
                 }
                 // Increment the current date with one day
                 $current_date = date('Y-m-d', strtotime("+1 day", strtotime($current_date)));

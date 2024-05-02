@@ -2,6 +2,7 @@
 ### Bugfix 
  - when queuing notifications check if the parameter is array.
  - keep info for all executed blocks from all actions. Does not overwrite them.
+ - check actions with repetitions for `weeks` or `months` if the days and week days selected. If they were not the system entered in indefinite while loop.
 
 # v6.13.1
 ### Bugfix 
