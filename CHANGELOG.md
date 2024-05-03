@@ -5,6 +5,7 @@
  - check actions with repetitions for `weeks` or `months` if the days and week days selected. If they were not the system entered in indefinite while loop.
  - update `jobConfig.json` schema that it requires at least one day of the week to be selected when the repetition is weekly or at least one day of the month to be selected if the repetition is monthly based.
  - #491 - access to `ajax_set_user_language` is granted when a `DB role` with `core` access is created
+ - #488 - fix default fallback for sections' translation
 
 ### New Feature
  - do not show pages with action type `ajax` in CMS page index 

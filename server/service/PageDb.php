@@ -358,29 +358,73 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT f.id AS id, f.name, ft.`name` AS type,
-            CASE
-                WHEN f.display = 0 then IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1), sf.default_value)
-                ELSE IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 0,1), 
-                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 0,1), 
-                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
-                IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
-            END AS content,
-            CASE
-                WHEN f.display = 0 then IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1), sf.default_value)
-                ELSE IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 0,1), 
-                IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 0,1), 
-                IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
-                IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
-            END AS meta,
-            sf.default_value, st.`name` AS style, s.`name` AS `section_name`, f.display, s.id as section_id
-            FROM sections AS s 
-            LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
-            LEFT JOIN fields AS f ON f.id = sf.id_fields
-            LEFT JOIN fieldType AS ft ON ft.id = f.id_type
-            LEFT JOIN styles AS st ON st.id = s.id_styles
-            LEFT JOIN styleType AS t ON t.id = st.id_type
-            WHERE s.id = :id ";
+            $sql = "SELECT 
+                    f.id AS id, 
+                    f.name, 
+                    ft.name AS type,
+                    COALESCE(
+                        CASE
+                            WHEN f.display = 0 THEN (
+                                SELECT 
+                                    COALESCE(
+                                        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 1),
+                                        sf.default_value
+                                    )
+                            )
+                            ELSE (
+                                SELECT 
+                                    COALESCE(
+                                        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender AND content <> '' LIMIT 1),
+                                        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender AND content <> '' LIMIT 1),
+                                        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender AND content <> '' LIMIT 1),
+                                        (SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender AND content <> '' LIMIT 1),
+                                        ''
+                                    )
+                            )
+                        END,
+                        ''
+                    ) AS content,
+                    COALESCE(
+                        CASE
+                            WHEN f.display = 0 THEN (
+                                SELECT 
+                                    COALESCE(
+                                        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 1),
+                                        sf.default_value
+                                    )
+                            )
+                            ELSE (
+                                SELECT 
+                                    COALESCE(
+                                        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender AND content <> '' LIMIT 1),
+                                        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender AND content <> '' LIMIT 1),
+                                        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender AND content <> '' LIMIT 1),
+                                        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender AND content <> '' LIMIT 1),
+                                        ''
+                                    )
+                            )
+                        END,
+                        ''
+                    ) AS meta,
+                    sf.default_value, 
+                    st.name AS style, 
+                    s.name AS section_name, 
+                    f.display, 
+                    s.id as section_id
+                FROM 
+                    sections AS s 
+                LEFT JOIN 
+                    styles_fields AS sf ON sf.id_styles = s.id_styles
+                LEFT JOIN 
+                    fields AS f ON f.id = sf.id_fields
+                LEFT JOIN 
+                    fieldType AS ft ON ft.id = f.id_type
+                LEFT JOIN 
+                    styles AS st ON st.id = s.id_styles
+                LEFT JOIN 
+                    styleType AS t ON t.id = st.id_type
+                WHERE 
+                    s.id = :id;";
 
             $res = $this->query_db($sql, array(
                 ":id" => $id,
