@@ -1,4 +1,4 @@
-# v6.14.0 (Unpublished)
+# v6.14.0
 ### Bugfix 
  - when queuing notifications check if the parameter is array.
  - keep info for all executed blocks from all actions. Does not overwrite them.
