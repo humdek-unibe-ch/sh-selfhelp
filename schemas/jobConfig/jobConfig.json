@@ -238,11 +238,7 @@
 							"Sunday"
 						]
 					},
-					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency.",
-                    "minItems": 1,  
-                    "dependencies": {
-                        "frequency": ["week"]
-                    }
+					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency. If none is selected it will use the current week day."                    
 				},
 				"daysOfMonth": {
 					"type": "array",
@@ -296,11 +292,7 @@
 							31
 						]
 					},
-					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency.",
-                    "minItems": 1,  
-                    "dependencies": {
-                        "frequency": ["month"]
-                    }
+					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency. If none is selected it will use the current day of the month."                    
 				}
 			}
 		},
