@@ -106,6 +106,7 @@ define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 /* Page actions */
 define('PAGE_ACTION_BACKEND', 'backend');
 define('PAGE_ACTION_COMPONENT', 'component');
+define('PAGE_ACTION_AJAX', 'ajax');
 
 /* Entry modes */
 define('INSERT', 'insert');

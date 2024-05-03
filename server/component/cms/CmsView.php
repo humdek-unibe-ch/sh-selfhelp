@@ -168,7 +168,7 @@ class CmsView extends BaseView
 
         $pages = $this->model->get_pages();
         $global_pages = $this->prepare_global_pages($this->model->get_global_pages());
-        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND));  
+        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND, PAGE_ACTION_AJAX));  
         $expand_global_pages = $this->model->expand_global_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
         $this->add_list_component("global-page-list", "Configuration", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
