@@ -6,6 +6,9 @@
  - update `jobConfig.json` schema that it requires at least one day of the week to be selected when the repetition is weekly or at least one day of the month to be selected if the repetition is monthly based.
  - #491 - access to `ajax_set_user_language` is granted when a `DB role` with `core` access is created
 
+### New Feature
+ - do not show pages with action type `ajax` in CMS page index 
+
 # v6.13.1
 ### Bugfix 
  - check if `SESSION_TIMEOUT` is defined
