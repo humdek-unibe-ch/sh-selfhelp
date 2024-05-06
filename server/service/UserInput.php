@@ -1585,7 +1585,8 @@ class UserInput
                 "form_name" => $table_name,
                 "form_id" => $this->get_form_id($table_name, FORM_EXTERNAL),
                 "form_type" => FORM_EXTERNAL,
-                "form_fields" => $form_fields
+                "form_fields" => $form_fields,
+                "record_id" => $res
             );
             /**************** Check jobs ***************************************/
             $this->db->commit();
