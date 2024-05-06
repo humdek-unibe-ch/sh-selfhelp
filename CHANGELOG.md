@@ -1,3 +1,7 @@
+# v6.15.0
+### New Feature
+ - #487 - keep the `record_id` for the scheduled actions
+
 # v6.14.0
 ### Bugfix 
  - when queuing notifications check if the parameter is array.
