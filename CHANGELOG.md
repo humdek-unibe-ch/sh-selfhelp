@@ -1,6 +1,6 @@
 # v6.15.0 (Unpublished)
 ### New Feature
- - #487 - keep the `record_id` for the scheduled actions
+ - #487 - keep the `record_id` for the scheduled actions. Add two columns one for `INTERNAL` data type - `id_user_input_record` and one for `EXTERNAL` data type - `id_uploadRows`
 
 # v6.14.0
 ### Bugfix 
