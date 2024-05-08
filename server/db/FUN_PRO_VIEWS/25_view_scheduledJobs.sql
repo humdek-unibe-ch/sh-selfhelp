@@ -24,12 +24,22 @@ END AS message,
 sj_mq.id_mailQueue,
 id_jobTypes,
 id_jobStatus,
-a.id_formActions
+a.id_formActions,
+id_user_input_record,
+sft_if.content AS internal_table,
+id_uploadRows,
+ut.`name` AS external_table
 FROM scheduledJobs sj
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)
 INNER JOIN lookups l_types ON (l_types.id = sj.id_jobTypes)
-LEFT JOIN scheduledJobs_mailQueue sj_mq on (sj_mq.id_scheduledJobs = sj.id)
-LEFT JOIN mailQueue mq on (mq.id = sj_mq.id_mailQueue)
-LEFT JOIN scheduledJobs_notifications sj_n on (sj_n.id_scheduledJobs = sj.id)
-LEFT JOIN notifications n on (n.id = sj_n.id_notifications)
-LEFT JOIN scheduledJobs_formActions a on (a.id_scheduledJobs = sj.id);
+LEFT JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_scheduledJobs = sj.id)
+LEFT JOIN mailQueue mq ON (mq.id = sj_mq.id_mailQueue)
+LEFT JOIN scheduledJobs_notifications sj_n ON (sj_n.id_scheduledJobs = sj.id)
+LEFT JOIN notifications n ON (n.id = sj_n.id_notifications)
+LEFT JOIN scheduledJobs_formActions a ON (a.id_scheduledJobs = sj.id)
+
+LEFT JOIN user_input_record uir ON (id_user_input_record = uir.id)
+LEFT JOIN sections_fields_translation AS sft_if ON (sft_if.id_sections = uir.id_sections AND sft_if.id_fields = 57)
+
+LEFT JOIN uploadRows ur ON (id_uploadRows = ur.id)
+LEFT JOIN uploadTables ut ON (ur.id_uploadTables = ut.id);

@@ -1,6 +1,8 @@
 # v6.15.0 (Unpublished)
 ### New Feature
  - #487 - keep the `record_id` for the scheduled actions. Add two columns one for `INTERNAL` data type - `id_user_input_record` and one for `EXTERNAL` data type - `id_uploadRows`
+ - add extra info from which record a job was scheduled to `scheduledJobs` entry view
+ - move `form_id` info from table `user_input` to table `user_input_record`. Normalize data
 
 # v6.14.0
 ### Bugfix 
