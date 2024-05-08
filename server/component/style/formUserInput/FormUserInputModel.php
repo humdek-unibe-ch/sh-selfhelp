@@ -75,7 +75,6 @@ class FormUserInputModel extends StyleModel
         $res = $this->db->insert("user_input", array(
             "id_users" => $id_users,
             "id_sections" => $id,
-            "id_section_form" => $this->get_form_id(),
             "value" => $value,
             "id_user_input_record" => $id_record,
         ));
@@ -118,7 +117,6 @@ class FormUserInputModel extends StyleModel
                 ),
                 array(
                     "id_sections" => $id,
-                    "id_section_form" => $this->get_form_id(),
                     "id_user_input_record" => $record_id
                 )
             );
@@ -207,7 +205,7 @@ class FormUserInputModel extends StyleModel
         $res = $this->user_input->get_input_fields(array(
             "id_section" => $id,
             "id_user" => $_SESSION['id_user'],
-            "id_section_form" => $this->get_form_id()
+            "form_id" => $this->get_form_id()
         ));
         if ($res) return true;
         else return false;
@@ -223,7 +221,7 @@ class FormUserInputModel extends StyleModel
     {
         $res = $this->user_input->get_input_fields(array(
             "id_user" => $_SESSION['id_user'],
-            "id_section_form" => $this->get_form_id()
+            "form_id" => $this->get_form_id()
         ));
         if ($res) return true;
         else return false;
@@ -266,7 +264,7 @@ class FormUserInputModel extends StyleModel
     {
         $id_record = null;
         if ($this->is_log() || !$this->has_form_data()) {
-            $id_record = $this->db->insert("user_input_record", array());
+            $id_record = $this->db->insert("user_input_record", array("id_sections" => $this->get_form_id()));
         }
         $this->db->begin_transaction();
         foreach ($user_input as $id => $value) {

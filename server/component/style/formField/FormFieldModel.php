@@ -68,7 +68,7 @@ class FormFieldModel extends StyleModel
         $fields = $this->user_input->get_input_fields(array(
             "id_section" => $this->get_db_field('id'),
             "id_user" => $_SESSION['id_user'],
-            "id_section_form" => $this->form_id
+            "form_id" => $this->form_id
         ));
         $field_count = count($fields);
         if($fields && $field_count > 0)

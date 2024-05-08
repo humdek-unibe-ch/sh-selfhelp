@@ -86,7 +86,7 @@ class UserInput
     private function fetch_input_fields($conds = array(), $get_page_info = false)
     {
         // rework
-        if (!isset($conds['ui.id_section_form']))
+        if (!isset($conds['record.id_sections']))
             $field_attrs = $this->get_field_attrs(-1, $get_page_info);
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, json_encode($conds), [__FUNCTION__]);
         $get_result = $this->db->get_cache()->get($key);
@@ -99,6 +99,7 @@ class UserInput
             $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
                     g.`name` AS gender, vc.code, id_user_input_record
                     FROM user_input AS ui
+                    LEFT JOIN user_input_record record  ON (ui.id_user_input_record = record.id)
                     LEFT JOIN users AS u ON u.id = ui.id_users
                     LEFT JOIN genders AS g ON g.id = u.id_genders
                     LEFT JOIN validation_codes AS vc on vc.id_users = ui.id_users
@@ -116,7 +117,7 @@ class UserInput
         $fields = array();
         foreach ($fields_db as $field) {
             $id = intval($field["id_sections"]);
-            if (isset($conds['ui.id_section_form'])) {
+            if (isset($conds['record.id_sections'])) {
                 $field_attrs = $this->get_field_attrs($id, $get_page_info);
             }
             if (!isset($field_attrs[$id])) continue;
@@ -1073,6 +1074,7 @@ class UserInput
      *   - 'id_section'   Selects all fields with given section id.
      *   - 'id_user'      Selects all fields from a given user id.
      *   - 'removed'      Selects all fields matching the removed flag
+     *   - 'form_id'      Filter the form id
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
      * @return array
@@ -1087,8 +1089,8 @@ class UserInput
             $db_cond["g.name"] = $filter["gender"];
         if (isset($filter["id_section"]))
             $db_cond["ui.id_sections"] = $filter["id_section"];
-        if (isset($filter["id_section_form"])) {
-            $db_cond["ui.id_section_form"] = $filter["id_section_form"];
+        if (isset($filter["form_id"])) {
+            $db_cond["record.id_sections"] = $filter["form_id"];
         }
         if (isset($filter["id_user"]))
             $db_cond["ui.id_users"] = $filter["id_user"];
@@ -1097,7 +1099,7 @@ class UserInput
         if (isset($filter["removed"]))
             $db_cond["ui.removed"] = $filter["removed"] ? '1' : '0';
         if (isset($filter["form_name"]))
-            $db_cond["ui.id_section_form"] = $this->get_form_id($filter["form_name"]);
+            $db_cond["record.id_sections"] = $this->get_form_id($filter["form_name"]);
         $fields_all = $this->fetch_input_fields($db_cond, $get_page_info);
         $fields = array();
         foreach ($fields_all as $field)
@@ -1251,10 +1253,13 @@ class UserInput
         if ($get_result !== false) {
             $sections = $get_result;
         } else {
-            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS `language` FROM user_input AS ui
+            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name,
+                    sft_il.content AS field_label, g.name AS gender, l.locale AS `language` 
+                    FROM user_input AS ui
+                    LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
                     LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
-                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = " . NAME_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
                     LEFT JOIN sections AS s ON s.id = ui.id_sections
                     LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -1308,10 +1313,13 @@ class UserInput
         if ($get_result !== false) {
             $sections = $get_result;
         } else {
-            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
+            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, 
+                    sft_il.content AS field_label, g.name AS gender, l.locale AS `language`
+                    FROM user_input AS ui
+                    LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
                     LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
-                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = " . NAME_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
                     LEFT JOIN sections AS s ON s.id = ui.id_sections
                     LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -1419,9 +1427,10 @@ class UserInput
             return $get_result;
         } else {
             if ($form_type == FORM_INTERNAL) {
-                $sql = 'select id_section_form as id
+                $sql = 'select record.id_sections as id
                 from user_input ui
-                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+                LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
+                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57
                 where sft_if.content = :name
                 limit 0,1;';
             } else if ($form_type == FORM_EXTERNAL) {
