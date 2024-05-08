@@ -264,7 +264,3 @@ END
 //
 
 DELIMITER ;
-
-
-
-
