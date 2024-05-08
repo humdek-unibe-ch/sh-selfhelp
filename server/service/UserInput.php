@@ -903,11 +903,11 @@ class UserInput
      * Update the record in the upload table
      * @param int $id_table
      * The upload table id
-     * @param object $record
+     * @param array $record
      * The record that already exists
      * @param string $transaction_by
      * Who initiated the update
-     * @param object $data
+     * @param array $data
      * the new data that will update the old one
      * @return bool
      * Return the success of the update
@@ -918,14 +918,14 @@ class UserInput
         $res = $this->db->execute_update_db(
             "UPDATE uploadRows SET `timestamp` = NOW(), id_users = :id_users WHERE id = :id;",
             array(
-                ':id' => $record['record_id'],
+                ':id' => $record[ENTRY_RECORD_ID],
                 ":id_users" => $data['id_users']
             )
         ) !== false; //update the timestamp of the row
         unset($data['id_users']); //once used - remove it
         foreach ($data as $key => $value) {
             // if it has a value it will be updated if it is not created yet it will be inserted
-            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record[ENTRY_RECORD_ID], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
             $res = $res && $current_res;
         }
         if ($res) {
@@ -973,7 +973,7 @@ class UserInput
             if ($record) {
                 // the record exists, do not insert it, update it
                 $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
-                return $res ? $record['record_id'] : $res;
+                return $res ? $record[ENTRY_RECORD_ID] : $res;
             }
         }
         /******************* SET TABLE *********************************/
@@ -1407,7 +1407,7 @@ class UserInput
      * The name of the form or table     
      * @param int $form_type
      * Internal or external form, it loads different table based on this value
-     * @return array
+     * @return int | false
      * the result of the fetched form row
      */
     public function get_form_id($name, $form_type = FORM_INTERNAL)
@@ -1580,13 +1580,13 @@ class UserInput
                 // but if all rows are for the same user we can send the user
                 $form_fields['id_users']  = $id_users;
             }
+            $form_fields[ENTRY_RECORD_ID] = $res;
             $form_data = array(
                 "trigger_type" => isset($data['trigger_type']) ? $data['trigger_type'] : actionTriggerTypes_finished,
                 "form_name" => $table_name,
                 "form_id" => $this->get_form_id($table_name, FORM_EXTERNAL),
                 "form_type" => FORM_EXTERNAL,
-                "form_fields" => $form_fields,
-                "record_id" => $res
+                "form_fields" => $form_fields
             );
             /**************** Check jobs ***************************************/
             $this->db->commit();
@@ -1811,10 +1811,16 @@ class UserInput
                                     $curr_block['jobs'][] = $scheduling_result;
                                     $scheduling_keys = array_keys($scheduling_result);
                                     if (reset($scheduling_keys)) {
-                                        $this->db->insert('scheduledJobs_formActions', array(
+                                        $scheduledJobData = array(
                                             "id_scheduledJobs" => reset($scheduling_keys),
-                                            "id_formActions" => $action['id'],
-                                        ));
+                                            "id_formActions" => $action['id']
+                                        );
+                                        if ($form_data['form_type'] == FORM_INTERNAL) {
+                                            $scheduledJobData["id_user_input_record"] = $form_data['form_fields'][ENTRY_RECORD_ID];
+                                        } else if ($form_data['form_type'] == FORM_EXTERNAL) {
+                                            $scheduledJobData["id_uploadRows"] = $form_data['form_fields'][ENTRY_RECORD_ID];
+                                        }
+                                        $this->db->insert('scheduledJobs_formActions', $scheduledJobData);
                                     }
                                 }
                             }
