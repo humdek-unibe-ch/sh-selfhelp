@@ -937,7 +937,7 @@
         "delete_scheduled": {
 			"type": "boolean",
 			"title": "Delete jobs",
-            "description":"Deleted already scheduled jobs when a record is updated",
+            "description":"Delete already scheduled jobs when a record is updated",
 			"default": false,
 			"format": "checkbox",
 			"options": {
