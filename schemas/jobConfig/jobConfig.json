@@ -904,7 +904,7 @@
 			"default": false,
 			"format": "checkbox",
 			"options": {
-				"grid_columns": 3
+				"grid_columns": 2
 			}
 		},
 		"repeat": {
@@ -913,7 +913,7 @@
 			"default": false,
 			"format": "checkbox",
 			"options": {
-				"grid_columns": 3
+				"grid_columns": 2
 			}
 		},
 		"target_groups": {
@@ -922,12 +922,22 @@
 			"default": false,
 			"format": "checkbox",
 			"options": {
-				"grid_columns": 3
+				"grid_columns": 2
 			}
 		},
 		"overwrite_variables": {
 			"type": "boolean",
 			"title": "Overwrite variables",
+			"default": false,
+			"format": "checkbox",
+			"options": {
+				"grid_columns": 3
+			}
+		},
+        "delete_scheduled": {
+			"type": "boolean",
+			"title": "Delete jobs",
+            "description":"Deleted already scheduled jobs when a record is updated",
 			"default": false,
 			"format": "checkbox",
 			"options": {

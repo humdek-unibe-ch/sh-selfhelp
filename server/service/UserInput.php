@@ -1708,14 +1708,10 @@ class UserInput
             );
             //get all actions for this form and trigger type
             $start_time = microtime(true);
-            $start_date = date("Y-m-d H:i:s");
-            if($form_data['trigger_type'] == actionTriggerTypes_finished && isset($form_data['form_fields'][ENTRY_RECORD_ID])){
-                // if the trigger type is finished and the record id exists, check for scheduled jobs with that record and move them to status deleted
-                $result['deleted_jobs_count'] = $this->delete_jobs_for_record($form_data['form_type'], $form_data['form_fields'][ENTRY_RECORD_ID]);
-            }
+            $start_date = date("Y-m-d H:i:s");            
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
-            foreach ($actions as $action) {
+            foreach ($actions as $action) {                
                 $not_modified_action = array_slice($action, 0); //create a copy of the original action
                 $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
 
@@ -1733,6 +1729,14 @@ class UserInput
                 if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) {
                     $result['condition'] = "Action condition is not met";
                     continue;
+                }
+
+                if (
+                    $form_data['trigger_type'] == actionTriggerTypes_finished && isset($form_data['form_fields'][ENTRY_RECORD_ID]) &&
+                    isset($action['config'][ACTION_DELETE_SCHEDULED]) && $action['config'][ACTION_DELETE_SCHEDULED]
+                ) {
+                    // if the trigger type is finished and the record id exists, check for scheduled jobs with that record and move them to status deleted
+                    $result['deleted_jobs'] = $this->delete_jobs_for_record($form_data['form_type'], $action['id'], $form_data['form_fields'][ENTRY_RECORD_ID]);
                 }
 
 
@@ -1918,29 +1922,51 @@ class UserInput
      * Delete scheduled jobs associated with a record.
      *
      * @param int $form_type The type of form (internal or external).
+     * @param int $action_id The ID of the action.
      * @param int $record_id The ID of the record.
-     * @return int|false Number of rows updated on success, or false on failure.
+     * @return array Array with the ids of the deleted jobs
      */
-    public function delete_jobs_for_record($form_type, $record_id)
+    public function delete_jobs_for_record($form_type, $action_id, $record_id)
     {
         $job_status_deleted = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_deleted);
+        $job_status_queued = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued);
         $sql = '';
         if ($form_type == FORM_INTERNAL) {
-            $sql = 'UPDATE scheduledJobs sj
+            $sql = 'SELECT id
+            FROM scheduledJobs sj
             INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-            SET id_jobStatus = :job_status
-            WHERE sjfa.id_user_input_record = :record_id';
-        } else if ($form_type == FORM_EXTERNAL
+            WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_user_input_record = :record_id';
+        } else if (
+            $form_type == FORM_EXTERNAL
         ) {
-            $sql = 'UPDATE scheduledJobs sj
+            $sql = 'SELECT id
+            FROM scheduledJobs sj
             INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-            SET id_jobStatus = :job_status
-            WHERE sjfa.id_uploadRows = :record_id';
+            WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_uploadRows = :record_id';
         }
-        return $this->db->execute_update_db($sql, array(
-            ":job_status" => $job_status_deleted,
+        $jobs_ids = $this->db->query_db($sql, array(
+            ":action_id" => $action_id,
+            ":job_status_queued" => $job_status_queued,
             ":record_id" => $record_id
         ));
+        foreach ($jobs_ids as $key => $value) {
+            $this->transaction->add_transaction(
+                transactionTypes_delete,
+                transactionBy_by_system,
+                $_SESSION['id_user'],
+                $this->transaction::TABLE_SCHEDULED_JOBS,
+                $value['id'],
+                false
+            );
+            $this->db->update_by_ids(
+                "scheduledJobs",
+                array(
+                    "id_jobStatus" => $job_status_deleted
+                ),
+                array('id' => $value['id'])
+            );
+        }
+        return $jobs_ids;
     }
 }
 ?>
