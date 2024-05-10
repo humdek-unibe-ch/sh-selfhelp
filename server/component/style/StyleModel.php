@@ -141,20 +141,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 
     }
 
-    /* Private Methods ********************************************************/
-
-    /** 
-     * Calculate condition if exist and assign the value in the property condition_result;
-    */
-    private function calc_condition(){
-        $condition = $this->get_db_field('condition', '');
-        if ($condition != '') {
-            if ($this->entry_record) {
-                $condition = $this->get_entry_values($condition);
-            }
-        }        
-        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
-    }    
+    /* Private Methods ********************************************************/    
 
     /**
      * Get entries values if there are any set
@@ -449,6 +436,24 @@ class StyleModel extends BaseModel implements IStyleModel
     }    
 
     /* Public Methods *********************************************************/    
+
+    /**
+     * Calculate condition if it exists and assign the value to the property 'condition_result'.
+     * 
+     * This function calculates a condition if it exists and assigns the computed value to the property 'condition_result'.
+     * 
+     * @return array The computed condition result.
+     */
+    public function calc_condition(){
+        $condition = $this->get_db_field('condition', '');
+        if ($condition != '') {
+            if ($this->entry_record) {
+                $condition = $this->get_entry_values($condition);
+            }
+        }        
+        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
+        return $this->condition_result;
+    }    
 
     /**
      * Returns the content of a data field given a specific key. If the key does
