@@ -4,6 +4,7 @@
  - add extra info from which record a job was scheduled to `scheduledJobs` entry view
  - move `id_section_form` info from table `user_input` to table `user_input_record`. Normalize data. <span style="color:red">**Potential issues with very old SelfHelp versions. Some of the data may not be visible in Admin->Data. It should be visible in the old user input export.**</span>
  - make function `calc_condition` public and return the result in  `StyleModel`. This public function should be called to check the condition status when there is some custom logic in the `controller` or `component` of the style
+ - #487 saving `INTERNAL` data checks if there is scheduled actions for this `record_id` and if there are any they are deleted (change status to deleted)
 
 # v6.14.0
 ### Bugfix 
