@@ -377,6 +377,7 @@ class FormUserInputModel extends StyleModel
     {
         $this->db->begin_transaction();
         $res = $this->db->update_by_ids('user_input', array('removed' => 1), array('id_user_input_record' => $record_id));
+        $this->queue_job_from_actions(actionTriggerTypes_deleted, $record_id);
         $this->transaction->add_transaction(
             transactionTypes_delete,
             transactionBy_by_user,
