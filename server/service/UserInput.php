@@ -485,7 +485,7 @@ class UserInput
         }
         $reminder_dates = null;
         $date_to_be_executed = date('Y-m-d H:i:s', strtotime('+' . $reminder[ACTION_JOB_SCHEDULE_TIME]['send_after'] . ' ' . $reminder[ACTION_JOB_SCHEDULE_TIME]['send_after_type'], strtotime($parent_date_to_be_executed)));
-        if ($reminder['schedule_time']['parent_job_type_hidden'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY) {
+        if ($reminder[ACTION_JOB_SCHEDULE_TIME]['parent_job_type_hidden'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY) {
             $reminder_dates = array(
                 "session_start_date" => $parent_date_to_be_executed, // parent notification schedule time
                 "session_end_date" => date('Y-m-d H:i:s', strtotime('+' . $reminder[ACTION_JOB_SCHEDULE_TIME]['valid'] . ' ' . $reminder[ACTION_JOB_SCHEDULE_TIME]['valid_type'], strtotime($date_to_be_executed)))
@@ -703,7 +703,7 @@ class UserInput
         if (isset($config[ACTION_REPEAT]) && $config[ACTION_REPEAT]) {
             $repeater = $config[ACTION_REPEATER];
             // Define the start date of the event
-            $start_date = $this->calc_date_to_be_sent($job['schedule_time']);
+            $start_date = $this->calc_date_to_be_sent($job[ACTION_JOB_SCHEDULE_TIME]);
             $start_date_time = date('H:i:s', strtotime($start_date));
             $current_date = $start_date;
             $schedule_dates = array();
@@ -730,8 +730,11 @@ class UserInput
                 $current_date = date('Y-m-d', strtotime("+1 day", strtotime($current_date)));
             }
             return $schedule_dates[$action["repeat_index"]];
+        } else if (isset($config[ACTION_REPEAT_UNTIL_DATE]) && $config[ACTION_REPEAT_UNTIL_DATE]) {
+            $dates_to_be_scheduled = $this->calculateScheduledDatesRepeaterUntil($config[ACTION_REPEATER_UNTIL_DATE]);
+            return $dates_to_be_scheduled[$action["repeat_index"]];
         } else {
-            return $this->calc_date_to_be_sent($job['schedule_time']);
+            return $this->calc_date_to_be_sent($job[ACTION_JOB_SCHEDULE_TIME]);
         }
     }
 
@@ -1708,10 +1711,10 @@ class UserInput
             );
             //get all actions for this form and trigger type
             $start_time = microtime(true);
-            $start_date = date("Y-m-d H:i:s");            
+            $start_date = date("Y-m-d H:i:s");
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
-            foreach ($actions as $action) {                
+            foreach ($actions as $action) {
                 $not_modified_action = array_slice($action, 0); //create a copy of the original action
                 $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
 
@@ -1762,7 +1765,13 @@ class UserInput
                 $repeat = isset($action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES]) ? $action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES] : 1;
                 $executed_blocks = array();
                 $blocks_not_executed_yet = $action['config']['blocks'];
-
+                if (isset($action['config'][ACTION_REPEATER_UNTIL_DATE])) {
+                    /*************************  REPEAT UNTIL *********************************************************/
+                    // calculate how many repetitions can be scheduled based on the config
+                    $repeat = $this->calculateScheduledDatesRepeaterUntil($action['config'][ACTION_REPEATER_UNTIL_DATE]);
+                    $repeat = count($repeat);
+                    /*************************  REPEAT UNTIL *********************************************************/
+                }
                 for ($repeat_index = 0; $repeat_index < $repeat; $repeat_index++) {
                     $action['repeat_index'] = $repeat_index;
 
@@ -1968,5 +1977,105 @@ class UserInput
         }
         return $jobs_ids;
     }
+
+    /**
+     * Calculate scheduled dates based on the provided repeater_until_date settings.
+     *
+     * This function calculates the scheduled dates for recurring events or jobs based on the provided settings.
+     * The settings include the deadline date, the repeat interval, the frequency (day, week, or month), 
+     * and optional parameters for specific days of the week or month. The calculated dates are stored 
+     * in an array and returned.
+     *
+     * @param array $repeater_until_date The repeater_until_date settings containing the deadline, repeat interval,
+     *                                   frequency, days of the week, and days of the month.
+     *                                   Example:
+     *                                   [
+     *                                       'deadline' => '2024-05-25 19:00',
+     *                                       'repeat_every' => 1,
+     *                                       'frequency' => 'month',
+     *                                       'days_of_month' => [6, 16, 17, 22, 30]
+     *                                   ]
+     * @return array An array containing the scheduled dates in the format 'Y-m-d H:i:s'.
+     */
+    function calculateScheduledDatesRepeaterUntil($repeater_until_date)
+    {
+        // Extract information from the repeater_until_date object
+        $deadline = new DateTime($repeater_until_date[ACTION_REPEATER_UNTIL_DATE_DEADLINE]);
+        $repeat_every = $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_REPEAT_EVERY];
+        $frequency = $repeater_until_date[ACTION_REPEATER_FREQUENCY];
+        $days_of_week = $repeater_until_date[ACTION_REPEATER_DAYS_OF_WEEK]??[];
+        $days_of_month = $repeater_until_date[ACTION_REPEATER_DAYS_OF_MONTH]??[];        
+    
+        // Initialize an array to store scheduled dates
+        $scheduled_dates = array();
+
+        // Calculate the number of days between now and the deadline
+        $current_date = new DateTime();
+        $current_date =  new DateTime($current_date->format('Y-m-d H:i:s'));
+        $schedule_at  = $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] && $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] != '' ? $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] : ($current_date->format('H:i:s'));
+        $interval = $current_date->diff($deadline);        
+
+    
+        // Calculate the scheduled dates based on the repeat_every and frequency
+        switch ($frequency) {
+            case 'day':
+                $interval = new DateInterval("P{$repeat_every}D");
+                $next_date = new DateTime();
+                $next_date = new DateTime($next_date->format('Y-m-d') . ' ' . $schedule_at);
+                if ($next_date >= $current_date) {
+                    // Add only if the time has not passed for the first date
+                    $scheduled_dates[] = $next_date->format('Y-m-d') . ' ' . $schedule_at;
+                }
+                $next_date->add($interval);
+                while ($next_date <= $deadline) {
+                    $scheduled_dates[] = $next_date->format('Y-m-d') . ' ' . $schedule_at;
+                    $next_date->add($interval);
+                }
+                break;
+            case 'week':
+                // Check if daysOfWeek is empty, use current day of the week if so
+                if (empty($days_of_week)) {
+                    $days_of_week = array($current_date->format('l'));
+                }
+                // Convert days of week to lowercase for case-insensitive comparison
+                $days_of_week = array_map('strtolower', $days_of_week);
+                // Calculate the scheduled dates based on the specified weekdays
+                $next_date = clone $current_date;
+                $next_date = new DateTime($next_date->format('Y-m-d') . ' ' . $schedule_at);
+                while ($next_date <= $deadline) {
+                    // Find the next occurrence of any of the specified weekdays
+                    foreach ($days_of_week as $day) {
+                        if (strtolower($next_date->format('l')) === strtolower($day)) {
+                            // Add the weekday if it's within the deadline
+                            if ($next_date <= $deadline && $next_date >= $current_date) {
+                                $scheduled_dates[] = $next_date->format('Y-m-d') . ' ' . $schedule_at;
+                            }
+                            break;
+                        }
+                    }
+                    $next_date->modify('+1 day'); // Move to the next day
+                }
+                break;
+            case 'month':
+                // Check if daysOfMonth is empty, use current day of the month if so
+                if (empty($days_of_month)) {
+                    $days_of_month = array((int)$current_date->format('j'));
+                }
+                foreach ($days_of_month as $day) {
+                    $next_date = new DateTime($deadline->format('Y-m-') . sprintf('%02d', $day));
+                    $next_date = new DateTime($next_date->format('Y-m-d') . ' ' . $schedule_at);
+                    while ($next_date <= $deadline) {
+                        if ($next_date >= $current_date) {
+                            $scheduled_dates[] = $next_date->format('Y-m-d H:i:s');
+                        }
+                        $next_date->modify('+1 month');
+                    }
+                }
+                break;
+        }
+    
+        return $scheduled_dates;
+    }
+    
 }
 ?>

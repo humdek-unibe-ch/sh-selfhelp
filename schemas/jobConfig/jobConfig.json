@@ -321,7 +321,26 @@
                             "showClearButton": true
                         }
                     },
-                    "description": "Set the deadline date. After this date passes, no further jobs will be scheduled."
+                    "description": "Set the deadline date. After this date passes, no further jobs will be scheduled. The time is used for scheduling all the jobs in the future."
+                },
+                "schedule_at": {
+                    "type": "string",
+                    "format": "time",
+                    "title": "Schedule at",
+                    "options": {
+                        "grid_columns": 2,
+                        "inputAttributes": {
+                            "placeholder": "Set time"
+                        },
+                        "flatpickr": {
+                            "inlineHideInput": true,
+                            "wrap": true,
+                            "time_24hr": true,
+                            "allowInput": true,
+                            "showClearButton": true
+                        }
+                    },
+                    "description": "Set the time which will be used for scheduling the jobs. If not time is selected it will use the current time."
                 },
                 "repeat_every": {
                     "type": "integer",
@@ -359,9 +378,9 @@
                         30
                     ],                    
                     "options": {
-                        "grid_columns": 3,
+                        "grid_columns": 2,
                         "enum_titles": [
-                            "Every 1st",
+                            "Every",
                             "Every 2nd",
                             "Every 3rd",
                             "Every 4th",
@@ -404,7 +423,7 @@
                         "month"
                     ],
                     "options": {
-                        "grid_columns": 3,
+                        "grid_columns": 2,
                         "enum_titles": [
                             "Day",
                             "Week",

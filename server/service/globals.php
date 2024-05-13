@@ -238,6 +238,11 @@ define('ACTION_REPEATER_OCCURRENCES', 'occurrences');
 define('ACTION_REPEATER_FREQUENCY', 'frequency');
 define('ACTION_REPEATER_DAYS_OF_WEEK', 'daysOfWeek');
 define('ACTION_REPEATER_DAYS_OF_MONTH', 'daysOfMonth');
+define('ACTION_REPEAT_UNTIL_DATE', 'repeat_until_date');
+define('ACTION_REPEATER_UNTIL_DATE', 'repeater_until_date');
+define('ACTION_REPEATER_UNTIL_DATE_DEADLINE', 'deadline');
+define('ACTION_REPEATER_UNTIL_DATE_REPEAT_EVERY', 'repeat_every');
+define('ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT', 'schedule_at');
 
 /* Mobile */
 define('MOBILE_REDIRECT_URL', 'mobile_redirect_url');
