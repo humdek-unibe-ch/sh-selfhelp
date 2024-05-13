@@ -7,6 +7,7 @@
  - #487 saving `INTERNAL` data checks if there is scheduled actions for this `record_id` and if there are any they are deleted (change status to deleted)
  - #487 add field `delete_scheduled` in `jobConfig.json`. When enabled previously scheduled jobs will be deleted if they are in status `queued` when the record is updated
  - #490 - add `repeater_until_date` in `jobConfig.json`. Define repetition of the blocks. This feature enables users to schedule recurring jobs or events based on different intervals. Users can select from options such as 'Every day,' 'Every week,' or 'Every month' to set up the recurrence pattern. For 'Every week,' users have the flexibility to choose specific weekdays on which the job should occur. For instance, they can select Monday, Wednesday, and Friday as the days for the job to repeat. Similarly, for 'Every month,' users can specify particular days of the month for the job to recur. For example, they might choose to repeat the job on the 1st, 15th, and 30th days of each month. This functionality allows users to customize their scheduling preferences according to their specific needs and requirements. Additionally, users must set a deadline date, which is mandatory and always used, to indicate the date after which no more jobs will be scheduled.
+ - #487 - add `trigger_type` = `deleted`. When a record is deleted from `showUserInputForm`, it triggers the delete. All scheduled jobs in status `queued` related to the record are moved to status `deleted`.
 
 # v6.14.0
 ### Bugfix 

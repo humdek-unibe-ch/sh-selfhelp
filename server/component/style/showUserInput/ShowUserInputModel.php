@@ -59,19 +59,25 @@ class ShowUserInputModel extends StyleModel
     /**
      * Mark this user input as removed in the database.
      *
-     * @param int $id
+     * @param array $ids
      *  The id of the field to be marked as removed.
+     * @param int $record_id
+     * The deleted record id
      */
-    public function mark_user_input_as_removed($id)
+    public function mark_user_input_as_removed($ids, $record_id)
     {
         try {
             $this->db->begin_transaction();
-            $this->db->update_by_ids(
-                'user_input',
-                array('removed' => 1),
-                array('id' => $id)
-            );
-            $this->queue_job_from_actions(actionTriggerTypes_finished, $id);
+            foreach ($ids as $id) {
+                if ($id != ENTRY_RECORD_ID) {
+                    $this->db->update_by_ids(
+                        'user_input',
+                        array('removed' => 1),
+                        array('id' => $id)
+                    );
+                }
+            }
+            $this->queue_job_from_actions(actionTriggerTypes_deleted, $record_id);
             $this->db->commit();
         } catch (Exception $e) {
             $this->db->rollback();

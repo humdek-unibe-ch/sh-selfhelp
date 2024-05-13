@@ -11,6 +11,9 @@ function initShowUserInput() {
             ids.push(id[id.length - 1]);
         });
         $input.val(ids);
+        var input_record_id = $('input[name="record_id"]');
+        $input.val(ids);
+        input_record_id.val(parseInt($(this).siblings('#user-input-field-record_id').text()));
     });
 
     $('.showUserInput').each(function () {
