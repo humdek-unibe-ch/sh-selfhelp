@@ -158,7 +158,9 @@ class InputView extends FormFieldView
                 $style['value']['content'] = 1;
             }
         }
-        $style['value']['content'] = html_entity_decode($style['value']['content']);
+        if ($style['value']['content']) {
+            $style['value']['content'] = html_entity_decode($style['value']['content']);
+        }
         return $style;
     }
 
