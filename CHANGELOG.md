@@ -1,3 +1,7 @@
+# v6.15.2
+### Bugfix 
+ - when a record is updated and `Delete jobs` is checked for an action, we delete all scheduled jobs for this record not only the one scheduled from this action.
+
 # v6.15.1
 ### Bugfix 
  - return HTML decoded content for mobile for style `input`
