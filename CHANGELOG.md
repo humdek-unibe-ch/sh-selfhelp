@@ -1,3 +1,7 @@
+# v6.15.1
+### Bugfix 
+ - return HTML decoded content for mobile for style `input`
+
 # v6.15.0
 ### New Feature
  - #487 - keep the `record_id` for the scheduled actions. Add two columns one for `INTERNAL` data type - `id_user_input_record` and one for `EXTERNAL` data type - `id_uploadRows`
