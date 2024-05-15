@@ -1,3 +1,7 @@
+# v6.15.3 (Unpublished)
+### Bugfix
+ - properly retrieve `@user_name` in notification's subject
+
 # v6.15.2
 ### Bugfix 
  - when a record is updated and `Delete jobs` is checked for an action, we delete all scheduled jobs for this record not only the one scheduled from this action.

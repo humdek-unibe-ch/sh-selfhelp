@@ -111,6 +111,7 @@ class Notificaitoner extends BasicJob
                 if ($notification['device_token']) {
                     $user_info = $this->db->select_by_uid('view_user_codes', $notification['id_users']);
                     $notification_info['body'] = str_replace('@user_name', $user_info['name'], $notification_info['body']);
+                    $notification_info['subject'] = str_replace('@user_name', $user_info['name'], $notification_info['subject']);
                     $res = $res && $this->send_notification($notification['device_token'], $notification_info);
                     $this->transaction->add_transaction(
                         $res ? transactionTypes_send_notification_ok : transactionTypes_send_notification_fail,
