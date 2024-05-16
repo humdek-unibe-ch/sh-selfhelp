@@ -139,6 +139,8 @@ DELIMITER //
 DROP FUNCTION IF EXISTS get_form_fields_helper //
 
 CREATE FUNCTION get_form_fields_helper(form_id_param INT) RETURNS TEXT
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -154,11 +156,11 @@ BEGIN
 	from user_input ui
 	left join users u on (ui.id_users = u.id)
 	left join validation_codes vc on (ui.id_users = vc.id_users)
-	left join sections field on (ui.id_sections = field.id)
-	left join sections form  on (ui.id_section_form = form.id)
+	left join sections field on (ui.id_sections = field.id)	
 	left join user_input_record record  on (ui.id_user_input_record = record.id)
+    LEFT JOIN sections form ON (record.id_sections = form.id)
 	LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
-	LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+	LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57
     WHERE form.id = form_id_param;
 	
     RETURN @sql;
@@ -167,27 +169,30 @@ END
 
 DELIMITER ;
 DELIMITER //
+
 DROP FUNCTION IF EXISTS get_page_fields_helper //
 
 CREATE FUNCTION get_page_fields_helper(page_id INT, language_id INT, default_language_id INT) RETURNS TEXT
 -- page_id -1 returns all pages
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
-	SET @@group_concat_max_len = 32000000;
-	SET @sql = NULL;
-	SELECT
-	  GROUP_CONCAT(DISTINCT
-		CONCAT(
-		  'MAX(CASE WHEN f.`name` = "',
-		  f.`name`,
-		  '" THEN IF(IFNULL((SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' LIMIT 0,1), "") = "", (SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = (CASE WHEN f.display = 0 THEN 1 ELSE ',default_language_id,' END) LIMIT 0,1),(SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' LIMIT 0,1))  end) as `',
-		  replace(f.`name`, ' ', ''), '`'
-		)
-	  ) INTO @sql
-	FROM  pages AS p
-	LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
-	LEFT JOIN fields AS f ON f.id = ptf.id_fields
+    SET @@group_concat_max_len = 32000000;
+    SET @sql = NULL;
+    SELECT
+      GROUP_CONCAT(DISTINCT
+        CONCAT(
+          'MAX(CASE WHEN f.`name` = "',
+          f.`name`,
+          '" THEN COALESCE((SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = ',language_id,' AND content <> "" LIMIT 1), COALESCE((SELECT content FROM pages_fields_translation AS pft WHERE pft.id_pages = p.id AND pft.id_fields = f.id AND pft.id_languages = (CASE WHEN f.display = 0 THEN 1 ELSE ',default_language_id,' END) LIMIT 1), "")) END) AS `',
+          REPLACE(f.`name`, ' ', ''), '`'
+        )
+      ) INTO @sql
+    FROM  pages AS p
+    LEFT JOIN pageType_fields AS ptf ON ptf.id_pageType = p.id_type 
+    LEFT JOIN fields AS f ON f.id = ptf.id_fields
     WHERE p.id = page_id OR page_id = -1;
-	
+    
     RETURN @sql;
 END
 //
@@ -198,6 +203,8 @@ DROP FUNCTION IF EXISTS get_sections_fields_helper //
 
 CREATE FUNCTION get_sections_fields_helper(section_id INT, language_id INT, gender_id INT) RETURNS TEXT
 -- section_id -1 returns all sections
+READS SQL DATA
+DETERMINISTIC
 BEGIN 
 	SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -250,19 +257,30 @@ sf.default_value, sf.help, sf.disabled, sf.hidden
 from view_styles s
 left join styles_fields sf on (s.style_id = sf.id_styles)
 left join view_fields f on (f.field_id = sf.id_fields);
-drop view if exists view_user_input;
-create view view_user_input
-as
-select cast(ui.id as unsigned) as id, cast(u.id as unsigned) as user_id, u.name as user_name, vc.code as user_code, cast(form.id as unsigned) form_id, sft_if.content as form_name, cast(field.id as unsigned) as field_id, 
-sft_in.content as field_name, ui.value, record.id as record_id, ui.edit_time, ui.removed
-from user_input ui
-left join users u on (ui.id_users = u.id)
-left join validation_codes vc on (ui.id_users = vc.id_users)
-left join sections field on (ui.id_sections = field.id)
-left join sections form  on (ui.id_section_form = form.id)
-left join user_input_record record  on (ui.id_user_input_record = record.id)
+DROP VIEW IF EXISTS view_user_input;
+
+CREATE VIEW view_user_input AS
+SELECT 
+    CAST(ui.id AS UNSIGNED) AS id,
+    CAST(u.id AS UNSIGNED) AS user_id,
+    u.`name` AS user_name,
+    vc.`code` AS user_code,
+    CAST(form.id AS UNSIGNED) AS form_id,
+    sft_if.content AS form_name,
+    CAST(field.id AS UNSIGNED) AS field_id,
+    sft_in.content AS field_name,
+    ui.`value`,
+    record.id AS record_id,
+    ui.edit_time,
+    ui.removed
+FROM user_input ui
+LEFT JOIN users u ON (ui.id_users = u.id)
+LEFT JOIN validation_codes vc ON (ui.id_users = vc.id_users)
+LEFT JOIN sections field ON (ui.id_sections = field.id)
+LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
+LEFT JOIN sections form ON (record.id_sections = form.id)
 LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
-LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57;
+LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57;
 DELIMITER //
 DROP FUNCTION IF EXISTS get_field_type_id //
 
@@ -353,10 +371,10 @@ DROP VIEW IF EXISTS view_form;
 CREATE VIEW view_form
 AS
 SELECT DISTINCT cast(form.id AS UNSIGNED) form_id, sft_if.content AS form_name, IFNULL(sft_intern.content, 0) AS internal
-FROM user_input ui
-LEFT JOIN sections form  ON (ui.id_section_form = form.id)
-LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
-LEFT JOIN sections_fields_translation AS sft_intern ON sft_intern.id_sections = ui.id_section_form AND sft_intern.id_fields = (SELECT id
+FROM user_input_record record 
+INNER JOIN sections form ON (record.id_sections = form.id)
+LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57
+LEFT JOIN sections_fields_translation AS sft_intern ON sft_intern.id_sections = record.id_sections AND sft_intern.id_fields = (SELECT id
 FROM `fields`
 WHERE `name` = 'internal');
 DROP VIEW IF EXISTS view_data_tables;
@@ -375,6 +393,8 @@ DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
 
 CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, user_id_param INT, filter_param VARCHAR(1000))
 -- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
+READS SQL DATA
+DETERMINISTIC
 BEGIN
     SET @@group_concat_max_len = 32000000;
     SET @sql = NULL;
@@ -446,12 +466,6 @@ END
 //
 
 DELIMITER ;
-DROP VIEW IF EXISTS view_qualtricsSurveys;
-CREATE VIEW view_qualtricsSurveys
-AS
-SELECT s.*, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code
-FROM qualtricsSurveys s 
-INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
 DROP VIEW IF EXISTS view_acl_groups_pages;
 CREATE VIEW view_acl_groups_pages
 AS
@@ -482,36 +496,6 @@ FROM acl_users acl
 INNER JOIN pages p ON (acl.id_pages = p.id)
 GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
 p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
-DROP VIEW IF EXISTS view_qualtricsActions;
-CREATE VIEW view_qualtricsActions
-AS
-SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.qualtrics_api, s.participant_variable, p.api_mailing_group_id,
-st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
-id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
-GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
-GROUP_CONCAT(DISTINCT g.id*1 SEPARATOR ', ') AS id_groups, 
-GROUP_CONCAT(DISTINCT l.lookup_value SEPARATOR '; ') AS functions,
-GROUP_CONCAT(DISTINCT l.lookup_code SEPARATOR ';') AS functions_code,
-GROUP_CONCAT(DISTINCT l.id SEPARATOR '; ') AS id_functions,
-schedule_info, st.id_qualtricsActionScheduleTypes, action_type.lookup_code as action_schedule_type_code, action_type.lookup_value as action_schedule_type, id_qualtricsSurveys_reminder, 
-CASE 
-	WHEN action_type.lookup_value = 'Reminder' THEN s_reminder.name 
-    ELSE NULL
-END as survey_reminder_name, st.id_qualtricsActions
-FROM qualtricsActions st 
-INNER JOIN qualtricsProjects p ON (st.id_qualtricsProjects = p.id)
-INNER JOIN qualtricsSurveys s ON (st.id_qualtricsSurveys = s.id)
-INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes)
-INNER JOIN lookups trig ON (trig.id = st.id_qualtricsProjectActionTriggerTypes)
-INNER JOIN lookups action_type ON (action_type.id = st.id_qualtricsActionScheduleTypes)
-LEFT JOIN qualtricsSurveys s_reminder ON (st.id_qualtricsSurveys_reminder = s_reminder.id)
-LEFT JOIN qualtricsActions_groups sg on (sg.id_qualtricsActions = st.id)
-LEFT JOIN `groups` g on (sg.id_groups = g.id)
-LEFT JOIN qualtricsActions_functions f on (f.id_qualtricsActions = st.id)
-LEFT JOIN lookups l on (f.id_lookups = l.id)
-GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
-st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
-id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
 DROP VIEW IF EXISTS view_transactions;
 CREATE VIEW view_transactions
 AS
@@ -550,6 +534,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter //
 
 CREATE PROCEDURE get_form_data_for_user_with_filter( form_id_param INT, user_id_param INT, filter_param VARCHAR(1000) )
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
     SET @@group_concat_max_len = 32000000;
 	SET @sql = NULL;
@@ -562,9 +548,9 @@ BEGIN
 		SET @sql = CONCAT('select * from (select  record.id as record_id, max(edit_time) as edit_time, u.id as user_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
-		left join sections field on (ui.id_sections = field.id)
-		left join sections form  on (ui.id_section_form = form.id)
+		left join sections field on (ui.id_sections = field.id)		
 		left join user_input_record record  on (ui.id_user_input_record = record.id)
+        LEFT JOIN sections form ON (record.id_sections = form.id)
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57
 		where form.id = ', form_id_param, ' and u.id = ', user_id_param,
 		' group by u.id, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
@@ -698,28 +684,59 @@ DELIMITER ;
 DROP VIEW IF EXISTS view_users;
 CREATE VIEW view_users
 AS
-SELECT u.id, u.email, u.`name`, 
-IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
-us.`name` AS `status`,
-us.description, u.blocked, 
-CASE
-	WHEN u.`name` = 'admin' THEN 'admin'
-    WHEN u.`name` = 'tpf' THEN 'tpf'    
-    ELSE IFNULL(vc.code, '-') 
-END AS code,
-GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
-(SELECT COUNT(*) AS activity FROM user_activity WHERE user_activity.id_users = u.id) AS user_activity,
-(SELECT COUNT(DISTINCT url) FROM user_activity WHERE user_activity.id_users = u.id AND id_type = 1) AS ac,
-u.intern, u.id_userTypes, l_user_type.lookup_code AS user_type_code, l_user_type.lookup_value AS user_type
+SELECT 
+    u.id, 
+    u.email, 
+    u.`name`, 
+    IFNULL(CONCAT(u.last_login, ' (', DATEDIFF(NOW(), u.last_login), ' days ago)'), 'never') AS last_login, 
+    us.`name` AS `status`,
+    us.description, 
+    u.blocked, 
+    CASE
+        WHEN u.`name` = 'admin' THEN 'admin'
+        WHEN u.`name` = 'tpf' THEN 'tpf'    
+        ELSE IFNULL(vc.code, '-') 
+    END AS code,
+    GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
+    user_activity.activity_count,
+    user_activity.distinct_url_count AS ac,
+    u.intern, 
+    u.id_userTypes, 
+    l_user_type.lookup_code AS user_type_code, 
+    l_user_type.lookup_value AS user_type
 FROM users AS u
 LEFT JOIN userStatus AS us ON us.id = u.id_status
 LEFT JOIN users_groups AS ug ON ug.id_users = u.id
 LEFT JOIN `groups` g ON g.id = ug.id_groups
 LEFT JOIN validation_codes vc ON u.id = vc.id_users
 INNER JOIN lookups l_user_type ON u.id_userTypes = l_user_type.id
-WHERE u.intern <> 1 AND u.id_status > 0
-GROUP BY u.id, u.email, u.`name`, u.last_login, us.`name`, us.description, u.blocked, vc.`code`, user_activity
+LEFT JOIN (
+    SELECT 
+        id_users, 
+        COUNT(*) AS activity_count,
+        COUNT(DISTINCT CASE WHEN id_type = 1 THEN url ELSE NULL END) AS distinct_url_count
+    FROM user_activity
+    GROUP BY id_users
+) AS user_activity ON u.id = user_activity.id_users
+WHERE u.intern <> 1 
+AND u.id_status > 0
+GROUP BY 
+    u.id, 
+    u.email, 
+    u.`name`, 
+    u.last_login, 
+    us.`name`, 
+    us.description, 
+    u.blocked, 
+    vc.`code`, 
+    user_activity.activity_count, 
+    user_activity.distinct_url_count,
+    u.intern, 
+    u.id_userTypes, 
+    l_user_type.lookup_code, 
+    l_user_type.lookup_value
 ORDER BY u.email;
+
 DROP VIEW IF EXISTS view_sections_fields;
 CREATE VIEW view_sections_fields
 AS
@@ -764,15 +781,25 @@ END AS message,
 sj_mq.id_mailQueue,
 id_jobTypes,
 id_jobStatus,
-a.id_formActions
+a.id_formActions,
+id_user_input_record,
+sft_if.content AS internal_table,
+id_uploadRows,
+ut.`name` AS external_table
 FROM scheduledJobs sj
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus)
 INNER JOIN lookups l_types ON (l_types.id = sj.id_jobTypes)
-LEFT JOIN scheduledJobs_mailQueue sj_mq on (sj_mq.id_scheduledJobs = sj.id)
-LEFT JOIN mailQueue mq on (mq.id = sj_mq.id_mailQueue)
-LEFT JOIN scheduledJobs_notifications sj_n on (sj_n.id_scheduledJobs = sj.id)
-LEFT JOIN notifications n on (n.id = sj_n.id_notifications)
-LEFT JOIN scheduledJobs_formActions a on (a.id_scheduledJobs = sj.id);
+LEFT JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_scheduledJobs = sj.id)
+LEFT JOIN mailQueue mq ON (mq.id = sj_mq.id_mailQueue)
+LEFT JOIN scheduledJobs_notifications sj_n ON (sj_n.id_scheduledJobs = sj.id)
+LEFT JOIN notifications n ON (n.id = sj_n.id_notifications)
+LEFT JOIN scheduledJobs_formActions a ON (a.id_scheduledJobs = sj.id)
+
+LEFT JOIN user_input_record uir ON (id_user_input_record = uir.id)
+LEFT JOIN sections_fields_translation AS sft_if ON (sft_if.id_sections = uir.id_sections AND sft_if.id_fields = 57)
+
+LEFT JOIN uploadRows ur ON (id_uploadRows = ur.id)
+LEFT JOIN uploadTables ut ON (ur.id_uploadTables = ut.id);
 DROP VIEW IF EXISTS view_scheduledJobs_transactions;
 CREATE VIEW view_scheduledJobs_transactions
 AS
@@ -785,10 +812,10 @@ DROP VIEW IF EXISTS view_mailQueue;
 CREATE VIEW view_mailQueue
 AS
 SELECT sj.id AS id, from_email, from_name,
-status_code, status, type_code, type, 
+status_code, `status`, type_code, `type`, 
 sj.date_create, date_to_be_executed, date_executed,
-reply_to, recipient_emails, cc_emails, bcc_emails, subject, body, is_html, mq.id as id_mailQueue, id_jobTypes,
-id_jobStatus, sj.config
+reply_to, recipient_emails, cc_emails, bcc_emails, `subject`, body, is_html, mq.id AS id_mailQueue, id_jobTypes,
+id_jobStatus, sj.config, id_user_input_record, id_uploadRows, internal_table, external_table
 FROM mailQueue mq
 INNER JOIN scheduledJobs_mailQueue sj_mq ON (sj_mq.id_mailQueue = mq.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_mq.id_scheduledJobs);
@@ -796,10 +823,10 @@ DROP VIEW IF EXISTS view_notifications;
 CREATE VIEW view_notifications
 AS
 SELECT sj.id AS id,
-status_code, status, type_code, type, 
+status_code, `status`, type_code, `type`, 
 sj.date_create, date_to_be_executed, date_executed,
-recipient, subject, body, url, id_notifications, id_jobTypes,
-id_jobStatus, sj.config
+recipient, `subject`, body, url, id_notifications, id_jobTypes,
+id_jobStatus, sj.config, id_user_input_record, id_uploadRows, internal_table, external_table
 FROM notifications n
 INNER JOIN scheduledJobs_notifications sj_n ON (sj_n.id_notifications = n.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_n.id_scheduledJobs);
@@ -807,9 +834,9 @@ DROP VIEW IF EXISTS view_tasks;
 CREATE VIEW view_tasks
 AS
 SELECT sj.id AS id,
-status_code, status, type_code, type, 
+status_code, `status`, type_code, `type`, 
 sj.date_create, date_to_be_executed, date_executed,
-recipient, t.config, id_tasks, id_jobTypes, id_jobStatus, description
+recipient, t.config, id_tasks, id_jobTypes, id_jobStatus, `description`, id_user_input_record, id_uploadRows, internal_table, external_table
 FROM tasks t
 INNER JOIN scheduledJobs_tasks sj_t ON (sj_t.id_tasks = t.id)
 INNER JOIN view_scheduledJobs sj ON (sj.id = sj_t.id_scheduledJobs);
@@ -818,6 +845,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_form_data_with_filter //
 
 CREATE PROCEDURE get_form_data_with_filter( form_id_param INT, filter_param VARCHAR(1000) )
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
     SET @@group_concat_max_len = 32000000;
 	SELECT get_form_fields_helper(form_id_param) INTO @sql;	
@@ -829,9 +858,9 @@ BEGIN
 		SET @sql = CONCAT('select * from (select record.id as record_id, max(edit_time) as edit_time, u.id as user_id, u.name as user_name, vc.code as user_code, ', @sql, ' , removed as deleted from user_input ui
 		left join users u on (ui.id_users = u.id)
 		left join validation_codes vc on (ui.id_users = vc.id_users)
-		left join sections field on (ui.id_sections = field.id)
-		left join sections form  on (ui.id_section_form = form.id)
+		left join sections field on (ui.id_sections = field.id)		
 		left join user_input_record record  on (ui.id_user_input_record = record.id)
+        LEFT JOIN sections form ON (record.id_sections = form.id)
 		LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = 57		
 		where form.id = ', form_id_param, ' group by u.id, u.name, record.id, vc.code, removed) as r where 1=1 ', filter_param);
 
@@ -890,6 +919,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_page_fields //
 
 CREATE PROCEDURE get_page_fields( page_id INT, language_id INT, default_language_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
 	-- page_id -1 returns all pages
     SET @@group_concat_max_len = 32000000;
@@ -932,6 +963,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS get_sections_fields //
 
 CREATE PROCEDURE get_sections_fields( section_id INT, language_id INT, gender_id INT, filter_param VARCHAR(1000), order_param VARCHAR(1000))
+READS SQL DATA
+DETERMINISTIC
 BEGIN  
 	-- section_id -1 returns all sections
     SET @@group_concat_max_len = 32000000;
