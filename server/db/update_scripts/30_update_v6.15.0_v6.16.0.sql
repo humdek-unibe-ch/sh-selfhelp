@@ -69,3 +69,5 @@ GROUP BY
     l_user_type.lookup_value
 ORDER BY u.email;
 
+CALL add_index('transactions', 'idx_transactions_table_name', '`table_name`(100)');
+

@@ -1,4 +1,7 @@
 # v6.16.0 (Unpublished)
+### New Feature
+ - add index `idx_transactions_table_name` to table `transactions` for column `table_name`
+
 ### Bugfix
  - improve `view_form`, it should be faster
  - improve `view_users`, it should be faster
