@@ -1,3 +1,8 @@
+# v6.16.0 (Unpublished)
+### Bugfix
+ - improve `view_form`, it should be faster
+ - improve `view_users`, it should be faster
+
 # v6.15.3
 ### Bugfix
  - properly retrieve `@user_name` in notification's subject
