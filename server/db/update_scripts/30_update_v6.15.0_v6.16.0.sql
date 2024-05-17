@@ -30,7 +30,7 @@ SELECT
         ELSE IFNULL(vc.code, '-') 
     END AS code,
     GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
-    user_activity.activity_count,
+    user_activity.activity_count AS user_activity,
     user_activity.distinct_url_count AS ac,
     u.intern, 
     u.id_userTypes, 
