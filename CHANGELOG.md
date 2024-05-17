@@ -1,3 +1,6 @@
+# v6.15.3-wesir
+ - remove reloading DOM elements after AJAX form submit
+
 # v6.15.3
 ### Bugfix
  - properly retrieve `@user_name` in notification's subject

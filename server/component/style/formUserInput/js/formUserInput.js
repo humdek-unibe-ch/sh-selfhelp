@@ -54,7 +54,7 @@ function formSubmitEvent() {
                         $(this).insertBefore($(form)[0]);
                     });
 
-                    updateValues($('.selfHelp-form'), htmlDoc);                    
+                    // updateValues($('.selfHelp-form'), htmlDoc);                    
 
                     // update inputs - the function is in the style js
                     check_input_locked_after_submit();
