@@ -174,6 +174,10 @@ class FormUserInputController extends BaseController
         $this->alert_success = $this->model->get_db_field("alert_success");
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
+        if (is_array($user_input)) {
+            // if it is array convert it to string and decode special characters
+            $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }        
         if ($user_input === false) {
             $this->fail = true;
             if (isset($_POST['mobile']) && $_POST['mobile']) {

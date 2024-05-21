@@ -5,6 +5,7 @@
 ### Bugfix
  - improve `view_form`, it should be faster
  - improve `view_users`, it should be faster
+ - properly saving special characters in `formUserInputLog` and `formUserInputRecord` styles
 
 # v6.15.3
 ### Bugfix
