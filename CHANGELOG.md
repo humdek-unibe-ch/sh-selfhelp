@@ -1,4 +1,4 @@
-# v6.16.0 (Unpublished)
+# v6.16.0
 ### New Feature
  - add index `idx_transactions_table_name` to table `transactions` for column `table_name`
 
