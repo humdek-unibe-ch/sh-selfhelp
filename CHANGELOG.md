@@ -1,3 +1,7 @@
+# v6.16.1
+### Bugfix
+ - when a data record is changed and jobs should be deleted based on the `action` update, they are deleted only for the selected action and not all scheduled jobs for that record
+
 # v6.16.0
 ### New Feature
  - add index `idx_transactions_table_name` to table `transactions` for column `table_name`
