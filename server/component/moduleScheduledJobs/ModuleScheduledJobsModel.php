@@ -89,10 +89,10 @@ class ModuleScheduledJobsModel extends BaseModel
                 LEFT JOIN mailQueue mq on (mq.id = sj_mq.id_mailQueue)
                 LEFT JOIN scheduledJobs_notifications sj_n on (sj_n.id_scheduledJobs = sj.id)
                 LEFT JOIN notifications n on (n.id = sj_n.id_notifications) 
-                WHERE CAST(" . $this->date_type . " AS DATE) BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y') AND STR_TO_DATE(:date_to,'%d-%m-%Y');";
+                WHERE " . $this->date_type . " BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y %H:%i:%s') AND STR_TO_DATE(:date_to,'%d-%m-%Y %H:%i:%s');";
         return $this->db->query_db($sql, array(
-            ":date_from" => $this->date_from,
-            ":date_to" => $this->date_to
+            ":date_from" => $this->date_from . ' 00:00:00',
+            ":date_to" => $this->date_to . ' 23:59:59'
         ));
     }
 
@@ -105,10 +105,10 @@ class ModuleScheduledJobsModel extends BaseModel
     {
         $sql = "SELECT *
                 FROM view_scheduledJobs_transactions 
-                WHERE CAST(" . $this->date_type . " AS DATE) BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y') AND STR_TO_DATE(:date_to,'%d-%m-%Y');";
+                WHERE " . $this->date_type . " BETWEEN STR_TO_DATE(:date_from,'%d-%m-%Y %H:%i:%s') AND STR_TO_DATE(:date_to,'%d-%m-%Y %H:%i:%s');";
         return $this->db->query_db($sql, array(
-            ":date_from" => $this->date_from,
-            ":date_to" => $this->date_to
+            ":date_from" => $this->date_from . ' 00:00:00',
+            ":date_to" => $this->date_to . ' 23:59:59'
         ));
     }
 

@@ -1,3 +1,7 @@
+# v6.16.2
+### Bugfix
+ - improve loading `scheduledJobs`
+
 # v6.16.1
 ### Bugfix
  - when a data record is changed and jobs should be deleted based on the `action` update, they are deleted only for the selected action and not all scheduled jobs for that record
