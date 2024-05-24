@@ -1,3 +1,7 @@
+# v7.0.0
+### New Feature
+ - unify how all user data is saved
+
 # v6.16.2
 ### Bugfix
  - improve loading `scheduledJobs`
