@@ -1,6 +1,6 @@
-# v7.0.0 (Unpublished)
-### New Feature
- - unify how all user data is saved
+# v6.16.3
+### Bugfix
+ - use `JSON_UNESCAPED_UNICODE` when replacing dynamic values
 
 # v6.16.2
 ### Bugfix

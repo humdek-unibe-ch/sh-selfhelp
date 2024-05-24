@@ -772,7 +772,7 @@ class PageDb extends BaseDb
         try {
             foreach ($calc_formula_values as $var => $var_value) {
                 if (is_array($var_value)) {
-                    $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value)), $field_content);
+                    $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value, JSON_UNESCAPED_UNICODE)), $field_content);
                 } else if ($var && $var_value !== null) {
                     $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
                 }
