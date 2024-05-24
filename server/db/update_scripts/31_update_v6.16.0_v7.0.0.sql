@@ -44,5 +44,19 @@ FROM user_input ui
 JOIN uploadRows ur ON (ui.id_user_input_record = ur.old_row_id)
 JOIN uploadCols uc ON uc.old_col_id = ui.id_sections;
 
+-- add trigger deleted to the removed entries
+UPDATE uploadRows ur
+JOIN (
+    SELECT 
+        ui.id_user_input_record,
+        CASE 
+            WHEN ui.removed = 1 THEN (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'deleted' )
+            ELSE NULL 
+        END AS removed
+    FROM user_input ui
+) subquery ON ur.old_row_id = subquery.id_user_input_record
+SET ur.id_actionTriggerTypes = subquery.removed
+WHERE ur.old_row_id > 0;
+
 CALL drop_table_column('uploadRows', 'old_row_id');
 CALL drop_table_column('uploadCols', 'old_col_id');
