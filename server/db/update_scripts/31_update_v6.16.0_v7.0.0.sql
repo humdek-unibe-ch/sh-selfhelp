@@ -44,3 +44,5 @@ FROM user_input ui
 JOIN uploadRows ur ON (ui.id_user_input_record = ur.old_row_id)
 JOIN uploadCols uc ON uc.old_col_id = ui.id_sections;
 
+CALL drop_table_column('uploadRows', 'old_row_id');
+CALL drop_table_column('uploadCols', 'old_col_id');
