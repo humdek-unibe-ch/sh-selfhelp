@@ -189,6 +189,7 @@ define('scheduledJobsStatus_failed', 'failed');
 define('actionTriggerTypes_started', 'started');
 define('actionTriggerTypes_finished', 'finished');
 define('actionTriggerTypes_deleted', 'deleted');
+define('actionTriggerTypes_updated', 'updated');
 define('timePeriod_seconds', 'seconds');
 define('timePeriod_minutes', 'minutes');
 define('timePeriod_hours', 'hours');

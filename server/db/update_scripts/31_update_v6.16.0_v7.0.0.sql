@@ -2,6 +2,21 @@
 UPDATE version
 SET version = 'v7.0.0';
 
+-- add actionTrigger types
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'updated', 'Updated', 'When the user saved data is saved with statut `updated`');
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'deleted', 'Deleted', 'When the user saved data is saved with statut `deleted`');
+
+UPDATE lookups
+SET lookup_description = 'When the user saved data is saved with statut `started`'
+WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'started';
+
+UPDATE lookups
+SET lookup_description = 'When the user saved data is saved with statut `finished`'
+WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'finished';
+
+CALL add_table_column('uploadRows', 'id_actionTriggerTypes', "int(10) unsigned zerofill DEFAULT NULL");
+CALL add_foreign_key('uploadRows', 'uploadRows_fk_id_actionTriggerTypes', 'id_actionTriggerTypes', 'lookups (id)');
+
 CALL add_table_column('uploadRows', 'old_row_id', "int(10) unsigned zerofill DEFAULT NULL");
 CALL add_table_column('uploadCols', 'old_col_id', "int(10) unsigned zerofill DEFAULT NULL");
 
@@ -28,3 +43,4 @@ SELECT DISTINCT ur.id, uc.id, ui.`value`
 FROM user_input ui
 JOIN uploadRows ur ON (ui.id_user_input_record = ur.old_row_id)
 JOIN uploadCols uc ON uc.old_col_id = ui.id_sections;
+
