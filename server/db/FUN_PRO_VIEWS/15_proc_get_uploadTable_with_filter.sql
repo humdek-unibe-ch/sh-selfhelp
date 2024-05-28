@@ -19,7 +19,7 @@ BEGIN
         CONCAT(
             'MAX(CASE WHEN col.`name` = "',
                 col.name,
-                '" THEN `value` eND) AS `',
+                '" THEN `value` END) AS `',
             replace(col.name, ' ', ''), '`'
         )
     ) INTO @sql
