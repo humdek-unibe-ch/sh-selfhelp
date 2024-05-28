@@ -72,6 +72,23 @@ BEGIN
 		) subquery ON ur.old_row_id = subquery.id_user_input_record
 		SET ur.id_actionTriggerTypes = subquery.removed
 		WHERE ur.old_row_id > 0;
+			
+		-- replace the old relation of the forms in styles entryList and entryRecord
+        UPDATE sections_fields_translation tran
+		INNER JOIN view_sections_fields s ON (tran.id_sections = s.id_sections AND tran.id_fields = s.id_fields)
+		INNER JOIN uploadTables t ON (t.`name` REGEXP '^[0-9]+$' AND CAST(SUBSTRING_INDEX(s.content, '-', 1) AS UNSIGNED) = CAST(t.`name` AS UNSIGNED))
+		SET tran.content = CAST(t.id AS UNSIGNED)
+		WHERE
+			s.style_name IN ('entryList', 'entryRecord') AND
+			s.field_name = 'formName' AND
+			s.content <> '' AND
+			s.content LIKE '%INTERNAL%';
+		
+        -- set the relation to be only the form id
+        UPDATE sections_fields_translation tran
+		INNER JOIN view_sections_fields s ON (tran.id_sections = s.id_sections AND tran.id_fields = s.id_fields)
+		SET tran.content = CAST(SUBSTRING_INDEX(tran.content, '-', 1) AS UNSIGNED)
+		WHERE s.style_name IN ('entryList', 'entryRecord') AND s.field_name = 'formName'; 
 
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');
@@ -89,3 +106,8 @@ DELIMITER ;
 CALL refactor_user_input();
 
 DROP PROCEDURE IF EXISTS refactor_user_input;
+
+
+-- scheduled jobs for actions should be moved from internal to external and the column renamed
+
+-- add trigger type to the functions that return user data
