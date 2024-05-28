@@ -2,7 +2,12 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
 
-CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, user_id_param INT, filter_param VARCHAR(1000))
+CREATE PROCEDURE get_uploadTable_with_filter( 
+	IN table_id_param INT, 
+    IN user_id_param INT, 
+    IN filter_param VARCHAR(1000),
+    IN exclude_deleted_param BOOLEAN -- If true it will exclude the deleted records and it will not return them
+)
 -- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
 READS SQL DATA
 DETERMINISTIC
@@ -12,9 +17,9 @@ BEGIN
     SELECT
     GROUP_CONCAT(DISTINCT
         CONCAT(
-            'max(case when col.name = "',
+            'MAX(CASE WHEN col.`name` = "',
                 col.name,
-                '" then value end) as `',
+                '" THEN `value` eND) AS `',
             replace(col.name, ' ', ''), '`'
         )
     ) INTO @sql
@@ -47,15 +52,24 @@ BEGIN
 					SET @time_period_filter = '';					
 			END CASE;
             
-            SET @sql = CONCAT('select * from (select r.id as record_id, 
-					r.timestamp as entry_date, r.id_users, u.name as user_name,', @sql, 
-					' from uploadTables t
-					inner join uploadRows r on (t.id = r.id_uploadTables)
-					inner join uploadCells cell on (cell.id_uploadRows = r.id)
-					inner join uploadCols col on (col.id = cell.id_uploadCols)
-                    left join users u on (r.id_users = u.id)
-					where t.id = ', table_id_param, @user_filter, @time_period_filter,
-					' group by r.id ) as r where 1=1  ', filter_param);
+            SET @exclude_deleted_filter = '';
+            CASE 
+				WHEN exclude_deleted_param = TRUE THEN
+					SET @exclude_deleted_filter = CONCAT(' AND IFNULL(r.id_actionTriggerTypes, 0) <> ', (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'deleted' LIMIT 0,1));				
+				ELSE
+					SET @exclude_deleted_filter = '';					
+			END CASE;
+            
+            SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id, 
+					r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, r.id_actionTriggerTypes, l.lookup_code AS trigerType,', @sql, 
+					' FROM uploadTables t
+					INNER JOIN uploadRows r ON (t.id = r.id_uploadTables)
+					INNER JOIN uploadCells cell ON (cell.id_uploadRows = r.id)
+					INNER JOIN uploadCols col ON (col.id = cell.id_uploadCols)
+                    LEFT JOIN users u ON (r.id_users = u.id)
+                    LEFT JOIN lookups l ON (l.id = r.id_actionTriggerTypes)
+					WHERE t.id = ', table_id_param, @user_filter, @time_period_filter, @exclude_deleted_filter, 
+					' GROUP BY r.id ) AS r WHERE 1=1  ', filter_param);
             -- select @sql;
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
