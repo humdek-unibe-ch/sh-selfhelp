@@ -17,6 +17,9 @@ WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'finished';
 CALL add_table_column('uploadRows', 'id_actionTriggerTypes', "int(10) unsigned zerofill DEFAULT NULL");
 CALL add_foreign_key('uploadRows', 'uploadRows_fk_id_actionTriggerTypes', 'id_actionTriggerTypes', 'lookups (id)');
 
+-- add `displayName` column to table `uploadTables`; It can be used for the users to customize the name of their tables
+CALL add_table_column('uploadTables', 'displayName', "VARCHAR(1000) DEFAULT NULL");
+
 
 DELIMITER //
 CREATE PROCEDURE refactor_user_input()
@@ -99,7 +102,7 @@ BEGIN
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
-        CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
+        -- CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
 
 		RENAME TABLE user_input TO deprecated_user_input;
 		RENAME TABLE user_input_record TO deprecated_user_input_record;
