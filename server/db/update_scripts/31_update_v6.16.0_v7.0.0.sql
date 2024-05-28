@@ -99,6 +99,12 @@ BEGIN
 		SET sj.id_uploadRows = r.id
 		WHERE id_user_input_record > 0;
 
+		-- set displayName based on the name of the form	
+        UPDATE view_sections_fields s
+		INNER JOIN uploadTables t ON t.`name` = s.id_sections
+		SET t.displayName = s.content
+		WHERE s.field_name = 'name';
+
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
@@ -118,3 +124,4 @@ CALL refactor_user_input();
 
 DROP PROCEDURE IF EXISTS refactor_user_input;
 
+-- adjust displayName in uplaodTables when the name is changed in the CMS
