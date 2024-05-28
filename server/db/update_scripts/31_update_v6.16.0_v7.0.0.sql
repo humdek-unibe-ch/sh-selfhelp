@@ -89,9 +89,17 @@ BEGIN
 		INNER JOIN view_sections_fields s ON (tran.id_sections = s.id_sections AND tran.id_fields = s.id_fields)
 		SET tran.content = CAST(SUBSTRING_INDEX(tran.content, '-', 1) AS UNSIGNED)
 		WHERE s.style_name IN ('entryList', 'entryRecord') AND s.field_name = 'formName'; 
+        
+        -- move the scheduled jobs info from the internal to exteranl columns
+        UPDATE scheduledJobs_formActions sj
+		INNER JOIN uploadRows r ON sj.id_user_input_record = r.old_row_id
+		SET sj.id_uploadRows = r.id
+		WHERE id_user_input_record > 0;
 
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');
+        -- drop column `id_user_input_record` from `scheduledJobs_formActions`
+        CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
 
 		RENAME TABLE user_input TO deprecated_user_input;
 		RENAME TABLE user_input_record TO deprecated_user_input_record;
@@ -107,7 +115,3 @@ CALL refactor_user_input();
 
 DROP PROCEDURE IF EXISTS refactor_user_input;
 
-
--- scheduled jobs for actions should be moved from internal to external and the column renamed
-
--- add trigger type to the functions that return user data
