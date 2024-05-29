@@ -85,7 +85,7 @@ class CmsUpdateController extends BaseController
             if($res && $style != null) {
                 if (in_array($style->get_model()->get_style_name(), ['formUserInputRecord', 'formUserInputLog']) && isset($_POST["fields"]['name'])) {
                     // update the displayName for the data tables
-                    $style->get_model()->update_dataTables_displayName($section_id, $_POST["fields"]['name'][1][1]['content']);
+                    $style->get_model()->set_dataTables_displayName($section_id, $_POST["fields"]['name'][1][1]['content']);
                 }
                 $style->cms_post_update_callback($model, $_POST["fields"]);
             }
