@@ -50,7 +50,10 @@ class FormUserInputController extends BaseController
         $post = array();
         foreach($_POST as $name => $values)
         {
-            if(!isset($values['id'])) continue;
+            if(!isset($values['id'])){
+                $post[$name] = $values;
+                continue;   
+            }
             $id_section = intval($values['id']);
             if(!isset($values['value']))
                 $values['value'] = "";
@@ -58,45 +61,45 @@ class FormUserInputController extends BaseController
             $label = $this->model->get_field_label($id_section);
             if($label == "")
                 $label = $name;
-            $field_names[$id_section] = $label;
+            $field_names[$name] = $label;
             // determine the type of the field
             $style = $this->model->get_field_style($id_section);
             if($style == "slider")
             {
-                $validation_rules[$id_section] = "integer";
-                $filter_rules[$id_section] = "sanitize_numbers";
+                $validation_rules[$name] = "integer";
+                $filter_rules[$name] = "sanitize_numbers";
             }
             else if($style == "textarea")
-                $filter_rules[$id_section] = "sanitize_string";
+                $filter_rules[$name] = "sanitize_string";
             else if($style == "select" || $style == "radio")
-                $filter_rules[$id_section] = "trim|sanitize_string";
+                $filter_rules[$name] = "trim|sanitize_string";
             else if ($style == "input") {
                 $type = $this->model->get_field_type($id_section);
                 if (
                     $type == "text" || $type == "checkbox" || $type == "month" || $type == "time" || $type == "datetime-local" || $type == "datetime"
                     || $type == "week" || $type == "search" || $type == "tel" || $type == "date"
                 )
-                    $filter_rules[$id_section] = "trim|sanitize_string";
+                    $filter_rules[$name] = "trim|sanitize_string";
                 else if ($type == "color")
-                    $validation_rules[$id_section] = "regex,/#[a-fA-F0-9]{6}/";
+                    $validation_rules[$name] = "regex,/#[a-fA-F0-9]{6}/";
                 // else if($type == "date")
                 //     $validation_rules[$id_section] = "date";
                 else if ($type == "email")
-                    $validation_rules[$id_section] = "valid_email";
+                    $validation_rules[$name] = "valid_email";
                 else if ($type == "number" || $type == "range")
-                    $validation_rules[$id_section] = "numeric";
+                    $validation_rules[$name] = "numeric";
                 // else if($type == "time")
                 //    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if ($type == "url")
-                    $validation_rules[$id_section] = "valid_url";
+                    $validation_rules[$name] = "valid_url";
                 else
-                    $filter_rules[$id_section] = "sanitize_string";
+                    $filter_rules[$name] = "sanitize_string";
             } else
-                $filter_rules[$id_section] = "sanitize_string";
+                $filter_rules[$name] = "sanitize_string";
             if (is_array($value)) {
-                $post[$id_section] = json_encode($value); // save the data as json
+                $post[$name] = json_encode($value); // save the data as json
             } else {
-                $post[$id_section] = $value;
+                $post[$name] = $value;
             }
         }
         $gump->validation_rules($validation_rules);
@@ -113,7 +116,7 @@ class FormUserInputController extends BaseController
     private function has_access()
     {
         if ($this->model->get_selected_record_id() > 0) {
-            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $this->model->get_selected_record_id(), $this->model->get_db_field("own_entries_only", 1));
+            $entry_record = $this->model->get_form_entry_record($this->model->get_selected_record_id(), $this->model->get_db_field("own_entries_only", 1));
             if ($entry_record) {
                 return true;
             } else {
@@ -134,7 +137,7 @@ class FormUserInputController extends BaseController
     private function has_access_delete($delete_record_id)
     {
         if ($delete_record_id > 0) {
-            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $delete_record_id, $this->model->get_db_field("own_entries_only", 1));
+            $entry_record = $this->model->get_form_entry_record($delete_record_id, $this->model->get_db_field("own_entries_only", 1));
             if ($entry_record) {
                 return true;
             } else {
@@ -164,10 +167,10 @@ class FormUserInputController extends BaseController
         }
         if (isset($_POST[DELETE_RECORD_ID]) && isset($_POST[DELETE_RECORD_ID]['value'])) {
             $_POST[DELETE_RECORD_ID] = $_POST[DELETE_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
-        }
+        }        
 
         if(!$this->has_access()){
-            // if the user has no acess to edit or delete this record abort and return
+            // if the user has no access to edit or delete this record abort and return
             return;
         }
 
@@ -177,7 +180,13 @@ class FormUserInputController extends BaseController
         if (is_array($user_input)) {
             // if it is array convert it to string and decode special characters
             $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-        }        
+        }   
+        // normalize all data
+        foreach ($_POST as $key => $value) {
+            if (isset($_POST[$key]['id'])) {
+                $_POST[$key] = isset($value['value']) ? $value['value'] : '';
+            }
+        }     
         if ($user_input === false) {
             $this->fail = true;
             if (isset($_POST['mobile']) && $_POST['mobile']) {
@@ -203,8 +212,10 @@ class FormUserInputController extends BaseController
             }
         }
         else
-        {            
-            $record_id = isset($_POST[SELECTED_RECORD_ID]) ? $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) : $this->model->save_user_input($user_input);
+        {
+            $record_id = isset($_POST[SELECTED_RECORD_ID]) ?
+                $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) :
+                $this->model->save_user_input($user_input);
             if($record_id === false)
             {
                 $this->fail = true;
@@ -218,7 +229,6 @@ class FormUserInputController extends BaseController
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
-                $this->model->queue_job_from_actions(actionTriggerTypes_finished, $record_id);
                 $this->model->reload_children();
             }
         }

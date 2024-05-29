@@ -178,22 +178,6 @@ class Condition
             $last_login = $this->get_user_last_login_date($id_users);
             $j_condition = str_replace('__last_login__', $last_login, $j_condition); // replace __last_login__
         }
-        // replace form field keywords with the actual values.
-        $pattern = '~"' . $this->user_input->get_input_value_pattern() . '"~';
-        preg_match_all($pattern, $j_condition, $matches, PREG_PATTERN_ORDER);
-        foreach ($matches[0] as $match) {
-            $val = $this->user_input->get_input_value_by_pattern(trim($match, '"'), $id_users);
-            if ($val === null) {
-                $res['fields'][$match] = "bad field syntax";
-            }
-            else if ($val === "") {
-                $res['fields'][$match] = "no value stored for this field";
-            }
-            else {
-                $res['fields'][$match] = $val;
-            }
-            $j_condition = str_replace($match, '"' . $val . '"', $j_condition);
-        }
 
         preg_match_all('~"\$[^"@#]+"~', $j_condition, $matches, PREG_PATTERN_ORDER); // group pattern
         foreach ($matches[0] as $match) {

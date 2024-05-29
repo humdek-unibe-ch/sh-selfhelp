@@ -32,7 +32,7 @@ class Mailer extends BasicJob
      */
     public function __construct($db, $transaction, $user_input, $router, $condition)
     {
-        $this->parsedown = new ParsedownExtension($user_input, $router);
+        $this->parsedown = new ParsedownExtension($router);
         $this->parsedown->setSafeMode(false);
         $this->CharSet = 'UTF-8';
         $this->Encoding = 'base64';

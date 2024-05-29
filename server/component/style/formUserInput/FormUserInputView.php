@@ -182,7 +182,7 @@ class FormUserInputView extends StyleView
             {
                 if($show_data) {
                     $style->enable_show_db_value();
-                    $style->set_form_id($this->id_section);
+                    $style->set_form_id($this->id_section);                    
                 }
                 $style->enable_user_input();
             }
@@ -312,7 +312,7 @@ class FormUserInputView extends StyleView
         $style = parent::output_content_mobile();   
         if ($this->selected_record_id > 0) {
             // edit mode; load the entry record value
-            $entry_record = $this->model->get_form_entry_record($this->name, $this->selected_record_id, $this->own_entries_only);
+            $entry_record = $this->model->get_form_entry_record($this->selected_record_id, $this->own_entries_only);
         }
         if ($this->selected_record_id > 0) {
             $selected_record_id = new BaseStyleComponent("input", array(

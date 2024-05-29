@@ -60,21 +60,17 @@ class FormFieldModel extends StyleModel
     /**
      * Fetch the form field value from the database if it exists.
      *
-     * @retval string
+     * @return string
      *  The form field value.
      */
     public function get_form_field_value()
     {
-        $fields = $this->user_input->get_input_fields(array(
-            "id_section" => $this->get_db_field('id'),
-            "id_user" => $_SESSION['id_user'],
-            "form_id" => $this->form_id
-        ));
-        $field_count = count($fields);
-        if($fields && $field_count > 0)
-            return $fields[$field_count - 1]['value'];
-        else
+        $field_name = $this->get_db_field('name');
+        if ($field_name && $this->entry_record && isset($this->entry_record[$field_name])) {
+            return $this->entry_record[$field_name];
+        } else {
             return null;
+        }
     }
 
     /**

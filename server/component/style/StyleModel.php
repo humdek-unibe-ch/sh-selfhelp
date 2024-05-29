@@ -817,6 +817,18 @@ class StyleModel extends BaseModel implements IStyleModel
     {
         return $this->db->update_by_ids('uploadTables', array("displayName" => $displayName), array('name' => sprintf('%010d', $id_sections)));
     }
+
+    /**
+     * Sets the entry record.
+     *
+     * This method assigns the provided entry record to the `entry_record` property of the object.
+     *
+     * @param {Object} entry_record - The entry record to be assigned.
+     */
+    public function set_entry_record($entry_record)
+    {
+        $this->entry_record = $entry_record;
+    }
     
 }
 ?>

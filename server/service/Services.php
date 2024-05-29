@@ -120,8 +120,7 @@ class Services
             $this->acl = new Acl($this->db);        
         }
 
-        $this->parsedown = new ParsedownExtension($this->user_input,
-            $this->router);
+        $this->parsedown = new ParsedownExtension($this->router);
         $this->parsedown->setSafeMode(false);
         $this->hooks = new Hooks($this);
     }

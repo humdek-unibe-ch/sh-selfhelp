@@ -73,9 +73,7 @@ class EntryRecordModel extends StyleModel
      */
     private function fetch_entry_record($record_id)
     {
-        if ($this->form_type == FORM_INTERNAL) {
-            $this->filter = " AND deleted = 0 AND record_id = " . $record_id . ' ' . $this->filter; // do not show the deleted records
-        }
+        $this->filter = " AND record_id = " . $record_id . ' ' . $this->filter; // do not show the deleted records
         $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type, null, true);
         return $entry_data;
     }

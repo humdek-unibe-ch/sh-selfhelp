@@ -39,8 +39,13 @@ class FormUserInputModel extends StyleModel
      *  An array that contains the entry record information.
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
-    {
+    {        
         parent::__construct($services, $id, $params, $id_page, $entry_record);
+        if(!$this->is_log()){
+            // if not log load data if exists
+            $this->reload_children();
+        }
+        
     }
 
     /* Private Methods ********************************************************/
@@ -54,6 +59,19 @@ class FormUserInputModel extends StyleModel
     {
         return $this->get_db_field("id");
     }        
+
+    /**
+     * Formats the section ID as a zero-padded string.
+     *
+     * This method formats the `section_id` property of the class as a zero-padded string
+     * with a length of 10 characters. It is typically used to generate a consistent table name
+     * or identifier format.
+     *
+     * @return string A zero-padded string representation of the section ID, 10 characters in length.
+     */
+    private function get_table_name_from_form_id(){
+        return sprintf('%010d', $this->section_id);
+    }
 
     /**
      * Insert a new form field entry to the database.
@@ -166,7 +184,7 @@ class FormUserInputModel extends StyleModel
      */
     public function get_field_style($id_section)
     {
-        $this->user_input->get_field_style($id_section);
+        return $this->user_input->get_field_style($id_section);
     }
 
     /**
@@ -261,31 +279,14 @@ class FormUserInputModel extends StyleModel
      *  Return the record if or false on error
      */
     public function save_user_input($user_input)
-    {
-        $id_record = null;
-        if ($this->is_log() || !$this->has_form_data()) {
-            $id_record = $this->db->insert("user_input_record", array("id_sections" => $this->get_form_id()));
-        }
-        $this->db->begin_transaction();
-        foreach ($user_input as $id => $value) {
-            if ($this->is_log() || !$this->has_field_data($id))
-                $res = $this->insert_new_entry($id, $value, $id_record, intval($_SESSION['id_user']));
-            else {
-                if ($id_record == null) {
-                    $id_record = $this->get_id_record();
-                }
-                $res = $this->update_entry_with_record_id($id, $value, $id_record);
-            }
-
-            if ($res === false)
-                return false;
-        }
-        $this->db->commit();
+    {        
+        $res = $this->user_input->save_external_data(
+            transactionBy_by_user,
+            $this->get_table_name_from_form_id(),
+            (array)$user_input
+        );
         $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
-        // Once data is entered to the uiser input database the attributes in
-        // the user_input service needs to be updated.
-        $this->user_input->set_field_attrs();
-        return $id_record;
+        return $res;
     }
 
     /**
@@ -301,17 +302,16 @@ class FormUserInputModel extends StyleModel
      */
     public function update_user_input($user_input, $record_id)
     {
-        foreach ($user_input as $id => $value) {
-            $res = $this->update_entry_with_record_id($id, $value, $record_id);
-            if ($res === false) {
-                return false;
-            }
-        }
-        // Once data is entered to the uiser input database the attributes in
-        // the user_input service needs to be updated.
+        $res = $this->user_input->save_external_data(
+            transactionBy_by_user,
+            $this->get_table_name_from_form_id(),
+            (array)$user_input,
+            array(
+                "record_id" => $record_id
+            )
+        );
         $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
-        $this->user_input->set_field_attrs();
-        return $record_id;
+        return $res;
     }
 
     /**
@@ -350,8 +350,6 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
-     * Get form user input record row
-     * @param string $form_name
      * the name of the form
      * @param int $record_id
      * the record id
@@ -360,11 +358,11 @@ class FormUserInputModel extends StyleModel
      * @retval @array
      * the record row
      */
-    public function get_form_entry_record($form_name, $record_id, $own_entries_only)
+    public function get_form_entry_record($record_id, $own_entries_only)
     {
-        $form_id = $this->user_input->get_form_id($form_name);
-        $filter = " AND deleted = 0 AND record_id = " . $record_id;
-        return $this->user_input->get_data($form_id, $filter, $own_entries_only);
+        $form_id = $this->user_input->get_form_id($this->get_table_name_from_form_id(), FORM_EXTERNAL);
+        $filter = " AND record_id = " . $record_id;
+        return $this->user_input->get_data($form_id, $filter, $own_entries_only, FORM_EXTERNAL);
     }
 
     /**
@@ -422,7 +420,15 @@ class FormUserInputModel extends StyleModel
         $this->user_input->queue_job_from_actions($form_data);
     }
 
-    public function reload_children(){
+    public function reload_children()
+    {
+        $form_id = $this->user_input->get_form_id($this->get_table_name_from_form_id(), FORM_EXTERNAL);
+        if ($form_id && !$this->is_log()) {
+            $data = $this->user_input->get_data_for_user($form_id, $_SESSION['id_user'], '', FORM_EXTERNAL, true);
+            if ($data) {
+                $this->set_entry_record($data);
+            }
+        }
         $this->loadChildren();
     }
 

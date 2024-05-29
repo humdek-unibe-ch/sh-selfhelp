@@ -42,7 +42,6 @@ class ProfileComponent extends BaseComponent
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ProfileController($model);
-        $model->update_user_reminder_settings();
         $view = new ProfileView($model, $controller);
         parent::__construct($model, $view);
     }

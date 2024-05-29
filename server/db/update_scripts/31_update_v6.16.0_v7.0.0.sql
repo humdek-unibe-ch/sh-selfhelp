@@ -125,3 +125,7 @@ CALL refactor_user_input();
 DROP PROCEDURE IF EXISTS refactor_user_input;
 
 -- adjust displayName in uplaodTables when the name is changed in the CMS
+
+-- adjust the dataConfig where the internal forms are used
+
+-- remove the delete option from the form; create a new style for deleteing form record
