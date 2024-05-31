@@ -1225,6 +1225,8 @@ class UserInput
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
+            error_log('Exception caught: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
             return false;
         }
     }
