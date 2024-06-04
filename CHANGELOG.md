@@ -1,4 +1,6 @@
-# v6.16.3
+# v6.16.4
+ - change function `get_user_group` in `Condition` to be a public function
+
 ### Bugfix
  - use `JSON_UNESCAPED_UNICODE` when replacing dynamic values
 
