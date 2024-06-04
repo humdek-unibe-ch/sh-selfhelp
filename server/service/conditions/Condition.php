@@ -51,7 +51,7 @@ class Condition
      * @retval boolean
      *  returns true if the user belnogs to the group and false if not
      */
-    private function get_user_group($groupName, $id_users)
+    public function get_user_group($groupName, $id_users)
     {
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_CONDITION, $groupName, [__FUNCTION__, $id_users]);
         $get_result = $this->db->get_cache()->get($key);
