@@ -104,6 +104,26 @@ BEGIN
 		INNER JOIN uploadTables t ON t.`name` = s.id_sections
 		SET t.displayName = s.content
 		WHERE s.field_name = 'name';
+        
+        -- update dataConfigs with the new tables
+        UPDATE sections_fields_translation sft
+		INNER JOIN (
+			SELECT id_sections, id_fields, content
+			FROM sections_fields_translation 
+			WHERE id_fields = 145 AND JSON_VALID(content)
+		) AS valid_sft ON valid_sft.id_sections = sft.id_sections AND valid_sft.id_fields = sft.id_fields
+		INNER JOIN sections AS s ON valid_sft.id_sections = s.id
+		INNER JOIN styles AS st ON st.id = s.id_styles
+		INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
+		INNER JOIN fields AS f ON f.id = sf.id_fields
+		INNER JOIN uploadTables ut ON ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))
+		SET sft.content = JSON_SET(
+			JSON_SET(sft.content, '$[0].old_table', JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))),
+			'$[0].table', ut.name
+		)
+		WHERE sf.disabled = 0
+		  AND f.id = 145
+		  AND IFNULL(valid_sft.content, '') <> '';
 
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');
