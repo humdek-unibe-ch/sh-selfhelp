@@ -118,7 +118,7 @@ BEGIN
 		INNER JOIN fields AS f ON f.id = sf.id_fields
 		INNER JOIN uploadTables ut ON ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))
 		SET sft.content = JSON_SET(
-			JSON_SET(sft.content, '$[0].old_table', JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))),
+			JSON_SET(sft.content, '$[0].old_form', JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))),
 			'$[0].table', ut.name
 		)
 		WHERE sf.disabled = 0
