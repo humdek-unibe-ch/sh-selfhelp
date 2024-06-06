@@ -267,7 +267,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
-                        if ($field_name[0] == '@') {
+                        if (isset($field_name[0]) && $field_name[0] == '@') {
                             $field[$field_key] = str_replace($field_name, $field_value, $field[$field_key]);
                         }
                     }
