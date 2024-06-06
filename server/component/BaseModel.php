@@ -158,19 +158,12 @@ abstract class BaseModel
         try {
             foreach ($data_config as $key => $config) {
                 // loop configs; DB requests
-                $table_id = $this->user_input->get_form_id($config['table'], $config['type']);
+                $table_id = $this->user_input->get_form_id($config['table']);
                 $data = null;
                 if ($table_id) {
-                    if ($config['type'] === FORM_EXTERNAL) {
-                        $filter = "ORDER BY record_id ASC";
-                        if ($config['retrieve'] === 'last') {
-                            $filter = "ORDER BY record_id DESC";
-                        }
-                    } else {
-                        $filter = "ORDER BY edit_time ASC";
-                        if ($config['retrieve'] === 'last') {
-                            $filter = "ORDER BY edit_time DESC";
-                        }
+                    $filter = "ORDER BY record_id ASC";
+                    if ($config['retrieve'] === 'last') {
+                        $filter = "ORDER BY record_id DESC";
                     }
                     if (isset($config['filter']) && $config['filter'] != '') {
                         // if specific filter is used, overwrite it.
@@ -181,7 +174,7 @@ abstract class BaseModel
                         // get the config value if it is set
                         $current_user = $config['current_user'];
                     }
-                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type'], $user_id);
+                    $data = $this->user_input->get_data($table_id, $filter, $current_user, FORM_EXTERNAL, $user_id);
                     if ($data) {
                         $data = array_filter($data, function ($value) {
                             return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
@@ -202,7 +195,7 @@ abstract class BaseModel
                                 }
                             }
                         }
-                        $result[$config['type'] . '.' . $config['table']] = $data;
+                        $result[$config['table']] = $data;
                     } else if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
                         if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
