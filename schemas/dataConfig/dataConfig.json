@@ -9,24 +9,11 @@
         "description": "<span>Define the data source from which we can load the fields</span>",
         "format": "grid-strict",
         "properties": {
-            "type": {
-                "type": "string",
-                "title": "Type",
-                "description": "Internal is for forms that are created in SelfHelp, EXTERNAL is for upload tables, for example static uploaded data or Qualtrics data",
-                "enum": [
-                    "INTERNAL",
-                    "EXTERNAL"
-                ],
-                "propertyOrder": 1,
-                "options": {
-                    "grid_columns": 4
-                }
-            },
             "current_user": {
                 "type": "boolean",
                 "title": "Data for the logged user",
                 "description": "If true, the loaded data is for the logged user, if false the loaded data is for all users in the system",
-                "propertyOrder": 4,
+                "propertyOrder": 5,
                 "default": true,
                 "options": {
                     "grid_columns": 6
@@ -36,16 +23,17 @@
                 "type": "boolean",
                 "title": "All fields",
                 "description": "If true, it loads all fields for the selected table",
-                "propertyOrder": 5,
+                "propertyOrder": 4,
                 "default": true,
                 "options": {
-                    "grid_columns": 6
+                    "grid_columns": 4
                 }
             },
             "table": {
                 "type": "string",
                 "title": "Table name",
                 "description": "The name of the form that we want to load",
+                "enumSource": [],
                 "propertyOrder": 2,
                 "options": {
                     "grid_columns": 4
@@ -100,7 +88,7 @@
                             "propertyOrder": 2,
                             "type": "string",
                             "title": "Field holder",
-                            "description": "How we can take the value where we can use it. Always start with `@` and no space",
+                            "description": "Assign the field value to a new variable. Later the new variable can be used to show the data, ex: {{var_name}}",
                             "options": {
                                 "grid_columns": 4
                             }
@@ -160,7 +148,6 @@
             }
         },
         "required": [
-            "type",
             "table",
             "retrieve",
             "all_fields"

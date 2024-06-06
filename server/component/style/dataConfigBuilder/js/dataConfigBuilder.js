@@ -74,16 +74,16 @@ function initDataConfigBuilder() {
                 dataConfigEditor.off("change").on("change", function () {
                     for (let key in dataConfigEditor.editors) {
                         if (dataConfigEditor.editors.hasOwnProperty(key) && key !== 'root' && dataConfigEditor.watchlist && !dataConfigEditor.watchlist[key] &&
-                            (key.includes('table') || key.includes('type') || key.includes('field_name'))) {
-                            if (key.includes('type')) {
+                            (key.includes('table') || key.includes('retrieve') || key.includes('field_name'))) {
+                            if (key.includes('retrieve')) {
                                 // populate tables for new data source                                                                
-                                getTableNames(dataConfigEditor.getEditor(key).getValue(), dataConfigEditor, key.replace('type', 'table'));
+                                getTableNames(dataConfigEditor, key.replace('retrieve', 'table'));
                             } else if (key.includes('field_name')) {
                                 // populate field names for the new field
+                                console.log('Current JSON', dataConfigEditor.getValue());
                                 var keys = key.split('.');
                                 var dataSourceKey = keys[0] + '.' + keys[1];
                                 getTableFieldNames(
-                                    this.getEditor(dataSourceKey + '.type').getValue(),
                                     this.getEditor(dataSourceKey + '.table').getValue(),
                                     this,
                                     key,
@@ -92,6 +92,7 @@ function initDataConfigBuilder() {
                             }
                             dataConfigEditor.watch(key, dataConfigWatcherCallback.bind(dataConfigEditor, key)); // add the keys again - it is used to add watches for new sources
                         }
+                        // dataConfigEditor.watch(key, dataConfigWatcherCallback.bind(dataConfigEditor, key)); // add the keys again - it is used to add watches for new sources
                     }
                 })
 
@@ -99,20 +100,26 @@ function initDataConfigBuilder() {
                     // Initialization
                     for (let key in dataConfigEditor.editors) {
                         if (dataConfigEditor.editors.hasOwnProperty(key) && key !== 'root') {
-                            if (key.includes('type')) {
+                            if (key.includes('retrieve')) {
                                 // populate tables
-                                var k = key.replace('type', 'table');
+                                var k = key.replace('retrieve', 'table');
                                 dataConfigInitCalls[k] = false;
-                                getTableNames(dataConfigEditor.getEditor(key).getValue(), dataConfigEditor, key.replace('type', 'table'), dataConfigEditor);
+                                getTableNames(dataConfigEditor, key.replace('retrieve', 'table'), dataConfigEditor);
                             } else if (key.includes('table') && dataConfigEditor.getEditor(key) && dataConfigEditor.getEditor(key).getValue()) {
                                 // populate fields
-                                var k = key.replace('type', 'table');
+                                var k = key.replace('retrieve', 'table');
                                 dataConfigInitCalls[k] = false;
                                 getTableFieldNames(
-                                    dataConfigEditor.getEditor(key.replace('table', 'type')).getValue(),
                                     dataConfigEditor.getEditor(key).getValue(),
                                     dataConfigEditor,
                                     key.replace('table', 'fields'),
+                                    false,
+                                    dataConfigEditor
+                                );
+                                getTableFieldNames(
+                                    dataConfigEditor.getEditor(key).getValue(),
+                                    dataConfigEditor,
+                                    key.replace('table', 'map_fields'),
                                     false,
                                     dataConfigEditor
                                 );
@@ -135,20 +142,27 @@ function initDataConfigBuilder() {
 // ********************************************* DATA CONFIG BUILDER *****************************************
 
 const dataConfigWatcherCallback = function (path) {
-    if (path.includes('type') && this.getEditor(path) && this.getEditor(path).getValue()) {
-        getTableNames(this.getEditor(path).getValue(), this, path.replace('type', 'table'));
+    console.log('Bind', path);
+    if (path.includes('retrieve') && this.getEditor(path) && this.getEditor(path).getValue()) {
+        getTableNames(this, path.replace('retrieve', 'table'));
     } else if (path.includes('table') && this.getEditor(path) && this.getEditor(path).getValue()) {
         getTableFieldNames(
-            this.getEditor(path.replace('table', 'type')).getValue(),
             this.getEditor(path).getValue(),
             this,
             path.replace('table', 'fields'),
+            false
+        );
+        getTableFieldNames(
+            this.getEditor(path).getValue(),
+            this,
+            path.replace('table', 'map_fields'),
             false
         );
     }
 }
 
 function checkAllDataConfigInitCalls(dataConfigEditor) {
+    console.log('checkAllDataConfigInitCalls', dataConfigInitCalls);
     let result = true;
     for (const key in dataConfigInitCalls) {
         result = dataConfigInitCalls[key] && result;
@@ -157,7 +171,7 @@ function checkAllDataConfigInitCalls(dataConfigEditor) {
         // all calls are done
         for (let key in dataConfigEditor.editors) {
             if (dataConfigEditor.editors.hasOwnProperty(key) && key !== 'root' &&
-                (key.includes('table') || key.includes('type') || key.includes('field_name'))) {
+                (key.includes('table') || key.includes('retrieve') || key.includes('field_name'))) {
                 dataConfigEditor.watch(key, dataConfigWatcherCallback.bind(dataConfigEditor, key)); // add watch events to all existing keys containing [table, type, field_name]
             }
         }
@@ -165,10 +179,9 @@ function checkAllDataConfigInitCalls(dataConfigEditor) {
 }
 
 // AJAX call to get the table names
-function getTableNames(type, obj, path, dataConfigEditor) {
+function getTableNames(obj, path, dataConfigEditor) {
     $.post(
         BASE_PATH + '/request/AjaxDataSource/get_table_names',
-        { type: type },
         function (data) {
             if (data.success) {
                 var tableNames = [];
@@ -179,8 +192,8 @@ function getTableNames(type, obj, path, dataConfigEditor) {
                 }
                 var currValue = obj.getEditor(path).getValue().valueOf();
                 var fc = obj.getEditor(path).parent;
-                fc.original_schema.properties.table["enum"] = tableNames;
-                fc.schema.properties.table["enum"] = tableNames;
+                fc.original_schema.properties.table["enumSource"] = prepareEnumSource(tableNames);
+                fc.schema.properties.table["enumSource"] = prepareEnumSource(tableNames);
                 fc.removeObjectProperty('table');
                 //delete the cache
                 delete fc.cached_editors.table;
@@ -200,11 +213,10 @@ function getTableNames(type, obj, path, dataConfigEditor) {
 }
 
 // AJAX call to get the table fields
-function getTableFieldNames(type, formName, obj, path, init, dataConfigEditor) {
+function getTableFieldNames(formName, obj, path, init, dataConfigEditor) {
     $.post(
         BASE_PATH + '/request/AjaxDataSource/get_table_fields',
         {
-            type: type,
             name: formName
         },
         function (data) {
@@ -225,7 +237,7 @@ function getTableFieldNames(type, formName, obj, path, init, dataConfigEditor) {
                     fc.addObjectProperty('field_name');
                 } else if (obj.getEditor(path)) {
                     for (let i = 0; i < obj.getEditor(path).rows.length; i++) {
-                        var currValue = obj.getEditor(path + '.' + i + '.field_name').getValue().valueOf();
+                        var currValue = obj.getEditor(path + '.' + i + '.field_name').getValue()?.valueOf();
                         var fc = obj.getEditor(path + '.' + i + '.field_name').parent;
                         fc.original_schema.properties.field_name["enum"] = fieldNames;
                         fc.schema.properties.field_name["enum"] = fieldNames;
