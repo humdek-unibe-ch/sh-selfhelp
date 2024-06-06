@@ -195,14 +195,15 @@ abstract class BaseModel
                                 }
                             }
                         }
-                        $result[$config['table']] = $data;
+                        $result[isset($config['scope']) ? $config['scope'] : $config['table']] = $data; // if the scope is set, use the scope for naming
                     } else if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
                         if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
                             $all_values = array();
                             foreach ($data as $key => $value) {
                                 foreach ($value as $field_name => $field_value) {
-                                    $all_values[$field_name][] = $field_value;
+                                    $var_name = (isset($config['scope']) && $config['scope'] != '' ? $config['scope'] . '.' : '') . $field_name;
+                                    $all_values[$var_name][] = $field_value;
                                 }
                             }
                             foreach ($all_values as $key => $value) {
@@ -214,7 +215,16 @@ abstract class BaseModel
                             }
                             $result = array_merge($result, $all_values);
                         } else {
-                            $result = array_merge($result, $data[0]);
+                            $scope = (isset($config['scope']) && $config['scope'] != '' ? $config['scope'] . '.' : '');
+                            $prefix_arr = array_combine(
+                                // Use array_map to apply the prefix to each key
+                                array_map(function($key) use ($scope) {
+                                    return $scope . $key;
+                                }, array_keys($data[0])),
+                                // The values remain the same
+                                $data[0]
+                            );
+                            $result = array_merge($result, $prefix_arr);
                         }
                     } else if (isset($config['fields'])) {
                         // return only the selected fields

@@ -92,7 +92,6 @@ function initDataConfigBuilder() {
                             }
                             dataConfigEditor.watch(key, dataConfigWatcherCallback.bind(dataConfigEditor, key)); // add the keys again - it is used to add watches for new sources
                         }
-                        // dataConfigEditor.watch(key, dataConfigWatcherCallback.bind(dataConfigEditor, key)); // add the keys again - it is used to add watches for new sources
                     }
                 })
 

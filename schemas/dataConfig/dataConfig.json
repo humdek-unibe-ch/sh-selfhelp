@@ -6,6 +6,7 @@
     "items": {
         "type": "object",
         "title": "Data Source",
+        "headerTemplate": "Data Source {{i}} [{{self.scope}}]",
         "description": "<span>Define the data source from which we can load the fields</span>",
         "format": "grid-strict",
         "properties": {
@@ -26,7 +27,16 @@
                 "propertyOrder": 4,
                 "default": true,
                 "options": {
-                    "grid_columns": 4
+                    "grid_columns": 2
+                }
+            },
+            "scope": {
+                "type": "string",
+                "title": "Scope",
+                "description": "Set data source scope name.",
+                "propertyOrder": 1,
+                "options": {
+                    "grid_columns": 2
                 }
             },
             "table": {
@@ -36,7 +46,7 @@
                 "enumSource": [],
                 "propertyOrder": 2,
                 "options": {
-                    "grid_columns": 4
+                    "grid_columns": 6
                 }
             },
             "retrieve": {
@@ -52,7 +62,7 @@
                 "description": "Return th first record, last record as strong or all records in array for all",
                 "propertyOrder": 3,
                 "options": {
-                    "grid_columns": 4
+                    "grid_columns": 2
                 }
             },
             "filter": {
@@ -148,6 +158,7 @@
             }
         },
         "required": [
+            "scope",
             "table",
             "retrieve",
             "all_fields"

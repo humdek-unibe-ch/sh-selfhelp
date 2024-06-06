@@ -165,8 +165,7 @@ BEGIN
 		INNER JOIN uploadTables t ON t.`name` = s.id_sections
 		SET t.displayName = s.content
 		WHERE s.field_name = 'name';
-        
-        
+                
 		-- update dataConfigs with the new tables
 		CALL update_dataConfig();        
 

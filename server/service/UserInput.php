@@ -1037,7 +1037,7 @@ class UserInput
      * @return int | false
      * the result of the fetched form row
      */
-    public function get_form_id($name, $form_type = FORM_INTERNAL)
+    public function get_form_id($name, $form_type = FORM_EXTERNAL)
     {
         // the cache type is like a section, because the form name can be edited only in cms
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $name, [__FUNCTION__, $form_type]);
@@ -1081,7 +1081,7 @@ class UserInput
      * @return array
      * the result of the fetched data
      */
-    public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_INTERNAL, $user_id = null, $db_first = false)
+    public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_EXTERNAL, $user_id = null, $db_first = false)
     {
         if(!$form_type){
             $form_type = FORM_EXTERNAL;
