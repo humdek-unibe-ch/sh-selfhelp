@@ -21,6 +21,67 @@ CALL add_foreign_key('uploadRows', 'uploadRows_fk_id_actionTriggerTypes', 'id_ac
 CALL add_table_column('uploadTables', 'displayName', "VARCHAR(1000) DEFAULT NULL");
 
 
+-- Procedure for update dataConfigs with the new tables
+DROP PROCEDURE IF EXISTS update_dataConfig;
+DELIMITER //
+
+CREATE PROCEDURE update_dataConfig()
+BEGIN
+	DECLARE done INT DEFAULT 0;
+	DECLARE id_sec INT;
+	DECLARE id_fld INT;
+	DECLARE num_entries INT;
+	DECLARE cur CURSOR FOR 
+		SELECT id_sections, id_fields, JSON_LENGTH(content) AS num_entries
+		FROM sections_fields_translation
+		WHERE id_fields = 145 AND JSON_VALID(content);
+		
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+	OPEN cur;
+
+	read_loop: LOOP
+		FETCH cur INTO id_sec, id_fld, num_entries;
+		IF done THEN
+			LEAVE read_loop;
+		END IF;
+
+		SET @sql_base = 'UPDATE sections_fields_translation sft
+			INNER JOIN sections AS s ON sft.id_sections = s.id
+			INNER JOIN styles AS st ON st.id = s.id_styles
+			INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
+			INNER JOIN fields AS f ON f.id = sf.id_fields
+			SET ';
+
+		SET @updates = '';
+		SET @i = 0;
+
+		WHILE @i < num_entries DO
+			SET @update_part = CONCAT(
+				'sft.content = JSON_SET(
+					JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
+					''$[', @i, '].table'', (SELECT ut.name FROM uploadTables ut WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')))
+				),'
+			);
+			SET @updates = CONCAT(@updates, @update_part);
+			SET @i = @i + 1;
+		END WHILE;
+
+		SET @updates = LEFT(@updates, LENGTH(@updates) - 1); -- Remove the trailing comma
+		SET @sql = CONCAT(@sql_base, ' ', @updates, ' WHERE sft.id_sections = ', id_sec, ' AND sft.id_fields = ', id_fld, ' AND sf.disabled = 0 AND f.id = 145 AND IFNULL(sft.content, '''') <> '''';');
+
+		-- Execute the dynamically constructed SQL statement        
+		PREPARE stmt FROM @sql;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+	END LOOP;
+
+	CLOSE cur;
+END //
+
+DELIMITER ;
+
+-- main refactor procedure
 DELIMITER //
 CREATE PROCEDURE refactor_user_input()
 BEGIN
@@ -105,25 +166,9 @@ BEGIN
 		SET t.displayName = s.content
 		WHERE s.field_name = 'name';
         
-        -- update dataConfigs with the new tables
-        UPDATE sections_fields_translation sft
-		INNER JOIN (
-			SELECT id_sections, id_fields, content
-			FROM sections_fields_translation 
-			WHERE id_fields = 145 AND JSON_VALID(content)
-		) AS valid_sft ON valid_sft.id_sections = sft.id_sections AND valid_sft.id_fields = sft.id_fields
-		INNER JOIN sections AS s ON valid_sft.id_sections = s.id
-		INNER JOIN styles AS st ON st.id = s.id_styles
-		INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
-		INNER JOIN fields AS f ON f.id = sf.id_fields
-		INNER JOIN uploadTables ut ON ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))
-		SET sft.content = JSON_SET(
-			JSON_SET(sft.content, '$[0].old_form', JSON_UNQUOTE(JSON_EXTRACT(valid_sft.content, '$[0].table'))),
-			'$[0].table', ut.name
-		)
-		WHERE sf.disabled = 0
-		  AND f.id = 145
-		  AND IFNULL(valid_sft.content, '') <> '';
+        
+		-- update dataConfigs with the new tables
+		CALL update_dataConfig();        
 
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');
@@ -143,8 +188,9 @@ DELIMITER ;
 CALL refactor_user_input();
 
 DROP PROCEDURE IF EXISTS refactor_user_input;
+DROP PROCEDURE IF EXISTS update_dataConfig;
 
--- adjust displayName in uplaodTables when the name is changed in the CMS
+-- replace INTERNAL. and EXTERANL. where they are used in {{}}
 
 -- adjust the dataConfig where the internal forms are used
 
