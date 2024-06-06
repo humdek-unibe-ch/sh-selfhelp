@@ -248,7 +248,8 @@ abstract class BaseModel
                             } else if ($config['retrieve'] === 'all_as_array') {
                                 $field_value = json_encode($all_values);
                             }
-                            $result[$field['field_holder']] = ($field_value == '' ? $field['not_found_text'] : $field_value);
+                            $var_name = (isset($config['scope']) && $config['scope'] != '' ? $config['scope'] . '.' : '') . $field['field_holder'];
+                            $result[$var_name] = ($field_value == '' ? $field['not_found_text'] : $field_value);
                         }
                     }
                 }

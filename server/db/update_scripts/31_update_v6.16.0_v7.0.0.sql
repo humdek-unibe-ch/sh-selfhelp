@@ -189,8 +189,4 @@ CALL refactor_user_input();
 DROP PROCEDURE IF EXISTS refactor_user_input;
 DROP PROCEDURE IF EXISTS update_dataConfig;
 
--- replace INTERNAL. and EXTERANL. where they are used in {{}}
-
--- adjust the dataConfig where the internal forms are used
-
 -- remove the delete option from the form; create a new style for deleteing form record
