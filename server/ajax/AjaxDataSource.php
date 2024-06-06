@@ -281,21 +281,18 @@ class AjaxDataSource extends BaseAjax
     }
 
     /**
-     * Get an array with the names of all tables; forms for dynamic and upload tables for statis
-     * 
-     * @param $data
-     *  - `type` = Internal or external
-     * @retval array
+     * Get an array with the names of all tables;
+     *      
+     * @return array
      * array with all names as string
      */
-    public function get_table_names($data){
-        $sql = "SELECT orig_name
-                FROM view_data_tables
-                WHERE internal <> 1 AND `type` = :type;";
-        $res_db = $this->db->query_db($sql, array(":type"=>$data['type']));
+    public function get_table_names(){
+        $sql = "SELECT `name`, IFNULL(displayName, `name`) AS displayName
+                FROM uploadTables;";
+        $res_db = $this->db->query_db($sql);
         $res = array();
         foreach ($res_db as $key => $value) {
-            array_push($res, $value['orig_name']);
+            $res[$value['name']] = $value['displayName'];
         }
         return json_encode($res);
     }
@@ -304,18 +301,17 @@ class AjaxDataSource extends BaseAjax
      * Get an array with the names of all tables; forms for dynamic and upload tables for statis
      * 
      * @param $data
-     *  - `type` = Internal or external
      *  - `name` = table name
      * @retval array
      * array with all field names as string
      */
     public function get_table_fields($data){
-        $form_id = $this->user_input->get_form_id($data['name'], $data['type']);
+        $form_id = $this->user_input->get_form_id($data['name'], FORM_EXTERNAL);
         if (!$form_id) {
             // the form does not exist anymore
             return json_encode(array());
         }
-        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, $data['type'], null, true);
+        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, FORM_EXTERNAL, null, true);
         $res = array();
         if ($res_db) {
             foreach ($res_db as $key => $value) {
