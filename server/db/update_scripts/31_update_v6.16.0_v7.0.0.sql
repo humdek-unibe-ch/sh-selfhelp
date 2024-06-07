@@ -274,6 +274,32 @@ INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus);
 -- drop view view_data_tables - not needed anymore after the data refactoring
 DROP VIEW IF EXISTS view_data_tables;
 
+DROP VIEW IF EXISTS view_dataTables;
+CREATE VIEW view_dataTables
+AS
+SELECT id, 
+CASE 
+	WHEN IFNULL(displayName, '') = '' THEN `name`
+    ELSE displayName
+END AS `name`,
+`timestamp`,
+id AS `value`, -- used for slect dropdowns
+CASE 
+	WHEN IFNULL(displayName, '') = '' THEN `name`
+    ELSE displayName
+END AS `text` -- used for slect dropdowns
+FROM dataTables;
+
+
 -- remove the delete option from the form; create a new style for deleteing form record
 
 -- rename uploadTables and so on to dataTables and so on
+
+-- this should be moved
+select *
+from sections_fields_translation sft
+left join fields f on (f.id = sft.id_fields)
+left join fieldtype ft on (f.id_type= ft.id)
+where ft.`name` = 'select-formName';
+
+-- graphs rework `view_data_tables`
