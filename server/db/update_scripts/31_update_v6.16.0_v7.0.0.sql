@@ -234,6 +234,20 @@ BEGIN
         CALL rename_table_column('dataCols', 'id_uploadTables', 'id_dataTables');
         CALL rename_table_column('dataCells', 'id_uploadRows', 'id_dataRows');
         CALL rename_table_column('dataCells', 'id_uploadCols', 'id_dataCols');
+                
+        CALL add_table_column('formActions', 'id_dataTables', 'int(10) unsigned zerofill DEFAULT NULL');
+        CALL add_foreign_key('formActions', 'formActions_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
+        
+        -- replace the old relation of the forms in formActions
+        UPDATE formActions a
+		INNER JOIN formActions_INTERNAL i ON a.id = i.id_formActions
+		INNER JOIN dataTables dt ON CAST(dt.`name` AS CHAR) = CAST(i.id_forms AS CHAR)
+		SET a.id_dataTables = dt.id;
+        
+        UPDATE formActions a
+		INNER JOIN formActions_EXTERNAL e ON a.id = e.id_formActions
+		INNER JOIN dataTables dt ON dt.id = e.id_forms
+		SET a.id_dataTables = dt.id;			
         
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
         CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
@@ -244,10 +258,12 @@ BEGIN
         -- rename foreign key in `scheduledJobs_reminders` from `scheduledJobs_reminders_id_forms_EXTERNAL` to `scheduledJobs_reminders_id_dataTables`
         CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
         CALL drop_index('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
-        CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`uploadTables` (`id`)');        
-
-		RENAME TABLE user_input TO deprecated_user_input;
-		RENAME TABLE user_input_record TO deprecated_user_input_record;
+        CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
+		
+        CALL rename_table('formActions_INTERNAL', 'deprecated_formActions_INTERNAL');
+        CALL rename_table('formActions_EXTERNAL', 'deprecated_formActions_EXTERNAL');
+        CALL rename_table('user_input_record', 'deprecated_user_input_record');
+        CALL rename_table('user_input', 'deprecated_user_input');        
 	ELSE
 		SELECT 'User input is already refactored' AS message;
 	END IF;	 
@@ -303,3 +319,5 @@ left join fieldtype ft on (f.id_type= ft.id)
 where ft.`name` = 'select-formName';
 
 -- graphs rework `view_data_tables`
+
+get_form_id
