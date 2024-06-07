@@ -411,3 +411,5 @@ where ft.`name` = 'select-formName';
 -- graphs rework `view_data_tables`
 
 get_form_id
+
+fetch_data_table_external
