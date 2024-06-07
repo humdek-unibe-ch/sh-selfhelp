@@ -205,7 +205,7 @@ BEGIN
         CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
         CALL drop_table_column('scheduledJobs_reminders', 'id_forms_INTERNAL');
         
-        -- rename column `id_forms_EXTERNAL` in table `scheduledJobs_reminders` to ``
+        -- rename column `id_forms_EXTERNAL` in table `scheduledJobs_reminders` to `id_dataTables`
         CALL rename_table_column('scheduledJobs_reminders', 'id_forms_EXTERNAL', 'id_dataTables');
 
 		RENAME TABLE user_input TO deprecated_user_input;
@@ -222,6 +222,17 @@ CALL refactor_user_input();
 
 DROP PROCEDURE IF EXISTS refactor_user_input;
 DROP PROCEDURE IF EXISTS update_dataConfig;
+
+DROP VIEW IF EXISTS view_scheduledJobs_reminders;
+CREATE VIEW view_scheduledJobs_reminders
+AS
+SELECT r.id_scheduledJobs, r.id_dataTables,
+r.session_start_date, r.session_end_date, sju.id_users,l_status.lookup_code as job_status_code, l_status.lookup_value as job_status
+FROM scheduledJobs_reminders r
+INNER JOIN scheduledJobs sj ON (sj.id = r.id_scheduledJobs)
+INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
+INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus);
+
 
 -- remove the delete option from the form; create a new style for deleteing form record
 
