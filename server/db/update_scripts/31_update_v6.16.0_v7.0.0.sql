@@ -2,6 +2,33 @@
 UPDATE version
 SET version = 'v7.0.0';
 
+DELIMITER //
+DROP PROCEDURE IF EXISTS rename_table_column //
+CREATE PROCEDURE rename_table_column(param_table VARCHAR(100), param_old_column_name VARCHAR(100), param_new_column_name VARCHAR(100))
+BEGIN	
+	DECLARE columnExists INT;
+    DECLARE columnType VARCHAR(255);
+    SELECT COUNT(*), COLUMN_TYPE 
+            INTO columnExists, columnType
+			FROM information_schema.COLUMNS
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+			AND `COLUMN_NAME` = param_old_column_name; 
+    SET @sqlstmt = (SELECT IF(
+		columnExists > 0,        
+        CONCAT('ALTER TABLE ', param_table, ' CHANGE COLUMN ', param_old_column_name, ' ', param_new_column_name, ' ', columnType, ';'),
+        "SELECT 'Column does not exists in the table'"
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+
+
 -- add actionTrigger types
 INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'updated', 'Updated', 'When the user saved data is saved with statut `updated`');
 INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'deleted', 'Deleted', 'When the user saved data is saved with statut `deleted`');
@@ -173,6 +200,13 @@ BEGIN
 		CALL drop_table_column('uploadCols', 'old_col_id');
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
         -- CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
+        
+        -- drop column `id_user_input_record` from `scheduledJobs_formActions`
+        CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
+        CALL drop_table_column('scheduledJobs_reminders', 'id_forms_INTERNAL');
+        
+        -- rename column `id_forms_EXTERNAL` in table `scheduledJobs_reminders` to ``
+        CALL rename_table_column('scheduledJobs_reminders', 'id_forms_EXTERNAL', 'id_dataTables');
 
 		RENAME TABLE user_input TO deprecated_user_input;
 		RENAME TABLE user_input_record TO deprecated_user_input_record;
@@ -190,3 +224,5 @@ DROP PROCEDURE IF EXISTS refactor_user_input;
 DROP PROCEDURE IF EXISTS update_dataConfig;
 
 -- remove the delete option from the form; create a new style for deleteing form record
+
+-- rename uploadTables and so on to dataTables and so on
