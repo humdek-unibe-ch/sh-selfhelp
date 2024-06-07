@@ -28,6 +28,30 @@ END
 
 DELIMITER ;
 
+DELIMITER //
+DROP PROCEDURE IF EXISTS rename_table //
+CREATE PROCEDURE rename_table(param_old_table_name VARCHAR(100), param_new_table_name VARCHAR(100))
+BEGIN	
+	DECLARE tableExists INT;
+    SELECT COUNT(*) 
+            INTO tableExists
+			FROM information_schema.COLUMNS
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_old_table_name; 
+    SET @sqlstmt = (SELECT IF(
+		tableExists > 0,        
+        CONCAT('RENAME TABLE ', param_old_table_name, ' TO ', param_new_table_name),
+        "SELECT 'Table does not exists in the table'"
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+
 
 -- add actionTrigger types
 INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'updated', 'Updated', 'When the user saved data is saved with statut `updated`');
@@ -200,6 +224,16 @@ BEGIN
 		CALL drop_table_column('uploadCols', 'old_col_id');
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
         -- CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
+        
+        -- RENAME UPLOAD TABLE
+        CALL rename_table('uploadTables', 'dataTables');
+        CALL rename_table('uploadRows', 'dataRows');
+        CALL rename_table('uploadCols', 'dataCols');
+        CALL rename_table('uploadCells', 'dataCells');
+        CALL rename_table_column('dataRows', 'id_uploadTables', 'id_dataTables');
+        CALL rename_table_column('dataCols', 'id_uploadTables', 'id_dataTables');
+        CALL rename_table_column('dataCells', 'id_uploadRows', 'id_dataRows');
+        CALL rename_table_column('dataCells', 'id_uploadCols', 'id_dataCols');
         
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
         CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
