@@ -314,7 +314,7 @@ class UserModel extends BaseModel
             }
             $res &= $this->db->remove_by_fk('scheduledJobs_users', 'id_users', $uid);
             //remove external data
-            $res &= $this->db->remove_by_fk('uploadRows', 'id_users', $uid);
+            $res &= $this->db->remove_by_fk('dataRows', 'id_users', $uid);
             $this->db->commit();
             return $res;
         } catch (Exception $e) {
