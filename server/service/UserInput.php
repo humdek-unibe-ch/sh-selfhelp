@@ -729,18 +729,10 @@ class UserInput
      */
     private function get_scheduled_reminders_for_delete($form_data)
     {
-        $sql = '';
-        if ($form_data['form_type'] == FORM_INTERNAL) {
-            $sql = 'SELECT id_scheduledJobs 
-                    FROM view_scheduledJobs_reminders 
-                    WHERE `id_users` = :uid AND id_forms_INTERNAL = :form_id AND job_status_code = :status
-                    AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
-        } else if ($form_data['form_type'] == FORM_EXTERNAL) {
-            $sql = 'SELECT id_scheduledJobs 
-                    FROM view_scheduledJobs_reminders 
-                    WHERE `id_users` = :uid AND id_forms_EXTERNAL = :form_id AND job_status_code = :status
-                    AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
-        }
+        $sql = 'SELECT id_scheduledJobs 
+                FROM view_scheduledJobs_reminders 
+                WHERE `id_users` = :uid AND id_dataTables = :form_id AND job_status_code = :status
+                AND (session_end_date IS NULL OR (NOW() BETWEEN session_start_date AND session_end_date))';
         $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
         return $this->db->query_db(
             $sql,
