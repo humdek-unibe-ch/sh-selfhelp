@@ -508,6 +508,28 @@ abstract class BaseModel
             return false;
         }
     }    
+
+    /**
+     * Get the service class UserInput.
+     *
+     * @return object
+     *  The UserInput service class.
+     */
+    public function get_user_input()
+    {
+        return $this->user_input;
+    }
+
+    /**
+     * Get the service class DB.
+     *
+     * @return object
+     *  The DB service class.
+     */
+    public function get_db()
+    {
+        return $this->db;
+    }
     
 }
 ?>
