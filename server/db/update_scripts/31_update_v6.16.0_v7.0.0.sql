@@ -207,6 +207,10 @@ BEGIN
         
         -- rename column `id_forms_EXTERNAL` in table `scheduledJobs_reminders` to `id_dataTables`
         CALL rename_table_column('scheduledJobs_reminders', 'id_forms_EXTERNAL', 'id_dataTables');
+        -- rename foreign key in `scheduledJobs_reminders` from `scheduledJobs_reminders_id_forms_EXTERNAL` to `scheduledJobs_reminders_id_dataTables`
+        CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
+        CALL drop_index('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
+        CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`uploadTables` (`id`)');        
 
 		RENAME TABLE user_input TO deprecated_user_input;
 		RENAME TABLE user_input_record TO deprecated_user_input_record;
