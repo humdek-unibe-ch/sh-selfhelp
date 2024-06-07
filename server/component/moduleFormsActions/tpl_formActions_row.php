@@ -6,6 +6,6 @@
 <tr class="cursor-pointer" id="formAction-url-<?php echo $action['id']; ?>">
     <td><?php echo $action['id']; ?></td>
     <td><?php echo $action['action_name']; ?></td>
-    <td><?php echo $action['form_name']; ?></td>
+    <td><?php echo $action['dataTable_name']; ?></td>
     <td><?php echo $action['trigger_type']; ?></td>
 </tr>

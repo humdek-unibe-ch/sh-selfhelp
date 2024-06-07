@@ -30,7 +30,7 @@ class ModuleFormsActionsController extends BaseController
         if (
             isset($_POST['mode']) && $_POST['mode'] === INSERT &&
             isset($_POST['name']) &&
-            isset($_POST['id_forms']) &&
+            isset($_POST['id_dataTables']) &&
             isset($_POST['id_formProjectActionTriggerTypes']) &&
             isset($_POST['config'])
         ) {
@@ -39,7 +39,7 @@ class ModuleFormsActionsController extends BaseController
         } else if (
             isset($_POST['mode']) && $_POST['mode'] === UPDATE &&
             isset($_POST['name']) &&
-            isset($_POST['id_forms']) &&
+            isset($_POST['id_dataTables']) &&
             isset($_POST['id_formProjectActionTriggerTypes']) &&
             isset($_POST['config'])
         ) {

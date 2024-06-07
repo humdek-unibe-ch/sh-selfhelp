@@ -171,11 +171,11 @@ class ModuleFormsActionView extends BaseView
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "When form",
-                            "value" => $this->action['id_forms'] ?? '',
+                            "value" => $this->action['id_dataTables'] ?? '',
                             "is_required" => true,
                             "live_search" => true,
-                            "name" => "id_forms",
-                            "items" => $this->model->get_forms(),
+                            "name" => "id_dataTables",
+                            "items" => $this->model->get_user_input()->get_dataTables(),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "Is (trigger type)",
@@ -237,7 +237,7 @@ class ModuleFormsActionView extends BaseView
                         "title" => "When form",
                         "locale" => "",
                         "children" => array(new BaseStyleComponent("rawText", array(
-                            "text" => $this->action['form_name']
+                            "text" => $this->action['dataTable_name']
                         ))),
                     )),
                     new BaseStyleComponent("descriptionItem", array(

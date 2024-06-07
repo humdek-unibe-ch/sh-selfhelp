@@ -9,7 +9,7 @@
             <tr>
                 <th scope="col">Action ID</th>
                 <th scope="col">Action Name</th>
-                <th scope="col">Form Name</th>
+                <th scope="col">Data Table Name</th>
                 <th scope="col">Trigger Type</th>
             </tr>
         </thead>

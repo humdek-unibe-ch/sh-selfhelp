@@ -27,23 +27,6 @@ class ModuleFormsActionModel extends BaseModel
     }
 
     /**
-     * Get the all generated forms from the users in the cms
-     *
-     * @retval array
-     *  As array of items where each item has the following keys:
-     *   - 'form_id':    form_id used as combobox value and used as a paramter for the databse function to retrieve the data.
-     *   - 'form_name':  form name shown in the combo box
-     */
-    public function get_forms()
-    {
-        $surveys = array();
-        foreach ($this->db->select_table("view_data_tables") as $survey) {
-            array_push($surveys, array("value" => $survey['form_id_plus_type'], "text" => $survey['orig_name']));
-        }
-        return $surveys;
-    }
-
-    /**
      * get notifications from the database.
      *
      *  @retval array

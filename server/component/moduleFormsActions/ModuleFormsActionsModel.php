@@ -27,26 +27,6 @@ class ModuleFormsActionsModel extends BaseModel
     }
 
     /**
-     * Insert the form relation based on what type is the selected form - INTERNAL or EXTERNAL
-     * @param int $actionId
-     * The inserted actionId
-     * @param string $form
-     * The form id with the type in a string format id-type
-     * @return int
-     * Return the result of the insert
-     */
-    private function insert_form_relation($actionId, $form)
-    {
-        $formInfo = explode('-', $form);
-        $form_id = $formInfo[0];
-        $form_type = $formInfo[1];
-        return $this->db->insert($form_type == FORM_INTERNAL ? 'formActions_INTERNAL' : 'formActions_EXTERNAL', array(
-            "id_formActions" => $actionId,
-            "id_forms" => $form_id
-        ));
-    }
-
-    /**
      * Insert a new action for form to the DB.
      *
      * @param array $data
@@ -67,9 +47,9 @@ class ModuleFormsActionsModel extends BaseModel
             $actionId = $this->db->insert("formActions", array(
                 "name" => $data['name'],
                 "id_formProjectActionTriggerTypes" => $data['id_formProjectActionTriggerTypes'],
-                "config" => $data['config']
+                "config" => $data['config'],
+                "id_dataTables" => $data['id_dataTables']
             ));
-            $this->insert_form_relation($actionId, $data['id_forms']);
             $this->db->commit();
             return $actionId;
         } catch (Exception $e) {
@@ -102,15 +82,9 @@ class ModuleFormsActionsModel extends BaseModel
             $this->db->update_by_ids("formActions", array(
                 "name" => $data['name'],
                 "id_formProjectActionTriggerTypes" => $data['id_formProjectActionTriggerTypes'],
-                "config" => $data['config']
+                "config" => $data['config'],
+                "id_dataTables" => $data['id_dataTables']
             ), array('id' => $data['id']));
-
-            //delete all form relations
-            $this->db->remove_by_fk("formActions_INTERNAL", "id_formActions", $data['id']);
-            $this->db->remove_by_fk("formActions_EXTERNAL", "id_formActions", $data['id']);
-
-            $this->insert_form_relation($data['id'], $data['id_forms']);
-
             $this->db->commit();
             return $data['id'];
         } catch (Exception $e) {
