@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
+DROP PROCEDURE IF EXISTS get_dataTable_with_filter //
 
-CREATE PROCEDURE get_uploadTable_with_filter( 
+CREATE PROCEDURE get_dataTable_with_filter( 
 	IN table_id_param INT, 
     IN user_id_param INT, 
     IN filter_param VARCHAR(1000),
@@ -23,12 +23,12 @@ BEGIN
             replace(col.name, ' ', ''), '`'
         )
     ) INTO @sql
-    FROM  uploadTables t
-	INNER JOIN uploadCols col on (t.id = col.id_uploadTables)
+    FROM  dataTables t
+	INNER JOIN dataCols col on (t.id = col.id_dataTables)
     WHERE t.id = table_id_param AND col.`name` != 'id_users';
 
     IF (@sql is null) THEN
-        SELECT table_name from view_uploadTables where 1=2;
+        SELECT `name` from view_dataTables where 1=2;
     ELSE
         BEGIN
 			SET @user_filter = '';
@@ -62,10 +62,10 @@ BEGIN
             
             SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id, 
 					r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, r.id_actionTriggerTypes, l.lookup_code AS trigerType,', @sql, 
-					' FROM uploadTables t
-					INNER JOIN uploadRows r ON (t.id = r.id_uploadTables)
-					INNER JOIN uploadCells cell ON (cell.id_uploadRows = r.id)
-					INNER JOIN uploadCols col ON (col.id = cell.id_uploadCols)
+					' FROM dataTables t
+					INNER JOIN dataRows r ON (t.id = r.id_dataTables)
+					INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
+					INNER JOIN dataCols col ON (col.id = cell.id_dataCols)
                     LEFT JOIN users u ON (r.id_users = u.id)
                     LEFT JOIN lookups l ON (l.id = r.id_actionTriggerTypes)
 					WHERE t.id = ', table_id_param, @user_filter, @time_period_filter, @exclude_deleted_filter, 
