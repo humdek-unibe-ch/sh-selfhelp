@@ -271,6 +271,8 @@ INNER JOIN scheduledJobs sj ON (sj.id = r.id_scheduledJobs)
 INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus);
 
+-- drop view view_data_tables - not needed anymore after the data refactoring
+DROP VIEW IF EXISTS view_data_tables;
 
 -- remove the delete option from the form; create a new style for deleteing form record
 
