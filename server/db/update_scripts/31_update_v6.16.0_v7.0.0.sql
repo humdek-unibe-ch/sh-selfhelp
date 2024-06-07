@@ -221,9 +221,7 @@ BEGIN
 		CALL update_dataConfig();        
 
 		CALL drop_table_column('uploadRows', 'old_row_id');
-		CALL drop_table_column('uploadCols', 'old_col_id');
-        -- drop column `id_user_input_record` from `scheduledJobs_formActions`
-        -- CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
+		CALL drop_table_column('uploadCols', 'old_col_id');        
         
         -- RENAME UPLOAD TABLE
         CALL rename_table('uploadTables', 'dataTables');
@@ -247,7 +245,17 @@ BEGIN
         UPDATE formActions a
 		INNER JOIN formActions_EXTERNAL e ON a.id = e.id_formActions
 		INNER JOIN dataTables dt ON dt.id = e.id_forms
-		SET a.id_dataTables = dt.id;			
+		SET a.id_dataTables = dt.id;		
+        
+        -- add column `id_dataRows` in table `scheduledJobs_formActions`. Move all linking there
+        CALL add_table_column('scheduledJobs_formActions', 'id_dataRows', 'int(10) unsigned zerofill DEFAULT NULL');
+        CALL add_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_id_dataRows', 'id_dataRows', '`dataRows` (`id`)');          
+        UPDATE scheduledJobs_formActions
+        SET id_dataRows = id_uploadRows;          
+        CALL drop_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_fk_id_uploadRows');
+        CALL drop_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_fk_id_user_input_record');
+        CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
+        CALL drop_table_column('scheduledJobs_formActions', 'id_uploadRows');
         
         -- drop column `id_user_input_record` from `scheduledJobs_formActions`
         CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
