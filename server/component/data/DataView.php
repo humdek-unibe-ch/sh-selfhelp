@@ -46,7 +46,7 @@ class DataView extends BaseView
         $forms = $this->model->get_selected_forms();
         if ($forms) {
             if ($forms[0] == 'all') {
-                $forms = $this->model->get_forms();
+                $forms = $this->model->get_dataTables();
             }
             foreach ($forms as $keyForm => $formId) {
                 $formId = isset($formId['form']) ? $formId['form'] : $formId;
@@ -77,7 +77,7 @@ class DataView extends BaseView
                     $tableBody .= implode('', $tableRows);
                     $tableBody .= '</tbody>';
                 
-                    $formName = $this->model->get_form_name($formId);
+                    $formName = 'Set form name';
                 
                     // Build the card content
                     $table = '<table class="adminData w-100 table dataTable table-sm table-hover">' . $tableHead . $tableBody . '</table>';
@@ -104,17 +104,13 @@ class DataView extends BaseView
      */
     private function output_config_panel()
     {
-        $forms = $this->model->get_forms();
+        $forms = $this->model->get_dataTables();
         $options = array();
         $options[] = array(
             "value" => 'all',
             "text" => 'All'
         );
-        foreach ($forms as $form)
-            $options[] = array(
-                "value" => $form['form_id'] . '-' . $form['type'],
-                "text" => $form['form_name']
-            );
+        $options = array_merge($options, $forms);
         $card = new BaseStyleComponent("card", array(
             "css" => "mb-3 card",
             "is_expanded" => true,

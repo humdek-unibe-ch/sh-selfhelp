@@ -41,19 +41,17 @@ class DataModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
-     * Get the all generated forms from the users in the cms
+     * Get the all dataTabled
      *
-     * @retval array
+     * @return array
      *  As array of items where each item has the following keys:
-     *   - 'form_id':    form_id used as combobox value and used as a parameter for the database function to retrieve the data.
-     *   - 'form_name':  form name shown in the combo box
+     *   - 'id':    dataTable id
+     *   - 'name':  dataTable name
+     *   - 'displayName': dataTable displayName
      */
-    public function get_forms()
+    public function get_dataTables()
     {
-        $sql = 'SELECT type, id AS form_id, orig_name AS form_name, form_id_plus_type AS form, internal
-                FROM view_data_tables
-                WHERE internal <> 1';
-        return $this->db->query_db($sql);
+        return $this->user_input->get_dataTables();
     }
 
     /**
@@ -76,14 +74,11 @@ class DataModel extends BaseModel
      */
     public function getFormFields($formId, $user_ids)
     {
-        $formInfo = explode('-', $formId);
-        $formId = $formInfo[0];
-        $formType = $formInfo[1];
         if ($user_ids == 'all') {
             // add limit or the table will not load if too much data is shown
-            return $this->user_input->get_data($formId, '', false, $formType);
+            return $this->user_input->get_data($formId, '', false);
         } else {
-            return $this->user_input->get_data_for_user($formId, $user_ids, '', $formType);
+            return $this->user_input->get_data_for_user($formId, $user_ids, '');
         }
     }
 
@@ -106,11 +101,9 @@ class DataModel extends BaseModel
         ));
         foreach ($users as $val) {
             $value = (intval($val['id']));
-            //$selected = $this->users && array_search($value, $this->users) !== false ? 'selected' : '';
             array_push($arr, array(
                 "value" => $value,
                 "text" => ("[" . $val['code'] . '] ' . $val['email']) . ' - ' . $val['name'],
-                //  "selected" => $selected
             ));
         }
         return $arr;
@@ -134,24 +127,6 @@ class DataModel extends BaseModel
     public function get_selected_forms()
     {
         return $this->forms;
-    }
-
-    /**
-     * Get form name by form id
-     * @param string $form_id
-     * Form id, type plus id
-     * @return string
-     * Return the form name
-     */
-    public function get_form_name($form_id)
-    {
-        $sql = "SELECT orig_name FROM view_data_tables WHERE form_id_plus_type = :form_id";
-        $res = $this->db->query_db_first($sql, array(":form_id" => $form_id));
-        if (isset($res['orig_name'])) {
-            return $res['orig_name'];
-        } else {
-            return '';
-        }
     }
 }
 ?>
