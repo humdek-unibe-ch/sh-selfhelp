@@ -106,57 +106,6 @@ class FormUserInputModel extends StyleModel
         return $res;
     }
 
-    /**
-     * Update a form field entry in the database.
-     *
-     * @param int $id
-     *  The id of the form field.
-     * @param string $value
-     *  The value of the form field.
-     * @param int $record_id
-     * The id_user_input_record from the table user_input
-     * @retval int
-     *  The number of affected rows or false if an error ocurred.
-     */
-    private function update_entry_with_record_id($id, $value, $record_id)
-    {        
-        $own_entries_only = $this->get_db_field("own_entries_only", "1");
-        $filter = " AND deleted = 0 AND record_id = " . $record_id;
-        $entry_record = $this->user_input->get_data($this->get_form_id(), $filter, $own_entries_only, FORM_INTERNAL, null, true);
-        $field_name = $this->get_form_field_name($id);
-        $res = false;
-        $tran_type = '';
-        if (isset($entry_record[$field_name])) {
-            // field exists update it
-            $res = $this->db->update_by_ids(
-                "user_input",
-                array(
-                    "value" => $value,
-                ),
-                array(
-                    "id_sections" => $id,
-                    "id_user_input_record" => $record_id
-                )
-            );
-            $tran_type = transactionTypes_update;
-        } else {
-            // the field is new and does not exist
-            // insert it
-            // insert it with user_id of the creator - otherwise the row cannot be grouped
-            // add transaction
-            $res = $this->insert_new_entry($id, $value, $record_id, $entry_record['user_id']);
-            $tran_type = transactionTypes_insert;
-        }
-        $this->transaction->add_transaction(
-            $tran_type,
-            transactionBy_by_user,
-            $_SESSION['id_user'],
-            $this->transaction::TABLE_USER_INPUT,
-            $record_id
-        );
-        return $res;
-    }    
-
     /* Public Methods *********************************************************/
 
     /**
@@ -211,41 +160,6 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
-     * Check whether user has already submitted data to this form field.
-     *
-     * @param int $id
-     *  The section id of the field to check for.
-     * @retval bool
-     *  True if data exists, false otherwise.
-     */
-    public function has_field_data($id)
-    {
-        $res = $this->user_input->get_input_fields(array(
-            "id_section" => $id,
-            "id_user" => $_SESSION['id_user'],
-            "form_id" => $this->get_form_id()
-        ));
-        if ($res) return true;
-        else return false;
-    }
-
-    /**
-     * Check whether user has already submitted data to this form.
-     *
-     * @retval bool
-     *  True if data exists, false otherwise.
-     */
-    public function has_form_data()
-    {
-        $res = $this->user_input->get_input_fields(array(
-            "id_user" => $_SESSION['id_user'],
-            "form_id" => $this->get_form_id()
-        ));
-        if ($res) return true;
-        else return false;
-    }
-
-    /**
      * Check the last record_id for the form. Used for the update form which is not is_log
      * @retval int
      *  return record_id, if not return false
@@ -253,7 +167,7 @@ class FormUserInputModel extends StyleModel
     public function get_id_record()
     {
         $own_entries_only = $this->get_db_field("own_entries_only", "1");
-        $res = $this->user_input->get_data($this->get_form_id(),'ORDER BY record_id DESC',$own_entries_only, FORM_INTERNAL, null, true);
+        $res = $this->user_input->get_data($this->get_form_id(),'ORDER BY record_id DESC',$own_entries_only, null, true);
         if ($res) return $res['record_id'];
         else return false;
     }
@@ -280,12 +194,16 @@ class FormUserInputModel extends StyleModel
      */
     public function save_user_input($user_input)
     {        
-        $res = $this->user_input->save_external_data(
+        $res = $this->user_input->save_data(
             transactionBy_by_user,
             $this->get_table_name_from_form_id(),
             (array)$user_input
         );
         $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
+        if(!$this->is_log()){
+            // if not log load data if exists
+            $this->reload_children();
+        }
         return $res;
     }
 
@@ -302,7 +220,7 @@ class FormUserInputModel extends StyleModel
      */
     public function update_user_input($user_input, $record_id)
     {
-        $res = $this->user_input->save_external_data(
+        $res = $this->user_input->save_data(
             transactionBy_by_user,
             $this->get_table_name_from_form_id(),
             (array)$user_input,
@@ -360,9 +278,9 @@ class FormUserInputModel extends StyleModel
      */
     public function get_form_entry_record($record_id, $own_entries_only)
     {
-        $form_id = $this->user_input->get_form_id($this->get_table_name_from_form_id(), FORM_EXTERNAL);
+        $form_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
         $filter = " AND record_id = " . $record_id;
-        return $this->user_input->get_data($form_id, $filter, $own_entries_only, FORM_EXTERNAL);
+        return $this->user_input->get_data($form_id, $filter, $own_entries_only);
     }
 
     /**
@@ -414,7 +332,6 @@ class FormUserInputModel extends StyleModel
             "trigger_type" => $trigger_type,
             "form_name" => $this->get_db_field("name"),
             "form_id" => $this->section_id,
-            "form_type" => FORM_INTERNAL,
             "form_fields" => ($record_id ? array_merge($_POST, array('record_id' => $record_id)) : $_POST)
         );
         $this->user_input->queue_job_from_actions($form_data);
@@ -422,9 +339,9 @@ class FormUserInputModel extends StyleModel
 
     public function reload_children()
     {
-        $form_id = $this->user_input->get_form_id($this->get_table_name_from_form_id(), FORM_EXTERNAL);
+        $form_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
         if ($form_id && !$this->is_log()) {
-            $data = $this->user_input->get_data_for_user($form_id, $_SESSION['id_user'], '', FORM_EXTERNAL, true);
+            $data = $this->user_input->get_data_for_user($form_id, $_SESSION['id_user'], '', true);
             if ($data) {
                 $this->set_entry_record($data);
             }

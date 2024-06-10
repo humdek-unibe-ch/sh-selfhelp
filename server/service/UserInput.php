@@ -223,26 +223,24 @@ class UserInput
     }
 
     /**
-     * Get all actions for a form and a trigger_type
+     * Get all actions for a data table and a trigger_type
      *
-     * @param string $id_forms
-     *  form id
-     * @param string $form_type
-     * Internal or external
+     * @param string $id_dataTables
+     *  data table id
      * @param string $trigger_type
      *  trigger type
-     *  @retval array
+     *  @return array
      * return all actions for that survey with this trigger_type
      */
-    private function get_actions($id_forms, $form_type, $trigger_type)
+    private function get_actions($id_dataTables, $trigger_type)
     {
         $sqlGetActions = "SELECT * 
                           FROM view_formActions
-                          WHERE id_forms = :id_forms AND trigger_type = :trigger_type;";
+                          WHERE id_dataTables = :id_dataTables AND trigger_type = :trigger_type;";
         return $this->db->query_db(
             $sqlGetActions,
             array(
-                "id_forms" => (int)$id_forms . '-' . $form_type,
+                "id_dataTables" => $id_dataTables,
                 "trigger_type" => $trigger_type
             )
         );
@@ -753,7 +751,7 @@ class UserInput
      * @return int
      * Return the id of the column if it is found
      */
-    private function get_uploadTable_columnId($col_name, $table_id)
+    private function get_dataTable_columnId($col_name, $table_id)
     {
         // the cache type is like a section, because the form name can be edited only in cms
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $col_name, [__FUNCTION__, $table_id]);
@@ -761,7 +759,7 @@ class UserInput
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $res = $this->db->query_db_first("SELECT id FROM uploadCols WHERE `name` = :col_name AND id_uploadTables = :table_id", array(":col_name" => $col_name, ":table_id" => $table_id));
+            $res = $this->db->query_db_first("SELECT id FROM dataCols WHERE `name` = :col_name AND id_dataTables = :table_id", array(":col_name" => $col_name, ":table_id" => $table_id));
             $res = $res ? $res['id'] : '';
             $this->db->get_cache()->set($key, $res);
             return $res;
@@ -769,24 +767,24 @@ class UserInput
     }
 
     /**
-     * Get the columns needed for the upload table and insert them if they do not exists
+     * Get the columns needed for the data table and insert them if they do not exists
      * @param int $id_table
-     * The uploadTable id
-     * @param object $data
+     * The dataTable id
+     * @param array $data
      * The data for the row. Based on it we will get the needed columns
      * @return array
      * Return array with the column name and the column id
      */
-    private function get_columns_for_upload_table($id_table, $data)
+    private function get_columns_for_data_table($id_table, $data)
     {
         $col_ids = array();
         foreach ($data as $col_name => $value) {
-            $id_col = $this->get_uploadTable_columnId($col_name, $id_table);
+            $id_col = $this->get_dataTable_columnId($col_name, $id_table);
             if (!$id_col) {
                 // it does not exist, create it
-                $id_col = $this->db->insert("uploadCols", array(
+                $id_col = $this->db->insert("dataCols", array(
                     "name" => $col_name,
-                    "id_uploadTables" => $id_table
+                    "id_dataTables" => $id_table
                 ));
             }
             $col_ids[$col_name] = $id_col;
@@ -807,61 +805,69 @@ class UserInput
     }
 
     /**
-     * Update the record in the upload table
+     * Update the record in the data table
      * @param int $id_table
-     * The upload table id
+     * The data table id
      * @param array $record
      * The record that already exists
      * @param string $transaction_by
      * Who initiated the update
      * @param array $data
      * the new data that will update the old one
+     * @param int $id_triggerType_id
+     * The ID corresponding to the trigger type.
      * @return bool
      * Return the success of the update
      */
-    private function update_external_data($id_table, $record, $transaction_by, $data)
+    private function update_data($id_table, $record, $transaction_by, $data, $id_triggerType_id)
     {
-        $col_ids = $this->get_columns_for_upload_table($id_table, $data);
+        $col_ids = $this->get_columns_for_data_table($id_table, $data);
         $res = $this->db->execute_update_db(
-            "UPDATE uploadRows SET `timestamp` = NOW(), id_users = :id_users WHERE id = :id;",
+            "UPDATE dataRows SET `timestamp` = NOW(), id_users = :id_users, id_actionTriggerTypes = :id_actionTriggerTypes WHERE id = :id;",
             array(
                 ':id' => $record[ENTRY_RECORD_ID],
-                ":id_users" => $data['id_users']
+                ":id_users" => $data['id_users'],
+                ":id_actionTriggerTypes" => $id_triggerType_id
             )
         ) !== false; //update the timestamp of the row
         unset($data['id_users']); //once used - remove it
         foreach ($data as $key => $value) {
             // if it has a value it will be updated if it is not created yet it will be inserted
-            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record[ENTRY_RECORD_ID], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $current_res = $this->db->insert('dataCells', array('id_dataRows' => $record[ENTRY_RECORD_ID], "id_dataCols" => $col_ids[$key], "value" => $value), array("value" => $value));
             $res = $res && $current_res;
         }
         if ($res) {
-            $this->transaction->add_transaction(transactionTypes_update, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table);
+            $this->transaction->add_transaction(transactionTypes_update, $transaction_by, null, $this->transaction::TABLE_dataTables, $id_table);
         }
         return $res;
     }
 
     /**
      * @param string $transaction_by
-     * Save static data in the upload_tables structure
+     * Save  data in the dataTable structure
      * What initialized the transaction
      * @param string $table_name
      * The table name where we want to save the data
      * @param array $data
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
+     * @param int $id_triggerType_id
+     * The ID corresponding to the trigger type.
+     * @param array|null $updateBasedOn
+     * Optional parameter to specify the field name for updating the record instead of inserting.
      * @return bool
      */
-    private function save_external_row($transaction_by, $table_name, $data, $updateBasedOn = null)
+    private function save_row($transaction_by, $table_name, $data, $id_triggerType_id, $updateBasedOn = null)
     {
+        unset($data['trigger_type']); // do not save trigger_type as string, now is saved with id in the row
         if (!isset($data['id_users'])) {
             $data['id_users'] = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 1; // if not set in the session use the guest user
         }
 
         /******************* SET TABLE *********************************/
-        $id_table = $this->get_form_id($table_name, FORM_EXTERNAL);
+        $id_table = $this->get_dataTable_id($table_name);
         if (!$id_table) {
             // does not exists yet; try to create it
-            $id_table = $this->db->insert("uploadTables", array(
+            $id_table = $this->db->insert("dataTables", array(
                 "name" => $table_name
             ));
         } else if ($updateBasedOn) {
@@ -873,13 +879,12 @@ class UserInput
                 $id_table,
                 $filter,
                 ($data['id_users'] > 1), // if there is user we update only own data
-                FORM_EXTERNAL,
                 $data['id_users'],
                 true
             );
             if ($record) {
                 // the record exists, do not insert it, update it
-                $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
+                $res = $this->update_data($id_table, $record, $transaction_by, $data, $id_triggerType_id);
                 return $res ? $record[ENTRY_RECORD_ID] : $res;
             }
         }
@@ -887,20 +892,21 @@ class UserInput
         if (!$id_table) {
             return false;
         } else {
-            if ($this->transaction->add_transaction(transactionTypes_insert, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
+            if ($this->transaction->add_transaction(transactionTypes_insert, $transaction_by, null, $this->transaction::TABLE_dataTables, $id_table) === false) {
                 return false;
             }
 
             /******************* SET COLUMNS *********************************/
 
-            $col_ids = $this->get_columns_for_upload_table($id_table, $data);
+            $col_ids = $this->get_columns_for_data_table($id_table, $data);
 
             /******************* SET COLUMNS *********************************/
 
             /******************* SET ROW     *********************************/
-            $id_row = $this->db->insert("uploadRows", array(
-                "id_uploadTables" => $id_table,
-                "id_users" => $data['id_users']
+            $id_row = $this->db->insert("dataRows", array(
+                "id_dataTables" => $id_table,
+                "id_users" => $data['id_users'],
+                "id_actionTriggerTypes" => $id_triggerType_id
             ));
             if (!$id_row) {
                 return false;
@@ -914,10 +920,10 @@ class UserInput
                 array_push($db_cells, array($id_row, $col_ids[$col_name], $col_val ? $col_val : ''));
             }
             $res = $this->db->insert_mult(
-                "uploadCells",
+                "dataCells",
                 array(
-                    "id_uploadRows",
-                    "id_uploadCols",
+                    "id_dataRows",
+                    "id_dataCols",
                     "value"
                 ),
                 $db_cells
@@ -975,7 +981,7 @@ class UserInput
     {
         if (!isset($this->ui_pref)) {
             // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
-            $form_id = $this->get_form_id('ui-preferences', FORM_INTERNAL);
+            $form_id = $this->get_dataTable_id_by_displayName('ui-preferences');
             if ($form_id) {
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
@@ -998,9 +1004,9 @@ class UserInput
         if ($id_users == null) {
             $id_users = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1;
         }
-        $form_id = $this->get_form_id('notification', FORM_INTERNAL);
+        $form_id = $this->get_dataTable_id('notification');
         if ($form_id) {
-            $res = $this->get_data($form_id, '', true, FORM_INTERNAL, $id_users);
+            $res = $this->get_data($form_id, '', true, $id_users);
             return $res ? $res[0] : false;
         }
         return false;
@@ -1021,35 +1027,49 @@ class UserInput
     }
 
     /**
-     * Get the id of the table or the form based on the required type
+     * Get the id of the dataTable
      * @param string $name
-     * The name of the form or table     
-     * @param int $form_type
-     * Internal or external form, it loads different table based on this value
+     * The name of the table     
      * @return int | false
-     * the result of the fetched form row
+     * False or the id of the dataTable
      */
-    public function get_form_id($name, $form_type = FORM_EXTERNAL)
+    public function get_dataTable_id($name)
     {
         // the cache type is like a section, because the form name can be edited only in cms
-        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $name, [__FUNCTION__, $form_type]);
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $name, [__FUNCTION__]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
             return $get_result;
         } else {
-            if ($form_type == FORM_INTERNAL) {
-                $sql = 'select record.id_sections as id
-                from user_input ui
-                LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
-                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57
-                where sft_if.content = :name
-                limit 0,1;';
-            } else if ($form_type == FORM_EXTERNAL) {
-                $sql = 'SELECT id 
-                FROM uploadTables
+            $sql = 'SELECT id 
+                FROM dataTables
                 WHERE `name` = :name';
-            }
             $res = $this->db->query_db_first($sql, array(":name" => $name));
+            $res = $res ? $res['id'] : false;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }
+    }
+
+    /**
+     * Get the id of the dataTable by displayName
+     * @param string $displayName
+     * The displayName of the table     
+     * @return int | false
+     * False or the id of the dataTable
+     */
+    public function get_dataTable_id_by_displayName($displayName)
+    {
+        // the cache type is like a section, because the form name can be edited only in cms
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $displayName, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = 'SELECT id 
+                FROM view_dataTables
+                WHERE `name` = :displayName';
+            $res = $this->db->query_db_first($sql, array(":displayName" => $displayName));
             $res = $res ? $res['id'] : false;
             $this->db->get_cache()->set($key, $res);
             return $res;
@@ -1063,9 +1083,7 @@ class UserInput
      * @param string $filter
      * filter string that is added to the having clause
      * @param boolean $own_entries_only
-     * If true it loads only records created by the same user. 
-     * @param string $form_type
-     * Internal or external form, it loads different table based on this value
+     * Load only own entries
      * @param int $user_id
      * Show the data for that user
      * @param boolean $db_first
@@ -1073,15 +1091,12 @@ class UserInput
      * @return array
      * the result of the fetched data
      */
-    public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_EXTERNAL, $user_id = null, $db_first = false)
+    public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false)
     {
-        if(!$form_type){
-            $form_type = FORM_EXTERNAL;
-        }
         if (strpos($filter, '{{') !== false) {
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
         }
-        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $form_type, $user_id, $db_first]);
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $user_id, $db_first]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
             return $get_result;
@@ -1089,29 +1104,12 @@ class UserInput
             if (!$user_id) {
                 $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
             }
-            if ($form_type == FORM_INTERNAL) {
-                $sql = 'CALL get_form_data_for_user_with_filter(:form_id, :user_id, :filter)';
-                $params = array(
-                    ":form_id" => $form_id,
-                    ":user_id" => $user_id
-                );
-                if (!$own_entries_only) {
-                    $sql = 'CALL get_form_data_with_filter(:form_id, :filter)';
-                    $params = array(
-                        ":form_id" => $form_id
-                    );
-                }
-            } else if ($form_type == FORM_EXTERNAL) {
-                if (!$own_entries_only) {
-                    $user_id = -1;
-                }
-                $params = array(
-                    ":form_id" => $form_id,
-                    ":user_id" => $user_id
-                );
-                $sql = 'CALL get_uploadTable_with_filter(:form_id, :user_id, :filter, true)';
-            }
-            $params[':filter'] = $filter;
+            $params = array(
+                ":form_id" => $form_id,
+                ":user_id" => $user_id,
+                ":filter" => $filter
+            );
+            $sql = 'CALL get_dataTable_with_filter(:form_id, :user_id, :filter, true)';
             if ($db_first) {
                 $res = $this->db->query_db_first($sql, $params);
             } else {
@@ -1129,17 +1127,15 @@ class UserInput
      * @param int $user_id
      * Show the data for that user
      * @param string $filter
-     * filter string that is added to the having clause
-     * @param string $form_type
-     * Internal or external form, it loads different table based on this value
+     * filter string that is added to the having clause     
      * @param boolean $db_first
      * If true it returns the first row. 
      * @return array
      * the result of the fetched data
      */
-    public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_INTERNAL, $db_first = false)
+    public function get_data_for_user($form_id, $user_id, $filter, $db_first = false)
     {
-        return $this->get_data($form_id, $filter, true, $form_type, $user_id, $db_first);
+        return $this->get_data($form_id, $filter, true, $user_id, $db_first);
     }
 
     /**
@@ -1151,10 +1147,10 @@ class UserInput
      *  The avatar image of the current user or empty string.
      */
     public function get_avatar($user_id)
-    {
-        $form_id = $this->get_form_id('avatar');
+    {        
+        $form_id = $this->get_dataTable_id_by_displayName('avatar');
         if ($form_id) {
-            $avatar = $this->get_data_for_user($form_id, $user_id, '', FORM_INTERNAL, true);
+            $avatar = $this->get_data_for_user($form_id, $user_id, '', true);
             return $avatar ? $avatar['avatar'] : '';
         } else {
             return '';
@@ -1162,17 +1158,19 @@ class UserInput
     }
 
     /**
-     * Save static data in the upload_tables structure
+     * Save data in dataTables
      * @param string $transaction_by
      * What initialized the transaction
      * @param string $table_name
      * The table name where we want to save the data
      * @param array $data
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
+     * @param array|null $updateBasedOn
+     * Optional parameter to specify the field name for updating the record instead of inserting.
      * @return array | false
      * return array with the result containing result and message
      */
-    public function save_external_data($transaction_by, $table_name, $data, $updateBasedOn = null)
+    public function save_data($transaction_by, $table_name, $data, $updateBasedOn = null)
     {
         try {
             $this->db->begin_transaction();
@@ -1188,10 +1186,12 @@ class UserInput
                             $id_users = 'different_users';
                         }
                     }
-                    $res = $res && $this->save_external_row($transaction_by, $table_name, $row);
+                    $id_actionTriggerTypes =  $this->get_trigger_type_id($row);
+                    $res = $res && $this->save_row($transaction_by, $table_name, $row, $id_actionTriggerTypes);
                 }
             } else {
-                $res = $this->save_external_row($transaction_by, $table_name, $data, $updateBasedOn);
+                $id_actionTriggerTypes =  $this->get_trigger_type_id($data);
+                $res = $this->save_row($transaction_by, $table_name, $data, $id_actionTriggerTypes, $updateBasedOn);
             }
 
             /**************** Check jobs ***************************************/
@@ -1207,8 +1207,7 @@ class UserInput
             $form_data = array(
                 "trigger_type" => isset($data['trigger_type']) ? $data['trigger_type'] : actionTriggerTypes_finished,
                 "form_name" => $table_name,
-                "form_id" => $this->get_form_id($table_name, FORM_EXTERNAL),
-                "form_type" => FORM_EXTERNAL,
+                "form_id" => $this->get_dataTable_id($table_name),
                 "form_fields" => $form_fields
             );
             /**************** Check jobs ***************************************/
@@ -1227,7 +1226,7 @@ class UserInput
      * Get the form field id
      * @param int $field_id
      * the section_id of the field
-     * @retval string the fiedl name
+     * @return string the field name
      */
     public function get_form_field_name($field_id)
     {
@@ -1325,7 +1324,7 @@ class UserInput
             //get all actions for this form and trigger type
             $start_time = microtime(true);
             $start_date = date("Y-m-d H:i:s");
-            $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
+            $actions = $this->get_actions($form_data['form_id'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
             foreach ($actions as $action) {
                 $not_modified_action = array_slice($action, 0); //create a copy of the original action
@@ -1352,7 +1351,7 @@ class UserInput
                     isset($action['config'][ACTION_DELETE_SCHEDULED]) && $action['config'][ACTION_DELETE_SCHEDULED]
                 ) {
                     // if the trigger type is finished and the record id exists, check for scheduled jobs with that record and move them to status deleted
-                    $result['deleted_jobs'] = $this->delete_jobs_for_record_and_action($form_data['form_type'], $action['id'], $form_data['form_fields'][ENTRY_RECORD_ID]);
+                    $result['deleted_jobs'] = $this->delete_jobs_for_record_and_action($action['id'], $form_data['form_fields'][ENTRY_RECORD_ID]);
                 }
 
 
@@ -1452,13 +1451,9 @@ class UserInput
                                     if (reset($scheduling_keys)) {
                                         $scheduledJobData = array(
                                             "id_scheduledJobs" => reset($scheduling_keys),
-                                            "id_formActions" => $action['id']
+                                            "id_formActions" => $action['id'],
+                                            "id_dataRows" => $form_data['form_fields'][ENTRY_RECORD_ID]
                                         );
-                                        if ($form_data['form_type'] == FORM_INTERNAL) {
-                                            $scheduledJobData["id_user_input_record"] = $form_data['form_fields'][ENTRY_RECORD_ID];
-                                        } else if ($form_data['form_type'] == FORM_EXTERNAL) {
-                                            $scheduledJobData["id_uploadRows"] = $form_data['form_fields'][ENTRY_RECORD_ID];
-                                        }
                                         $this->db->insert('scheduledJobs_formActions', $scheduledJobData);
                                     }
                                 }
@@ -1481,7 +1476,7 @@ class UserInput
 
             if ($form_data['trigger_type'] == actionTriggerTypes_deleted) {
                 // if the trigger type is deleted and the record id exists, check for scheduled jobs with that record and move them to status deleted
-                $result['deleted_jobs'] = $this->delete_jobs_for_record($form_data['form_type'], $form_data['form_fields'][ENTRY_RECORD_ID]);
+                $result['deleted_jobs'] = $this->delete_jobs_for_record($form_data['form_fields'][ENTRY_RECORD_ID]);
             }
 
             $end_time = microtime(true);
@@ -1493,7 +1488,7 @@ class UserInput
                 transactionTypes_insert,
                 transactionBy_by_user,
                 $id_users,
-                $form_data['form_type'],
+                $this->transaction::TABLE_dataTables,
                 $form_data['form_id'],
                 false,
                 $result
@@ -1547,30 +1542,19 @@ class UserInput
 
     /**
      * Delete scheduled jobs associated with a record.
-     *
-     * @param int $form_type The type of form (internal or external).
+     *     
      * @param int $action_id The ID of the action.
      * @param int $record_id The ID of the record.
      * @return array Array with the ids of the deleted jobs
      */
-    public function delete_jobs_for_record_and_action($form_type, $action_id, $record_id)
+    private function delete_jobs_for_record_and_action($action_id, $record_id)
     {
         $job_status_deleted = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_deleted);
         $job_status_queued = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued);
-        $sql = '';
-        if ($form_type == FORM_INTERNAL) {
-            $sql = 'SELECT id
-            FROM scheduledJobs sj
-            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-            WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_user_input_record = :record_id';
-        } else if (
-            $form_type == FORM_EXTERNAL
-        ) {
-            $sql = 'SELECT id
-            FROM scheduledJobs sj
-            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-            WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_uploadRows = :record_id';
-        }
+        $sql = 'SELECT id
+        FROM scheduledJobs sj
+        INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+        WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_dataRows = :record_id';
         $jobs_ids = $this->db->query_db($sql, array(
             ":action_id" => $action_id,
             ":job_status_queued" => $job_status_queued,
@@ -1599,28 +1583,17 @@ class UserInput
     /**
      * Delete scheduled jobs associated with a record.
      *
-     * @param int $form_type The type of form (internal or external).     
      * @param int $record_id The ID of the record.
      * @return array Array with the ids of the deleted jobs
      */
-    public function delete_jobs_for_record($form_type, $record_id)
+    private function delete_jobs_for_record($record_id)
     {
         $job_status_deleted = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_deleted);
         $job_status_queued = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued);
-        $sql = '';
-        if ($form_type == FORM_INTERNAL) {
-            $sql = 'SELECT id
-            FROM scheduledJobs sj
-            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-            WHERE id_jobStatus = :job_status_queued AND sjfa.id_user_input_record = :record_id';
-        } else if (
-            $form_type == FORM_EXTERNAL
-        ) {
-            $sql = 'SELECT id
-            FROM scheduledJobs sj
-            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-            WHERE id_jobStatus = :job_status_queued AND sjfa.id_uploadRows = :record_id';
-        }
+        $sql = 'SELECT id
+        FROM scheduledJobs sj
+        INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+        WHERE id_jobStatus = :job_status_queued AND sjfa.id_dataRows = :record_id';
         $jobs_ids = $this->db->query_db($sql, array(
             ":job_status_queued" => $job_status_queued,
             ":record_id" => $record_id
@@ -1742,6 +1715,44 @@ class UserInput
         }
     
         return $scheduled_dates;
+    }
+
+    /**
+     * Get all the dataTables
+     * @return array
+     *  As array of items where each item has the following keys:
+     *   - 'id':    dataTable id
+     *   - 'name':  dataTable name
+     *   - 'timestamp': when the table was created
+     *   - 'value': same as id, used for dropdowns
+     *   - 'text': same as name, used for dropdowns 
+     */
+    public function get_dataTables(){        
+        return $this->db->select_table('view_dataTables');
+    }
+
+    /**
+     * Retrieves the trigger type ID based on the provided form data.
+     *
+     * This function checks the 'trigger_type' field in the provided form data array.
+     * If the field is not set, it defaults to `actionTriggerTypes_finished`. It also 
+     * validates that the trigger type is one of the supported types (`actionTriggerTypes_started`, 
+     * `actionTriggerTypes_updated`, `actionTriggerTypes_deleted`, `actionTriggerTypes_finished`). 
+     * If the trigger type is not supported, it defaults to `actionTriggerTypes_finished`.
+     *
+     * @param array $formData
+     *  The form data array containing the 'trigger_type' field.
+     *
+     * @return int
+     *  The ID corresponding to the trigger type.
+     */
+    public function get_trigger_type_id($formData)
+    {
+        $trigger_type = isset($formData['trigger_type']) ? $formData['trigger_type'] : actionTriggerTypes_finished; // if no trigger type is set, set the finished one
+        if (!in_array($formData['trigger_type'], [actionTriggerTypes_started, actionTriggerTypes_updated, actionTriggerTypes_deleted, actionTriggerTypes_finished])) {
+            $trigger_type = actionTriggerTypes_finished; // if the trigger_type is not in the supported list set it to finished
+        }
+        return $this->db->get_lookup_id_by_value(actionTriggerTypes, $trigger_type);
     }
     
 }

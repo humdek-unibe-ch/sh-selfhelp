@@ -18,10 +18,6 @@ class EntryListModel extends StyleModel
      */
     private $form_id;
 
-    /**
-     * The type of the selected form, internal or external
-     */
-    private $form_type;
 
     /**
      * Array with the entry list data
@@ -73,10 +69,7 @@ class EntryListModel extends StyleModel
      */
     private function fetch_entry_list()
     {
-        if ($this->form_type == FORM_INTERNAL) {
-            $this->filter = ' AND deleted = 0 ' . $this->filter; // do not show the deleted records
-        }
-        $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type);
+        $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only);
         $i = 0;
         foreach ($entry_data as $key => $value) {
             // add index to the data
@@ -99,11 +92,7 @@ class EntryListModel extends StyleModel
      */
     private function init_properties()
     {
-        $formInfo = explode('-', $this->get_db_field("formName"));
-        $this->form_id = $formInfo[0];
-        if (isset($formInfo[1])) {
-            $this->form_type = $formInfo[1];
-        }
+        $this->form_id = $this->get_db_field("formName");
         $this->own_entries_only = $this->get_db_field("own_entries_only", "1");
         $this->filter = $this->get_db_field("filter", "");
         if ($this->form_id) {

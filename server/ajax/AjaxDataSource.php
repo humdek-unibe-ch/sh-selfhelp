@@ -287,12 +287,12 @@ class AjaxDataSource extends BaseAjax
      * array with all names as string
      */
     public function get_table_names(){
-        $sql = "SELECT `name`, IFNULL(displayName, `name`) AS displayName
-                FROM uploadTables;";
+        $sql = "SELECT `name`
+                FROM view_dataTables;";
         $res_db = $this->db->query_db($sql);
         $res = array();
         foreach ($res_db as $key => $value) {
-            $res[$value['name']] = $value['displayName'];
+            $res[$value['name']] = $value['name'];
         }
         return json_encode($res);
     }
@@ -306,12 +306,12 @@ class AjaxDataSource extends BaseAjax
      * array with all field names as string
      */
     public function get_table_fields($data){
-        $form_id = $this->user_input->get_form_id($data['name'], FORM_EXTERNAL);
+        $form_id = $this->user_input->get_dataTable_id($data['name']);
         if (!$form_id) {
             // the form does not exist anymore
             return json_encode(array());
         }
-        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, FORM_EXTERNAL, null, true);
+        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, null, true);
         $res = array();
         if ($res_db) {
             foreach ($res_db as $key => $value) {

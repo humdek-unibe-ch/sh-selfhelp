@@ -19,11 +19,6 @@ class EntryRecordModel extends StyleModel
     private $form_id;
 
     /**
-     * The type of the selected form, internal or external
-     */
-    private $form_type;
-
-    /**
      * String with filter the data source; Use SQL syntax
      */
     private $filter;
@@ -74,7 +69,7 @@ class EntryRecordModel extends StyleModel
     private function fetch_entry_record($record_id)
     {
         $this->filter = " AND record_id = " . $record_id . ' ' . $this->filter; // do not show the deleted records
-        $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, $this->form_type, null, true);
+        $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, null, true);
         return $entry_data;
     }
 
@@ -92,11 +87,7 @@ class EntryRecordModel extends StyleModel
     {
         $url_param = $this->get_db_field("url_param", "record_id");
         $this->record_id = isset($this->params[$url_param]) ? intval($this->params[$url_param]) : -1;
-        $formInfo = explode('-', $this->get_db_field("formName"));
-        $this->form_id = $formInfo[0];
-        if (isset($formInfo[1])) {
-            $this->form_type = $formInfo[1];
-        }
+        $this->form_id = $this->get_db_field("formName");
         $this->own_entries_only = $this->get_db_field("own_entries_only", "1");
         $this->filter = $this->get_db_field("filter", "");
         if ($this->form_id) {

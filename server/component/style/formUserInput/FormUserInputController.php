@@ -29,7 +29,8 @@ class FormUserInputController extends BaseController
      */
     public function __construct($model)
     {
-        parent::__construct($model);        
+        parent::__construct($model);    
+        $this->execute();    
     }
 
     /* Private Methods ********************************************************/
@@ -179,8 +180,12 @@ class FormUserInputController extends BaseController
         $user_input = $this->check_user_input($gump);
         if (is_array($user_input)) {
             // if it is array convert it to string and decode special characters
-            $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
         }   
+        $user_input['trigger_type']= actionTriggerTypes_finished;
+        // that info should not be saved
+        unset($user_input[DELETE_RECORD_ID]);
+        unset($user_input[SELECTED_RECORD_ID]);
         // normalize all data
         foreach ($_POST as $key => $value) {
             if (isset($_POST[$key]['id'])) {

@@ -158,7 +158,7 @@ abstract class BaseModel
         try {
             foreach ($data_config as $key => $config) {
                 // loop configs; DB requests
-                $table_id = $this->user_input->get_form_id($config['table']);
+                $table_id = $this->user_input->get_dataTable_id($config['table']);
                 $data = null;
                 if ($table_id) {
                     $filter = "ORDER BY record_id ASC";
@@ -174,7 +174,7 @@ abstract class BaseModel
                         // get the config value if it is set
                         $current_user = $config['current_user'];
                     }
-                    $data = $this->user_input->get_data($table_id, $filter, $current_user, FORM_EXTERNAL, $user_id);
+                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $user_id);
                     if ($data) {
                         $data = array_filter($data, function ($value) {
                             return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table

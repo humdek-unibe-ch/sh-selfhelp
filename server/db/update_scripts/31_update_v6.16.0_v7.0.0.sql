@@ -590,10 +590,12 @@ get_data_table
 
 save_fitrockr_data
 
-reminder_form_id in formAction
-
 rename formActions to dataActions
 
 rework all json structure to relative structure: actions, dataConfgi, etc
 if possible to use json schema and automated it?
 delte on save and recreate
+
+rework show user input
+check chat funnctionality
+rework delete showUserInput

@@ -1070,7 +1070,7 @@ class CmsView extends BaseView
                 "max" => 10,
                 "live_search" => 1,
                 "is_required" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'), 'WHERE internal <> 1')
+                "items" => $this->model->get_db()->fetch_table_as_select_values('dataTables', 'id', array('name', 'displayName'), '')
             ));
         } else if ($field['type'] == "select-plugin") {
             $children[] = new BaseStyleComponent("select", array(
@@ -1191,7 +1191,7 @@ class CmsView extends BaseView
                 "value" => $field['content'],
                 "name" => $field['name'],
                 "disabled" => 1,
-                "items" => $this->model->get_db()->fetch_table_as_select_values('view_data_tables', 'form_id_plus_type', array('orig_name'), 'WHERE internal <> 1')
+                "items" => $this->model->get_db()->fetch_table_as_select_values('dataTables', 'id', array('name', 'displayName'), '')
             ));
         }
         else if($field['type'] == "select-plugin")

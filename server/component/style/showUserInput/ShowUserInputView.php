@@ -122,24 +122,23 @@ class ShowUserInputView extends StyleView
                 $id = 'id="user-input-field-' . $id . '"';
             else
                 $id = "";
-            $this->output_field($id, $value);
+            $this->output_field($value);
         }
         if($this->can_delete)
         {
             $target = "modal-" . $this->source_an;
+            $record_id = $cols[0];
             require __DIR__ . "/tpl_delete.php";
         }
     }
 
     /**
      * Render a table field.
-     *
-     * @param array $id
-     *  The field id to be referenced in HTML.
+     *     
      * @param array $value
      *  The value to be displayed in the table field.
      */
-    private function output_field($id, $value)
+    private function output_field($value)
     {
         require __DIR__ . "/tpl_field.php";
     }
@@ -166,11 +165,8 @@ class ShowUserInputView extends StyleView
      */
     private function output_fields_doc($fields)
     {
-        foreach($fields as $field)
+        foreach($fields[0] as $label => $value)
         {
-            $label = $field['field_label'];
-            $value = $field['value'];
-            $id = intval($field['id']);
             require __DIR__ . "/tpl_doc_field.php";
         }
     }
@@ -184,21 +180,11 @@ class ShowUserInputView extends StyleView
     private function output_fields_log($fields)
     {
         $rows = array();
-        $header = array($this->label, 'Record ID');
-        foreach($fields as $field) {
-            $header[] = ($field['field_label'] == '' ? $field['field_name'] : $field['field_label']);
-            if (isset($field['id_user_input_record']) && false) { // always show the timestamp, we dont need the record id
-                // new visualization based on row id
-                if (!isset($rows[$field['id_user_input_record']]))
-                $rows[$field['id_user_input_record']] = array($field['id_user_input_record']);
-                $rows[$field['id_user_input_record']][intval($field['id'])] = $field['value'];
-            } else {
-                // legacy
-                if (!isset($rows[$field['timestamp']]))
-                $rows[$field['timestamp']] = array($field['timestamp']);                
-                $rows[$field['timestamp']][ENTRY_RECORD_ID] = $field['id_user_input_record'];
-                $rows[$field['timestamp']][intval($field['id'])] = $field['value'];                                                
-            }
+        foreach($fields as $row_id => $row) {
+            foreach ($row as $column => $value) {
+                $header[] = $column;
+                $rows[$row[ENTRY_RECORD_ID]][] = $value;
+            }                    
         }        
         $header = array_unique($header);
         if($this->can_delete)
