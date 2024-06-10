@@ -18,7 +18,7 @@ class Transaction
     const TABLE_SCHEDULED_JOBS = 'scheduledJobs';
     const TABLE_USER_INPUT = 'user_input';
     const TABLE_USERS = 'users';
-    const TABLE_uploadTables = 'uploadTables';
+    const TABLE_dataTables = 'dataTables';
     const TABLE_USERS_GROUPS = 'users_groups';
     const TABLE_CODES_GROUPS = 'codes_groups';
     const TRANSACTIONS_TABLE = 'transactions';
