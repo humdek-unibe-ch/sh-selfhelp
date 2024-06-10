@@ -95,14 +95,14 @@ function prepareEnumSource(values) {
     return res;
 }
 
-function get_forms() {
-    var formsArray = {};
-    $('select[name="id_forms"]').find('option').each(function () {
+function get_dataTables() {
+    var dataTablesArray = {};
+    $('select[name="id_dataTables"]').find('option').each(function () {
         if (this.value) {
-            formsArray[this.value] = this.text;
+            dataTablesArray[this.value] = this.text;
         }
     });
-    return formsArray;
+    return dataTablesArray;
 }
 
 function get_time_intervals_text() {
@@ -151,7 +151,7 @@ async function setDynamicEnums() {
     editor.schema.definitions.schedule_time_ref.properties.job_schedule_types.enumSource = prepareEnumSource(actionScheduleTypes);
     editor.schema.definitions.schedule_time_ref.properties.send_on_day.enumSource = prepareEnumSource(weekdays);
     editor.schema.definitions.schedule_time_ref.properties.send_on.enumSource = prepareEnumSource(get_time_intervals_text());
-    editor.schema.definitions.job_ref.properties.reminder_form_id.enumSource = prepareEnumSource(get_forms());
+    editor.schema.definitions.job_ref.properties.reminder_form_id.enumSource = prepareEnumSource(get_dataTables());
     editor.schema.definitions.notification_ref.properties.attachments.items.enum = attachments;
     createJSONEditor(editor.schema); // after changes the forms should be recreated
 }

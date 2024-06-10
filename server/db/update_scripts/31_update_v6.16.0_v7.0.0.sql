@@ -132,6 +132,75 @@ END //
 
 DELIMITER ;
 
+-- update action reminders form id
+DROP PROCEDURE IF EXISTS update_formId_reminders;
+DELIMITER //
+
+DELIMITER $$
+
+CREATE PROCEDURE update_formId_reminders()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE record_id INT;
+    DECLARE json_data JSON;
+    DECLARE block_index INT DEFAULT 0;
+    DECLARE job_index INT DEFAULT 0;
+    DECLARE reminder_form_id VARCHAR(255);
+    DECLARE new_id INT;
+
+    -- Declare cursor for iterating over records
+    DECLARE cur CURSOR FOR
+        SELECT id, config FROM formActions FOR UPDATE;
+
+    -- Declare handler to handle end of data
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- Open the cursor
+    OPEN cur;
+
+    -- Loop through the records
+    read_loop: LOOP
+        FETCH cur INTO record_id, json_data;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Loop through the blocks and jobs to update the reminder_form_id
+        SET block_index = 0;
+        WHILE JSON_LENGTH(json_data, '$.blocks') > block_index DO
+            SET job_index = 0;
+            WHILE JSON_LENGTH(json_data, CONCAT('$.blocks[', block_index, '].jobs')) > job_index DO
+                SET reminder_form_id = JSON_UNQUOTE(JSON_EXTRACT(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id')));
+                
+                IF reminder_form_id LIKE '%-INTERNAL' THEN
+                    -- Handle -INTERNAL case
+                    SET reminder_form_id = SUBSTRING_INDEX(reminder_form_id, '-', 1);
+                    SELECT LPAD(id, 10, '0') INTO new_id FROM dataTables WHERE CAST(name AS UNSIGNED) = CAST(reminder_form_id AS UNSIGNED) LIMIT 1;
+                    SET json_data = JSON_SET(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id'), CAST(new_id AS CHAR));
+                    
+                ELSEIF reminder_form_id LIKE '%-EXTERNAL' THEN
+                    -- Handle -EXTERNAL case
+                    SET reminder_form_id = SUBSTRING_INDEX(reminder_form_id, '-', 1);
+                    SET new_id = LPAD(reminder_form_id, 10, '0');
+                    SET json_data = JSON_SET(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id'), new_id);
+                END IF;
+                
+                SET job_index = job_index + 1;
+            END WHILE;
+            SET block_index = block_index + 1;
+        END WHILE;
+
+        -- Update the JSON back to the table
+        UPDATE formActions SET config = json_data WHERE id = record_id;
+    END LOOP;
+
+    -- Close the cursor
+    CLOSE cur;
+END$$
+
+DELIMITER ;
+
+
 -- main refactor procedure
 DELIMITER //
 CREATE PROCEDURE refactor_user_input()
@@ -267,7 +336,10 @@ BEGIN
         UPDATE formActions a
 		INNER JOIN formActions_EXTERNAL e ON a.id = e.id_formActions
 		INNER JOIN dataTables dt ON dt.id = e.id_forms
-		SET a.id_dataTables = dt.id;		
+		SET a.id_dataTables = dt.id;	
+        
+        -- replace reminder formId in formActions
+        CALL update_formId_reminders();
         
         -- add column `id_dataRows` in table `scheduledJobs_formActions`. Move all linking there
         CALL add_table_column('scheduledJobs_formActions', 'id_dataRows', 'int(10) unsigned zerofill DEFAULT NULL');
@@ -509,13 +581,6 @@ DELIMITER ;
 
 remove the delete option from the form; create a new style for deleteing form record
 
-
--- this should be moved
-select *
-from sections_fields_translation sft
-left join fields f on (f.id = sft.id_fields)
-left join fieldtype ft on (f.id_type= ft.id)
-where ft.`name` = 'select-formName';
 
 graphs rework `view_data_tables`
 
