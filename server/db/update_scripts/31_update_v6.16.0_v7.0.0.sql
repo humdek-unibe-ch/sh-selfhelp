@@ -233,8 +233,30 @@ BEGIN
         CALL rename_table_column('dataCells', 'id_uploadRows', 'id_dataRows');
         CALL rename_table_column('dataCells', 'id_uploadCols', 'id_dataCols');
                 
+        -- refactor `select-formName` linking for EXTERNAL
+        UPDATE sections_fields_translation sft
+		LEFT JOIN fields f ON f.id = sft.id_fields
+		LEFT JOIN fieldtype ft ON f.id_type = ft.id
+		SET sft.content = REPLACE(sft.content, '-EXTERNAL', '')
+		WHERE ft.`name` = 'select-formName' AND sft.content LIKE '%-EXTERNAL%';
+        
+        -- refactor `select-formName` linking for INTERNAL
+        UPDATE sections_fields_translation sft
+		INNER JOIN fields f ON f.id = sft.id_fields
+		INNER JOIN fieldtype ft ON f.id_type = ft.id AND ft.`name` = 'select-formName'
+		INNER JOIN dataTables dt ON
+			CAST(dt.`name` AS UNSIGNED) = CAST(SUBSTRING_INDEX(sft.content, '-INTERNAL', 1) AS UNSIGNED)
+		SET sft.content = dt.id
+		WHERE
+			sft.content LIKE '%-INTERNAL' 
+			AND sft.content REGEXP '^[0-9]+-INTERNAL$'
+			AND CHAR_LENGTH(SUBSTRING_INDEX(sft.content, '-INTERNAL', 1)) > 0
+			AND dt.name REGEXP '^[0-9]+$';
+
+                
+                
         CALL add_table_column('formActions', 'id_dataTables', 'int(10) unsigned zerofill DEFAULT NULL');
-        CALL add_foreign_key('formActions', 'formActions_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
+        CALL add_foreign_key('formActions', 'formActions_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');  			
         
         -- replace the old relation of the forms in formActions
         UPDATE formActions a
@@ -485,9 +507,8 @@ DELIMITER ;
 
 
 
--- remove the delete option from the form; create a new style for deleteing form record
+remove the delete option from the form; create a new style for deleteing form record
 
--- rename uploadTables and so on to dataTables and so on
 
 -- this should be moved
 select *
@@ -496,8 +517,18 @@ left join fields f on (f.id = sft.id_fields)
 left join fieldtype ft on (f.id_type= ft.id)
 where ft.`name` = 'select-formName';
 
--- graphs rework `view_data_tables`
+graphs rework `view_data_tables`
 
-get_form_id
 
 fetch_data_table_external
+get_data_table
+
+save_fitrockr_data
+
+reminder_form_id in formAction
+
+rename formActions to dataActions
+
+rework all json structure to relative structure: actions, dataConfgi, etc
+if possible to use json schema and automated it?
+delte on save and recreate
