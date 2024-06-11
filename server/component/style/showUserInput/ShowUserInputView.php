@@ -259,6 +259,7 @@ class ShowUserInputView extends StyleView
         $style = parent::output_content_mobile();
         $style['fields'] = $this->model->get_user_data($this->data_table);
         $style['can_delete'] = $this->can_delete;
+        $style['data_table'] = $this->model->get_user_input()->get_dataTable_name($this->data_table);
         return $style;
     }
 }
