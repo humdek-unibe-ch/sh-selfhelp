@@ -608,6 +608,9 @@ SET `name` = 'data_table'
 WHERE `name` = 'formName';
 
 -- rename fieldType `select-formName` to `select-data_table`
+UPDATE fieldType
+SET `name` = 'select-data_table'
+WHERE `name` = 'select-formName';
 
 
 
