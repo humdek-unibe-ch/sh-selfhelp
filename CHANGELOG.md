@@ -6,6 +6,10 @@
  - rename style field `formName` to `data_table`
  - rename fieldType `select-formName` to `select-data_table`
  - update `hint` for field `data_table` in styles: `entryRecord` and `entryList`
+ - add field `fields_map` in style `showUserInput`; Loads the defined fields from the mapper in the table visualization.
+
+### Bugfix
+ - set values for `JSON` content fields properly in CMS
 
 # v6.16.4
  - change function `get_user_group` in `Condition` to be a public function

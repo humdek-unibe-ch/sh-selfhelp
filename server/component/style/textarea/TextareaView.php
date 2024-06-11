@@ -113,6 +113,7 @@ class TextareaView extends FormFieldView
         if($field_name == ''){
             $field_name = $this->name;
         }
+        $field_name = str_replace('[content]', '',  $this->name);
         require __DIR__ . "/tpl_json.php";
     }
 

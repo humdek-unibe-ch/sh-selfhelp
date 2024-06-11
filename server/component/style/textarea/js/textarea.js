@@ -25,7 +25,8 @@ function initJsonFields() {
         if (jsonValueField.length == 0) {
             jsonValueField = $('textarea[name*="' + jsonFieldName + '"]');
         }
-        var jsonMetaField = $('input[name*="[' + jsonFieldName + ']"][name*="[meta]"]');
+        var jsonMetaInputName ='input[name="' + jsonFieldName + '[meta]"]';
+        var jsonMetaField = $(jsonMetaInputName);
         var meta = {};
         try {
             meta = JSON.parse(jsonMetaField.val());
