@@ -5,6 +5,7 @@
  - add field `formName` to style `showUserInput`; Set the data from `source` field to the formName and remove the `source` field
  - rename style field `formName` to `data_table`
  - rename fieldType `select-formName` to `select-data_table`
+ - update `hint` for field `data_table` in styles: `entryRecord` and `entryList`
 
 # v6.16.4
  - change function `get_user_group` in `Condition` to be a public function
