@@ -40,16 +40,15 @@ class ShowUserInputModel extends StyleModel
     /* Public Methods *********************************************************/
 
     /**
-     * Get the input data of the current user from the database of a given from.
+     * Get the input data of the current user from the database of a given data table.
      *
-     * @param string $form_name
-     *  The name of the form from which the data will be fetched.
-     * @retval array
-     *  See UserInput::fetch_input_fields()
+     * @param string $data_table
+     *  The name of the data table from which the data will be fetched.
+     * @return array     
      */
-    public function get_user_data($form_name)
+    public function get_user_data($data_table)
     {
-        return $this->user_input->get_data($this->user_input->get_dataTable_id_by_displayName($form_name), '');        
+        return $this->user_input->get_data($data_table, '');        
     }
 
     /**

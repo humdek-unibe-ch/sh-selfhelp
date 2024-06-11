@@ -27,7 +27,7 @@ class ShowUserInputView extends StyleView
      * user. If this field is left empty, the userData style will not be
      * rendered.
      */
-    private $source;
+    private $data_table;
 
     /**
      * The source string transformed into a alphanumeric string.
@@ -83,9 +83,9 @@ class ShowUserInputView extends StyleView
     public function __construct($model, $controller)
     {
         parent::__construct($model, $controller);
-        $this->source = $this->model->get_db_field("source");
+        $this->data_table = $this->model->get_db_field("data_table");
         $this->anchor = $this->model->get_db_field("anchor");
-        $this->source_an = $this->model->convert_to_alphanumeric($this->source);
+        $this->source_an = $this->model->convert_to_alphanumeric($this->data_table);
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Entry Date");
         $this->label_delete = $this->model->get_db_field("label_delete", "");
@@ -248,8 +248,8 @@ class ShowUserInputView extends StyleView
      */
     public function output_content()
     {
-        if($this->source === "") return;
-        $fields = $this->model->get_user_data($this->source);
+        if($this->data_table === "") return;
+        $fields = $this->model->get_user_data($this->data_table);
         if(count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
     }
@@ -257,7 +257,7 @@ class ShowUserInputView extends StyleView
     public function output_content_mobile()
     {        
         $style = parent::output_content_mobile();
-        $style['fields'] = $this->model->get_user_data($this->source);
+        $style['fields'] = $this->model->get_user_data($this->data_table);
         $style['can_delete'] = $this->can_delete;
         return $style;
     }
