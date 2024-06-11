@@ -5,22 +5,18 @@ $(document).ready(function () {
 function initShowUserInput() {
     var $input = $('input[name="user_input_remove_id"]');
     $('.remove-user-input-field').off('click').click(function () {
-        var ids = [];
-        $(this).siblings('[id|="user-input-field"]').each(function () {
-            var id = $(this).attr('id').split('-');
-            ids.push(id[id.length - 1]);
-        });
-        $input.val(ids);
-        var input_record_id = $('input[name="record_id"]');
-        $input.val(ids);
-        input_record_id.val(parseInt($(this).siblings('#user-input-field-record_id').text()));
+        var input_record_id = $('input[name="delete_record_id"]');
+        input_record_id.val(parseInt($(this).data('record-id')));
     });
 
     $('.showUserInput').each(function () {
         if (!$(this).hasClass('dataTable')) {
             var classes = $(this).attr('class').split(' ');
 
-            var dataTableConfig = { columnDefs: [] }; //init data table config
+            var dataTableConfig = { columnDefs: [{
+                "targets": 0, // The first column
+                "visible": false // Hide it
+            }] }; //init data table config
 
             dataTableConfig.columnDefs.push({ orderable: classes.includes('dt-sortable'), targets: '_all' }); //sortable
             dataTableConfig.searching = classes.includes('dt-searching'); //searching

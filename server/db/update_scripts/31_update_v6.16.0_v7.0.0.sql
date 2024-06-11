@@ -616,7 +616,18 @@ UPDATE styles_fields
 SET `help` = 'Select a data tabe which will be linked to the style'
 WHERE id_fields = get_field_id('data_table') AND id_styles IN (get_style_id('entryRecord'), get_style_id('entryList'));
 
+-- add field `fields_map`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'fields_map', get_field_type_id('json'), '1');
+-- insert field `fields_map` in style `showUserInput`
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('showUserInput'), get_field_id('fields_map'), '', 'Map the fields that should be displayed in the table. Only the specified fields will be loaded. Use the field name as the key and its label as the value. Example:
 
+ ```
+ {
+	"record_id": "Record ID",
+	"entry_date": "Date",
+	"user_name": "User name"
+}
+```');
 
 
 

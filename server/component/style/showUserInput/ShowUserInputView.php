@@ -91,7 +91,7 @@ class ShowUserInputView extends StyleView
         $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
         $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
-        $this->can_delete = $this->label_delete != "";
+        $this->can_delete = $this->label_delete != "";        
     }
 
     /* Private Methods ********************************************************/
@@ -226,14 +226,14 @@ class ShowUserInputView extends StyleView
                     'label' => $this->label_delete,
                     'children' => array(
                         new BaseStyleComponent('input', array(
-                            'name' => 'user_input_remove_id',
+                            'name' => 'data_table',
+                            'value' => $this->model->get_user_input()->get_dataTable_name($this->data_table),
                             'type_input' => "hidden",
                         )),
                         new BaseStyleComponent('input', array(
-                            'name' => ENTRY_RECORD_ID,
+                            'name' => DELETE_RECORD_ID,
                             'type_input' => "hidden",
-                            'value'=>1
-                        )),
+                        ))
                     ),
                 )),
             ),

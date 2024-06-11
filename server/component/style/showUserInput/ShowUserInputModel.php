@@ -48,7 +48,26 @@ class ShowUserInputModel extends StyleModel
      */
     public function get_user_data($data_table)
     {
-        return $this->user_input->get_data($data_table, '');        
+        $res =  $this->user_input->get_data($data_table, '');
+        $fields_map = $this->get_db_field('fields_map');
+        if (count($fields_map) > 0) {
+            // map the fields with the new label
+            $mappedRows = [];
+            foreach ($res as $row) {
+                $mappedRow = [];
+                $mappedRow[ENTRY_RECORD_ID] = $row[ENTRY_RECORD_ID];
+                foreach ($fields_map as $field => $label) {
+                    if (isset($row[$field])) {
+                        $mappedRow[$label] = $row[$field];
+                    }
+                }
+                $mappedRows[] = $mappedRow;
+            }
+            return $mappedRows;
+        } else {
+            // there is no mapping
+            return $res;
+        }
     }
 
     /**
@@ -59,24 +78,14 @@ class ShowUserInputModel extends StyleModel
      * @param int $record_id
      * The deleted record id
      */
-    public function mark_user_input_as_removed($ids, $record_id)
+    public function delete_record($data_table, $record_id)
     {
-        try {
-            $this->db->begin_transaction();
-            foreach ($ids as $id) {
-                if ($id != ENTRY_RECORD_ID) {
-                    $this->db->update_by_ids(
-                        'user_input',
-                        array('removed' => 1),
-                        array('id' => $id)
-                    );
-                }
-            }
-            $this->queue_job_from_actions(actionTriggerTypes_deleted, $record_id);
-            $this->db->commit();
-        } catch (Exception $e) {
-            $this->db->rollback();
-        }
+        return $this->user_input->save_data(
+            transactionBy_by_user,
+            $data_table,
+            array("trigger_type" => actionTriggerTypes_deleted),
+            array(ENTRY_RECORD_ID => $record_id)
+        );
     }
 
     /**

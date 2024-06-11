@@ -23,13 +23,11 @@ class ShowUserInputController extends BaseController
     {
         parent::__construct($model);
         if(count($_POST) === 0) return;
-        if(!isset($_POST['user_input_remove_id']))
+        if(!isset($_POST[DELETE_RECORD_ID]) || !isset($_POST['data_table'])){
             return;
-
-        $ids = explode(',', $_POST['user_input_remove_id']);        
-        $this->model->mark_user_input_as_removed($ids, $_POST[ENTRY_RECORD_ID]);
-        unset($_POST['user_input_remove_id']);
-        unset($_POST[ENTRY_RECORD_ID]);
+        }
+        $this->model->delete_record($_POST['data_table'], $_POST[DELETE_RECORD_ID]);
+        unset($_POST[DELETE_RECORD_ID]);
     }
 }
 ?>

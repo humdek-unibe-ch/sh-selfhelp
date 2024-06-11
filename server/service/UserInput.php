@@ -52,7 +52,7 @@ class UserInput
 
     /* Private Methods ********************************************************/
 
-    
+
     /**
      * Fetch the page name to which the given navigation section belongs.
      *
@@ -886,6 +886,9 @@ class UserInput
                 // the record exists, do not insert it, update it
                 $res = $this->update_data($id_table, $record, $transaction_by, $data, $id_triggerType_id);
                 return $res ? $record[ENTRY_RECORD_ID] : $res;
+            } else if(count($updateBasedOn) > 0){
+                // try to update or delete a record that does not exist;
+                return false;
             }
         }
         /******************* SET TABLE *********************************/
@@ -1147,7 +1150,7 @@ class UserInput
      *  The avatar image of the current user or empty string.
      */
     public function get_avatar($user_id)
-    {        
+    {
         $form_id = $this->get_dataTable_id_by_displayName('avatar');
         if ($form_id) {
             $avatar = $this->get_data_for_user($form_id, $user_id, '', true);
@@ -1158,7 +1161,7 @@ class UserInput
     }
 
     /**
-     * Save data in dataTables
+     * Save data in dataTables THE UPDATED DATA CAN BE ONLY OWN DATA.
      * @param string $transaction_by
      * What initialized the transaction
      * @param string $table_name
@@ -1166,7 +1169,7 @@ class UserInput
      * @param array $data
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
      * @param array|null $updateBasedOn
-     * Optional parameter to specify the field name for updating the record instead of inserting.
+     * Optional parameter to specify the field name for updating the record instead of inserting.     
      * @return array | false
      * return array with the result containing result and message
      */
@@ -1643,9 +1646,9 @@ class UserInput
         $deadline = new DateTime($repeater_until_date[ACTION_REPEATER_UNTIL_DATE_DEADLINE]);
         $repeat_every = $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_REPEAT_EVERY];
         $frequency = $repeater_until_date[ACTION_REPEATER_FREQUENCY];
-        $days_of_week = $repeater_until_date[ACTION_REPEATER_DAYS_OF_WEEK]??[];
-        $days_of_month = $repeater_until_date[ACTION_REPEATER_DAYS_OF_MONTH]??[];        
-    
+        $days_of_week = $repeater_until_date[ACTION_REPEATER_DAYS_OF_WEEK] ?? [];
+        $days_of_month = $repeater_until_date[ACTION_REPEATER_DAYS_OF_MONTH] ?? [];
+
         // Initialize an array to store scheduled dates
         $scheduled_dates = array();
 
@@ -1653,9 +1656,9 @@ class UserInput
         $current_date = new DateTime();
         $current_date =  new DateTime($current_date->format('Y-m-d H:i:s'));
         $schedule_at  = $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] && $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] != '' ? $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] : ($current_date->format('H:i:s'));
-        $interval = $current_date->diff($deadline);        
+        $interval = $current_date->diff($deadline);
 
-    
+
         // Calculate the scheduled dates based on the repeat_every and frequency
         switch ($frequency) {
             case 'day':
@@ -1713,7 +1716,7 @@ class UserInput
                 }
                 break;
         }
-    
+
         return $scheduled_dates;
     }
 
@@ -1727,7 +1730,8 @@ class UserInput
      *   - 'value': same as id, used for dropdowns
      *   - 'text': same as name, used for dropdowns 
      */
-    public function get_dataTables(){        
+    public function get_dataTables()
+    {
         return $this->db->select_table('view_dataTables');
     }
 
@@ -1754,6 +1758,30 @@ class UserInput
         }
         return $this->db->get_lookup_id_by_value(actionTriggerTypes, $trigger_type);
     }
-    
+
+    /**
+     * Get the the name of the able
+     * @param int $id
+     * The id of the table     
+     * @return string | false
+     * False or the name of the table
+     */
+    public function get_dataTable_name($id)
+    {
+        // the cache type is like a section, because the form name can be edited only in cms
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = 'SELECT `name`
+                FROM dataTables
+                WHERE `id` = :id';
+            $res = $this->db->query_db_first($sql, array(":id" => $id));
+            $res = $res ? $res['name'] : false;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }
+    }
 }
 ?>
