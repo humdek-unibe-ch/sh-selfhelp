@@ -1091,10 +1091,12 @@ class UserInput
      * Show the data for that user
      * @param boolean $db_first
      * If true it returns the first row. 
+     * @param boolean $exclude_deleted
+     * If true do not return the deleted records
      * @return array
      * the result of the fetched data
      */
-    public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false)
+    public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false, $exclude_deleted = true)
     {
         if (strpos($filter, '{{') !== false) {
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
@@ -1110,9 +1112,10 @@ class UserInput
             $params = array(
                 ":form_id" => $form_id,
                 ":user_id" => $user_id,
-                ":filter" => $filter
+                ":filter" => $filter,
+                ":exclude_deleted" => (int)$exclude_deleted
             );
-            $sql = 'CALL get_dataTable_with_filter(:form_id, :user_id, :filter, true)';
+            $sql = 'CALL get_dataTable_with_filter(:form_id, :user_id, :filter, :exclude_deleted)';
             if ($db_first) {
                 $res = $this->db->query_db_first($sql, $params);
             } else {
