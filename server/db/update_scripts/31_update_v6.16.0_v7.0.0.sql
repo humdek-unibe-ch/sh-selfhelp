@@ -602,6 +602,15 @@ INNER JOIN sections s ON (s.id = sft.id_sections)
 INNER JOIN styles st ON (st.id = s.id_styles)
 WHERE st.id = get_style_id('showUserInput') AND sft.id_fields = get_field_id('source');
 
+-- rename style field `formName` to `data_table`
+UPDATE `fields`
+SET `name` = 'data_table'
+WHERE `name` = 'formName';
+
+-- rename fieldType `select-formName` to `select-data_table`
+
+
+
 
 
 

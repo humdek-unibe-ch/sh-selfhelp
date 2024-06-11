@@ -14,9 +14,9 @@ class EntryRecordModel extends StyleModel
     /* Private Properties *****************************************************/
 
     /**
-     * The id of the selected form.
+     * The id of the selected data table.
      */
-    private $form_id;
+    private $data_table_id;
 
     /**
      * String with filter the data source; Use SQL syntax
@@ -69,7 +69,7 @@ class EntryRecordModel extends StyleModel
     private function fetch_entry_record($record_id)
     {
         $this->filter = " AND record_id = " . $record_id . ' ' . $this->filter; // do not show the deleted records
-        $entry_data = $this->user_input->get_data($this->form_id, $this->filter, $this->own_entries_only, null, true);
+        $entry_data = $this->user_input->get_data($this->data_table_id, $this->filter, $this->own_entries_only, null, true);
         return $entry_data;
     }
 
@@ -87,10 +87,10 @@ class EntryRecordModel extends StyleModel
     {
         $url_param = $this->get_db_field("url_param", "record_id");
         $this->record_id = isset($this->params[$url_param]) ? intval($this->params[$url_param]) : -1;
-        $this->form_id = $this->get_db_field("formName");
+        $this->data_table_id = $this->get_db_field("data_table");
         $this->own_entries_only = $this->get_db_field("own_entries_only", "1");
         $this->filter = $this->get_db_field("filter", "");
-        if ($this->form_id) {
+        if ($this->data_table_id) {
             $this->entry_record = $this->fetch_entry_record($this->record_id);
             if ($this->entry_record) {
                 // add scope prefix
