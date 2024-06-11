@@ -576,6 +576,32 @@ END
 
 DELIMITER ;
 
+-- add field `formName` to style `showUserInput`; Set the data from `source` field to the formName and remove the `source` field
+-- insert field `formName` in style `showUserInput`
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('showUserInput'), get_field_id('formName'), '', 'Select a dataTable that will be loaded and show the user data entries.');
+-- link the source field to the dataTables
+UPDATE sections_fields_translation sft
+INNER JOIN sections s ON (s.id = sft.id_sections)
+INNER JOIN styles st ON (st.id = s.id_styles)
+INNER JOIN view_dataTables dt ON (dt.`name` = sft.content)
+SET sft.content = dt.id
+WHERE id_fields = get_field_id('source') AND st.`name` = 'showUserInput';
+-- set the field based on the `source` fields
+UPDATE sections_fields_translation sft
+INNER JOIN sections s ON (s.id = sft.id_sections)
+INNER JOIN styles st ON (st.id = s.id_styles)
+SET sft.id_fields = get_field_id('formName')
+WHERE sft.id_fields = get_field_id('source') AND st.id = get_style_id('showUserInput');
+-- delete the `source` field from `showUserInput` in the styles relations
+DELETE FROM styles_fields
+WHERE id_styles = get_style_id('showUserInput') AND id_fields = get_field_id('source');
+-- delete already entered source info; now is moved to formName
+DELETE sft
+FROM sections_fields_translation sft
+INNER JOIN sections s ON (s.id = sft.id_sections)
+INNER JOIN styles st ON (st.id = s.id_styles)
+WHERE st.id = get_style_id('showUserInput') AND sft.id_fields = get_field_id('source');
+
 
 
 

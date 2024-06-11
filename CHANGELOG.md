@@ -2,6 +2,7 @@
 ### New Feature
  - unify how all user data is saved
  - add `scope` to `dataConfig`, now for each data source could be added a separated scope. If a scope is added then the variables will be set as `scope.var_name` and later could be interpolated like this
+ - add field `formName` to style `showUserInput`; Set the data from `source` field to the formName and remove the `source` field
 
 # v6.16.4
  - change function `get_user_group` in `Condition` to be a public function
