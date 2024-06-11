@@ -77,7 +77,7 @@ class DataView extends BaseView
                     $tableBody .= implode('', $tableRows);
                     $tableBody .= '</tbody>';
                 
-                    $formName = 'Set form name';
+                    $formName = $this->model->get_user_input()->get_dataTable_displayName($formId);
                 
                     // Build the card content
                     $table = '<table class="adminData w-100 table dataTable table-sm table-hover">' . $tableHead . $tableBody . '</table>';

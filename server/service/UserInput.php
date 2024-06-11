@@ -1760,7 +1760,7 @@ class UserInput
     }
 
     /**
-     * Get the the name of the able
+     * Get the the name of the table
      * @param int $id
      * The id of the table     
      * @return string | false
@@ -1776,6 +1776,31 @@ class UserInput
         } else {
             $sql = 'SELECT `name`
                 FROM dataTables
+                WHERE `id` = :id';
+            $res = $this->db->query_db_first($sql, array(":id" => $id));
+            $res = $res ? $res['name'] : false;
+            $this->db->get_cache()->set($key, $res);
+            return $res;
+        }
+    }
+
+    /**
+     * Get the the display name of the table
+     * @param int $id
+     * The id of the table     
+     * @return string | false
+     * False or the name of the table
+     */
+    public function get_dataTable_displayName($id)
+    {
+        // the cache type is like a section, because the form name can be edited only in cms
+        $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_SECTIONS, $id, [__FUNCTION__]);
+        $get_result = $this->db->get_cache()->get($key);
+        if ($get_result !== false) {
+            return $get_result;
+        } else {
+            $sql = 'SELECT `name`
+                FROM view_dataTables
                 WHERE `id` = :id';
             $res = $this->db->query_db_first($sql, array(":id" => $id));
             $res = $res ? $res['name'] : false;
