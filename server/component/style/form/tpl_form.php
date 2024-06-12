@@ -5,7 +5,6 @@
 ?>
 <form id="section-<?php echo $this->id_section; ?>" action="<?php echo $this->url ?>" method="post" class="selfHelp-form <?php echo $this->css; ?>" data-confirmation='<?php echo json_encode($data_confirmation); ?>'>
     <?php $this->output_form_children(); ?>
-    <?php $this->output_submit_button(); ?>
-    <?php $this->output_submit_and_send_button(); ?>
+    <?php $this->output_submit_button(); ?>    
     <?php $this->output_cancel(); ?>
 </form>

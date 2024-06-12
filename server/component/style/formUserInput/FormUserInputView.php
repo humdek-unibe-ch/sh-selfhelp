@@ -54,18 +54,6 @@ class FormUserInputView extends StyleView
     protected $ajax;
 
     /**
-     * DB field 'submit_and_send_email' (false).
-     * If set to true the form will have one more submit button which will send an email with the form data to the user
-     */
-    protected $submit_and_send_email;
-
-    /**
-     * DB field 'submit_and_send_label' ('').
-     * The label on the submit and send button
-     */
-    protected $submit_and_send_label;
-
-    /**
      * Selected record_id if there is one selected
      */
     protected $selected_record_id;
@@ -138,8 +126,6 @@ class FormUserInputView extends StyleView
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->ajax = $this->model->get_db_field("ajax", 0);
         $this->anchor = $this->model->get_db_field("anchor");
-        $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
-        $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
         $this->own_entries_only = $this->model->get_db_field("own_entries_only", 1);
         $this->redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
         $this->selected_record_id = $this->model->get_selected_record_id(); // if selected_record_id > 0 the form is in edit mode
@@ -291,10 +277,7 @@ class FormUserInputView extends StyleView
             "url" => $url,
             "children" => $children,
             "css" => $this->css,
-            // "id" => ($this->id_section . isset($this->entry_data[ENTRY_RECORD_ID]) ? ' ' . $this->entry_data[ENTRY_RECORD_ID] : ''),
             "id" => $this->id_section,
-            "submit_and_send_email" => $this->submit_and_send_email,
-            "submit_and_send_label" => $this->submit_and_send_label,
             "confirmation_title" => $this->confirmation_title,
             "confirmation_cancel" => $this->confirmation_cancel,
             "confirmation_continue" => $this->confirmation_continue,

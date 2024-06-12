@@ -48,18 +48,6 @@ class FormView extends StyleView
     private $cancel_url;
 
     /**
-     * DB field 'submit_and_send_email' (false).
-     * If set to true the form will have one more submit button which will send an email with the form data to the user
-     */
-    protected $submit_and_send_email;
-
-    /**
-     * DB field 'submit_and_send_lable' ('').
-     * The label on the submit and send button
-     */
-    protected $submit_and_send_label;
-
-    /**
      * Entry data if the style is used in entry visualization
      */
     protected $entry_data;
@@ -102,8 +90,6 @@ class FormView extends StyleView
         $this->label = $this->model->get_db_field("label", "Submit");
         $this->label_cancel = $this->model->get_db_field("label_cancel", "Cancel");
         $this->cancel_url = $this->model->get_db_field("url_cancel");
-        $this->submit_and_send_email = $this->model->get_db_field("submit_and_send_email", false);
-        $this->submit_and_send_label = $this->model->get_db_field("submit_and_send_label", '');
         $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
         $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
         $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
@@ -151,17 +137,6 @@ class FormView extends StyleView
     {
         if ($this->label) {            
             require __DIR__ . "/tpl_submit_btn.php";
-        }
-    }
-
-    /**
-     * Render the submit and send button.
-     */
-    public function output_submit_and_send_button()
-    {
-        if ($this->submit_and_send_email) {
-            $custom_css = $this->label ? 'ml-3' : ''; // if submit button is shown, add left margin 
-            require __DIR__ . "/tpl_submit_and_send_btn.php";
         }
     }
 

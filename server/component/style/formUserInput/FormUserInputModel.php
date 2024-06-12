@@ -233,41 +233,6 @@ class FormUserInputModel extends StyleModel
     }
 
     /**
-     * Send feedback email to the user after the data is saved.
-     * If there is data_config we retreieve the data base don the config
-     */
-    public function send_feedback_email()
-    {
-        $entry_data = $this->entry_data;
-        $data_config = $this->get_db_field("data_config", '');
-        $subject = $this->get_db_field("email_subject", '');
-        $body = $this->get_db_field("email_body", '');
-        $email_address = $this->get_db_field("email_address", '');
-        if ($entry_data) {
-            // $entry_data = json_decode($entry_data, true);            
-            $body = $this->get_entry_value($entry_data, $body);
-            $subject = $this->get_entry_value($entry_data, $subject);
-            $data_config = $this->get_entry_value($entry_data, $data_config);
-            $email_address = $this->get_entry_value($entry_data, $email_address);
-        }
-        $email_address = str_replace('@email_user', $this->db->select_by_uid('users', $_SESSION['id_user'])['email'], $email_address);
-        $mail = array(
-            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
-            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
-            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
-            "from_email" => PROJECT_NAME . '@unibe.ch',
-            "from_name" => PROJECT_NAME,
-            "reply_to" => PROJECT_NAME . '@unibe.ch',
-            "recipient_emails" => $email_address,
-            "subject" => $subject,
-            "body" => $body,
-            "description" => "FormUserInput Feedback email"
-        );
-        $mail['id_users'][] = $_SESSION['id_user'];
-        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
-    }
-
-    /**
      * the name of the form
      * @param int $record_id
      * the record id
