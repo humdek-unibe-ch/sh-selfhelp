@@ -26,7 +26,7 @@ class ShowUserInputController extends BaseController
         if(!isset($_POST[DELETE_RECORD_ID])){
             return;
         }
-        $this->model->delete_record($_POST['data_table']);
+        $this->model->delete_record($_POST[DELETE_RECORD_ID]);
         unset($_POST[DELETE_RECORD_ID]);
     }
 }

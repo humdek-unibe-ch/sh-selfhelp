@@ -71,14 +71,11 @@ class ShowUserInputModel extends StyleModel
     }
 
     /**
-     * Mark this user input as removed in the database.
-     *
-     * @param array $ids
-     *  The id of the field to be marked as removed.
+     * Mark this user input as deleted in the database.
      * @param int $record_id
      * The deleted record id
      */
-    public function delete_record($data_table, $record_id)
+    public function delete_record($record_id)
     {
         return $this->user_input->delete_data($record_id);
     }
