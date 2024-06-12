@@ -806,7 +806,7 @@ class StyleModel extends BaseModel implements IStyleModel
     /**
      * Set the display name of an entry in the data tables.
      *
-     * This method updates the `displayName` field of a row in the `uploadTables` table
+     * This method updates the `displayName` field of a row in the `dataTables` table
      * where the `name` field matches the zero-padded value of the provided `$id_sections`.
      *
      * @param int $id_sections The ID of the section to be formatted and matched against the `name` field.
@@ -816,7 +816,7 @@ class StyleModel extends BaseModel implements IStyleModel
     public function set_dataTables_displayName($id_sections, $displayName)
     {
         $res = $this->db->insert(
-            'uploadTables',
+            'dataTables',
             array(
                 "displayName" => $displayName,
                 'name' => sprintf('%010d', $id_sections)
