@@ -631,7 +631,7 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 
 -- remove fields `submit_and_send_label`, `email_body` and `email_subject` from form styles. This functionality can be achieved with actions
 DELETE FROM styles_fields
-WHERE id_fields IN (get_field_id('submit_and_send_label'), get_field_id('email_body'), get_field_id('email_subject')) 
+WHERE id_fields IN (get_field_id('submit_and_send_label'), get_field_id('email_body'), get_field_id('email_subject'), get_field_id('submit_and_send_email'), get_field_id('email_address'));
 
 
 remove the delete option from the form; create a new style for deleteing form record
