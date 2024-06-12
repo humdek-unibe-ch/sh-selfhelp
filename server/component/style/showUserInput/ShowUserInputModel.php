@@ -80,12 +80,7 @@ class ShowUserInputModel extends StyleModel
      */
     public function delete_record($data_table, $record_id)
     {
-        return $this->user_input->save_data(
-            transactionBy_by_user,
-            $data_table,
-            array("trigger_type" => actionTriggerTypes_deleted),
-            array(ENTRY_RECORD_ID => $record_id)
-        );
+        return $this->user_input->delete_data($record_id);
     }
 
     /**

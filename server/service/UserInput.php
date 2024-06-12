@@ -886,7 +886,7 @@ class UserInput
                 // the record exists, do not insert it, update it
                 $res = $this->update_data($id_table, $record, $transaction_by, $data, $id_triggerType_id);
                 return $res ? $record[ENTRY_RECORD_ID] : $res;
-            } else if(count($updateBasedOn) > 0){
+            } else if (count($updateBasedOn) > 0) {
                 // try to update or delete a record that does not exist;
                 return false;
             }
@@ -1810,6 +1810,38 @@ class UserInput
             $this->db->get_cache()->set($key, $res);
             return $res;
         }
+    }
+
+    /**
+     * Marks a record as deleted by updating the action trigger type.
+     * 
+     * This function updates the specified record in the `dataRows` table to mark it as deleted by setting
+     * its `id_actionTriggerTypes` field to the ID associated with the 'deleted' trigger type.
+     * 
+     * If `$own_entries_only` is set to `true`, the function will only update records that belong to the
+     * current user (based on `$_SESSION['id_user']`).
+     * 
+     * @param int  $record_id        The ID of the record to be marked as deleted.
+     * @param bool $own_entries_only (Optional) Whether to restrict the operation to the current user's entries only.
+     *                               Defaults to `true`.
+     * 
+     * @return bool Returns `true` on success or `false` on failure.
+     * 
+     * @throws Exception If an error occurs during the database update operation.
+     */
+    public function delete_data($record_id, $own_entries_only = true)
+    {
+        $params = array('id' => $record_id);
+        if ($own_entries_only) {
+            $params['id_users'] = $_SESSION['id_user'];
+        }
+        return $this->db->update_by_ids(
+            "dataRows",
+            array(
+                "id_actionTriggerTypes" => $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_deleted)
+            ),
+            $params
+        );
     }
 }
 ?>
