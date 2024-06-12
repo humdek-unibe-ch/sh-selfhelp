@@ -8,6 +8,7 @@
  - update `hint` for field `data_table` in styles: `entryRecord` and `entryList`
  - add field `fields_map` in style `showUserInput`; Loads the defined fields from the mapper in the table visualization.
  - remove fields `submit_and_send_label`, `email_body`, `submit_and_send_email`, `email_address` and `email_subject` from form styles. This functionality can be achieved with actions
+ - remove style `emailForm`
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS
