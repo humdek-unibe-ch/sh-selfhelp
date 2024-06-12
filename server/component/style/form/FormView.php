@@ -135,7 +135,7 @@ class FormView extends StyleView
      */
     public function output_submit_button()
     {
-        if ($this->label) {            
+        if ($this->label) {                        
             require __DIR__ . "/tpl_submit_btn.php";
         }
     }
@@ -151,6 +151,15 @@ class FormView extends StyleView
         } else {
             $this->output_children();
         }
+    }
+
+    /**
+     * Check if the form sumption is disabled or not
+     * @return string 'disabled' | ''
+     */
+    public function is_disabled(){
+        $disabled = $this->model->get_db_field("disabled", false);
+        echo $disabled ? 'disabled': '';
     }
 }
 ?>
