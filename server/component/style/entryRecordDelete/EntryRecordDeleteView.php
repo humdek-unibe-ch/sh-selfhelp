@@ -100,5 +100,15 @@ class EntryRecordDeleteView extends StyleView
         ));
         $delete_form->output_content();
     }
+
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();
+        $style[DELETE_RECORD_ID] = $this->model->get_delete_record_id();
+        $redirect_link = str_replace("/", "", $this->model->get_db_field("redirect_at_end", ""));
+        $redirect_link = $this->model->get_services()->get_router()->get_url($redirect_link);
+        $style['redirect_at_end']['content'] = $redirect_link;
+        return $style;
+    }
 }
 ?>
