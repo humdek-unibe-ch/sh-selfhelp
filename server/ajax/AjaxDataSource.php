@@ -155,7 +155,7 @@ class AjaxDataSource extends BaseAjax
     private function fetch_data_table_external($table_id, $filters)
     {
         $res = array();
-        $sql = "SELECT * FROM view_uploadTables
+        $sql = "SELECT * FROM view_dataTables_data
             WHERE table_id = :id
             ORDER BY row_id";
         $res_db = $this->db->query_db($sql, array(
