@@ -47,7 +47,7 @@ class UserInput
     {
         $this->db = $db;
         $this->transaction = $transaction;
-        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
+        $this->clear_cache();
     }
 
     /* Private Methods ********************************************************/
@@ -1101,14 +1101,14 @@ class UserInput
         if (strpos($filter, '{{') !== false) {
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
         }
+        if (!$user_id) {
+            $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
+        }
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $user_id, $db_first]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
             return $get_result;
-        } else {
-            if (!$user_id) {
-                $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
-            }
+        } else {            
             $params = array(
                 ":form_id" => $form_id,
                 ":user_id" => $user_id,
@@ -1219,6 +1219,7 @@ class UserInput
             /**************** Check jobs ***************************************/
             $this->db->commit();
             $this->queue_job_from_actions($form_data);
+            $this->clear_cache();
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
@@ -1831,17 +1832,42 @@ class UserInput
      */
     public function delete_data($record_id, $own_entries_only = true)
     {
-        $params = array('id' => $record_id);
-        if ($own_entries_only) {
-            $params['id_users'] = $_SESSION['id_user'];
-        }
-        return $this->db->update_by_ids(
-            "dataRows",
-            array(
-                "id_actionTriggerTypes" => $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_deleted)
-            ),
-            $params
-        );
+
+
+        try {
+            $this->db->begin_transaction();
+            $res = true;
+            $params = array('id' => $record_id);
+            if ($own_entries_only) {
+                $params['id_users'] = $_SESSION['id_user'];
+            }
+            $res = $this->db->update_by_ids(
+                "dataRows",
+                array(
+                    "id_actionTriggerTypes" => $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_deleted)
+                ),
+                $params
+            );            
+            $this->db->commit();
+            if ($res) {
+                $this->delete_jobs_for_record($record_id);
+            }
+            $this->clear_cache();
+            return $res;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            error_log('Exception caught: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            return false;
+        }        
+    }
+
+    /**
+     * Clear the cache for the user input data
+     */
+    public function clear_cache()
+    {
+        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
     }
 }
 ?>

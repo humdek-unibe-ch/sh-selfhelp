@@ -198,8 +198,7 @@ class FormUserInputModel extends StyleModel
             transactionBy_by_user,
             $this->get_table_name_from_form_id(),
             (array)$user_input
-        );
-        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
+        );    
         if(!$this->is_log()){
             // if not log load data if exists
             $this->reload_children();
@@ -227,8 +226,7 @@ class FormUserInputModel extends StyleModel
             array(
                 "record_id" => $record_id
             )
-        );
-        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT); // clear the cache we did changes
+        );        
         return $res;
     }
 
