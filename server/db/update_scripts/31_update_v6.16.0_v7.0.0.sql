@@ -649,6 +649,10 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('delete_content'), 'Delete', 'The content of the modal form that pops up when the delete button is clicked.');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('type'), 'danger', 'The visual appearance of the button as predefined by [Bootstrap](!https://getbootstrap.com/docs/4.6/utilities/colors/).');
 
+-- delete field `label_date_time`
+DELETE FROM `fields`
+WHERE `name` = 'label_date_time';
+
 
 remove the delete option from the form; create a new style for deleteing form record
 
