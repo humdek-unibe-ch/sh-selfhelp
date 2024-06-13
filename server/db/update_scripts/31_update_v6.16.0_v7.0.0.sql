@@ -637,6 +637,14 @@ WHERE id_fields IN (get_field_id('submit_and_send_label'), get_field_id('email_b
 DELETE FROM styles
 WHERE `name` = 'emailForm';
 
+UPDATE `fields`
+SET `name` = 'confirmation_continue'
+WHERE `name` = 'label_continue';
+
+UPDATE `fields`
+SET `name` = 'confirmation_message'
+WHERE `name` = 'label_message';
+
 -- add new style `entryRecordDelete`
 INSERT IGNORE INTO `styles` (`name`, `id_type`, `id_group`, `description`) VALUES ('entryRecordDelete', '2', (select id from styleGroup where `name` = 'Wrapper' limit 1), 'Style that allows the user to delete entry record');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.');
@@ -645,9 +653,15 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('data_config'), '', 'Define data configuration for fields that are loaded from DB and can be used inside the style with their param names. The name of the field can be used between {{param_name}} to load the required value');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('debug'), 0, 'If *checked*, debug messages will be rendered to the screen. These might help to understand the result of a condition evaluation. **Make sure that this field is *unchecked* once the page is productive**.');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('label_delete'), 'Delete', 'The label for the delte button.');
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('delete_title'), 'Delete', 'The title of the modal form that pops up when the delete button is clicked.');
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('delete_content'), 'Delete', 'The content of the modal form that pops up when the delete button is clicked.');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_title'), '', 'Confirmation title for the modal when the button is clicked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_continue'), 'OK', 'Continue button for the modal when the button is clicked');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_message'), 'Do you want to continue?', 'The message shown on the modal');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('type'), 'danger', 'The visual appearance of the button as predefined by [Bootstrap](!https://getbootstrap.com/docs/4.6/utilities/colors/).');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('redirect_at_end'), '', 'Redirect to this url once the `delete` is executed.');
+
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'confirmation_cancel', get_field_type_id('markdown-inline'), '1');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_cancel'), '', 'Cancel button label on the confirmation modal');
+
 
 -- delete field `label_date_time`
 DELETE FROM `fields`

@@ -33,14 +33,14 @@ class ButtonView extends StyleView
     private $label_cancel;
 
     /**
-     * DB field 'label_continue' (OK).
+     * DB field 'confirmation_continue' (OK).
      */
-    private $label_continue;
+    private $confirmation_continue;
 
     /**
-     * DB field 'label_message' ('Do you want to continue?').
+     * DB field 'confirmation_message' ('Do you want to continue?').
      */
-    private $label_message;
+    private $confirmation_message;
 
     /**
      * DB field 'url' (empty string).
@@ -83,8 +83,8 @@ class ButtonView extends StyleView
         $this->data = $this->model->get_db_field("data", null);
         $this->confirmation_title = $this->model->get_db_field("confirmation_title");
         $this->label_cancel = $this->model->get_db_field("label_cancel");
-        $this->label_continue = $this->model->get_db_field("label_continue");
-        $this->label_message = $this->model->get_db_field("label_message");
+        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue");
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message");
     }
 
     /* Public Methods *********************************************************/
@@ -98,8 +98,8 @@ class ButtonView extends StyleView
         if($this->confirmation_title){
             $data_confirmation['confirmation_title'] = $this->confirmation_title;
             $data_confirmation['label_cancel'] = $this->label_cancel;
-            $data_confirmation['label_continue'] = $this->label_continue;
-            $data_confirmation['label_message'] = $this->label_message;
+            $data_confirmation['confirmation_continue'] = $this->confirmation_continue;
+            $data_confirmation['confirmation_message'] = $this->confirmation_message;
         }
         if ($this->url == "" || $this->label == "") return;
         require __DIR__ . "/tpl_button.php";

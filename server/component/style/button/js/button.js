@@ -11,11 +11,11 @@ function initButton() {
                 var btn = this;
                 $.confirm({
                     title: confirmation['confirmation_title'],
-                    content: confirmation['label_message'],
+                    content: confirmation['confirmation_message'],
                     buttons: {
                         confirm:
                         {
-                            text: confirmation['label_continue'],
+                            text: confirmation['confirmation_continue'],
                             action: function () {
                                 window.location = $(btn).attr('href');
                             }

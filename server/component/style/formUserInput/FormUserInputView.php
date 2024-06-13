@@ -131,8 +131,8 @@ class FormUserInputView extends StyleView
         $this->selected_record_id = $this->model->get_selected_record_id(); // if selected_record_id > 0 the form is in edit mode
         $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
         $this->confirmation_cancel = $this->model->get_db_field("label_cancel", '');
-        $this->confirmation_continue = $this->model->get_db_field("label_continue", '');
-        $this->confirmation_message = $this->model->get_db_field("label_message", '');
+        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message", '');
         $this->url_cancel = $this->model->get_db_field("url_cancel", '');
         $this->label_cancel = $this->model->get_db_field("label_cancel", '');
     }
