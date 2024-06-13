@@ -27,16 +27,26 @@ class EntryRecordDeleteView extends StyleView
     private $label_delete;
 
     /**
-     * DB field 'delete_title' (empty string).
-     * The title of the modal form.
+     * DB field 'confirmation_title' (empty string).
+     * If set a modal is shown. This will be the header of the confirmation modal.
      */
-    private $delete_title;
+    private $confirmation_title;
 
     /**
-     * DB field 'delete_content' (empty string).
-     * The content of the modal form.
+     * DB field 'confirmation_cancel' (empty string).
      */
-    private $delete_content;
+    private $confirmation_cancel;
+
+    /**
+     * DB field 'confirmation_continue' (OK).
+     */
+    private $confirmation_continue;
+
+    /**
+     * DB field 'confirmation_message' ('Do you want to continue?').
+     */
+    private $confirmation_message;
+
 
     /* Constructors ***********************************************************/
 
@@ -53,8 +63,10 @@ class EntryRecordDeleteView extends StyleView
         parent::__construct($model, $controller);
         $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->type = $this->model->get_db_field("type", "danger");
-        $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
-        $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
+        $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
+        $this->confirmation_cancel = $this->model->get_db_field("confirmation_cancel", '');
+        $this->confirmation_continue = $this->model->get_db_field("confirmation_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("confirmation_message");
     }
 
     /* Private Methods ********************************************************/
@@ -65,7 +77,7 @@ class EntryRecordDeleteView extends StyleView
      * Render the view.
      */
     public function output_content()
-    {
+    {        
         $delete_record_id = $this->model->get_delete_record_id();
         $delete_form = new BaseStyleComponent('form', array(
             "id" => $this->id_section,
@@ -73,9 +85,14 @@ class EntryRecordDeleteView extends StyleView
             'url' => $_SERVER['REQUEST_URI'],
             'label' => $this->label_delete,
             'disabled' => !$delete_record_id,
+            'confirmation_title'=> $this->confirmation_title,
+            'confirmation_cancel'=> $this->confirmation_cancel,
+            'confirmation_continue'=> $this->confirmation_continue,
+            'confirmation_message'=> $this->confirmation_message,
+            'css' => "entry-record-delete ". $this->css,
             'children' => array(
                 new BaseStyleComponent('input', array(
-                    'name' => DELETE_RECORD_ID,
+                    'name' => DELETE_RECORD_ID,                    
                     'value' => $delete_record_id,
                     'type_input' => "hidden",
                 ))

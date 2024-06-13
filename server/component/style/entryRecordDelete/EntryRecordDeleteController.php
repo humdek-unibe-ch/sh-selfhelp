@@ -30,6 +30,12 @@ class EntryRecordDeleteController extends BaseController
         }
         $this->model->delete_record($_POST[DELETE_RECORD_ID]);
         unset($_POST[DELETE_RECORD_ID]);
+        $redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
+        if( $redirect_at_end != "" ){
+            $redirect_at_end = $this->model->get_services()->get_router()->get_url($redirect_at_end);
+            header("Location: " . $redirect_at_end);
+            die();
+        }
     }
 
     /* Private Methods ********************************************************/
