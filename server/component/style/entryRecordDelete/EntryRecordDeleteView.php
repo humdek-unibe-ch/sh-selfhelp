@@ -76,8 +76,8 @@ class EntryRecordDeleteView extends StyleView
             'children' => array(
                 new BaseStyleComponent('input', array(
                     'name' => DELETE_RECORD_ID,
-                    'value' => $delete_record_id
-                    // 'type_input' => "hidden",
+                    'value' => $delete_record_id,
+                    'type_input' => "hidden",
                 ))
             ),
         ));
