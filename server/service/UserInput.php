@@ -37,6 +37,11 @@ class UserInput
      */
     private $job_scheduler;
 
+    /**
+     * Flag that is set if there is user input changes
+     */
+    private $user_input_data_changed = false;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -47,10 +52,20 @@ class UserInput
     {
         $this->db = $db;
         $this->transaction = $transaction;
-        $this->clear_cache();
+        $this->clear_user_input_cache();
+        $this->user_input_data_changed = false;
     }
 
     /* Private Methods ********************************************************/
+
+    /**
+     * Clear the cache for the user input data
+     */
+    private function clear_user_input_cache()
+    {
+        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
+        $this->user_input_data_changed = true;
+    }
 
 
     /**
@@ -1219,7 +1234,7 @@ class UserInput
             /**************** Check jobs ***************************************/
             $this->db->commit();
             $this->queue_job_from_actions($form_data);
-            $this->clear_cache();
+            $this->clear_user_input_cache();
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
@@ -1852,7 +1867,7 @@ class UserInput
             if ($res) {
                 $this->delete_jobs_for_record($record_id);
             }
-            $this->clear_cache();
+            $this->clear_user_input_cache();
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
@@ -1860,14 +1875,21 @@ class UserInput
             error_log('Stack trace: ' . $e->getTraceAsString());
             return false;
         }        
-    }
+    }    
 
     /**
-     * Clear the cache for the user input data
+     * Checks if there is a user input change.
+     *
+     * This function checks if there is a user input change that came from a controller somewhere.
+     * It is used to reload the view children for the dynamic styles like entryList, entryRecord,
+     * dataContainer, and Loop.
+     *
+     * @return bool True if there is a user input change, false otherwise.
      */
-    public function clear_cache()
-    {
-        $this->db->get_cache()->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
+    public function is_there_user_input_change(){
+        // check if there is an user input change that came from a controller somewhere
+        // it is used to reload the view children for the dynamic styles like entryList, entryRecord, dataContainer and Loop
+        return $this->user_input_data_changed;
     }
 }
 ?>

@@ -287,12 +287,12 @@ class AjaxDataSource extends BaseAjax
      * array with all names as string
      */
     public function get_table_names(){
-        $sql = "SELECT `name`
+        $sql = "SELECT name_id, `name`
                 FROM view_dataTables;";
         $res_db = $this->db->query_db($sql);
         $res = array();
         foreach ($res_db as $key => $value) {
-            $res[$value['name']] = $value['name'];
+            $res[$value['name_id']] = $value['name'];
         }
         return json_encode($res);
     }

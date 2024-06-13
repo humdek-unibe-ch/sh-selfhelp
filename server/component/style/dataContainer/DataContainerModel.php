@@ -43,7 +43,12 @@ class DataContainerModel extends StyleModel
         if ($this->is_cms_page()) {
             parent::loadChildren();
         } else {
-            // $entry_record = $this->get_entry_record();
+            $this->children = []; // clear the children in case we are updating the data
+            if ($this->user_input->is_there_user_input_change()) {
+                // if there is a change in the user_input, recalculate
+                $fields = $this->db->fetch_section_fields($this->section_id);
+                $this->set_db_fields($fields);
+            }
             $interpolation_data = $this->get_interpolation_data();
             $entry_record = array();
             foreach ($interpolation_data as $key => $value) {
@@ -58,8 +63,8 @@ class DataContainerModel extends StyleModel
                     } else {
                         $entry_record = array_merge($entry_record, $interpolation_data['data_config_retrieved']);
                     }
-                }else{
-                    $entry_record = array_merge($entry_record, $interpolation_data[$key]);    
+                } else {
+                    $entry_record = array_merge($entry_record, $interpolation_data[$key]);
                 }
             }
             $debug_data = $this->get_debug_data();

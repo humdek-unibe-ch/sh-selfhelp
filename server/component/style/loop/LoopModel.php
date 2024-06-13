@@ -59,6 +59,12 @@ class LoopModel extends StyleModel
         if ($this->is_cms_page()) {
             parent::loadChildren();
         } else {
+            $this->children = []; // clear the children in case we are updating the data
+            if ($this->user_input->is_there_user_input_change()) {
+                // if there is a change in the user_input, recalculate
+                $fields = $this->db->fetch_section_fields($this->section_id);
+                $this->set_db_fields($fields);
+            }
             $db_children = $this->db->fetch_section_children($this->section_id);
             $loop = $this->get_db_field("loop", array());
             if (!$loop || count($loop) == 0) {

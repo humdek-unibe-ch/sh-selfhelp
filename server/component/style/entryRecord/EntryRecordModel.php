@@ -135,6 +135,7 @@ class EntryRecordModel extends StyleModel
         if ($this->is_cms_page()) {
             parent::loadChildren();
         } else {
+            $this->children = []; // clear the children in case we are updating the data
             $this->init_properties();
             if ($this->get_entry_record()) {
                 $entry_record = array_merge($entry_record, $this->get_entry_record()); // merge with already existing parent entry

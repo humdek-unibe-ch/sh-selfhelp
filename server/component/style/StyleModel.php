@@ -773,7 +773,7 @@ class StyleModel extends BaseModel implements IStyleModel
 
     /**
      * Get the interpolation data
-     * @return object
+     * @return array
      * Return the interpolation data
      */
     public function get_interpolation_data()

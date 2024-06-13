@@ -37,6 +37,10 @@ class DataContainerView extends StyleView
      */
     public function output_content()
     {
+        if ($this->model->get_user_input()->is_there_user_input_change()) {
+            $this->model->loadChildren($this->model->get_entry_record());
+            $this->set_children($this->model->get_children());
+        }
         require __DIR__ . "/tpl_dataContainer.php";
     }
 

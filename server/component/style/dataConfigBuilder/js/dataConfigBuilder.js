@@ -80,7 +80,6 @@ function initDataConfigBuilder() {
                                 getTableNames(dataConfigEditor, key.replace('retrieve', 'table'));
                             } else if (key.includes('field_name')) {
                                 // populate field names for the new field
-                                console.log('Current JSON', dataConfigEditor.getValue());
                                 var keys = key.split('.');
                                 var dataSourceKey = keys[0] + '.' + keys[1];
                                 getTableFieldNames(
@@ -141,7 +140,6 @@ function initDataConfigBuilder() {
 // ********************************************* DATA CONFIG BUILDER *****************************************
 
 const dataConfigWatcherCallback = function (path) {
-    console.log('Bind', path);
     if (path.includes('retrieve') && this.getEditor(path) && this.getEditor(path).getValue()) {
         getTableNames(this, path.replace('retrieve', 'table'));
     } else if (path.includes('table') && this.getEditor(path) && this.getEditor(path).getValue()) {
@@ -161,7 +159,6 @@ const dataConfigWatcherCallback = function (path) {
 }
 
 function checkAllDataConfigInitCalls(dataConfigEditor) {
-    console.log('checkAllDataConfigInitCalls', dataConfigInitCalls);
     let result = true;
     for (const key in dataConfigInitCalls) {
         result = dataConfigInitCalls[key] && result;
