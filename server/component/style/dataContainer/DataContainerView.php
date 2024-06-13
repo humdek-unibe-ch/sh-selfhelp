@@ -37,10 +37,7 @@ class DataContainerView extends StyleView
      */
     public function output_content()
     {
-        if ($this->model->get_user_input()->is_there_user_input_change()) {
-            $this->model->loadChildren($this->model->get_entry_record());
-            $this->set_children($this->model->get_children());
-        }
+        $this->update_children();
         require __DIR__ . "/tpl_dataContainer.php";
     }
 
@@ -49,6 +46,7 @@ class DataContainerView extends StyleView
      */
     public function output_content_mobile()
     {
+        $this->update_children();
         $style = parent::output_content_mobile();
         $style['style_name'] = 'div'; // this style could be handled by the div style
         return $style;

@@ -283,5 +283,20 @@ abstract class StyleView extends BaseView
         return $this->fields[$field_name]['content'] ? $this->fields[$field_name]['content'] : $this->fields[$field_name]['default'];
     }
 
+    /**
+     * Updates the view children based on user input changes.
+     *
+     * This function checks if there is a user input change through the model's user input. 
+     * If a change is detected, it reloads the children of the view by loading the entry record 
+     * and setting the updated children.
+     */
+    public function update_children()
+    {
+        if ($this->model->get_user_input()->is_there_user_input_change()) {
+            $this->model->loadChildren($this->model->get_entry_record());
+            $this->set_children($this->model->get_children());
+        }
+    }
+
 }
 ?>

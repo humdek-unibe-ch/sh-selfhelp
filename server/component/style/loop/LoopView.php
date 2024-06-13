@@ -52,11 +52,14 @@ class LoopView extends StyleView
      */
     public function output_content()
     {
-        if ($this->model->get_user_input()->is_there_user_input_change()) {
-            $this->model->loadChildren($this->model->get_entry_record());
-            $this->set_children($this->model->get_children());
-        }
+        $this->update_children();
         $this->output_children();
+    }
+
+    public function output_content_mobile()
+    {        
+        $this->update_children();
+        return parent::output_content_mobile();
     }
 }
 ?>

@@ -53,15 +53,18 @@ class EntryListView extends StyleView
      */
     public function output_content()
     {
-        if ($this->model->get_user_input()->is_there_user_input_change()) {
-            $this->model->loadChildren($this->model->get_entry_record());
-            $this->set_children($this->model->get_children());
-        }
+        $this->update_children();
         if ($this->load_as_table) {
             require __DIR__ . "/tpl_entryList_table.php";            
         } else {
             require __DIR__ . "/tpl_entryList_div.php";
         }
+    }
+
+    public function output_content_mobile()
+    {        
+        $this->update_children();
+        return parent::output_content_mobile();
     }
 
     /**
