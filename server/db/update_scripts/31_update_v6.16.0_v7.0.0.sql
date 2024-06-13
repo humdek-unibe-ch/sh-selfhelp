@@ -657,6 +657,7 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_message'), 'Do you want to continue?', 'The message shown on the modal');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('type'), 'danger', 'The visual appearance of the button as predefined by [Bootstrap](!https://getbootstrap.com/docs/4.6/utilities/colors/).');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('redirect_at_end'), '', 'Redirect to this url once the `delete` is executed.');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('close_modal_at_end'), 0, '`Only for mobile` - if selected the modal form will be closed once the survey is done');
 
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'confirmation_cancel', get_field_type_id('markdown-inline'), '1');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_cancel'), '', 'Cancel button label on the confirmation modal');
@@ -676,7 +677,6 @@ graphs rework `view_data_tables`
 fetch_data_table_external
 get_data_table
 
-save_fitrockr_data
 
 rename formActions to dataActions
 
