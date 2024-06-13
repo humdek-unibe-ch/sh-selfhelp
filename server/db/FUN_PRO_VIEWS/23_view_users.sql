@@ -10,8 +10,8 @@ SELECT
     us.description, 
     u.blocked, 
     CASE
-        WHEN u.`name` = 'admin' THEN 'admin'
-        WHEN u.`name` = 'tpf' THEN 'tpf'    
+        WHEN u.`email` = 'admin' THEN 'admin'
+        WHEN u.`email` = 'tpf' THEN 'tpf'    
         ELSE IFNULL(vc.code, '-') 
     END AS code,
     GROUP_CONCAT(DISTINCT g.`name` SEPARATOR '; ') AS `groups`,
