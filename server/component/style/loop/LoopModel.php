@@ -76,7 +76,7 @@ class LoopModel extends StyleModel
                 if ($scope !== '') {
                     $scoped_array = array();
                     foreach ($loop_record as $key => $value) {
-                        $scoped_array[$scope . '_' .  $key] = $value;
+                        $scoped_array[$scope . '.' .  $key] = $value;
                     }
                     $loop_record = $scoped_array;
                 }

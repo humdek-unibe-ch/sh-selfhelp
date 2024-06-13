@@ -98,7 +98,7 @@ class EntryRecordModel extends StyleModel
                 if ($scope !== '') {
                     $scoped_array = array();
                     foreach ($this->entry_record as $key => $value) {
-                        $scoped_array[$scope . '_' .  $key] = $value;
+                        $scoped_array[$scope . '.' .  $key] = $value;
                     }
                     $this->entry_record = $scoped_array;
                 }

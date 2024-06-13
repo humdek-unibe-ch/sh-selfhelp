@@ -11,6 +11,7 @@
  - remove style `emailForm`
  - add new style `entryRecordDelete`
  - check if there is an `user_input` change that came from a controller somewhere. It is used to reload the view children for the dynamic styles like `entryList`, `entryRecord`, `dataContainer` and `Loop`
+ - change `scope` to be add it with `.` instead of `_` as prefix
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS

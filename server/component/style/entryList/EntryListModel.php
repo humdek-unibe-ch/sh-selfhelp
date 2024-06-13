@@ -104,7 +104,7 @@ class EntryListModel extends StyleModel
                     foreach ($this->entry_list as $key_list => $list_value) {
                         $scoped_array = array();
                         foreach ($this->entry_list[$key_list] as $key => $value) {
-                            $scoped_array[$scope . '_' .  $key] = $value;
+                            $scoped_array[$scope . '.' .  $key] = $value;
                         }
                         $this->entry_list[$key_list] = $scoped_array;
                     }
