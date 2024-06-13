@@ -30,7 +30,7 @@ class EntryListView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
-        $this->load_as_table = $this->model->get_db_field("load_as_table", false);
+        $this->load_as_table = $this->model->get_db_field("load_as_table", false);        
     }
 
     /* Private Methods ********************************************************/
@@ -53,6 +53,8 @@ class EntryListView extends StyleView
      */
     public function output_content()
     {
+        $this->model->loadChildren($this->model->get_entry_record());
+        $this->set_children($this->model->get_children());
         if ($this->load_as_table) {
             require __DIR__ . "/tpl_entryList_table.php";            
         } else {

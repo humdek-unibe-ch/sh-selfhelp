@@ -143,6 +143,7 @@ class EntryListModel extends StyleModel
         if ($this->is_cms_page()) {
             parent::loadChildren();
         } else {
+            $this->children = []; // clear the children in case we are updating the data
             $this->init_properties();
             $entry_list = $this->get_entry_list();
             $db_children = $this->db->fetch_section_children($this->section_id);
