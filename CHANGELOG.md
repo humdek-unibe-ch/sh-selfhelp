@@ -12,6 +12,7 @@
  - add new style `entryRecordDelete`
  - check if there is an `user_input` change that came from a controller somewhere. It is used to reload the view children for the dynamic styles like `entryList`, `entryRecord`, `dataContainer` and `Loop`
  - change `scope` to be add it with `.` instead of `_` as prefix
+ - rename field `label_continue` to `confirmation_continue` and `label_message` to `confirmation_message`
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS
