@@ -679,10 +679,6 @@ INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
 INNER JOIN dataCols col ON (col.id = cell.id_dataCols);
 
 
-
-get_data_table
-
-
 rename formActions to dataActions
 
 rework all json structure to relative structure: actions, dataConfgi, etc

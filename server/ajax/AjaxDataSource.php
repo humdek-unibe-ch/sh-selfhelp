@@ -238,7 +238,7 @@ class AjaxDataSource extends BaseAjax
     public function get_data_table()
     {
         $table_name = $this->router->route['params']['table'];
-        $sql = "SELECT * FROM view_data_tables WHERE intern <> 1 AND table_name = :name";
+        $sql = "SELECT * FROM view_dataTables WHERE `name` = :name";
         $source = $this->db->query_db_first($sql,
             array("name" => $table_name));
         $filter = array();
