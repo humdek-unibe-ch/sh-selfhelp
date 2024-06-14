@@ -684,5 +684,3 @@ rename formActions to dataActions
 rework all json structure to relative structure: actions, dataConfgi, etc
 if possible to use json schema and automated it?
 delte on save and recreate
-
-check chat funnctionality

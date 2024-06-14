@@ -48,4 +48,40 @@ class ModuleFormsActionModel extends BaseModel
         return $notifications;
     }
 
+    public function get_jobs_groups($job_id)
+    {
+        $sql = "SELECT `name`
+                FROM dta_jobs_groups jg
+                INNER JOIN `groups` g ON g.id = jg.id_groups
+                WHERE jg.id_jobs = :job_id;";
+        $groups = $this->db->query_db($sql, array(":job_id" => $job_id));
+        $res = array();
+        foreach ($groups as $key => $value) {
+            $res[] = $value['name'];
+        }
+        return $res;
+    }
+
+    public function test_show_action()
+    {
+        $id_action = 1;
+        $action = $this->db->select_by_uid("dta_actions", $id_action);
+        $config = array(
+            "condition" => $this->db->select_by_uid("dta_conditions", $action['id_conditions']),
+            "blocks" => $this->db->select_by_fk("dta_blocks", 'id_dta_actions', $id_action)
+        );
+
+        foreach ($config['blocks'] as $key_block => $block) {
+            $jobs = $this->db->select_by_fk("dta_jobs", 'id_blocks', $block['id']);
+            foreach ($jobs as $key_jobs => $job) {
+                $jobs[$key_jobs]['condition'] = $this->db->select_by_uid("dta_conditions", $job['id_conditions']);
+                $jobs[$key_jobs]['on_job_execute']['condition'] = $this->db->select_by_uid("dta_conditions", $job['id_conditions_on_execute']);
+                $jobs[$key_jobs]['schedule_time'] = $this->db->select_by_uid("dta_schedule_time", $job['id_schedule_time']);
+                $jobs[$key_jobs]['job_add_remove_groups'] = $this->get_jobs_groups($job['id']);
+            }
+            $config['blocks'][$key_block]['jobs'] = $jobs;
+        }
+
+        return json_encode($config, JSON_PRETTY_PRINT);
+    }
 }

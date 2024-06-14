@@ -143,6 +143,7 @@ class ModuleFormsActionView extends BaseView
      */
     public function output_add_action()
     {
+        $new_config = $this->model->test_show_action();
         $form = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
@@ -192,7 +193,8 @@ class ModuleFormsActionView extends BaseView
                             "type_input" => "json",
                             "id" => "config",
                             "name" => "config",
-                            "value" => isset($this->action["config"]) ? $this->action["config"] : '',
+                            // "value" => isset($this->action["config"]) ? $this->action["config"] : '',
+                            "value" => $new_config,
                             "css" => "jobConfig",
                             "placeholder" => "",
                         )),

@@ -44,7 +44,9 @@ class ModuleFormsActionsController extends BaseController
             isset($_POST['config'])
         ) {
             //edit mode
-            $this->update_action($_POST);
+            echo json_encode($_POST);
+            // $this->model->test_insert_action($_POST);
+            // $this->update_action($_POST);
         } else if (isset($_POST['mode']) && $_POST['mode'] === DELETE && isset($_POST['deleteActionName']) && isset($_POST['deleteActionId'])) {
             //delete mode
             $this->delete_action($_POST);
