@@ -28,8 +28,7 @@ class CmsPreferencesController extends BaseController
             if ($res && $this->model->update_cmsPreferences(array(
                 'default_language_id' => $_POST['default_language_id'],
                 'callback_api_key' => $_POST['callback_api_key'],
-                'fcm_api_key' => $_POST['fcm_api_key'],
-                'fcm_sender_id' => $_POST['fcm_sender_id'],
+                'firebase_config' => $_POST['firebase_config'],
                 'anonymous_users' => isset($_POST['anonymous_users']) ? $_POST['anonymous_users'] : 0
             )) !== false) {
                 $this->success = true;
