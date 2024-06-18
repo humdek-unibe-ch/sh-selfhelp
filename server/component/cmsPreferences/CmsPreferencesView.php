@@ -119,22 +119,13 @@ class CmsPreferencesView extends BaseView
                 )),),
             )),
             new BaseStyleComponent("descriptionItem", array(
-                "title" => "FCM API Key",
-                "help" => "The API key from <code>Firebase</code>, used to send notifications.",
+                "title" => "Firebase config",
+                "help" => "The firebase JSON [from](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk)",
                 "locale" => "",
-                "children" => array(new BaseStyleComponent("input", array(
-                    "value" => $this->model->get_cmsPreferences()['fcm_api_key'],
-                    "name" => "fcm_api_key",
-                    "css" => "mb-3",
-                )),),
-            )),
-            new BaseStyleComponent("descriptionItem", array(
-                "title" => "FCM Sender ID",
-                "help" => "The sender ID from <code>Firebase</code>, used to send notifications.",
-                "locale" => "",
-                "children" => array(new BaseStyleComponent("input", array(
-                    "value" => $this->model->get_cmsPreferences()['fcm_sender_id'],
-                    "name" => "fcm_sender_id",
+                "children" => array(new BaseStyleComponent("textarea", array(
+                    "value" => $this->model->get_cmsPreferences()['firebase_config'],
+                    "type_input" => "json",
+                    "name" => "firebase_config",
                     "css" => "mb-3",
                 )),),
             )),
@@ -204,19 +195,12 @@ class CmsPreferencesView extends BaseView
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
-                    "title" => "FCM API Key",
-                    "help" => "The API key from <code>Firebase</code>, used to send notifications.",
+                    "title" => "Firebase config",
+                    "help" => "The firebase JSON [from](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk)",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->model->get_cmsPreferences()['fcm_api_key']
-                    ))),
-                )),
-                new BaseStyleComponent("descriptionItem", array(
-                    "title" => "FCM Sender ID",
-                    "help" => "The sender ID from <code>Firebase</code>, used to send notifications.",
-                    "locale" => "",
-                    "children" => array(new BaseStyleComponent("rawText", array(
-                        "text" => $this->model->get_cmsPreferences()['fcm_sender_id']
+                        "text" => $this->model->get_cmsPreferences()['firebase_config'],
+                        "css" => "firebaseConfig"
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(

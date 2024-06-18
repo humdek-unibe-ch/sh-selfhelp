@@ -5,11 +5,11 @@
 ?>
 <div class="container-fluid mt-3">
     <div class="row">
-        <div class="col-auto">
+        <div class="col-2">
             <?php $this->output_button(); ?>
             <?php $this->output_languages(); ?>
         </div>
-        <div class="col">
+        <div class="col-10">
             <?php $this->output_alert(); ?>
             <?php $this->output_cms_preferences_form(); ?>
         </div>

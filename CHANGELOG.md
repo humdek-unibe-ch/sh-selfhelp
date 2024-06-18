@@ -1,3 +1,6 @@
+# v6.17.0
+ - #500 migrate firebase notifications from [php-fcm](https://github.com/EdwinHoksberg/php-fcm) to [firebase-php](https://github.com/kreait/firebase-php)
+
 # v6.16.4
  - change function `get_user_group` in `Condition` to be a public function
 

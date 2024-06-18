@@ -5,8 +5,13 @@
 ?>
 <?php
 require_once __DIR__ . "/../globals_untracked.php";
+require_once __DIR__ . "/../ext/firebase-php/vendor/autoload.php";
 require_once __DIR__ . "/../ext/php-fcm/vendor/autoload.php";
 require_once __DIR__ . "/BasicJob.php";
+
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 /**
  * A wrapper class for PHPMailer. It provides a simple email sending method
@@ -20,69 +25,73 @@ class Notificaitoner extends BasicJob
     private $user_input = null;
 
     /**
-     * Creating a PHPMailer Instance.
+     * Firebase Messaging instance.
+     */
+    private $messaging;
+
+    /**
+     * Creating a PHPNotification Instance.
      *
      * @param object $db
-     *  An instcance of the service class PageDb.
+     *  An instance of the service class PageDb.
      */
     public function __construct($db, $transaction, $condition, $user_input)
     {
         $this->user_input = $user_input;
         parent::__construct($db, $transaction, $condition);
+        $cmsPreferences = $this->db->fetch_cmsPreferences()[0];
+        if (isset($cmsPreferences['firebase_config']) && $cmsPreferences['firebase_config']) {
+            $factory = (new Factory)->withServiceAccount($cmsPreferences['firebase_config']);
+            $this->messaging = $factory->createMessaging();
+        }
     }
 
     /* Private Methods *********************************************************/
 
     /**
-     * Send notiifcation via fcm
+     * Send notification via fcm
      * @param string $device_token
      * the identifier
      * @param array $data
-     * the notificaion data  
-     * @retval boolean
+     * the notification data  
+     * @return boolean
      * return true or false;
      */
     private function send_notification($device_token, $data)
     {
-        // Instantiate the client with the project api_token and sender_id.
-        $cmsPreferences = $this->db->fetch_cmsPreferences()[0];
-        $fcm_client = new \Fcm\FcmClient($cmsPreferences['fcm_api_key'], $cmsPreferences['fcm_sender_id']);
+        // Create the notification
+        $notification = Notification::create($data['subject'], $data['body']);
 
-        // Instantiate the push notification request object.
-        $notification = new \Fcm\Push\Notification();
+        // Create the message
+        $message = CloudMessage::withTarget('token', $device_token)
+            ->withNotification($notification)
+            ->withDefaultSounds();
 
-        // Enhance the notification object with our custom options.
-        $notification
-            ->addRecipient($device_token)
-            ->setTitle($data['subject'])
-            ->setBody($data['body'])
-            ->setColor('#20F037')
-            ->setSound("default")
-            ->setIcon("myIcon.png");
         if (isset($data['url'])) {
-            $notification->addData('url', $data['url']);
+            $message = $message->withData(['url' => $data['url']]);
         }
 
-        // custom sound and custom icon must be in app package
-        //     - custom sound file must be in /res/raw/
-        //     - custom icon file must be in drawable resource, if not set, FCM displays launcher icon in app manifest
-
-        // Send the notification to the Firebase servers for further handling.
-        $res = $fcm_client->send($notification);
-        return $res['success'] == 1;
+        // Send the notification
+        try {
+            $this->messaging->send($message);
+            return true;
+        } catch (\Kreait\Firebase\Exception\MessagingException $e) {
+            // Handle the exception
+            return false;
+        }
     }
 
     /**
      * Send mail from the queue
      * @param int $mail_queue_id 
-     * the mail queeue id from where we will take the information for the fields that we will send
+     * the mail queue id from where we will take the information for the fields that we will send
      * @param array $notification_info
      * Info for the mail queue entry
      * @param string  $sent_by  
      * the type which the email queue sent was triggered
      * @param int $user_id  
      * the user who sent the email, null if it was automated
-     * @retval boolean
+     * @return boolean
      *  return if mail was sent successfully
      */
     private function send_notification_single($notification_info, $sent_by, $condition, $user_id)
@@ -158,7 +167,7 @@ class Notificaitoner extends BasicJob
      * schedule job id
      * @param array $data
      * array with the data
-     * @retval boolean
+     * @return boolean
      *  return if the insert is successful
      */
     public function schedule($sj_id, $data)

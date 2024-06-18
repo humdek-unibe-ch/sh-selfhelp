@@ -1,3 +1,18 @@
 .cms-preferences-form .border-top {
     border: none !important;
 }
+
+.firebaseConfig {
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap !important;
+    max-width: 100%;
+    display: block;
+    position: relative;
+}
