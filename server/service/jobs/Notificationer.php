@@ -6,7 +6,6 @@
 <?php
 require_once __DIR__ . "/../globals_untracked.php";
 require_once __DIR__ . "/../ext/firebase-php/vendor/autoload.php";
-require_once __DIR__ . "/../ext/php-fcm/vendor/autoload.php";
 require_once __DIR__ . "/BasicJob.php";
 
 use Kreait\Firebase\Factory;
@@ -60,6 +59,8 @@ class Notificaitoner extends BasicJob
     private function send_notification($device_token, $data)
     {
         // Create the notification
+        echo $device_token . PHP_EOL;
+        echo json_encode($data) . PHP_EOL;
         $notification = Notification::create($data['subject'], $data['body']);
 
         // Create the message
