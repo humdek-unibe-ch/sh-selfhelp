@@ -227,7 +227,7 @@ class PageDb extends BaseDb
         }
         $page_id = $this->fetch_page_id_by_keyword($keyword);
         if ($page_id > 0) {
-            $page_info = $this->fetch_pages($page_id, isset($_SESSION['language']) ? $_SESSION['language'] : LANGUAGE);
+            $page_info = $this->fetch_pages($page_id, isset($_SESSION['language']) && $_SESSION['language'] != '' ? $_SESSION['language'] : LANGUAGE);
             if ($page_info && $page_info["protocol"]) {
                 $protocols = explode("|", $page_info["protocol"]);
                 if (in_array("DELETE", $protocols)) {
@@ -366,6 +366,13 @@ class PageDb extends BaseDb
                 IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
                 IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
             END AS content,
+            CASE
+                WHEN f.display = 0 then IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = 1 AND sft.id_genders = 1 LIMIT 0,1), sf.default_value)
+                ELSE IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :gender LIMIT 0,1), 
+                IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :gender LIMIT 0,1), 
+                IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :id_language AND sft.id_genders = :def_gender LIMIT 0,1), 
+                IFNULL((SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = :def_lang AND sft.id_genders = :def_gender LIMIT 0,1), ''))))
+            END AS meta,
             sf.default_value, st.`name` AS style, s.`name` AS `section_name`, f.display, s.id as section_id
             FROM sections AS s 
             LEFT JOIN styles_fields AS sf ON sf.id_styles = s.id_styles
@@ -689,29 +696,45 @@ class PageDb extends BaseDb
     public function replace_calced_values($field_content, $calc_formula_values)
     {
         $is_array = false;
-        if(is_array($field_content)){
+        if (is_array($field_content)) {
             $is_array = true;
             $field_content = json_encode($field_content);
         }
-        $field_content = preg_replace_callback('~{{.*?}}~s', function ($m) use ($calc_formula_values) {
-            $res = trim(str_replace("{{", "", str_replace("}}", "", $m[0])));
-            if (isset($calc_formula_values[$res])) {
-                if (is_array($calc_formula_values[$res])) {
-                    return json_encode($calc_formula_values[$res]);
+        $field_content = preg_replace_callback('~{{({{)?(.*?)(}})?}}~s', function ($m) use ($calc_formula_values) {
+            // Extracting the variable name
+            $res = trim(isset($m[2]) ? $m[2] : '');
+
+            // Check if the variable name is not empty
+            if (!empty($res)) {
+                // Check if the variable exists in the $calc_formula_values array
+                if (isset($calc_formula_values[$res])) {
+                    // Check if the match has exactly four curly braces
+                    if (isset($m[1]) && isset($m[3])) {
+                        // Return the value of the variable enclosed with double curly braces
+                        return '{{' . addslashes($calc_formula_values[$res]) . '}}';
+                    } else {
+                        // Return the original pattern if the match doesn't have exactly four curly braces
+                        return $m[0];
+                    }
                 } else {
-                    return isset($calc_formula_values[$res]) ? $calc_formula_values[$res] : $res . ' is not set';
+                    // Return the original pattern if the variable is not found
+                    return $m[0];
                 }
             } else {
-                // return '';
+                // Return empty string if no variable name found
+                return '';
             }
-            return str_replace(" ", "", $m[0]);
         }, $field_content);
-        foreach ($calc_formula_values as $var => $var_value) {
-            if (is_array($var_value)) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', json_encode($var_value), $field_content);
-            } else if($var && $var_value) {
-                $field_content = preg_replace('#\{\{' . $var . '\}\}#s', $var_value, $field_content);
+        try {
+            foreach ($calc_formula_values as $var => $var_value) {
+                if (is_array($var_value)) {
+                    $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value)), $field_content);
+                } else if ($var && $var_value !== null) {
+                    $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
+                }
             }
+        } catch (\Throwable $th) {
+            return $field_content;
         }
         return $is_array ? json_decode($field_content, true) : $field_content;
     }
@@ -734,12 +757,49 @@ class PageDb extends BaseDb
     }
 
     /**
+     * Get the user last login date
+     * @param $id_users
+     * The id of the user
+     * @return string
+     * Return the last user login date
+     */
+    public function get_user_last_login_date($id_users){
+        $sql = "SELECT COALESCE(last_login, 'never') AS last_login
+                FROM users u                
+                WHERE u.id = :uid";
+        $res = $this->query_db_first($sql, array(
+            ':uid' => $id_users
+        ));
+        return isset($res['last_login']) ? $res['last_login'] : false;
+    }
+
+    /**
      * Check if the settings are for anonymous_users
      * @return bool
      * Return the result
      */
     public function is_anonymous_users(){
         return $this->fetch_cmsPreferences()[0]['anonymous_users'];
+    }
+
+    /**
+     * Retrieves the current Git version tag from the specified directory.
+     *
+     * @param string $dir The directory containing the Git repository.
+     * @param string $git_command The command to execute to retrieve the Git version tag.
+     * @return string|null The Git version tag if available, or null if not found.
+     */
+    public function get_git_version($dir, $git_command = 'git describe --tags')
+    {
+        if ($git_command == 'git describe --tags') {
+            //change dir only here
+            chdir($dir);
+        }
+        $version = shell_exec($git_command);
+        if ($version) {
+            $version = rtrim($version);
+        }
+        return $version;
     }
 
 }

@@ -264,7 +264,7 @@ abstract class BaseView
      */
     public function get_app_version()
     {
-        echo rtrim(shell_exec("git describe --tags"));
+        echo $this->model->get_services()->get_db()->get_git_version(__DIR__);
     }
 
     /**
@@ -279,7 +279,7 @@ abstract class BaseView
      * Check and output an alert for the multiple users editing the same page
      * @param boolean $return_component
      * If true, the function will return the component instead of outputting it. Default value is false
-     * @return object
+     * @return object | void
      * If a value is returned, it returns the alert
      */
     public function output_check_multiple_users($return_component = false)
@@ -312,6 +312,6 @@ abstract class BaseView
             // return empty div
             return new BaseStyleComponent("div", array("id" => "multiple-users-warning-div"));
         }
-    }
+    }        
 }
 ?>

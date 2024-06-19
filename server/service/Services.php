@@ -123,9 +123,7 @@ class Services
         $this->parsedown = new ParsedownExtension($this->user_input,
             $this->router);
         $this->parsedown->setSafeMode(false);
-        if ($fullMode) {
-            $this->hooks = new Hooks($this);
-        }
+        $this->hooks = new Hooks($this);
     }
 
     /**
@@ -140,7 +138,8 @@ class Services
     {
         if(defined('REDIRECT_ON_LOGIN') && !REDIRECT_ON_LOGIN)
             return false;
-        if (!$keyword) {
+        if (!$keyword || substr($keyword, 0, 5) === "ajax_") {
+            // if the keyword start with `ajax_` it is not a page, do not redirect there
             return false;
         }
         return !$this->is_login_page($keyword)

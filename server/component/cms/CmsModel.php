@@ -106,6 +106,11 @@ class CmsModel extends BaseModel
      */
     private $id_cms_page;
 
+    /**
+     * The id used for deletion
+     */
+    private $id_delete;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -533,6 +538,7 @@ class CmsModel extends BaseModel
         $sql = "SELECT 1*s.id AS id_sections, 1*f.id AS id, f.display, sf.hidden, f.name, ft.id as id_fieldType, ft.name AS type,
         sf.default_value, sf.help, l.locale AS locale, 1*l.id AS id_language, 
         IFNULL((SELECT content FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1), sf.default_value) AS content,
+        (SELECT meta FROM sections_fields_translation AS sft WHERE sft.id_sections = s.id AND sft.id_fields = f.id AND sft.id_languages = l.id AND sft.id_genders = g.id LIMIT 0,1) AS meta,
         g.name AS gender, 1*g.id AS id_gender,
         CASE
             WHEN ft.name = 'style-list' THEN :RELATION_SECTION_CHILDREN
@@ -1403,7 +1409,7 @@ class CmsModel extends BaseModel
                     "relation" => RELATION_PAGE,
                     "content" => $this->page_info['keyword'],
                     "is_required" => 1,
-                    "format" => "[a-zA-Z0-9_-]+",
+                    "format" => NAME_PATTERN,
                     "label" => "Keyword",
                 )
             );
@@ -1527,7 +1533,7 @@ class CmsModel extends BaseModel
                     // "content" => str_replace('-'.$fields[0]['style_name'], '',$fields[0]['section_name'] ), // normalize the name - remove the style name affix
                     "content" => $fields[0]['section_name'],
                     "is_required" => 0,
-                    "format" => "[a-zA-Z0-9_-]+",
+                    "format" => NAME_PATTERN,
                     "label" => "Section name",
                 )
             );
@@ -1898,10 +1904,12 @@ class CmsModel extends BaseModel
      * @param string $relation
      *  The database relation to know whether the link targets the navigation
      *  or children list and whether the parent is a page or a section.
+     * @param string $meta
+     * The meta data if there are some
      * @retval bool
      *  True on success, false otherwise.
      */
-    public function update_db($id, $id_language, $id_gender, $content, $relation)
+    public function update_db($id, $id_language, $id_gender, $content, $relation, $meta = null)
     {
         if(!$this->acl->has_access_update($_SESSION['id_user'],
             $this->get_active_page_id())) return false;
@@ -1909,7 +1917,7 @@ class CmsModel extends BaseModel
             return $this->update_page_fields_db($id, $id_language, $content);        
         else if($relation == RELATION_SECTION_FIELD)
             return $this->update_section_fields_db($id, $id_language, $id_gender,
-                $content);
+                $content, null, $meta);
         else if($relation == RELATION_SECTION_CHILDREN)
             return $this->update_section_children_order_db(
                 $this->get_active_section_id(), $content);
@@ -2056,11 +2064,14 @@ class CmsModel extends BaseModel
      *  The id of the target gender of the field.
      * @param string $content
      *  The new content.
-     * @retval bool
+     * @param int $id_section
+     * @param string $meta
+     * The meta field if there is some meta info
+     * @return bool
      *  True if the update operation is successful, false otherwise.
      */
     public function update_section_fields_db($id, $id_language, $id_gender,
-        $content, $id_section = null)
+        $content, $id_section = null, $meta = null)
     {        
         if ($id_section === null && isset($_POST['id_section'])) {
             // if the id is coming in the post parameter set it
@@ -2072,7 +2083,7 @@ class CmsModel extends BaseModel
             $id_section = $this->page_info['id_navigation_section'];        
         $update = array(
             "content" => $content
-        );
+        );        
         $insert = array(
             "content" => $content,
             "id_fields" => $id,
@@ -2080,6 +2091,11 @@ class CmsModel extends BaseModel
             "id_sections" => $id_section,
             "id_genders" => $id_gender,
         );
+        if ($meta) {
+            // if there is meta field, add it
+            $update['meta'] = $meta;
+            $insert['meta'] = $meta;
+        }
         return $this->db->insert("sections_fields_translation", $insert, $update);
     }    
 
@@ -2188,4 +2204,3 @@ class CmsModel extends BaseModel
     }
 }
 ?>
-

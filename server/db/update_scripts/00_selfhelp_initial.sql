@@ -6,7 +6,7 @@
 -- Generation Time: Jul 22, 2022 at 09:30 AM
 -- Server version: 5.7.36
 -- PHP Version: 7.2.34
-
+SET GLOBAL log_bin_trust_function_creators = 1;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";

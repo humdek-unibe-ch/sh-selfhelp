@@ -34,7 +34,7 @@ class VersionView extends StyleView
     public function output_content()
     {        
         $db_version = $this->model->get_db_version();
-        $app_version = rtrim(shell_exec("git describe --tags"));
+        $app_version = $this->model->get_services()->get_db()->get_git_version(__DIR__);
         $plugins = $this->model->get_plugins();        
         $libraries = $this->model->get_libraries();   
         $versionCard = new BaseStyleComponent("card", array(
@@ -43,10 +43,9 @@ class VersionView extends StyleView
             "is_collapsible" => false,
             "children" => array(
                 new BaseStyleComponent("markdown", array(
-                    "text_md" => "| SelfHelp | Version | License | Comments |
-                                    |-|-|-|-|
-                                    | Application | " . $app_version . "   | <a href='https://www.mozilla.org/en-US/MPL/2.0/'>MPL2.0</a> | |
-                                    | Database | " . $db_version . "   | | |" . $plugins,
+                    "text_md" => "| SelfHelp | Version | Version DB | License | Comments |
+                                    |-|-|-|-|-|
+                                    | Application | " . $app_version . "   | "  . $db_version . "   |<a href='https://www.mozilla.org/en-US/MPL/2.0/'>MPL2.0</a> | |" . $plugins,
                 ))
             )
         ));

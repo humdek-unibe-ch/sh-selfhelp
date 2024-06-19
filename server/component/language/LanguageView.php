@@ -13,6 +13,10 @@ require_once __DIR__ . "/../style/BaseStyleComponent.php";
 class LanguageView extends BaseView
 {
     /* Constructors ***********************************************************/
+    /**
+     * Mode update or insert
+     */
+    private $mode;
 
     /**
      * The constructor.

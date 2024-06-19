@@ -2,6 +2,14 @@ $(document).ready(function () {
     formSubmitEvent();
 });
 
+/**
+ * Initializes a form submission event handler for AJAX form submissions.
+ * Prevents the default PHP form submission, sends an AJAX request to the form's action URL,
+ * and updates the form and page elements based on the response.
+ *
+ * @function
+ * @returns {void}
+ */
 function formSubmitEvent() {
     $('form').on('submit', function (e) {
         if ($(this).find('input[name="ajax"]').val() == 1) {

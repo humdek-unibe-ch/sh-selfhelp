@@ -58,9 +58,14 @@ class LinkView extends StyleView
      */
     public function output_content()
     {
-        if($this->url == "") return;
+        if ($this->url == "") return;
         $target = ($this->open_in_new_tab) ? 'target="_blank"' : "";
-        require __DIR__ . "/tpl_link.php";
+        if (method_exists($this->model, 'is_cms_page_editing') && $this->model->is_cms_page_editing()) {
+            $url = "";
+            require __DIR__ . "/tpl_link_cms.php";
+        } else {
+            require __DIR__ . "/tpl_link.php";
+        }        
     }
 	
 }

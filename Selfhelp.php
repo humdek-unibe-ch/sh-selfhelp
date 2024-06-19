@@ -29,13 +29,13 @@ function create_callback_page($services, $class, $method)
 }
 
 /**
- * A class that initialize Selfhelp
+ * A class that initialize SelfHelp
  */
 class Selfhelp
 {
 
     /**
-     * Creating a Selfhelp Instance.
+     * Creating a SelfHelp Instance.
      */
     public function __construct()
     {
@@ -89,7 +89,13 @@ class Selfhelp
         // Allow from any origin
         if (
             isset($_SERVER['HTTP_ORIGIN']) &&
-            (strpos($_SERVER['HTTP_ORIGIN'], 'https://46.126.153.11') !== false ||
+            (
+                strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
+                strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
+                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
+                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58') !== false || // used for testing
+                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58:8100') !== false || // used for testing
+                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58:8100') !== false || // used for testing
                 strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
                 strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
         ) {
@@ -132,10 +138,15 @@ class Selfhelp
         $router = $services->get_router();
         $db = $services->get_db();
         $debug_start_time = microtime(true);
-        $_SESSION['user_language'] = isset($_POST['id_languages']) && $_POST['id_languages'] > 1 ? $_POST['id_languages'] : LANGUAGE;
-        $_SESSION['language'] = isset($_POST['id_languages']) && $_POST['id_languages'] > 1 ? $_POST['id_languages'] : LANGUAGE;
-        if (isset($_SESSION['id_user'])) {
-            $db->update_by_ids('users', array("id_languages" => $_SESSION['user_language']), array('id' => $_SESSION['id_user'])); // set the language in the user table
+        if (isset($_POST['id_languages']) && $_POST['id_languages'] != '') {
+            $_SESSION['user_language'] = $_POST['id_languages'];
+            $_SESSION['language'] = $_POST['id_languages'];
+            if (!$_SESSION['language']) {
+                $_SESSION['language'] = $_SESSION['default_language_id'];
+            }
+            if (isset($_SESSION['id_user']) && isset($_SESSION['user_language']) && $_SESSION['user_language'] != '') {
+                $db->update_by_ids('users', array("id_languages" => $_SESSION['user_language']), array('id' => $_SESSION['id_user'])); // set the language in the user table
+            }
         }
         $res = [];
         if ($router->route) {

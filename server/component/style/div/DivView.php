@@ -20,6 +20,26 @@ class DivView extends StyleView
     private $id;
 
     /**
+     * Custom inline style
+     */
+    private $custom_style = '';
+
+    /**
+     * Custom background color
+     */
+    private $color_background;
+
+    /**
+     * Custom border color. If it is set, a border is added
+     */
+    private $color_border;
+
+    /**
+     * Custom color used for the text
+     */
+    private $color_text;
+
+    /**
      * The constructor.
      *
      * @param object $model
@@ -29,6 +49,20 @@ class DivView extends StyleView
     {
         parent::__construct($model);
         $this->id = $this->model->get_db_field("id", $this->id_section);
+        $this->color_background = $this->model->get_db_field("color_background", '');
+        $this->color_border = $this->model->get_db_field("color_border", '');
+        $this->color_text = $this->model->get_db_field("color_text", '');
+        if ($this->color_background) {
+            $this->custom_style = 'background-color: ' .   $this->color_background . '; ';
+        }
+        if ($this->color_text) {
+            $this->custom_style = $this->custom_style . 'color: ' .   $this->color_text . '; ';
+        }
+        if ($this->color_border) {
+            $this->custom_style = $this->custom_style . 'border-color: ' .   $this->color_border . '; ';
+            $this->css = 'border ' . $this->css; // add class for border, if a border color is set
+            $this->css_mobile = 'border ' . $this->css_mobile; // add class for border, if a border color is set
+        }
     }
 
     /* Public Methods *********************************************************/
@@ -39,6 +73,16 @@ class DivView extends StyleView
     public function output_content()
     {
         require __DIR__ . "/tpl_div.php";
+    }
+
+    /**
+     * Render the style view.
+     */
+    public function output_content_mobile()
+    {
+        $style = parent::output_content_mobile();          
+        $style['custom_style']['content'] = $this->custom_style;
+        return $style;
     }
 	
 }

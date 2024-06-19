@@ -1055,7 +1055,7 @@ function adjustPropertiesHeight() {
 function initDeleteBtn() {
     $('#new-ui-delete').off('click').on('click', function () {
         var delData = $('#new-ui-delete').data('data');
-        confirmation('<p>This will delete the page <code>' + delData['name'] + '</code> and all the data associated to this page.<p>Children elements are not affected.</p></p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the page.</p> <input id="deleteValue" type="text" class="form-control" >', () => {
+        confirmation('<p>This will delete the page <code>' + delData['name'] + '</code> and all the data associated to this page.<p>Children elements are not affected.</p></p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the keyword of the page.</p> <input id="deleteValue" type="text" class="form-control" >', () => {
             if ($("#deleteValue").val() == delData['name']) {
                 var redirect_url = null;
                 var refresh = false;
@@ -1075,8 +1075,14 @@ function initDeleteBtn() {
                         "name": delData['name']
                     },
                     () => {
-                        if (refresh) {
-                            refresh_cms_ui(['#ui-middle', '#properties']);
+                        if (redirect_url) {
+                            location.href = redirect_url;
+                        } else if (delData['relation'] == RELATION_PAGE) {
+                            location.href = delData['cms_url'];
+                        } else if (location.href.includes('/' + delData['id'] + '/')) {
+                            // we want to delete from the section itself
+                            // after deletion go to the page
+                            location.href = delData['cms_url'];
                         }
                     },
                     () => {
@@ -1084,17 +1090,7 @@ function initDeleteBtn() {
                             title: 'Error!',
                             content: 'The ' + delData['relation'] + ' was not deleted!',
                         });
-                    });
-                if (delData['relation'] == RELATION_PAGE) {
-                    location.href = delData['cms_url'];
-                } else if (location.href.includes('/' + delData['id'] + '/')) {
-                    // we want to delete from the section itself
-                    // after deletion go to the page
-                    location.href = delData['cms_url'];
-                }
-                if (redirect_url) {
-                    location.href = redirect_url;
-                }
+                    });                
             } else {
                 $.alert({
                     title: 'CMS UI',
@@ -1195,16 +1191,10 @@ function initUnsavedChangesListener() {
         }
     });
     $('.ui-card-properties  :input').on('change', function () { //triggers change in all input fields including text type
-        if ($(this).attr('name') && $(this).attr('name').includes('jquery_builder_json')) {
-            return;
-        }
         unsavedChanges.push(this);
     });
 
     $('.ui-card-properties textarea').on('change', function () { //triggers change in all textareas
-        if ($(this).attr('name') && $(this).attr('name').includes('jquery_builder_json')) {
-            return;
-        }
         unsavedChanges.push(this);
     });
 }

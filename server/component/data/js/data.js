@@ -3,6 +3,8 @@ $(document).ready(function () {
     $('.adminData').each(function () {
         var table = $(this).DataTable({
             scrollX: true,
+            orderClasses: false,
+            paging: true,
             dom: 'Bfrtip',
             buttons: [
                 'copy', 'csv', 'excel'

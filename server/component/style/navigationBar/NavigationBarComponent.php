@@ -33,7 +33,7 @@ class NavigationBarComponent extends BaseComponent
     {
         $id_active = null;
         if(isset($params['nav'])) $id_active = intval($params['nav']);
-        $model = new NavigationModel($services, $id, $id_active);
+        $model = new NavigationModel($services, $id, $id_active, -1);
         $view = new NavigationBarView($model);
         parent::__construct($model, $view);
     }

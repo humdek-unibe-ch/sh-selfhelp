@@ -21,6 +21,13 @@ abstract class StyleView extends BaseView
     protected $css;
 
     /**
+     * DB field 'css_mobile' (null)
+     * This field can hold a list of comma seperated css classes. These css
+     * classes will be assigned to style wrapper element.
+     */
+    protected $css_mobile;
+
+    /**
      * DB field 'id' (null)
      * The id of the section.
      */
@@ -36,6 +43,11 @@ abstract class StyleView extends BaseView
      */
     protected $children;
 
+    /**
+     * The list of all fields for the style, with their id, value and default value
+     */
+    protected $fields;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -44,7 +56,7 @@ abstract class StyleView extends BaseView
      * @param object $model
      *  The model instance that is used to provide the view with data.
      * @param object $controller
-     *  The controler instance that is used to handle user interaction.
+     *  The controller instance that is used to handle user interaction.
      */
     public function __construct($model = null, $controller = null)
     {
@@ -57,6 +69,8 @@ abstract class StyleView extends BaseView
             if(method_exists($model, "get_db_field"))
             {
                 $this->css = $model->get_db_field("css", null);
+                $this->css_mobile = $model->get_db_field("css_mobile", null);
+                $this->fields = $model->get_db_fields();
                 $this->id_section = $model->get_db_field("id", null);
                 $this->css = $this->css . " selfHelp-locale-" . $_SESSION['user_language_locale'];
                 if($this->id_section !== null)
@@ -140,7 +154,8 @@ abstract class StyleView extends BaseView
         $debug = $this->model->get_db_field('debug', false);
         if ($debug) {
             $res = $this->model->get_condition_result();
-            echo '<pre class="alert alert-warning">';
+            $debug_data = $this->model->get_debug_data();
+            echo '<pre class="alert alert-warning data-debug" data-debug="' . htmlspecialchars(json_encode($debug_data), ENT_QUOTES, 'UTF-8'). '">';
             var_dump($res);
             echo "</pre>";
         }
@@ -255,6 +270,17 @@ abstract class StyleView extends BaseView
      */
     public function set_children($children){
         $this->children = $children;
+    }
+
+    /**
+     * Get the field value if there is no field value, return the default one
+     * @param string $field_name
+     * The name of the field
+     * @return string
+     * Return the value of the field if there is no value, return the default value which is configured
+     */
+    public function get_field_value($field_name){
+        return $this->fields[$field_name]['content'] ? $this->fields[$field_name]['content'] : $this->fields[$field_name]['default'];
     }
 
 }

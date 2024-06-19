@@ -48,6 +48,11 @@ abstract class BasePage
      */
     private $render_footer;
 
+    /**
+     * Is page headless
+     */
+    private $is_headless;
+
     /* Protected Properties ***************************************************/
 
     /**
@@ -134,6 +139,7 @@ abstract class BasePage
             "/css/ext/bootstrap4-toggle.min.css",      
             "/css/ext/easymde.min.css",   
             "/css/ext/dataTables.contextualActions.min.css",             
+            "/css/ext/jstree3.3.16.min.css"   
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",
@@ -154,15 +160,16 @@ abstract class BasePage
             "/js/ext/bootstrap4-toggle.min.js",
             "/js/ext/easymde.min.js",
             "/js/ext/dataTables.contextualActions.min.js",
-            "/js/ext/css-format-monaco.min.js" 
+            "/js/ext/css-format-monaco.min.js", 
+            "/js/ext/jstree3.3.16.min.js" 
         );
         $this->js_includes_after = array(
             "/js/ext/loader.js",
         );
         if(DEBUG == 0)
         {
-            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->get_git_version();
-            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->get_git_version();
+            $this->css_includes[] = "/css/ext/styles.min.css?v=" . $this->services->get_db()->get_git_version(__DIR__);
+            $this->js_includes[] = "/js/ext/styles.min.js?v=" . $this->services->get_db()->get_git_version(__DIR__);
         }
         $this->add_main_include_files(CSS_SERVER_PATH, "/css/", "css",
             $this->css_includes);
@@ -188,14 +195,7 @@ abstract class BasePage
                 $this->id_page, $this->required_access_level);
     }
 
-    /* Private Methods *********************************************************/
-
-    /**
-     * render the git version
-     */
-    private function get_git_version(){
-        return rtrim(shell_exec("git describe --tags"));
-    }
+    /* Private Methods *********************************************************/    
 
     /**
      * Iterate through all styles and collect all js and css files.
@@ -397,6 +397,7 @@ abstract class BasePage
         $this->required_access_level = $info['access_level'];
         $this->page = $info;
         if($info['is_headless']) $this->disable_navigation();
+        $this->is_headless = $info['is_headless'];
         $this->id_navigation_section = null;
         if($info['id_navigation_section'] != null)
             $this->id_navigation_section = intval($info['id_navigation_section']);
@@ -611,6 +612,7 @@ abstract class BasePage
         }
         // if($this->render_footer) $this->output_component("footer");
         $res['title'] = $this->title;
+        $res['is_headless'] = $this->is_headless;
         $res['avatar'] = $this->services->get_user_input()->get_avatar($_SESSION['id_user']);
         $res['external_css'] = $this->get_external_css_for_mobile();
         $res['external_css'] = $res['external_css'] . ' ' . $this->get_global_custom_css();

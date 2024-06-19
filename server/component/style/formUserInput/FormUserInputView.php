@@ -85,6 +85,40 @@ class FormUserInputView extends StyleView
      */
     protected $redirect_at_end;   
 
+    /**
+     * DB field 'confirmation_title' (empty string).
+     * If set a modal is shown. This will be the header of the confirmation modal.
+     */
+    private $confirmation_title;
+
+    /**
+     * DB field 'confirmation_cancel' (empty string).
+     */
+    private $confirmation_cancel;
+
+    /**
+     * DB field 'confirmation_continue' (OK).
+     */
+    private $confirmation_continue;
+
+    /**
+     * DB field 'confirmation_message' ('Do you want to continue?').
+     */
+    private $confirmation_message;
+
+    /**
+     * DB field 'url_cancel' (empty string).
+     * The target url when the cancel button is clicked.  If left empty, the
+     * cancel button will not be rendered
+     */
+    private $url_cancel;
+
+    /**
+     * DB field 'label_cancel' ('Cancel').
+     * The label of the cancel button.
+     */
+    private $label_cancel;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -109,6 +143,12 @@ class FormUserInputView extends StyleView
         $this->own_entries_only = $this->model->get_db_field("own_entries_only", 1);
         $this->redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
         $this->selected_record_id = $this->model->get_selected_record_id(); // if selected_record_id > 0 the form is in edit mode
+        $this->confirmation_title = $this->model->get_db_field("confirmation_title", '');
+        $this->confirmation_cancel = $this->model->get_db_field("label_cancel", '');
+        $this->confirmation_continue = $this->model->get_db_field("label_continue", '');
+        $this->confirmation_message = $this->model->get_db_field("label_message", '');
+        $this->url_cancel = $this->model->get_db_field("url_cancel", '');
+        $this->label_cancel = $this->model->get_db_field("label_cancel", '');
     }
 
     private function get_delete_url()
@@ -184,12 +224,14 @@ class FormUserInputView extends StyleView
      */
     protected function propagate_input_fields_mobile($style, $entry_record)
     {
-        foreach ($style['children'] as $key => $child) {
-            if (isset($child["name"]) && isset($entry_record[$child["name"]["content"]])) {
-                $style['children'][$key]["value"]["content"] = $entry_record[$child["name"]["content"]];
+        foreach ($style['children'] as $key => &$child) {
+            if (isset($child["name"]["content"]) && isset($entry_record[$child["name"]["content"]])) {
+                $child["value"]["content"] = $entry_record[$child["name"]["content"]];
             }
-            // if($style['children'])
-            $style['children'][$key] = $this->propagate_input_fields_mobile($style['children'][$key], $entry_record);
+    
+            if (isset($child['children']) && is_array($child['children'])) {
+                $child = $this->propagate_input_fields_mobile($child, $entry_record);
+            }
         }
         return $style;
     }
@@ -220,7 +262,7 @@ class FormUserInputView extends StyleView
             "value" => $this->is_log,
         ));
         $redirect_link = str_replace("/", "", $this->redirect_at_end);
-        $redirect_link = $this->model->get_link_url($redirect_link);
+        $redirect_link = $this->model->get_services()->get_router()->get_url($redirect_link);
         $children[] = new BaseStyleComponent("input", array(
             "type_input" => "hidden",
             "name" => "redirect_at_end",
@@ -236,7 +278,7 @@ class FormUserInputView extends StyleView
         if ($this->selected_record_id > 0) {
             $children[] = new BaseStyleComponent("input", array(
                 "type_input" => "hidden",
-                "name" => "selected_record_id",
+                "name" => SELECTED_RECORD_ID,
                 "value" => $this->selected_record_id,
             ));
         }
@@ -244,6 +286,7 @@ class FormUserInputView extends StyleView
                 . ($this->anchor ? $this->anchor : $this->id_section);
         $form = new BaseStyleComponent("form", array(
             "label" => $this->label,
+            "label_cancel" => $this->label_cancel,
             "type" => $this->type,
             "url" => $url,
             "children" => $children,
@@ -251,7 +294,12 @@ class FormUserInputView extends StyleView
             // "id" => ($this->id_section . isset($this->entry_data[ENTRY_RECORD_ID]) ? ' ' . $this->entry_data[ENTRY_RECORD_ID] : ''),
             "id" => $this->id_section,
             "submit_and_send_email" => $this->submit_and_send_email,
-            "submit_and_send_label" => $this->submit_and_send_label
+            "submit_and_send_label" => $this->submit_and_send_label,
+            "confirmation_title" => $this->confirmation_title,
+            "confirmation_cancel" => $this->confirmation_cancel,
+            "confirmation_continue" => $this->confirmation_continue,
+            "confirmation_message" => $this->confirmation_message,
+            "url_cancel" => $this->model->get_services()->get_router()->get_url($this->url_cancel),
         ));
         require __DIR__ . "/tpl_form.php";
     }
@@ -269,8 +317,8 @@ class FormUserInputView extends StyleView
         if ($this->selected_record_id > 0) {
             $selected_record_id = new BaseStyleComponent("input", array(
                 "type_input" => "hidden",
-                "name" => "selected_record_id",
-                "id" => "selected_record_id",
+                "name" => SELECTED_RECORD_ID,
+                "id" => SELECTED_RECORD_ID,
                 "value" => $this->selected_record_id,
                 "is_required" => 1
             ));
@@ -281,6 +329,10 @@ class FormUserInputView extends StyleView
             $style['children'][] = $sel_field;
             $style = $this->propagate_input_fields_mobile($style, $entry_record);
         }
+        $redirect_link = str_replace("/", "", $this->redirect_at_end);
+        $redirect_link = $this->model->get_services()->get_router()->get_url($redirect_link);
+        $style['redirect_at_end']['content'] = $redirect_link;
+        $style['url_cancel']['content'] = $this->model->get_services()->get_router()->get_url($this->url_cancel);
         return $style;
     }
 	

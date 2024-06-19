@@ -36,10 +36,10 @@ class Hooks
     public function __construct($services)
     {
         $this->db = $services->get_db();
+        // $this->db->clear_cache();
         $this->services = $services;
         $this->schedule_hook_on_function_execute();
-        $this->schedule_hook_overwrite_return();
-        // $this->db->clear_cache();
+        $this->schedule_hook_overwrite_return();        
     }
 
     /* Private Methods *********************************************************/
@@ -75,16 +75,19 @@ class Hooks
     {
         $hookService = $this;
         foreach ($this->get_hooks(hookTypes_hook_on_function_execute) as $key => $hook) {
-            uopz_set_hook($hook['class'], $hook['function'], function () use ($hookService, $hook) {
-                foreach ($hookService->get_hook_calls(hookTypes_hook_on_function_execute, $hook['class'], $hook['function']) as $key => $hook_method) {
-                    if (class_exists($hook_method['exec_class'])) {
-                        $hookClassInstance = new $hook_method['exec_class']($hookService->get_services());
-                        if (method_exists($hookClassInstance, $hook_method['exec_function'])) {
-                            $hookClassInstance->{$hook_method['exec_function']}();
+            if (class_exists($hook['class']) && method_exists($hook['class'], $hook['function'])) {
+                // add hooks only if the class and the method exists
+                uopz_set_hook($hook['class'], $hook['function'], function () use ($hookService, $hook) {
+                    foreach ($hookService->get_hook_calls(hookTypes_hook_on_function_execute, $hook['class'], $hook['function']) as $key => $hook_method) {
+                        if (class_exists($hook_method['exec_class'])) {
+                            $hookClassInstance = new $hook_method['exec_class']($hookService->get_services());
+                            if (method_exists($hookClassInstance, $hook_method['exec_function'])) {
+                                $hookClassInstance->{$hook_method['exec_function']}();
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -93,7 +96,7 @@ class Hooks
      */
     private function schedule_hook_overwrite_return()
     {
-        $hookService = $this;        
+        $hookService = $this;
         foreach ($this->get_hooks(hookTypes_hook_overwrite_return) as $key => $hook) {
             $class = false;
             $func = false;
@@ -104,30 +107,33 @@ class Hooks
                 if (!$func) {
                     $func = $hook['function'];
                 }
-                $new_func = function (...$args) use ($hookService, $hook_method, $class, $func) {
-                    if (class_exists($hook_method['exec_class'])) {
-                        $hookClassInstance = new $hook_method['exec_class']($hookService->get_services());
-                        if (method_exists($hookClassInstance, $hook_method['exec_function'])) {
-                            // get the method parameters and pass them 
-                            $reflector = new ReflectionClass($class);
-                            $parameters = $reflector->getMethod($func)->getParameters();
-                            $argsKeys = array();
-                            foreach ($parameters as $key => $parameter) {
-                                if (isset($args[$key])) {
-                                    $argsKeys[$parameter->name] = $args[$key];
+                if (class_exists($class) && method_exists($class, $func)) {
+                    // add hooks only if the class and the method exists
+                    $new_func = function (...$args) use ($hookService, $hook_method, $class, $func) {
+                        if (class_exists($hook_method['exec_class'])) {
+                            $hookClassInstance = new $hook_method['exec_class']($hookService->get_services());
+                            if (method_exists($hookClassInstance, $hook_method['exec_function'])) {
+                                // get the method parameters and pass them 
+                                $reflector = new ReflectionClass($class);
+                                $parameters = $reflector->getMethod($func)->getParameters();
+                                $argsKeys = array();
+                                foreach ($parameters as $key => $parameter) {
+                                    if (array_key_exists($key, $args )) {
+                                        $argsKeys[$parameter->name] = $args[$key];
+                                    }
                                 }
-                            }
-                            $argsKeys['hookedClassInstance'] = $this;
-                            $argsKeys['methodName'] = $func;
+                                $argsKeys['hookedClassInstance'] = $this;
+                                $argsKeys['methodName'] = $func;
 
-                            $res = $hookClassInstance->{$hook_method['exec_function']}($argsKeys);
-                            return $res;
+                                $res = $hookClassInstance->{$hook_method['exec_function']}($argsKeys);
+                                return $res;
+                            }
                         }
-                    }
-                };
-                uopz_set_return($class, $func, $new_func, true);
-                $class = $hook_method['exec_class'];
-                $func = $hook_method['exec_function'];
+                    };
+                    uopz_set_return($class, $func, $new_func, true);
+                    $class = $hook_method['exec_class'];
+                    $func = $hook_method['exec_function'];
+                }
             }
         }
     }

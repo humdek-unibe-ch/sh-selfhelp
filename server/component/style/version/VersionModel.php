@@ -50,15 +50,40 @@ class VersionModel extends StyleModel
      */
     public function get_plugins()
     {
-        $plugins = $this->db->query_db('SELECT * FROM plugins ORDER BY `name`');
+        $folders = array_diff(scandir(__DIR__ . '/../../../plugins'), array('..', '.'));
+        // Initialize an array to store only directories
+        $plugins = [];
+
+        // Iterate through each item
+        foreach ($folders as $item) {
+            $itemPath = __DIR__ . '/../../../plugins/' . $item;
+
+            // Check if the item is a directory
+            if (is_dir($itemPath)) {
+                // Get all files ending with 'Hooks.php' in the directory
+                $files = glob($itemPath . '/server/component/*Hooks.php');
+
+                // Output the list of matching files
+                foreach ($files as $file) {
+                    $hookClass = basename($file, '.php');
+                    if(class_exists($hookClass)){
+                        $hook = new $hookClass($this->services);
+                        if (method_exists($hook, 'get_plugin_db_version')){
+                            $plugins[$item] = $hook->get_plugin_db_version();
+                        }else{
+                            $plugins[$item] = 'No data';
+                        }
+                    }
+                }
+            }
+        }
         $plugins_md = '';
         foreach ($plugins as $key => $plugin) {
-            $git_command = 'cd server/plugins/' . $plugin['name'] . ' && git describe --tags';
-            $res = shell_exec($git_command);
-            $plugin_v = $res ? rtrim($res) : '';
+            $git_command = 'cd ' . PLUGIN_SERVER_PATH . '/' . $key . ' && git describe --tags';
+            $res = $this->db->get_git_version(__DIR__, $git_command);
+            $plugin_v = $res ? rtrim($res) : 'No data';
             $plugins_md = $plugins_md . "
-            | " . $plugin['name'] . " | " . $plugin_v . "   | | Plugin |
-            | " . $plugin['name'] . "_DB | " . $plugin['version'] . "   | | Plugin [DB Info] |";
+            | " . $key . " | " . $plugin_v . " |" . $plugin . "   | | Plugin |";
         }
         return $plugins_md;
     }

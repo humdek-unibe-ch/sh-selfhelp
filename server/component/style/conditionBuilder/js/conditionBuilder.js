@@ -22,7 +22,7 @@ $(document).ready(function () {
 function initConditionBuilder() {
     var condBuilderBtns = $('.conditionBuilderBtn');
     if (condBuilderBtns.length > 0) {
-        var jqueryBuilderJsonInput = $("textarea[name*='jquery_builder_json']")[0];
+        var meta = $('input[name^="fields[condition]"][name$="[meta]"]')[0];
         var condition = $("textarea[name*='condition']")[0];
         condBuilderBtns.each(function () {
             $(this).off('click').click(() => {
@@ -33,8 +33,7 @@ function initConditionBuilder() {
                     $(this).attr('data-dismiss', 'modal');
                     $(this).off('click').click(function () {
                         var rules = $('.condition_builder').queryBuilder('getRules');
-                        $(jqueryBuilderJsonInput).val(JSON.stringify(rules));
-                        $(jqueryBuilderJsonInput).trigger('change');
+                        $(meta).val(JSON.stringify(rules));
                         $(condition).val(JSON.stringify(rulesToJsonLogic(rules), null, 3));
                         $(condition).trigger('change');
                         $('.conditionBuilderBtn').removeClass('btn-primary btn-warning');
@@ -51,17 +50,16 @@ function initConditionBuilder() {
         });
 
         // get groups and prepare the condition builder    
-        prepareConditionBuilder($(jqueryBuilderJsonInput).val());
+        prepareConditionBuilder($(meta).val());
     }
+
+    // ********************************************* CONDITION BUILDER *****************************************
 }
-
-// ********************************************* CONDITION BUILDER *****************************************
-
 
 
 
 // prepare the condition builder and the rules that can be added
-async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
+async function prepareConditionBuilder(jqueryBuilderJsonInput) {
 
     var groups = await getGroups();
 
@@ -207,6 +205,12 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
                     width: 'auto',
                     liveSearchStyle: 'contains',
                 }
+            }, {
+                id: '__last_login__',
+                label: 'Last Login',
+                type: 'string',
+                input: 'text',
+                operators: ['equal', 'not_equal', 'less', 'less_or_equal', 'greater', 'greater_or_equal']
             }
         ],
         // rules: rules_basic
@@ -217,15 +221,6 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
     try {
         if (jqueryBuilderJsonInput) {
             rules = JSON.parse(jqueryBuilderJsonInput);
-        } else {
-            try {
-                var actionConfig = JSON.parse(monacoEditor.getModel().getValue());
-                if (actionConfig && actionConfig['condition_jquerBuilderJson']) {
-                    rules = actionConfig['condition_jquerBuilderJson'];
-                }
-            } catch (error) {
-
-            }
         }
     } catch (error) {
         console.log('Rules cannot be parsed');
@@ -238,11 +233,6 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput, monacoEditor) {
 
     if ($('.condition_builder').length > 0) {
         $('.condition_builder').queryBuilder(queryStructure);
-    } else if ($('.action_condition_builder').length > 0) {
-        $('.action_condition_builder').queryBuilder(queryStructure);
-        if (queryStructure['rules']) {
-            $('.action_condition_builder').queryBuilder('setRules', queryStructure.rules);
-        }
     }
 }
 
@@ -417,3 +407,18 @@ async function getLanguages() {
 }
 
 //********************************************** FUNCTIONS *****************************************************
+
+function calcMonacoEditorSize(editor, object) {
+    // calculate the size of the editor based on the code
+    // we keep max size 500px
+    var contentHeight = editor.getModel().getLineCount() * 19;
+    if (contentHeight < 100) {
+        contentHeight = 100;
+    }
+    if (contentHeight > 500) {
+        contentHeight = 500;
+    }
+    $(object).height(contentHeight);
+    editor.layout();
+}
+

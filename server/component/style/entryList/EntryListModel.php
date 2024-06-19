@@ -57,6 +57,11 @@ class EntryListModel extends StyleModel
     {
         parent::__construct($services, $id, $params, $id_page, $entry_record);
         $this->init_properties();
+        if ($this->entry_list) {
+            foreach ($this->entry_list as $key => $value) {
+                $this->entry_list[$key] = array_merge($value, $entry_record);
+            }
+        }
     }
 
     /* Private Methods *********************************************************/
@@ -81,7 +86,19 @@ class EntryListModel extends StyleModel
         return $entry_data;
     }
 
-    private function init_properties(){
+    /**
+     * Initializes properties for the current component.
+     *
+     * This method retrieves necessary data from the database fields, initializes class properties,
+     * and prepares the entry list for the component based on the provided parameters.
+     * If a form ID is available, it fetches the entry list for the specified form.
+     * Additionally, if a scope prefix is specified in the database field, it adds the prefix to each entry list key.
+     * Debug data containing the current entry list is also stored for debugging purposes.
+     *
+     * @return void
+     */
+    private function init_properties()
+    {
         $formInfo = explode('-', $this->get_db_field("formName"));
         $this->form_id = $formInfo[0];
         if (isset($formInfo[1])) {
@@ -91,7 +108,21 @@ class EntryListModel extends StyleModel
         $this->filter = $this->get_db_field("filter", "");
         if ($this->form_id) {
             $this->entry_list = $this->fetch_entry_list();
+            if ($this->entry_list) {
+                // add scope prefix
+                $scope = $this->get_db_field("scope", "");
+                if ($scope !== '') {
+                    foreach ($this->entry_list as $key_list => $list_value) {
+                        $scoped_array = array();
+                        foreach ($this->entry_list[$key_list] as $key => $value) {
+                            $scoped_array[$scope . '_' .  $key] = $value;
+                        }
+                        $this->entry_list[$key_list] = $scoped_array;
+                    }
+                }
+            }
         }
+        $this->debug_data['current_entry_list'] = $this->entry_list;
     }
 
     /* Public Methods *********************************************************/
@@ -105,7 +136,20 @@ class EntryListModel extends StyleModel
         return $this->entry_list;
     }
 
-    public function loadChildren()
+    /**
+     * Loads children components for the current component.
+     *
+     * If the current page is a CMS page, it loads children using the parent class method.
+     * Otherwise, it initializes properties and prepares the entry list for the component.
+     * It then fetches children components from the database based on the section ID.
+     * For each entry in the entry list, it merges the entry record with the provided entry record and adds
+     * the children components to the list of children.
+     *
+     * @param array $entry_record An optional array containing additional entry record data.
+     * 
+     * @return void
+     */
+    public function loadChildren($entry_record = array())
     {
         if ($this->is_cms_page()) {
             parent::loadChildren();
@@ -116,7 +160,9 @@ class EntryListModel extends StyleModel
             if (!$entry_list) {
                 return;
             }
-            foreach ($entry_list as $key => $entry_record) {
+            foreach ($entry_list as $key => $list_record) {
+                // add parent entry records if they exist with prefix p_                
+                $entry_record = array_merge($entry_record, $list_record); // merge with already existing parent entry
                 foreach ($db_children as $child) {
                     $new_child = new StyleComponent(
                         $this->services,

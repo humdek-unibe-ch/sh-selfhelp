@@ -14,6 +14,11 @@ class EntryListView extends StyleView
 
     /* Private Properties *****************************************************/
 
+    /**
+     * If enabled, the children are loaded inside a table.
+     */
+    private $load_as_table;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -25,6 +30,7 @@ class EntryListView extends StyleView
     public function __construct($model)
     {
         parent::__construct($model);
+        $this->load_as_table = $this->model->get_db_field("load_as_table", false);
     }
 
     /* Private Methods ********************************************************/
@@ -37,7 +43,7 @@ class EntryListView extends StyleView
         foreach ($this->model->get_children() as $key => $child) {
             $entry_record = $child;
             require __DIR__ . "/tpl_entryList_row.php";
-        }    
+        }
     }
 
     /* Public Methods *********************************************************/
@@ -47,8 +53,11 @@ class EntryListView extends StyleView
      */
     public function output_content()
     {
-        $this->output_children();
-        // require __DIR__ . "/tpl_entryList.php";
+        if ($this->load_as_table) {
+            require __DIR__ . "/tpl_entryList_table.php";            
+        } else {
+            require __DIR__ . "/tpl_entryList_div.php";
+        }
     }
 
     /**

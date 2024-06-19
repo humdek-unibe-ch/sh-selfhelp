@@ -126,6 +126,27 @@ class FormUserInputController extends BaseController
         }
     }
 
+    /**
+     * Check if entry is a record and check if the user has access to delete it or update it
+     * @retval boolean
+     * true if it is ok and false if no access
+     */
+    private function has_access_delete($delete_record_id)
+    {
+        if ($delete_record_id > 0) {
+            $entry_record = $this->model->get_form_entry_record($this->model->get_db_field("name"), $delete_record_id, $this->model->get_db_field("own_entries_only", 1));
+            if ($entry_record) {
+                return true;
+            } else {
+                // no access
+                return false;
+            }
+        } else {
+            // not a specific case
+            return true;
+        }
+    }
+
     public function execute(){   
         if(count($_POST) === 0){
             $this->model->queue_job_from_actions(actionTriggerTypes_started);
@@ -138,11 +159,11 @@ class FormUserInputController extends BaseController
         if (isset($_POST[ENTRY_RECORD_ID]) && isset($_POST[ENTRY_RECORD_ID]['value'])) {
             $_POST[ENTRY_RECORD_ID] = $_POST[ENTRY_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
-        if (isset($_POST['selected_record_id']) && isset($_POST['selected_record_id']['value'])) {
-            $_POST['selected_record_id'] = $_POST['selected_record_id']['value']; // normalize the variable when it comes from mobile call
+        if (isset($_POST[SELECTED_RECORD_ID]) && isset($_POST[SELECTED_RECORD_ID]['value'])) {
+            $_POST[SELECTED_RECORD_ID] = $_POST[SELECTED_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
-        if (isset($_POST['delete_record_id']) && isset($_POST['delete_record_id']['value'])) {
-            $_POST['delete_record_id'] = $_POST['delete_record_id']['value']; // normalize the variable when it comes from mobile call
+        if (isset($_POST[DELETE_RECORD_ID]) && isset($_POST[DELETE_RECORD_ID]['value'])) {
+            $_POST[DELETE_RECORD_ID] = $_POST[DELETE_RECORD_ID]['value']; // normalize the variable when it comes from mobile call
         }
 
         if(!$this->has_access()){
@@ -162,27 +183,30 @@ class FormUserInputController extends BaseController
             } else {
                 $this->error_msgs = $gump->get_errors_array(true);
             }
-        }else if(isset($_POST['delete_record_id'])){
-            $res =  $this->model->delete_user_input($_POST['delete_record_id']);
+        } else if (isset($_POST[DELETE_RECORD_ID])) {
+            $res = false;
+            if ($this->has_access_delete($_POST[DELETE_RECORD_ID])) {
+                $res = $this->model->delete_user_input($_POST[DELETE_RECORD_ID]);
+            }
             if ($res === false) {
                 $this->fail = true;
                 $this->error_msgs[] = "The record was not deleted";
             } else {
                 $this->success = true;
-                $this->alert_success = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+                $this->alert_success = "The record: " . $_POST[DELETE_RECORD_ID] . " was deleted.";
                 if ($this->alert_success !== "")
-                    $this->success_msgs[] = "The record: " . $_POST['delete_record_id'] . " was deleted.";
+                    $this->success_msgs[] = "The record: " . $_POST[DELETE_RECORD_ID] . " was deleted.";
             }
         }
         else
         {            
-            $res = isset($_POST['selected_record_id']) ? $this->model->update_user_input($user_input, $_POST['selected_record_id']) : $this->model->save_user_input($user_input);
-            if($res === false)
+            $record_id = isset($_POST[SELECTED_RECORD_ID]) ? $this->model->update_user_input($user_input, $_POST[SELECTED_RECORD_ID]) : $this->model->save_user_input($user_input);
+            if($record_id === false)
             {
                 $this->fail = true;
                 $this->error_msgs[] = "An unexpected problem occurred. Please Contact the Server Administrator";
             }
-            else if($res > 0)
+            else if($record_id > 0)
             {
                 if(isset($_POST['btnSubmitAndSend']) && $_POST['btnSubmitAndSend'] == 'send_email'){
                     $this->model->send_feedback_email();
@@ -190,15 +214,14 @@ class FormUserInputController extends BaseController
                 $this->success = true;
                 if($this->alert_success !== "")
                     $this->success_msgs[] = $this->alert_success;
-                $this->model->queue_job_from_actions(actionTriggerTypes_finished);
+                $this->model->queue_job_from_actions(actionTriggerTypes_finished, $record_id);
                 $this->model->reload_children();
             }
         }
-        $redirect = $this->model->get_db_field("redirect_at_end", "");
-        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $res && $redirect != "" && !isset($_POST[ENTRY_RECORD_ID])){
-            //$redirect = str_replace("/", "", $redirect);
-            $redirect_url = $this->model->get_link_url(str_replace("/", "", $redirect));
-            header("Location: " . ($redirect_url != '' ? $redirect_url : $redirect));
+        $redirect_at_end = $this->model->get_db_field("redirect_at_end", "");
+        if(!(isset($_POST['mobile']) && $_POST['mobile']) && $redirect_at_end != "" && !isset($_POST[ENTRY_RECORD_ID])){
+            $redirect_at_end = $this->model->get_services()->get_router()->get_url($redirect_at_end);
+            header("Location: " . $redirect_at_end);
             die();
         }
     }

@@ -56,6 +56,11 @@ class SortableListView extends StyleView
      */
     private $delete_target;
 
+    /**
+     * Active id
+     */
+    private $id_active;
+
     /* Constructors ***********************************************************/
 
     /**

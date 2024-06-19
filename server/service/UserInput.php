@@ -91,8 +91,8 @@ class UserInput
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, json_encode($conds), [__FUNCTION__]);
         $get_result = $this->db->get_cache()->get($key);
         $fields_db = array();
-        $gender = $_SESSION['gender'];
-        $language = $_SESSION['language'];
+        $gender = $this->db->query_db_first('SELECT `name` FROM genders WHERE id = :id', array(":id" => $_SESSION['gender']))['name'];
+        $language = $this->db->query_db_first('SELECT locale FROM languages WHERE id = :id', array(":id" => $_SESSION['language']))['locale'];
         if ($get_result !== false) {
             $fields_db = $get_result;
         } else {
@@ -206,6 +206,8 @@ class UserInput
             $job['job_type'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY
         ) {
             return jobTypes_notification;
+        } else {
+            return '';
         }
     }
 
@@ -893,11 +895,12 @@ class UserInput
                 ':id' => $record['record_id'],
                 ":id_users" => $data['id_users']
             )
-        ); //update the timestamp of the row
+        ) !== false; //update the timestamp of the row
         unset($data['id_users']); //once used - remove it
         foreach ($data as $key => $value) {
             // if it has a value it will be updated if it is not created yet it will be inserted
-            $res = $res && $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $res = $res && $current_res;
         }
         if ($res) {
             $this->transaction->add_transaction(transactionTypes_update, $transaction_by, null, $this->transaction::TABLE_uploadTables, $id_table);
@@ -1331,6 +1334,8 @@ class UserInput
             if ($form_id) {
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
+            }else{
+                $this->ui_pref = false;
             }
         }
         return $this->ui_pref;
@@ -1340,7 +1345,7 @@ class UserInput
      * Get the notification settings
      * @param int $id_users
      * The user for who we check the settings. If not set we use the session user
-     * @return array or false
+     * @return array | false
      * return the UI preferences row or false if it is not set
      */
     public function get_user_notification_settings($id_users = null)
@@ -1353,6 +1358,7 @@ class UserInput
             $res = $this->get_data($form_id, '', true, FORM_INTERNAL, $id_users);
             return $res ? $res[0] : false;
         }
+        return false;
     }
 
 
@@ -1792,10 +1798,13 @@ class UserInput
                 }
             }
 
-            $scheduled_reminders = $this->get_scheduled_reminders_for_delete($form_data);
-            if ($scheduled_reminders && count($scheduled_reminders) > 0) {
-                $this->delete_reminders($scheduled_reminders);
-                $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
+            if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
+                // only check to delete the reminder if the survey is finished
+                $scheduled_reminders = $this->get_scheduled_reminders_for_delete($form_data);
+                if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                    $this->delete_reminders($scheduled_reminders);
+                    $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
+                }
             }
 
             $end_time = microtime(true);

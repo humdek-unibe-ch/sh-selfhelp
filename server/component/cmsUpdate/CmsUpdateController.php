@@ -132,7 +132,7 @@ class CmsUpdateController extends BaseController
     {
         if($type === "json")
         {
-            if($value === "") return true;
+            if($value === "" || $value == "    ") return true;
             json_decode($value, true);
             return (json_last_error() === JSON_ERROR_NONE) || $this->check_json_for_dynamic_content($value);
         }
@@ -372,7 +372,8 @@ class CmsUpdateController extends BaseController
                                 $id_language,
                                 $id_gender,
                                 $content,
-                                $relation
+                                $relation,
+                                (isset($field['meta']) ? $field['meta'] : null)
                             );
                         }
                     }

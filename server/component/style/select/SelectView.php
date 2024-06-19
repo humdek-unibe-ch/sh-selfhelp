@@ -145,13 +145,19 @@ class SelectView extends FormFieldView
                 if (!filter_var($item['text'], FILTER_VALIDATE_URL)) {
                     $this->items[$key]['text'] = ASSET_FOLDER . '/' . $item['text'];
                 }
-            }
-            $style['items'] = $this->items;
-        }
-        if ($this->is_multiple) {
-            $style['last_value'] = json_decode(html_entity_decode($style['last_value'])); //if not array yet and if the select is multiple convert the json to an array
-            $style['value']['content'] = json_decode(html_entity_decode($style['value']['content']));
+            }            
         }        
+        if ($this->is_multiple) {
+            $style['last_value'] = $style['last_value'] ? json_decode(html_entity_decode($style['last_value'])) : $style['last_value']; //if not array yet and if the select is multiple convert the json to an array
+            $style['value']['content'] = json_decode(html_entity_decode($style['value']['content']));
+        }
+        $items = array();        
+        foreach ($this->items as $key => $value) {
+            $value['value'] = html_entity_decode($value['value']);
+            $value['text'] = html_entity_decode($value['text']);
+            $items[] = $value;
+        }
+        $style['items'] = $items;
         return $style;
     }
 
@@ -163,6 +169,27 @@ class SelectView extends FormFieldView
     public function get_field_name()
     {
         return $this->name . ($this->is_multiple ? "[]" : ""); // if it is multiple select make the form_name an array 
+    }
+
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @return array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {
+        $locale = 'de_CH';
+        if (isset($_SESSION['user_language_locale'])) {
+            $locale =  str_replace('-', '_', $_SESSION['user_language_locale']);
+        }
+        if (empty($local)) {
+            $local = array(
+                __DIR__ . "/js/i18n/defaults-" . $locale . ".min.js"
+            );
+        }
+        return parent::get_js_includes($local);
     }
 }
 ?>

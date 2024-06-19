@@ -59,6 +59,23 @@ class Login
     }
 
     /**
+     * Check the default user locale and if we have the same we assign it.
+     * If there is not the same we check for the same language not locale.
+     */
+    private function use_user_locale(){    
+        if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            return;
+        }
+        $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        // Replace underscores with hyphens
+        $locale = str_replace('_', '-', $locale);
+        $language = $this->db->fetch_language_by_locale($locale);
+        if (isset($language)) {
+            $_SESSION['user_language'] = $language['lid'];
+        }
+    }
+
+    /**
      * Initialise the php session.
      */
     private function init_session()
@@ -100,8 +117,17 @@ class Login
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
-        if(!isset($_SESSION['language'])) $_SESSION['language'] = $this->db->get_default_language();
-        if(!isset($_SESSION['user_language'])) $_SESSION['user_language'] = LANGUAGE;
+        if(!isset($_SESSION['language']) || $_SESSION['language'] == '') $_SESSION['language'] = $this->db->get_default_language();
+        if(!isset($_SESSION['user_language']) || $_SESSION['user_language'] == '') $_SESSION['user_language'] = LANGUAGE;        
+        $this->use_user_locale();
+        if (isset($_SESSION['id_user'])) {
+            // if the user set a language already use it
+            $user_language_from_db = $this->db->get_user_language_id($_SESSION['id_user']);
+            if ($user_language_from_db) {
+                $_SESSION['user_language'] = $user_language_from_db;
+            }            
+        }
+
         if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
         if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
             "pid" => null,
@@ -371,9 +397,6 @@ class Login
             } else {
                 throw new Exception('User cannot be deleted!');
             }
-            if ($this->transaction->add_transaction(transactionTypes_delete, $transaction_by, $_SESSION['id_user'], $this->transaction::TABLE_USERS, $uid) === false) {
-                throw new Exception('User cannot be deleted!');
-            }
             $this->db->commit();
             return true;
         } catch (Exception $e) {
@@ -412,6 +435,35 @@ class Login
             $url = $url_db['last_url'];
 
         return $url;
+    }
+
+    /**
+     * Impersonate a user.
+     *
+     * @param string $uid
+     *  The id of the user to impersonate.
+     * @retval bool
+     *  true if the check was successful, false otherwise.
+     */
+    public function impersonate_user($uid)
+    {
+        $sql = "SELECT u.id, id_genders AS gender, id_languages AS `language` FROM users AS u
+            WHERE u.id = :uid AND password IS NOT NULL AND blocked <> '1'";
+        $user = $this->db->query_db_first($sql, array(':uid' => $uid));
+        if($user) {
+            $_SESSION['logged_in'] = true;
+            $_SESSION['id_user'] = $user['id'];
+            $_SESSION['gender'] = $user['gender'];
+            $_SESSION['user_gender'] = $user['gender'];
+            $_SESSION['user_language'] = $user['language'];
+            $_SESSION['language'] = $user['language'];
+            $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];    
+            unset($_SESSION['user_name']); // remove the user name session 
+            $this->db->clear_cache();// clear cache for our user
+            return true;
+        }
+        else
+            return false;
     }
 
     /**

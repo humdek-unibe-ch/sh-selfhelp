@@ -719,15 +719,14 @@ class CmsView extends BaseView
 
         if ($is_new_ui) {
             foreach ($fields as $field) {
+                $new_field = $this->create_field_form_item($field);
                 if (isset($field['display']) && $field['display'] == 1) {
-                    // it is a content field
-                    $new_field = $this->create_field_form_item($field);
+                    // it is a content field                    
                     if ($new_field) {
                         $content_fields[] = $new_field;
                     }
                 } else {
                     // it is a property field
-                    $new_field = $this->create_field_form_item($field);
                     if ($new_field) {
                         $properties[] = $new_field;
                     }
@@ -875,6 +874,14 @@ class CmsView extends BaseView
             "name" => $field_name_prefix . "[type]",
             "type_input" => "hidden",
         ));
+        if ((array_key_exists('meta', $field))) {
+            // if the field has meta, pass it
+            $children[] = new BaseStyleComponent("input", array(
+                "value" => $field['meta'] ? htmlentities($field['meta']) : null,
+                "name" => $field_name_prefix . "[meta]",
+                "type_input" => "hidden",
+            ));
+        }
         $children[] = new BaseStyleComponent("input", array(
             "value" => $field['relation'],
             "name" => $field_name_prefix . "[relation]",
@@ -926,6 +933,28 @@ class CmsView extends BaseView
                     array("value" => "time", "text" => "time"),
                     array("value" => "url", "text" => "url"),
                     array("value" => "week", "text" => "week"),
+                ),
+            ));
+        }
+        else if($field['type'] == "html-tag")
+        {
+            $children[] = new BaseStyleComponent("select", array(
+                "value" => ($field['content'] == "") ? "text" : $field['content'],
+                "name" => $field_name_prefix . "[content]",
+                "live_search" => true,
+                "type_input" => $field['type'],
+                "items" => array(
+                    array("value" => "figure", "text" => "figure"),
+                    array("value" => "figcaption", "text" => "figcaption"),
+                    array("value" => "ul", "text" => "ul"),
+                    array("value" => "ol", "text" => "ol"),
+                    array("value" => "li", "text" => "li"),
+                    array("value" => "table", "text" => "table"),
+                    array("value" => "tr", "text" => "tr"),
+                    array("value" => "td", "text" => "td"),
+                    array("value" => "th", "text" => "th"),
+                    array("value" => "dd", "text" => "dd"),
+                    array("value" => "dl", "text" => "dl"),
                 ),
             ));
         }
@@ -1056,7 +1085,8 @@ class CmsView extends BaseView
         } else if ($field['type'] == "condition") {
             $children[] = new BaseStyleComponent("conditionBuilder", array(
                 "value" => $field['content'],
-                "name" => $field_name_content
+                "name" => $field_name_content,
+                "meta" => $field['meta']
             ));
         } else if ($field['type'] == "data-config") {
             $children[] = new BaseStyleComponent("dataConfigBuilder", array(
@@ -1072,6 +1102,13 @@ class CmsView extends BaseView
                 "is_required" => 0,
                 "allow_clear" => 1,
                 "items" => $this->model->get_db()->fetch_table_as_select_values('pages', 'id', array('keyword'), 'WHERE id_actions = :id_actions', array("id_actions" => EXPERIMENT_PAGE_ID))
+            ));
+        } else if ($field['type'] == "color") {
+            $children[] = new BaseStyleComponent("input", array(
+                "value" => $field['content'],
+                "name" => $field_name_content,
+                "type_input" => 'text',
+                "is_required" => 0,
             ));
         }
 
@@ -1188,7 +1225,7 @@ class CmsView extends BaseView
         } else if ($field['type'] == "password") {
             // hide the password
             $children[] = new BaseStyleComponent("rawText", array(
-                "text" => str_repeat("*", strlen($field['content']))
+                "text" => str_repeat("*", strlen(isset($field['content']) ? $field['content'] : '1111'))
             ));
         } else {
             // do not show the whole condition as it takes a lof of space. 

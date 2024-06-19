@@ -119,6 +119,13 @@ function initDataConfigBuilder() {
                             }
                         }
                     }
+                    dataConfigEditor.on('change', () => {
+                        $('.data_config_builder').find('select[name*="[field_name]"], select[name*="[table]"]').each(function () {
+                            $(this).data('live-search', true);
+                            $(this).selectpicker();
+                            $(this).selectpicker('refresh');
+                        })
+                    });
                 });
             }
         });

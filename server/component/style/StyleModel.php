@@ -77,6 +77,16 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected $relation;
 
+    /**
+     * Keep data that can be printed out for debugging
+     */
+    protected $debug_data;
+
+    /**
+     * keep the interpolation data
+     */
+    protected $interpolation_data;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -101,7 +111,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->params = $params;
         $this->id_page = $id_page; 
         $this->entry_record = $entry_record;
-        $this->style_name = $this->get_style_name_by_section_id($id);
+        $this->style_name = $this->get_style_name_by_section_id($id);        
         if(isset($params['parent_id'])){
             $this->parent_id = $params['parent_id'];
         }
@@ -126,7 +136,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->calc_condition();
 
         if (($this->is_cms_page() || $this->condition_result['result'])) {
-            $this->loadChildren();
+            $this->loadChildren($this->entry_record);
         }
                 
     }
@@ -144,124 +154,7 @@ class StyleModel extends BaseModel implements IStyleModel
             }
         }        
         $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
-    }
-
-    /**
-     * Fetch the data from the database base on the JSON configuration
-     * @param array $data_config
-     * Json configuration
-     * @retval array
-     * array with the retrieved fields and their values
-     */
-    private function fetch_data($data_config)
-    {
-        $result = array();
-        try {
-            foreach ($data_config as $key => $config) {
-                // loop configs; DB requests
-                $table_id = $this->user_input->get_form_id($config['table'], $config['type']);
-                $data = null;
-                if ($table_id) {
-                    if ($config['type'] === FORM_EXTERNAL) {
-                        $filter = "ORDER BY record_id ASC";
-                        if ($config['retrieve'] === 'last') {
-                            $filter = "ORDER BY record_id DESC";
-                        }
-                    } else {
-                        $filter = "ORDER BY edit_time ASC";
-                        if ($config['retrieve'] === 'last') {
-                            $filter = "ORDER BY edit_time DESC";
-                        }
-                    }
-                    if (isset($config['filter']) && $config['filter'] != '') {
-                        // if specific filter is used, overwrite it.
-                        $filter = $config['filter'];
-                    }
-                    $current_user = true; //default value
-                    if(isset($config['current_user'])){
-                        // get the config value if it is set
-                        $current_user = $config['current_user'];
-                    }
-                    $data = $this->user_input->get_data($table_id, $filter, $current_user, $config['type']);
-                    $data = array_filter($data, function ($value) {
-                        return (!isset($value["deleted"]) || $value["deleted"] != 1); // if deleted is not set, we retrieve data from internal/external form/table
-                    });
-                    if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
-                        // return all fields
-                        if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
-                            $all_values = array();
-                            foreach ($data as $key => $value) {
-                                foreach ($value as $field_name => $field_value) {
-                                    $all_values[$field_name][] = $field_value;
-                                }
-                            }
-                            foreach ($all_values as $key => $value) {
-                                if ($config['retrieve'] === 'all') {
-                                    $all_values[$key] = implode(',', $value);
-                                } else {
-                                    $all_values[$key] = json_encode($value);
-                                }
-                            }
-                            $result = array_merge($result, $all_values);
-                        } else {
-                            $result = array_merge($result, $data[0]);
-                        }
-                    } else if (isset($config['fields'])) {
-                        // return only the selected fields
-                        foreach ($config['fields'] as $key => $field) {
-                            // loop fields
-                            $i = 0;
-                            $field_value = '';
-                            $all_values = array();
-                            foreach ($data as $key => $row) {
-                                $val =  (isset($row[$field['field_name']]) && $row[$field['field_name']] != '') ? $row[$field['field_name']] : $field['not_found_text']; // get the first value                                
-                                if ($config['retrieve'] != 'all' && $config['retrieve'] != 'all_as_array') {
-                                    $field_value = $val;
-                                    break; // we don need the others;
-                                } else {
-                                    $all_values[] = $val;
-                                }
-                                $i++;
-                            }
-                            if ($config['retrieve'] === 'all') {
-                                $field_value = implode(',', $all_values);
-                            } else if ($config['retrieve'] === 'all_as_array') {
-                                $field_value = json_encode($all_values);
-                            }
-                            $result[$field['field_holder']] = ($field_value == '' ? $field['not_found_text'] : $field_value);
-                        }
-                    }
-                }
-            }
-        } catch (\Throwable $th) {
-            return false;
-        }
-        return $result;
-    }
-
-    /**
-     * Get the entry record;
-     * @retval array;
-     * The entry record;
-     */
-    private function calc_entry_record(){
-        $record_id = isset($this->params['record_id']) ? intval($this->params['record_id']) : -1;
-        if ($record_id > 0) {
-            $formInfo = explode('-', $this->get_db_field("formName"));
-            $form_id = $formInfo[0];
-            if (isset($formInfo[1])) {
-                $form_type = $formInfo[1];
-            } else {
-                return;
-            }
-            $own_entries_only =  $this->get_db_field("own_entries_only", 1);
-            $filter = " AND deleted = 0 AND record_id = " . $record_id;
-            $data = $this->user_input->get_data($form_id, $filter, $own_entries_only, $form_type);
-            return $data && count($data) > 0 ? $data[0] : false; // return the first record
-        } else {
-            return;
-        }
-    }
+    }    
 
     /**
      * Get entries values if there are any set
@@ -343,55 +236,94 @@ class StyleModel extends BaseModel implements IStyleModel
      * The field which we are checking
      * @param object $data_config
      * The data config as json object
-     * @param $user_name
+     * @param string $user_name
      * the user_name
-     * @param $user_code
+     * @param string $user_code
      * the user_code
+     * @param string $field_key = 'content'
+     * The field key that we want to take some dynamic data. The default one is `content`
      * @return string
      * Return the field content
      */
-    protected function calc_dynamic_values($field, $data_config, $user_name, $user_code){
+    protected function calc_dynamic_values($field, $data_config, $user_name, $user_code, $field_key = 'content'){
         //adjust entry records 
+        $this->debug_data['field'] = $field;
+        $this->debug_data['data_config'] = $data_config;
         if ($this->entry_record) {
             //adjust entry value
-            $field['content'] = $this->get_entry_value($this->entry_record, $field['content']);
+            $field[$field_key] = $this->get_entry_value($this->entry_record, $field[$field_key]);
+            $this->debug_data['entry_record'] = $this->entry_record;
+            $this->interpolation_data['entry_record'] = $this->entry_record;
         }
         // replace the field content with the global variables
-        if ($field['content']) {
-            $global_vars = array(
-                '@user_code' => $user_code,
-                '@project' => $_SESSION['project'],
-                '@user' => $user_name,
-                '__keyword__' => $this->router->get_keyword_from_url(),
-                '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
-                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
-            );
-            if(strpos($field['content'], '__language__') !== false){
+        if ($field[$field_key]) {
+            $global_vars = $this->get_global_vars($user_code, $user_name);
+            $this->debug_data['global_vars'] = $global_vars;
+            $this->interpolation_data['global_vars'] = $global_vars;
+            if(strpos($field[$field_key], '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
             }
-            $field['content'] = $this->db->replace_calced_values($field['content'], $global_vars);
-            $field['content'] = str_replace('@user_code', $user_code, $field['content']);
-            $field['content'] = str_replace('@project', $_SESSION['project'], $field['content']);
-            $field['content'] = str_replace('@user', $user_name, $field['content']);
-            $global_values = $this->db->get_global_values(); 
+            $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $global_vars);
+            $field[$field_key] = str_replace('@user_code', $user_code, $field[$field_key]);
+            $field[$field_key] = str_replace('@project', $_SESSION['project'], $field[$field_key]);
+            $field[$field_key] = str_replace('@user', $user_name, $field[$field_key]);
+            $global_values = $this->db->get_global_values();
+            $this->debug_data['global_values'] = $global_values; 
+            $this->interpolation_data['global_values'] = $global_values; 
             if($global_values){
-                $field['content'] = $this->db->replace_calced_values($field['content'],  $global_values);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key],  $global_values);
             }
             if ($data_config && $field['name'] != 'data_config') {
                 // if there is data_config set and the field is not data_config, try to get dynamic data
                 $fields = $this->retrieve_data($data_config);
-                $field['content'] = $this->db->replace_calced_values($field['content'], $fields);
+                $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $fields);
                 if ($fields) {
                     foreach ($fields as $field_name => $field_value) {
                         if ($field_name[0] == '@') {
-                            $field['content'] = str_replace($field_name, $field_value, $field['content']);
+                            $field[$field_key] = str_replace($field_name, $field_value, $field[$field_key]);
                         }
                     }
                 }
+                $this->debug_data['data_config_retrieved'] = $fields;
+                $this->interpolation_data['data_config_retrieved'] = $fields;
             }
-        }        
-        return $field['content'];
+        }
+        $this->debug_data['new_field_' . $field_key] = $field[$field_key];
+        $this->debug_data['new_field_' . $field_key . '_object'] = $field[$field_key] ? json_decode($field[$field_key]) : false;
+        return $field[$field_key];
+    }
+
+    /**
+     * Set JSON mapping data based on meta information.
+     *
+     * This function takes a reference to a field array and modifies its 'content' 
+     * structure based on the provided 'meta' data, which is represented as key-value pairs.
+     *
+     * @param array &$field - A reference to the field array to be modified.
+     *                       It should have 'content' and 'meta' sub-arrays.
+     * @return void
+     */
+    private function set_json_mapping(&$field)
+    {
+        $current = &$field['content'];
+        foreach ($field['meta'] as $key => $map_value) {
+            $map = explode(".",
+                $key
+            );
+            $map_value_obj = json_decode($map_value, true);
+            if(json_last_error() == JSON_ERROR_NONE){
+                $map_value = $map_value_obj;
+            }
+            foreach ($map as $key_map) {
+                if (!isset($current[$key_map])) {
+                    $current[$key_map] = [];
+                }
+                $current = &$current[$key_map];
+            }
+            $current = $map_value;
+            $current = &$field['content'];
+        }
     }
 
     /* Protected Methods ******************************************************/
@@ -447,14 +379,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $data_config = $this->get_entry_value($this->entry_record, $data_config);
             }
             // if data_config is set replace if there are any globals
-            $global_vars = array(
-                '@user_code' => $user_code,
-                '@project' => $_SESSION['project'],
-                '@user' => $user_name,
-                '__keyword__' => $this->router->get_keyword_from_url(),
-                '__record_id__' => (isset($this->params['record_id']) ? intval($this->params['record_id']) : -1),
-                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
-            );
+            $global_vars = $this->get_global_vars($user_code, $user_name);
             if(strpos($data_config, '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
@@ -480,6 +405,10 @@ class StyleModel extends BaseModel implements IStyleModel
             
             // load dynamic data if needed
             $field['content'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code);
+            if(isset($field['meta']) && $field['meta']){
+                $field['meta'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code, 'meta');    
+            }
+            
 
             $default = $field["default_value"] ?? "";
             if ($field['name'] == "url") {
@@ -489,7 +418,12 @@ class StyleModel extends BaseModel implements IStyleModel
             } else if ($field['type'] == "markdown-inline") {
                 $field['content'] = $this->parsedown->line($field['content']);
             } else if ($field['type'] == "json") {
-                $field['content']  = $field['content'] ? json_decode($field['content'], true) : array();
+                // the field is json, check the JSON mapper if there are some mapping in the meta field                
+                $field['content']  = $field['content'] ? json_decode(stripslashes($field['content']), true) : array();
+                if(isset($field['meta']) && $field['meta']){
+                    $field['meta'] = json_decode($field['meta'], true);
+                    $this->set_json_mapping($field);
+                }
                 /* $field['content'] = $this->json_style_parse($field['content']); */
             } else if ($field['type'] == "condition") {
                 $field['content'] = $field['content'] ? json_decode($field['content'], true) : array();
@@ -501,6 +435,7 @@ class StyleModel extends BaseModel implements IStyleModel
             }
             $this->db_fields[$field['name']] = array(
                 "content" => $field['content'],
+                "meta" => $field['meta'],
                 "type" => $field['type'],
                 "id" => $field['id'],
                 "default" => $default,
@@ -805,7 +740,58 @@ class StyleModel extends BaseModel implements IStyleModel
             return false;
         }
     }
+
+    /**
+     * Get the debug data
+     * @return object
+     * Return the debug data
+     */
+    public function get_debug_data()
+    {
+        return $this->debug_data;
+    }
+
+    /**
+     * Get the debug data
+     * @param object $debug_data
+     * Debug data object
+     */
+    public function set_debug_data($debug_data)
+    {
+        $this->debug_data = $debug_data;
+    }
+
+    /**
+     * Get the interpolation data
+     * @return object
+     * Return the interpolation data
+     */
+    public function get_interpolation_data()
+    {
+        return $this->interpolation_data;
+    }
+
+    /**
+     * Retrieves global variables for use within the application.
+     *
+     * @param string $user_code The user's unique code.
+     * @param string $user_name The user's name.
+     * @return array An array containing global variables such as user code, project, user name, keywords, and platform.
+     */
+    public function get_global_vars($user_code, $user_name)
+    {
+        $global_vars = array(
+                '@user_code' => $user_code,
+                '@project' => $_SESSION['project'],
+                '@user' => $user_name,
+                '__keyword__' => $this->router->get_keyword_from_url(),
+                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
+            );
+        foreach ($this->params as $key => $value) {
+            $global_vars['__' . $key . '__'] = $value;
+        }
+        return $global_vars;
+    }
     
 }
 ?>
-

@@ -97,7 +97,7 @@
                 <div class="form-group">
                     <label>Url Pattern</label>
                     <input type="text" class="form-control" name="url" value="" placeholder="automatic" required readonly>
-                    <small class="form-text text-muted">This is set automatically. If you know what you are doing you may overwrite the value. Refer to the documentation of <a href="http://altorouter.com/usage/mapping-routes.html">Altorouter</a> for more information.</small>
+                    <small class="form-text text-muted">This is set automatically. If you know what you are doing you may overwrite the value. Refer to the documentation of <a href="https://dannyvankooten.github.io/AltoRouter/usage/mapping-routes.html">Altorouter</a> for more information.</small>
                 </div>
                 <div class="form-group">
                     <div class="form-check form-check-inline">

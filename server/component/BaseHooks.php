@@ -53,7 +53,7 @@ class BaseHooks extends BaseModel
 
         $params = array();
         foreach ($parameters as $key => $parameter) {
-            if (isset($args[$parameter->name])) {
+            if (array_key_exists($parameter->name, $args )) {
                 $params[] = $args[$parameter->name];
             }
         }
@@ -160,6 +160,20 @@ class BaseHooks extends BaseModel
         }
         $method->setAccessible(false);
         return $res;
+    }
+
+    /**
+     * Get the plugin version
+     */
+    public function get_plugin_db_version($plugin_name = null)
+    {
+        $res = $this->services->get_db()->query_db_first(
+            'SELECT `version` FROM `plugins` WHERE `name` = :plugin_name',
+            array(
+                ":plugin_name" => $plugin_name
+            )
+        );
+        return $res && $res['version']  ? $res['version'] : 'no data';
     }
 }
 ?>

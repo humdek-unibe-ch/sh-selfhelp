@@ -47,7 +47,7 @@ class ConditionBuilderView extends FormFieldView
     protected function output_form_field()
     {
         if ($this->value === null)
-            $this->value = $this->default_value;
+            $this->value = $this->default_value;        
         require __DIR__ . "/tpl_textarea.php";
     }
 

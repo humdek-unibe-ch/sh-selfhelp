@@ -1,5 +1,183 @@
 # FIX FOR FIREBASE NEW API
 
+# v6.12.1
+### New features
+ - add global function to pull git version
+ - return `is_headless` property for pages from a `mobile` request
+
+### Bugfix 
+ - improve `uploadTable` - EXTERNAL save
+ - [sh-selfhelp_app issue](https://github.com/humdek-unibe-ch/sh-selfhelp_app/issues/11) - decode the special characters
+
+# v6.12.0
+### Bugfix 
+ - fixes for php 8.3
+ - increase `group_concat_max_len` to `32000000` in the dynamic data procedures
+
+# v6.11.3
+### Bugfix 
+ - `stripslashes` - the JSON value for `select` style
+
+# v6.11.2
+### Bugfix 
+ - properly set `scope` to `loopStyle`
+ - properly escape `array` when is replaced as dynamic value
+
+# v6.11.1
+### Bugfix 
+ - fix the usage of `array_merge` in `entryList`. Now next child properly overwrite the previous child
+ - fix `cronjob` loading Hooks from `plugins`
+ - check if the git version is retrieved before trying to show it
+
+# v6.11.0
+### Bugfix 
+ - #455 - fix the `altorouter` link in create new page
+ - fix `altorouter` links in `impressum`
+ - #458 - fix delete page bug
+ - #459 - do not load the links in CMS edit mode
+ - #453 - set default gender to `admin`
+ - #454 - change password - not sanitized
+ - #461 - `entryRecord` - show sections from `missing` page when `entryRecord` with wrong id is loaded. The `missing` page can be customized with conditions based on page `keyword` to show different outputs
+ - #389 - fix `label_cancel` in `formUserInputLog` and `formUserInputRecord`
+ - #387 - fix the redirect issue. Now function `get_url` from the `router` is used
+ - #385 - fix delete user account from profile
+ - #388 - fix special character that were not loaded correctly when dynamic items were used and had special characters
+ - #384 - add localization to `bootstrap-select`
+
+### New features
+ - #461 - add field `url_param` to style `entryRecord` - The `url_param` field specifies the name of the URL parameter that will be extracted from the URL. This parameter is utilized to filter the form based on the `record_id` and return a single entry. When the specified URL parameter is present in the URL, its value is used as the `record_id` to fetch the corresponding entry from the database. This allows for dynamic filtering of the form entries based on the value provided in the URL.
+ - #461 - add field `scope` to styles `entryRecord`, `entryList` and `loop`. The 'scope' field serves as a prefix for variable naming within the context of the style. If set, it is appended to the beginning of variable names, allowing for better organization and distinction of variables within the style. For example, if the 'scope' is set to "item", variables within the style will be prefixed with "item_", such as "item_title", "item_description", etc. Using a scope helps to avoid naming conflicts and provides clarity in variable usage within the style.
+ - #461 - add as global variables all parameters that comes form the URL. The parameters variable name is with prefix and suffix `__`. Example for URL: `/nested/[i:main_id]/[i:sub_id]` will generate global parameters: `__main_id__` and `__sub_id__`
+ - #460 - add new style `htmlTag` which supports HTML elements: `figure`, `figcaption`, `ul`, `ol`, `li`, `table`, `tr`, `td`, `th`, `dd`, `dl`
+ - new `installation` instructions in README.md and new install.sh script
+
+# v6.10.0
+### New features
+ - #456 add style `dataContainer` - all prepared data in that style is propagated to all children 
+
+### Bugfix
+ - #457 - do not overwrite `device_token` when tested with preview app
+
+# v6.9.4
+### Bugfix
+ - properly `interpolate` variables which has value `0`, `false` or `''`
+
+# v6.9.3
+### New features
+ - in `debug` mode print the `global` values in console.log
+ - improve `interpolation` when a variable is used between 4 brackets it will return 2 brackets with the value. In this case it could be pulled form global variables one more time. Example: `{{my_var}}` returns `my value` while `{{{{my_var}}}}` will return `{{my value}}`
+
+# v6.9.2
+### New features
+ - add internal field `json_mapper` in style  `textarea`. When false, no mapper is loaded
+ - add `get_plugin_db_version` in `BaseHooks` and now load the information from the plugin instead of SelfHelp
+
+# v6.9.1
+### New features
+ - add `.docx` files for installation guides
+
+### Bugfix
+ - properly load `hooks` in cronjobs
+ 
+
+# v6.9.0
+### New features
+ - set field type for field `count` in style `progressBar` to `text`. This way the field can be dynamically loaded with interpolation. It still should be a number otherwise it is assigned to `0`
+
+# v6.8.0
+### New features
+ - when queuing jobs from actions for `INTERNAL_FORM`, send the record_id of the newly inserted record
+ - add new style `checkbox`, deprecate  the `checkbox` type in style `input`
+ - add better `help` text to all fields `redirect_at_end`
+ - remove `toggle_switch` field from style `input` after creation of ne style `checkbox`. Now the new style contains the field `toggle_switch`
+ - add `map_fields` in `data_config` when a `JSON` is returned.
+ - add fields `color_background`, `color_border` and `color_text` in style `div`. They can be used to set the color for the div and its children. The fields can be set dynamically with `interpolation` input. Ex.: {{var_name}}
+ - add field `load_as_table` in style `entryList` - If enabled, the children are loaded inside a table.
+ - show `entry_record` in the debug
+ - add parent data from `entryLists` and `loop` when used in nested situations. It is added with prefix `p_`. Check the values with debug in the console.
+ - add `confirmation_title`, `label_cancel`, `label_continue`, `label_message`, `url_cancel` fields for styles `formUserInputLog` and `formUserInputRecord`
+
+### Bugfix
+ - #379 - properly escape the naming pattern
+ - #381 - fix the extra space in all `textarea` inputs
+ - #378 - update help text for field `url` in styles: `link` and `button`
+ - #383 - delete `reminder` only the data trigger is `finished` and not `started`
+ - `card` - properly use `keyword` in field `url_edit`
+ - `redirect_at_end` url for forms work properly based on #keywords
+ - `ui-preferences` - improve the check for settings
+ - deleting `entry` with `DELETE_RECORD_ID` is possible only if the entry belongs to the user, or the `form`'s property `own_entries_only` is disabled
+ 
+
+# v6.7.0
+### New features
+ - add `toggle_switch` field to style `input`, when enabled and the type is checkbox, then the input will be loaded as toggle switch
+
+# v6.6.1
+### New features
+ - add in `data_config` new return type - `JSON`. It returns all the data as one array parsed as `JSON`. The variable is stored as Type.table. For example: INTERNAL table `test`, the data can be piped with  {{INTERNAL.test}}
+
+# v6.6.0
+### New features
+ - `data_config` - `all_fields` is enabled by default and it is set to `true`
+ - add `live_search` to `tables` and `fields` in the `data config builder`
+ - remove `actionConfig`, it was deprecated and replaced by `jobConfig`
+ - remove field `jquery_builder_json`
+ - add field `meta` in `sections_fields_translation` which is used for meta building custom fields that need more data
+ - #369 - Add extra mapping for JSON fields
+    -  add [jstree](https://github.com/vakata/jstree) library
+ - field's tooltip is shown on `click` not `hover` anymore
+
+ ### Bugfix
+  - dropdown select - wrap long options
+
+# v6.5.2
+### Bugfix
+ - properly set default language on a new user 
+ - `REDIRECT_ON_LOGIN` do not redirect if the last keyword was starting with `ajax_`
+
+# v6.5.1
+### New features
+ - #368 - when `debug` is enabled in `console.log` is printed the field object and what data is retrieved. 
+
+# v6.5.0
+### New features
+ - move data config fetch in `BaseModel` from `StyleModel` 
+ - #362 - add option for `Last Login`, where we can use `never` or we can use date as `__current_date__` where it is replaced by the current date or `__current_date__@-5 days` where it takes the date for 5 days ago. It only can be used with days + and - days after `@`
+ - #331 - add fields `min` and `max` for characters size in style `textarea`
+ - #331 - add fields `min` and `max` for characters size in style `input`
+ - #330 - check the user locale and if the locale exists it is loaded as default for request
+ - #330 - check the user locale and if the locale exists it is loaded as default for request (for mobile)
+ - add get all fields function in the basic `StyleView`
+ - add global variable `SELECTED_RECORD_ID`
+ - !16 - add `impersonate` functionality (only for `TPF` user)
+
+### Bugfix
+ - #364 - fix settings for notifications in SelfHelp mobile app
+
+# v6.4.9
+### Bugfix
+ - `showUserInput` - properly show the label of the field
+ - `select` - properly display items for mobile
+ - massively improve loading large amount of data in `admin/data` view and remove the limit to `10000` rows
+
+# v6.4.8
+### Bugfix 
+  - fix in `formActions` proper selection for `Schedule type`
+
+### New features
+  - merge `db version` and `git version` in one row for `Impressum`
+
+# v6.4.7
+ - add slashes to json strings when loaded from form actions
+
+# v6.4.6
+ - enable `log_bin_trust_function_creators` during installation
+
+# v6.4.5
+### Bugfix
+ - fix giving permissions to a new user on SelfHelp installation for MySQL8
+ - adjust old SQL scripts containing groups to be `groups` in order to work with MySQL8
+
 # v6.4.4
 ### Bugfix
  - updating external row data is for the current user only

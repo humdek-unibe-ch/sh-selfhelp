@@ -5,7 +5,7 @@ DROP PROCEDURE IF EXISTS get_uploadTable_with_filter //
 CREATE PROCEDURE get_uploadTable_with_filter( table_id_param INT, user_id_param INT, filter_param VARCHAR(1000))
 -- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
 BEGIN
-    SET @@group_concat_max_len = 32000;
+    SET @@group_concat_max_len = 32000000;
     SET @sql = NULL;
     SELECT
     GROUP_CONCAT(DISTINCT

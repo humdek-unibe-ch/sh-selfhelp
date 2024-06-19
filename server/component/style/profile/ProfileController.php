@@ -78,12 +78,8 @@ class ProfileController extends BaseController
             }
         }
 
-        if(isset($_POST['password']) && isset($_POST['verification']))
-        {
-            $res = $model->change_password(
-                filter_var($_POST['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS),
-                filter_var($_POST['verification'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
-            );
+        if(isset($_POST['password']) && isset($_POST['verification'])) {
+            $res = $model->change_password($_POST['password'], $_POST['verification']);
             $this->success_change = $res;
             $this->fail_change = !$res;
             if (isset($_POST['mobile']) && $_POST['mobile']) {
