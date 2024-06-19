@@ -677,12 +677,3 @@ FROM dataTables t
 INNER JOIN dataRows r ON (t.id = r.id_dataTables)
 INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
 INNER JOIN dataCols col ON (col.id = cell.id_dataCols);
-
-
-rename formActions to dataActions
-
-rework all json structure to relative structure: actions, dataConfgi, etc
-if possible to use json schema and automated it?
-delte on save and recreate
-
-check chat funnctionality
