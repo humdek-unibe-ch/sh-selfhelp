@@ -257,6 +257,7 @@ BEGIN
 		
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(1000);
         
+        
 		INSERT IGNORE INTO uploadCols (`name`, id_uploadTables, old_col_id)
 		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 1000) AS `name`, ut.id, ui.id_sections
 		FROM uploadTables ut
@@ -547,7 +548,7 @@ BEGIN
     ) INTO @sql
     FROM  dataTables t
 	INNER JOIN dataCols col on (t.id = col.id_dataTables)
-    WHERE t.id = table_id_param AND col.`name` != 'id_users';
+    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType');
 
     IF (@sql is null) THEN
         SELECT `name` from view_dataTables where 1=2;
@@ -583,7 +584,7 @@ BEGIN
 			END CASE;
             
             SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id, 
-					r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, r.id_actionTriggerTypes, l.lookup_code AS trigerType,', @sql, 
+					r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, r.id_actionTriggerTypes, l.lookup_code AS triggerType,', @sql, 
 					' FROM dataTables t
 					INNER JOIN dataRows r ON (t.id = r.id_dataTables)
 					INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
