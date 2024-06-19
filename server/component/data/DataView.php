@@ -49,7 +49,7 @@ class DataView extends BaseView
                 $forms = $this->model->get_dataTables();
             }
             foreach ($forms as $keyForm => $formId) {
-                $formId = isset($formId['form']) ? $formId['form'] : $formId;
+                $formId = isset($formId['id']) ? $formId['id'] : $formId;
                 $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
                 if (!empty($formFields)) {
                     // Initialize an array to store table rows

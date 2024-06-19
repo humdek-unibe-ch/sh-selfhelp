@@ -417,6 +417,7 @@ INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
 INNER JOIN lookups l_status ON (l_status.id = sj.id_jobStatus);
 
 -- drop view view_data_tables - not needed anymore after the data refactoring
+DROP VIEW IF EXISTS view_data_tables;
 DROP VIEW IF EXISTS view_dataTables;
 CREATE VIEW view_dataTables
 AS
