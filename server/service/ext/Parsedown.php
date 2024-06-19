@@ -1065,7 +1065,12 @@ class Parsedown
                     continue;
                 }
 
-                $Inline = $this->{'inline'.$inlineType}($Excerpt);
+                // $Inline = $this->{'inline'.$inlineType}($Excerpt);
+                $methodName = 'inline' . $inlineType;
+
+                if (method_exists($this, $methodName)) {
+                    $Inline = $this->{$methodName}($Excerpt);
+                }
 
                 if ( ! isset($Inline))
                 {
