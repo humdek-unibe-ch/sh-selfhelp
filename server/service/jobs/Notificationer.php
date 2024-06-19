@@ -59,8 +59,6 @@ class Notificaitoner extends BasicJob
     private function send_notification($device_token, $data)
     {
         // Create the notification
-        echo $device_token . PHP_EOL;
-        echo json_encode($data) . PHP_EOL;
         $notification = Notification::create($data['subject'], $data['body']);
 
         // Create the message
