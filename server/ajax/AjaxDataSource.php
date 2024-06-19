@@ -84,61 +84,6 @@ class AjaxDataSource extends BaseAjax
     }
 
     /**
-     * Read dynamic data form the database. This data is collected dynamically
-     * through online forms from subjects.
-     *
-     * @param number $form_id
-     *  The id of the form to fetch.
-     * @param array $filters
-     *  An assoziative array of filters. Refer to
-     *  AjaxDataSource::check_filter_data() for more information.
-     * @param boolean $single_user
-     *  If true only fetch dynamic data from a single user, if false fetch
-     *  dynamic data from all users.
-     * @retval array
-     *  Returns a list of assiciative arrays items. Each item corresponds to a
-     *  data set collected from one form submission. The keys of each item
-     *  correspond to the field names of the form.
-     */
-    private function fetch_data_table_internal($form_id, $filters, $single_user)
-    {
-        $res = array();
-        $cond = "";
-        $params = array( "id" => $form_id );
-        if($single_user) {
-            $cond = " AND user_id = :uid";
-            $params["uid"] = $_SESSION['id_user'];
-        }
-        $sql = "SELECT * FROM view_user_input
-            WHERE removed = 0 AND form_id = :id" . $cond . "
-            ORDER BY user_id,
-                CASE
-                    WHEN record_id IS NULL
-                    THEN edit_time
-                    ELSE record_id
-                END";
-        $res_db = $this->db->query_db($sql, $params);
-        if(!isset($res_db[0]['record_id']))
-            return array();
-        $last_row_id = $res_db[0]['record_id'];
-        $item = array();
-        foreach($res_db as $item_db) {
-            if($item_db['record_id'] !== $last_row_id) {
-                if($this->check_filter_data($filters, $item)) {
-                    array_push($res, $item);
-                }
-                $item = array();
-                $last_row_id = $item_db['record_id'];
-            }
-            $item[$item_db['field_name']] = $item_db['value'];
-        }
-        if($this->check_filter_data($filters, $item)) {
-            array_push($res, $item);
-        }
-        return $res;
-    }
-
-    /**
      * Read external data from the database. This data is collected through a CSV
      * file upload.
      *
@@ -152,7 +97,7 @@ class AjaxDataSource extends BaseAjax
      *  a row of the data table. The keys of each item correspond to the column
      *  names of the table.
      */
-    private function fetch_data_table_external($table_id, $filters)
+    private function fetch_data_table($table_id, $filters)
     {
         $res = array();
         $sql = "SELECT * FROM view_dataTables_data
@@ -246,13 +191,7 @@ class AjaxDataSource extends BaseAjax
                 && count($_SESSION['data_filter'][$table_name]) > 0) {
                 $filter = $_SESSION['data_filter'][$table_name];
         }
-        if($source['type'] === FORM_INTERNAL) {
-            return $this->fetch_data_table_external($source['id'], $filter);
-        } else if($source['type'] === FORM_EXTERNAL) {
-            return $this->fetch_data_table_internal($source['id'], $filter,
-                true);
-        }
-        return false;
+        return $this->fetch_data_table($source['id'], $filter);
     }
 
     /**

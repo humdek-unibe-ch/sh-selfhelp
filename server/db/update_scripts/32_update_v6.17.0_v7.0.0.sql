@@ -705,3 +705,6 @@ FROM dataTables t
 INNER JOIN dataRows r ON (t.id = r.id_dataTables)
 INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
 INNER JOIN dataCols col ON (col.id = cell.id_dataCols);
+
+DROP VIEW IF EXISTS view_form;
+DROP VIEW IF EXISTS view_user_input;
