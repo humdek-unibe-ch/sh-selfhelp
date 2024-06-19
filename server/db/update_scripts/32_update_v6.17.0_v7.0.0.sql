@@ -255,11 +255,11 @@ BEGIN
 		JOIN user_input ui ON ui.id_user_input_record = uir.id
 		WHERE uir.id_sections > 0;
 		
-		ALTER TABLE uploadCols MODIFY `name` VARCHAR(1000);
-        ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_dataTables);
+		ALTER TABLE uploadCols MODIFY `name` VARCHAR(255);
+        ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_uploadTables);
         
 		INSERT IGNORE INTO uploadCols (`name`, id_uploadTables, old_col_id)
-		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 1000) AS `name`, ut.id, ui.id_sections
+		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 255) AS `name`, ut.id, ui.id_sections
 		FROM uploadTables ut
 		JOIN user_input_record uir ON CAST(uir.id_sections AS CHAR) = ut.`name`
 		JOIN user_input ui ON ui.id_user_input_record = uir.id
@@ -548,7 +548,7 @@ BEGIN
     ) INTO @sql
     FROM  dataTables t
 	INNER JOIN dataCols col on (t.id = col.id_dataTables)
-    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType');
+    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date');
 
     IF (@sql is null) THEN
         SELECT `name` from view_dataTables where 1=2;

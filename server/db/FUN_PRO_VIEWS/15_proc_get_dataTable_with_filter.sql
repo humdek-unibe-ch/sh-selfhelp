@@ -25,7 +25,7 @@ BEGIN
     ) INTO @sql
     FROM  dataTables t
 	INNER JOIN dataCols col on (t.id = col.id_dataTables)
-    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType');
+    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date');
 
     IF (@sql is null) THEN
         SELECT `name` from view_dataTables where 1=2;
