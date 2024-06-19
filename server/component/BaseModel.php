@@ -158,7 +158,7 @@ abstract class BaseModel
         try {
             foreach ($data_config as $key => $config) {
                 // loop configs; DB requests
-                $table_id = $this->user_input->get_dataTable_id($config['table']);
+                $table_id = $this->user_input->get_dataTable_id($config['table']);                
                 $data = null;
                 if ($table_id) {
                     $filter = "ORDER BY record_id ASC";
@@ -195,7 +195,8 @@ abstract class BaseModel
                                 }
                             }
                         }
-                        $result[isset($config['scope']) ? $config['scope'] : $config['table']] = $data; // if the scope is set, use the scope for naming
+                        $display_table_name = $this->user_input->get_dataTable_displayName($table_id);
+                        $result[(isset($config['scope']) && $config['scope'] != '' ? $config['scope'] . '.' : '') . $display_table_name] = $data; // if the scope is set, use the scope for naming
                     } else if (isset($config['all_fields']) && $config['all_fields'] && count($data) > 0) {
                         // return all fields
                         if ($config['retrieve'] === 'all' || $config['retrieve'] === 'all_as_array') {
