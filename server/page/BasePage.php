@@ -388,8 +388,11 @@ abstract class BasePage
             transactionBy_by_user,
             $_SESSION['id_user'],
             $transaction::TABLE_PAGES,
-            $info['id']
+            isset($info['id']) ? $info['id'] : 0
         );
+        if(!$info){
+            return;
+        }
         $this->title = $info['title'];
         $this->url = $info['url'];
         $this->id_page = intval($info['id']);
