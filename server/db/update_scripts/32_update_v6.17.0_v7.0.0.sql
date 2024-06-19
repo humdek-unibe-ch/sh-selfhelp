@@ -256,7 +256,7 @@ BEGIN
 		WHERE uir.id_sections > 0;
 		
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(1000);
-        
+        ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_dataTables);
         
 		INSERT IGNORE INTO uploadCols (`name`, id_uploadTables, old_col_id)
 		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 1000) AS `name`, ut.id, ui.id_sections
