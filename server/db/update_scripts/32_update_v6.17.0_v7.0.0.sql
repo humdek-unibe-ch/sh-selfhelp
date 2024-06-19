@@ -229,9 +229,11 @@ BEGIN
 		JOIN uploadTables ut ON ut.`name` = CAST(uir.id_sections AS CHAR)
 		JOIN user_input ui ON ui.id_user_input_record = uir.id
 		WHERE uir.id_sections > 0;
-
+		
+		ALTER TABLE uploadCols MODIFY `name` VARCHAR(1000);
+        
 		INSERT INTO uploadCols (`name`, id_uploadTables, old_col_id)
-		SELECT DISTINCT sft_in.content AS `name`, ut.id, ui.id_sections
+		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 1000) AS `name`, ut.id, ui.id_sections
 		FROM uploadTables ut
 		JOIN user_input_record uir ON CAST(uir.id_sections AS CHAR) = ut.`name`
 		JOIN user_input ui ON ui.id_user_input_record = uir.id
