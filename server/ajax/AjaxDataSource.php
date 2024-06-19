@@ -250,7 +250,7 @@ class AjaxDataSource extends BaseAjax
             // the form does not exist anymore
             return json_encode(array());
         }
-        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, null, true);
+        $res_db = $this->user_input->get_data($form_id, ' LIMIT 0, 1', false, -1, true, false);
         $res = array();
         if ($res_db) {
             foreach ($res_db as $key => $value) {
