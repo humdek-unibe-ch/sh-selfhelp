@@ -1,3 +1,5 @@
+# FIX FOR FIREBASE NEW API
+
 # v6.4.4
 ### Bugfix
  - updating external row data is for the current user only
