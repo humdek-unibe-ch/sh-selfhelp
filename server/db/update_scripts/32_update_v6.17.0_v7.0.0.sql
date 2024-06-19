@@ -278,7 +278,7 @@ BEGIN
 				ui.id_user_input_record,
 				CASE 
 					WHEN ui.removed = 1 THEN (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'deleted' )
-					ELSE NULL 
+					ELSE (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'finished' ) 
 				END AS removed
 			FROM user_input ui
 		) subquery ON ur.old_row_id = subquery.id_user_input_record
