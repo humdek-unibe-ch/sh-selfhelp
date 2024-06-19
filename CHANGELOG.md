@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # v6.9.4
 ### Bugfix
  - properly `interpolate` variables which has value `0`, `false` or `''`
@@ -117,6 +118,9 @@
 ### Bugfix
  - fix giving permissions to a new user on SelfHelp installation for MySQL8
  - adjust old SQL scripts containing groups to be `groups` in order to work with MySQL8
+=======
+# FIX FOR FIREBASE NEW API
+>>>>>>> cc454b6b140b8d6442585a399956a29cca97145c
 
 # v6.4.4
 ### Bugfix
