@@ -26,10 +26,10 @@ class ShowUserInputController extends BaseController
         if(!isset($_POST['user_input_remove_id']))
             return;
 
-        $ids = explode(',', $_POST['user_input_remove_id']);
-        foreach($ids as $id)
-            $this->model->mark_user_input_as_removed(intval($id));
+        $ids = explode(',', $_POST['user_input_remove_id']);        
+        $this->model->mark_user_input_as_removed($ids, $_POST[ENTRY_RECORD_ID]);
         unset($_POST['user_input_remove_id']);
+        unset($_POST[ENTRY_RECORD_ID]);
     }
 }
 ?>

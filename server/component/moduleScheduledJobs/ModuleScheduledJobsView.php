@@ -148,6 +148,20 @@ class ModuleScheduledJobsView extends BaseView
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
+                    "title" => FORM_INTERNAL,
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => ($mail_entry['internal_table'] . ' - ' . $mail_entry['id_user_input_record'] ) ?? ""
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => FORM_EXTERNAL,
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => ($mail_entry['external_table'] . ' - ' . $mail_entry['id_uploadRows'] ) ?? ""
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
                     "title" => "Config",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
@@ -247,6 +261,20 @@ class ModuleScheduledJobsView extends BaseView
                     "placeholder" => "@user_name can be used for showing the user",
                 )),
                 new BaseStyleComponent("descriptionItem", array(
+                    "title" => FORM_INTERNAL,
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => ($entry['internal_table'] . ' - ' . $entry['id_user_input_record'] ) ?? ""
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => FORM_EXTERNAL,
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => ($entry['external_table'] . ' - ' . $entry['id_uploadRows'] ) ?? ""
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
                     "title" => "Config",
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
@@ -309,6 +337,20 @@ class ModuleScheduledJobsView extends BaseView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $entry['description']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => FORM_INTERNAL,
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => ($entry['internal_table'] . ' - ' . $entry['id_user_input_record'] ) ?? ""
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => FORM_EXTERNAL,
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => ($entry['external_table'] . ' - ' . $entry['id_uploadRows'] ) ?? ""
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(

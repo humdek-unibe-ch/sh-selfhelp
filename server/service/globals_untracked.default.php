@@ -12,6 +12,7 @@ define('LANGUAGE', 2); // German
 #define('BASE_PATH', '/' . PROJECT_NAME);
 define('BASE_PATH', '');
 define('SHOW_PHP_INFO', false);
+define('SESSION_TIMEOUT', 36000); // 1 hour
 
 define('DBSERVER', 'localhost');
 define('DBNAME', '__project_name__');

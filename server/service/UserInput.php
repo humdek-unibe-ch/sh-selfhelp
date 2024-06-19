@@ -65,7 +65,7 @@ class UserInput
      *  db column and the value to the db value.
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
-     * @retval array
+     * @return array
      *  An array of field items where eeach item has the following keys:
      *  - 'id'            A unique id of the field
      *  - 'user_code'     A unique string that connects values to a user without
@@ -86,7 +86,7 @@ class UserInput
     private function fetch_input_fields($conds = array(), $get_page_info = false)
     {
         // rework
-        if (!isset($conds['ui.id_section_form']))
+        if (!isset($conds['record.id_sections']))
             $field_attrs = $this->get_field_attrs(-1, $get_page_info);
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, json_encode($conds), [__FUNCTION__]);
         $get_result = $this->db->get_cache()->get($key);
@@ -99,6 +99,7 @@ class UserInput
             $sql = "SELECT ui.id, ui.id_users, ui.value, ui.edit_time, ui.id_sections,
                     g.`name` AS gender, vc.code, id_user_input_record
                     FROM user_input AS ui
+                    LEFT JOIN user_input_record record  ON (ui.id_user_input_record = record.id)
                     LEFT JOIN users AS u ON u.id = ui.id_users
                     LEFT JOIN genders AS g ON g.id = u.id_genders
                     LEFT JOIN validation_codes AS vc on vc.id_users = ui.id_users
@@ -116,7 +117,7 @@ class UserInput
         $fields = array();
         foreach ($fields_db as $field) {
             $id = intval($field["id_sections"]);
-            if (isset($conds['ui.id_section_form'])) {
+            if (isset($conds['record.id_sections'])) {
                 $field_attrs = $this->get_field_attrs($id, $get_page_info);
             }
             if (!isset($field_attrs[$id])) continue;
@@ -379,7 +380,7 @@ class UserInput
      * The original action row, which the dynamic data check is not applied
      * @param array $blocks
      * The selected blocks which will be executed
-     * @return object;
+     * @return array;
      * Return the update blocks with the new counters for the action and not modified action
      */
     private function update_randomization_count($action, $not_modified_action, $blocks)
@@ -403,16 +404,16 @@ class UserInput
      * The job data
      * @param $form_data
      * The form data
-     * @return object
+     * @return array
      * Return the task config
      */
     private function get_task_config($job, $form_data)
     {
         $task_config = array(
-                "type" => $job[ACTION_JOB_TYPE],
-                "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
-                "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
-            );
+            "type" => $job[ACTION_JOB_TYPE],
+            "description" => isset($job['job_name']) ? $job['job_name'] : "Schedule task by form: " . $form_data['form_name'],
+            "group" => $job[ACTION_JOB_ADD_REMOVE_GROUPS]
+        );
         return $task_config;
     }
 
@@ -422,9 +423,9 @@ class UserInput
      * user id arrays
      * @param array $action
      * the action information
-     * @param object $form_data
+     * @param array $form_data
      * The form data
-     * @return string
+     * @return array[]
      *  log text what actions was done;
      */
     private function queue_task($users, $job, $action, $form_data)
@@ -465,21 +466,38 @@ class UserInput
         );
     }
 
-    private function send_reminder($parent_date_to_be_executed, $users, $reminder, $action, $form_data)
+    /**
+     * Sends a reminder to a user based on provided parameters.
+     *
+     * @param string $parent_date_to_be_executed The date/time of the parent job to which the reminder is associated.
+     * @param array $user An array containing user information.
+     * @param array $reminder An array containing reminder information.
+     * @param array $action An array containing action information.
+     * @param array $form_data An array containing form data associated with the reminder.
+     * @return array An array containing the result of the reminder sending operation.
+     */
+    private function send_reminder($parent_date_to_be_executed, $user, $reminder, $action, $form_data)
     {
+        $result = array();
+        if (isset($reminder['condition']["jsonLogic"]) && !$this->condition->compute_condition($reminder['condition']["jsonLogic"], $user)['result']) {
+            $result['condition'] = "Reminder action condition is not met";
+            return $result;
+        }
         $reminder_dates = null;
         $date_to_be_executed = date('Y-m-d H:i:s', strtotime('+' . $reminder[ACTION_JOB_SCHEDULE_TIME]['send_after'] . ' ' . $reminder[ACTION_JOB_SCHEDULE_TIME]['send_after_type'], strtotime($parent_date_to_be_executed)));
-        if ($reminder['schedule_time']['parent_job_type_hidden'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY) {
+        if ($reminder[ACTION_JOB_SCHEDULE_TIME]['parent_job_type_hidden'] == ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY) {
             $reminder_dates = array(
                 "session_start_date" => $parent_date_to_be_executed, // parent notification schedule time
                 "session_end_date" => date('Y-m-d H:i:s', strtotime('+' . $reminder[ACTION_JOB_SCHEDULE_TIME]['valid'] . ' ' . $reminder[ACTION_JOB_SCHEDULE_TIME]['valid_type'], strtotime($date_to_be_executed)))
             );
         }
+        $users_arr = is_array($user) ? $user : array($user); // check if the users are array, if they are not make it array
         if ($reminder['notification']['notification_types'] == notificationTypes_email) {
-            return  $this->queue_mail($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_mail($users_arr, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         } else if ($reminder['notification']['notification_types'] == notificationTypes_push_notification) {
-            return  $this->queue_notification($users, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
+            return  $this->queue_notification($users_arr, $reminder, $action, $form_data, $date_to_be_executed, $reminder_dates);
         }
+        return $result;
     }
 
     /**
@@ -488,9 +506,9 @@ class UserInput
      * user id arrays
      * @param array $action
      * the action information
-     * @param object $form_data
+     * @param array $form_data
      * The form data
-     * @return string
+     * @return array[]
      *  log text what actions was done;
      */
     private function queue_mail($users, $job, $action, $form_data, $date_to_be_executed = null, $reminder_dates = null)
@@ -560,7 +578,7 @@ class UserInput
                 if (isset($job['reminders'])) {
                     $reminders_result = array();
                     foreach ($job['reminders'] as $reminder_idx => $reminder) {
-                        $reminders_result[] = $this->send_reminder($mail['date_to_be_executed'], $users, $reminder, $action, $form_data);
+                        $reminders_result[] = $this->send_reminder($mail['date_to_be_executed'], $user_id, $reminder, $action, $form_data);
                     }
                 }
                 $result[] = 'Mail was queued for user: ' . $user_id . ' when form: ' . $form_data['form_name'] . ' ' . $action['trigger_type'];
@@ -593,9 +611,9 @@ class UserInput
      * user id arrays
      * @param array $action
      * the action information
-     * @param object $form_data
+     * @param array $form_data
      * The form data
-     * @retval string
+     * @return array[]
      *  log text what actions was done;
      */
     private function queue_notification($users, $job, $action, $form_data, $date_to_be_executed = null, $reminder_dates = null)
@@ -642,7 +660,6 @@ class UserInput
                 if (isset($job['reminders'])) {
                     $reminders_result = array();
                     foreach ($job['reminders'] as $reminder_idx => $reminder) {
-                        $reminder['on_job_execute'] = $job['on_job_execute']; // inherit the parent condition on execute
                         $reminders_result[] = $this->send_reminder($notification['date_to_be_executed'], $users, $reminder, $action, $form_data);
                     }
                 }
@@ -673,9 +690,9 @@ class UserInput
     /**
      * Calculate the execution date. If there is a repeater it takes it into account and 
      * recalculate the date properly
-     * @param object $action
+     * @param array $action
      * The action
-     * @param object $job
+     * @param array $job
      * The selected job
      * @return string
      * Return the execution date in string format
@@ -686,25 +703,38 @@ class UserInput
         if (isset($config[ACTION_REPEAT]) && $config[ACTION_REPEAT]) {
             $repeater = $config[ACTION_REPEATER];
             // Define the start date of the event
-            $start_date = $this->calc_date_to_be_sent($job['schedule_time']);
+            $start_date = $this->calc_date_to_be_sent($job[ACTION_JOB_SCHEDULE_TIME]);
             $start_date_time = date('H:i:s', strtotime($start_date));
             $current_date = $start_date;
             $schedule_dates = array();
             // Loop as many occurrences we have 
             while (count($schedule_dates) < $repeater[ACTION_REPEATER_OCCURRENCES]) {
-                if (($repeater[ACTION_REPEATER_FREQUENCY] == 'day')
-                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && in_array(date('l', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_WEEK]))
-                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && in_array(date('d', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_MONTH]))
+                if (($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && count($repeater[ACTION_REPEATER_DAYS_OF_WEEK]) == 0)
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && count($repeater[ACTION_REPEATER_DAYS_OF_MONTH]) == 0)
                 ) {
-                    // Event occurs on this day, schedule it
+                    // set the current day of the week or the month depending on the type
+                    if ($repeater[ACTION_REPEATER_FREQUENCY] == 'week') {
+                        $repeater[ACTION_REPEATER_DAYS_OF_WEEK][] = date('l'); //crurent day of the week
+                    } else if ($repeater[ACTION_REPEATER_FREQUENCY] == 'month') {
+                        $repeater[ACTION_REPEATER_DAYS_OF_MONTH][] = date('d'); // current day of the month
+                    }
+                }
+                if (($repeater[ACTION_REPEATER_FREQUENCY] == 'day')
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'week' && count($repeater[ACTION_REPEATER_DAYS_OF_WEEK]) > 0 && in_array(date('l', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_WEEK]))
+                    || ($repeater[ACTION_REPEATER_FREQUENCY] == 'month' && count($repeater[ACTION_REPEATER_DAYS_OF_MONTH]) > 0 && in_array(date('d', strtotime($current_date)), $repeater[ACTION_REPEATER_DAYS_OF_MONTH]))
+                ) {
+                    // Event occurs on this day, schedule it                    
                     $schedule_dates[] = date('Y-m-d H:i:s', strtotime($start_date_time, strtotime($current_date))); // add the new date with the time that we already calculated in the start date
                 }
                 // Increment the current date with one day
                 $current_date = date('Y-m-d', strtotime("+1 day", strtotime($current_date)));
             }
             return $schedule_dates[$action["repeat_index"]];
+        } else if (isset($config[ACTION_REPEAT_UNTIL_DATE]) && $config[ACTION_REPEAT_UNTIL_DATE]) {
+            $dates_to_be_scheduled = $this->calculateScheduledDatesRepeaterUntil($config[ACTION_REPEATER_UNTIL_DATE]);
+            return $dates_to_be_scheduled[$action["repeat_index"]];
         } else {
-            return $this->calc_date_to_be_sent($job['schedule_time']);
+            return $this->calc_date_to_be_sent($job[ACTION_JOB_SCHEDULE_TIME]);
         }
     }
 
@@ -762,7 +792,7 @@ class UserInput
      * Calculate the date when the email should be sent when it is on weekday type
      * @param array $schedule_info
      * Schedule info from the action
-     * @retval string
+     * @return string
      * the date in sting format for MySQL
      */
     private function calc_date_on_weekday($schedule_info)
@@ -783,7 +813,7 @@ class UserInput
 
     /**
      * Get the scheduled reminders for the user and this survey
-     * @retval array
+     * @return array
      * all scheduled reminders
      */
     private function get_scheduled_reminders_for_delete($form_data)
@@ -877,11 +907,11 @@ class UserInput
      * Update the record in the upload table
      * @param int $id_table
      * The upload table id
-     * @param object $record
+     * @param array $record
      * The record that already exists
      * @param string $transaction_by
      * Who initiated the update
-     * @param object $data
+     * @param array $data
      * the new data that will update the old one
      * @return bool
      * Return the success of the update
@@ -892,14 +922,14 @@ class UserInput
         $res = $this->db->execute_update_db(
             "UPDATE uploadRows SET `timestamp` = NOW(), id_users = :id_users WHERE id = :id;",
             array(
-                ':id' => $record['record_id'],
+                ':id' => $record[ENTRY_RECORD_ID],
                 ":id_users" => $data['id_users']
             )
         ) !== false; //update the timestamp of the row
         unset($data['id_users']); //once used - remove it
         foreach ($data as $key => $value) {
             // if it has a value it will be updated if it is not created yet it will be inserted
-            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record['record_id'], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
+            $current_res = $this->db->insert('uploadCells', array('id_uploadRows' => $record[ENTRY_RECORD_ID], "id_uploadCols" => $col_ids[$key], "value" => $value), array("value" => $value));
             $res = $res && $current_res;
         }
         if ($res) {
@@ -947,7 +977,7 @@ class UserInput
             if ($record) {
                 // the record exists, do not insert it, update it
                 $res = $this->update_external_data($id_table, $record, $transaction_by, $data);
-                return $res ? $record['record_id'] : $res;
+                return $res ? $record[ENTRY_RECORD_ID] : $res;
             }
         }
         /******************* SET TABLE *********************************/
@@ -1047,9 +1077,10 @@ class UserInput
      *   - 'id_section'   Selects all fields with given section id.
      *   - 'id_user'      Selects all fields from a given user id.
      *   - 'removed'      Selects all fields matching the removed flag
+     *   - 'form_id'      Filter the form id
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1061,8 +1092,8 @@ class UserInput
             $db_cond["g.name"] = $filter["gender"];
         if (isset($filter["id_section"]))
             $db_cond["ui.id_sections"] = $filter["id_section"];
-        if (isset($filter["id_section_form"])) {
-            $db_cond["ui.id_section_form"] = $filter["id_section_form"];
+        if (isset($filter["form_id"])) {
+            $db_cond["record.id_sections"] = $filter["form_id"];
         }
         if (isset($filter["id_user"]))
             $db_cond["ui.id_users"] = $filter["id_user"];
@@ -1071,7 +1102,7 @@ class UserInput
         if (isset($filter["removed"]))
             $db_cond["ui.removed"] = $filter["removed"] ? '1' : '0';
         if (isset($filter["form_name"]))
-            $db_cond["ui.id_section_form"] = $this->get_form_id($filter["form_name"]);
+            $db_cond["record.id_sections"] = $this->get_form_id($filter["form_name"]);
         $fields_all = $this->fetch_input_fields($db_cond, $get_page_info);
         $fields = array();
         foreach ($fields_all as $field)
@@ -1089,7 +1120,7 @@ class UserInput
     /**
      * Get all input fields submitted by male users.
      *
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1101,7 +1132,7 @@ class UserInput
     /**
      * Get all input fields submitted by female users.
      *
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1115,7 +1146,7 @@ class UserInput
      *
      * @param int $field_id
      *  The field_id to match.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1129,7 +1160,7 @@ class UserInput
      *
      * @param string $field_name
      *  The field_name to match.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1143,7 +1174,7 @@ class UserInput
      *
      * @param string $keyword
      *  The page keyword to match.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1158,7 +1189,7 @@ class UserInput
      * @param string $name
      *  The navigation section name to match. All navigation sections containing
      *  the given name are considered.
-     * @retval array
+     * @return array
      *  The selected user input fields. See UserInput::fetch_input_fields() for
      *  more details.
      */
@@ -1174,7 +1205,7 @@ class UserInput
      *  A field identifier of the form `@<form_name>#<field_name>`.
      * @param int $uid
      *  The id of a user.
-     * @retval mixed
+     * @return mixed
      *  On success, the value corresponding to the requested form field, null in
      *  case of a bad pattern syntax, and the empty string if no value was found.
      */
@@ -1200,7 +1231,7 @@ class UserInput
     /**
      * Returns the regular expression to find a form field
      *
-     * @retval string the regular expression that finds a field identifier of
+     * @return string the regular expression that finds a field identifier of
      * the form `@<form_name>#<field_name>`.
      */
     static public function get_input_value_pattern()
@@ -1225,10 +1256,13 @@ class UserInput
         if ($get_result !== false) {
             $sections = $get_result;
         } else {
-            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS `language` FROM user_input AS ui
+            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name,
+                    sft_il.content AS field_label, g.name AS gender, l.locale AS `language` 
+                    FROM user_input AS ui
+                    LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
                     LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
-                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = " . NAME_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
                     LEFT JOIN sections AS s ON s.id = ui.id_sections
                     LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -1265,7 +1299,7 @@ class UserInput
      * the id of the input field section
      * @param boolean $get_page_info
      * If true it fetch the info for the page and nav 
-     *@retval array
+     *@return array
      * Collect attributes for each existing user input field.
      * The following attributes are set:
      *  - 'page'  The name of the parent page of the field.
@@ -1282,10 +1316,13 @@ class UserInput
         if ($get_result !== false) {
             $sections = $get_result;
         } else {
-            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, sft_il.content AS field_label, g.name AS gender, l.locale AS language FROM user_input AS ui
+            $sql = "SELECT DISTINCT ui.id_sections, sft_it.content AS input_type, sft_in.content AS field_name, st.name AS field_type, sft_if.content AS form_name, 
+                    sft_il.content AS field_label, g.name AS gender, l.locale AS `language`
+                    FROM user_input AS ui
+                    LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
                     LEFT JOIN sections_fields_translation AS sft_it ON sft_it.id_sections = ui.id_sections AND sft_it.id_fields = " . TYPE_INPUT_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_in ON sft_in.id_sections = ui.id_sections AND sft_in.id_fields = " . NAME_FIELD_ID . "
-                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = " . NAME_FIELD_ID . "
+                    LEFT JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = " . NAME_FIELD_ID . "
                     LEFT JOIN sections_fields_translation AS sft_il ON sft_il.id_sections = ui.id_sections AND sft_il.id_fields = " . LABEL_FIELD_ID . "
                     LEFT JOIN sections AS s ON s.id = ui.id_sections
                     LEFT JOIN styles AS st ON st.id = s.id_styles
@@ -1323,7 +1360,7 @@ class UserInput
 
     /**
      * Get the UI preferences row for the user. If it is not set returns false
-     * @retval array or false
+     * @return array or false
      * return the UI preferences row or false if it is not set
      */
     public function get_ui_preferences()
@@ -1334,7 +1371,7 @@ class UserInput
             if ($form_id) {
                 $ui_pref = $this->get_data($form_id, '');
                 $this->ui_pref = $ui_pref ? $ui_pref[0] : array();
-            }else{
+            } else {
                 $this->ui_pref = false;
             }
         }
@@ -1381,7 +1418,7 @@ class UserInput
      * The name of the form or table     
      * @param int $form_type
      * Internal or external form, it loads different table based on this value
-     * @retval array
+     * @return int | false
      * the result of the fetched form row
      */
     public function get_form_id($name, $form_type = FORM_INTERNAL)
@@ -1393,9 +1430,10 @@ class UserInput
             return $get_result;
         } else {
             if ($form_type == FORM_INTERNAL) {
-                $sql = 'select id_section_form as id
+                $sql = 'select record.id_sections as id
                 from user_input ui
-                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = ui.id_section_form AND sft_if.id_fields = 57
+                LEFT JOIN user_input_record record ON (ui.id_user_input_record = record.id)
+                inner JOIN sections_fields_translation AS sft_if ON sft_if.id_sections = record.id_sections AND sft_if.id_fields = 57
                 where sft_if.content = :name
                 limit 0,1;';
             } else if ($form_type == FORM_EXTERNAL) {
@@ -1424,7 +1462,7 @@ class UserInput
      * Show the data for that user
      * @param boolean $db_first
      * If true it returns the first row. 
-     * @retval array
+     * @return array
      * the result of the fetched data
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $form_type = FORM_INTERNAL, $user_id = null, $db_first = false)
@@ -1485,7 +1523,7 @@ class UserInput
      * Internal or external form, it loads different table based on this value
      * @param boolean $db_first
      * If true it returns the first row. 
-     * @retval array
+     * @return array
      * the result of the fetched data
      */
     public function get_data_for_user($form_id, $user_id, $filter, $form_type = FORM_INTERNAL, $db_first = false)
@@ -1520,7 +1558,7 @@ class UserInput
      * The table name where we want to save the data
      * @param array $data
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
-     * @return array
+     * @return array | false
      * return array with the result containing result and message
      */
     public function save_external_data($transaction_by, $table_name, $data, $updateBasedOn = null)
@@ -1554,6 +1592,7 @@ class UserInput
                 // but if all rows are for the same user we can send the user
                 $form_fields['id_users']  = $id_users;
             }
+            $form_fields[ENTRY_RECORD_ID] = $res;
             $form_data = array(
                 "trigger_type" => isset($data['trigger_type']) ? $data['trigger_type'] : actionTriggerTypes_finished,
                 "form_name" => $table_name,
@@ -1600,9 +1639,9 @@ class UserInput
     /**
      * Fetch the label of a form field from the database if available.
      *
-     * @param intval $id_section
+     * @param int $id_section
      *  The section id of the form field from which the label will be fetched.
-     * @retval string
+     * @return string
      *  The label of the form field or the empty string if the label is not
      *  available.
      */
@@ -1630,9 +1669,9 @@ class UserInput
     /**
      * Fetch the style of a form field from the database if available.
      *
-     * @param intval $id_section
+     * @param int $id_section
      *  The section id of the form field from which the style will be fetched.
-     * @retval string
+     * @return string
      *  The style of the form field or the empty string if the style is not
      *  available.
      */
@@ -1658,7 +1697,7 @@ class UserInput
 
     /**
      * Check if any job should be queued based on the registered actions
-     * @param object $form_data
+     * @param array $form_data
      * The form data
      * @return string
      *  log text what jobs were scheduled;
@@ -1675,7 +1714,7 @@ class UserInput
             $start_date = date("Y-m-d H:i:s");
             $actions = $this->get_actions($form_data['form_id'], $form_data['form_type'], $form_data['trigger_type']);
             $id_users = isset($form_data['form_fields']['id_users']) ? $form_data['form_fields']['id_users'] : $_SESSION['id_user']; // the user could be set from the form, this happens with external forms
-            foreach ($actions as $action) {     
+            foreach ($actions as $action) {
                 $not_modified_action = array_slice($action, 0); //create a copy of the original action
                 $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
 
@@ -1693,6 +1732,14 @@ class UserInput
                 if (isset($action['config']['condition']["jsonLogic"]) && !$this->condition->compute_condition($action['config']['condition']["jsonLogic"], $id_users)['result']) {
                     $result['condition'] = "Action condition is not met";
                     continue;
+                }
+
+                if (
+                    $form_data['trigger_type'] == actionTriggerTypes_finished && isset($form_data['form_fields'][ENTRY_RECORD_ID]) &&
+                    isset($action['config'][ACTION_DELETE_SCHEDULED]) && $action['config'][ACTION_DELETE_SCHEDULED]
+                ) {
+                    // if the trigger type is finished and the record id exists, check for scheduled jobs with that record and move them to status deleted
+                    $result['deleted_jobs'] = $this->delete_jobs_for_record($form_data['form_type'],  $form_data['form_fields'][ENTRY_RECORD_ID]);
                 }
 
 
@@ -1718,7 +1765,13 @@ class UserInput
                 $repeat = isset($action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES]) ? $action['config'][ACTION_REPEATER][ACTION_REPEATER_OCCURRENCES] : 1;
                 $executed_blocks = array();
                 $blocks_not_executed_yet = $action['config']['blocks'];
-
+                if (isset($action['config'][ACTION_REPEATER_UNTIL_DATE])) {
+                    /*************************  REPEAT UNTIL *********************************************************/
+                    // calculate how many repetitions can be scheduled based on the config
+                    $repeat = $this->calculateScheduledDatesRepeaterUntil($action['config'][ACTION_REPEATER_UNTIL_DATE]);
+                    $repeat = count($repeat);
+                    /*************************  REPEAT UNTIL *********************************************************/
+                }
                 for ($repeat_index = 0; $repeat_index < $repeat; $repeat_index++) {
                     $action['repeat_index'] = $repeat_index;
 
@@ -1784,17 +1837,23 @@ class UserInput
                                     $curr_block['jobs'][] = $scheduling_result;
                                     $scheduling_keys = array_keys($scheduling_result);
                                     if (reset($scheduling_keys)) {
-                                        $this->db->insert('scheduledJobs_formActions', array(
+                                        $scheduledJobData = array(
                                             "id_scheduledJobs" => reset($scheduling_keys),
-                                            "id_formActions" => $action['id'],
-                                        ));
+                                            "id_formActions" => $action['id']
+                                        );
+                                        if ($form_data['form_type'] == FORM_INTERNAL) {
+                                            $scheduledJobData["id_user_input_record"] = $form_data['form_fields'][ENTRY_RECORD_ID];
+                                        } else if ($form_data['form_type'] == FORM_EXTERNAL) {
+                                            $scheduledJobData["id_uploadRows"] = $form_data['form_fields'][ENTRY_RECORD_ID];
+                                        }
+                                        $this->db->insert('scheduledJobs_formActions', $scheduledJobData);
                                     }
                                 }
                             }
                         }
                         $executed_blocks[] = $curr_block;
                     }
-                    $result['executed_blocks'] = $executed_blocks;
+                    $result['executed_blocks'] = array_merge(isset($result['executed_blocks']) ? $result['executed_blocks'] : array(),  $executed_blocks);
                 }
             }
 
@@ -1805,6 +1864,11 @@ class UserInput
                     $this->delete_reminders($scheduled_reminders);
                     $result['scheduled_reminders_for_delete'] = $scheduled_reminders;
                 }
+            }
+
+            if ($form_data['trigger_type'] == actionTriggerTypes_deleted) {
+                // if the trigger type is deleted and the record id exists, check for scheduled jobs with that record and move them to status deleted
+                $result['deleted_jobs'] = $this->delete_jobs_for_record($form_data['form_type'], $form_data['form_fields'][ENTRY_RECORD_ID]);
             }
 
             $end_time = microtime(true);
@@ -1852,7 +1916,8 @@ class UserInput
      * @return array
      * Return an associative array with the form values 
      */
-    public function get_form_values($fields){
+    public function get_form_values($fields)
+    {
         $form_values = array();
         //prepare the values based on what type of form they come
         foreach ($fields as $field_name => $field) {
@@ -1866,5 +1931,205 @@ class UserInput
         }
         return $form_values;
     }
+
+    /**
+     * Delete scheduled jobs associated with a record.
+     *
+     * @param int $form_type The type of form (internal or external).
+     * @param int $action_id The ID of the action.
+     * @param int $record_id The ID of the record.
+     * @return array Array with the ids of the deleted jobs
+     */
+    public function delete_jobs_for_record_and_action($form_type, $action_id, $record_id)
+    {
+        $job_status_deleted = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_deleted);
+        $job_status_queued = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued);
+        $sql = '';
+        if ($form_type == FORM_INTERNAL) {
+            $sql = 'SELECT id
+            FROM scheduledJobs sj
+            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+            WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_user_input_record = :record_id';
+        } else if (
+            $form_type == FORM_EXTERNAL
+        ) {
+            $sql = 'SELECT id
+            FROM scheduledJobs sj
+            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+            WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued AND sjfa.id_uploadRows = :record_id';
+        }
+        $jobs_ids = $this->db->query_db($sql, array(
+            ":action_id" => $action_id,
+            ":job_status_queued" => $job_status_queued,
+            ":record_id" => $record_id
+        ));
+        foreach ($jobs_ids as $key => $value) {
+            $this->transaction->add_transaction(
+                transactionTypes_delete,
+                transactionBy_by_system,
+                $_SESSION['id_user'],
+                $this->transaction::TABLE_SCHEDULED_JOBS,
+                $value['id'],
+                false
+            );
+            $this->db->update_by_ids(
+                "scheduledJobs",
+                array(
+                    "id_jobStatus" => $job_status_deleted
+                ),
+                array('id' => $value['id'])
+            );
+        }
+        return $jobs_ids;
+    }
+
+    /**
+     * Delete scheduled jobs associated with a record.
+     *
+     * @param int $form_type The type of form (internal or external).     
+     * @param int $record_id The ID of the record.
+     * @return array Array with the ids of the deleted jobs
+     */
+    public function delete_jobs_for_record($form_type, $record_id)
+    {
+        $job_status_deleted = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_deleted);
+        $job_status_queued = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued);
+        $sql = '';
+        if ($form_type == FORM_INTERNAL) {
+            $sql = 'SELECT id
+            FROM scheduledJobs sj
+            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+            WHERE id_jobStatus = :job_status_queued AND sjfa.id_user_input_record = :record_id';
+        } else if (
+            $form_type == FORM_EXTERNAL
+        ) {
+            $sql = 'SELECT id
+            FROM scheduledJobs sj
+            INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+            WHERE id_jobStatus = :job_status_queued AND sjfa.id_uploadRows = :record_id';
+        }
+        $jobs_ids = $this->db->query_db($sql, array(
+            ":job_status_queued" => $job_status_queued,
+            ":record_id" => $record_id
+        ));
+        foreach ($jobs_ids as $key => $value) {
+            $this->transaction->add_transaction(
+                transactionTypes_delete,
+                transactionBy_by_system,
+                $_SESSION['id_user'],
+                $this->transaction::TABLE_SCHEDULED_JOBS,
+                $value['id'],
+                false
+            );
+            $this->db->update_by_ids(
+                "scheduledJobs",
+                array(
+                    "id_jobStatus" => $job_status_deleted
+                ),
+                array('id' => $value['id'])
+            );
+        }
+        return $jobs_ids;
+    }
+
+    /**
+     * Calculate scheduled dates based on the provided repeater_until_date settings.
+     *
+     * This function calculates the scheduled dates for recurring events or jobs based on the provided settings.
+     * The settings include the deadline date, the repeat interval, the frequency (day, week, or month), 
+     * and optional parameters for specific days of the week or month. The calculated dates are stored 
+     * in an array and returned.
+     *
+     * @param array $repeater_until_date The repeater_until_date settings containing the deadline, repeat interval,
+     *                                   frequency, days of the week, and days of the month.
+     *                                   Example:
+     *                                   [
+     *                                       'deadline' => '2024-05-25 19:00',
+     *                                       'repeat_every' => 1,
+     *                                       'frequency' => 'month',
+     *                                       'days_of_month' => [6, 16, 17, 22, 30]
+     *                                   ]
+     * @return array An array containing the scheduled dates in the format 'Y-m-d H:i:s'.
+     */
+    function calculateScheduledDatesRepeaterUntil($repeater_until_date)
+    {
+        // Extract information from the repeater_until_date object
+        $deadline = new DateTime($repeater_until_date[ACTION_REPEATER_UNTIL_DATE_DEADLINE]);
+        $repeat_every = $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_REPEAT_EVERY];
+        $frequency = $repeater_until_date[ACTION_REPEATER_FREQUENCY];
+        $days_of_week = $repeater_until_date[ACTION_REPEATER_DAYS_OF_WEEK]??[];
+        $days_of_month = $repeater_until_date[ACTION_REPEATER_DAYS_OF_MONTH]??[];        
+    
+        // Initialize an array to store scheduled dates
+        $scheduled_dates = array();
+
+        // Calculate the number of days between now and the deadline
+        $current_date = new DateTime();
+        $current_date =  new DateTime($current_date->format('Y-m-d H:i:s'));
+        $schedule_at  = $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] && $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] != '' ? $repeater_until_date[ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT] : ($current_date->format('H:i:s'));
+        $interval = $current_date->diff($deadline);        
+
+    
+        // Calculate the scheduled dates based on the repeat_every and frequency
+        switch ($frequency) {
+            case 'day':
+                $interval = new DateInterval("P{$repeat_every}D");
+                $next_date = new DateTime();
+                $next_date = new DateTime($next_date->format('Y-m-d') . ' ' . $schedule_at);
+                if ($next_date >= $current_date) {
+                    // Add only if the time has not passed for the first date
+                    $scheduled_dates[] = $next_date->format('Y-m-d') . ' ' . $schedule_at;
+                }
+                $next_date->add($interval);
+                while ($next_date <= $deadline) {
+                    $scheduled_dates[] = $next_date->format('Y-m-d') . ' ' . $schedule_at;
+                    $next_date->add($interval);
+                }
+                break;
+            case 'week':
+                // Check if daysOfWeek is empty, use current day of the week if so
+                if (empty($days_of_week)) {
+                    $days_of_week = array($current_date->format('l'));
+                }
+                // Convert days of week to lowercase for case-insensitive comparison
+                $days_of_week = array_map('strtolower', $days_of_week);
+                // Calculate the scheduled dates based on the specified weekdays
+                $next_date = clone $current_date;
+                $next_date = new DateTime($next_date->format('Y-m-d') . ' ' . $schedule_at);
+                while ($next_date <= $deadline) {
+                    // Find the next occurrence of any of the specified weekdays
+                    foreach ($days_of_week as $day) {
+                        if (strtolower($next_date->format('l')) === strtolower($day)) {
+                            // Add the weekday if it's within the deadline
+                            if ($next_date <= $deadline && $next_date >= $current_date) {
+                                $scheduled_dates[] = $next_date->format('Y-m-d') . ' ' . $schedule_at;
+                            }
+                            break;
+                        }
+                    }
+                    $next_date->modify('+1 day'); // Move to the next day
+                }
+                break;
+            case 'month':
+                // Check if daysOfMonth is empty, use current day of the month if so
+                if (empty($days_of_month)) {
+                    $days_of_month = array((int)$current_date->format('j'));
+                }
+                foreach ($days_of_month as $day) {
+                    $next_date = new DateTime($deadline->format('Y-m-') . sprintf('%02d', $day));
+                    $next_date = new DateTime($next_date->format('Y-m-d') . ' ' . $schedule_at);
+                    while ($next_date <= $deadline) {
+                        if ($next_date >= $current_date) {
+                            $scheduled_dates[] = $next_date->format('Y-m-d H:i:s');
+                        }
+                        $next_date->modify('+1 month');
+                    }
+                }
+                break;
+        }
+    
+        return $scheduled_dates;
+    }
+    
 }
 ?>

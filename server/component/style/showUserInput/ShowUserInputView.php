@@ -184,7 +184,7 @@ class ShowUserInputView extends StyleView
     private function output_fields_log($fields)
     {
         $rows = array();
-        $header = array($this->label);
+        $header = array($this->label, 'Record ID');
         foreach($fields as $field) {
             $header[] = ($field['field_label'] == '' ? $field['field_name'] : $field['field_label']);
             if (isset($field['id_user_input_record']) && false) { // always show the timestamp, we dont need the record id
@@ -195,10 +195,11 @@ class ShowUserInputView extends StyleView
             } else {
                 // legacy
                 if (!isset($rows[$field['timestamp']]))
-                $rows[$field['timestamp']] = array($field['timestamp']);
-                $rows[$field['timestamp']][intval($field['id'])] = $field['value'];
+                $rows[$field['timestamp']] = array($field['timestamp']);                
+                $rows[$field['timestamp']][ENTRY_RECORD_ID] = $field['id_user_input_record'];
+                $rows[$field['timestamp']][intval($field['id'])] = $field['value'];                                                
             }
-        }
+        }        
         $header = array_unique($header);
         if($this->can_delete)
             $header[] = "";
@@ -241,6 +242,11 @@ class ShowUserInputView extends StyleView
                         new BaseStyleComponent('input', array(
                             'name' => 'user_input_remove_id',
                             'type_input' => "hidden",
+                        )),
+                        new BaseStyleComponent('input', array(
+                            'name' => ENTRY_RECORD_ID,
+                            'type_input' => "hidden",
+                            'value'=>1
                         )),
                     ),
                 )),

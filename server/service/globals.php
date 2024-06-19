@@ -106,6 +106,7 @@ define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');
 /* Page actions */
 define('PAGE_ACTION_BACKEND', 'backend');
 define('PAGE_ACTION_COMPONENT', 'component');
+define('PAGE_ACTION_AJAX', 'ajax');
 
 /* Entry modes */
 define('INSERT', 'insert');
@@ -187,6 +188,7 @@ define('scheduledJobsStatus_done', 'done');
 define('scheduledJobsStatus_failed', 'failed');
 define('actionTriggerTypes_started', 'started');
 define('actionTriggerTypes_finished', 'finished');
+define('actionTriggerTypes_deleted', 'deleted');
 define('timePeriod_seconds', 'seconds');
 define('timePeriod_minutes', 'minutes');
 define('timePeriod_hours', 'hours');
@@ -224,6 +226,7 @@ define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER', 'notification_with_reminder
 define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY', 'notification_with_reminder_for_diary');
 define('ACTION_SELECTED_OVERWRITE_VARIABLES', 'selected_overwrite_variables');
 define('ACTION_TARGET_GROUPS', 'target_groups');
+define('ACTION_DELETE_SCHEDULED', 'delete_scheduled');
 define('ACTION_SELECTED_TARGET_GROUPS', 'selected_target_groups');
 define('ACTION_RANDOMIZE', 'randomize');
 define('ACTION_RANDOMIZER', 'randomizer');
@@ -236,6 +239,11 @@ define('ACTION_REPEATER_OCCURRENCES', 'occurrences');
 define('ACTION_REPEATER_FREQUENCY', 'frequency');
 define('ACTION_REPEATER_DAYS_OF_WEEK', 'daysOfWeek');
 define('ACTION_REPEATER_DAYS_OF_MONTH', 'daysOfMonth');
+define('ACTION_REPEAT_UNTIL_DATE', 'repeat_until_date');
+define('ACTION_REPEATER_UNTIL_DATE', 'repeater_until_date');
+define('ACTION_REPEATER_UNTIL_DATE_DEADLINE', 'deadline');
+define('ACTION_REPEATER_UNTIL_DATE_REPEAT_EVERY', 'repeat_every');
+define('ACTION_REPEATER_UNTIL_DATE_SCHEDULE_AT', 'schedule_at');
 
 /* Mobile */
 define('MOBILE_REDIRECT_URL', 'mobile_redirect_url');

@@ -7,7 +7,7 @@
             "type": "string",
             "title": "Action",
             "propertyOrder": 1,
-            "description": "select action type - [`add_group` and `remove_group` can be used only in shceduled tasks]",
+            "description": "select action type - [`add_group` and `remove_group` can be used only in scheduled tasks]",
             "enum": [
                 "add_group",
                 "remove_group",
@@ -62,8 +62,8 @@
                     "scheduled_variable": {
                         "propertyOrder": 1,
                         "type": "string",
-                        "title": "Scheduled varaible",
-                        "description": "The schedule variable will be overwritten with the embeded variable set in the next field",
+                        "title": "Scheduled variable",
+                        "description": "The schedule variable will be overwritten with the embedded variable set in the next field",
                         "enum": [
                             "notificationTypes",
                             "send_after",
@@ -78,8 +78,8 @@
                     "embeded_variable": {
                         "propertyOrder": 2,
                         "type": "string",
-                        "title": "Embeded variable",
-                        "description": "This varible name will be searched in the entry data and replaced with the assigned scheduled variable"
+                        "title": "Embedded variable",
+                        "description": "This variable name will be searched in the entry data and replaced with the assigned scheduled variable"
                     }
                 },
                 "required": [

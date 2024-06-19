@@ -168,10 +168,10 @@ class CmsView extends BaseView
 
         $pages = $this->model->get_pages();
         $global_pages = $this->prepare_global_pages($this->model->get_global_pages());
-        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND));  
+        $pages = $this->remove_item_by_key_value($pages, 'action', array(PAGE_ACTION_BACKEND, PAGE_ACTION_AJAX));  
         $expand_global_pages = $this->model->expand_global_pages();
         $expand_pages = ($this->model->get_active_section_id() == null);
-        $this->add_list_component("global-page-list", "Globals", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
+        $this->add_list_component("global-page-list", "Configuration", $global_pages, "global_page", $expand_global_pages, $this->model->get_active_page_id());
         $this->add_list_component("page-list", "Page Index", $pages, "page",
             $expand_pages, $this->model->get_active_page_id(), ' ');
 
@@ -891,7 +891,7 @@ class CmsView extends BaseView
         if(in_array($field['type'],
                 array("text", "number", "markdown-inline", "time", "date", "password")))
             $children[] = new BaseStyleComponent("input", array(
-                "value" => $field['content'],
+                "value" => isset($field['content']) ? htmlspecialchars($field['content']) : '',
                 "name" => $field_name_content,
                 "type_input" => $field['type'],
                 "is_required" => isset($field['is_required']) ? $field['is_required'] : 0,
@@ -917,7 +917,6 @@ class CmsView extends BaseView
                 "name" => $field_name_prefix . "[content]",
                 "type_input" => $field['type'],
                 "items" => array(
-                    array("value" => "checkbox", "text" => "checkbox"),
                     array("value" => "color", "text" => "color"),
                     array("value" => "date", "text" => "date"),
                     array("value" => "datetime-local", "text" => "datetime-local"),

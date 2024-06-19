@@ -1,5 +1,70 @@
 # FIX FOR FIREBASE NEW API
 
+# v6.15.3
+### Bugfix
+ - properly retrieve `@user_name` in notification's subject
+
+# v6.15.2
+### Bugfix 
+ - when a record is updated and `Delete jobs` is checked for an action, we delete all scheduled jobs for this record not only the one scheduled from this action.
+
+# v6.15.1
+### Bugfix 
+ - return HTML decoded content for mobile for style `input`
+
+# v6.15.0
+### New Feature
+ - #487 - keep the `record_id` for the scheduled actions. Add two columns one for `INTERNAL` data type - `id_user_input_record` and one for `EXTERNAL` data type - `id_uploadRows`
+ - add extra info from which record a job was scheduled to `scheduledJobs` entry view
+ - move `id_section_form` info from table `user_input` to table `user_input_record`. Normalize data. <span style="color:red">**Potential issues with very old SelfHelp versions. Some of the data may not be visible in Admin->Data. It should be visible in the old user input export.**</span>
+ - make function `calc_condition` public and return the result in  `StyleModel`. This public function should be called to check the condition status when there is some custom logic in the `controller` or `component` of the style
+ - #487 saving `INTERNAL` data checks if there is scheduled actions for this `record_id` and if there are any they are deleted (change status to deleted)
+ - #487 add field `delete_scheduled` in `jobConfig.json`. When enabled previously scheduled jobs will be deleted if they are in status `queued` when the record is updated
+ - #490 - add `repeater_until_date` in `jobConfig.json`. Define repetition of the blocks. This feature enables users to schedule recurring jobs or events based on different intervals. Users can select from options such as 'Every day,' 'Every week,' or 'Every month' to set up the recurrence pattern. For 'Every week,' users have the flexibility to choose specific weekdays on which the job should occur. For instance, they can select Monday, Wednesday, and Friday as the days for the job to repeat. Similarly, for 'Every month,' users can specify particular days of the month for the job to recur. For example, they might choose to repeat the job on the 1st, 15th, and 30th days of each month. This functionality allows users to customize their scheduling preferences according to their specific needs and requirements. Additionally, users must set a deadline date, which is mandatory and always used, to indicate the date after which no more jobs will be scheduled.
+ - #487 - add `trigger_type` = `deleted`. When a record is deleted from `showUserInputForm`, it triggers the delete. All scheduled jobs in status `queued` related to the record are moved to status `deleted`.
+
+# v6.14.0
+### Bugfix 
+ - when queuing notifications check if the parameter is array.
+ - keep info for all executed blocks from all actions. Does not overwrite them.
+ - check actions with repetitions for `weeks` or `months` if the days and week days selected. If they were not we will use the current week day or the current month day.
+ - update `jobConfig.json` schema. Add information that on weekly or monthly repetition, in cases where nothing is selected it will use the current week day or current month day.
+ - #491 - access to `ajax_set_user_language` is granted when a `DB role` with `core` access is created
+ - #488 - fix default fallback for sections' translation
+ - #488 - fix default fallback for pages' translation
+
+### New Feature
+ - do not show pages with action type `ajax` in CMS page index 
+
+# v6.13.1
+### Bugfix 
+ - check if `SESSION_TIMEOUT` is defined
+ - add `SESSION_TIMEOUT` to  `globals_untracked.default.php`
+
+# v6.13.0
+### Bugfix 
+ - #482 - fix `CMS Preferences` typo
+ - #480 - `READS SQL DATA DETERMINISTIC` to the functions and procedures
+ - #483 - change the type of field `label` from `text` to `markdown-inline`
+ - #477 - fix HTML tags in the style `markdownInline`
+ - #476 - reload page after the section is deleted
+ - #485 - add condition to reminder if the reminder is `mail`, now it was added only for `notifications`
+ - #466 - fix dropdown selection in `Form Actions`
+
+### New features
+ - rename `Globals` to `Configurations`
+ - #478 - add `SESSION_TIMEOUT` in `globals_untracked.php`, the default value is 3600 seconds = 1 hour.
+ - #475 - remove `checkbox` option from `input` style. For the inputs already set to `checkbox` will continue to work.
+ - #485 - add `condition` and `condition_on_execute` for reminders 
+
+# v6.12.2
+### New features
+ - improve style `descriptionItem`. Now the help close only when click outside of the help modal. Add automatic button for code copy
+
+### Bugfix 
+ - strip slashes for `JSON` field only when the style is `select` 
+ - #480 - fix SQL script `v6.12.0` by enabling `log_bin_trust_function_creators` and then disabling once the script is over
+
 # v6.12.1
 ### New features
  - add global function to pull git version

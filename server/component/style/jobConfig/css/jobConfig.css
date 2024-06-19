@@ -241,10 +241,19 @@
     width: 100%;
 }
 
+#jobConfig [data-schemapath="root.repeater_until_date"] .card-title.level-2 {
+    display: flex !important;
+    border-bottom: 1px solid var(--secondary);
+    align-items: center;
+    width: 100%;
+}
+
 #jobConfig [data-schemapath="root.randomize"],
 [data-schemapath="root.repeat"],
+[data-schemapath="root.repeat_until_date"],
 [data-schemapath="root.target_groups"],
-[data-schemapath="root.overwrite_variables"] {
+[data-schemapath="root.overwrite_variables"],
+[data-schemapath="root.delete_scheduled"] {
     margin: 10px 0;
 }
 

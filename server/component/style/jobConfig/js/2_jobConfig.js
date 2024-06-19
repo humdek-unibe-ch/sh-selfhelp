@@ -30,7 +30,9 @@ function createJSONEditor(schema) {
         check_condition_btns();
         editor.on('change', () => {
             $('#jobConfig').find('select').each(function () {
-                if ($(this).prop('name').includes('job_schedule_types') || $(this).prop('name').includes('reminder_form_id')) {
+                if ($(this).prop('name').includes('job_schedule_types') || 
+                    $(this).prop('name').includes('reminder_form_id') ||
+                    $(this).prop('name').includes('send_on') ) {
                     // skip
                 } else {
                     $(this).data('live-search', 'true'); // add live search

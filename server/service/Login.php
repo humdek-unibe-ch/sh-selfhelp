@@ -113,7 +113,11 @@ class Login
                 );
             }
         }
-        session_start();
+        // Update the session configuration
+        $session_timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
+        ini_set('session.gc_maxlifetime', $session_timeout);
+        ini_set('session.cookie_lifetime', $session_timeout);
+        session_start();                
         if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
         if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
@@ -153,7 +157,7 @@ class Login
             else if($this->redirect)
                 $this->update_last_url($_SESSION['id_user'], null);
         }
-        // session_write_close(); // otherwise it blocks request, check later if session is uesed naywhere else to assgin data.
+        // session_write_close(); // otherwise it blocks request, check later if session is used anywhere else to assign data.
     }
 
     /**

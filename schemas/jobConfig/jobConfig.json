@@ -1,1002 +1,1280 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"definitions": {
-		"condition_ref": {
-			"type": "object",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"compact": true
-			},
-			"properties": {
-				"jsonLogic": {
-					"type": "object",
-					"title": "jsonLogic",
-					"options": {
-						"hidden": true
-					}
-				},
-				"builder": {
-					"type": "object",
-					"title": "Builder",
-					"options": {
-						"hidden": true
-					}
-				},
-				"condition_btn": {
-					"type": "button",
-					"title": "Add condition",
-					"options": {
-						"button": {
-							"action": "showConditionBuilder"
-						},
-						"inputAttributes": {
-							"data-container": "condition-btn",
-							"class": "btn btn-primary btn-sm json-editor-btn-"
-						}
-					}
-				}
-			}
-		},
-		"condition_ref_on_execute": {
-			"type": "object",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"compact": true
-			},
-			"properties": {
-				"jsonLogic": {
-					"type": "object",
-					"title": "jsonLogic",
-					"options": {
-						"hidden": true
-					}
-				},
-				"builder": {
-					"type": "object",
-					"title": "Builder",
-					"options": {
-						"hidden": true
-					}
-				},
-				"condition_btn": {
-					"type": "button",
-					"title": "Add condition on execute",
-					"options": {
-						"button": {
-							"action": "showConditionBuilder"
-						},
-						"inputAttributes": {
-							"data-container": "condition-btn",
-							"class": "btn btn-primary btn-sm json-editor-btn-"
-						}
-					}
-				}
-			}
-		},
-		"block_ref": {
-			"type": "object",
-			"title": "Block",
-			"headerTemplate": "{{i}} - {{self.block_name}}",
-			"format": "grid-strict",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"compact": true
-			},
-			"properties": {
-				"index": {
-					"type": "number",
-					"options": {
-						"hidden": true
-					}
-				},
-				"condition": {
-					"title": "Condition",
-					"$ref": "#/definitions/condition_ref",
-					"options": {
-						"grid_columns": 12
-					}
-				},
-				"block_name": {
-					"title": "Block name",
-					"default": "Block",
-					"type": "string",
-					"options": {
-						"grid_columns": 6
-					}
-				},
-				"show_randomization_count_hidden": {
-					"watch": {
-						"even_presentation": "root.randomizer.even_presentation",
-						"randomize": "root.randomize"
-					},
-					"template": "{{even_presentation}}-{{randomize}}",
-					"options": {
-						"hidden": true
-					}
-				},
-				"randomization_count": {
-					"type": "number",
-					"title": "Randomization count",
-					"default": 0,
-					"description": "It keeps the state of the randomization count for even presentation.",
-					"options": {
-						"dependencies": {
-							"show_randomization_count_hidden": [
-								"true-true"
-							]
-						},
-						"grid_columns": 6
-					}
-				},
-				"jobs": {
-					"type": "array",
-					"format": "tabs",
-					"title": "Jobs",
-					"default": {
-						"job_name": "Job"
-					},
-					"options": {
-						"enable_array_copy": true
-					},
-					"items": {
-						"title": "Job",
-						"$ref": "#/definitions/job_ref"
-					}
-				}
-			}
-		},
-		"randomizer_ref": {
-			"type": "object",
-			"format": "grid-strict",
-			"description": "Add randomization options for the blocks",
-			"properties": {
-				"even_presentation": {
-					"type": "boolean",
-					"format": "checkbox",
-					"title": "Evenly present blocks",
-					"description": "When enabled, the blocks will be presented evenly. A count field will be added to each block and it will be used to adjust the ammount of entries. The counter is global per action and not per user.",
-					"options": {
-						"grid_columns": 6
-					}
-				},
-				"random_elements": {
-					"type": "number",
-					"title": "Randomly present",
-					"minimum": 1,
-					"default": 1,
-					"description": "Randomly present the selected ammount from the following blocks.",
-					"options": {
-						"grid_columns": 6
-					}
-				}
-			}
-		},
-		"repeater_ref": {
-			"type": "object",
-			"description": "Define repetition of the blocks. It creates a loop where new dates are calculated based on their date to be scheduled. Example: if you schedule a job immediately and it was defined to occur 3 times every day, then 3 jobs will be created. One for now, one for tomorrow the same time and one for the day after tomorrow at the same time",
-			"format": "grid-strict",
-			"properties": {
-				"occurrences": {
-					"type": "integer",
-					"title": "Occurrences",
-					"minimum": 1,
-					"default": 1,
-					"description": "How many times the blocks should be scheduled.",
-					"options": {
-						"grid_columns": 3
-					}
-				},
-				"frequency": {
-					"type": "string",
-					"title": "Repeat every",
-					"enum": [
-						"day",
-						"week",
-						"month"
-					],
-					"options": {
-						"grid_columns": 3,
-						"enum_titles": [
-							"Day",
-							"Week",
-							"Month"
-						]
-					},
-					"description": "The frequency at which the event repeats."
-				},
-				"daysOfWeek": {
-					"type": "array",
-					"title": "Select week days",
-					"uniqueItems": true,
-					"format": "select2",
-					"options": {
-						"grid_columns": 6,
-						"select2": {
-							"tags": true
-						},
-						"dependencies": {
-							"frequency": [
-								"week"
-							]
-						}
-					},
-					"items": {
-						"type": "string",
-						"enum": [
-							"Monday",
-							"Tuesday",
-							"Wednesday",
-							"Thursday",
-							"Friday",
-							"Saturday",
-							"Sunday"
-						]
-					},
-					"description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency."
-				},
-				"daysOfMonth": {
-					"type": "array",
-					"title": "Select days",
-					"format": "select2",
-					"uniqueItems": true,
-					"options": {
-						"grid_columns": 6,
-						"select2": {
-							"tags": true
-						},
-						"dependencies": {
-							"frequency": [
-								"month"
-							]
-						}
-					},
-					"items": {
-						"type": "integer",
-						"enum": [
-							1,
-							2,
-							3,
-							4,
-							5,
-							6,
-							7,
-							8,
-							9,
-							10,
-							11,
-							12,
-							13,
-							14,
-							15,
-							16,
-							17,
-							18,
-							19,
-							20,
-							21,
-							22,
-							23,
-							24,
-							25,
-							26,
-							27,
-							28,
-							29,
-							30,
-							31
-						]
-					},
-					"description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency."
-				}
-			}
-		},
-		"schedule_time_reminder_ref": {
-			"type": "object",
-			"description": "Define how much time after the notification, the reminder will be sent",
-			"title": "Reminder schedule time",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true
-			},
-			"format": "grid-strict",
-			"properties": {
-				"send_after": {
-					"type": "number",
-					"title": "Send after",
-					"minimum": 1,
-					"default": 1,
-					"options": {
-						"grid_columns": 6
-					}
-				},
-				"send_after_type": {
-					"type": "string",
-					"title": "&nbsp;",
-					"default": "days",
-					"enum": [
-						"seconds",
-						"minutes",
-						"hours",
-						"days",
-						"weeks",
-						"months"
-					],
-					"options": {
-						"grid_columns": 6
-					}
-				},
-				"parent_job_type_hidden": {
-					"type": "string",
-					"template": "{{job_type}}",
-					"watch": {
-						"job_type": "job.job_type"
-					},
-					"options": {
-						"hidden": true
-					}
-				},
-				"valid": {
-					"type": "number",
-					"title": "Valid for",
-					"minimum": 1,
-					"default": 1,
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"parent_job_type_hidden": [
-								"notification_with_reminder_for_diary"
-							]
-						}
-					}
-				},
-				"valid_type": {
-					"type": "string",
-					"description": "For how much time the reminder is valid after it was sent",
-					"title": " &nbsp;",
-					"default": "hours",
-					"enum": [
-						"seconds",
-						"minutes",
-						"hours",
-						"days",
-						"weeks",
-						"months"
-					],
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"parent_job_type_hidden": [
-								"notification_with_reminder_for_diary"
-							]
-						}
-					}
-				}
-			}
-		},
-		"schedule_time_ref": {
-			"type": "object",
-			"title": "Schedule time",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true
-			},
-			"required": [
-				"send_on_day_at"
-			],
-			"format": "grid-strict",
-			"properties": {
-				"job_schedule_types": {
-					"type": "string",
-					"title": "Schedule type",
-					"format": "select2",
-					"options": {
-						"grid_columns": 12
-					},
-					"enumSource": [
-						{
-							"source": [
-								{
-									"value": "after_period",
-									"text": "After time period"
-								},
-								{
-									"value": "after_period_on_day_at_time",
-									"text": "After time period on a weekday at given time"
-								},
-								{
-									"value": "immediately",
-									"text": "Immediately"
-								},
-								{
-									"value": "on_fixed_datetime",
-									"text": "On specific fixed datetime"
-								}
-							],
-							"title": "{{item.text}}",
-							"value": "{{item.value}}"
-						}
-					]
-				},
-				"send_after": {
-					"type": "number",
-					"title": "Send after",
-					"default": 1,
-					"minimum": 1,
-					"options": {
-						"grid_columns": 4,
-						"dependencies": {
-							"job_schedule_types": [
-								"after_period"
-							]
-						}
-					}
-				},
-				"send_after_type": {
-					"type": "string",
-					"title": "&nbsp;",
-					"default": "days",
-					"enum": [
-						"seconds",
-						"minutes",
-						"hours",
-						"days",
-						"weeks",
-						"months"
-					],
-					"options": {
-						"grid_columns": 4,
-						"dependencies": {
-							"job_schedule_types": [
-								"after_period"
-							]
-						}
-					}
-				},
-				"send_on": {
-					"type": "string",
-					"title": "Send on",
-					"enumSource": [],
-					"options": {
-						"grid_columns": 4,
-						"dependencies": {
-							"job_schedule_types": [
-								"after_period_on_day_at_time"
-							]
-						}
-					}
-				},
-				"send_on_day": {
-					"type": "string",
-					"title": "&nbsp;",
-					"enumSource": [],
-					"options": {
-						"grid_columns": 4,
-						"dependencies": {
-							"job_schedule_types": [
-								"after_period_on_day_at_time"
-							]
-						}
-					}
-				},
-				"send_on_day_at": {
-					"type": "string",
-					"format": "time",
-					"title": "at",
-					"options": {
-						"grid_columns": 4,
-						"dependencies": {
-							"job_schedule_types": [
-								"after_period_on_day_at_time",
-								"after_period"
-							]
-						},
-						"inputAttributes": {
-							"placeholder": "Enter time"
-						},
-						"flatpickr": {
-							"inlineHideInput": true,
-							"wrap": true,
-							"allowInput": true,
-							"showClearButton": true
-						}
-					}
-				},
-				"custom_time": {
-					"type": "string",
-					"format": "datetime-local",
-					"title": "Select date",
-					"options": {
-						"grid_columns": 12,
-						"dependencies": {
-							"job_schedule_types": [
-								"on_fixed_datetime"
-							]
-						},
-						"inputAttributes": {
-							"placeholder": "Enter date"
-						},
-						"flatpickr": {
-							"inlineHideInput": true,
-							"wrap": true,
-							"time_24hr": true,
-							"allowInput": true,
-							"showClearButton": true
-						}
-					}
-				}
-			}
-		},
-		"notification_ref": {
-			"type": "object",
-			"title": "Notification",
-			"format": "grid-strict",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true
-			},
-			"properties": {
-				"notification_types": {
-					"type": "string",
-					"title": "Notification type",
-					"enum": [
-						"email",
-						"push_notification"
-					],
-					"default": "email",
-					"options": {
-						"grid_columns": 12,
-						"enum_titles": [
-							"Email",
-							"Push notification"
-						],
-						"dependencies": {
-							"job_type": [
-								"notification",
-								"notification_with_reminder",
-								"notification_with_reminder_for_diary"
-							]
-						}
-					}
-				},
-				"redirect_url": {
-					"type": "string",
-					"title": "Redirect to URL",
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"notification_types": [
-								"push_notification"
-							]
-						}
-					}
-				},
-				"from_email": {
-					"type": "string",
-					"title": "From email",
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"notification_types": [
-								"email"
-							]
-						}
-					}
-				},
-				"from_name": {
-					"type": "string",
-					"title": "From name",
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"notification_types": [
-								"email"
-							]
-						}
-					}
-				},
-				"reply_to": {
-					"type": "string",
-					"title": "Reply to",
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"notification_types": [
-								"email"
-							]
-						}
-					}
-				},
-				"recipient": {
-					"type": "string",
-					"title": "Send To (recipient)",
-					"description": "Use @user for the user who is triggering the action, separate with `;` for emails",
-					"options": {
-						"grid_columns": 6,
-						"dependencies": {
-							"notification_types": [
-								"push_notification",
-								"email"
-							]
-						}
-					}
-				},
-				"attachments": {
-					"type": "array",
-					"uniqueItems": true,
-					"format": "select2",
-					"options": {
-						"grid_columns": 12,
-						"dependencies": {
-							"notification_types": "email"
-						},
-						"select2": {
-							"tags": true
-						}
-					},
-					"title": "Attachments",
-					"items": {
-						"type": "string",
-						"enum": [
-							"att1",
-							"att2",
-							"att3"
-						]
-					}
-				},
-				"subject": {
-					"type": "string",
-					"title": "Subject",
-					"options": {
-						"grid_columns": 12,
-						"dependencies": {
-							"notification_types": [
-								"push_notification",
-								"email"
-							]
-						}
-					}
-				},
-				"body": {
-					"type": "string",
-					"format": "markdown",
-					"title": "Body",
-					"description": "Use @user_name if you want to address the user who trigered the action with their user name",
-					"options": {
-						"grid_columns": 12,
-						"simplemde": {
-							"autoDownloadFontAwesome": false,
-							"spellChecker": false,
-							"renderingConfig": {
-								"singleLineBreaks": false
-							}
-						},
-						"dependencies": {
-							"notification_types": [
-								"push_notification",
-								"email"
-							]
-						}
-					}
-				}
-			}
-		},
-		"reminder_ref": {
-			"type": "object",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true
-			},
-			"properties": {
-				"form_id": {
-					"type": "string",
-					"template": "{{reminder_form_id}}",
-					"watch": {
-						"reminder_form_id": "job.reminder_form_id"
-					},
-					"options": {
-						"hidden": true
-					}
-				},
-				"schedule_time": {
-					"$ref": "#/definitions/schedule_time_reminder_ref"
-				},
-				"notification": {
-					"$ref": "#/definitions/notification_ref"
-				}
-			}
-		},
-		"job_ref": {
-			"type": "object",
-			"id": "job",
-			"title": "Job",
-			"headerTemplate": "{{i}} - {{self.job_name}}",
-			"format": "grid-strict",
-			"options": {
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"compact": true
-			},
-			"properties": {
-				"condition": {
-					"title": "Condition",
-					"$ref": "#/definitions/condition_ref",
-					"options": {
-						"grid_columns": 6
-					}
-				},
-				"on_job_execute": {
-					"type": "object",
-					"options": {
-						"disable_collapse": true,
-						"disable_edit_json": true,
-						"disable_properties": true,
-						"compact": true,
-						"grid_columns": 6
-					},
-					"properties": {
-						"condition": {
-							"title": "Condition on job execute",
-							"$ref": "#/definitions/condition_ref_on_execute"
-						}
-					}
-				},
-				"job_name": {
-					"type": "string",
-					"title": "Job name",
-					"default": "Job",
-					"options": {
-						"grid_columns": 6
-					}
-				},
-				"job_type": {
-					"type": "string",
-					"title": "Job type",
-					"enum": [
-						"add_group",
-						"remove_group",
-						"notification",
-						"notification_with_reminder",
-						"notification_with_reminder_for_diary"
-					],
-					"options": {
-						"enum_titles": [
-							"Add group",
-							"Remove group",
-							"Schedule notification",
-							"Schedule notification with reminders",
-							"Schedule notification with reminders for a diary"
-						],
-						"grid_columns": 6
-					}
-				},
-				"reminder_form_id": {
-					"type": "string",
-					"title": "Reminder for",
-					"enumSource": [],
-					"options": {
-						"grid_columns": 12,
-						"dependencies": {
-							"job_type": [
-								"notification_with_reminder",
-								"notification_with_reminder_for_diary"
-							]
-						}
-					}
-				},
-				"schedule_time": {
-					"$ref": "#/definitions/schedule_time_ref"
-				},
-				"job_add_remove_groups": {
-					"type": "array",
-					"uniqueItems": true,
-					"format": "select2",
-					"options": {
-						"grid_columns": 12,
-						"select2": {
-							"tags": true
-						},
-						"dependencies": {
-							"job_type": [
-								"add_group",
-								"remove_group"
-							]
-						}
-					},
-					"title": "Group",
-					"description": "Select Selfhelp group",
-					"items": {
-						"type": "string",
-						"enum": [
-							"group1",
-							"group2",
-							"group3"
-						]
-					}
-				},
-				"notification": {
-					"$ref": "#/definitions/notification_ref",
-					"options": {
-						"dependencies": {
-							"job_type": [
-								"notification",
-								"notification_with_reminder",
-								"notification_with_reminder_for_diary"
-							]
-						}
-					}
-				},
-				"reminders": {
-					"type": "array",
-					"title": "Reminders",
-					"format": "tabs-top",
-					"items": {
-						"title": "reminder",
-						"$ref": "#/definitions/reminder_ref"
-					},
-					"options": {
-						"dependencies": {
-							"job_type": [
-								"notification_with_reminder",
-								"notification_with_reminder_for_diary"
-							]
-						}
-					}
-				}
-			}
-		}
-	},
-	"title": "Action config",
-	"id": "root",
-	"type": "object",
-	"format": "grid-strict",
-	"required": [
-		"blocks"
-	],
-	"options": {
-		"disable_properties": true
-	},
-	"properties": {
-		"condition": {
-			"title": "Condition",
-			"$ref": "#/definitions/condition_ref",
-			"options": {
-				"grid_columns": 12
-			}
-		},
-		"randomize": {
-			"title": "Randomize",
-			"type": "boolean",
-			"default": false,
-			"format": "checkbox",
-			"options": {
-				"grid_columns": 3
-			}
-		},
-		"repeat": {
-			"title": "Repeat",
-			"type": "boolean",
-			"default": false,
-			"format": "checkbox",
-			"options": {
-				"grid_columns": 3
-			}
-		},
-		"target_groups": {
-			"type": "boolean",
-			"title": "Target groups",
-			"default": false,
-			"format": "checkbox",
-			"options": {
-				"grid_columns": 3
-			}
-		},
-		"overwrite_variables": {
-			"type": "boolean",
-			"title": "Overwrite variables",
-			"default": false,
-			"format": "checkbox",
-			"options": {
-				"grid_columns": 3
-			}
-		},
-		"randomizer": {
-			"title": "Randomizer",
-			"$ref": "#/definitions/randomizer_ref",
-			"options": {
-				"dependencies": {
-					"randomize": true
-				},
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"grid_columns": 12
-			}
-		},
-		"repeater": {
-			"title": "Repeater",
-			"$ref": "#/definitions/repeater_ref",
-			"options": {
-				"dependencies": {
-					"repeat": true
-				},
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"grid_columns": 12
-			}
-		},
-		"selected_target_groups": {
-			"type": "array",
-			"uniqueItems": true,
-			"format": "select2",
-			"options": {
-				"dependencies": {
-					"target_groups": true
-				},
-				"grid_columns": 6
-			},
-			"title": "Select target groups",
-			"description": "All jobs will be executed to all users within the selected groups. Use it carefully.",
-			"items": {
-				"type": "string",
-				"enum": [
-					"admin",
-					"therapist",
-					"subject",
-					"test"
-				]
-			}
-		},
-		"selected_overwrite_variables": {
-			"type": "array",
-			"uniqueItems": true,
-			"format": "select2",
-			"options": {
-				"dependencies": {
-					"overwrite_variables": true
-				},
-				"disable_collapse": true,
-				"disable_edit_json": true,
-				"disable_properties": true,
-				"grid_columns": 6
-			},
-			"title": "Overwrite variables",
-			"description": "Select which variables to be overwritten. If a value with the same name is submitted in the form, it will be used to overwrite the selected variable.",
-			"items": {
-				"type": "string",
-				"enum": [
-					"send_after",
-					"send_after_type",
-					"send_on_day_at",
-					"custom_time"
-				]
-			}
-		},
-		"blocks": {
-			"type": "array",
-			"title": "Blocks",
-			"format": "tabs-top",
-			"options": {
-				"enable_array_copy": true
-			},
-			"default": {
-				"block_name": "Block"
-			},
-			"items": {
-				"title": "Block",
-				"$ref": "#/definitions/block_ref"
-			}
-		}
-	}
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+        "condition_ref": {
+            "type": "object",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "compact": true
+            },
+            "properties": {
+                "jsonLogic": {
+                    "type": "object",
+                    "title": "jsonLogic",
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "builder": {
+                    "type": "object",
+                    "title": "Builder",
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "condition_btn": {
+                    "type": "button",
+                    "title": "Add condition",
+                    "options": {
+                        "button": {
+                            "action": "showConditionBuilder"
+                        },
+                        "inputAttributes": {
+                            "data-container": "condition-btn",
+                            "class": "btn btn-primary btn-sm json-editor-btn-"
+                        }
+                    }
+                }
+            }
+        },
+        "condition_ref_on_execute": {
+            "type": "object",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "compact": true
+            },
+            "properties": {
+                "jsonLogic": {
+                    "type": "object",
+                    "title": "jsonLogic",
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "builder": {
+                    "type": "object",
+                    "title": "Builder",
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "condition_btn": {
+                    "type": "button",
+                    "title": "Add condition on execute",
+                    "options": {
+                        "button": {
+                            "action": "showConditionBuilder"
+                        },
+                        "inputAttributes": {
+                            "data-container": "condition-btn",
+                            "class": "btn btn-primary btn-sm json-editor-btn-"
+                        }
+                    }
+                }
+            }
+        },
+        "block_ref": {
+            "type": "object",
+            "title": "Block",
+            "headerTemplate": "{{i}} - {{self.block_name}}",
+            "format": "grid-strict",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "compact": true
+            },
+            "properties": {
+                "index": {
+                    "type": "number",
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "condition": {
+                    "title": "Condition",
+                    "$ref": "#/definitions/condition_ref",
+                    "options": {
+                        "grid_columns": 12
+                    }
+                },
+                "block_name": {
+                    "title": "Block name",
+                    "default": "Block",
+                    "type": "string",
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "show_randomization_count_hidden": {
+                    "watch": {
+                        "even_presentation": "root.randomizer.even_presentation",
+                        "randomize": "root.randomize"
+                    },
+                    "template": "{{even_presentation}}-{{randomize}}",
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "randomization_count": {
+                    "type": "number",
+                    "title": "Randomization count",
+                    "default": 0,
+                    "description": "It keeps the state of the randomization count for even presentation.",
+                    "options": {
+                        "dependencies": {
+                            "show_randomization_count_hidden": [
+                                "true-true"
+                            ]
+                        },
+                        "grid_columns": 6
+                    }
+                },
+                "jobs": {
+                    "type": "array",
+                    "format": "tabs",
+                    "title": "Jobs",
+                    "default": {
+                        "job_name": "Job"
+                    },
+                    "options": {
+                        "enable_array_copy": true
+                    },
+                    "items": {
+                        "title": "Job",
+                        "$ref": "#/definitions/job_ref"
+                    }
+                }
+            }
+        },
+        "randomizer_ref": {
+            "type": "object",
+            "format": "grid-strict",
+            "description": "Add randomization options for the blocks",
+            "properties": {
+                "even_presentation": {
+                    "type": "boolean",
+                    "format": "checkbox",
+                    "title": "Evenly present blocks",
+                    "description": "When enabled, the blocks will be presented evenly. A count field will be added to each block and it will be used to adjust the ammount of entries. The counter is global per action and not per user.",
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "random_elements": {
+                    "type": "number",
+                    "title": "Randomly present",
+                    "minimum": 1,
+                    "default": 1,
+                    "description": "Randomly present the selected ammount from the following blocks.",
+                    "options": {
+                        "grid_columns": 6
+                    }
+                }
+            }
+        },
+        "repeater_ref": {
+            "type": "object",
+            "description": "Define repetition of the blocks. It creates a loop where new dates are calculated based on their date to be scheduled. Example: if you schedule a job immediately and it was defined to occur 3 times every day, then 3 jobs will be created. One for now, one for tomorrow the same time and one for the day after tomorrow at the same time",
+            "format": "grid-strict",
+            "properties": {
+                "occurrences": {
+                    "type": "integer",
+                    "title": "Occurrences",
+                    "minimum": 1,
+                    "default": 1,
+                    "description": "How many times the blocks should be scheduled.",
+                    "options": {
+                        "grid_columns": 3
+                    }
+                },
+                "frequency": {
+                    "type": "string",
+                    "title": "Repeat every",
+                    "enum": [
+                        "day",
+                        "week",
+                        "month"
+                    ],
+                    "options": {
+                        "grid_columns": 3,
+                        "enum_titles": [
+                            "Day",
+                            "Week",
+                            "Month"
+                        ]
+                    },
+                    "description": "The frequency at which the event repeats."
+                },
+                "daysOfWeek": {
+                    "type": "array",
+                    "title": "Select week days",
+                    "uniqueItems": true,
+                    "format": "select2",
+                    "options": {
+                        "grid_columns": 6,
+                        "select2": {
+                            "tags": true
+                        },
+                        "dependencies": {
+                            "frequency": [
+                                "week"
+                            ]
+                        }
+                    },
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                            "Sunday"
+                        ]
+                    },
+                    "description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency. If none is selected it will use the current week day."
+                },
+                "daysOfMonth": {
+                    "type": "array",
+                    "title": "Select days",
+                    "format": "select2",
+                    "uniqueItems": true,
+                    "options": {
+                        "grid_columns": 6,
+                        "select2": {
+                            "tags": true
+                        },
+                        "dependencies": {
+                            "frequency": [
+                                "month"
+                            ]
+                        }
+                    },
+                    "items": {
+                        "type": "integer",
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28,
+                            29,
+                            30,
+                            31
+                        ]
+                    },
+                    "description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency. If none is selected it will use the current day of the month."
+                }
+            }
+        },
+        "repeater_ref_until_date": {
+            "type": "object",
+            "description": "Define repetition of the blocks. This feature enables users to schedule recurring jobs or events based on different intervals. Users can select from options such as 'Every day,' 'Every week,' or 'Every month' to set up the recurrence pattern. For 'Every week,' users have the flexibility to choose specific weekdays on which the job should occur. For instance, they can select Monday, Wednesday, and Friday as the days for the job to repeat. Similarly, for 'Every month,' users can specify particular days of the month for the job to recur. For example, they might choose to repeat the job on the 1st, 15th, and 30th days of each month. This functionality allows users to customize their scheduling preferences according to their specific needs and requirements. Additionally, users must set a deadline date, which is mandatory and always used, to indicate the date after which no more jobs will be scheduled.",
+            "format": "grid-strict",
+            "required": [
+                "deadline"
+            ],
+            "properties": {
+                "deadline": {
+                    "type": "string",
+                    "format": "datetime-local",
+                    "title": "Until deadline",
+                    "options": {
+                        "grid_columns": 3,
+                        "inputAttributes": {
+                            "placeholder": "Enter date"
+                        },
+                        "flatpickr": {
+                            "inlineHideInput": true,
+                            "wrap": true,
+                            "time_24hr": true,
+                            "allowInput": true,
+                            "showClearButton": true
+                        }
+                    },
+                    "description": "Set the deadline date. After this date passes, no further jobs will be scheduled. The time is used for scheduling all the jobs in the future."
+                },
+                "schedule_at": {
+                    "type": "string",
+                    "format": "time",
+                    "title": "Schedule at",
+                    "options": {
+                        "grid_columns": 2,
+                        "inputAttributes": {
+                            "placeholder": "Set time"
+                        },
+                        "flatpickr": {
+                            "inlineHideInput": true,
+                            "wrap": true,
+                            "time_24hr": true,
+                            "allowInput": true,
+                            "showClearButton": true
+                        }
+                    },
+                    "description": "Set the time which will be used for scheduling the jobs. If not time is selected it will use the current time."
+                },
+                "repeat_every": {
+                    "type": "integer",
+                    "title": "Repeat",
+                    "enum": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30
+                    ],                    
+                    "options": {
+                        "grid_columns": 2,
+                        "enum_titles": [
+                            "Every",
+                            "Every 2nd",
+                            "Every 3rd",
+                            "Every 4th",
+                            "Every 5th",
+                            "Every 6th",
+                            "Every 7th",
+                            "Every 8th",
+                            "Every 9th",
+                            "Every 10th",
+                            "Every 11th",
+                            "Every 12th",
+                            "Every 13th",
+                            "Every 14th",
+                            "Every 15th",
+                            "Every 16th",
+                            "Every 17th",
+                            "Every 18th",
+                            "Every 19th",
+                            "Every 20th",
+                            "Every 21st",
+                            "Every 22nd",
+                            "Every 23rd",
+                            "Every 24th",
+                            "Every 25th",
+                            "Every 26th",
+                            "Every 27th",
+                            "Every 28th",
+                            "Every 29th",
+                            "Every 30th"
+                        ]                        
+                    },
+                    "description": "The frequency at which the event repeats."
+                },
+                "frequency": {
+                    "type": "string",
+                    "title": "Frequency",
+                    "enum": [
+                        "day",
+                        "week",
+                        "month"
+                    ],
+                    "options": {
+                        "grid_columns": 2,
+                        "enum_titles": [
+                            "Day",
+                            "Week",
+                            "Month"
+                        ]
+                    },
+                    "description": "The frequency at which the event repeats."
+                },
+                "daysOfWeek": {
+                    "type": "array",
+                    "title": "Select week days",
+                    "uniqueItems": true,
+                    "format": "select2",
+                    "options": {
+                        "grid_columns": 3,
+                        "select2": {
+                            "tags": true
+                        },
+                        "dependencies": {
+                            "frequency": [
+                                "week"
+                            ]
+                        }
+                    },
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                            "Sunday"
+                        ]
+                    },
+                    "description": "An array of the days of the week on which the event occurs. Only applicable for weekly frequency. If none is selected it will use the current week day."
+                },
+                "daysOfMonth": {
+                    "type": "array",
+                    "title": "Select days",
+                    "format": "select2",
+                    "uniqueItems": true,
+                    "options": {
+                        "grid_columns": 3,
+                        "select2": {
+                            "tags": true
+                        },
+                        "dependencies": {
+                            "frequency": [
+                                "month"
+                            ]
+                        }
+                    },
+                    "items": {
+                        "type": "integer",
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28,
+                            29,
+                            30,
+                            31
+                        ]
+                    },
+                    "description": "An array of the days of the month on which the event occurs. Only applicable for monthly frequency. If none is selected it will use the current day of the month."
+                }
+            }
+        },
+        "schedule_time_reminder_ref": {
+            "type": "object",
+            "description": "Define how much time after the notification, the reminder will be sent",
+            "title": "Reminder schedule time",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true
+            },
+            "format": "grid-strict",
+            "properties": {
+                "send_after": {
+                    "type": "number",
+                    "title": "Send after",
+                    "minimum": 1,
+                    "default": 1,
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "send_after_type": {
+                    "type": "string",
+                    "title": "&nbsp;",
+                    "default": "days",
+                    "enum": [
+                        "seconds",
+                        "minutes",
+                        "hours",
+                        "days",
+                        "weeks",
+                        "months"
+                    ],
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "parent_job_type_hidden": {
+                    "type": "string",
+                    "template": "{{job_type}}",
+                    "watch": {
+                        "job_type": "job.job_type"
+                    },
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "valid": {
+                    "type": "number",
+                    "title": "Valid for",
+                    "minimum": 1,
+                    "default": 1,
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "parent_job_type_hidden": [
+                                "notification_with_reminder_for_diary"
+                            ]
+                        }
+                    }
+                },
+                "valid_type": {
+                    "type": "string",
+                    "description": "For how much time the reminder is valid after it was sent",
+                    "title": " &nbsp;",
+                    "default": "hours",
+                    "enum": [
+                        "seconds",
+                        "minutes",
+                        "hours",
+                        "days",
+                        "weeks",
+                        "months"
+                    ],
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "parent_job_type_hidden": [
+                                "notification_with_reminder_for_diary"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "schedule_time_ref": {
+            "type": "object",
+            "title": "Schedule time",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true
+            },
+            "required": [
+                "send_on_day_at"
+            ],
+            "format": "grid-strict",
+            "properties": {
+                "job_schedule_types": {
+                    "type": "string",
+                    "title": "Schedule type",
+                    "format": "select2",
+                    "options": {
+                        "grid_columns": 12
+                    },
+                    "enumSource": [
+                        {
+                            "source": [
+                                {
+                                    "value": "after_period",
+                                    "text": "After time period"
+                                },
+                                {
+                                    "value": "after_period_on_day_at_time",
+                                    "text": "After time period on a weekday at given time"
+                                },
+                                {
+                                    "value": "immediately",
+                                    "text": "Immediately"
+                                },
+                                {
+                                    "value": "on_fixed_datetime",
+                                    "text": "On specific fixed datetime"
+                                }
+                            ],
+                            "title": "{{item.text}}",
+                            "value": "{{item.value}}"
+                        }
+                    ]
+                },
+                "send_after": {
+                    "type": "number",
+                    "title": "Send after",
+                    "default": 1,
+                    "minimum": 1,
+                    "options": {
+                        "grid_columns": 4,
+                        "dependencies": {
+                            "job_schedule_types": [
+                                "after_period"
+                            ]
+                        }
+                    }
+                },
+                "send_after_type": {
+                    "type": "string",
+                    "title": "&nbsp;",
+                    "default": "days",
+                    "enum": [
+                        "seconds",
+                        "minutes",
+                        "hours",
+                        "days",
+                        "weeks",
+                        "months"
+                    ],
+                    "options": {
+                        "grid_columns": 4,
+                        "dependencies": {
+                            "job_schedule_types": [
+                                "after_period"
+                            ]
+                        }
+                    }
+                },
+                "send_on": {
+                    "type": "string",
+                    "title": "Send on",
+                    "enumSource": [],
+                    "options": {
+                        "grid_columns": 4,
+                        "dependencies": {
+                            "job_schedule_types": [
+                                "after_period_on_day_at_time"
+                            ]
+                        }
+                    }
+                },
+                "send_on_day": {
+                    "type": "string",
+                    "title": "&nbsp;",
+                    "enumSource": [],
+                    "options": {
+                        "grid_columns": 4,
+                        "dependencies": {
+                            "job_schedule_types": [
+                                "after_period_on_day_at_time"
+                            ]
+                        }
+                    }
+                },
+                "send_on_day_at": {
+                    "type": "string",
+                    "format": "time",
+                    "title": "at",
+                    "options": {
+                        "grid_columns": 4,
+                        "dependencies": {
+                            "job_schedule_types": [
+                                "after_period_on_day_at_time",
+                                "after_period"
+                            ]
+                        },
+                        "inputAttributes": {
+                            "placeholder": "Enter time"
+                        },
+                        "flatpickr": {
+                            "inlineHideInput": true,
+                            "wrap": true,
+                            "allowInput": true,
+                            "showClearButton": true
+                        }
+                    }
+                },
+                "custom_time": {
+                    "type": "string",
+                    "format": "datetime-local",
+                    "title": "Select date",
+                    "options": {
+                        "grid_columns": 12,
+                        "dependencies": {
+                            "job_schedule_types": [
+                                "on_fixed_datetime"
+                            ]
+                        },
+                        "inputAttributes": {
+                            "placeholder": "Enter date"
+                        },
+                        "flatpickr": {
+                            "inlineHideInput": true,
+                            "wrap": true,
+                            "time_24hr": true,
+                            "allowInput": true,
+                            "showClearButton": true
+                        }
+                    }
+                }
+            }
+        },
+        "notification_ref": {
+            "type": "object",
+            "title": "Notification",
+            "format": "grid-strict",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true
+            },
+            "properties": {
+                "notification_types": {
+                    "type": "string",
+                    "title": "Notification type",
+                    "enum": [
+                        "email",
+                        "push_notification"
+                    ],
+                    "default": "email",
+                    "options": {
+                        "grid_columns": 12,
+                        "enum_titles": [
+                            "Email",
+                            "Push notification"
+                        ],
+                        "dependencies": {
+                            "job_type": [
+                                "notification",
+                                "notification_with_reminder",
+                                "notification_with_reminder_for_diary"
+                            ]
+                        }
+                    }
+                },
+                "redirect_url": {
+                    "type": "string",
+                    "title": "Redirect to URL",
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "notification_types": [
+                                "push_notification"
+                            ]
+                        }
+                    }
+                },
+                "from_email": {
+                    "type": "string",
+                    "title": "From email",
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "notification_types": [
+                                "email"
+                            ]
+                        }
+                    }
+                },
+                "from_name": {
+                    "type": "string",
+                    "title": "From name",
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "notification_types": [
+                                "email"
+                            ]
+                        }
+                    }
+                },
+                "reply_to": {
+                    "type": "string",
+                    "title": "Reply to",
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "notification_types": [
+                                "email"
+                            ]
+                        }
+                    }
+                },
+                "recipient": {
+                    "type": "string",
+                    "title": "Send To (recipient)",
+                    "description": "Use @user for the user who is triggering the action, separate with `;` for emails",
+                    "options": {
+                        "grid_columns": 6,
+                        "dependencies": {
+                            "notification_types": [
+                                "push_notification",
+                                "email"
+                            ]
+                        }
+                    }
+                },
+                "attachments": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "format": "select2",
+                    "options": {
+                        "grid_columns": 12,
+                        "dependencies": {
+                            "notification_types": "email"
+                        },
+                        "select2": {
+                            "tags": true
+                        }
+                    },
+                    "title": "Attachments",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "att1",
+                            "att2",
+                            "att3"
+                        ]
+                    }
+                },
+                "subject": {
+                    "type": "string",
+                    "title": "Subject",
+                    "options": {
+                        "grid_columns": 12,
+                        "dependencies": {
+                            "notification_types": [
+                                "push_notification",
+                                "email"
+                            ]
+                        }
+                    }
+                },
+                "body": {
+                    "type": "string",
+                    "format": "markdown",
+                    "title": "Body",
+                    "description": "Use @user_name if you want to address the user who triggered the action with their user name",
+                    "options": {
+                        "grid_columns": 12,
+                        "simplemde": {
+                            "autoDownloadFontAwesome": false,
+                            "spellChecker": false,
+                            "renderingConfig": {
+                                "singleLineBreaks": false
+                            }
+                        },
+                        "dependencies": {
+                            "notification_types": [
+                                "push_notification",
+                                "email"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "reminder_ref": {
+            "type": "object",
+            "format": "grid-strict",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true
+            },
+            "properties": {
+                "condition": {
+                    "title": "Condition",
+                    "$ref": "#/definitions/condition_ref",
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "on_job_execute": {
+                    "type": "object",
+                    "options": {
+                        "disable_collapse": true,
+                        "disable_edit_json": true,
+                        "disable_properties": true,
+                        "compact": true,
+                        "grid_columns": 6
+                    },
+                    "properties": {
+                        "condition": {
+                            "title": "Condition on job execute",
+                            "$ref": "#/definitions/condition_ref_on_execute"
+                        }
+                    }
+                },
+                "form_id": {
+                    "type": "string",
+                    "template": "{{reminder_form_id}}",
+                    "watch": {
+                        "reminder_form_id": "job.reminder_form_id"
+                    },
+                    "options": {
+                        "hidden": true
+                    }
+                },
+                "schedule_time": {
+                    "$ref": "#/definitions/schedule_time_reminder_ref"
+                },
+                "notification": {
+                    "$ref": "#/definitions/notification_ref"
+                }
+            }
+        },
+        "job_ref": {
+            "type": "object",
+            "id": "job",
+            "title": "Job",
+            "headerTemplate": "{{i}} - {{self.job_name}}",
+            "format": "grid-strict",
+            "options": {
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "compact": true
+            },
+            "properties": {
+                "condition": {
+                    "title": "Condition",
+                    "$ref": "#/definitions/condition_ref",
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "on_job_execute": {
+                    "type": "object",
+                    "options": {
+                        "disable_collapse": true,
+                        "disable_edit_json": true,
+                        "disable_properties": true,
+                        "compact": true,
+                        "grid_columns": 6
+                    },
+                    "properties": {
+                        "condition": {
+                            "title": "Condition on job execute",
+                            "$ref": "#/definitions/condition_ref_on_execute"
+                        }
+                    }
+                },
+                "job_name": {
+                    "type": "string",
+                    "title": "Job name",
+                    "default": "Job",
+                    "options": {
+                        "grid_columns": 6
+                    }
+                },
+                "job_type": {
+                    "type": "string",
+                    "title": "Job type",
+                    "enum": [
+                        "add_group",
+                        "remove_group",
+                        "notification",
+                        "notification_with_reminder",
+                        "notification_with_reminder_for_diary"
+                    ],
+                    "options": {
+                        "enum_titles": [
+                            "Add group",
+                            "Remove group",
+                            "Schedule notification",
+                            "Schedule notification with reminders",
+                            "Schedule notification with reminders for a diary"
+                        ],
+                        "grid_columns": 6
+                    }
+                },
+                "reminder_form_id": {
+                    "type": "string",
+                    "title": "Reminder for",
+                    "enumSource": [],
+                    "options": {
+                        "grid_columns": 12,
+                        "dependencies": {
+                            "job_type": [
+                                "notification_with_reminder",
+                                "notification_with_reminder_for_diary"
+                            ]
+                        }
+                    }
+                },
+                "schedule_time": {
+                    "$ref": "#/definitions/schedule_time_ref"
+                },
+                "job_add_remove_groups": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "format": "select2",
+                    "options": {
+                        "grid_columns": 12,
+                        "select2": {
+                            "tags": true
+                        },
+                        "dependencies": {
+                            "job_type": [
+                                "add_group",
+                                "remove_group"
+                            ]
+                        }
+                    },
+                    "title": "Group",
+                    "description": "Select Selfhelp group",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "group1",
+                            "group2",
+                            "group3"
+                        ]
+                    }
+                },
+                "notification": {
+                    "$ref": "#/definitions/notification_ref",
+                    "options": {
+                        "dependencies": {
+                            "job_type": [
+                                "notification",
+                                "notification_with_reminder",
+                                "notification_with_reminder_for_diary"
+                            ]
+                        }
+                    }
+                },
+                "reminders": {
+                    "type": "array",
+                    "title": "Reminders",
+                    "format": "tabs-top",
+                    "items": {
+                        "title": "reminder",
+                        "$ref": "#/definitions/reminder_ref"
+                    },
+                    "options": {
+                        "dependencies": {
+                            "job_type": [
+                                "notification_with_reminder",
+                                "notification_with_reminder_for_diary"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "title": "Action config",
+    "id": "root",
+    "type": "object",
+    "format": "grid-strict",
+    "required": [
+        "blocks"
+    ],
+    "options": {
+        "disable_properties": true
+    },
+    "properties": {
+        "condition": {
+            "title": "Condition",
+            "$ref": "#/definitions/condition_ref",
+            "options": {
+                "grid_columns": 12
+            }
+        },
+        "randomize": {
+            "title": "Randomize",
+            "type": "boolean",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 2
+            }
+        },
+        "repeat": {
+            "title": "Repeat",
+            "type": "boolean",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 2
+            }
+        },
+        "repeat_until_date": {
+            "title": "Repeat until date",
+            "type": "boolean",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 2
+            }
+        },
+        "target_groups": {
+            "type": "boolean",
+            "title": "Target groups",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 2
+            }
+        },
+        "overwrite_variables": {
+            "type": "boolean",
+            "title": "Overwrite variables",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 2
+            }
+        },
+        "delete_scheduled": {
+            "type": "boolean",
+            "title": "Delete jobs",
+            "description": "Delete already scheduled jobs when a record is updated",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 2
+            }
+        },
+        "randomizer": {
+            "title": "Randomizer",
+            "$ref": "#/definitions/randomizer_ref",
+            "options": {
+                "dependencies": {
+                    "randomize": true
+                },
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "grid_columns": 12
+            }
+        },
+        "repeater": {
+            "title": "Repeater",
+            "$ref": "#/definitions/repeater_ref",
+            "options": {
+                "dependencies": {
+                    "repeat": true
+                },
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "grid_columns": 12
+            }
+        },
+        "repeater_until_date": {
+            "title": "Repeater until date",
+            "$ref": "#/definitions/repeater_ref_until_date",
+            "options": {
+                "dependencies": {
+                    "repeat_until_date": true
+                },
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "grid_columns": 12
+            }
+        },
+        "selected_target_groups": {
+            "type": "array",
+            "uniqueItems": true,
+            "format": "select2",
+            "options": {
+                "dependencies": {
+                    "target_groups": true
+                },
+                "grid_columns": 6
+            },
+            "title": "Select target groups",
+            "description": "All jobs will be executed to all users within the selected groups. Use it carefully.",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "admin",
+                    "therapist",
+                    "subject",
+                    "test"
+                ]
+            }
+        },
+        "selected_overwrite_variables": {
+            "type": "array",
+            "uniqueItems": true,
+            "format": "select2",
+            "options": {
+                "dependencies": {
+                    "overwrite_variables": true
+                },
+                "disable_collapse": true,
+                "disable_edit_json": true,
+                "disable_properties": true,
+                "grid_columns": 6
+            },
+            "title": "Overwrite variables",
+            "description": "Select which variables to be overwritten. If a value with the same name is submitted in the form, it will be used to overwrite the selected variable.",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "send_after",
+                    "send_after_type",
+                    "send_on_day_at",
+                    "custom_time"
+                ]
+            }
+        },
+        "blocks": {
+            "type": "array",
+            "title": "Blocks",
+            "format": "tabs-top",
+            "options": {
+                "enable_array_copy": true
+            },
+            "default": {
+                "block_name": "Block"
+            },
+            "items": {
+                "title": "Block",
+                "$ref": "#/definitions/block_ref"
+            }
+        }
+    }
 }

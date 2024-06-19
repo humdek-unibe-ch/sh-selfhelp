@@ -59,13 +59,49 @@ class ShowUserInputModel extends StyleModel
     /**
      * Mark this user input as removed in the database.
      *
-     * @param int $id
+     * @param array $ids
      *  The id of the field to be marked as removed.
+     * @param int $record_id
+     * The deleted record id
      */
-    public function mark_user_input_as_removed($id)
+    public function mark_user_input_as_removed($ids, $record_id)
     {
-        $this->db->update_by_ids('user_input', array('removed' => 1),
-            array('id' => $id));
+        try {
+            $this->db->begin_transaction();
+            foreach ($ids as $id) {
+                if ($id != ENTRY_RECORD_ID) {
+                    $this->db->update_by_ids(
+                        'user_input',
+                        array('removed' => 1),
+                        array('id' => $id)
+                    );
+                }
+            }
+            $this->queue_job_from_actions(actionTriggerTypes_deleted, $record_id);
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollback();
+        }
+    }
+
+    /**
+     * Prepare the form data and call the queue_job_from_actions
+     * @param string $trigger_type
+     * Form started or finished
+     */
+    public function queue_job_from_actions($trigger_type, $record_id = null)
+    {
+        $filter = "AND record_id = " . $record_id;
+        $form_id = $this->user_input->get_form_id($this->get_db_field("source"));
+        $form_fields = $this->user_input->get_data($form_id, $filter, true, FORM_INTERNAL, null, true);
+        $form_data = array(
+            "trigger_type" => $trigger_type,
+            "form_name" => $this->get_db_field("name"),
+            "form_id" => $this->section_id,
+            "form_type" => FORM_INTERNAL,
+            "form_fields" => $form_fields
+        );
+        $this->user_input->queue_job_from_actions($form_data);
     }
 
     /**
