@@ -3,6 +3,31 @@ UPDATE version
 SET version = 'v7.0.0';
 
 DELIMITER //
+DROP PROCEDURE IF EXISTS drop_index //
+CREATE PROCEDURE drop_index(param_table VARCHAR(100), param_index_name VARCHAR(100))
+BEGIN	
+    SET @sqlstmt = (SELECT IF(
+		(
+			SELECT COUNT(*)
+            FROM information_schema.STATISTICS 
+			WHERE `table_schema` = DATABASE()
+			AND `table_name` = param_table
+            AND `index_name` = param_index_name
+		) > 0,        
+        CONCAT('ALTER TABLE ', param_table, ' DROP INDEX ', param_index_name),
+        "SELECT 'The index does not exists in the table'"
+    ));
+	PREPARE st FROM @sqlstmt;
+	EXECUTE st;
+	DEALLOCATE PREPARE st;	
+END
+
+//
+
+DELIMITER ;
+
+
+DELIMITER //
 DROP PROCEDURE IF EXISTS rename_table_column //
 CREATE PROCEDURE rename_table_column(param_table VARCHAR(100), param_old_column_name VARCHAR(100), param_new_column_name VARCHAR(100))
 BEGIN	
@@ -64,12 +89,6 @@ WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'started';
 UPDATE lookups
 SET lookup_description = 'When the user saved data is saved with statut `finished`'
 WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'finished';
-
-CALL add_table_column('uploadRows', 'id_actionTriggerTypes', "int(10) unsigned zerofill DEFAULT NULL");
-CALL add_foreign_key('uploadRows', 'uploadRows_fk_id_actionTriggerTypes', 'id_actionTriggerTypes', 'lookups (id)');
-
--- add `displayName` column to table `uploadTables`; It can be used for the users to customize the name of their tables
-CALL add_table_column('uploadTables', 'displayName', "VARCHAR(1000) DEFAULT NULL");
 
 
 -- Procedure for update dataConfigs with the new tables
@@ -215,6 +234,12 @@ BEGIN
     WHERE table_schema = DATABASE() AND `table_name` = 'user_input';
     
 	IF table_exists > 0 THEN
+    
+		CALL add_table_column('uploadRows', 'id_actionTriggerTypes', "int(10) unsigned zerofill DEFAULT NULL");
+		CALL add_foreign_key('uploadRows', 'uploadRows_fk_id_actionTriggerTypes', 'id_actionTriggerTypes', 'lookups (id)');
+
+		-- add `displayName` column to table `uploadTables`; It can be used for the users to customize the name of their tables
+		CALL add_table_column('uploadTables', 'displayName', "VARCHAR(1000) DEFAULT NULL");
 
 		CALL add_table_column('uploadRows', 'old_row_id', "int(10) unsigned zerofill DEFAULT NULL");
 		CALL add_table_column('uploadCols', 'old_col_id', "int(10) unsigned zerofill DEFAULT NULL");
