@@ -219,11 +219,11 @@ BEGIN
 		CALL add_table_column('uploadRows', 'old_row_id', "int(10) unsigned zerofill DEFAULT NULL");
 		CALL add_table_column('uploadCols', 'old_col_id', "int(10) unsigned zerofill DEFAULT NULL");
 
-		INSERT INTO uploadTables (`name`)
+		INSERT IGNORE INTO uploadTables (`name`)
 		SELECT DISTINCT CAST(id_sections AS CHAR) AS `name`
 		FROM user_input_record WHERE id_sections > 0;
 
-		INSERT INTO uploadRows (id_uploadTables, `timestamp`, id_users, old_row_id)
+		INSERT IGNORE INTO uploadRows (id_uploadTables, `timestamp`, id_users, old_row_id)
 		SELECT DISTINCT ut.id, uir.create_time, id_users, uir.id
 		FROM user_input_record uir
 		JOIN uploadTables ut ON ut.`name` = CAST(uir.id_sections AS CHAR)
@@ -232,7 +232,7 @@ BEGIN
 		
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(1000);
         
-		INSERT INTO uploadCols (`name`, id_uploadTables, old_col_id)
+		INSERT IGNORE INTO uploadCols (`name`, id_uploadTables, old_col_id)
 		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 1000) AS `name`, ut.id, ui.id_sections
 		FROM uploadTables ut
 		JOIN user_input_record uir ON CAST(uir.id_sections AS CHAR) = ut.`name`
