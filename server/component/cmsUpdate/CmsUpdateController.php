@@ -72,6 +72,9 @@ class CmsUpdateController extends BaseController
         {
             $style = null;
             $section_id = $this->model->get_active_section_id();
+            if (!$section_id && isset($_POST['id_section'])) {
+                $section_id = intval($_POST['id_section']);
+            }
             if($section_id != null) {
                 $style = new StyleComponent(
                     $this->model->get_services(),

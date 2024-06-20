@@ -531,6 +531,31 @@ abstract class BaseModel
     {
         return $this->db;
     }
+
+    /**
+     * Set the display name of an entry in the data tables.
+     *
+     * This method updates the `displayName` field of a row in the `dataTables` table
+     * where the `name` field matches the zero-padded value of the provided `$id_sections`.
+     *
+     * @param int | string $name The name of the table. If it is a section id, we format it with leading zeros.
+     * @param string $displayName The new display name to be set in the `dataTables` table.
+     * @return bool|int Returns the result of the update operation. Typically, it returns the number of affected rows or false on failure.
+     */
+    public function set_dataTables_displayName($name, $displayName)
+    {
+        $res = $this->db->insert(
+            'dataTables',
+            array(
+                "displayName" => $displayName,
+                'name' => is_int($name) ? sprintf('%010d', $name) : $name
+            ),
+            array(
+                "displayName" => $displayName
+            )
+        );
+        return $res;
+    }
     
 }
 ?>

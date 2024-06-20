@@ -801,32 +801,7 @@ class StyleModel extends BaseModel implements IStyleModel
             $global_vars['__' . $key . '__'] = $value;
         }
         return $global_vars;
-    }
-
-    /**
-     * Set the display name of an entry in the data tables.
-     *
-     * This method updates the `displayName` field of a row in the `dataTables` table
-     * where the `name` field matches the zero-padded value of the provided `$id_sections`.
-     *
-     * @param int $id_sections The ID of the section to be formatted and matched against the `name` field.
-     * @param string $displayName The new display name to be set in the `dataTables` table.
-     * @return bool|int Returns the result of the update operation. Typically, it returns the number of affected rows or false on failure.
-     */
-    public function set_dataTables_displayName($id_sections, $displayName)
-    {
-        $res = $this->db->insert(
-            'dataTables',
-            array(
-                "displayName" => $displayName,
-                'name' => sprintf('%010d', $id_sections)
-            ),
-            array(
-                "displayName" => $displayName
-            )
-        );
-        return $res;
-    }
+    }    
 
     /**
      * Sets the entry record.
