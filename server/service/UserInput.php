@@ -1117,13 +1117,17 @@ class UserInput
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
         }
         if (!$user_id) {
-            $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
+            if (!$own_entries_only) {
+                $user_id = -1; // if the user is not set but it is not own entries only we set the user to -1 and will return the data for all the users
+            } else {
+                $user_id =  isset($_SESSION['id_user']) ? $_SESSION['id_user'] : -1; // if the user is not defined we set the session user if needed
+            }
         }
         $key = $this->db->get_cache()->generate_key($this->db->get_cache()::CACHE_TYPE_USER_INPUT, $form_id, [__FUNCTION__, $filter, $own_entries_only, $user_id, $db_first]);
         $get_result = $this->db->get_cache()->get($key);
         if ($get_result !== false) {
             return $get_result;
-        } else {            
+        } else {
             $params = array(
                 ":form_id" => $form_id,
                 ":user_id" => $user_id,
@@ -1862,7 +1866,7 @@ class UserInput
                     "id_actionTriggerTypes" => $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_deleted)
                 ),
                 $params
-            );            
+            );
             $this->db->commit();
             if ($res) {
                 $this->delete_jobs_for_record($record_id);
@@ -1874,8 +1878,8 @@ class UserInput
             error_log('Exception caught: ' . $e->getMessage());
             error_log('Stack trace: ' . $e->getTraceAsString());
             return false;
-        }        
-    }    
+        }
+    }
 
     /**
      * Checks if there is a user input change.
@@ -1886,7 +1890,8 @@ class UserInput
      *
      * @return bool True if there is a user input change, false otherwise.
      */
-    public function is_there_user_input_change(){
+    public function is_there_user_input_change()
+    {
         // check if there is an user input change that came from a controller somewhere
         // it is used to reload the view children for the dynamic styles like entryList, entryRecord, dataContainer and Loop
         return $this->user_input_data_changed;
