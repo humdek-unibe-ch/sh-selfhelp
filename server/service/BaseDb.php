@@ -749,5 +749,28 @@ class BaseDb {
     public function get_cache(){
         return $this->cache;
     }
+
+    /**
+     * Check if a view exists in the current database.
+     *
+     * This function checks the `information_schema.VIEWS` table to determine if a
+     * view with the given name exists in the current database.
+     *
+     * @param string $view_name The name of the view to check for existence.
+     * @return bool Returns `true` if the view exists, `false` otherwise.
+     */
+    public function check_if_view_exists($view_name)
+    {
+        $sql = "SELECT COUNT(*) AS view_exists
+                FROM information_schema.VIEWS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :view_name;";
+        $res = $this->query_db_first(
+            $sql,
+            array(
+                ":view_name" => $view_name
+            )
+        );
+        return $res['view_exists'] > 0;
+    }
 }
 ?>
