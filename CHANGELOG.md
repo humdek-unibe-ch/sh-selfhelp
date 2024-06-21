@@ -1,4 +1,7 @@
 # v7.0.0 (Unpublished)
+### Plugins Compatibility
+ - SurveyJS v1.3.6+
+
 ### New Feature
  - unify how all user data is saved
  - add `scope` to `dataConfig`, now for each data source could be added a separated scope. If a scope is added then the variables will be set as `scope.var_name` and later could be interpolated like this
