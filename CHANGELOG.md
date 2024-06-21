@@ -1,6 +1,7 @@
 # v7.0.0 (Unpublished)
 ### Plugins Compatibility
  - SurveyJS v1.3.6+
+ - Qualtrics v2.3.4+
 
 ### New Feature
  - unify how all user data is saved

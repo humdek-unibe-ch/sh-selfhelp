@@ -1776,7 +1776,7 @@ class UserInput
     public function get_trigger_type_id($formData)
     {
         $trigger_type = isset($formData['trigger_type']) ? $formData['trigger_type'] : actionTriggerTypes_finished; // if no trigger type is set, set the finished one
-        if (!in_array($formData['trigger_type'], [actionTriggerTypes_started, actionTriggerTypes_updated, actionTriggerTypes_deleted, actionTriggerTypes_finished])) {
+        if (!in_array($trigger_type, [actionTriggerTypes_started, actionTriggerTypes_updated, actionTriggerTypes_deleted, actionTriggerTypes_finished])) {
             $trigger_type = actionTriggerTypes_finished; // if the trigger_type is not in the supported list set it to finished
         }
         return $this->db->get_lookup_id_by_value(actionTriggerTypes, $trigger_type);
