@@ -554,6 +554,7 @@ abstract class BaseModel
                 "displayName" => $displayName
             )
         );
+        $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_SECTIONS);
         return $res;
     }
     
