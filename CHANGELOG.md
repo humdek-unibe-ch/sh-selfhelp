@@ -2,6 +2,8 @@
 ### Plugins Compatibility
  - SurveyJS v1.3.6+
  - Qualtrics v2.3.4+
+ - R serve v1.2.4+
+ - LabJS v1.1.2+
 
 ### New Feature
  - unify how all user data is saved
