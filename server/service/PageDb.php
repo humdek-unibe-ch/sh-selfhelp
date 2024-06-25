@@ -777,6 +777,7 @@ class PageDb extends BaseDb
                     $var_value = preg_replace('/\r|\n/','\n',trim($var_value));
                     if (json_decode($field_content)) {
                         // if the variable is array then do not add slashes
+                        $var_value = str_replace('"', "'", $var_value); // all " should be only single in JSON
                         $field_content = preg_replace('#\{\{' . $var . '\}\}#', $var_value, $field_content);
                     } else {
                         $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
