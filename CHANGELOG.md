@@ -24,6 +24,7 @@
  - set values for `JSON` content fields properly in CMS
  - in function `replace_calced_values`, when json object is sent use `JSON_UNESCAPED_SLASHES`
  - in function `replace_calced_values` check if the content is an json and if it is then do not add slashes
+ - in function `replace_calced_values` properly escape `\n` and `\r`
 
 # v6.17.0
  - #500 migrate firebase notifications from [php-fcm](https://github.com/EdwinHoksberg/php-fcm) to [firebase-php](https://github.com/kreait/firebase-php)
