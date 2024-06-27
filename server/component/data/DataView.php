@@ -48,8 +48,8 @@ class DataView extends BaseView
             if ($forms[0] == 'all') {
                 $forms = $this->model->get_dataTables();
             }
-            foreach ($forms as $keyForm => $formId) {
-                $formId = isset($formId['id']) ? $formId['id'] : $formId;
+            foreach ($forms as $keyForm => $form) {
+                $formId = isset($form['id']) ? $form['id'] : $form;
                 $formFields = $this->model->getFormFields($formId, $this->model->get_selected_users());
                 if (!empty($formFields)) {
                     // Initialize an array to store table rows
@@ -77,7 +77,8 @@ class DataView extends BaseView
                     $tableBody .= implode('', $tableRows);
                     $tableBody .= '</tbody>';
                 
-                    $formName = $this->model->get_user_input()->get_dataTable_displayName($formId);
+                    $formDisplayName = $this->model->get_user_input()->get_dataTable_displayName($formId);
+                    $formName = isset($form['name']) ? $form['name'] : $this->model->get_user_input()->get_dataTable_name($formId);
                 
                     // Build the card content
                     $table = '<table class="adminData w-100 table dataTable table-sm table-hover">' . $tableHead . $tableBody . '</table>';
@@ -85,7 +86,7 @@ class DataView extends BaseView
                         "css" => "mb-3 card card-success",
                         "is_expanded" => true,
                         "is_collapsible" => true,
-                        "title" => $formName,
+                        "title" => "Name: <code class='ml-1 mr-1'> " . $formName . " </code> Display name: <code class='ml-1 mr-1'>" . $formDisplayName .'</code>',
                         "children" => array(
                             new BaseStyleComponent("markdown", array(
                                 "text_md" => $table
