@@ -20,6 +20,7 @@
  - change `scope` to be add it with `.` instead of `_` as prefix
  - rename field `label_continue` to `confirmation_continue` and `label_message` to `confirmation_message`
  - show `name` and `displayName` for tables in `admin/data`
+ - #492 - do not show `user_name` in `Admin\Data`. Instead now add `user_code`
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS

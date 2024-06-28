@@ -43,6 +43,7 @@ class DataView extends BaseView
      */
     private function output_tables_data()
     {
+        $exclude_columns = ['user_name'];
         $forms = $this->model->get_selected_forms();
         if ($forms) {
             if ($forms[0] == 'all') {
@@ -59,7 +60,10 @@ class DataView extends BaseView
                     $tableHead = '<thead><tr>';
                     if (count($formFields) > 0) {
                         foreach (array_keys($formFields[0]) as $key => $value) {
-                            $tableHead .= '<th>' . $value . '</th>';
+                            if (!in_array($value, $exclude_columns)) {
+                                // show columns which are not excluded
+                                $tableHead .= '<th>' . $value . '</th>';
+                            }
                         }
                     }
                     $tableHead .= '</tr></thead>';
@@ -68,8 +72,11 @@ class DataView extends BaseView
                     $tableBody = '<tbody>';
                     foreach ($formFields as $field) {
                         $row = '<tr>';
-                        foreach (array_values($field) as $key => $value) {
-                            $row .= '<td>' . $value . '</td>';
+                        foreach ($field as $key => $value) {
+                            if (!in_array($key, $exclude_columns)) {
+                                // show columns which are not excluded
+                                $row .= '<td>' . $value . '</td>';
+                            }
                         }
                         $row .= '</tr>';
                         $tableRows[] = $row; // Add the row to the array
