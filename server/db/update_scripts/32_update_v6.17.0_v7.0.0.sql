@@ -711,4 +711,4 @@ DROP VIEW IF EXISTS view_form;
 DROP VIEW IF EXISTS view_user_input;
 DROP PROCEDURE IF EXISTS get_form_data_for_user_with_filter;
 DROP PROCEDURE IF EXISTS get_form_data_with_filter;
-
+DROP PROCEDURE IF EXISTS get_uploadTable;
