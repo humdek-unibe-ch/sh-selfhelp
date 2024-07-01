@@ -715,3 +715,11 @@ DROP PROCEDURE IF EXISTS get_form_data_with_filter;
 DROP PROCEDURE IF EXISTS get_uploadTable;
 DROP PROCEDURE IF EXISTS get_form_data;
 DROP PROCEDURE IF EXISTS get_form_data_for_user;
+
+UPDATE `fields`
+SET `name` = 'img_src', display = 1
+WHERE `name` = 'source';
+
+UPDATE IGNORE sections_fields_translation
+SET id_languages = 2
+WHERE id_fields = get_field_id('img_src'); 

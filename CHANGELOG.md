@@ -21,6 +21,7 @@
  - rename field `label_continue` to `confirmation_continue` and `label_message` to `confirmation_message`
  - show `name` and `displayName` for tables in `admin/data`
  - #492 - do not show `user_name` in `Admin\Data`. Instead now add `user_code`
+ - #474 - rename field `source` to `img_src` and make it `content` field and it can be set differently for each language
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS

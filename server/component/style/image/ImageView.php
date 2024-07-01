@@ -21,10 +21,10 @@ class ImageView extends StyleView
     private $title;
 
     /**
-     * DB field 'source' (empty string).
+     * DB field 'img_src' (empty string).
      * The file name of the figure. If left empty, the figure is not rendered.
      */
-    private $source;
+    private $img_src;
 
     /**
      * DB field 'alt' (empty string).
@@ -50,7 +50,7 @@ class ImageView extends StyleView
     {
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title");
-        $this->source = $this->model->get_db_field("source");
+        $this->img_src = $this->model->get_db_field("img_src");
         $this->alt = $this->model->get_db_field("alt");
         $this->is_fluid = $this->model->get_db_field("is_fluid", true);
     }
@@ -62,11 +62,11 @@ class ImageView extends StyleView
      */
     public function output_content()
     {
-        if($this->source == "") return;
-        if(filter_var($this->source, FILTER_VALIDATE_URL))
-            $url = $this->source;
+        if($this->img_src == "") return;
+        if(filter_var($this->img_src, FILTER_VALIDATE_URL))
+            $url = $this->img_src;
         else
-            $url = ASSET_PATH . '/' . $this->source;
+            $url = ASSET_PATH . '/' . $this->img_src;
         $fluid = $this->is_fluid ? "img-fluid" : "";
         require __DIR__ . "/tpl_image.php";
     }
@@ -74,10 +74,10 @@ class ImageView extends StyleView
     public function output_content_mobile()
     {
         $style = parent::output_content_mobile();
-        if (filter_var($this->source, FILTER_VALIDATE_URL)) {
-            $url = $this->source;
+        if (filter_var($this->img_src, FILTER_VALIDATE_URL)) {
+            $url = $this->img_src;
         } else {
-            $url = ASSET_FOLDER . '/' . $this->source;
+            $url = ASSET_FOLDER . '/' . $this->img_src;
         }
         $style['source']['content'] = $url;
         return $style;
