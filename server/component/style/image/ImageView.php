@@ -38,6 +38,18 @@ class ImageView extends StyleView
      */
     private $is_fluid;
 
+    /**
+     * DB field 'width' 
+     * The width of the image
+     */
+    private $width;
+
+    /**
+     * DB field 'height' 
+     * The height of the image
+     */
+    private $height;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -51,6 +63,8 @@ class ImageView extends StyleView
         parent::__construct($model);
         $this->title = $this->model->get_db_field("title");
         $this->img_src = $this->model->get_db_field("img_src");
+        $this->height = $this->model->get_db_field("height");
+        $this->width = $this->model->get_db_field("width");
         $this->alt = $this->model->get_db_field("alt");
         $this->is_fluid = $this->model->get_db_field("is_fluid", true);
     }

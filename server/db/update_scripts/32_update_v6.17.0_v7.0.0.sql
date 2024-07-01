@@ -723,3 +723,8 @@ WHERE `name` = 'source';
 UPDATE IGNORE sections_fields_translation
 SET id_languages = 2
 WHERE id_fields = get_field_id('img_src'); 
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('height', get_field_type_id('text'), '0');
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('width', get_field_type_id('text'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('image'), get_field_id('height'), '', 'Specify the height of the image. The height can be set in pixels (e.g., 200), as a percentage of its parent container (e.g., 50%), or set to `auto` to maintain the aspect ratio based on the width.');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('image'), get_field_id('width'), '', 'Specify the width of the image. The width can be set in pixels (e.g., 200), as a percentage of its parent container (e.g., 50%), or set to `auto` to maintain the aspect ratio based on the height.');
