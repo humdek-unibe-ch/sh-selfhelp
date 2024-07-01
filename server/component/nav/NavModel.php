@@ -142,7 +142,9 @@ class NavModel extends BaseModel
      * @retval string
      *  The name of the home page.
      */
-    public function get_home() { return $this->db->get_link_title("home"); }
+    public function get_home() { 
+        return $this->db->fetch_page_info("home"); 
+    }
 
     /**
      * Fetches the name of the login page from the database.

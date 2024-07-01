@@ -47,12 +47,14 @@ class NavView extends BaseView
      * Return icon value for web if it exists
      * @param string $icon
      * icon value form cms
-     * @retval string or false
+     * @param boolean $mobile
+     * By default is false, if true then returns the icon for mobile
+     * @return string or false
      * Return the icon value or false if none set 
      */
-    private function get_icon($icon)
-    {   
-        if(!$icon){
+    private function get_icon($icon, $mobile = false)
+    {
+        if (!$icon) {
             return false;
         }
         $icons = explode(' ', $icon);
@@ -60,8 +62,13 @@ class NavView extends BaseView
             foreach ($icons as $key => $iconValue) {
                 if (strpos($iconValue, 'mobile-') === 0) {
                     // not needed for web
+                    if ($mobile) {
+                        return $iconValue;
+                    }
                 } else {
-                    return $iconValue;
+                    if (!$mobile) {
+                        return $iconValue;
+                    }
                 }
             }
             return false;
@@ -202,12 +209,14 @@ class NavView extends BaseView
     public function output_content_mobile()
     {
         $res = $this->model->get_pages_mobile();
+        $home_page = $this->model->get_home();
+        $icon = $this->get_icon($home_page['icon'], true);
         $home = array(
             'id_navigation_section' => null,
-            'title' => $this->model->get_home(),
+            'title' => $home_page['title'],
             'keyword' => 'home',
             'url' => '/home',
-            'icon' => 'mobile-home',
+            'icon' =>  $icon != '' ? $icon : 'mobile-home',
             'children' => array(),
             'is_active' => false
         );    

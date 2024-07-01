@@ -6,7 +6,7 @@
 <div class="container-fluid p-0">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="nav-menu">
         <a class="navbar-brand" href="<?php echo $home_url; ?>">
-            <?php echo $home; ?>
+            <?php echo $home['title']; ?>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>

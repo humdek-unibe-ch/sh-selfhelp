@@ -28,6 +28,7 @@
  - in function `replace_calced_values` check if the content is an json and if it is then do not add slashes
  - in function `replace_calced_values` properly escape `\n` and `\r`
  - in function `replace_calced_values` properly replace `"` with `'` for JSON objects
+ - #498 - properly load home icon if set for mobile apps
 
 # v6.17.0
  - #500 migrate firebase notifications from [php-fcm](https://github.com/EdwinHoksberg/php-fcm) to [firebase-php](https://github.com/kreait/firebase-php)
