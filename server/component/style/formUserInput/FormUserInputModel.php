@@ -243,6 +243,9 @@ class FormUserInputModel extends StyleModel
     {
         $form_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
         $filter = " AND record_id = " . $record_id;
+        if (!$form_id) {
+            return false;
+        }
         return $this->user_input->get_data($form_id, $filter, $own_entries_only);
     }
 
