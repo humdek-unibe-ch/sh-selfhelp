@@ -13,16 +13,6 @@ function initTextarea() {
     initJsonFields();
     initMarkdownFields();
     initCssFields();
-    $('.selfhelpTextArea_MDE').each(function () {
-        new EasyMDE({
-            element: this,
-            autoDownloadFontAwesome: false,
-            spellChecker: false,
-            renderingConfig: {
-                singleLineBreaks: false
-            }
-        });
-    });
 }
 
 function initJsonFields() {
@@ -173,7 +163,7 @@ function check_textarea_locked_after_submit() {
 
 
 function initMarkdownFields() {
-    var markdowns = $('.style-markdown');
+    var markdowns = $('.style-markdown, .selfhelpTextArea_MDE');
     Array.from(markdowns).forEach((md) => {
         if ($(md).data(mdInit)) {
             // already initialized do not do it again

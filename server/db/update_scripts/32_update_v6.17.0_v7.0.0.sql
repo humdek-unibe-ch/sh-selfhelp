@@ -737,3 +737,6 @@ SET @id_page = (SELECT id FROM pages WHERE keyword = 'cache');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('label'), '0000000002', 'Cache');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('title'), '0000000002', 'Cache');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '1', '0');
+
+INSERT IGNORE INTO `fields` (`name`, `id_type`, `display`) VALUES ('markdown_editor', get_field_type_id('checkbox'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('textarea'), get_field_id('markdown_editor'), 0, 'When enabled the textarea is loaded with a Markdown editor.');

@@ -39,6 +39,12 @@ class TextareaView extends FormFieldView
      */
     private $json_mapper;
 
+    /**
+     * Show markdown editor with the textarea
+     */
+    private $markdown_editor;
+
+
     /* Constructors ***********************************************************/
 
     /**
@@ -55,6 +61,7 @@ class TextareaView extends FormFieldView
         $this->min = $this->model->get_db_field('min');
         $this->max = $this->model->get_db_field('max');
         $this->json_mapper = $this->model->get_db_field('json_mapper', true);
+        $this->markdown_editor = $this->model->get_db_field('markdown_editor', false);
     }
 
     /* Protected Methods ********************************************************/
