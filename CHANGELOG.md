@@ -23,6 +23,7 @@
  - #492 - do not show `user_name` in `Admin\Data`. Instead now add `user_code`
  - #474 - rename field `source` to `img_src` and make it `content` field and it can be set differently for each language
  - #474 - add `height` and `width` fields for style `image`
+ - #465 - add page `cache` from where the DB cache can be cleared when a DB update is run
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS
