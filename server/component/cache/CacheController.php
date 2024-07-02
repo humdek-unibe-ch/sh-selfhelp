@@ -23,7 +23,12 @@ class CacheController extends BaseController
      */
     public function __construct($model)
     {
-        parent::__construct($model);    
+        parent::__construct($model);
+        if(isset($_POST)){
+            $msgs = $this->model->clear_cache();
+            $this->success = true;
+            $this->success_msgs = $msgs;
+        }
     }
 
     /* Private Methods ********************************************************/

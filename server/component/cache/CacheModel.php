@@ -33,5 +33,30 @@ class CacheModel extends BaseModel
 
 
     /* Public Methods *********************************************************/
-
+    /**
+     * Clears the cache based on POST data.
+     *
+     * This function iterates through the POST data and checks if the value for each key is 1.
+     * If the key matches the constant for clearing all cache, it clears the entire cache and 
+     * returns a success message. Otherwise, it clears the cache for the specific key and 
+     * appends a success message to the result array.
+     *
+     * @return array An array of messages indicating which caches were successfully cleared.
+     */
+    public function clear_cache()
+    {
+        $msgs = [];
+        foreach ($_POST as $key => $value) {
+            if ($value == 1) {
+                if ($key == $this->db->get_cache()::CACHE_ALL) {
+                    $this->db->clear_cache();
+                    return ['Successfully cleared all the cache!'];
+                } else {
+                    $this->db->clear_cache($key);
+                    $msgs[] = 'Successfully cleared ' . $key;
+                }
+            }
+        }
+        return $msgs;
+    }
 }
