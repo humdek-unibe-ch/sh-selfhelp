@@ -32,6 +32,7 @@
  - in function `replace_calced_values` properly escape `\n` and `\r`
  - in function `replace_calced_values` properly replace `"` with `'` for JSON objects
  - #498 - properly load home icon if set for mobile apps
+ - in style `checkbox` if no value is set but there is a default one we use it
 
 # v6.17.0
  - #500 migrate firebase notifications from [php-fcm](https://github.com/EdwinHoksberg/php-fcm) to [firebase-php](https://github.com/kreait/firebase-php)

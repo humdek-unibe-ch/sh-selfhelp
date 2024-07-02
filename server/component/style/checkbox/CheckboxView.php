@@ -69,6 +69,10 @@ class CheckboxView extends FormFieldView
      */
     protected function output_form_field()
     {
+        if (!$this->value && $this->default_value) {
+            // if not value is set but there is a default one we use it
+            $this->value = $this->default_value;
+        }
         $checked = $this->value != '' ? 'checked' : null;
         if ($this->toggle_switch == 1) {
             require __DIR__ . "/tpl_switch.php";
