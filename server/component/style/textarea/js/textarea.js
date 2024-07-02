@@ -13,6 +13,16 @@ function initTextarea() {
     initJsonFields();
     initMarkdownFields();
     initCssFields();
+    $('.selfhelpTextArea_MDE').each(function () {
+        new EasyMDE({
+            element: this,
+            autoDownloadFontAwesome: false,
+            spellChecker: false,
+            renderingConfig: {
+                singleLineBreaks: false
+            }
+        });
+    });
 }
 
 function initJsonFields() {
@@ -25,7 +35,7 @@ function initJsonFields() {
         if (jsonValueField.length == 0) {
             jsonValueField = $('textarea[name*="' + jsonFieldName + '"]');
         }
-        var jsonMetaInputName ='input[name="' + jsonFieldName + '[meta]"]';
+        var jsonMetaInputName = 'input[name="' + jsonFieldName + '[meta]"]';
         var jsonMetaField = $(jsonMetaInputName);
         var meta = {};
         try {

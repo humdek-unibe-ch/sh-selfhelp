@@ -24,6 +24,7 @@
  - #474 - rename field `source` to `img_src` and make it `content` field and it can be set differently for each language
  - #474 - add `height` and `width` fields for style `image`
  - #465 - add page `cache` from where the DB cache can be cleared when a DB update is run
+ - #462 - add new `checkbox` field `markdown_editor` in style `textarea`.When enabled the test area is loaded with Markdown editor. 
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS
