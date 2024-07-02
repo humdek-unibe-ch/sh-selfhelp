@@ -31,6 +31,8 @@ class Parsedown
         # make sure no definitions are set
         $this->DefinitionData = array();
 
+        $text = str_replace(array('\n\n', '\n'), "\n", $text);
+
         # standardize line breaks
         $text = str_replace(array("\r\n", "\r"), "\n", $text);
 
