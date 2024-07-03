@@ -312,6 +312,18 @@ abstract class BaseView
             // return empty div
             return new BaseStyleComponent("div", array("id" => "multiple-users-warning-div"));
         }
-    }        
+    }
+
+    /**
+     * Output missing entry
+     */
+    public function output_missing()
+    {
+        $sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
+        foreach ($sections as $section) {
+            $missing_styles =  new StyleComponent($this->model->get_services(), intval($section['id']));
+            $missing_styles->output_content();
+        }
+    }
 }
 ?>

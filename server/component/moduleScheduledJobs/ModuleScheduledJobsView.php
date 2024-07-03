@@ -539,11 +539,7 @@ class ModuleScheduledJobsView extends BaseView
     public function output_side_buttons_scheduledJobs_entry()
     {
         if (!$this->job_entry) {
-            $sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
-            foreach ($sections as $section) {
-                $missing_styles =  new StyleComponent($this->model->get_services(), intval($section['id']));
-                $missing_styles->output_content();
-            }
+            $this->output_missing();
             return;
         }
         // maoduel queue back button
