@@ -23,14 +23,16 @@ class DataEditComponent extends BaseComponent
      * @param object $services
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
-     * @param int $id
-     *  The id of the section with the conditional container style.
      * @param array $params
      *  The list of get parameters to propagate.
+     * @param int $id
+     *  The id of the section with the conditional container style.
+     * 
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $params, $id)
     {
-        $model = new DataEditModel($services, $id, $params);
+        $id_dataTables = isset($params['id_dataTables']) ? $params['id_dataTables'] : null;
+        $model = new DataEditModel($services, $id, $params, $id_dataTables);
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new DataEditController($model);

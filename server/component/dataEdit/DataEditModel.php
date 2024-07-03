@@ -14,6 +14,16 @@ class DataEditModel extends BaseModel
     /* Private Properties *****************************************************/
 
     /**
+     * The id of the selected dataTable
+     */
+    private $id_dataTables;
+
+    /**
+     * The dataTable structure
+     */
+    private $dataTable;
+
+    /**
      * The constructor
      *
      * @param object $services
@@ -24,14 +34,41 @@ class DataEditModel extends BaseModel
      * @param array $params
      *  The list of get parameters to propagate.     
      */
-    public function __construct($services, $id, $params)
+    public function __construct($services, $id, $params, $id_dataTables)
     {
         parent::__construct($services, $id, $params);
+        $this->id_dataTables = $id_dataTables;
+        $this->dataTable = $this->fetch_dataTable();
     }
 
     /* Private Methods *********************************************************/
 
+    /**
+     * Fetch the dataTable structure
+     * @return array
+     * Return the dataTable structure
+     */
+    private function fetch_dataTable()
+    {
+        $sql = 'SELECT DISTINCT d.table_id, d.row_id, d.col_id, t.`name`, t.name_id, d.col_name
+                FROM view_dataTables_data d
+                INNER JOIN view_dataTables t ON (d.table_id = t.id)
+                WHERE table_id = :id_dataTables;';
+        return $this->db->query_db($sql, array(
+            ":id_dataTables" => $this->id_dataTables
+        ));
+    }
+
 
     /* Public Methods *********************************************************/
-    
+
+    /**
+     * Getter for the dataable
+     * @return array dataTable
+     * The dataTable structure
+     */
+    public function get_dataTable()
+    {
+        return $this->dataTable;
+    }
 }

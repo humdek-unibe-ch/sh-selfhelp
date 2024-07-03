@@ -542,7 +542,7 @@ class ModuleScheduledJobsView extends BaseView
             $this->output_missing();
             return;
         }
-        // maoduel queue back button
+        // module queue back button
         $scheduledJobsButton = new BaseStyleComponent("button", array(
             "label" => "Scheduled Jobs",
             "url" => $this->model->get_link_url("moduleScheduledJobs"),
