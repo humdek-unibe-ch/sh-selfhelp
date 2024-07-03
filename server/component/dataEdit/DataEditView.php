@@ -55,6 +55,13 @@ class DataEditView extends BaseView
                         "is_expanded" => true,
                         "is_collapsible" => true,
                         "title" => "Name: <code class='ml-1 mr-1'> " . $this->dataTable[0]['name_id'] . " </code> Display name: <code class='ml-1 mr-1'>" . $this->dataTable[0]['name'] . '</code>',
+                        "children" => array()
+                    )),
+                    new BaseStyleComponent("card", array(
+                        "css" => "mb-3 card card-warning",
+                        "is_expanded" => true,
+                        "is_collapsible" => true,
+                        "title" => "Name: <code class='ml-1 mr-1'> " . $this->dataTable[0]['name_id'] . " </code> Display name: <code class='ml-1 mr-1'>" . $this->dataTable[0]['name'] . '</code>',
                         "children" => array(
                             new StyleComponent(
                                 $this->model->get_services(),
@@ -66,7 +73,7 @@ class DataEditView extends BaseView
                                     "name" => "showUserInput",
                                     "type" => "component",
                                     "is_log" => 1,
-                                    "data_table" => 91,
+                                    "data_table" => $this->dataTable[0]['table_id'],
                                     "label_delete" => "Delete",
                                     "own_entries_only" => 0,
                                     "css" => "dt-sortable dt-searching dt-bPaginate dt-bInfo",
