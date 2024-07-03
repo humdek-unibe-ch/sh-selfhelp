@@ -647,7 +647,8 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function get_condition_result()
     {
-        return $this->condition_result;
+        // check if there is a condition set, if not return true as there is no condition so it cannot be false
+        return $this->condition_result == null ? array("result" => true) : $this->condition_result;
     }    
 
     /**
