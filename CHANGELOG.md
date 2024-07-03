@@ -26,6 +26,7 @@
  - #465 - add page `cache` from where the DB cache can be cleared when a DB update is run
  - #462 - add new `checkbox` field `markdown_editor` in style `textarea`. When enabled the textarea is loaded with a Markdown editor.
  - #479 - add new component `dataEdit` with new page url `/admin/data/[i:id_dataTables]`. At this page the user can mark data records as deleted, delete columns from the `dataTable` or delete the `dataTable`
+ - Expand `StyleComponent`, now style from this type can be used internally when the style info is passed.
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS
@@ -36,6 +37,7 @@
  - #498 - properly load home icon if set for mobile apps
  - in style `checkbox` if no value is set but there is a default one we use it
  - properly align items in a `card` header
+ - when select a scheduled job with wrong id, properly show that a job with that id does not exists
 
 # v6.17.0
  - #500 migrate firebase notifications from [php-fcm](https://github.com/EdwinHoksberg/php-fcm) to [firebase-php](https://github.com/kreait/firebase-php)

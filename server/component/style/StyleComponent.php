@@ -68,10 +68,12 @@ class StyleComponent extends BaseComponent
      *  An array of parameter that will be passed to the style component.
      * @param int $id_page
      *  The id of the parent page
-     * @param array $entry_record
+     * @param array $entry_record 
      *  An array that contains the entry record information.
+     * @param array $manual_style
+     *  If the style is set manually and not loaded from the DB, if used internally. We pass the style info. It needs name, type and then the fields
      */
-    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record = array())
+    public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record = array(), $manual_style = array())
     {
         $this->id_section = $id;
         if(isset($params['parent_id'])){
@@ -85,6 +87,9 @@ class StyleComponent extends BaseComponent
         // get style name and type
         $db = $services->get_db();
         $style = $db->get_style_component_info($id);
+        if (!$style) {
+            $style = $manual_style;
+        }
         if(!$style) {
             $this->is_style_known = false;
             return;
@@ -99,7 +104,7 @@ class StyleComponent extends BaseComponent
         {
             $className = ucfirst($style['name']) . "Component";
            if (class_exists($className)) {
-                $this->style = new $className($services, $id, $params, $id_page, $entry_record);
+                $this->style = new $className($services, $id, $params, $id_page, $entry_record, $manual_style);
             }
             if ($this->style === null) {
                 $model = new StyleModel($services, $id, $params, $id_page, $entry_record);
