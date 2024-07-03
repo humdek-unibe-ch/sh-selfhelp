@@ -519,6 +519,9 @@ class ModuleScheduledJobsView extends BaseView
      */
     protected function output_entry_form_view()
     {
+        if (!$this->job_entry) {
+            return;
+        }
         if ($this->job_entry['type_code'] == jobTypes_email) {
             $this->output_mail_form_view();
         } else if ($this->job_entry['type_code'] == jobTypes_notification) {
@@ -535,6 +538,14 @@ class ModuleScheduledJobsView extends BaseView
      */
     public function output_side_buttons_scheduledJobs_entry()
     {
+        if (!$this->job_entry) {
+            $sections = $this->model->get_services()->get_db()->fetch_page_sections('missing');
+            foreach ($sections as $section) {
+                $missing_styles =  new StyleComponent($this->model->get_services(), intval($section['id']));
+                $missing_styles->output_content();
+            }
+            return;
+        }
         // maoduel queue back button
         $scheduledJobsButton = new BaseStyleComponent("button", array(
             "label" => "Scheduled Jobs",
@@ -544,7 +555,7 @@ class ModuleScheduledJobsView extends BaseView
         ));
         $scheduledJobsButton->output_content();
 
-        //execute/reexecute button
+        //execute/reexecute button        
         $executeButton = new BaseStyleComponent("button", array(
             "label" => ($this->job_entry['status_code'] == scheduledJobsStatus_done ? 'Re-execute' : 'Execute') . " Job Entry",
             "id" => "execute",
