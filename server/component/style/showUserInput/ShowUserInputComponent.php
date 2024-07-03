@@ -35,9 +35,12 @@ class ShowUserInputComponent extends BaseComponent
      * @param array $entry_record
      *  An array that contains the entry record information.
      */
-    public function __construct($services, $id, $params, $id_page, $entry_record)
+    public function __construct($services, $id, $params, $id_page, $entry_record, $manual_fields = array())
     {
         $model = new ShowUserInputModel($services, $id, $params, $id_page, $entry_record);
+        if($manual_fields){
+            $model->set_manual_fields($manual_fields);
+        }
         $controller = null;
         if(!$model->is_cms_page())
             $controller = new ShowUserInputController($model);

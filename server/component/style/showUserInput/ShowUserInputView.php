@@ -70,6 +70,11 @@ class ShowUserInputView extends StyleView
      */
     private $can_delete = false;
 
+    /**
+     * If enabled the `showUserInput` will load only the records entered by the user.
+     */
+    private $own_entries_only = 1;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -85,13 +90,14 @@ class ShowUserInputView extends StyleView
         parent::__construct($model, $controller);
         $this->data_table = $this->model->get_db_field("data_table");
         $this->anchor = $this->model->get_db_field("anchor");
-        $this->source_an = $this->model->convert_to_alphanumeric($this->data_table);
+        $this->source_an = $this->model->get_user_input()->convert_to_valid_html_id($this->data_table);
         $this->is_log = $this->model->get_db_field("is_log", false);
         $this->label = $this->model->get_db_field("label_date_time", "Entry Date");
         $this->label_delete = $this->model->get_db_field("label_delete", "");
         $this->delete_content = $this->model->get_db_field("delete_content", "Do you want to remove the entry?");
         $this->delete_title = $this->model->get_db_field("delete_title", "Remove Entry");
         $this->can_delete = $this->label_delete != "";        
+        $this->own_entries_only = $this->model->get_db_field("own_entries_only", 1);
     }
 
     /* Private Methods ********************************************************/
@@ -244,7 +250,7 @@ class ShowUserInputView extends StyleView
     public function output_content()
     {
         if($this->data_table === "") return;
-        $fields = $this->model->get_user_data($this->data_table);
+        $fields = $this->model->get_user_data($this->data_table, $this->own_entries_only);
         if(count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
     }
@@ -252,7 +258,7 @@ class ShowUserInputView extends StyleView
     public function output_content_mobile()
     {        
         $style = parent::output_content_mobile();
-        $style['fields'] = $this->model->get_user_data($this->data_table);
+        $style['fields'] = $this->model->get_user_data($this->data_table, $this->own_entries_only);
         $style['can_delete'] = $this->can_delete;
         return $style;
     }

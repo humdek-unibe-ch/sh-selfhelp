@@ -44,12 +44,14 @@ class ShowUserInputModel extends StyleModel
      *
      * @param string $data_table
      *  The name of the data table from which the data will be fetched.
+     * @param boolean $own_entries_only
+     * If enabled it fetches only the user data
      * @return array     
      */
-    public function get_user_data($data_table)
+    public function get_user_data($data_table, $own_entries_only = 1)
     {
-        $res =  $this->user_input->get_data($data_table, '');
-        $fields_map = $this->get_db_field('fields_map');
+        $res =  $this->user_input->get_data($data_table, '', $own_entries_only);
+        $fields_map = $this->get_db_field('fields_map', array());
         if (count($fields_map) > 0) {
             // map the fields with the new label
             $mappedRows = [];
@@ -99,17 +101,26 @@ class ShowUserInputModel extends StyleModel
         $this->user_input->queue_job_from_actions($form_data);
     }
 
-    /**
-     * Wrapper function to convert a string to alphanumeric values.
-     *
-     * @param string $str
-     *  The string to convert
-     * @retval
-     *  The converted string
-     */
-    public function convert_to_alphanumeric($str)
-    {
-        return $this->user_input->convert_to_valid_html_id($str);
+    public function set_manual_fields($manual_fields){
+        $fields = array();
+        $index = 0;
+        foreach($manual_fields as $key => $content)
+        {
+            if($key == "children")
+            {
+                $this->children += $content;
+                continue;
+            }
+            $fields[$key] = array(
+                "content" => $content,
+                "type" => "internal",
+                "id" => $index
+            );
+            $index++;
+            $this->db_fields[$key]['content'] = $content;
+            // $this->set_db_field($key, $content);
+        }    
+        // $this->set_db_fields($fields);
     }
 }
 ?>
