@@ -79,7 +79,7 @@ class ShowUserInputModel extends StyleModel
      */
     public function delete_record($record_id)
     {
-        return $this->user_input->delete_data($record_id);
+        return $this->user_input->delete_data($record_id, $this->get_db_field("own_entries_only", 1));
     }
 
     /**
@@ -101,9 +101,12 @@ class ShowUserInputModel extends StyleModel
         $this->user_input->queue_job_from_actions($form_data);
     }
 
+    /**
+     * Manually set the style fields when the style is used internally
+     * @param array $manual_fields
+     * The value of the manual fields
+     */
     public function set_manual_fields($manual_fields){
-        $fields = array();
-        $index = 0;
         foreach($manual_fields as $key => $content)
         {
             if($key == "children")
@@ -111,16 +114,8 @@ class ShowUserInputModel extends StyleModel
                 $this->children += $content;
                 continue;
             }
-            $fields[$key] = array(
-                "content" => $content,
-                "type" => "internal",
-                "id" => $index
-            );
-            $index++;
             $this->db_fields[$key]['content'] = $content;
-            // $this->set_db_field($key, $content);
         }    
-        // $this->set_db_fields($fields);
     }
 }
 ?>

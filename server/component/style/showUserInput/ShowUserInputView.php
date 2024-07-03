@@ -122,6 +122,12 @@ class ShowUserInputView extends StyleView
      */
     private function output_cols($cols)
     {
+        if($this->can_delete)
+        {
+            $target = "modal-" . $this->source_an;
+            $record_id = $cols[0];
+            require __DIR__ . "/tpl_delete.php";
+        }
         foreach($cols as $id => $value)
         {
             if($id !== 0)
@@ -129,13 +135,7 @@ class ShowUserInputView extends StyleView
             else
                 $id = "";
             $this->output_field($value);
-        }
-        if($this->can_delete)
-        {
-            $target = "modal-" . $this->source_an;
-            $record_id = $cols[0];
-            require __DIR__ . "/tpl_delete.php";
-        }
+        }        
     }
 
     /**
@@ -194,7 +194,7 @@ class ShowUserInputView extends StyleView
         }        
         $header = array_unique($header);
         if($this->can_delete)
-            $header[] = "";
+            array_unshift($header, ""); // add it on top
 
         require __DIR__ . "/tpl_table_header.php";
         require __DIR__ . "/tpl_table_body.php";

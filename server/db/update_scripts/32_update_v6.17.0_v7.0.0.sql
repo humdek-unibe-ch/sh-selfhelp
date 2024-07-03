@@ -750,3 +750,6 @@ SET @id_page = (SELECT id FROM pages WHERE keyword = 'dataEdit');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('label'), '0000000002', 'Edit data');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('title'), '0000000002', 'Edit data');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '1', '1');
+
+-- add field `own_entries_only` to style `showUserInput`
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('showUserInput'), get_field_id('own_entries_only'), '1', 'If enabled the `showUserInput` will load only the records entered by the user.');

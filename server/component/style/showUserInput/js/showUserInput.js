@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    initShowUserInput()
+    initShowUserInput();
 });
 
 function initShowUserInput() {
@@ -14,8 +14,8 @@ function initShowUserInput() {
             var classes = $(this).attr('class').split(' ');
 
             var dataTableConfig = { columnDefs: [{
-                "targets": 0, // The first column
-                "visible": false // Hide it
+                // "targets": 0, // The first column
+                // "visible": false // Hide it
             }] }; //init data table config
 
             dataTableConfig.columnDefs.push({ orderable: classes.includes('dt-sortable'), targets: '_all' }); //sortable
