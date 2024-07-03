@@ -25,6 +25,7 @@
  - #474 - add `height` and `width` fields for style `image`
  - #465 - add page `cache` from where the DB cache can be cleared when a DB update is run
  - #462 - add new `checkbox` field `markdown_editor` in style `textarea`. When enabled the textarea is loaded with a Markdown editor.
+ - #479 - add new component `dataEdit` with new page url `/admin/data/[i:id_dataTables]`. At this page the user can mark data records as deleted, delete columns from the `dataTable` or delete the `dataTable`
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS

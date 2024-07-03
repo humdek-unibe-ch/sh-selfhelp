@@ -93,6 +93,7 @@ class DataView extends BaseView
                         "css" => "mb-3 card card-success",
                         "is_expanded" => true,
                         "is_collapsible" => true,
+                        "url_edit"=> $this->model->get_link_url('dataEdit', array("id_dataTables" => $formId)),
                         "title" => "Name: <code class='ml-1 mr-1'> " . $formName . " </code> Display name: <code class='ml-1 mr-1'>" . $formDisplayName .'</code>',
                         "children" => array(
                             new BaseStyleComponent("markdown", array(
@@ -124,7 +125,7 @@ class DataView extends BaseView
             "is_expanded" => true,
             "type" => 'primary',
             "is_collapsible" => false,
-            "title" => 'Search Panel',
+            "title" => 'Search Panel',            
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "label" => "Search",
