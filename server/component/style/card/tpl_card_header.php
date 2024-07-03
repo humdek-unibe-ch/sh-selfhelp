@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="card-header <?php echo $collapsible; ?> <?php echo $show; ?>">
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-baseline">
         <?php echo $this->title; ?>
         <div class="ml-auto">
             <?php $this->output_expand_icon(); ?>
