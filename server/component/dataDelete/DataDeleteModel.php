@@ -142,6 +142,16 @@ class DataDeleteModel extends BaseModel
         }
     }
 
+    /**
+     * Deletes a data table from the database.
+     *
+     * This function removes a data table from the `dataTables` table based on the current object's `id_dataTables`.
+     * It also clears specific cache types related to sections and user input.
+     *
+     * @return array An associative array containing the result of the operation:
+     *               - "result": A boolean indicating whether the operation was successful.
+     *               - "message": A string containing a success or error message.
+     */
     public function delete_dataTable()
     {
         $res = $this->db->remove_by_ids("dataTables", array(
