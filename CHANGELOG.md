@@ -39,6 +39,7 @@
  - in style `checkbox` if no value is set but there is a default one we use it
  - properly align items in a `card` header
  - when select a scheduled job with wrong id, properly show that a job with that id does not exists
+ - properly set the language for validation
 
 # v6.17.0
  - #500 migrate firebase notifications from [php-fcm](https://github.com/EdwinHoksberg/php-fcm) to [firebase-php](https://github.com/kreait/firebase-php)
