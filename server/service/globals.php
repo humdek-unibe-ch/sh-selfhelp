@@ -64,11 +64,11 @@ define('USER_STATUS_INTERESTED', 1);
 define('USER_STATUS_INVITED', 2);
 define('USER_STATUS_ACTIVE', 3);
 
-/* Form types */
-// define('FORM_DYNAMIC', 'dynamic');
-// define('FORM_STATIC', 'static');
-define('FORM_INTERNAL', 'INTERNAL');
-define('FORM_EXTERNAL', 'EXTERNAL');
+/* Controller session messages */
+define('CONTROLLER_SUCCESS', 'CONTROLLER_SUCCESS');
+define('CONTROLLER_FAIL', 'CONTROLLER_FAIL');
+define('CONTROLLER_SUCCESS_MSGS', 'CONTROLLER_SUCCESS_MSGS');
+define('CONTROLLER_ERROR_MSGS', 'CONTROLLER_ERROR_MSGS');
 
 
 /* Callback status */

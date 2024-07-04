@@ -28,6 +28,7 @@
  - #479 - add new component `dataEdit` with new page url `/admin/data/[i:id_dataTables]`. At this page the user can mark data records as deleted, delete columns from the `dataTable` or delete the `dataTable`
  - Expand `StyleComponent`, now style from this type can be used internally when the style info is passed.
  - add field `own_entries_only` to style `showUserInput`
+ - controller alerts properly load markdown and can load alert messages from session
 
 ### Bugfix
  - set values for `JSON` content fields properly in CMS

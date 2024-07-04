@@ -82,7 +82,7 @@ abstract class BaseController
      */
     public function get_error_msgs()
     {
-        return $this->error_msgs;
+        return isset($_SESSION[CONTROLLER_ERROR_MSGS]) ? $_SESSION[CONTROLLER_ERROR_MSGS] : $this->error_msgs;
     }
 
     /**
@@ -93,7 +93,7 @@ abstract class BaseController
      */
     public function get_success_msgs()
     {
-        return $this->success_msgs;
+        return isset($_SESSION[CONTROLLER_SUCCESS_MSGS]) ? $_SESSION[CONTROLLER_SUCCESS_MSGS] : $this->success_msgs;
     }
 
     /**
@@ -104,7 +104,7 @@ abstract class BaseController
      */
     public function has_failed()
     {
-        return $this->fail;
+        return $this->fail || (isset($_SESSION[CONTROLLER_FAIL]) && $_SESSION[CONTROLLER_FAIL]);
     }
 
     /**
@@ -115,7 +115,7 @@ abstract class BaseController
      */
     public function has_succeeded()
     {
-        return $this->success;
+        return $this->success || (isset($_SESSION[CONTROLLER_SUCCESS]) && $_SESSION[CONTROLLER_SUCCESS]);
     }
 }
 ?>

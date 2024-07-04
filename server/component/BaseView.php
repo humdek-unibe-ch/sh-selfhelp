@@ -106,8 +106,8 @@ abstract class BaseView
                 "id" => "controller-fail-" . $idx,
                 "type" => "danger",
                 "is_dismissable" => true,
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => $msg,
+                "children" => array(new BaseStyleComponent("markdown", array(
+                    "text_md" => $msg,
                 )))
             ));
             if ($wrap_in_container) {
@@ -123,6 +123,8 @@ abstract class BaseView
             ));
             $wrapper->output_content();
         }
+        unset($_SESSION[CONTROLLER_FAIL]);
+        unset($_SESSION[CONTROLLER_ERROR_MSGS]);
     }
 
     /**
@@ -150,8 +152,8 @@ abstract class BaseView
                 "id" => "controller-success-" . $idx,
                 "type" => "success",
                 "is_dismissable" => true,
-                "children" => array(new BaseStyleComponent("plaintext", array(
-                    "text" => $msg,
+                "children" => array(new BaseStyleComponent("markdown", array(
+                    "text_md" => $msg,
                 )))
             ));
             if ($wrap_in_container) {
@@ -167,6 +169,8 @@ abstract class BaseView
             ));
             $wrapper->output_content();
         }
+        unset($_SESSION[CONTROLLER_SUCCESS]);
+        unset($_SESSION[CONTROLLER_SUCCESS_MSGS]);
     }
 
     /**
