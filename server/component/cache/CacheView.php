@@ -38,7 +38,7 @@ class CacheView extends BaseView
      */
     public function output_content()
     {
-        $this->output_controller_alerts_success();
+        $this->output_controller_alerts_success(true);
         $cache_types = array(
             $this->model->get_db()->get_cache()::CACHE_ALL => "All",
             $this->model->get_db()->get_cache()::CACHE_TYPE_PAGES => "Pages",
