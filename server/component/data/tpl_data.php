@@ -4,11 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container-fluid my-3">
+    <?php $this->output_controller_alerts_success(); ?>
     <div class="row">
-        <div class="col-auto">
-            <?php //$this->output_users(); 
-            ?>
-        </div>
         <div class="col">
             <div class="jumbotron">
                 <h1>Data</h1>

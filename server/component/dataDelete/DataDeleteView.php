@@ -104,6 +104,13 @@ class DataDeleteView extends BaseView
                                 "children" => array(
                                     new BaseStyleComponent("input", array(
                                         "type_input" => "hidden",
+                                        "name" => "DELETE_DATATABLE",
+                                        "value" => 'DELETE_DATATABLE',
+                                        "css" => "mb-3",
+                                        "is_required" => true
+                                    )),
+                                    new BaseStyleComponent("input", array(
+                                        "type_input" => "hidden",
                                         "name" => "display_name",
                                         "value" => $this->dataTable[0]['name'],
                                         "css" => "mb-3",

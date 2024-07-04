@@ -87,6 +87,23 @@ class DataDeleteModel extends BaseModel
         ));
     }
 
+    /**
+     * Deletes columns from the database.
+     *
+     * This function attempts to delete columns from the `dataCols` table based on the provided column IDs.
+     * It uses a transaction to ensure that all columns are deleted successfully. If any deletion fails,
+     * the transaction is rolled back and an error message is returned.
+     *
+     * @param array $columns An associative array where the key is the column ID and the value is the column name.
+     *                       If the value is true, the column is marked for deletion.
+     * 
+     * @return array An associative array containing the result of the operation:
+     *               - "result": A boolean indicating whether the operation was successful.
+     *               - "message": A string containing a success or error message.
+     * 
+     * @throws Exception If an error occurs during the deletion process, an exception is caught, 
+     *                   the transaction is rolled back, and an error message is returned.
+     */
     public function delete_columns($columns)
     {
         $res = true;
@@ -100,16 +117,18 @@ class DataDeleteModel extends BaseModel
                         "id_dataTables" => $this->id_dataTables
                     ));
                     $column_names[] = $value;
-                    if(!$res){
+                    if (!$res) {
                         $this->db->rollback();
                         return array(
                             "result" => false,
                             "message" => "Error! Column: <code>" . $value . "</code> was not deleted!"
-                        );            
+                        );
                     }
                 }
             }
             $this->db->commit();
+            $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_SECTIONS);
+            $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
             return array(
                 "result" => true,
                 "message" => "Columns: `" . implode(', ', $column_names) . "` were successfully deleted!"
@@ -119,7 +138,20 @@ class DataDeleteModel extends BaseModel
             return array(
                 "result" => false,
                 "message" => "Error while deleting columns!"
-            );            
+            );
         }
+    }
+
+    public function delete_dataTable()
+    {
+        $res = $this->db->remove_by_ids("dataTables", array(
+            "id" => $this->id_dataTables
+        ));
+        $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_SECTIONS);
+        $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_USER_INPUT);
+        return array(
+            "result" => ($res ? true : false),
+            "message" => ($res ? "Data table `" . $this->dataTable[0]['name'] . ' ` was successfully deleted!' : "Error! Data table `" . $this->dataTable[0]['name'] . ' ` was not deleted!')
+        );
     }
 }

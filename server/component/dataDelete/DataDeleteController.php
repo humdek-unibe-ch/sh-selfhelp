@@ -31,18 +31,43 @@ class DataDeleteController extends BaseController
                 $_SESSION[CONTROLLER_SUCCESS] = true;
                 $_SESSION[CONTROLLER_SUCCESS_MSGS][] = $res['message'];
             } else {
-                $_SESSION[CONTROLLER_FAIL] = false;
+                $_SESSION[CONTROLLER_FAIL] = true;
                 $_SESSION[CONTROLLER_ERROR_MSGS][] = $res['message'];
             }
-            // Unset the $_POST array
-            $_POST = array();
-
-            // Redirect to the same page to clear POST data
-            header("Location: " . $_SERVER['REDIRECT_URL']);
-            exit;
+            $this->redirect_after_post_execute();
+        } else if (isset($_POST['DELETE_DATATABLE'])) {
+            if ($_POST['display_name'] == $_POST['display_name_confirmation']) {
+                $res = $this->model->delete_dataTable();
+                if ($res['result']) {
+                    $_SESSION[CONTROLLER_SUCCESS] = true;
+                    $_SESSION[CONTROLLER_SUCCESS_MSGS][] = $res['message'];
+                    $_POST = array();
+                    // Redirect to the same page to clear POST data
+                    header("Location: " . $this->model->get_link_url("data"));
+                    exit;
+                } else {
+                    $_SESSION[CONTROLLER_FAIL] = true;
+                    $_SESSION[CONTROLLER_ERROR_MSGS][] = $res['message'];
+                    $this->redirect_after_post_execute();
+                }
+            } else {
+                $_SESSION[CONTROLLER_FAIL] = true;
+                $_SESSION[CONTROLLER_ERROR_MSGS][] = 'The entered display dataTable name does not match!';
+                $this->redirect_after_post_execute();
+            }
         }
     }
 
     /* Private Methods ********************************************************/
+
+    private function redirect_after_post_execute()
+    {
+        // Unset the $_POST array
+        $_POST = array();
+
+        // Redirect to the same page to clear POST data
+        header("Location: " . $_SERVER['REDIRECT_URL']);
+        exit;
+    }
 }
 ?>
