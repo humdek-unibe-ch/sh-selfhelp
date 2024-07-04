@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../BaseComponent.php";
-require_once __DIR__ . "/DataEditView.php";
-require_once __DIR__ . "/DataEditModel.php";
-require_once __DIR__ . "/DataEditModel.php";
+require_once __DIR__ . "/DataDeleteView.php";
+require_once __DIR__ . "/DataDeleteModel.php";
+require_once __DIR__ . "/DataDeleteModel.php";
 
 /**
  * The class to define the asset select component.
  */
-class DataEditComponent extends BaseComponent
+class DataDeleteComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -32,11 +32,11 @@ class DataEditComponent extends BaseComponent
     public function __construct($services, $params, $id)
     {
         $id_dataTables = isset($params['id_dataTables']) ? $params['id_dataTables'] : null;
-        $model = new DataEditModel($services, $id, $params, $id_dataTables);
+        $model = new DataDeleteModel($services, $id, $params, $id_dataTables);
         $controller = null;
         if(!$model->is_cms_page())
-            $controller = new DataEditController($model);
-        $view = new DataEditView($model, $controller);
+            $controller = new DataDeleteController($model);
+        $view = new DataDeleteView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
 }

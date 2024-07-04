@@ -9,7 +9,7 @@ require_once __DIR__ . "/../BaseModel.php";
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class DataEditModel extends BaseModel
+class DataDeleteModel extends BaseModel
 {
     /* Private Properties *****************************************************/
 
@@ -63,12 +63,63 @@ class DataEditModel extends BaseModel
     /* Public Methods *********************************************************/
 
     /**
-     * Getter for the dataable
+     * Getter for the dataТable
      * @return array dataTable
      * The dataTable structure
      */
     public function get_dataTable()
     {
         return $this->dataTable;
+    }
+
+    /**
+     * Get data columns for the selected dataTable
+     * @return array
+     * All the columns for the dataTable
+     */
+    public function fetch_dataColumns()
+    {
+        $sql = 'SELECT *
+                FROM dataCols
+                WHERE id_dataTables =  :id_dataTables;';
+        return $this->db->query_db($sql, array(
+            ":id_dataTables" => $this->id_dataTables
+        ));
+    }
+
+    public function delete_columns($columns)
+    {
+        $res = true;
+        $column_names = array();
+        try {
+            $this->db->begin_transaction();
+            foreach ($columns as $key => $value) {
+                if ($value) {
+                    $res = $res && $this->db->remove_by_ids("dataCols", array(
+                        "id" => $key,
+                        "id_dataTables" => $this->id_dataTables
+                    ));
+                    $column_names[] = $value;
+                    if(!$res){
+                        $this->db->rollback();
+                        return array(
+                            "result" => false,
+                            "message" => "Error! Column: <code>" . $value . "</code> was not deleted!"
+                        );            
+                    }
+                }
+            }
+            $this->db->commit();
+            return array(
+                "result" => true,
+                "message" => "Columns: `" . implode(', ', $column_names) . "` were successfully deleted!"
+            );
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return array(
+                "result" => false,
+                "message" => "Error while deleting columns!"
+            );            
+        }
     }
 }

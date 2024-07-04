@@ -8,11 +8,11 @@ require_once __DIR__ . "/../BaseController.php";
 /**
  * The controller class of the style component.
  */
-class DataEditController extends BaseController
+class DataDeleteController extends BaseController
 {
     /* Private Properties *****************************************************/
 
-    
+
     /* Constructors ***********************************************************/
 
     /**
@@ -24,9 +24,25 @@ class DataEditController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+        if (isset($_POST['DELETE_COLUMNS']) && count($_POST) > 1) {
+            unset($_POST['DELETE_COLUMNS']);
+            $res = $this->model->delete_columns($_POST);
+            if ($res['result']) {
+                $_SESSION[CONTROLLER_SUCCESS] = true;
+                $_SESSION[CONTROLLER_SUCCESS_MSGS][] = $res['message'];
+            } else {
+                $_SESSION[CONTROLLER_FAIL] = false;
+                $_SESSION[CONTROLLER_ERROR_MSGS][] = $res['message'];
+            }
+            // Unset the $_POST array
+            $_POST = array();
+
+            // Redirect to the same page to clear POST data
+            header("Location: " . $_SERVER['REDIRECT_URL']);
+            exit;
+        }
     }
 
     /* Private Methods ********************************************************/
-
 }
 ?>
