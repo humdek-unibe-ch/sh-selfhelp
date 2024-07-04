@@ -25,7 +25,7 @@
  - #474 - add `height` and `width` fields for style `image`
  - #465 - add page `cache` from where the DB cache can be cleared when a DB update is run
  - #462 - add new `checkbox` field `markdown_editor` in style `textarea`. When enabled the textarea is loaded with a Markdown editor.
- - #479 - add new component `dataEdit` with new page url `/admin/data/[i:id_dataTables]`. At this page the user can mark data records as deleted, delete columns from the `dataTable` or delete the `dataTable`
+ - #479 - add new component `dataDelete` with new page url `/admin/data/[i:id_dataTables]`. At this page the user can mark data records as deleted, delete columns from the `dataTable` or delete the `dataTable`
  - Expand `StyleComponent`, now style from this type can be used internally when the style info is passed.
  - add field `own_entries_only` to style `showUserInput`
  - controller alerts properly load markdown and can load alert messages from session
