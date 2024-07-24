@@ -255,6 +255,24 @@ BEGIN
 		JOIN user_input ui ON ui.id_user_input_record = uir.id
 		WHERE uir.id_sections > 0;
 		
+        -- check for columns with the same name for the same table and rename one of the columns by adding affix _exists
+        UPDATE uploadCols uc1
+		JOIN (
+			SELECT 
+				id
+			FROM (
+				SELECT 
+					id,
+					name,
+					id_uploadTables,
+					ROW_NUMBER() OVER (PARTITION BY name, id_uploadTables ORDER BY id) as row_num
+				FROM 
+					uploadCols
+			) subquery
+			WHERE subquery.row_num > 1
+		) uc2 ON uc1.id = uc2.id
+		SET uc1.name = CONCAT(uc1.name, '_exists');
+        
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(255);
         ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_uploadTables);
         
