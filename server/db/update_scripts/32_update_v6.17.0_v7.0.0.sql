@@ -130,7 +130,12 @@ BEGIN
 			SET @update_part = CONCAT(
 				'sft.content = JSON_SET(
 					JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
-					''$[', @i, '].table'', (SELECT ut.name FROM uploadTables ut WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')))
+					''$[', @i, '].table'', (
+						SELECT ut.name 
+						FROM uploadTables ut 
+						WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
+						LIMIT 1
+					)
 				),'
 			);
 			SET @updates = CONCAT(@updates, @update_part);
@@ -140,7 +145,7 @@ BEGIN
 		SET @updates = LEFT(@updates, LENGTH(@updates) - 1); -- Remove the trailing comma
 		SET @sql = CONCAT(@sql_base, ' ', @updates, ' WHERE sft.id_sections = ', id_sec, ' AND sft.id_fields = ', id_fld, ' AND sf.disabled = 0 AND f.id = 145 AND IFNULL(sft.content, '''') <> '''';');
 
-		-- Execute the dynamically constructed SQL statement        
+		-- Execute the dynamically constructed SQL statement           
 		PREPARE stmt FROM @sql;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
