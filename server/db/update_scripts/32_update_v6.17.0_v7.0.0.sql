@@ -313,7 +313,7 @@ BEGIN
 				END AS removed
 			FROM user_input ui
 		) subquery ON ur.old_row_id = subquery.id_user_input_record
-		SET ur.id_actionTriggerTypes = subquery.removed
+		SET ur.id_actionTriggerTypes = subquery.removed, ur.`timestamp` = ur.`timestamp`
 		WHERE ur.old_row_id > 0;
 			
 		-- replace the old relation of the forms in styles entryList and entryRecord
