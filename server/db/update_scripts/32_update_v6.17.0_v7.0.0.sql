@@ -130,11 +130,14 @@ BEGIN
 			SET @update_part = CONCAT(
 				'sft.content = JSON_SET(
 					JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
-					''$[', @i, '].table'', (
-						SELECT ut.name 
-						FROM uploadTables ut 
-						WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
-						LIMIT 1
+					''$[', @i, '].table'', IFNULL(
+						(
+							SELECT ut.name 
+							FROM uploadTables ut 
+							WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
+							LIMIT 1
+						),
+						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))
 					)
 				),'
 			);
@@ -776,3 +779,5 @@ INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_ins
 
 -- add field `own_entries_only` to style `showUserInput`
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('showUserInput'), get_field_id('own_entries_only'), '1', 'If enabled the `showUserInput` will load only the records entered by the user.');
+
+-- add edit_time as original entry date, otherwise we will lose it for the user input
