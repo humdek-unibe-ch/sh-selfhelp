@@ -138,6 +138,11 @@ BEGIN
 							LIMIT 1
 						),
 						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))
+					),
+					''$[', @i, '].filter'', IF(
+						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')) LIKE ''%trigger_type%'',
+						REPLACE(JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')), ''trigger_type'', ''triggerType''),
+						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter''))
 					)
 				),'
 			);
@@ -419,7 +424,28 @@ BEGIN
         CALL rename_table('formActions_INTERNAL', 'deprecated_formActions_INTERNAL');
         CALL rename_table('formActions_EXTERNAL', 'deprecated_formActions_EXTERNAL');
         CALL rename_table('user_input_record', 'deprecated_user_input_record');
-        CALL rename_table('user_input', 'deprecated_user_input');        
+        CALL rename_table('user_input', 'deprecated_user_input');    
+        
+        -- add already existing trigger_type
+		CREATE TEMPORARY TABLE tmp_triggerTypeValues AS
+		SELECT
+			dc.id_dataRows,
+			dc.value AS triggerTypeValue
+		FROM
+			datacells dc
+		JOIN
+			datacols dcl ON dc.id_dataCols = dcl.id
+		WHERE
+			dcl.name = 'trigger_type';
+
+		UPDATE datarows dr
+		JOIN tmp_triggerTypeValues ttv ON dr.id = ttv.id_dataRows
+		JOIN lookups l ON l.type_code = 'actionTriggerTypes' AND l.lookup_code = ttv.triggerTypeValue
+		SET dr.id_actionTriggerTypes = l.id,
+		dr.`timestamp` = dr.`timestamp`;
+
+		DROP TEMPORARY TABLE tmp_triggerTypeValues;
+
 	ELSE
 		SELECT 'User input is already refactored' AS message;
 	END IF;	 
