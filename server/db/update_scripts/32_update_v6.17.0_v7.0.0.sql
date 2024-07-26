@@ -166,11 +166,11 @@ BEGIN
             );
 
             -- Uncomment the next line for debugging purposes
-            SELECT @update_part;
+            -- SELECT @update_part;
 
-            -- PREPARE stmt FROM @update_part;
-            -- EXECUTE stmt;
-            -- DEALLOCATE PREPARE stmt;
+            PREPARE stmt FROM @update_part;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
 
             SET @i = @i + 1;
         END WHILE;
