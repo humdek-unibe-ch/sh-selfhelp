@@ -104,7 +104,7 @@ BEGIN
     DECLARE cur CURSOR FOR 
         SELECT id_sections, id_fields, JSON_LENGTH(content) AS num_entries
         FROM sections_fields_translation
-        WHERE id_fields = 145 AND JSON_VALID(content) AND id_sections = 1321;
+        WHERE id_fields = 145 AND JSON_VALID(content);
         
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
