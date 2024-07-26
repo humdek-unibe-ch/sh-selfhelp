@@ -97,69 +97,86 @@ DELIMITER //
 
 CREATE PROCEDURE update_dataConfig()
 BEGIN
-	DECLARE done INT DEFAULT 0;
-	DECLARE id_sec INT;
-	DECLARE id_fld INT;
-	DECLARE num_entries INT;
-	DECLARE cur CURSOR FOR 
-		SELECT id_sections, id_fields, JSON_LENGTH(content) AS num_entries
-		FROM sections_fields_translation
-		WHERE id_fields = 145 AND JSON_VALID(content);
-		
-	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    DECLARE done INT DEFAULT 0;
+    DECLARE id_sec INT;
+    DECLARE id_fld INT;
+    DECLARE num_entries INT;
+    DECLARE cur CURSOR FOR 
+        SELECT id_sections, id_fields, JSON_LENGTH(content) AS num_entries
+        FROM sections_fields_translation
+        WHERE id_fields = 145 AND JSON_VALID(content) AND id_sections = 1321;
+        
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
-	OPEN cur;
+    OPEN cur;
 
-	read_loop: LOOP
-		FETCH cur INTO id_sec, id_fld, num_entries;
-		IF done THEN
-			LEAVE read_loop;
-		END IF;
+    read_loop: LOOP
+        FETCH cur INTO id_sec, id_fld, num_entries;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
 
-		SET @sql_base = 'UPDATE sections_fields_translation sft
-			INNER JOIN sections AS s ON sft.id_sections = s.id
-			INNER JOIN styles AS st ON st.id = s.id_styles
-			INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
-			INNER JOIN fields AS f ON f.id = sf.id_fields
-			SET ';
+        SET @i = 0;
 
-		SET @updates = '';
-		SET @i = 0;
+        WHILE @i < num_entries DO
+            -- Base SQL for the JSON_SET without the filter
+            SET @update_part = CONCAT(
+                'UPDATE sections_fields_translation sft
+                INNER JOIN sections AS s ON sft.id_sections = s.id
+                INNER JOIN styles AS st ON st.id = s.id_styles
+                INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
+                INNER JOIN fields AS f ON f.id = sf.id_fields
+                SET sft.content = JSON_SET(
+                    JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
+                    ''$[', @i, '].table'', IFNULL(
+                        (
+                            SELECT ut.name 
+                            FROM uploadTables ut 
+                            WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
+                            LIMIT 1
+                        ),
+                        JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))
+                    )'
+            );
 
-		WHILE @i < num_entries DO
-			SET @update_part = CONCAT(
-				'sft.content = JSON_SET(
-					JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
-					''$[', @i, '].table'', IFNULL(
-						(
-							SELECT ut.name 
-							FROM uploadTables ut 
-							WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
-							LIMIT 1
-						),
-						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))
-					),
-					''$[', @i, '].filter'', IF(
-						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')) LIKE ''%trigger_type%'',
-						REPLACE(JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')), ''trigger_type'', ''triggerType''),
-						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter''))
-					)
-				),'
-			);
-			SET @updates = CONCAT(@updates, @update_part);
-			SET @i = @i + 1;
-		END WHILE;
+            -- Check if filter exists
+            SET @filter_exists_sql = CONCAT(
+                'SELECT @filter_exists := JSON_CONTAINS_PATH(sft.content, ''one'', ''$[', @i, '].filter'') FROM sections_fields_translation sft WHERE id_sections = ', id_sec, ' AND id_fields = ', id_fld, ' LIMIT 1;'
+            );
 
-		SET @updates = LEFT(@updates, LENGTH(@updates) - 1); -- Remove the trailing comma
-		SET @sql = CONCAT(@sql_base, ' ', @updates, ' WHERE sft.id_sections = ', id_sec, ' AND sft.id_fields = ', id_fld, ' AND sf.disabled = 0 AND f.id = 145 AND IFNULL(sft.content, '''') <> '''';');
+            PREPARE filter_stmt FROM @filter_exists_sql;
+            EXECUTE filter_stmt;
+            DEALLOCATE PREPARE filter_stmt;
 
-		-- Execute the dynamically constructed SQL statement           
-		PREPARE stmt FROM @sql;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
-	END LOOP;
+            IF @filter_exists THEN
+                SET @update_part = CONCAT(
+                    @update_part,
+                    ', ''$[', @i, '].filter'', IF(
+                        JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')) LIKE ''%trigger_type%'',
+                        REPLACE(JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')), ''trigger_type'', ''triggerType''),
+                        JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter''))
+                    )'
+                );
+            END IF;
 
-	CLOSE cur;
+            -- Close the JSON_SET and add the WHERE clause
+            SET @update_part = CONCAT(
+                @update_part,
+                ') WHERE sft.id_sections = ', id_sec, ' AND sft.id_fields = ', id_fld, ' AND sf.disabled = 0 AND f.id = 145 AND IFNULL(sft.content, '''') <> '''';'
+            );
+
+            -- Uncomment the next line for debugging purposes
+            SELECT @update_part;
+
+            -- PREPARE stmt FROM @update_part;
+            -- EXECUTE stmt;
+            -- DEALLOCATE PREPARE stmt;
+
+            SET @i = @i + 1;
+        END WHILE;
+    END LOOP;
+
+    CLOSE cur;
 END //
 
 DELIMITER ;
