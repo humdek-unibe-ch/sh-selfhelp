@@ -2,21 +2,27 @@
 UPDATE version
 SET version = 'v7.0.0';
 
+-- Save current SQL_MODE
+SET @orig_sql_mode = @@sql_mode;
+
+-- Disable ONLY_FULL_GROUP_BY
+SET SESSION sql_mode = REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '');
+
 DELIMITER //
 DROP PROCEDURE IF EXISTS drop_index //
 CREATE PROCEDURE drop_index(param_table VARCHAR(100), param_index_name VARCHAR(100))
 BEGIN	
-    SET @sqlstmt = (SELECT IF(
+	SET @sqlstmt = (SELECT IF(
 		(
 			SELECT COUNT(*)
-            FROM information_schema.STATISTICS 
+			FROM information_schema.STATISTICS 
 			WHERE `table_schema` = DATABASE()
 			AND `table_name` = param_table
-            AND `index_name` = param_index_name
+			AND `index_name` = param_index_name
 		) > 0,        
-        CONCAT('ALTER TABLE ', param_table, ' DROP INDEX ', param_index_name),
-        "SELECT 'The index does not exists in the table'"
-    ));
+		CONCAT('ALTER TABLE ', param_table, ' DROP INDEX ', param_index_name),
+		"SELECT 'The index does not exists in the table'"
+	));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;
 	DEALLOCATE PREPARE st;	
@@ -32,18 +38,18 @@ DROP PROCEDURE IF EXISTS rename_table_column //
 CREATE PROCEDURE rename_table_column(param_table VARCHAR(100), param_old_column_name VARCHAR(100), param_new_column_name VARCHAR(100))
 BEGIN	
 	DECLARE columnExists INT;
-    DECLARE columnType VARCHAR(255);
-    SELECT COUNT(*), COLUMN_TYPE 
-            INTO columnExists, columnType
+	DECLARE columnType VARCHAR(255);
+	SELECT COUNT(*), COLUMN_TYPE 
+			INTO columnExists, columnType
 			FROM information_schema.COLUMNS
 			WHERE `table_schema` = DATABASE()
 			AND `table_name` = param_table
 			AND `COLUMN_NAME` = param_old_column_name; 
-    SET @sqlstmt = (SELECT IF(
+	SET @sqlstmt = (SELECT IF(
 		columnExists > 0,        
-        CONCAT('ALTER TABLE ', param_table, ' CHANGE COLUMN ', param_old_column_name, ' ', param_new_column_name, ' ', columnType, ';'),
-        "SELECT 'Column does not exists in the table'"
-    ));
+		CONCAT('ALTER TABLE ', param_table, ' CHANGE COLUMN ', param_old_column_name, ' ', param_new_column_name, ' ', columnType, ';'),
+		"SELECT 'Column does not exists in the table'"
+	));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;
 	DEALLOCATE PREPARE st;	
@@ -58,16 +64,16 @@ DROP PROCEDURE IF EXISTS rename_table //
 CREATE PROCEDURE rename_table(param_old_table_name VARCHAR(100), param_new_table_name VARCHAR(100))
 BEGIN	
 	DECLARE tableExists INT;
-    SELECT COUNT(*) 
-            INTO tableExists
+	SELECT COUNT(*) 
+			INTO tableExists
 			FROM information_schema.COLUMNS
 			WHERE `table_schema` = DATABASE()
 			AND `table_name` = param_old_table_name; 
-    SET @sqlstmt = (SELECT IF(
+	SET @sqlstmt = (SELECT IF(
 		tableExists > 0,        
-        CONCAT('RENAME TABLE ', param_old_table_name, ' TO ', param_new_table_name),
-        "SELECT 'Table does not exists in the table'"
-    ));
+		CONCAT('RENAME TABLE ', param_old_table_name, ' TO ', param_new_table_name),
+		"SELECT 'Table does not exists in the table'"
+	));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;
 	DEALLOCATE PREPARE st;	
@@ -79,15 +85,15 @@ DELIMITER ;
 
 
 -- add actionTrigger types
-INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'updated', 'Updated', 'When the user saved data is saved with statut `updated`');
-INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'deleted', 'Deleted', 'When the user saved data is saved with statut `deleted`');
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'updated', 'Updated', 'When the user saved data is saved with status `updated`');
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('actionTriggerTypes', 'deleted', 'Deleted', 'When the user saved data is saved with status `deleted`');
 
 UPDATE lookups
-SET lookup_description = 'When the user saved data is saved with statut `started`'
+SET lookup_description = 'When the user saved data is saved with status `started`'
 WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'started';
 
 UPDATE lookups
-SET lookup_description = 'When the user saved data is saved with statut `finished`'
+SET lookup_description = 'When the user saved data is saved with status `finished`'
 WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'finished';
 
 
@@ -97,86 +103,86 @@ DELIMITER //
 
 CREATE PROCEDURE update_dataConfig()
 BEGIN
-    DECLARE done INT DEFAULT 0;
-    DECLARE id_sec INT;
-    DECLARE id_fld INT;
-    DECLARE num_entries INT;
-    DECLARE cur CURSOR FOR 
-        SELECT id_sections, id_fields, JSON_LENGTH(content) AS num_entries
-        FROM sections_fields_translation
-        WHERE id_fields = 145 AND JSON_VALID(content);
-        
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+	DECLARE done INT DEFAULT 0;
+	DECLARE id_sec INT;
+	DECLARE id_fld INT;
+	DECLARE num_entries INT;
+	DECLARE cur CURSOR FOR 
+		SELECT id_sections, id_fields, JSON_LENGTH(content) AS num_entries
+		FROM sections_fields_translation
+		WHERE id_fields = 145 AND JSON_VALID(content);
+		
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;	
 
-    OPEN cur;
+	OPEN cur;
 
-    read_loop: LOOP
-        FETCH cur INTO id_sec, id_fld, num_entries;
-        IF done THEN
-            LEAVE read_loop;
-        END IF;
+	read_loop: LOOP
+		FETCH cur INTO id_sec, id_fld, num_entries;
+		IF done THEN
+			LEAVE read_loop;
+		END IF;
 
-        SET @i = 0;
+		SET @i = 0;
 
-        WHILE @i < num_entries DO
-            -- Base SQL for the JSON_SET without the filter
-            SET @update_part = CONCAT(
-                'UPDATE sections_fields_translation sft
-                INNER JOIN sections AS s ON sft.id_sections = s.id
-                INNER JOIN styles AS st ON st.id = s.id_styles
-                INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
-                INNER JOIN fields AS f ON f.id = sf.id_fields
-                SET sft.content = JSON_SET(
-                    JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
-                    ''$[', @i, '].table'', IFNULL(
-                        (
-                            SELECT ut.name 
-                            FROM uploadTables ut 
-                            WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
-                            LIMIT 1
-                        ),
-                        JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))
-                    )'
-            );
+		WHILE @i < num_entries DO
+			-- Base SQL for the JSON_SET without the filter
+			SET @update_part = CONCAT(
+				'UPDATE sections_fields_translation sft
+				INNER JOIN sections AS s ON sft.id_sections = s.id
+				INNER JOIN styles AS st ON st.id = s.id_styles
+				INNER JOIN styles_fields AS sf ON sf.id_styles = st.id
+				INNER JOIN fields AS f ON f.id = sf.id_fields
+				SET sft.content = JSON_SET(
+					JSON_SET(sft.content, ''$[', @i, '].old_form'', JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))),
+					''$[', @i, '].table'', IFNULL(
+						(
+							SELECT ut.name 
+							FROM uploadTables ut 
+							WHERE ut.displayName = JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table'')) 
+							LIMIT 1
+						),
+						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].table''))
+					)'
+			);
 
-            -- Check if filter exists
-            SET @filter_exists_sql = CONCAT(
-                'SELECT @filter_exists := JSON_CONTAINS_PATH(sft.content, ''one'', ''$[', @i, '].filter'') FROM sections_fields_translation sft WHERE id_sections = ', id_sec, ' AND id_fields = ', id_fld, ' LIMIT 1;'
-            );
+			-- Check if filter exists
+			SET @filter_exists_sql = CONCAT(
+				'SELECT @filter_exists := JSON_CONTAINS_PATH(sft.content, ''one'', ''$[', @i, '].filter'') FROM sections_fields_translation sft WHERE id_sections = ', id_sec, ' AND id_fields = ', id_fld, ' LIMIT 1;'
+			);
 
-            PREPARE filter_stmt FROM @filter_exists_sql;
-            EXECUTE filter_stmt;
-            DEALLOCATE PREPARE filter_stmt;
+			PREPARE filter_stmt FROM @filter_exists_sql;
+			EXECUTE filter_stmt;
+			DEALLOCATE PREPARE filter_stmt;
 
-            IF @filter_exists THEN
-                SET @update_part = CONCAT(
-                    @update_part,
-                    ', ''$[', @i, '].filter'', IF(
-                        JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')) LIKE ''%trigger_type%'',
-                        REPLACE(JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')), ''trigger_type'', ''triggerType''),
-                        JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter''))
-                    )'
-                );
-            END IF;
+			IF @filter_exists THEN
+				SET @update_part = CONCAT(
+					@update_part,
+					', ''$[', @i, '].filter'', IF(
+						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')) LIKE ''%trigger_type%'',
+						REPLACE(JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter'')), ''trigger_type'', ''triggerType''),
+						JSON_UNQUOTE(JSON_EXTRACT(sft.content, ''$[', @i, '].filter''))
+					)'
+				);
+			END IF;
 
-            -- Close the JSON_SET and add the WHERE clause
-            SET @update_part = CONCAT(
-                @update_part,
-                ') WHERE sft.id_sections = ', id_sec, ' AND sft.id_fields = ', id_fld, ' AND sf.disabled = 0 AND f.id = 145 AND IFNULL(sft.content, '''') <> '''';'
-            );
+			-- Close the JSON_SET and add the WHERE clause
+			SET @update_part = CONCAT(
+				@update_part,
+				') WHERE sft.id_sections = ', id_sec, ' AND sft.id_fields = ', id_fld, ' AND sf.disabled = 0 AND f.id = 145 AND IFNULL(sft.content, '''') <> '''';'
+			);
 
-            -- Uncomment the next line for debugging purposes
-            -- SELECT @update_part;
+			-- Uncomment the next line for debugging purposes
+			-- SELECT @update_part;
 
-            PREPARE stmt FROM @update_part;
-            EXECUTE stmt;
-            DEALLOCATE PREPARE stmt;
+			PREPARE stmt FROM @update_part;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
 
-            SET @i = @i + 1;
-        END WHILE;
-    END LOOP;
+			SET @i = @i + 1;
+		END WHILE;
+	END LOOP;
 
-    CLOSE cur;
+	CLOSE cur;    
 END //
 
 DELIMITER ;
@@ -189,62 +195,62 @@ DELIMITER $$
 
 CREATE PROCEDURE update_formId_reminders()
 BEGIN
-    DECLARE done INT DEFAULT 0;
-    DECLARE record_id INT;
-    DECLARE json_data JSON;
-    DECLARE block_index INT DEFAULT 0;
-    DECLARE job_index INT DEFAULT 0;
-    DECLARE reminder_form_id VARCHAR(255);
-    DECLARE new_id INT;
+	DECLARE done INT DEFAULT 0;
+	DECLARE record_id INT;
+	DECLARE json_data JSON;
+	DECLARE block_index INT DEFAULT 0;
+	DECLARE job_index INT DEFAULT 0;
+	DECLARE reminder_form_id VARCHAR(255);
+	DECLARE new_id INT;
 
-    -- Declare cursor for iterating over records
-    DECLARE cur CURSOR FOR
-        SELECT id, config FROM formActions FOR UPDATE;
+	-- Declare cursor for iterating over records
+	DECLARE cur CURSOR FOR
+		SELECT id, config FROM formActions FOR UPDATE;
 
-    -- Declare handler to handle end of data
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+	-- Declare handler to handle end of data
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
-    -- Open the cursor
-    OPEN cur;
+	-- Open the cursor
+	OPEN cur;
 
-    -- Loop through the records
-    read_loop: LOOP
-        FETCH cur INTO record_id, json_data;
-        IF done THEN
-            LEAVE read_loop;
-        END IF;
+	-- Loop through the records
+	read_loop: LOOP
+		FETCH cur INTO record_id, json_data;
+		IF done THEN
+			LEAVE read_loop;
+		END IF;
 
-        -- Loop through the blocks and jobs to update the reminder_form_id
-        SET block_index = 0;
-        WHILE JSON_LENGTH(json_data, '$.blocks') > block_index DO
-            SET job_index = 0;
-            WHILE JSON_LENGTH(json_data, CONCAT('$.blocks[', block_index, '].jobs')) > job_index DO
-                SET reminder_form_id = JSON_UNQUOTE(JSON_EXTRACT(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id')));
-                
-                IF reminder_form_id LIKE '%-INTERNAL' THEN
-                    -- Handle -INTERNAL case
-                    SET reminder_form_id = SUBSTRING_INDEX(reminder_form_id, '-', 1);
-                    SELECT LPAD(id, 10, '0') INTO new_id FROM dataTables WHERE CAST(name AS UNSIGNED) = CAST(reminder_form_id AS UNSIGNED) LIMIT 1;
-                    SET json_data = JSON_SET(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id'), CAST(new_id AS CHAR));
-                    
-                ELSEIF reminder_form_id LIKE '%-EXTERNAL' THEN
-                    -- Handle -EXTERNAL case
-                    SET reminder_form_id = SUBSTRING_INDEX(reminder_form_id, '-', 1);
-                    SET new_id = LPAD(reminder_form_id, 10, '0');
-                    SET json_data = JSON_SET(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id'), new_id);
-                END IF;
-                
-                SET job_index = job_index + 1;
-            END WHILE;
-            SET block_index = block_index + 1;
-        END WHILE;
+		-- Loop through the blocks and jobs to update the reminder_form_id
+		SET block_index = 0;
+		WHILE JSON_LENGTH(json_data, '$.blocks') > block_index DO
+			SET job_index = 0;
+			WHILE JSON_LENGTH(json_data, CONCAT('$.blocks[', block_index, '].jobs')) > job_index DO
+				SET reminder_form_id = JSON_UNQUOTE(JSON_EXTRACT(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id')));
+				
+				IF reminder_form_id LIKE '%-INTERNAL' THEN
+					-- Handle -INTERNAL case
+					SET reminder_form_id = SUBSTRING_INDEX(reminder_form_id, '-', 1);
+					SELECT LPAD(id, 10, '0') INTO new_id FROM dataTables WHERE CAST(name AS UNSIGNED) = CAST(reminder_form_id AS UNSIGNED) LIMIT 1;
+					SET json_data = JSON_SET(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id'), CAST(new_id AS CHAR));
+					
+				ELSEIF reminder_form_id LIKE '%-EXTERNAL' THEN
+					-- Handle -EXTERNAL case
+					SET reminder_form_id = SUBSTRING_INDEX(reminder_form_id, '-', 1);
+					SET new_id = LPAD(reminder_form_id, 10, '0');
+					SET json_data = JSON_SET(json_data, CONCAT('$.blocks[', block_index, '].jobs[', job_index, '].reminder_form_id'), new_id);
+				END IF;
+				
+				SET job_index = job_index + 1;
+			END WHILE;
+			SET block_index = block_index + 1;
+		END WHILE;
 
-        -- Update the JSON back to the table
-        UPDATE formActions SET config = json_data WHERE id = record_id;
-    END LOOP;
+		-- Update the JSON back to the table
+		UPDATE formActions SET config = json_data WHERE id = record_id;
+	END LOOP;
 
-    -- Close the cursor
-    CLOSE cur;
+	-- Close the cursor
+	CLOSE cur;
 END$$
 
 DELIMITER ;
@@ -255,16 +261,16 @@ DELIMITER //
 CREATE PROCEDURE refactor_user_input()
 BEGIN
 	
-    DECLARE table_exists INT;
-    
-    -- Check if the table exists
-    SELECT COUNT(*)
-    INTO table_exists
-    FROM information_schema.tables
-    WHERE table_schema = DATABASE() AND `table_name` = 'user_input';
-    
+	DECLARE table_exists INT;
+	
+	-- Check if the table exists
+	SELECT COUNT(*)
+	INTO table_exists
+	FROM information_schema.tables
+	WHERE table_schema = DATABASE() AND `table_name` = 'user_input';
+	
 	IF table_exists > 0 THEN
-    
+	
 		CALL add_table_column('uploadRows', 'id_actionTriggerTypes', "int(10) unsigned zerofill DEFAULT NULL");
 		CALL add_foreign_key('uploadRows', 'uploadRows_fk_id_actionTriggerTypes', 'id_actionTriggerTypes', 'lookups (id)');
 
@@ -285,8 +291,8 @@ BEGIN
 		JOIN user_input ui ON ui.id_user_input_record = uir.id
 		WHERE uir.id_sections > 0;
 		
-        -- check for columns with the same name for the same table and rename one of the columns by adding affix _exists
-        UPDATE uploadCols uc1
+		-- check for columns with the same name for the same table and rename one of the columns by adding affix _exists
+		UPDATE uploadCols uc1
 		JOIN (
 			SELECT 
 				id
@@ -302,10 +308,10 @@ BEGIN
 			WHERE subquery.row_num > 1
 		) uc2 ON uc1.id = uc2.id
 		SET uc1.name = CONCAT(uc1.name, '_exists');
-        
+		
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(255);
-        ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_uploadTables);
-        
+		ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_uploadTables);
+		
 		INSERT IGNORE INTO uploadCols (`name`, id_uploadTables, old_col_id)
 		SELECT DISTINCT SUBSTRING(sft_in.content, 1, 255) AS `name`, ut.id, ui.id_sections
 		FROM uploadTables ut
@@ -334,7 +340,7 @@ BEGIN
 		WHERE ur.old_row_id > 0;
 			
 		-- replace the old relation of the forms in styles entryList and entryRecord
-        UPDATE sections_fields_translation tran
+		UPDATE sections_fields_translation tran
 		INNER JOIN view_sections_fields s ON (tran.id_sections = s.id_sections AND tran.id_fields = s.id_fields)
 		INNER JOIN uploadTables t ON (t.`name` REGEXP '^[0-9]+$' AND CAST(SUBSTRING_INDEX(s.content, '-', 1) AS UNSIGNED) = CAST(t.`name` AS UNSIGNED))
 		SET tran.content = CAST(t.id AS UNSIGNED)
@@ -344,51 +350,51 @@ BEGIN
 			s.content <> '' AND
 			s.content LIKE '%INTERNAL%';
 		
-        -- set the relation to be only the form id
-        UPDATE sections_fields_translation tran
+		-- set the relation to be only the form id
+		UPDATE sections_fields_translation tran
 		INNER JOIN view_sections_fields s ON (tran.id_sections = s.id_sections AND tran.id_fields = s.id_fields)
 		SET tran.content = CAST(SUBSTRING_INDEX(tran.content, '-', 1) AS UNSIGNED)
 		WHERE s.style_name IN ('entryList', 'entryRecord') AND s.field_name = 'formName'; 
-        
-        -- move the scheduled jobs info from the internal to exteranl columns
-        UPDATE scheduledJobs_formActions sj
+		
+		-- move the scheduled jobs info from the internal to external columns
+		UPDATE scheduledJobs_formActions sj
 		INNER JOIN uploadRows r ON sj.id_user_input_record = r.old_row_id
 		SET sj.id_uploadRows = r.id
 		WHERE id_user_input_record > 0;
 
 		-- set displayName based on the name of the form	
-        UPDATE view_sections_fields s
+		UPDATE view_sections_fields s
 		INNER JOIN uploadTables t ON t.`name` = s.id_sections
 		SET t.displayName = s.content
 		WHERE s.field_name = 'name';
-                
+				
 		-- update dataConfigs with the new tables
 		CALL update_dataConfig();        
 
 		CALL drop_table_column('uploadRows', 'old_row_id');
 		CALL drop_table_column('uploadCols', 'old_col_id');        
-        
-        -- RENAME UPLOAD TABLE
-        CALL rename_table('uploadTables', 'dataTables');
-        CALL rename_table('uploadRows', 'dataRows');
-        CALL rename_table('uploadCols', 'dataCols');
-        CALL rename_table('uploadCells', 'dataCells');
-        CALL rename_table_column('dataRows', 'id_uploadTables', 'id_dataTables');
-        CALL rename_table_column('dataCols', 'id_uploadTables', 'id_dataTables');
-        CALL rename_table_column('dataCells', 'id_uploadRows', 'id_dataRows');
-        CALL rename_table_column('dataCells', 'id_uploadCols', 'id_dataCols');
-                
-        -- refactor `select-formName` linking for EXTERNAL
-        UPDATE sections_fields_translation sft
+		
+		-- RENAME UPLOAD TABLE
+		CALL rename_table('uploadTables', 'dataTables');
+		CALL rename_table('uploadRows', 'dataRows');
+		CALL rename_table('uploadCols', 'dataCols');
+		CALL rename_table('uploadCells', 'dataCells');
+		CALL rename_table_column('dataRows', 'id_uploadTables', 'id_dataTables');
+		CALL rename_table_column('dataCols', 'id_uploadTables', 'id_dataTables');
+		CALL rename_table_column('dataCells', 'id_uploadRows', 'id_dataRows');
+		CALL rename_table_column('dataCells', 'id_uploadCols', 'id_dataCols');
+				
+		-- refactor `select-formName` linking for EXTERNAL
+		UPDATE sections_fields_translation sft
 		LEFT JOIN fields f ON f.id = sft.id_fields
-		LEFT JOIN fieldtype ft ON f.id_type = ft.id
+		LEFT JOIN fieldType ft ON f.id_type = ft.id
 		SET sft.content = REPLACE(sft.content, '-EXTERNAL', '')
 		WHERE ft.`name` = 'select-formName' AND sft.content LIKE '%-EXTERNAL%';
-        
-        -- refactor `select-formName` linking for INTERNAL
-        UPDATE sections_fields_translation sft
+		
+		-- refactor `select-formName` linking for INTERNAL
+		UPDATE sections_fields_translation sft
 		INNER JOIN fields f ON f.id = sft.id_fields
-		INNER JOIN fieldtype ft ON f.id_type = ft.id AND ft.`name` = 'select-formName'
+		INNER JOIN fieldType ft ON f.id_type = ft.id AND ft.`name` = 'select-formName'
 		INNER JOIN dataTables dt ON
 			CAST(dt.`name` AS UNSIGNED) = CAST(SUBSTRING_INDEX(sft.content, '-INTERNAL', 1) AS UNSIGNED)
 		SET sft.content = dt.id
@@ -398,64 +404,64 @@ BEGIN
 			AND CHAR_LENGTH(SUBSTRING_INDEX(sft.content, '-INTERNAL', 1)) > 0
 			AND dt.name REGEXP '^[0-9]+$';
 
-                
-                
-        CALL add_table_column('formActions', 'id_dataTables', 'int(10) unsigned zerofill DEFAULT NULL');
-        CALL add_foreign_key('formActions', 'formActions_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');  			
-        
-        -- replace the old relation of the forms in formActions
-        UPDATE formActions a
+				
+				
+		CALL add_table_column('formActions', 'id_dataTables', 'int(10) unsigned zerofill DEFAULT NULL');
+		CALL add_foreign_key('formActions', 'formActions_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');  			
+		
+		-- replace the old relation of the forms in formActions
+		UPDATE formActions a
 		INNER JOIN formActions_INTERNAL i ON a.id = i.id_formActions
 		INNER JOIN dataTables dt ON CAST(dt.`name` AS CHAR) = CAST(i.id_forms AS CHAR)
 		SET a.id_dataTables = dt.id;
-        
-        UPDATE formActions a
+		
+		UPDATE formActions a
 		INNER JOIN formActions_EXTERNAL e ON a.id = e.id_formActions
 		INNER JOIN dataTables dt ON dt.id = e.id_forms
 		SET a.id_dataTables = dt.id;	
-        
-        -- replace reminder formId in formActions
-        CALL update_formId_reminders();
-        
-        -- add column `id_dataRows` in table `scheduledJobs_formActions`. Move all linking there
-        CALL add_table_column('scheduledJobs_formActions', 'id_dataRows', 'int(10) unsigned zerofill DEFAULT NULL');
-        CALL add_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_id_dataRows', 'id_dataRows', '`dataRows` (`id`)');          
-        UPDATE scheduledJobs_formActions
-        SET id_dataRows = id_uploadRows;          
-        CALL drop_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_fk_id_uploadRows');
-        CALL drop_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_fk_id_user_input_record');
-        CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
-        CALL drop_table_column('scheduledJobs_formActions', 'id_uploadRows');
-        
-        -- drop column `id_user_input_record` from `scheduledJobs_formActions`
-        CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
-        CALL drop_table_column('scheduledJobs_reminders', 'id_forms_INTERNAL');
-        
-        -- rename column `id_forms_EXTERNAL` in table `scheduledJobs_reminders` to `id_dataTables`
-        CALL rename_table_column('scheduledJobs_reminders', 'id_forms_EXTERNAL', 'id_dataTables');
-        -- rename foreign key in `scheduledJobs_reminders` from `scheduledJobs_reminders_id_forms_EXTERNAL` to `scheduledJobs_reminders_id_dataTables`
-        CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
-        CALL drop_index('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
-        CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
 		
-        CALL rename_table('formActions_INTERNAL', 'deprecated_formActions_INTERNAL');
-        CALL rename_table('formActions_EXTERNAL', 'deprecated_formActions_EXTERNAL');
-        CALL rename_table('user_input_record', 'deprecated_user_input_record');
-        CALL rename_table('user_input', 'deprecated_user_input');    
-        
-        -- add already existing trigger_type
+		-- replace reminder formId in formActions
+		CALL update_formId_reminders();
+		
+		-- add column `id_dataRows` in table `scheduledJobs_formActions`. Move all linking there
+		CALL add_table_column('scheduledJobs_formActions', 'id_dataRows', 'int(10) unsigned zerofill DEFAULT NULL');
+		CALL add_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_id_dataRows', 'id_dataRows', '`dataRows` (`id`)');          
+		UPDATE scheduledJobs_formActions
+		SET id_dataRows = id_uploadRows;          
+		CALL drop_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_fk_id_uploadRows');
+		CALL drop_foreign_key('scheduledJobs_formActions', 'scheduledJobs_formActions_fk_id_user_input_record');
+		CALL drop_table_column('scheduledJobs_formActions', 'id_user_input_record');
+		CALL drop_table_column('scheduledJobs_formActions', 'id_uploadRows');
+		
+		-- drop column `id_user_input_record` from `scheduledJobs_formActions`
+		CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_INTERNAL');
+		CALL drop_table_column('scheduledJobs_reminders', 'id_forms_INTERNAL');
+		
+		-- rename column `id_forms_EXTERNAL` in table `scheduledJobs_reminders` to `id_dataTables`
+		CALL rename_table_column('scheduledJobs_reminders', 'id_forms_EXTERNAL', 'id_dataTables');
+		-- rename foreign key in `scheduledJobs_reminders` from `scheduledJobs_reminders_id_forms_EXTERNAL` to `scheduledJobs_reminders_id_dataTables`
+		CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
+		CALL drop_index('scheduledJobs_reminders', 'scheduledJobs_reminders_id_forms_EXTERNAL');
+		CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
+		
+		CALL rename_table('formActions_INTERNAL', 'deprecated_formActions_INTERNAL');
+		CALL rename_table('formActions_EXTERNAL', 'deprecated_formActions_EXTERNAL');
+		CALL rename_table('user_input_record', 'deprecated_user_input_record');
+		CALL rename_table('user_input', 'deprecated_user_input');    
+		
+		-- add already existing trigger_type
 		CREATE TEMPORARY TABLE tmp_triggerTypeValues AS
 		SELECT
 			dc.id_dataRows,
 			dc.value AS triggerTypeValue
 		FROM
-			datacells dc
+			dataCells dc
 		JOIN
-			datacols dcl ON dc.id_dataCols = dcl.id
+			dataCols dcl ON dc.id_dataCols = dcl.id
 		WHERE
 			dcl.name = 'trigger_type';
 
-		UPDATE datarows dr
+		UPDATE dataRows dr
 		JOIN tmp_triggerTypeValues ttv ON dr.id = ttv.id_dataRows
 		JOIN lookups l ON l.type_code = 'actionTriggerTypes' AND l.lookup_code = ttv.triggerTypeValue
 		SET dr.id_actionTriggerTypes = l.id,
@@ -466,7 +472,7 @@ BEGIN
 	ELSE
 		SELECT 'User input is already refactored' AS message;
 	END IF;	 
-     
+	 
  END //
 
 DELIMITER ;
@@ -495,14 +501,14 @@ SELECT id,
 `name` AS name_id,
 CASE 
 	WHEN IFNULL(displayName, '') = '' THEN `name`
-    ELSE displayName
+	ELSE displayName
 END AS `name`,
 `timestamp`,
-id AS `value`, -- used for slect dropdowns
+id AS `value`, -- used for select dropdowns
 CASE 
 	WHEN IFNULL(displayName, '') = '' THEN `name`
-    ELSE displayName
-END AS `text` -- used for slect dropdowns
+	ELSE displayName
+END AS `text` -- used for select dropdowns
 FROM dataTables;
 
 DROP VIEW IF EXISTS view_formActions;
@@ -524,19 +530,19 @@ l_types.lookup_code AS type_code, l_types.lookup_value AS `type`, sj.config,
 sj.date_create, date_to_be_executed, date_executed, `description`, 
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.recipient_emails    
-    WHEN l_types.lookup_code = 'notification' THEN ''
-    WHEN l_types.lookup_code = 'task' THEN ''
-    ELSE ""
+	WHEN l_types.lookup_code = 'notification' THEN ''
+	WHEN l_types.lookup_code = 'task' THEN ''
+	ELSE ""
 END AS recipient,
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.`subject`
-    WHEN l_types.lookup_code = 'notification' THEN n.`subject`
-    ELSE ""
+	WHEN l_types.lookup_code = 'notification' THEN n.`subject`
+	ELSE ""
 END AS title,
 CASE
 	WHEN l_types.lookup_code = 'email' THEN mq.body
-    WHEN l_types.lookup_code = 'notification' THEN n.body
-    ELSE ""
+	WHEN l_types.lookup_code = 'notification' THEN n.body
+	ELSE ""
 END AS message,
 sj_mq.id_mailQueue, id_jobTypes, id_jobStatus, a.id_formActions,
 a.id_dataRows, dt.`name` AS dataTables_name
@@ -596,40 +602,40 @@ DROP PROCEDURE IF EXISTS get_dataTable_with_filter //
 
 CREATE PROCEDURE get_dataTable_with_filter( 
 	IN table_id_param INT, 
-    IN user_id_param INT, 
-    IN filter_param VARCHAR(1000),
-    IN exclude_deleted_param BOOLEAN -- If true it will exclude the deleted records and it will not return them
+	IN user_id_param INT, 
+	IN filter_param VARCHAR(1000),
+	IN exclude_deleted_param BOOLEAN -- If true it will exclude the deleted records and it will not return them
 )
--- if the filter_param contains any of these we additionaly filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
+-- if the filter_param contains any of these we additionally filter: LAST_HOUR, LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_YEAR
 READS SQL DATA
 DETERMINISTIC
 BEGIN
-    SET @@group_concat_max_len = 32000000;
-    SET @sql = NULL;
-    SELECT
-    GROUP_CONCAT(DISTINCT
-        CONCAT(
-            'MAX(CASE WHEN col.`name` = "',
-                col.name,
-                '" THEN `value` END) AS `',
-            replace(col.name, ' ', ''), '`'
-        )
-    ) INTO @sql
-    FROM  dataTables t
+	SET @@group_concat_max_len = 32000000;
+	SET @sql = NULL;
+	SELECT
+	GROUP_CONCAT(DISTINCT
+		CONCAT(
+			'MAX(CASE WHEN col.`name` = "',
+				col.name,
+				'" THEN `value` END) AS `',
+			replace(col.name, ' ', ''), '`'
+		)
+	) INTO @sql
+	FROM  dataTables t
 	INNER JOIN dataCols col on (t.id = col.id_dataTables)
-    WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date', 'user_code');
+	WHERE t.id = table_id_param AND col.`name` NOT IN ('id_users','record_id','user_name','id_actionTriggerTypes','triggerType', 'entry_date', 'user_code');
 
-    IF (@sql is null) THEN
-        SELECT `name` from view_dataTables where 1=2;
-    ELSE
-        BEGIN
+	IF (@sql is null) THEN
+		SELECT `name` from view_dataTables where 1=2;
+	ELSE
+		BEGIN
 			SET @user_filter = '';
-            IF user_id_param > 0 THEN
+			IF user_id_param > 0 THEN
 				SET @user_filter = CONCAT(' AND r.id_users = ', user_id_param);
-            END IF;	
-            
-            SET @time_period_filter = '';
-            CASE 
+			END IF;	
+			
+			SET @time_period_filter = '';
+			CASE 
 				WHEN filter_param LIKE '%LAST_HOUR%' THEN
 					SET @time_period_filter = ' AND r.`timestamp` >= NOW() - INTERVAL 1 HOUR';
 				WHEN filter_param LIKE '%LAST_DAY%' THEN
@@ -643,36 +649,36 @@ BEGIN
 				ELSE
 					SET @time_period_filter = '';					
 			END CASE;
-            
-            SET @exclude_deleted_filter = '';
-            CASE 
+			
+			SET @exclude_deleted_filter = '';
+			CASE 
 				WHEN exclude_deleted_param = TRUE THEN
 					SET @exclude_deleted_filter = CONCAT(' AND IFNULL(r.id_actionTriggerTypes, 0) <> ', (SELECT id FROM lookups WHERE type_code = 'actionTriggerTypes' AND lookup_code = 'deleted' LIMIT 0,1));				
 				ELSE
 					SET @exclude_deleted_filter = '';					
 			END CASE;
-            
-            SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id, 
+			
+			SET @sql = CONCAT('SELECT * FROM (SELECT r.id AS record_id, 
 					r.`timestamp` AS entry_date, r.id_users, u.`name` AS user_name, vc.code AS user_code, r.id_actionTriggerTypes, l.lookup_code AS triggerType,', @sql, 
 					' FROM dataTables t
 					INNER JOIN dataRows r ON (t.id = r.id_dataTables)
 					INNER JOIN dataCells cell ON (cell.id_dataRows = r.id)
 					INNER JOIN dataCols col ON (col.id = cell.id_dataCols)
-                    LEFT JOIN users u ON (r.id_users = u.id)
-                    LEFT JOIN validation_codes vc ON (u.id = vc.id_users)
-                    LEFT JOIN lookups l ON (l.id = r.id_actionTriggerTypes)
+					LEFT JOIN users u ON (r.id_users = u.id)
+					LEFT JOIN validation_codes vc ON (u.id = vc.id_users)
+					LEFT JOIN lookups l ON (l.id = r.id_actionTriggerTypes)
 					WHERE t.id = ', table_id_param, @user_filter, @time_period_filter, @exclude_deleted_filter, 
 					' GROUP BY r.id ) AS r WHERE 1=1  ', filter_param);
-            -- select @sql;
-            PREPARE stmt FROM @sql;
-            EXECUTE stmt;
-            DEALLOCATE PREPARE stmt;
-        END;
-    END IF;
+			-- select @sql;
+			PREPARE stmt FROM @sql;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+		END;
+	END IF;
 END
 //
 
-DELIMITER ;
+
 
 -- add field `formName` to style `showUserInput`; Set the data from `source` field to the formName and remove the `source` field
 -- insert field `formName` in style `showUserInput`
@@ -711,7 +717,7 @@ SET `name` = 'select-data_table'
 WHERE `name` = 'select-formName';
 
 UPDATE styles_fields
-SET `help` = 'Select a data tabe which will be linked to the style'
+SET `help` = 'Select a data table which will be linked to the style'
 WHERE id_fields = get_field_id('data_table') AND id_styles IN (get_style_id('entryRecord'), get_style_id('entryList'));
 
 -- add field `fields_map`
@@ -750,7 +756,7 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('condition'), NULL, 'The field `condition` allows to specify a condition. Note that the field `condition` is of type `json` and requires\n1. valid json syntax (see https://www.json.org/)\n2. a valid condition structure (see https://github.com/jwadhams/json-logic-php/)\n\nOnly if a condition resolves to true the sections added to the field `children` will be rendered.\n\nIn order to refer to a form-field use the syntax `"@__form_name__#__from_field_name__"` (the quotes are necessary to make it valid json syntax) where `__form_name__` is the value of the field `name` of the style `formUserInput` and `__form_field_name__` is the value of the field `name` of any form-field style.');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('data_config'), '', 'Define data configuration for fields that are loaded from DB and can be used inside the style with their param names. The name of the field can be used between {{param_name}} to load the required value');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('debug'), 0, 'If *checked*, debug messages will be rendered to the screen. These might help to understand the result of a condition evaluation. **Make sure that this field is *unchecked* once the page is productive**.');
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('label_delete'), 'Delete', 'The label for the delte button.');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('entryRecordDelete'), get_field_id('label_delete'), 'Delete', 'The label for the delete button.');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_title'), '', 'Confirmation title for the modal when the button is clicked');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_continue'), 'OK', 'Continue button for the modal when the button is clicked');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('entryRecordDelete'), get_field_id('confirmation_message'), 'Do you want to continue?', 'The message shown on the modal');
@@ -823,4 +829,5 @@ INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_ins
 -- add field `own_entries_only` to style `showUserInput`
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('showUserInput'), get_field_id('own_entries_only'), '1', 'If enabled the `showUserInput` will load only the records entered by the user.');
 
--- add edit_time as original entry date, otherwise we will lose it for the user input
+-- Restore original SQL_MODE
+SET SESSION sql_mode = @orig_sql_mode;
