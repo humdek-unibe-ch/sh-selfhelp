@@ -68,7 +68,7 @@
             "filter": {
                 "type": "string",
                 "title": "Filter",
-                "description": "Advanced option to filter the data.",
+                "description": "Advanced option to filter the data. When a filter is set, then the ordering for `first` or `last` should be manually set.",
                 "propertyOrder": 6,
                 "options": {
                     "grid_columns": 6
