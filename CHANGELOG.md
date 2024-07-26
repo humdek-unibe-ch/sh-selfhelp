@@ -1,4 +1,4 @@
-# v7.0.0 (Unpublished)
+# v7.0.0 - BIG UPDATE - please backup and in case of in issues contact stefan.kodzhabashev@unibe.ch
 ### Plugins Compatibility Requirements
  - SurveyJS v1.3.6+
  - Qualtrics v2.3.4+
