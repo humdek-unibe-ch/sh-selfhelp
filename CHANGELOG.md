@@ -1,3 +1,7 @@
+# v7.0.1
+### Bugfix
+ - #503 - properly clear `user_input` data
+
 # v7.0.0 - BIG UPDATE - please backup and in case of in issues contact stefan.kodzhabashev@unibe.ch
 ### Plugins Compatibility Requirements
  - SurveyJS v1.3.6+

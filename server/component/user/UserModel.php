@@ -297,7 +297,6 @@ class UserModel extends BaseModel
         try {
             $this->db->begin_transaction();
             $res = $this->db->remove_by_fk('user_activity', 'id_users', $uid);
-            $res &= $this->db->remove_by_fk('user_input', 'id_users', $uid);
 
             // remove scheduled jobs
             $sql_scheduled_jobs = "SELECT id_scheduledJobs
