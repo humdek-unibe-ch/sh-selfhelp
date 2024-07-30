@@ -1,3 +1,7 @@
+# v7.0.3
+### Bugfix
+ - add end of line to sql script v6.13.0
+
 # v7.0.2
 ### Bugfix
  - properly install DB with names that are keywords for MySQL
