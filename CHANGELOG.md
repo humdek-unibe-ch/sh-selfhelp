@@ -1,3 +1,7 @@
+# v7.0.2
+### Bugfix
+ - properly install DB with names that are keywords for MySQL
+
 # v7.0.1
 ### Bugfix
  - #503 - properly clear `user_input` data
