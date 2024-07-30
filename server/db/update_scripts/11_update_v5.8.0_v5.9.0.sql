@@ -11,3 +11,4 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 -- add field allow_clear to style select
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'allow_clear', get_field_type_id('checkbox'), '0');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) VALUES (get_style_id('select'), get_field_id('allow_clear'), 0, 'If checked the select value can be cleared once set');
+

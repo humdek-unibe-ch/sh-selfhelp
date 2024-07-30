@@ -80,3 +80,4 @@ SET url = '/admin/email', id_actions = (SELECT id FROM actions WHERE `name` = 'b
 WHERE keyword = 'email';
 
 INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'dynamic_json', '15');
+

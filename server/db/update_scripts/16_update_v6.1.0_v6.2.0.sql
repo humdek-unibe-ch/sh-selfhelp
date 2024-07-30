@@ -6,3 +6,5 @@ SET version = 'v6.2.0';
  CALL add_table_column('user_activity', 'keyword', "VARCHAR(100) DEFAULT NULL");
  CALL add_table_column('user_activity', 'params', "VARCHAR(1000) DEFAULT NULL");
  CALL add_table_column('user_activity', 'mobile', "BOOLEAN DEFAULT NULL");
+
+ 

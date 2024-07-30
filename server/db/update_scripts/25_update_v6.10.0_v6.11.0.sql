@@ -38,3 +38,4 @@ INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'html-ta
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'html_tag', get_field_type_id('html-tag'), '0');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
 VALUES (get_style_id('htmlTag'), get_field_id('html_tag'), '', 'Select HTML tag from the list');
+

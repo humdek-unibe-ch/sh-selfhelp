@@ -75,3 +75,4 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('label_continue'), 'OK', 'Continue button for the modal when the button is clicked');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('label_message'), 'Do you want to continue?', 'The message shown on the modal');
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`)  VALUES (get_style_id('formUserInputRecord'), get_field_id('url_cancel'), '', 'The target URL of the cancel button.');
+

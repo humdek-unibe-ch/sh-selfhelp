@@ -18,3 +18,4 @@ WHERE sft.id_fields = (SELECT id FROM `fields` WHERE `name` = 'condition' LIMIT 
 -- delete field `jquery_builder_json`
 DELETE FROM `fields`
 WHERE `name` = 'jquery_builder_json';
+

@@ -567,3 +567,5 @@ LEFT JOIN view_style_fields fields ON (fields.style_id = s.id_styles)
 LEFT JOIN sections_fields_translation sft ON (sft.id_sections = s.id AND sft.id_fields = fields.field_id) 
 LEFT JOIN languages l ON (sft.id_languages = l.id) 
 LEFT JOIN genders g ON (sft.id_genders = g.id);
+
+
