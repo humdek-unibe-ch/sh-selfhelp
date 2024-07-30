@@ -1,3 +1,7 @@
+# v7.0.4
+### Bugfix
+- add end of line to all update SQL scripts
+
 # v7.0.3
 ### Bugfix
  - add end of line to sql script v6.13.0
