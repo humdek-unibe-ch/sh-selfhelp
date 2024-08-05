@@ -211,7 +211,8 @@ abstract class BaseModel
                                 if ($config['retrieve'] === 'all') {
                                     $all_values[$key] = implode(',', $value);
                                 } else {
-                                    $all_values[$key] = json_encode($value);
+                                    // $all_values[$key] = json_encode($value);
+                                    $all_values[$key] = $value; 
                                 }
                             }
                             $result = array_merge($result, $all_values);

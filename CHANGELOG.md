@@ -1,3 +1,7 @@
+# v7.0.5
+### Bugfix
+ - fix loading data from `data_config` as `all_as_array`
+
 # v7.0.4
 ### Bugfix
 - add end of line to all update SQL scripts
