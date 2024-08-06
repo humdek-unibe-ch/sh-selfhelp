@@ -1,3 +1,7 @@
+# v7.0.6
+### Bugfix
+ - when a group or groups are assigned to a validation code, they are properly added to the registered user in combination with the groups in the `registration` style
+
 # v7.0.5
 ### Bugfix
  - fix loading data from `data_config` as `all_as_array`

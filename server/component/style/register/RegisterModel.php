@@ -104,9 +104,10 @@ class RegisterModel extends StyleModel
     {
         if($this->check_validation_code($code)) {
             $group = $this->get_group_from_code($code);
-            $groupId = explode(',', $this->get_db_field("group", SUBJECT_GROUP_ID)); // assign predefined group in the controller i not set the default group `subject`
+            $groupId = explode(',', $this->get_db_field("group", SUBJECT_GROUP_ID)); // assign predefined group in the controller if not set the default group `subject`
             if (!empty($group)) {
-                $groupId = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it or them
+                $extraGroupIds = array_column($group, 'id_groups'); // Extract the group IDs from the assigned groups for the codes
+                $groupId = array_merge($groupId, $extraGroupIds); // Merge the predefined groups with the extra groups
             }
             $uid = $this->user_model->create_new_user($email, $code, true);
             if ($uid && $this->user_model->claim_validation_code($code, $uid) !== false) {
@@ -208,7 +209,8 @@ class RegisterModel extends StyleModel
             $group = $this->get_group_from_code($code);
             $groups = explode(',', $this->get_db_field("group", SUBJECT_GROUP_ID)); // assign predefined group in the controller i not set the default group `subject`
             if (!empty($group)) {
-                $groups = array_column($group, 'id_groups'); //if there is a group assigned to that validation code, assign it to them
+                $extraGroupIds = array_column($group, 'id_groups'); // Extract the group IDs from the assigned groups for the codes
+                $groups = array_merge($groups, $extraGroupIds); // Merge the predefined groups with the extra groups
             }
             return $this->user_model->create_new_anonymous_user($code, $groups, $security_questions);
         }
