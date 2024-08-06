@@ -1113,6 +1113,10 @@ class UserInput
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false, $exclude_deleted = true)
     {
+        if(!is_numeric($form_id)){
+            // if the form id is not integer, some error.
+            return array();
+        }
         if (strpos($filter, '{{') !== false) {
             $filter = ''; // filter is not correct, tried to be set dynamically but failed
         }

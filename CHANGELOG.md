@@ -1,3 +1,7 @@
+# v7.0.8
+### Bugfix
+ - fix loading `showUserInput` without any data
+
 # v7.0.7
 ### Bugfix
  - fix a bug in `32_update_v6.17.0_v7.0.0` script where in rare cases some columns did not have unique names.

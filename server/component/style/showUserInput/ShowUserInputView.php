@@ -251,7 +251,7 @@ class ShowUserInputView extends StyleView
     {
         if($this->data_table === "") return;
         $fields = $this->model->get_user_data($this->data_table, $this->own_entries_only);
-        if(count($fields) === 0) return;
+        if(!$fields || count($fields) === 0) return;
         require __DIR__ . "/tpl_user_data.php";
     }
 
