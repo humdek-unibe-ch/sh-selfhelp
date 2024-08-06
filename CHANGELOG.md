@@ -1,5 +1,9 @@
 # v7.0.6
 ### Bugfix
+ - fix a bug in `32_update_v6.17.0_v7.0.0` script where in rare cases some columns did not have unique names.
+
+# v7.0.6
+### Bugfix
  - when a group or groups are assigned to a validation code, they are properly added to the registered user in combination with the groups in the `registration` style
 
 # v7.0.5

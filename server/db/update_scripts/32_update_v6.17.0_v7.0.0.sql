@@ -307,7 +307,7 @@ BEGIN
 			) subquery
 			WHERE subquery.row_num > 1
 		) uc2 ON uc1.id = uc2.id
-		SET uc1.name = CONCAT(uc1.name, '_exists');
+		SET uc1.name = CONCAT(uc1.name, '_exists_', uc1.id);
 		
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(255);
 		ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_uploadTables);
