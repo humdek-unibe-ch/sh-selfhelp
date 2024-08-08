@@ -172,7 +172,7 @@ class AjaxDataSource extends BaseAjax
     /**
      * The search function which can be called by an AJAX call.
      * 
-     * This page should be created so the acl could be assigned. -> example for the url --> /request/[AjaxDataSource:class]/[get_data_table:method]/[sample_static:table] 
+     * This page should be created so the acl could be assigned. -> example for the url --> /request/[AjaxDataSource:class]/[get_data_table:method]/[v:table] 
      * the table is the chosen data source
      *
      * @retval array
@@ -191,7 +191,7 @@ class AjaxDataSource extends BaseAjax
                 && count($_SESSION['data_filter'][$table_name]) > 0) {
                 $filter = $_SESSION['data_filter'][$table_name];
         }
-        return $this->fetch_data_table($source['id'], $filter);
+        return $source ? $this->fetch_data_table($source['id'], $filter) : array();
     }
 
     /**
