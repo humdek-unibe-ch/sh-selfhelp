@@ -38,7 +38,7 @@ class AssetModel extends BaseModel
      */
     public function pp_delete_asset_file_static($name)
     {
-        $res = $this->db->remove_by_fk("uploadTables", "name", $name);
+        $res = $this->db->remove_by_fk("dataTables", "name", $name);
         if(!$res) {
             return "postprocess: failed to remove old data values";
         }
@@ -67,7 +67,7 @@ class AssetModel extends BaseModel
         if(!$fh) {
             return "postprocess: failed to open the uploaded file";
         }
-        $sql = "SELECT * FROM uploadTables WHERE `name` = :tbl_name";
+        $sql = "SELECT * FROM dataTables WHERE `name` = :tbl_name";
         $has_table = $this->db->query_db_first($sql, array("tbl_name" => $name));
 
         if(!$overwrite && $has_table) {
@@ -83,7 +83,7 @@ class AssetModel extends BaseModel
             }
         }
 
-        $id_table = $this->db->insert("uploadTables", array(
+        $id_table = $this->db->insert("dataTables", array(
             "name" => $name
         ));
         if(!$id_table) {
@@ -95,9 +95,9 @@ class AssetModel extends BaseModel
         $head = fgetcsv( $fh );
         $db_data = array();
         foreach($head as $col) {
-            $id_col = $this->db->insert("uploadCols", array(
+            $id_col = $this->db->insert("dataCols", array(
                 "name" => $col,
-                "id_uploadTables" => $id_table
+                "id_dataTables" => $id_table
             ));
             if(!$id_col) {
                 fclose($fh);
@@ -106,10 +106,12 @@ class AssetModel extends BaseModel
             array_push($col_ids, $id_col);
         }
 
+        $triggerTypeFinished = $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_finished);
         while(($data = fgetcsv( $fh )) !== false) {
-            $id_row = $this->db->insert("uploadRows", array(
-                "id_uploadTables" => $id_table,
-                "id_users" => $_SESSION['id_user']
+            $id_row = $this->db->insert("dataRows", array(
+                "id_dataTables" => $id_table,
+                "id_users" => $_SESSION['id_user'],
+                "id_actionTriggerTypes" => $triggerTypeFinished
             ));
             if(!$id_row) {
                 fclose($fh);
@@ -119,10 +121,10 @@ class AssetModel extends BaseModel
             foreach($data as $idx => $val) {
                 array_push($db_data, array($id_row, $col_ids[$idx], $val));
             }
-            $res = $this->db->insert_mult("uploadCells",
+            $res = $this->db->insert_mult("dataCells",
                 array(
-                    "id_uploadRows",
-                    "id_uploadCols",
+                    "id_dataRows",
+                    "id_dataCols",
                     "value"
                 ), $db_data
             );

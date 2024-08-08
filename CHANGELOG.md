@@ -1,3 +1,7 @@
+# v7.0.10
+### Bugfix
+ - properly upload assets as static data and delete them after the user_input refactoring
+
 # v7.0.9
 ### Bugfix
  - fix ajax check call for `get_data_table` when registered. So far it is only used in `https://dab-data.edu.unibe.ch`. It is recommended not to be used as it gives access to the data.
