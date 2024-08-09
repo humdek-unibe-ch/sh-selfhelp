@@ -450,7 +450,7 @@ class PageDb extends BaseDb
         if (isset($_SESSION['user_name']) && $_SESSION['user_name'] != '') {
             return $_SESSION['user_name'];
         }
-        $sql = "SELECT name, email FROM users WHERE id = :id";
+        $sql = "SELECT `name`, email FROM users WHERE id = :id";
         $res = $this->query_db_first($sql, array(":id" => $_SESSION['id_user']));
         if ($res && (isset($res['name']) || isset($res['email']))) {
             $_SESSION['user_name'] = isset($res['name']) ? $res['name'] : '';
@@ -459,6 +459,27 @@ class PageDb extends BaseDb
             return "unknown";
         }
     }    
+
+    /**
+     * Get the user email of the current user.
+     *
+     * @retval string
+     *  The user  email.
+     */
+    public function fetch_user_email()
+    {
+        if (isset($_SESSION['user_email']) && $_SESSION['user_email'] != '') {
+            return $_SESSION['user_email'];
+        }
+        $sql = "SELECT email FROM users WHERE id = :id";
+        $res = $this->query_db_first($sql, array(":id" => $_SESSION['id_user']));
+        if ($res && isset($res['email'])) {
+            $_SESSION['user_email'] = isset($res['email']) ? $res['email'] : '';
+            return $_SESSION['user_email'];
+        } else {
+            return "unknown";
+        }
+    }  
 
     /**
      * Fetch the list of languages

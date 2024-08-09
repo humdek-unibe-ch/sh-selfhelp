@@ -223,16 +223,15 @@ class StyleModel extends BaseModel implements IStyleModel
      * The field which we are checking
      * @param object $data_config
      * The data config as json object
-     * @param string $user_name
-     * the user_name
-     * @param string $user_code
-     * the user_code
      * @param string $field_key = 'content'
      * The field key that we want to take some dynamic data. The default one is `content`
      * @return string
      * Return the field content
      */
-    protected function calc_dynamic_values($field, $data_config, $user_name, $user_code, $field_key = 'content'){
+    protected function calc_dynamic_values($field, $data_config, $field_key = 'content'){
+        $user_name = $this->db->fetch_user_name();
+        $user_code = $this->db->get_user_code();
+        $user_email = $this->db->fetch_user_email();
         //adjust entry records 
         $this->debug_data['field'] = $field;
         $this->debug_data['data_config'] = $data_config;
@@ -244,7 +243,7 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         // replace the field content with the global variables
         if ($field[$field_key]) {
-            $global_vars = $this->get_global_vars($user_code, $user_name);
+            $global_vars = $this->get_global_vars();
             $this->debug_data['global_vars'] = $global_vars;
             $this->interpolation_data['global_vars'] = $global_vars;
             if(strpos($field[$field_key], '__language__') !== false){
@@ -254,7 +253,8 @@ class StyleModel extends BaseModel implements IStyleModel
             $field[$field_key] = $this->db->replace_calced_values($field[$field_key], $global_vars);
             $field[$field_key] = str_replace('@user_code', $user_code, $field[$field_key]);
             $field[$field_key] = str_replace('@project', $_SESSION['project'], $field[$field_key]);
-            $field[$field_key] = str_replace('@user', $user_name, $field[$field_key]);
+            $field[$field_key] = str_replace('@user_email', $user_email, $field[$field_key]);
+            $field[$field_key] = str_replace('@user', $user_name, $field[$field_key]);            
             $global_values = $this->db->get_global_values();
             $this->debug_data['global_values'] = $global_values; 
             $this->interpolation_data['global_values'] = $global_values; 
@@ -355,9 +355,10 @@ class StyleModel extends BaseModel implements IStyleModel
      *   "content" => the content of the db field
      */
     protected function set_db_fields($fields)
-    {
+    {        
         $user_name = $this->db->fetch_user_name();
         $user_code = $this->db->get_user_code();
+        $user_email = $this->db->fetch_user_email();
         $data_config_key = array_search('data_config', array_column($fields, 'name'));
         $data_config = $data_config_key ? $fields[$data_config_key]['content'] : null;
         if ($data_config) {
@@ -366,7 +367,7 @@ class StyleModel extends BaseModel implements IStyleModel
                 $data_config = $this->get_entry_value($this->entry_record, $data_config);
             }
             // if data_config is set replace if there are any globals
-            $global_vars = $this->get_global_vars($user_code, $user_name);
+            $global_vars = $this->get_global_vars();
             if(strpos($data_config, '__language__') !== false){
                 $language = $this->db->get_user_language_id($_SESSION['id_user']);
                 $global_vars['__language__'] = $language;
@@ -375,7 +376,8 @@ class StyleModel extends BaseModel implements IStyleModel
             
             $data_config = str_replace('@user_code', $user_code, $data_config);
             $data_config = str_replace('@project', $_SESSION['project'], $data_config);
-            $data_config = str_replace('@user', $user_name, $data_config);
+            $data_config = str_replace('@user_email', $user_email, $data_config);
+            $data_config = str_replace('@user', $user_name, $data_config);            
             $global_values = $this->db->get_global_values(); 
             if($global_values){
                 $data_config = $this->db->replace_calced_values($data_config,  $global_values);
@@ -391,9 +393,9 @@ class StyleModel extends BaseModel implements IStyleModel
             $this->section_name = $field['section_name'];
             
             // load dynamic data if needed
-            $field['content'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code);
+            $field['content'] = $this->calc_dynamic_values($field, $data_config);
             if(isset($field['meta']) && $field['meta']){
-                $field['meta'] = $this->calc_dynamic_values($field, $data_config, $user_name, $user_code, 'meta');    
+                $field['meta'] = $this->calc_dynamic_values($field, $data_config, 'meta');    
             }
             
 
@@ -784,17 +786,18 @@ class StyleModel extends BaseModel implements IStyleModel
 
     /**
      * Retrieves global variables for use within the application.
-     *
-     * @param string $user_code The user's unique code.
-     * @param string $user_name The user's name.
      * @return array An array containing global variables such as user code, project, user name, keywords, and platform.
      */
-    public function get_global_vars($user_code, $user_name)
+    public function get_global_vars()
     {
+        $user_name = $this->db->fetch_user_name();
+        $user_code = $this->db->get_user_code();
+        $user_email = $this->db->fetch_user_email();
         $global_vars = array(
                 '@user_code' => $user_code,
                 '@project' => $_SESSION['project'],
                 '@user' => $user_name,
+                '@user_email' => $user_email,
                 '__keyword__' => $this->router->get_keyword_from_url(),
                 '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
             );

@@ -1,3 +1,7 @@
+# v7.0.12
+### New Feature
+ - #505 add `@user_email` as global variable
+
 # v7.0.11
 ### Bugfix
  - properly keep `JSON` structure when interpolating data
