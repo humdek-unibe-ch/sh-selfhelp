@@ -1,3 +1,7 @@
+# v7.0.11
+### Bugfix
+ - properly keep `JSON` structure when interpolating data
+
 # v7.0.10
 ### Bugfix
  - properly upload assets as static data and delete them after the user_input refactoring
