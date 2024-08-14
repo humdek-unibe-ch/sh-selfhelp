@@ -1,3 +1,7 @@
+# v7.0.13
+### New Feature
+ - #505 properly set the `@user_email`
+
 # v7.0.12
 ### New Feature
  - #505 add `@user_email` as global variable

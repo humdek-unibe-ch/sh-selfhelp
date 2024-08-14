@@ -468,7 +468,7 @@ class PageDb extends BaseDb
      */
     public function fetch_user_email()
     {
-        if (isset($_SESSION['user_email']) && $_SESSION['user_email'] != '') {
+        if (isset($_SESSION['user_email']) && $_SESSION['user_email'] != ''&& $_SESSION['user_email'] != 'guest') {
             return $_SESSION['user_email'];
         }
         $sql = "SELECT email FROM users WHERE id = :id";
