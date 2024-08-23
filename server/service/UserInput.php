@@ -489,12 +489,7 @@ class UserInput
                     $reminder_data['session_start_date'] = $reminder_dates['session_start_date'];
                     $reminder_data['session_end_date'] = $reminder_dates['session_end_date'];
                 }
-                $form = explode('-', $job['form_id']);
-                if ($form[1] == FORM_INTERNAL) {
-                    $reminder_data['id_forms_INTERNAL'] = $form[0];
-                } else if ($form[1] == FORM_EXTERNAL) {
-                    $reminder_data['id_forms_EXTERNAL'] = $form[0];
-                }
+                $reminder_data['id_dataTables'] = $job['form_id'];
                 $this->db->insert('scheduledJobs_reminders', $reminder_data);
                 $result[] = "Insert reminders for formId: " . $job['form_id'];
             }
@@ -571,12 +566,7 @@ class UserInput
                     $reminder_data['session_start_date'] = $reminder_dates['session_start_date'];
                     $reminder_data['session_end_date'] = $reminder_dates['session_end_date'];
                 }
-                $form = explode('-', $job['form_id']);
-                if ($form[1] == FORM_INTERNAL) {
-                    $reminder_data['id_forms_INTERNAL'] = $form[0];
-                } else if ($form[1] == FORM_EXTERNAL) {
-                    $reminder_data['id_forms_EXTERNAL'] = $form[0];
-                }
+                $reminder_data['id_dataTables'] = $job['form_id'];
                 $this->db->insert('scheduledJobs_reminders', $reminder_data);
                 $result[] = "Insert reminders for formId: " . $job['form_id'];
             }

@@ -1,3 +1,7 @@
+# v7.0.14
+### Bugfix
+ - properly schedule `reminders` based on actions
+
 # v7.0.13
 ### New Feature
  - #505 properly set the `@user_email`
