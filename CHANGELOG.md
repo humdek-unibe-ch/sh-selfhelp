@@ -1,3 +1,7 @@
+# v7.0.15
+### Bugfix
+ - adjust script `32_update_v6.17.0_v7.0.0` to work with older than MySQL v8
+
 # v7.0.14
 ### Bugfix
  - properly schedule `reminders` based on actions

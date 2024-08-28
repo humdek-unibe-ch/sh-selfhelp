@@ -293,21 +293,25 @@ BEGIN
 		
 		-- check for columns with the same name for the same table and rename one of the columns by adding affix _exists
 		UPDATE uploadCols uc1
-		JOIN (
-			SELECT 
-				id
-			FROM (
-				SELECT 
-					id,
-					name,
-					id_uploadTables,
-					ROW_NUMBER() OVER (PARTITION BY name, id_uploadTables ORDER BY id) as row_num
-				FROM 
-					uploadCols
-			) subquery
-			WHERE subquery.row_num > 1
-		) uc2 ON uc1.id = uc2.id
-		SET uc1.name = CONCAT(uc1.name, '_exists_', uc1.id);
+        JOIN (
+            SELECT id
+            FROM (
+                SELECT 
+                    id,
+                    `name`,
+                    id_uploadTables,
+                    (SELECT COUNT(*)
+                    FROM uploadCols uc2
+                    WHERE uc2.`name` = uc1.`name`
+                    AND uc2.id_uploadTables = uc1.id_uploadTables
+                    AND uc2.id <= uc1.id) AS row_num
+                FROM uploadCols uc1
+            ) AS subquery
+            WHERE subquery.row_num > 1
+        ) AS uc2 ON uc1.id = uc2.id
+        SET uc1.`name` = CONCAT(uc1.`name`, '_exists_', uc1.id);
+
+
 		
 		ALTER TABLE uploadCols MODIFY `name` VARCHAR(255);
 		ALTER TABLE uploadCols ADD UNIQUE KEY unique_name_id_dataTables(`name`, id_uploadTables);
