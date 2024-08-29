@@ -175,6 +175,7 @@ class CmsUpdateController extends BaseController
                 "time",
                 "url",
                 "week",
+                "anonymous-holder"
             ));
         return true;
     }

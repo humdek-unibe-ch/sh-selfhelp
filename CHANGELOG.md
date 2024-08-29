@@ -1,3 +1,7 @@
+# v7.0.16
+### New Feature
+ - add new `type-input` for style `input` called `anonymous-holder`. It convert the input into `******`
+
 # v7.0.15
 ### Bugfix
  - adjust script `32_update_v6.17.0_v7.0.0` to work with older than MySQL v8

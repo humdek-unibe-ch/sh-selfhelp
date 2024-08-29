@@ -92,7 +92,7 @@ class FormUserInputController extends BaseController
                 // else if($type == "time")
                 //    $validation_rules[$id_section] = "regex,/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/";
                 else if ($type == "url")
-                    $validation_rules[$name] = "valid_url";
+                    $validation_rules[$name] = "valid_url";                
                 else
                     $filter_rules[$name] = "sanitize_string";
             } else
@@ -101,6 +101,10 @@ class FormUserInputController extends BaseController
                 $post[$name] = json_encode($value); // save the data as json
             } else {
                 $post[$name] = $value;
+                if ($type == "anonymous-holder"){
+                    // save as holder
+                    $post[$name] = str_repeat('*', strlen($value));
+                }
             }
         }
         $gump->validation_rules($validation_rules);

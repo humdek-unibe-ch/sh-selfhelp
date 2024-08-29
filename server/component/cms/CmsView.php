@@ -932,6 +932,7 @@ class CmsView extends BaseView
                     array("value" => "time", "text" => "time"),
                     array("value" => "url", "text" => "url"),
                     array("value" => "week", "text" => "week"),
+                    array("value" => "anonymous-holder", "text" => "anonymous-holder")
                 ),
             ));
         }
