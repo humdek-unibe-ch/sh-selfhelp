@@ -20,3 +20,4 @@ vendor
 composer.json
 composer.lock
 phpstan.neon
+!assets/.htaccess

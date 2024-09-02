@@ -1,3 +1,7 @@
+# v7.0.17
+### Bugfix
+ - #499 - Add `.htaccess` file in the `assets` folder to enable CORS for mobile asset loading
+
 # v7.0.16
 ### New Feature
  - add new `type-input` for style `input` called `anonymous-holder`. It convert the input into `******`
