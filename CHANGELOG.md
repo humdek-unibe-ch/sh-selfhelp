@@ -1,3 +1,7 @@
+# v7.0.18
+### Bugfix
+ - ensured that data received from a form is accurately type-checked, with each field's type properly validated and set accordingly.
+
 # v7.0.17
 ### Bugfix
  - #499 - Add `.htaccess` file in the `assets` folder to enable CORS for mobile asset loading

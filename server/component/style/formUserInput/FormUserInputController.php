@@ -51,6 +51,7 @@ class FormUserInputController extends BaseController
         $post = array();
         foreach($_POST as $name => $values)
         {
+            $type = ''; // reset type for each field
             if(!isset($values['id'])){
                 $post[$name] = $values;
                 continue;   
