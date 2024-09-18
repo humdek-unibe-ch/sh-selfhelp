@@ -226,6 +226,7 @@ define('ACTION_JOB_TYPE_NOTIFICATION', 'notification');
 define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER', 'notification_with_reminder');
 define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY', 'notification_with_reminder_for_diary');
 define('ACTION_SELECTED_OVERWRITE_VARIABLES', 'selected_overwrite_variables');
+define('ACTION_SELECTED_OVERWRITE_VARIABLES_IMPERSONATE_USER_CODE', 'impersonate_user_code');
 define('ACTION_TARGET_GROUPS', 'target_groups');
 define('ACTION_DELETE_SCHEDULED', 'delete_scheduled');
 define('ACTION_SELECTED_TARGET_GROUPS', 'selected_target_groups');

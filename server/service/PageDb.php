@@ -874,5 +874,28 @@ class PageDb extends BaseDb
         return $version;
     }
 
+    /**
+    * Retrieves the user ID based on the provided user code.
+    *
+    * This method queries the database to find the user ID associated with the given
+    * user code from the `view_user_codes` view. If a matching user code is found,
+    * the corresponding user ID is returned. If no match is found, it returns `false`.
+    *
+    * @param string $user_code The unique user code to search for in the database.
+    *
+    * @return int|false Returns the user ID as an integer if found, or `false` if no match is found.
+    */
+    public function get_user_id($user_code)
+    {
+        $res = $this->query_db_first('SELECT id
+                                        FROM view_user_codes
+                                        WHERE code = :user_code', array(':user_code' => $user_code));
+        if ($res && isset($res['id'])) {
+            return $res['id'];
+        } else {
+            return false;
+        }
+    }
+
 }
 ?>

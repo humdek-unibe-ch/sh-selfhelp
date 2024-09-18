@@ -1257,7 +1257,8 @@
                     "send_after",
                     "send_after_type",
                     "send_on_day_at",
-                    "custom_time"
+                    "custom_time",
+                    "impersonate_user_code"
                 ]
             }
         },

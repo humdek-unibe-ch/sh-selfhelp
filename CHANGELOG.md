@@ -1,3 +1,7 @@
+# v7.0.19
+### New Feature
+ - #511 add `impersonate_user_code` as `overwrite_variable` in `form actions`. When enabled if the form submit this variable, the system search for a user with that code and if found, execute the action for that user. This is used for telephone interviews where the researcher links data to the participant.
+
 # v7.0.18
 ### Bugfix
  - ensured that data received from a form is accurately type-checked, with each field's type properly validated and set accordingly.

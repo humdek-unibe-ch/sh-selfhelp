@@ -1103,7 +1103,7 @@ class UserInput
      */
     public function get_data($form_id, $filter, $own_entries_only = true, $user_id = null, $db_first = false, $exclude_deleted = true)
     {
-        if(!is_numeric($form_id)){
+        if (!is_numeric($form_id)) {
             // if the form id is not integer, some error.
             return array();
         }
@@ -1391,6 +1391,41 @@ class UserInput
                     array_push($users, $id_users);
                 }
                 /*************************  TARGET_GROUPS **************************************************/
+
+                /*************************  IMPERSONATE_USER_CODE **************************************************/
+                if (
+                    isset($action['config'][ACTION_SELECTED_OVERWRITE_VARIABLES]) &&
+                    in_array(ACTION_SELECTED_OVERWRITE_VARIABLES_IMPERSONATE_USER_CODE, $action['config'][ACTION_SELECTED_OVERWRITE_VARIABLES])
+                ) {
+                    $form_values = $this->get_form_values($form_data["form_fields"]);
+                    if (isset($form_values[ACTION_SELECTED_OVERWRITE_VARIABLES_IMPERSONATE_USER_CODE])) {
+                        $impersonate_user_code = $form_values[ACTION_SELECTED_OVERWRITE_VARIABLES_IMPERSONATE_USER_CODE];
+                        $impersonate_id_users = $this->db->get_user_id($impersonate_user_code);
+                        if ($impersonate_id_users) {
+                            $users = array();
+                            array_push($users, $impersonate_id_users);
+                        } else {
+                            $end_time = microtime(true);
+                            $result['time'] = array(
+                                "start_date" => $start_date,
+                                "exec_time" => $end_time - $start_time,
+                                "description" => "The impersonated user code does not exists: " . $impersonate_user_code
+                            );
+                            $this->transaction->add_transaction(
+                                transactionTypes_insert,
+                                transactionBy_by_user,
+                                $id_users,
+                                $this->transaction::TABLE_dataTables,
+                                $form_data['form_id'],
+                                false,
+                                $result
+                            );
+                            $this->db->commit();
+                            return false;
+                        }
+                    }
+                }
+                /*************************  IMPERSONATE_USER_CODE **************************************************/
 
                 /*************************  REPEAT *********************************************************/
 
