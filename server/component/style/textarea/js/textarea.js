@@ -10,9 +10,34 @@ $(document).ready(function () {
 });
 
 function initTextarea() {
+    // speechRecognition();
     initJsonFields();
     initMarkdownFields();
     initCssFields();
+}
+
+function speechRecognition() {    
+    const speechButton = document.getElementById('speech');
+    const outputDiv = document.getElementById('output');
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.onstart = () => {
+        speechButton.textContent = 'Listening...';
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        outputDiv.textContent = transcript;
+    };
+
+    recognition.onend = () => {
+        speechButton.textContent = 'Start Voice Input';
+    };
+
+    speechButton.addEventListener('click', (e) => {
+        recognition.start();
+        e.stopPropagation();
+    });
 }
 
 function initJsonFields() {
