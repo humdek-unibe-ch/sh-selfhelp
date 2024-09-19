@@ -41,13 +41,13 @@ class InputView extends FormFieldView
      * DB field 'format' ('').
      * Format field for the input
      */
-    private $format;   
+    private $format;
 
     /**
      * DB field 'data_config' ('').
      * Data configuration field for the input
      */
-    private $data_config; 
+    private $data_config;
 
     /**
      * This number will determine the minimum character size required for your input. The input will need to have at least this many characters to be valid
@@ -58,6 +58,11 @@ class InputView extends FormFieldView
      * This number will determine the maximum character size allowed for your input. The input should not exceed this character limit to be valid.
      */
     private $max;
+
+    /**
+     * The user locale for the language settings
+     */
+    private $user_language_locale;
 
     /* Constructors ***********************************************************/
 
@@ -77,16 +82,18 @@ class InputView extends FormFieldView
         $this->placeholder = $this->model->get_db_field("placeholder");
         $this->format = $this->model->get_db_field("format", "");
         $this->disable_autocomplete = $this->model->get_db_field(
-            "disable_autocomplete", false);
-        if($this->type == "checkbox")
-        {
+            "disable_autocomplete",
+            false
+        );
+        if ($this->type == "checkbox") {
             $this->css_group = "form-check";
             $this->css_label = "form-check-label";
-            if($this->label == "") $this->label = "&zwnj;";
+            if ($this->label == "") $this->label = "&zwnj;";
         }
         $this->data_config = $this->model->get_db_field("data_config");
         $this->min = $this->model->get_db_field('min');
         $this->max = $this->model->get_db_field('max');
+        $this->user_language_locale = substr($_SESSION['user_language_locale'], 0, 2);
     }
 
     /** Private Methods */
@@ -100,50 +107,46 @@ class InputView extends FormFieldView
     protected function output_form_field()
     {
         $autocomplete = '';
-        if($this->disable_autocomplete) {
+        if ($this->disable_autocomplete) {
             $autocomplete = 'autocomplete="off"';
         }
         $css_input = "form-control";
-        if($this->label == "") $css_input .= " " . $this->css;
+        if ($this->label == "") $css_input .= " " . $this->css;
         $checked = null;
-        if($this->type == "checkbox")
-        {
+        if ($this->type == "checkbox") {
             $css_input = "form-check-input position-static float-left";
-            if($this->is_user_input())
-            {                
-                if($this->default_value == "") return;
-                if(($this->value !== null && $this->value !== "")
-                    || ($this->value === null && $this->placeholder != ""))
+            if ($this->is_user_input()) {
+                if ($this->default_value == "") return;
+                if (($this->value !== null && $this->value !== "")
+                    || ($this->value === null && $this->placeholder != "")
+                )
                     $checked = "checked";
-            }
-            else if($this->default_value != "" && $this->default_value != 0)
-            {
-                $checked = "checked";                
+            } else if ($this->default_value != "" && $this->default_value != 0) {
+                $checked = "checked";
             }
             if ($this->model->get_db_field("checkbox_value")) {
                 $this->default_value = $this->model->get_db_field("checkbox_value");
             }
             $this->value = $this->default_value;
-        }
-        else if($this->value === null)
+        } else if ($this->value === null)
             $this->value = $this->default_value;
-        if(
+        if (
             $this->type == 'date' || $this->type == 'datetime'
         ) {
             require __DIR__ . "/tpl_input_date.php";
         } else if ($this->type == 'time') {
             require __DIR__ . "/tpl_input_time.php";
-        } else {            
+        } else {
             require __DIR__ . "/tpl_input.php";
         }
     }
 
     public function output_content_mobile()
-    {        
+    {
         $style = parent::output_content_mobile();
         $style['value']['content'] = $this->value;
         $style['value']['default'] = $this->default_value;
-        if(!$style['value']['content'] && $style['value']['default']){
+        if (!$style['value']['content'] && $style['value']['default']) {
             // if there is no value, assigned the default value
             $style['value']['content'] = $style['value']['default'];
         }
@@ -151,7 +154,7 @@ class InputView extends FormFieldView
             // if entry data; take the value
             $style['value']['content'] = isset($this->entry_data[$this->name_base]) ? $this->entry_data[$this->name_base] : '';
         }
-        if($this->type == "checkbox") {
+        if ($this->type == "checkbox") {
             $style['value']['content'] = 0;
             if ($this->default_value == "") {
             } else if (($this->value !== null && $this->value !== "")) {
@@ -163,6 +166,5 @@ class InputView extends FormFieldView
         }
         return $style;
     }
-
 }
 ?>

@@ -1,3 +1,7 @@
+# v7.0.20
+### New Feature
+ - add `German` localization for the datepicker
+
 # v7.0.19
 ### New Feature
  - #511 add `impersonate_user_code` as `overwrite_variable` in `form actions`. When enabled if the form submit this variable, the system search for a user with that code and if found, execute the action for that user. This is used for telephone interviews where the researcher links data to the participant.

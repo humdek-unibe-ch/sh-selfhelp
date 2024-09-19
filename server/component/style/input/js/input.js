@@ -1,4 +1,6 @@
 $(document).ready(() => {
+    flatpickr.l10ns.default.firstDayOfWeek = 1;
+    flatpickr.l10ns.en.firstDayOfWeek = 1; 
     check_input_locked_after_submit();
     init_datetime_inputs();
     init_date_inputs();
@@ -21,24 +23,20 @@ function init_datetime_inputs() {
             dateFormat: $(this).attr('data-format') == '' ? 'Y-m-d H:i' : $(this).attr('data-format'),
             time_24hr: true,
             weekNumbers: false,
-            locale: {
-                firstDayOfWeek: 1
-            },
             allowInput: true,
+            locale: $(this).attr('data-locale'),
             defaultDate: $(this).attr('value') == 'now' ? new Date() : ''
         });
     });
 }
 
-function init_date_inputs() {
+function init_date_inputs() {   
     $("input[type='date']").each(function () {
         $(this).flatpickr({
             enableTime: false,
             dateFormat: $(this).attr('data-format') == '' ? 'Y-m-d' : $(this).attr('data-format'),
             weekNumbers: false,
-            locale: {
-                firstDayOfWeek: 1
-            },
+            locale: $(this).attr('data-locale'),
             allowInput: true,
             defaultDate: $(this).attr('value') == 'now' ? new Date() : ''
         });
@@ -53,6 +51,7 @@ function init_time_inputs() {
             time_24hr: true,
             allowInput: true,
             noCalendar: true,
+            locale: $(this).attr('data-locale'),
         });
     });
 }

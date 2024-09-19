@@ -149,6 +149,7 @@ abstract class BasePage
             "/js/ext/bootstrap-select.min.js",
             "/js/ext/jquery-confirm.min.js",
             "/js/ext/flatpickr.min.js",
+            "/js/ext/flatpickr.de.min.js",
             "/js/ext/html2pdf.bundle.min.js",
             "/js/ext/iconselect.js",
             "/js/ext/iscroll.js",
