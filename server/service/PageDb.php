@@ -794,14 +794,16 @@ class PageDb extends BaseDb
             foreach ($calc_formula_values as $var => $var_value) {
                 if (is_array($var_value)) {
                     $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes(json_encode($var_value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)), $field_content);
-                } else if ($var && $var_value !== null) {
-                    $var_value = preg_replace('/\r|\n/','\n',trim($var_value));
+                } else if ($var) {
+                    if ($var_value !== null) {
+                        $var_value = preg_replace('/\r|\n/', '\n', trim($var_value));
+                    }
                     // if (json_decode($field_content)) {
                     //     // if the variable is array then do not add slashes
                     //     $var_value = str_replace('"', "'", $var_value); // all " should be only single in JSON
                     //     $field_content = preg_replace('#\{\{' . $var . '\}\}#', $var_value, $field_content);
                     // } else {
-                        $field_content = preg_replace('#\{\{' . $var . '\}\}#s', addslashes($var_value), $field_content);
+                    $field_content = preg_replace('#\{\{' . preg_quote($var, '#') . '\}\}#s', addslashes($var_value ?? ''), $field_content);
                     // }                    
                 }
             }

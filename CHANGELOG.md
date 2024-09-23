@@ -1,3 +1,7 @@
+# v7.0.21
+### Bugfix
+  -  properly treat `null` values from `dynamic` data and replace it as an empty value
+
 # v7.0.20
 ### New Feature
  - add `German` localization for the datepicker
