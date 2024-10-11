@@ -1,3 +1,7 @@
+# v7.0.22
+### Bugfix
+  - properly save `formUserInputRecord` when there are multiple forms on the same page 
+
 # v7.0.21
 ### Bugfix
   -  properly treat `null` values from `dynamic` data and replace it as an empty value
