@@ -51,20 +51,22 @@ class DataContainerModel extends StyleModel
             }
             $interpolation_data = $this->get_interpolation_data();
             $entry_record = array();
-            foreach ($interpolation_data as $key => $value) {
-                if ($key == 'data_config_retrieved') {
-                    $scope = $this->get_db_field("scope", "");
-                    if ($scope) {
-                        $scoped_vars = array();
-                        foreach ($interpolation_data['data_config_retrieved'] as $key => $value) {
-                            $scoped_vars[$scope . '.' . $key] = $value; // add the scope prefix
+            if ($interpolation_data) {
+                foreach ($interpolation_data as $key => $value) {
+                    if ($key == 'data_config_retrieved') {
+                        $scope = $this->get_db_field("scope", "");
+                        if ($scope) {
+                            $scoped_vars = array();
+                            foreach ($interpolation_data['data_config_retrieved'] as $key => $value) {
+                                $scoped_vars[$scope . '.' . $key] = $value; // add the scope prefix
+                            }
+                            $entry_record = array_merge($entry_record, $scoped_vars);
+                        } else {
+                            $entry_record = array_merge($entry_record, $interpolation_data['data_config_retrieved']);
                         }
-                        $entry_record = array_merge($entry_record, $scoped_vars);
                     } else {
-                        $entry_record = array_merge($entry_record, $interpolation_data['data_config_retrieved']);
+                        $entry_record = array_merge($entry_record, $interpolation_data[$key]);
                     }
-                } else {
-                    $entry_record = array_merge($entry_record, $interpolation_data[$key]);
                 }
             }
             $debug_data = $this->get_debug_data();

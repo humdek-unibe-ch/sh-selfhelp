@@ -307,8 +307,10 @@ class FormUserInputModel extends StyleModel
     {
         $form_id = $this->user_input->get_dataTable_id($this->get_table_name_from_form_id());
         if ($form_id && !$this->is_log()) {
-            $data = $this->user_input->get_data_for_user($form_id, $_SESSION['id_user'], '', true);
-            $this->set_entry_record($data);
+            $data = $this->user_input->get_data_for_user($form_id, $_SESSION['id_user'], '', true);    
+            if($data){
+                $this->set_entry_record(array_merge($this->get_entry_record(), $data));
+            }
         }
         $this->loadChildren();
     }
