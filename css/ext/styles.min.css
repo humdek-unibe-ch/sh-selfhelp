@@ -14,8 +14,8 @@ div.alert>:last-child{margin-bottom:0!important}
 .progress-bar.bg-light,.progress-bar.bg-warning{color:#212529}
 pre.db-fields{white-space:pre-wrap;padding-top:3px}
 .dropdown-toggle-no-carret::after{display:none!important}.dropdown-menu .text{text-wrap:wrap}
-.slider-legend{margin-top:-8px}.slider-legend-item{position:absolute}
 td.user-input-item{white-space:pre-wrap}
+.slider-legend{margin-top:-8px}.slider-legend-item{position:absolute}
 .btn-new,.children-list>li{padding:.25rem .5rem}.children-list.sortable>li{cursor:move}.children-list>li:hover{background-color:#f8f9fa}.children-list.sortable>li.sortable-chosen{background-color:#fff}.children-list.sortable>li.sortable-ghost{background-color:#d4edda;color:#155724}.btn-new{border-radius:0}
 
 .json{max-height:500px;height:100px}.json_mapper_modal_holder .modal-dialog{max-width:80%!important;z-index:1000 0}.json_mapper_modal_holder .modal-dialog .modal-header{background:var(--secondary);color:var(--white)}.json_mapper_modal_holder .btn-group{margin-bottom:.25rem}.json_mapper_modal_holder .btn-group button{border:solid;border-radius:5px!important}.json_mapper_modal_holder .bootstrap-select{width:auto!important}.json_mapper_modal_holder .modal-body{padding:0}

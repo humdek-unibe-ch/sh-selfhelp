@@ -1,3 +1,7 @@
+# v7.0.23 (Not released)
+### Bugfix
+ - #509 - properly resize `showUserInput` when is inside a collapsed `card`
+
 # v7.0.22
 ### Bugfix
   - properly save `formUserInputRecord` when there are multiple forms on the same page 
