@@ -16,12 +16,12 @@ class LocalizedText
         }
         $pool->internalAddGeneratedFile(
             '
-é
+ï¿½
  google/type/localized_text.protogoogle.type"4
 LocalizedText
 text (	
 language_code (	Bz
-com.google.typeBLocalizedTextProtoPZHgoogle.golang.org/genproto/googleapis/type/localized_text;localized_textø¢GTPbproto3'
+com.google.typeBLocalizedTextProtoPZHgoogle.golang.org/genproto/googleapis/type/localized_text;localized_textï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

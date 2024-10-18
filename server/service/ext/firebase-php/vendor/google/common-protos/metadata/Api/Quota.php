@@ -16,19 +16,19 @@ class Quota
         }
         $pool->internalAddGeneratedFile(
             '
-¥
+ï¿½
 google/api/quota.proto
 google.api"]
 Quota&
 limits (2.google.api.QuotaLimit,
-metric_rules (2.google.api.MetricRule"‘
+metric_rules (2.google.api.MetricRule"ï¿½
 
 MetricRule
 selector (	=
 metric_costs (2\'.google.api.MetricRule.MetricCostsEntry2
 MetricCostsEntry
 key (	
-value (:8"•
+value (:8"ï¿½
 
 QuotaLimit
 name (	
@@ -46,7 +46,7 @@ QuotaLimit
 key (	
 value (:8Bl
 com.google.apiB
-QuotaProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+QuotaProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

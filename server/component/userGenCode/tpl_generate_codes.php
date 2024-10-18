@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Generate Validation Codes</h1>
         <p>
             Validation codes are used to let users register themselves.
@@ -30,7 +30,7 @@
         </div>
         <div class="card-body">
             <form action="<?php echo $action_url; ?>" method="post">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Number of codes to generate (max: <code><?php echo MAX_USER_COUNT; ?></code>)</label>
                     <input type="number" class="form-control" name="count" max="<?php echo MAX_USER_COUNT; ?>" required>
                 </div>

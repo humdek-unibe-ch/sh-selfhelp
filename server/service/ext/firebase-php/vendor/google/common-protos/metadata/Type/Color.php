@@ -17,7 +17,7 @@ class Color
         \GPBMetadata\Google\Protobuf\Wrappers::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ï
+ï¿½
 google/type/color.protogoogle.type"]
 Color
 red (
@@ -25,7 +25,7 @@ class Color
 blue (*
 alpha (2.google.protobuf.FloatValueB`
 com.google.typeB
-ColorProtoPZ6google.golang.org/genproto/googleapis/type/color;colorø¢GTPbproto3'
+ColorProtoPZ6google.golang.org/genproto/googleapis/type/color;colorï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

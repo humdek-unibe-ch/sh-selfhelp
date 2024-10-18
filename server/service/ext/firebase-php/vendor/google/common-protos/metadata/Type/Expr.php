@@ -16,7 +16,7 @@ class Expr
         }
         $pool->internalAddGeneratedFile(
             '
-Û
+ï¿½
 google/type/expr.protogoogle.type"P
 Expr
 
@@ -24,7 +24,7 @@ expression (	
 title (	
 description (	
 location (	BZ
-com.google.typeB	ExprProtoPZ4google.golang.org/genproto/googleapis/type/expr;expr¢GTPbproto3'
+com.google.typeB	ExprProtoPZ4google.golang.org/genproto/googleapis/type/expr;exprï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

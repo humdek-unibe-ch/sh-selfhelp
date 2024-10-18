@@ -16,12 +16,12 @@ class Fraction
         }
         $pool->internalAddGeneratedFile(
             '
-Í
+ï¿½
 google/type/fraction.protogoogle.type"2
 Fraction
 	numerator (
 denominator (Bf
-com.google.typeBFractionProtoPZ<google.golang.org/genproto/googleapis/type/fraction;fraction¢GTPbproto3'
+com.google.typeBFractionProtoPZ<google.golang.org/genproto/googleapis/type/fraction;fractionï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

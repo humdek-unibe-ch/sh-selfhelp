@@ -70,7 +70,7 @@ function setClearButton(button) {
         appendDom = `<span>&times;</span>`,
         noCaretClass = `dropdown-toggle-no-carret`,
         $bselect = $(self).parents(`.bootstrap-select`),
-        $dropdown = $bselect.find(`[data-toggle="dropdown"]`);
+        $dropdown = $bselect.find(`[data-bs-toggle="dropdown"]`);
 
     if ($(self).data("allow-clear") !== true)
         return false;

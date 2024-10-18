@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle <?php echo $active; ?>" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expand="false">
+    <a class="nav-link dropdown-toggle <?php echo $active; ?>" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expand="false">
         <?php $this->output_icon($icon); ?>
         <?php echo $page_name;  ?>
     </a>

@@ -16,16 +16,16 @@ class Logging
         }
         $pool->internalAddGeneratedFile(
             '
-ø
+ï¿½
 google/api/logging.proto
-google.api"×
+google.api"ï¿½
 LoggingE
 producer_destinations (2&.google.api.Logging.LoggingDestinationE
 consumer_destinations (2&.google.api.Logging.LoggingDestination>
 LoggingDestination
 monitored_resource (	
 logs (	Bn
-com.google.apiBLoggingProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBLoggingProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

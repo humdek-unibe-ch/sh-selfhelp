@@ -26,7 +26,7 @@ $(document).ready(function() {
         });
     });
     $(function () {
-        $('[data-toggle="popover"]').popover({html:true});
+        $('[data-bs-toggle="popover"]').popover({html:true});
     });
     var $root = $('<div/>');
     $('#section-page-view>.card-body').children('[class*="style-section"]').each(function() {

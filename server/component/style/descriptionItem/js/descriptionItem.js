@@ -4,7 +4,7 @@ $(document).ready(function () {
 
 /**
  * Initializes description items with popover functionality.
- * Popovers are activated on elements with the attribute data-toggle="popover".
+ * Popovers are activated on elements with the attribute data-bs-toggle="popover".
  * Popovers are configured to be HTML-enabled and placed on top of the triggering element.
  * After a popover is shown, this function attaches a copy-to-clipboard functionality to it.
  * Popovers are hidden when clicking outside of them or on elements with the class 'close'.
@@ -14,9 +14,9 @@ $(document).ready(function () {
  */
 function initDescriptionItem() {
 
-    $('[data-toggle="popover"]').each(function () {
+    $('[data-bs-toggle="popover"]').each(function () {
         // Get the title with the close button
-        var titleWithCloseButton = 'Hint <a class="close close-hint" href="#">&times;</a>';
+        var titleWithCloseButton = 'Hint <a class="close btn-close-hint" href="#">&times;</a>';
 
         // Initialize popover for each element
         $(this).popover({
@@ -26,7 +26,7 @@ function initDescriptionItem() {
         }).on('shown.bs.popover', function () {
             addCopyToClipboard();
             $('.close-hint').off('click').click(function () {
-                $('[data-toggle="popover"]').popover('hide');
+                $('[data-bs-toggle="popover"]').popover('hide');
             });
         });
     });

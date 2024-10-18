@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="jumbotron">
+<div class="bg-light mb-4 rounded-2 py-5 px-3">
     <h1>Content Management System (CMS)</h1>
     <p>
         The Content Management System (CMS) allows to modify the content of existing pages and create new pages or delete existing pages.

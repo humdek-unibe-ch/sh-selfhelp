@@ -44,7 +44,7 @@ class CmsView extends BaseView
                 "css" => "ui-side-menu-button list-group-item list-group-item-action",
                 "children" => array(
                     new BaseStyleComponent("markdownInline", array(
-                        "text_md_inline" => '<div><span id="collapse-icon" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Create New Page" class="fas fa-file fa-fw"></span><span id="collapse-text" class="ml-1 menu-collapsed">Create New Page</span></div>',
+                        "text_md_inline" => '<div><span id="collapse-icon" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Create New Page" class="fas fa-file fa-fw"></span><span id="collapse-text" class="ms-1 menu-collapsed">Create New Page</span></div>',
                         "css" => ""
                     ))
                 )
@@ -60,7 +60,7 @@ class CmsView extends BaseView
                     "css" => "ui-side-menu-button list-group-item list-group-item-action",
                     "children" => array(
                         new BaseStyleComponent("markdownInline", array(
-                            "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-upload fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Import Section"></span><span id="collapse-text" class="ml-1 menu-collapsed">Import Section</span></div>',
+                            "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-file-upload fa-fw" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Import Section"></span><span id="collapse-text" class="ms-1 menu-collapsed">Import Section</span></div>',
                             "css" => ""
                         ))
                     )
@@ -74,7 +74,7 @@ class CmsView extends BaseView
                 "open_in_new_tab" => true,
                 "children" => array(
                     new BaseStyleComponent("markdownInline", array(
-                        "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-eye fa-fw" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Page Preview"></span><span id="collapse-text" class="ml-1 menu-collapsed">Page Preview</span></div>',
+                        "text_md_inline" => '<div><span id="collapse-icon" class="fas fa-eye fa-fw" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Page Preview"></span><span id="collapse-text" class="ms-1 menu-collapsed">Page Preview</span></div>',
                         "css" => ""
                     ))
                 )

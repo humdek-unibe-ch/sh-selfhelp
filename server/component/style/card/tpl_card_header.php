@@ -6,7 +6,7 @@
 <div class="card-header <?php echo $collapsible; ?> <?php echo $show; ?>">
     <div class="d-flex align-items-baseline">
         <?php echo $this->title; ?>
-        <div class="ml-auto">
+        <div class="ms-auto">
             <?php $this->output_expand_icon(); ?>
             <?php $this->output_edit_button(); ?>
         </div>

@@ -5,7 +5,7 @@
 ?>
 <div class="container-fluid mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Add Section</h1>
         <p>Add a section to the <?php echo $child; ?> list of <?php echo $target; ?>
         Either a new section can be created or an already existing section can be chosen.</p>
@@ -22,23 +22,23 @@
                         Add Section
                     </div>
                     <div class="card-body">
-                        <div class="form-group form-check">
+                        <div class="mb-3 form-check">
                             <input type="checkbox" name="new-section" class="form-check-input" checked disabled>
                             <label class="form-check-label">Create New Section</label>
                         </div>
                         <div class="row">
-                            <div class="col form-group">
+                            <div class="col mb-3">
                                 <label>Name Prefix</label>
                                 <input type="text" name="section-name-prefix" class="form-control" placeholder="Enter Section Name" required>
                             </div>
-                            <div class="col form-group">
+                            <div class="col mb-3">
                                 <label>Name</label>
                                 <input type="text" name="section-name" class="form-control" value="-" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Style</label>
-                            <select class="form-control bootstrapSelect" name="section-style" required data-live-search="true" data-size="10">
+                            <select class="form-select bootstrapSelect" name="section-style" required data-live-search="true" data-size="10">
                                 <option disabled selected value>-- select a style --</option>
                                 <?php $this->output_style_list(); ?>
                             </select>

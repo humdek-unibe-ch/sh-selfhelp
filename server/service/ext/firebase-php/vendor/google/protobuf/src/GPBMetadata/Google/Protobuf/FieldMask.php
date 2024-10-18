@@ -16,11 +16,11 @@ class FieldMask
         }
         $pool->internalAddGeneratedFile(
             '
-ß
+ï¿½
  google/protobuf/field_mask.protogoogle.protobuf"
 	FieldMask
-paths (	B…
-com.google.protobufBFieldMaskProtoPZ2google.golang.org/protobuf/types/known/fieldmaskpbø¢GPBªGoogle.Protobuf.WellKnownTypesbproto3'
+paths (	Bï¿½
+com.google.protobufBFieldMaskProtoPZ2google.golang.org/protobuf/types/known/fieldmaskpbï¿½ï¿½GPBï¿½Google.Protobuf.WellKnownTypesbproto3'
         , true);
 
         static::$is_initialized = true;

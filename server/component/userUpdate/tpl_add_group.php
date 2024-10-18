@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Add Group to User</h1>
         <p>Adding a group to a user will provide this user with the permissions of the group.</p>
     </div>

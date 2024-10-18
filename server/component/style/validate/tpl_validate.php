@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3 <?php echo $this->css; ?>">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1><?php echo $this->title; ?></h1>
     </div>
     <div class="card mb-3">
@@ -14,21 +14,21 @@
         </div>
         <div class="card-body">
             <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-                <div class="form-group d-none">
+                <div class="mb-3 d-none">
                     <label>Leave this field empty</label>
                     <input type="text" class="form-control" name="phone7h92jP" autocomplete="off">
                 </div>
-                <div class="form-group <?php echo $this->get_css_name(); ?>">
+                <div class="mb-3 <?php echo $this->get_css_name(); ?>">
                     <label><?php echo $this->name_label; ?></label>
                     <input type="text" class="form-control" autocomplete="username" name="name" placeholder="<?php echo $this->name_placeholder; ?>" value="<?php echo $name; ?>" required>
                     <small class="form-text text-muted"><?php echo $this->name_description; ?></small>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label><?php echo $this->pw_label; ?></label>
                     <input type="password" autocomplete="new-password" class="form-control mb-1" name="pw" placeholder="<?php echo $this->pw_placeholder; ?>" required>
                     <input type="password" autocomplete="new-password" class="form-control" name="pw_verify" placeholder="<?php echo $this->pw_confirm_label; ?>" required>
                 </div>
-                <div class="form-group <?php echo $this->get_css_gender(); ?>">
+                <div class="mb-3 <?php echo $this->get_css_gender(); ?>">
                     <div>
                     <label><?php echo $this->gender_label; ?></label>
                     </div>

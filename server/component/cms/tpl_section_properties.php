@@ -4,11 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="card card-body mb-3 px-3 py-1 border-0 bg-light flex-row">
-    <div class="mr-auto pr-2">
+    <div class="me-auto pe-2">
         <strong class="text-truncate"><?php echo $fields['section_name_title']; ?></strong>
         <?php echo $fields['section_name']; ?>
     </div>
-    <div class="ml-auto pl-2">
+    <div class="ms-auto ps-2">
         <strong class="text-truncate"><?php echo $fields['section_style_title']; ?></strong>
         <?php echo $fields['section_style']; ?>
     </div>

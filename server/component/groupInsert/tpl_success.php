@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container mt-3">
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
     <h1>Success</h1>
         <p>The group <code><?php echo $group; ?></code> was successfully created.</p>
         <a href="<?php echo $url; ?>" class="btn btn-primary">To the new Group</a>

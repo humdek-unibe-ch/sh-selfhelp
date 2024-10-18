@@ -17,7 +17,7 @@ class Httpbody
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ó
+ï¿½
 google/api/httpbody.proto
 google.api"X
 HttpBody
@@ -25,7 +25,7 @@ google.api"X
 data ((
 
 extensions (2.google.protobuf.AnyBh
-com.google.apiBHttpBodyProtoPZ;google.golang.org/genproto/googleapis/api/httpbody;httpbodyø¢GAPIbproto3'
+com.google.apiBHttpBodyProtoPZ;google.golang.org/genproto/googleapis/api/httpbody;httpbodyï¿½ï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

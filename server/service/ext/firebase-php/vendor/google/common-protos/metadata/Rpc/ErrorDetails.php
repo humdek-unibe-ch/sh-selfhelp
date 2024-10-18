@@ -17,9 +17,9 @@ class ErrorDetails
         \GPBMetadata\Google\Protobuf\Duration::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ê
+ï¿½
 google/rpc/error_details.proto
-google.rpc"“
+google.rpc"ï¿½
 	ErrorInfo
 reason (	
 domain (	5
@@ -37,14 +37,14 @@ google.rpc"“
 violations (2".google.rpc.QuotaFailure.Violation1
 	Violation
 subject (	
-description (	"•
+description (	"ï¿½
 PreconditionFailure=
 
 violations (2).google.rpc.PreconditionFailure.Violation?
 	Violation
 type (	
 subject (	
-description (	"ƒ
+description (	"ï¿½
 
 BadRequest?
 field_violations (2%.google.rpc.BadRequest.FieldViolation4
@@ -68,7 +68,7 @@ request_id (	
 LocalizedMessage
 locale (	
 message (	Bl
-com.google.rpcBErrorDetailsProtoPZ?google.golang.org/genproto/googleapis/rpc/errdetails;errdetails¢RPCbproto3'
+com.google.rpcBErrorDetailsProtoPZ?google.golang.org/genproto/googleapis/rpc/errdetails;errdetailsï¿½RPCbproto3'
         , true);
 
         static::$is_initialized = true;

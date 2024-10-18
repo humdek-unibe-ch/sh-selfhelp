@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Remove File <code><?php echo $this->file_name; ?></code> from the Server</h1>
         <p>Removing a file from the server will delete this file permanently. This cannot be undone.</p>
     </div>

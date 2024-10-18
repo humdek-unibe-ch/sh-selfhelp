@@ -16,11 +16,11 @@ class Options
         }
         $pool->internalAddGeneratedFile(
             '
-é
+ï¿½
 google/iam/v1/options.protogoogle.iam.v1"4
 GetPolicyOptions 
 requested_policy_version (B}
-com.google.iam.v1BOptionsProtoPZ)cloud.google.com/go/iam/apiv1/iampb;iampbøªGoogle.Cloud.Iam.V1ÊGoogle\\Cloud\\Iam\\V1bproto3'
+com.google.iam.v1BOptionsProtoPZ)cloud.google.com/go/iam/apiv1/iampb;iampbï¿½ï¿½Google.Cloud.Iam.V1ï¿½Google\\Cloud\\Iam\\V1bproto3'
         , true);
 
         static::$is_initialized = true;

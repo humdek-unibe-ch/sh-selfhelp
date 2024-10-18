@@ -16,13 +16,13 @@ class Date
         }
         $pool->internalAddGeneratedFile(
             '
-¾
+ï¿½
 google/type/date.protogoogle.type"0
 Date
 year (
 month (
 day (B]
-com.google.typeB	DateProtoPZ4google.golang.org/genproto/googleapis/type/date;dateø¢GTPbproto3'
+com.google.typeB	DateProtoPZ4google.golang.org/genproto/googleapis/type/date;dateï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

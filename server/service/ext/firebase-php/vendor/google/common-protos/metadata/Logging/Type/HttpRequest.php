@@ -17,8 +17,8 @@ class HttpRequest
         \GPBMetadata\Google\Protobuf\Duration::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ø
-&google/logging/type/http_request.protogoogle.logging.type"ï
+ï¿½
+&google/logging/type/http_request.protogoogle.logging.type"ï¿½
 HttpRequest
 request_method (	
 request_url (	
@@ -36,8 +36,8 @@ user_agent (	
 "cache_validated_with_origin_server
  (
 cache_fill_bytes (
-protocol (	B¾
-com.google.logging.typeBHttpRequestProtoPZ8google.golang.org/genproto/googleapis/logging/type;ltypeªGoogle.Cloud.Logging.TypeÊGoogle\\Cloud\\Logging\\TypeêGoogle::Cloud::Logging::Typebproto3'
+protocol (	Bï¿½
+com.google.logging.typeBHttpRequestProtoPZ8google.golang.org/genproto/googleapis/logging/type;ltypeï¿½Google.Cloud.Logging.Typeï¿½Google\\Cloud\\Logging\\Typeï¿½Google::Cloud::Logging::Typebproto3'
         , true);
 
         static::$is_initialized = true;

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="form-group">
+<div class="mb-3">
     <label>Assign Group Access Rights</label>
     <?php $this->output_group_acl(); ?>
 </div>

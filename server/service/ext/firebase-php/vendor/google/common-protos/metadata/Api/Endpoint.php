@@ -16,7 +16,7 @@ class Endpoint
         }
         $pool->internalAddGeneratedFile(
             '
-ó
+ï¿½
 google/api/endpoint.proto
 google.api"Q
 Endpoint
@@ -25,7 +25,7 @@ google.api"Q
 targete (	
 
 allow_cors (Bo
-com.google.apiBEndpointProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBEndpointProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

@@ -3,4 +3,4 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<small class="mr-1"><?php echo $this->title_prefix; ?> <?php echo $number; ?>:</small>
+<small class="me-1"><?php echo $this->title_prefix; ?> <?php echo $number; ?>:</small>

@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1><?php echo $title[$this->mode]; ?></h1>
         <p>Browse for the file you want to upload and provide a name under which the file will be stored on the server.</p>
     </div>
@@ -14,23 +14,23 @@
             <h5 class="mb-0">Upload</h5>
         </div>
         <div class="card-body">
-            <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg mr-3"></i>Uploading the file to the server</div>
+            <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg me-3"></i>Uploading the file to the server</div>
             <form id="asset-upload-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>                
                 <div class="row">
                     <?php $this->output_folder(); ?>
-                    <div class="form-group col">
+                    <div class="mb-3 col">
                         <label>Name</label>
                         <input id="assetsFileName" type="text" class="form-control" name="name" placeholder="Enter a file name" required>
                     </div>
-                    <div class="form-group col">
+                    <div class="mb-3 col">
                         <label>File</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" name="file" required>
-                            <label class="custom-file-label text-muted">Choose file</label>
+                            <input type="file" class="form-control" name="file" required>
+                            <label class="form-label text-muted">Choose file</label>
                         </div>
                     </div>
                 </div>
-                <div class="form-group form-check">
+                <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" name="overwrite">
                     <label class="form-check-label">Overwrite a file with the same name.</label>
                 </div>

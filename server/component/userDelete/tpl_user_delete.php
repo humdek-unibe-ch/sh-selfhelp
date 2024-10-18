@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Delete User</h1>
         <p>This will delete the user <code><?php echo $this->selected_user['email']; ?></code> and all the data associated to this user.</p>
     </div>

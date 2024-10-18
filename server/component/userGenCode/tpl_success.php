@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container mt-3">
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
     <h1>Success</h1>
         <p>A total of <code><?php echo $count; ?></code> validation codes were successfully created and added to the database.</p>
         <?php $this->output_collision(); ?>

@@ -17,13 +17,13 @@ class Interval
         \GPBMetadata\Google\Protobuf\Timestamp::initOnce();
         $pool->internalAddGeneratedFile(
             '
-†
+ï¿½
 google/type/interval.protogoogle.type"h
 Interval.
 
 start_time (2.google.protobuf.Timestamp,
 end_time (2.google.protobuf.TimestampBi
-com.google.typeBIntervalProtoPZ<google.golang.org/genproto/googleapis/type/interval;intervalø¢GTPbproto3'
+com.google.typeBIntervalProtoPZ<google.golang.org/genproto/googleapis/type/interval;intervalï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

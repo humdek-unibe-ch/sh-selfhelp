@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container mt-3">
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Manage Assets and CSS Files</h1>
         <p>Manage asset and CSS files. Asset files can be referenced in the CMS and CSS files can be used to customize the look and feel of the webpage.</p>
     </div>

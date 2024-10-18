@@ -16,7 +16,7 @@ class SystemParameter
         }
         $pool->internalAddGeneratedFile(
             '
- 
+ï¿½
 !google/api/system_parameter.proto
 google.api"B
 SystemParameters.
@@ -29,7 +29,7 @@ parameters (2.google.api.SystemParameter"Q
 name (	
 http_header (	
 url_query_parameter (	Bv
-com.google.apiBSystemParameterProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBSystemParameterProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

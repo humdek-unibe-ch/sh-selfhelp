@@ -20,8 +20,8 @@ class AttributeContext
         \GPBMetadata\Google\Protobuf\Timestamp::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ª
-*google/rpc/context/attribute_context.protogoogle.rpc.contextgoogle/protobuf/duration.protogoogle/protobuf/struct.protogoogle/protobuf/timestamp.proto"É
+ÔøΩ
+*google/rpc/context/attribute_context.protogoogle.rpc.contextgoogle/protobuf/duration.protogoogle/protobuf/struct.protogoogle/protobuf/timestamp.proto"ÔøΩ
 AttributeContext9
 origin (2).google.rpc.context.AttributeContext.Peer9
 source (2).google.rpc.context.AttributeContext.Peer>
@@ -31,7 +31,7 @@ class AttributeContext
 resource (2-.google.rpc.context.AttributeContext.Resource5
 api (2(.google.rpc.context.AttributeContext.Api(
 
-extensions (2.google.protobuf.Anyæ
+extensions (2.google.protobuf.AnyÔøΩ
 Peer
 
 ip (	
@@ -52,7 +52,7 @@ extensions (2.google.protobuf.Anyæ
 	audiences (	
 	presenter (	\'
 claims (2.google.protobuf.Struct
-access_levels (	Ô
+access_levels (	ÔøΩ
 Request
 
 id (	
@@ -70,7 +70,7 @@ extensions (2.google.protobuf.Anyæ
 auth (2).google.rpc.context.AttributeContext.Auth.
 HeadersEntry
 key (	
-value (	:8Å
+value (	:8ÔøΩ
 Response
 code (
 size (K
@@ -79,7 +79,7 @@ extensions (2.google.protobuf.Anyæ
 backend_latency (2.google.protobuf.Duration.
 HeadersEntry
 key (	
-value (	:8ê
+value (	:8ÔøΩ
 Resource
 service (	
 name (	
@@ -99,8 +99,8 @@ extensions (2.google.protobuf.Anyæ
 value (	:82
 AnnotationsEntry
 key (	
-value (	:8Bã
-com.google.rpc.contextBAttributeContextProtoPZUgoogle.golang.org/genproto/googleapis/rpc/context/attribute_context;attribute_context¯bproto3'
+value (	:8BÔøΩ
+com.google.rpc.contextBAttributeContextProtoPZUgoogle.golang.org/genproto/googleapis/rpc/context/attribute_context;attribute_contextÔøΩbproto3'
         , true);
 
         static::$is_initialized = true;

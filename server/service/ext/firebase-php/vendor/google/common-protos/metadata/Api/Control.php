@@ -17,13 +17,13 @@ class Control
         \GPBMetadata\Google\Api\Policy::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ñ
+ï¿½
 google/api/control.proto
 google.api"Q
 Control
 environment (	1
 method_policies (2.google.api.MethodPolicyBn
-com.google.apiBControlProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBControlProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

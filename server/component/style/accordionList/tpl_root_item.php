@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="card">
-    <div class="card-header accordion-header" id="<?php echo $this->id_prefix; ?>-<?php echo $child['id']; ?>" data-toggle="collapse" data-target="#<?php echo $this->id_prefix; ?>-content-<?php echo $child['id']; ?>" aria-expanded="true" aria-controls="collapseOne">
+    <div class="card-header accordion-header" id="<?php echo $this->id_prefix; ?>-<?php echo $child['id']; ?>" data-bs-toggle="collapse" data-bs-target="#<?php echo $this->id_prefix; ?>-content-<?php echo $child['id']; ?>" aria-expanded="true" aria-controls="collapseOne">
         <h5 class="mb-0">
             <?php $this->output_title_prefix($index); ?>
             <?php echo $child['title']; ?>

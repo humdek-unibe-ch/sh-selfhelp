@@ -16,11 +16,11 @@ class Decimal
         }
         $pool->internalAddGeneratedFile(
             '
-²
+ï¿½
 google/type/decimal.protogoogle.type"
 Decimal
 value (	Bf
-com.google.typeBDecimalProtoPZ:google.golang.org/genproto/googleapis/type/decimal;decimalø¢GTPbproto3'
+com.google.typeBDecimalProtoPZ:google.golang.org/genproto/googleapis/type/decimal;decimalï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

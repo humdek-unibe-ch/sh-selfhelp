@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="form-group">
+<div class="mb-3">
     <label for="<?php echo $fields['id'] ?>"><?php echo $fields['label'] ?></label>
     <div class="input-group">
         <input required name="<?php echo $fields['name'] ?>" id="<?php echo $fields['id'] ?>" type="text" class="form-control" id="<?php echo $fields['id'] ?>">

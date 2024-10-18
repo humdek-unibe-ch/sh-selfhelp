@@ -17,14 +17,14 @@ class Status
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-à
+ï¿½
 google/rpc/status.proto
 google.rpc"N
 Status
 code (
 message (	%
 details (2.google.protobuf.AnyBa
-com.google.rpcBStatusProtoPZ7google.golang.org/genproto/googleapis/rpc/status;statusø¢RPCbproto3'
+com.google.rpcBStatusProtoPZ7google.golang.org/genproto/googleapis/rpc/status;statusï¿½ï¿½RPCbproto3'
         , true);
 
         static::$is_initialized = true;

@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Create New User</h1>
         <p>
             A new user requires a valid email address to be registered.
@@ -18,15 +18,15 @@
         </div>
         <div class="card-body">
             <form action="<?php echo $action_url; ?>" method="post">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Unique User Code</label>
                     <input type="text" class="form-control" name="code" maxlength="16" placeholder="Enter User Code" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Email address</label>
                     <input type="email" class="form-control" name="email" placeholder="Enter email" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Assign User to Groups (You can select multiple groups)</label>
                     <?php $this->output_group_selection(); ?>
                 </div>

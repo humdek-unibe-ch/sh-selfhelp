@@ -10,10 +10,10 @@
     <div class="card-body">
         <?php $this->output_alert(); ?>
         <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-            <div class="form-group">
+            <div class="mb-3">
                 <input type="email" class="form-control" name="email" placeholder="<?php echo $this->user_label; ?>" required>
             </div>
-            <div class="form-group d-none">
+            <div class="mb-3 d-none">
                 <input type="text" class="form-control" name="type" required value="register">
             </div>
             <?php $this->open_registration ? '' :  require __DIR__ . "/tpl_code.php"; ?>

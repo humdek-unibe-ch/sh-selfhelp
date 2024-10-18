@@ -16,14 +16,14 @@ class Timeofday
         }
         $pool->internalAddGeneratedFile(
             '
-í
+ï¿½
 google/type/timeofday.protogoogle.type"K
 	TimeOfDay
 hours (
 minutes (
 seconds (
 nanos (Bl
-com.google.typeBTimeOfDayProtoPZ>google.golang.org/genproto/googleapis/type/timeofday;timeofdayø¢GTPbproto3'
+com.google.typeBTimeOfDayProtoPZ>google.golang.org/genproto/googleapis/type/timeofday;timeofdayï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

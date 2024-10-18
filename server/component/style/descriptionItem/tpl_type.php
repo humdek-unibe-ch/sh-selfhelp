@@ -3,4 +3,4 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<span class="ml-2 small text-muted">[<?php echo $this->type ?>]</span>
+<span class="ms-2 small text-muted">[<?php echo $this->type ?>]</span>

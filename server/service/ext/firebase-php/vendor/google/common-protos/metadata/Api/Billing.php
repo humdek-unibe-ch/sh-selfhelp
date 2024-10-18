@@ -16,15 +16,15 @@ class Billing
         }
         $pool->internalAddGeneratedFile(
             '
-´
+ï¿½
 google/api/billing.proto
-google.api"“
+google.api"ï¿½
 BillingE
 consumer_destinations (2&.google.api.Billing.BillingDestinationA
 BillingDestination
 monitored_resource (	
 metrics (	Bn
-com.google.apiBBillingProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBBillingProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

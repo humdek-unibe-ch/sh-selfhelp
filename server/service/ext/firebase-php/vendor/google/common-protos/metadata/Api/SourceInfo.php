@@ -17,13 +17,13 @@ class SourceInfo
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ß
+ï¿½
 google/api/source_info.proto
 google.api"8
 
 SourceInfo*
 source_files (2.google.protobuf.AnyBq
-com.google.apiBSourceInfoProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBSourceInfoProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

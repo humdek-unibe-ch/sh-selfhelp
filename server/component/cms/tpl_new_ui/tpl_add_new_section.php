@@ -9,4 +9,4 @@
         echo '<option value=' . $style['value'] . '">' . $style['text'] . '</option>';
     } ?>
 </select>
-<button id="ui-new-section-btn" class="btn btn-primary ml-2">Add</button>
+<button id="ui-new-section-btn" class="btn btn-primary ms-2">Add</button>

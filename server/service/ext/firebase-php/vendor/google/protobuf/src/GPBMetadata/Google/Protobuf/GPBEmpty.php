@@ -16,11 +16,11 @@ class GPBEmpty
         }
         $pool->internalAddGeneratedFile(
             '
-¾
+ï¿½
 google/protobuf/empty.protogoogle.protobuf"
 EmptyB}
 com.google.protobufB
-EmptyProtoPZ.google.golang.org/protobuf/types/known/emptypbø¢GPBªGoogle.Protobuf.WellKnownTypesbproto3'
+EmptyProtoPZ.google.golang.org/protobuf/types/known/emptypbï¿½ï¿½GPBï¿½Google.Protobuf.WellKnownTypesbproto3'
         , true);
 
         static::$is_initialized = true;

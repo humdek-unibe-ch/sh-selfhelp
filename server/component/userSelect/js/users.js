@@ -11,7 +11,7 @@ $(document).ready(function() {
         document.location = ids[2];
     });
     $(function () {
-        $('[data-toggle="popover"]').popover({html:true});
+        $('[data-bs-toggle="popover"]').popover({html:true});
     });
     $('#user-activity').removeClass('d-none');
 });

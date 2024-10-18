@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Import <?php echo $this->type; ?></h1>
         <p>Browse for the JSON file you want to import in the CMS.</p>
     </div>
@@ -14,14 +14,14 @@
             <h5 class="mb-0">Import</h5>
         </div>
         <div class="card-body">
-            <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg mr-3"></i>Uploading the file to the server</div>
+            <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg me-3"></i>Uploading the file to the server</div>
             <form id="cmsImportJson" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
                 <div class="row">
-                    <div class="form-group col">
+                    <div class="mb-3 col">
                         <label>File</label>
                         <div class="custom-file">
-                            <input id="file" type="file" class="custom-file-input" name="file" required accept=".json">
-                            <label class="custom-file-label text-muted">Choose a JSON file</label>
+                            <input id="file" type="file" class="form-control" name="file" required accept=".json">
+                            <label class="form-label text-muted">Choose a JSON file</label>
                         </div>
                     </div>
                 </div>

@@ -5,12 +5,12 @@
 ?>
 <div class="container-fluid mt-3">
     <div class="d-flex w-100">
-        <div class="scheduled-jobs-side-buttons mr-3">
+        <div class="scheduled-jobs-side-buttons me-3">
             <?php $this->output_side_buttons(); ?>
         </div>
         <div class="flex-grow-1 scheduled-jobs-holder">
             <?php $this->output_alert(); ?>     
-            <div class="jumbotron">
+            <div class="bg-light mb-4 rounded-2 py-5 px-3">
                 <h1>Scheduled Jobs</h1>
                 <p>
                     The table below lists all queued scheduled jobs for the given period.
@@ -19,9 +19,9 @@
             </div>
             <div class="card">
                 <div class="card-header">Search Panel</div>
-                <form class="input-group form-group m-3" action="<?php echo $this->model->get_link_url("moduleMail"); ?>" method="POST">
+                <form class="input-group mb-3 m-3" action="<?php echo $this->model->get_link_url("moduleMail"); ?>" method="POST">
                     <div class="searchPanel">
-                        <div class="input-group mr-3">
+                        <div class="input-group me-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Date Type</span>
                             </div>
@@ -32,7 +32,7 @@
                                 <span class="input-group-text">From</span>
                             </div>
                             <input type="text" class="form-control" id="dateFrom" name="dateFrom" value="<?php echo $this->model->get_date_from() ?>"><span class="add-on"></span>
-                            <div class="input-group-append mr-3">
+                            <div class="input-group-append me-3">
                                 <div class="btn btn-primary" id="btnFrom"><i class="far fa-calendar-alt"></i></div>
                             </div>
                         </div>
@@ -41,7 +41,7 @@
                                 <span class="input-group-text">To</span>
                             </div>
                             <input type="text" class="form-control" id="dateTo" name="dateTo" value="<?php echo $this->model->get_date_to() ?>"><span class="add-on"></span>
-                            <div class="input-group-append mr-3">
+                            <div class="input-group-append me-3">
                                 <div class="btn btn-primary" id="btnTo"><i class="far fa-calendar-alt"></i></div>
                             </div>
                         </div>

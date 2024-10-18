@@ -16,14 +16,14 @@ class Money
         }
         $pool->internalAddGeneratedFile(
             '
-Î
+ï¿½
 google/type/money.protogoogle.type"<
 Money
 currency_code (	
 units (
 nanos (B`
 com.google.typeB
-MoneyProtoPZ6google.golang.org/genproto/googleapis/type/money;moneyø¢GTPbproto3'
+MoneyProtoPZ6google.golang.org/genproto/googleapis/type/money;moneyï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

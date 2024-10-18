@@ -16,9 +16,9 @@ class Monitoring
         }
         $pool->internalAddGeneratedFile(
             '
-“
+ï¿½
 google/api/monitoring.proto
-google.api"ì
+google.api"ï¿½
 
 MonitoringK
 producer_destinations (2,.google.api.Monitoring.MonitoringDestinationK
@@ -26,7 +26,7 @@ MonitoringK
 MonitoringDestination
 monitored_resource (	
 metrics (	Bq
-com.google.apiBMonitoringProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBMonitoringProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

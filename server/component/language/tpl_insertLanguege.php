@@ -11,15 +11,15 @@
         </div>
         <div class="card-body">
             <form action="<?php echo $action_url; ?>" method="post">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Locale</label>
                     <input type="text" maxlength="5" class="form-control" name="locale" placeholder="Enter locale" value="<?php echo $_POST['locale'] ?? ""; ?>" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Language Name</label>
                     <input type="text" class="form-control" name="language" placeholder="Enter language name" value="<?php echo $_POST['language'] ?? ""; ?>" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>CSV Separator</label>
                     <input type="text" maxlength="1" class="form-control" name="csv_separator" placeholder="Enter CSV separator" value="<?php echo $_POST['csv_separator'] ?? ""; ?>" required>
                 </div>

@@ -17,10 +17,10 @@ class Annotations
         \GPBMetadata\Google\Api\Http::initOnce();
         $pool->internalAddGeneratedFile(
             '
-Ä
+ï¿½
 google/api/annotations.proto
 google.api google/protobuf/descriptor.protoBn
-com.google.apiBAnnotationsProtoPZAgoogle.golang.org/genproto/googleapis/api/annotations;annotations¢GAPIbproto3'
+com.google.apiBAnnotationsProtoPZAgoogle.golang.org/genproto/googleapis/api/annotations;annotationsï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

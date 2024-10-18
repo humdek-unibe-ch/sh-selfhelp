@@ -82,7 +82,7 @@ function initStyles() {
  * @returns {any}
  */
 function addButtonNewSectionAbove(sectionData) {
-    var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section above"></i>');
+    var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Add new section above"></i>');
     $(icon).click(() => {
         var position = (sectionData.order_position * 10) - 5; // get the style position and insert above
         showAddSection(sectionData, true, position);
@@ -98,7 +98,7 @@ function addButtonNewSectionAbove(sectionData) {
  * @returns {any}
  */
 function addButtonNewSectionBelow(sectionData) {
-    var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section below"></i>');
+    var icon = $('<i class="fas fa-plus-circle ui-section-btn ui-icon-button-white text-success" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Add new section below"></i>');
     $(icon).click(() => {
         var position = (sectionData.order_position * 10) + 5; // get the style position and insert bellow
         showAddSection(sectionData, true, position);
@@ -114,7 +114,7 @@ function addButtonNewSectionBelow(sectionData) {
  * @returns {any}
  */
 function addButtonGoToSection(sectionData) {
-    var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go to section: <code>' + sectionData['section_name'] + '</code>"></i>');
+    var icon = $('<i class="fas fa-sign-in-alt ui-section-btn text-success" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Go to section: <code>' + sectionData['section_name'] + '</code>"></i>');
     $(icon).click(() => {
         window.location.replace(sectionData['go_to_section_url']);
     })
@@ -129,7 +129,7 @@ function addButtonGoToSection(sectionData) {
  * @returns {any}
  */
 function addButtonNewChild(sectionData) {
-    var icon = $('<button type="button" class="ui-add-first-child btn btn-outline-success btn-sm m-auto ui-add-child" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
+    var icon = $('<button type="button" class="ui-add-first-child btn btn-outline-success btn-sm m-auto ui-add-child" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Add new section"><span class="fas fa-plus"></span> Add new section</button>');
     $(icon).click(() => {
         showAddSection(sectionData, false, 0);
     })
@@ -144,7 +144,7 @@ function addButtonNewChild(sectionData) {
  * @returns {any}
  */
 function addButtonRemoveSection(sectionData) {
-    var icon = $('<i class="fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Remove the section"></i>');
+    var icon = $('<i class="fas fa-minus-circle ui-section-btn text-danger ui-icon-button-white" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Remove the section"></i>');
     $(icon).click(() => {
         confirmation('Do you really want to remove <code>' + sectionData['section_name'] + '</code>?', () => {
             removeSection(sectionData);
@@ -161,7 +161,7 @@ function addButtonRemoveSection(sectionData) {
  * @returns {any}
  */
 function addButtonMoveSectionUp(section) {
-    var icon = $('<i class="fas fa-arrow-alt-circle-up ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section up"></i>');
+    var icon = $('<i class="fas fa-arrow-alt-circle-up ui-section-btn ui-icon-button-white text-primary" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Move the section up"></i>');
     $(icon).click(() => {
         moveSectionUp(section);
     })
@@ -176,7 +176,7 @@ function addButtonMoveSectionUp(section) {
  * @returns {any}
  */
 function addButtonMoveSectionDown(section) {
-    var icon = $('<i class="fas fa-arrow-alt-circle-down ui-section-btn ui-icon-button-white text-primary" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Move the section down"></i>');
+    var icon = $('<i class="fas fa-arrow-alt-circle-down ui-section-btn ui-icon-button-white text-primary" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Move the section down"></i>');
     $(icon).click(() => {
         moveSectionDown(section);
     })
@@ -194,7 +194,7 @@ function addButtonMoveSectionDown(section) {
 function addUISectionButtons(section, hideUIButtons) {
     var sectionData = $(section).data('section');
     var buttonsHolder = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
-    var buttonsMenuHolder = $('<div class="ml-5  d-flex flex-column justify-content-between"> </div>');
+    var buttonsMenuHolder = $('<div class="ms-5  d-flex flex-column justify-content-between"> </div>');
     var buttonsHolderUpDown = $('<div class="ui-buttons-holder position-absolute justify-content-between"></div>');
     var buttonsHolderUpDownButtons = $('<div class="d-flex flex-column justify-content-between m-auto h-100"></div>');
     var buttonsHolderAdd = $('<div class="d-flex flex-column justify-content-between"></div>');
@@ -258,7 +258,7 @@ function addMenu(section, sectionData) {
  * @returns {any}
  */
 function addBtnShowSectionFields(section, sectionData) {
-    var icon = $('<i class="fas fa-eye ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Show Section Fields"></i>');
+    var icon = $('<i class="fas fa-eye ui-menu-btn text-primary me-2 ms-2" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Show Section Fields"></i>');
     $(icon).click(() => {
         // mark the selected section
         $(".ui-marked-section").removeClass("ui-marked-section");
@@ -280,7 +280,7 @@ function addBtnShowSectionFields(section, sectionData) {
  * @returns {any}
  */
 function addBtnGoToSection(sectionData) {
-    var icon = $('<i class="far fa-object-group ui-menu-btn text-primary mr-2 ml-2" data-trigger="hover focus" data-toggle="popover" data-placement="top" data-content="Go To Section <code>' + sectionData['section_name'] + '</code>"></i>');
+    var icon = $('<i class="far fa-object-group ui-menu-btn text-primary me-2 ms-2" data-bs-trigger="hover focus" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Go To Section <code>' + sectionData['section_name'] + '</code>"></i>');
     $(icon).click(() => {
         // load the selected section. The view will be from the section afterthat
         window.location.replace(sectionData['go_to_section_url']);
@@ -373,7 +373,7 @@ function update_new_data(data, elements, callback) {
         callback();
     }
     init_ui_cms(); // reload the UI initialization
-    $('[data-toggle="popover"]').popover({
+    $('[data-bs-toggle="popover"]').popover({
         html: true,
         placement: 'top'
     }); // reload again the tooltips
@@ -895,13 +895,13 @@ function getAddSectionUrl(sectionData, addSibling) {
  */
 function initCollapseMenu() {
 
-    $('[data-toggle=sidebar-collapse]').off('click');
+    $('[data-bs-toggle=sidebar-collapse]').off('click');
 
     // Collapse/Expand icon
     $('#collapse-icon').addClass('fa-angle-double-left');
 
     // Collapse click
-    $('[data-toggle=sidebar-collapse]').click(function () {
+    $('[data-bs-toggle=sidebar-collapse]').click(function () {
         sidebarCollapse();
     });
 }
@@ -942,7 +942,7 @@ function propertiesCollapse() {
  */
 function initCollapseProperties() {
     // Collapse/Expand icon
-    $('[data-toggle=properties-collapse]').off('click');
+    $('[data-bs-toggle=properties-collapse]').off('click');
     if (collapsedProperties) {
         $('#collapse-properties-icon').addClass('fa-angle-double-left');
         $('.properties-collapsed').addClass('d-none');
@@ -951,7 +951,7 @@ function initCollapseProperties() {
         $('#collapse-properties-icon').addClass('fa-angle-double-right');
     }
     // Collapse click
-    $('[data-toggle=properties-collapse]').click(function () {
+    $('[data-bs-toggle=properties-collapse]').click(function () {
         propertiesCollapse();
     });
 }

@@ -15,7 +15,7 @@ $.extend(
 function format(mqid) {
     var columnNames = ['transaction_id', 'transaction_time', 'transaction_type', 'transaction_by', 'user_name', 'transaction_verbal_log']
     var transactions = JSON.parse($('#mailQueue').attr("data-transactions"));
-    var html = '<table class = "ml-5 table-bordered"> <thead class="table-info"><tr>';
+    var html = '<table class = "ms-5 table-bordered"> <thead class="table-info"><tr>';
     for (var j = 0; j < columnNames.length; j++) {
         html = html + '<th scope="col">' + columnNames[j] + '</th>';
     }
@@ -246,7 +246,7 @@ $(document).ready(function () {
     });
 
     $(function () {
-        $('[data-toggle="popover"]').popover({ html: true });
+        $('[data-bs-toggle="popover"]').popover({ html: true });
     });
 
     $('#dateFrom').flatpickr({

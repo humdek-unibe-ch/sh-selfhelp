@@ -205,7 +205,7 @@ class NestedListView extends StyleView
     private function output_list_item_name($item, $active, $id_html)
     {
         if(!isset($item['title'])) return;
-        $margin = ($this->has_chevron) ? "ml-4" : "";
+        $margin = ($this->has_chevron) ? "ms-4" : "";
         $name = $item['title'];
         if(isset($item['url']) && $item['url'] != "")
         {

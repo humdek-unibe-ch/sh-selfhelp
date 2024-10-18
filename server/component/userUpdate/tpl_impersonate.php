@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Impersonate User</h1>
         <p>You will impersonate the user <code><?php echo $this->selected_user['email']; ?></code>.</p>
     </div>

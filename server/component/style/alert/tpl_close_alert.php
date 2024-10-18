@@ -3,6 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
+<button type="button" class="btn-btn-close" data-bs-dismiss="alert" aria-label="Close">
+    
 </button>

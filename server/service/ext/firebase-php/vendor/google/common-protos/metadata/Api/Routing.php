@@ -16,7 +16,7 @@ class Routing
         }
         $pool->internalAddGeneratedFile(
             '
-¿
+ï¿½
 google/api/routing.proto
 google.api google/protobuf/descriptor.proto"G
 RoutingRule8
@@ -24,7 +24,7 @@ google.api google/protobuf/descriptor.proto"G
 RoutingParameter
 field (	
 path_template (	Bj
-com.google.apiBRoutingProtoPZAgoogle.golang.org/genproto/googleapis/api/annotations;annotations¢GAPIbproto3'
+com.google.apiBRoutingProtoPZAgoogle.golang.org/genproto/googleapis/api/annotations;annotationsï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

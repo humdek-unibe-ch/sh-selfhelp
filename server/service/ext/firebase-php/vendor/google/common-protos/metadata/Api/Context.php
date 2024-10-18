@@ -16,18 +16,18 @@ class Context
         }
         $pool->internalAddGeneratedFile(
             '
-·
+ÔøΩ
 google/api/context.proto
 google.api"1
 Context&
-rules (2.google.api.ContextRule"ç
+rules (2.google.api.ContextRule"ÔøΩ
 ContextRule
 selector (	
 	requested (	
 provided (	"
 allowed_request_extensions (	#
 allowed_response_extensions (	Bn
-com.google.apiBContextProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+com.google.apiBContextProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigÔøΩGAPIbproto3'
         , true);
 
         static::$is_initialized = true;

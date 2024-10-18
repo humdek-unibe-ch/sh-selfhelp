@@ -94,7 +94,7 @@ class DataView extends BaseView
                         "is_expanded" => true,
                         "is_collapsible" => true,
                         "url_edit"=> $this->model->get_link_url('dataDelete', array("id_dataTables" => $formId)),
-                        "title" => "Name: <code class='ml-1 mr-1'> " . $formName . " </code> Display name: <code class='ml-1 mr-1'>" . $formDisplayName .'</code>',
+                        "title" => "Name: <code class='ms-1 me-1'> " . $formName . " </code> Display name: <code class='ms-1 me-1'>" . $formDisplayName .'</code>',
                         "children" => array(
                             new BaseStyleComponent("markdown", array(
                                 "text_md" => $table

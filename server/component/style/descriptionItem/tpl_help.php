@@ -3,6 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<a tabindex="0" class="text-secondary ml-1"  data-container="body" data-toggle="popover" data-placement="left" data-content='<?php echo $this->help; ?>'>
+<a tabindex="0" class="text-secondary ms-1"  data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content='<?php echo $this->help; ?>'>
     <i class="fas fa-info-circle"></i>
 </a>

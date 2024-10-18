@@ -4,5 +4,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div id='pdfExportHolder' class="d-flex justify-content-end">
-    <button id='pdfExport' class="btn btn-outline-danger m-2"><i class="fas fa-file-pdf fa-lg mr-1" aria-hidden="true"></i>PDF Export</button>
+    <button id='pdfExport' class="btn btn-outline-danger m-2"><i class="fas fa-file-pdf fa-lg me-1" aria-hidden="true"></i>PDF Export</button>
 </div>

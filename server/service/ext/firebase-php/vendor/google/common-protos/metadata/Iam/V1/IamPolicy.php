@@ -23,28 +23,28 @@ class IamPolicy
         \GPBMetadata\Google\Protobuf\FieldMask::initOnce();
         $pool->internalAddGeneratedFile(
             '
-û	
-google/iam/v1/iam_policy.protogoogle.iam.v1google/api/client.protogoogle/api/field_behavior.protogoogle/api/resource.protogoogle/iam/v1/options.protogoogle/iam/v1/policy.proto google/protobuf/field_mask.proto"è
+ÔøΩ	
+google/iam/v1/iam_policy.protogoogle.iam.v1google/api/client.protogoogle/api/field_behavior.protogoogle/api/resource.protogoogle/iam/v1/options.protogoogle/iam/v1/policy.proto google/protobuf/field_mask.proto"ÔøΩ
 SetIamPolicyRequest
-resource (	B	‡A˙A
+resource (	B	ÔøΩAÔøΩA
 **
-policy (2.google.iam.v1.PolicyB‡A/
+policy (2.google.iam.v1.PolicyBÔøΩA/
 update_mask (2.google.protobuf.FieldMask"d
 GetIamPolicyRequest
-resource (	B	‡A˙A
+resource (	B	ÔøΩAÔøΩA
 *0
 options (2.google.iam.v1.GetPolicyOptions"R
 TestIamPermissionsRequest
-resource (	B	‡A˙A
+resource (	B	ÔøΩAÔøΩA
 *
-permissions (	B‡A"1
+permissions (	BÔøΩA"1
 TestIamPermissionsResponse
-permissions (	2¥
+permissions (	2ÔøΩ
 	IAMPolicyt
-SetIamPolicy".google.iam.v1.SetIamPolicyRequest.google.iam.v1.Policy")Ç”‰ì#"/v1/{resource=**}:setIamPolicy:*t
-GetIamPolicy".google.iam.v1.GetIamPolicyRequest.google.iam.v1.Policy")Ç”‰ì#"/v1/{resource=**}:getIamPolicy:*ö
-TestIamPermissions(.google.iam.v1.TestIamPermissionsRequest).google.iam.v1.TestIamPermissionsResponse"/Ç”‰ì)"$/v1/{resource=**}:testIamPermissions:* Aiam-meta-api.googleapis.comB
-com.google.iam.v1BIamPolicyProtoPZ)cloud.google.com/go/iam/apiv1/iampb;iampb¯™Google.Cloud.Iam.V1 Google\\Cloud\\Iam\\V1bproto3'
+SetIamPolicy".google.iam.v1.SetIamPolicyRequest.google.iam.v1.Policy")ÔøΩÔøΩÔøΩ#"/v1/{resource=**}:setIamPolicy:*t
+GetIamPolicy".google.iam.v1.GetIamPolicyRequest.google.iam.v1.Policy")ÔøΩÔøΩÔøΩ#"/v1/{resource=**}:getIamPolicy:*ÔøΩ
+TestIamPermissions(.google.iam.v1.TestIamPermissionsRequest).google.iam.v1.TestIamPermissionsResponse"/ÔøΩÔøΩÔøΩ)"$/v1/{resource=**}:testIamPermissions:*ÔøΩAiam-meta-api.googleapis.comB
+com.google.iam.v1BIamPolicyProtoPZ)cloud.google.com/go/iam/apiv1/iampb;iampbÔøΩÔøΩGoogle.Cloud.Iam.V1ÔøΩGoogle\\Cloud\\Iam\\V1bproto3'
         , true);
 
         static::$is_initialized = true;

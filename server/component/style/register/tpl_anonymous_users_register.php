@@ -10,7 +10,7 @@
     <div class="card-body">
         <?php $this->output_alert(); ?>
         <form id = "anonymous-register" action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">            
-            <div class="form-group d-none">
+            <div class="mb-3 d-none">
                 <input type="text" class="form-control" name="type" required value="register">
             </div>
             <!-- For now always need a code for anonymous_users -->

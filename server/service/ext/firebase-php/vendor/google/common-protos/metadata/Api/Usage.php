@@ -16,7 +16,7 @@ class Usage
         }
         $pool->internalAddGeneratedFile(
             '
-å
+ï¿½
 google/api/usage.proto
 google.api"j
 Usage
@@ -28,7 +28,7 @@ google.api"j
 allow_unregistered_calls (
 skip_service_control (Bl
 com.google.apiB
-UsageProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfig¢GAPIbproto3'
+UsageProtoPZEgoogle.golang.org/genproto/googleapis/api/serviceconfig;serviceconfigï¿½GAPIbproto3'
         , true);
 
         static::$is_initialized = true;

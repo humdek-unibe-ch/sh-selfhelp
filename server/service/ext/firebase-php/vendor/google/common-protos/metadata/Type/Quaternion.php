@@ -16,7 +16,7 @@ class Quaternion
         }
         $pool->internalAddGeneratedFile(
             '
-Þ
+ï¿½
 google/type/quaternion.protogoogle.type"8
 
 Quaternion	
@@ -24,7 +24,7 @@ Quaternion
 y (	
 z (	
 w (Bo
-com.google.typeBQuaternionProtoPZ@google.golang.org/genproto/googleapis/type/quaternion;quaternionø¢GTPbproto3'
+com.google.typeBQuaternionProtoPZ@google.golang.org/genproto/googleapis/type/quaternion;quaternionï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;

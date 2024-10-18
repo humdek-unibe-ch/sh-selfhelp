@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="col">
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Create New Group</h1>
         <p>
             A group can be assigned to a user which provides this user with the access to pages. Later these groups can be used for creating <code>conditions</code>.

@@ -8,17 +8,17 @@
         <div class="modal-content">
             <div class="modal-header pt-1 pb-1">
                 <h5 class="modal-title" id="staticBackdropLabel">Add Section</h5>
-                <button type="button" class="close p-1 m-0" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close p-1 m-0" data-bs-dismiss="modal" aria-label="Close">
+                    
                 </button>
             </div>
             <div class="modal-body p-2">
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-link active" id="nav-new-section-tab" data-toggle="tab" href="#nav-new-section" role="tab" aria-controls="nav-new-section" aria-selected="true">New Section</a>
-                        <a class="nav-link" id="nav-unassigned-section-tab" data-toggle="tab" href="#nav-unassigned-section" role="tab" aria-controls="nav-unassigned-section" aria-selected="false">Unassigned Section</a>
-                        <a class="nav-link" id="nav-reference-section-tab" data-toggle="tab" href="#nav-reference-section" role="tab" aria-controls="nav-reference-section" aria-selected="false">Reference Section</a>
-                        <a class="nav-link" id="nav-import-section-tab" data-toggle="tab" href="#nav-import-section" role="tab" aria-controls="nav-import-section" aria-selected="false">Import Section</a>
+                        <a class="nav-link active" id="nav-new-section-tab" data-bs-toggle="tab" href="#nav-new-section" role="tab" aria-controls="nav-new-section" aria-selected="true">New Section</a>
+                        <a class="nav-link" id="nav-unassigned-section-tab" data-bs-toggle="tab" href="#nav-unassigned-section" role="tab" aria-controls="nav-unassigned-section" aria-selected="false">Unassigned Section</a>
+                        <a class="nav-link" id="nav-reference-section-tab" data-bs-toggle="tab" href="#nav-reference-section" role="tab" aria-controls="nav-reference-section" aria-selected="false">Reference Section</a>
+                        <a class="nav-link" id="nav-import-section-tab" data-bs-toggle="tab" href="#nav-import-section" role="tab" aria-controls="nav-import-section" aria-selected="false">Import Section</a>
                     </div>
                 </nav>
                 <div class="tab-content pt-2" id="nav-tabContent">
@@ -40,10 +40,10 @@
                     <div class="tab-pane fade" id="nav-import-section" role="tabpanel" aria-labelledby="nav-import-section-tab">
                         <div class="d-flex">
                             <form id="cmsImportJson" action="<?php echo $import_url; ?>" class="d-flex w-100" method="post" enctype='multipart/form-data'>
-                                    <div class="flex-grow-1 mr-2">
+                                    <div class="flex-grow-1 me-2">
                                         <div class="custom-file">
-                                            <input id="file" type="file" class="custom-file-input" name="file" required accept=".json">
-                                            <label class="custom-file-label text-muted">Choose a JSON file</label>
+                                            <input id="file" type="file" class="form-control" name="file" required accept=".json">
+                                            <label class="form-label text-muted">Choose a JSON file</label>
                                         </div>
                                     </div>
                                     <input id='json' name='json' type="hidden" />

@@ -19,7 +19,7 @@ class Locations
         \GPBMetadata\Google\Api\Client::initOnce();
         $pool->internalAddGeneratedFile(
             '
-Ó
+ï¿½
 %google/cloud/location/locations.protogoogle.cloud.locationgoogle/protobuf/any.protogoogle/api/client.proto"[
 ListLocationsRequest
 name (	
@@ -31,7 +31,7 @@ page_token (	"d
 	locations (2.google.cloud.location.Location
 next_page_token (	""
 GetLocationRequest
-name (	"×
+name (	"ï¿½
 Location
 name (	
 location_id (	
@@ -40,11 +40,11 @@ page_token (	"d
 metadata (2.google.protobuf.Any-
 LabelsEntry
 key (	
-value (	:82¤
-	Locations«
-ListLocations+.google.cloud.location.ListLocationsRequest,.google.cloud.location.ListLocationsResponse"?‚Óä“9/v1/{name=locations}Z!/v1/{name=projects/*}/locationsž
-GetLocation).google.cloud.location.GetLocationRequest.google.cloud.location.Location"C‚Óä“=/v1/{name=locations/*}Z#!/v1/{name=projects/*/locations/*}HÊAcloud.googleapis.comÒA.https://www.googleapis.com/auth/cloud-platformBo
-com.google.cloud.locationBLocationsProtoPZ=google.golang.org/genproto/googleapis/cloud/location;locationøbproto3'
+value (	:82ï¿½
+	Locationsï¿½
+ListLocations+.google.cloud.location.ListLocationsRequest,.google.cloud.location.ListLocationsResponse"?ï¿½ï¿½ï¿½9/v1/{name=locations}Z!/v1/{name=projects/*}/locationsï¿½
+GetLocation).google.cloud.location.GetLocationRequest.google.cloud.location.Location"Cï¿½ï¿½ï¿½=/v1/{name=locations/*}Z#!/v1/{name=projects/*/locations/*}Hï¿½Acloud.googleapis.comï¿½A.https://www.googleapis.com/auth/cloud-platformBo
+com.google.cloud.locationBLocationsProtoPZ=google.golang.org/genproto/googleapis/cloud/location;locationï¿½bproto3'
         , true);
 
         static::$is_initialized = true;

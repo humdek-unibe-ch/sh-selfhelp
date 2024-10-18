@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container mt-3">
-    <div class="jumbotron">
+    <div class="bg-light mb-4 rounded-2 py-5 px-3">
         <h1>Add Navigation Section</h1>
         <p>Add a navigation section to the <?php echo $child; ?> list of <?php echo $target; ?></p>
         <p>The root section of a navigation page must always be a <code>navigationContainer</code>, thus, no other option is available.</p>
@@ -21,16 +21,16 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col form-group">
+                            <div class="col mb-3">
                                 <label>Name Prefix</label>
                                 <input type="text" name="section-name-prefix" class="form-control" placeholder="Enter Section Name" required>
                             </div>
-                            <div class="col form-group">
+                            <div class="col mb-3">
                                 <label>Name</label>
                                 <input type="text" name="section-name" class="form-control" value="-navigationContainer" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Style</label>
                             <input type="hidden" name="section-style" value="<?php echo NAVIGATION_CONTAINER_STYLE_ID; ?>" readonly>
                             <input class="form-control" name="section-style-dummy" value="navigationContainer" disabled>

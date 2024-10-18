@@ -5,7 +5,7 @@
 ?>
 <div class="row">
     <div class="col">
-        <div class="jumbotron">
+        <div class="bg-light mb-4 rounded-2 py-5 px-3">
             <h1>User <code><?php echo $this->selected_user['email']; ?></code></h1>
             <div class="card card-body mb-3">
                 <dl class="row">

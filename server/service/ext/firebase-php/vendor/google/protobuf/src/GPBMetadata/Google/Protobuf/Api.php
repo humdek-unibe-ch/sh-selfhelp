@@ -18,8 +18,8 @@ class Api
         \GPBMetadata\Google\Protobuf\Type::initOnce();
         $pool->internalAddGeneratedFile(
             '
-…
-google/protobuf/api.protogoogle.protobufgoogle/protobuf/type.proto"Å
+ÔøΩ
+google/protobuf/api.protogoogle.protobufgoogle/protobuf/type.proto"ÔøΩ
 Api
 name (	(
 methods (2.google.protobuf.Method(
@@ -27,7 +27,7 @@ class Api
 version (	6
 source_context (2.google.protobuf.SourceContext&
 mixins (2.google.protobuf.Mixin\'
-syntax (2.google.protobuf.Syntax"’
+syntax (2.google.protobuf.Syntax"ÔøΩ
 Method
 name (	
 request_type_url (	
@@ -39,7 +39,7 @@ class Api
 Mixin
 name (	
 root (	Bv
-com.google.protobufBApiProtoPZ,google.golang.org/protobuf/types/known/apipb¢GPB™Google.Protobuf.WellKnownTypesbproto3'
+com.google.protobufBApiProtoPZ,google.golang.org/protobuf/types/known/apipbÔøΩGPBÔøΩGoogle.Protobuf.WellKnownTypesbproto3'
         , true);
 
         static::$is_initialized = true;

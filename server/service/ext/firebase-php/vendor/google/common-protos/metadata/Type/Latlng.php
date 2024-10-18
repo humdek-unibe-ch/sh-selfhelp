@@ -16,12 +16,12 @@ class Latlng
         }
         $pool->internalAddGeneratedFile(
             '
-Ã
+ï¿½
 google/type/latlng.protogoogle.type"-
 LatLng
 latitude (
 	longitude (Bc
-com.google.typeBLatLngProtoPZ8google.golang.org/genproto/googleapis/type/latlng;latlngø¢GTPbproto3'
+com.google.typeBLatLngProtoPZ8google.golang.org/genproto/googleapis/type/latlng;latlngï¿½ï¿½GTPbproto3'
         , true);
 
         static::$is_initialized = true;
