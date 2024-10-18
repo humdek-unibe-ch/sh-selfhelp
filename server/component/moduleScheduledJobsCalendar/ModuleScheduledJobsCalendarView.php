@@ -58,7 +58,7 @@ class ModuleScheduledJobsCalendarView extends BaseView
                                 "value" => $this->model->get_selected_user(),
                                 "id" => "scheduled-jobs-calendar-selected-user",
                                 "name" => "users",
-                                "css" => 'flex-grow-1 mr-3',
+                                "css" => 'flex-grow-1 me-3',
                                 "live_search" => true,
                                 "is_multiple" => false,
                                 "items" => $this->model->get_users(),

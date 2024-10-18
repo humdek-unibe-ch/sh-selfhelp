@@ -107,7 +107,7 @@ class FormView extends StyleView
             "label" => $this->label_cancel,
             "type" => "secondary",
             "url" => $this->cancel_url,
-            "css" => "float-right form-cancel-btn",
+            "css" => "float-end form-cancel-btn",
         ));
         $button->output_content();
     }
