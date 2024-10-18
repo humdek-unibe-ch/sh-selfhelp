@@ -10,7 +10,7 @@
             <div class="card card-body mb-3">
                 <dl class="row">
                     <dt class="col-12"><?php $this->output_title('status'); ?></dt>
-                    <dd class="col"><code><?php echo $state; ?></code> &ndash; <small class="text-muted"><?php echo $desc; ?></small></dd>
+                    <dd class="col"><code><?php echo $state; ?></code> &ndash; <small class="text-body-secondary"><?php echo $desc; ?></small></dd>
                     <dt class="col-12"><?php $this->output_title('code'); ?></dt>
                     <dd class="col"><code><?php echo $code; ?></code></dd>  
                     <dt class="col-12"><?php $this->output_title('user_name'); ?></dt>

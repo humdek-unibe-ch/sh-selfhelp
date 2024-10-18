@@ -21,7 +21,7 @@
                         <label>File</label>
                         <div class="custom-file">
                             <input id="file" type="file" class="form-control" name="file" required accept=".json">
-                            <label class="form-label text-muted">Choose a JSON file</label>
+                            <label class="form-label text-body-secondary">Choose a JSON file</label>
                         </div>
                     </div>
                 </div>

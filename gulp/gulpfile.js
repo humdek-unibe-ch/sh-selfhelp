@@ -90,6 +90,7 @@ const classReplacements = [
     { old: 'font-weight-bold', new: 'fw-bold' },
     { old: 'font-weight-normal', new: 'fw-normal' },
     { old: 'sr-only', new: 'visually-hidden' },
+    { old: 'text-muted', new: 'text-body-secondary'}
     // Add more as needed
 ];
 

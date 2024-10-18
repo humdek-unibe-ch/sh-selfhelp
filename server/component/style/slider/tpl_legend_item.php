@@ -3,4 +3,4 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="slider-legend-item small text-muted"><?php echo $text; ?></div>
+<div class="slider-legend-item small text-body-secondary"><?php echo $text; ?></div>

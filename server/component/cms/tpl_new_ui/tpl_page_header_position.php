@@ -7,5 +7,5 @@
     <div class="form-check form-check-inline">
         <input class="form-check-input" type="checkbox" name="set-position" value="<?php echo $fields['position_value']; ?>" <?php echo $fields['checked']; ?>>
     </div>
-    <small class="form-text text-muted"></small>
+    <small class="form-text text-body-secondary"></small>
 </div>

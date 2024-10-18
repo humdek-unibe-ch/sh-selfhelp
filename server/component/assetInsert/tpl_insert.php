@@ -26,7 +26,7 @@
                         <label>File</label>
                         <div class="custom-file">
                             <input type="file" class="form-control" name="file" required>
-                            <label class="form-label text-muted">Choose file</label>
+                            <label class="form-label text-body-secondary">Choose file</label>
                         </div>
                     </div>
                 </div>

@@ -21,7 +21,7 @@
                 <div class="mb-3 <?php echo $this->get_css_name(); ?>">
                     <label><?php echo $this->name_label; ?></label>
                     <input disabled type="text" class="form-control" autocomplete="username" name="name" placeholder="<?php echo $this->name_placeholder; ?>" value="<?php echo $name; ?>" required>
-                    <small class="form-text text-muted"><?php echo $this->anonymous_user_name_description; ?></small>
+                    <small class="form-text text-body-secondary"><?php echo $this->anonymous_user_name_description; ?></small>
                 </div>
                 <div class="mb-3">
                     <label><?php echo $this->pw_label; ?></label>

@@ -43,7 +43,7 @@
                                     <div class="flex-grow-1 me-2">
                                         <div class="custom-file">
                                             <input id="file" type="file" class="form-control" name="file" required accept=".json">
-                                            <label class="form-label text-muted">Choose a JSON file</label>
+                                            <label class="form-label text-body-secondary">Choose a JSON file</label>
                                         </div>
                                     </div>
                                     <input id='json' name='json' type="hidden" />
