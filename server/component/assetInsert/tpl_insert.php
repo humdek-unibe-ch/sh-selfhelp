@@ -15,7 +15,7 @@
         </div>
         <div class="card-body">
             <div class="d-none"><i class="fas fa-spinner fa-pulse fa-lg me-3"></i>Uploading the file to the server</div>
-            <form id="asset-upload-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>                
+            <form id="asset-upload-form" action="<?php echo $action_url; ?>" method="post" enctype='multipart/form-data'>
                 <div class="row">
                     <?php $this->output_folder(); ?>
                     <div class="mb-3 col">
@@ -24,10 +24,7 @@
                     </div>
                     <div class="mb-3 col">
                         <label>File</label>
-                        <div class="custom-file">
-                            <input type="file" class="form-control" name="file" required>
-                            <label class="form-label text-body-secondary">Choose file</label>
-                        </div>
+                        <input type="file" class="form-control" name="file" required>
                     </div>
                 </div>
                 <div class="mb-3 form-check">
