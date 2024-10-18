@@ -114,7 +114,7 @@ class InputView extends FormFieldView
         if ($this->label == "") $css_input .= " " . $this->css;
         $checked = null;
         if ($this->type == "checkbox") {
-            $css_input = "form-check-input position-static float-left";
+            $css_input = "form-check-input position-static float-start";
             if ($this->is_user_input()) {
                 if ($this->default_value == "") return;
                 if (($this->value !== null && $this->value !== "")
