@@ -145,11 +145,11 @@ async function migrate(cb) {
 
     // Apply class replacements
     classReplacements.forEach(({ old, new: newClass }) => {
-        const regex = new RegExp(`(<[^>]*class\\s*=\\s*['"][^'"]*)\\b${old}\\b([^'"]*['"])`, 'g');
+        const regex = new RegExp(`(class\\s*=\\s*['"][^'"]*\\b${old}\\b[^'"]*['"])`, 'g');
         stream = stream.pipe(
-            replace(regex, (match, p1, p2) => {
+            replace(regex, (match) => {
                 cssClassChanged++;
-                return p1 + newClass + p2;
+                return match.replace(new RegExp(`\\b${old}\\b`, 'g'), newClass);
             })
         );
     });

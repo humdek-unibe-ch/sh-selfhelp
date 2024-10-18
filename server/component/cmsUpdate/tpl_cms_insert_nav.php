@@ -36,7 +36,7 @@
                             <input class="form-control" name="section-style-dummy" value="navigationContainer" disabled>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Section</button>
-                        <a href="<?php echo $url_cancel; ?>" class="btn btn-secondary float-right">Cancel</a>
+                        <a href="<?php echo $url_cancel; ?>" class="btn btn-secondary float-end">Cancel</a>
                     </div>
                 </div>
             </div>

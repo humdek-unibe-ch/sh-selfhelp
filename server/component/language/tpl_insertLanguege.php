@@ -24,7 +24,7 @@
                     <input type="text" maxlength="1" class="form-control" name="csv_separator" placeholder="Enter CSV separator" value="<?php echo $_POST['csv_separator'] ?? ""; ?>" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Create</button>
-                <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
+                <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-end">Cancel</a>
             </form>
         </div>
     </div>

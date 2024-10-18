@@ -35,7 +35,7 @@
                     <input type="number" class="form-control" name="count" max="<?php echo MAX_USER_COUNT; ?>" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
-                <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
+                <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-end">Cancel</a>
             </form>
         </div>
     </div>

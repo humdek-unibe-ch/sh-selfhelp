@@ -35,7 +35,7 @@
                     <label class="form-check-label">Overwrite a file with the same name.</label>
                 </div>
                 <button id="asset-upload-button" type="submit" class="btn btn-primary">Upload</button>
-                <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>
+                <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-end">Cancel</a>
             </form>
         </div>
     </div>

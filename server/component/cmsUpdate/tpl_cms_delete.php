@@ -19,7 +19,7 @@
             </div>
             <div class="card-body">
                 <button type="submit" class="btn btn-warning">Remove Section Relation</button>
-                <a href="<?php echo $url_cancel; ?>" class="btn btn-secondary float-right">Cancel</a>
+                <a href="<?php echo $url_cancel; ?>" class="btn btn-secondary float-end">Cancel</a>
             </div>
         </div>
     </form>
