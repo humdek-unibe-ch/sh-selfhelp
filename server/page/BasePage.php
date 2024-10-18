@@ -125,6 +125,7 @@ abstract class BasePage
         $this->keyword = $keyword;
         $this->components = array();
         $this->css_includes = array(            
+            "/css/ext/global.css",   
             "/css/ext/bootstrap.min.css",          
             // "/css/ext/bootstrap3.3.1.min.css",  
             "/css/ext/fontawesome.min.css",
