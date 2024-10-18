@@ -9,7 +9,7 @@
             <?php $this->output_side_buttons(); ?>
         </div>
         <div class="flex-grow-1 scheduled-jobs-holder">
-            <?php $this->output_alert(); ?>     
+            <?php $this->output_alert(); ?>
             <div class="bg-light mb-4 rounded-2 py-5 px-3">
                 <h1>Scheduled Jobs</h1>
                 <p>
@@ -22,26 +22,20 @@
                 <form class="input-group mb-3 m-3" action="<?php echo $this->model->get_link_url("moduleMail"); ?>" method="POST">
                     <div class="searchPanel">
                         <div class="input-group me-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Date Type</span>
-                            </div>
+                            <span class="input-group-text">Date Type</span>
                             <?php echo $this->get_date_types(); ?>
                         </div>
                         <div class="input-group ">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">From</span>
-                            </div>
+                            <span class="input-group-text">From</span>
                             <input type="text" class="form-control" id="dateFrom" name="dateFrom" value="<?php echo $this->model->get_date_from() ?>"><span class="add-on"></span>
-                            <div class="input-group-append me-3">
+                            <div class="me-3">
                                 <div class="btn btn-primary" id="btnFrom"><i class="far fa-calendar-alt"></i></div>
                             </div>
                         </div>
                         <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">To</span>
-                            </div>
+                            <span class="input-group-text">To</span>
                             <input type="text" class="form-control" id="dateTo" name="dateTo" value="<?php echo $this->model->get_date_to() ?>"><span class="add-on"></span>
-                            <div class="input-group-append me-3">
+                            <div class=" me-3">
                                 <div class="btn btn-primary" id="btnTo"><i class="far fa-calendar-alt"></i></div>
                             </div>
                         </div>
