@@ -119,7 +119,7 @@ class NavView extends BaseView
         $page_name = $page['title'];
         $children = $page['children'];
         $is_active = $page['is_active'] ?? false;
-        $align = ($right) ? "dropdown-menu-right" : "";
+        $align = ($right) ? "dropdown-menu-end" : "";
         $active = ($is_active) ? "active" : "";
         $icon = $this->get_icon($page['icon']);
         require __DIR__ . "/tpl_nav_menu.php";
