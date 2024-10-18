@@ -9,7 +9,7 @@
 }
 
 .json_mapper_modal_holder .modal-dialog .modal-header {
-    background: var(--secondary);
+    background: var(--bs-secondary);
     color: var(--white)
 }
 

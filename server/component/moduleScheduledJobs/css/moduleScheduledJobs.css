@@ -16,14 +16,14 @@ table.dataTable td.details-control:before {
     font-weight: 400;
     font-family: 'Font Awesome\ 5 Free';
     cursor: pointer;
-    color: var(--success);
+    color: var(--bs-success);
     top: calc(50% - 11px) !important;
     position: absolute;
 }
 
 table.dataTable tr.shown td.details-control:before {
     content: '\f146';
-    color: var(--danger);
+    color: var(--bs-danger);
 }
 
 .details-control {

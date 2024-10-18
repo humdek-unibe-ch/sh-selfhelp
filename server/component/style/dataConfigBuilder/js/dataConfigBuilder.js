@@ -54,7 +54,7 @@ function initDataConfigBuilder() {
             url: schemaUrl,
             success: (s) => {
                 dataConfigEditor = new JSONEditor(dataConfigBuilder, {
-                    theme: 'bootstrap4',
+                    theme: 'bootstrap5',
                     input_size: "small",
                     custom_forms: false,
                     object_indent: false,

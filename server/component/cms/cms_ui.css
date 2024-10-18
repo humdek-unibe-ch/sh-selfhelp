@@ -18,14 +18,14 @@
 
 .ui-menu-holder {
     border: 1.5px solid;
-    border-color: var(--primary);
+    border-color: var(--bs-primary);
     height: 27px;
 }
 
 .ui-section-holder {
     border: 1.5px solid;
     position: relative;
-    border-color: var(--secondary);
+    border-color: var(--bs-secondary);
 }
 
 #ui-middle {
@@ -42,7 +42,7 @@
 }
 
 .ui-section-holder:hover {
-    border-color: var(--primary);
+    border-color: var(--bs-primary);
 }
 
 .ui-section-holder:hover>.ui-buttons-holder {
@@ -68,12 +68,12 @@
 .section-children-ui-cms {
     min-height: 50px;
     border: 1.5px dotted !important;
-    border-color: var(--secondary) !important;
+    border-color: var(--bs-secondary) !important;
 }
 
 .drag-ghost {
     opacity: 0.4;
-    background-color: var(--primary) !important;
+    background-color: var(--bs-primary) !important;
     width: 200px;
     height: 100px;
 }
@@ -296,11 +296,11 @@
 }
 
 .ui-marked-section {
-    border-color: var(--success);
+    border-color: var(--bs-success);
 }
 
 .ui-marked-section:hover {
-    border-color: var(--success);
+    border-color: var(--bs-success);
 }
 
 .ui-nav-help {
@@ -309,7 +309,7 @@
 
 .ui-dotted-border {
     border: 1.5px dotted !important;
-    border-color: var(--secondary) !important;
+    border-color: var(--bs-secondary) !important;
 }
 
 .sticky-top #multiple-users-warning #section-multiple-users-warning-alert {

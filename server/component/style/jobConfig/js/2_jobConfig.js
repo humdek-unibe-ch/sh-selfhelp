@@ -10,7 +10,7 @@ function createJSONEditor(schema) {
         editor.destroy();
     }
     editor = new JSONEditor($('#jobConfig')[0], {
-        theme: 'bootstrap4',
+        theme: 'bootstrap5',
         iconlib: 'fontawesome5',
         ajax: true,
         schema: schema,

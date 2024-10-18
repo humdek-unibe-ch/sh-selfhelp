@@ -63,7 +63,7 @@ const DEFAULT_OPTIONS = {
     /** print the path of each generated / modified file to the console */
     verbose: true,
     /** Default glob for files to search in. Default: Search all folder and files recursively */
-    defaultFileGlob: '**/*.{html,js,php,sql}',
+    defaultFileGlob: '**/*.{html,js,php,sql,css}',
 };
 
 async function migrate(cb) {
@@ -740,6 +740,42 @@ async function migrate(cb) {
                 replace(/(<[^>]*class\s*=\s*['"][^'"]*)\bwidth\b([^'"]*['"])/g, function (match, p1, p2) {
                     cssClassChanged++;
                     return p1 + 'collapse-horizontal' + p2;
+                }),
+            )
+            .pipe(
+                replace(/var\(--success\)/g, function (match) {
+                    cssClassChanged++;
+                    return match.replace('--success', '--bs-success');
+                }),
+            )
+            .pipe(
+                replace(/var\(--primary\)/g, function (match) {
+                    cssClassChanged++;
+                    return match.replace('--primary', '--bs-primary');
+                }),
+            )
+            .pipe(
+                replace(/var\(--secondary\)/g, function (match) {
+                    cssClassChanged++;
+                    return match.replace('--secondary', '--bs-secondary');
+                }),
+            )
+            .pipe(
+                replace(/var\(--warning\)/g, function (match) {
+                    cssClassChanged++;
+                    return match.replace('--warning', '--bs-warning');
+                }),
+            )
+            .pipe(
+                replace(/var\(--danger\)/g, function (match) {
+                    cssClassChanged++;
+                    return match.replace('--danger', '--bs-danger');
+                }),
+            )
+            .pipe(
+                replace(/var\(--info\)/g, function (match) {
+                    cssClassChanged++;
+                    return match.replace('--info', '--bs-info');
                 }),
             )
             .pipe(replace(/<select([^>]*)\bclass=['"]([^'"]*)form-control(-lg|-sm)?([^'"]*)['"]([^>]*)>/g, '<select$1class="$2form-select$3$4"$5>'))

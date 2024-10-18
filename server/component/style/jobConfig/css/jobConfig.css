@@ -1,6 +1,6 @@
 .jobConfig .card-title.level-1 {
     display: flex !important;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     align-items: center;
 }
 
@@ -12,7 +12,7 @@
     display: flex !important;
     align-items: center;
     flex-direction: row-reverse;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     margin-right: 0;
     padding: 0.5rem 0 0.5rem 0;
     width: 100%;
@@ -49,12 +49,12 @@
 }
 
 .json-editor-btn-add {
-    background-color: var(--success);
+    background-color: var(--bs-success);
 }
 
 .json-editor-btn-delete,
 .json-editor-btn-subtract {
-    background-color: var(--danger);
+    background-color: var(--bs-danger);
 }
 
 .jobConfig .nav-link {
@@ -62,7 +62,7 @@
 }
 
 .jobConfig .nav-link.active {
-    background-color: var(--secondary) !important;
+    background-color: var(--bs-secondary) !important;
     color: var(--white) !important;
 }
 
@@ -103,7 +103,7 @@
 }
 
 .jobConfig .modal-dialog .modal-header {
-    background: var(--secondary);
+    background: var(--bs-secondary);
     color: var(--white)
 }
 
@@ -222,28 +222,28 @@
 
 #jobConfig [data-schemapath="root.blocks"] .card-title.level-2 {
     display: flex !important;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     align-items: center;
     width: 100%;
 }
 
 #jobConfig [data-schemapath="root.randomizer"] .card-title.level-2 {
     display: flex !important;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     align-items: center;
     width: 100%;
 }
 
 #jobConfig [data-schemapath="root.repeater"] .card-title.level-2 {
     display: flex !important;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     align-items: center;
     width: 100%;
 }
 
 #jobConfig [data-schemapath="root.repeater_until_date"] .card-title.level-2 {
     display: flex !important;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     align-items: center;
     width: 100%;
 }
@@ -266,7 +266,7 @@
     display: flex !important;
     align-items: center;
     flex-direction: row-reverse;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     margin-right: 0;
     padding: 0.5rem 0 0.5rem 0;
     width: 100%;

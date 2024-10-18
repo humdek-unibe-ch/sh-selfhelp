@@ -2,7 +2,7 @@
     display: flex !important;
     align-items: center;
     flex-direction: row-reverse;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     padding: 0.5rem 15px 0.5rem 0.5rem;
 }
 
@@ -10,7 +10,7 @@
     display: flex !important;
     align-items: center;
     flex-direction: row-reverse;
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--bs-secondary);
     margin-right: -15px;
     padding: 0.5rem 15px 0.5rem 0;
 }
@@ -46,12 +46,12 @@
 }
 
 .json-editor-btn-add {
-    background-color: var(--success);
+    background-color: var(--bs-success);
 }
 
 .json-editor-btn-delete,
 .json-editor-btn-subtract {
-    background-color: var(--danger);
+    background-color: var(--bs-danger);
 }
 
 .data_config_builder .nav-link {
@@ -59,7 +59,7 @@
 }
 
 .data_config_builder .nav-link.active {
-    background-color: var(--secondary) !important;
+    background-color: var(--bs-secondary) !important;
     color: var(--white) !important;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .data_config_builder_modal_holder .modal-dialog .modal-header {
-    background: var(--secondary);
+    background: var(--bs-secondary);
     color: var(--white)
 }
 
