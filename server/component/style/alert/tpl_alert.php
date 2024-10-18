@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div id="section-<?php echo $this->id_section; ?>" class="alert <?php echo $type; ?> <?php echo $this->css; ?>">
+<div id="section-<?php echo $this->id_section; ?>" class="alert d-flex justify-content-between <?php echo $type; ?> <?php echo $this->css; ?>">
+    <?php $this->output_children(); ?>
     <?php $this->output_close_button(); ?>
-    <?php $this->output_children();?>
 </div>
