@@ -16,7 +16,7 @@ function initDescriptionItem() {
 
     $('[data-bs-toggle="popover"]').each(function () {
         // Get the title with the close button
-        var titleWithCloseButton = 'Hint <a class="close btn-close-hint" href="#">&times;</a>';
+        var titleWithCloseButton = 'Hint <span type="button" class="float-end h-auto btn-close close-hint btn-close-hint" ></span>';
 
         // Initialize popover for each element
         $(this).popover({
