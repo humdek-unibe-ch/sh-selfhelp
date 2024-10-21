@@ -210,9 +210,9 @@ JSONEditor.defaults.callbacks = {
             if (builder_field.length > 0) {
                 prepareConditionBuilder(getBuilderValues(builder_field));
             }
-            $(".condition_builder_modal_holder").modal({
-                backdrop: false
-            });
+            new bootstrap.Modal($(".condition_builder_modal_holder"), {
+                backdrop: false, // Disable backdrop
+            }).show();
             $('.saveConditionBuilder').each(function () {
                 $(this).attr('data-dismiss', 'modal');
                 $(this).off('click').click(function () {

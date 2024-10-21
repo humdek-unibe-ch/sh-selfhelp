@@ -716,7 +716,7 @@ function showAddSection(sectionData, addSibling, position) {
         console.log("addSibling", addSibling);
         console.log("position", position);
     }
-    $('#ui-add-section-modal').modal();
+    new bootstrap.Modal('#ui-add-section-modal').show();
     $('#ui-add-section').css({ top: window.event.clientY - $('#ui-add-section').outerHeight() / 2, left: window.event.clientX + 10 });
     $('#nav-new-section-tab').tab("show"); //always show the first tab when modal is opened for consistency 
 

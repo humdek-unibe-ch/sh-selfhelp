@@ -10,9 +10,9 @@ function initDataConfigBuilder() {
     $('.dataConfigBuilderBtn').each(function () {
         var data_config = $("textarea[name*='data_config']")[0];
         $(this).off('click').click(() => {
-            $(".data_config_builder_modal_holder").modal({
-                backdrop: false
-            });
+            new bootstrap.Modal($(".data_config_builder_modal_holder"), {
+                backdrop: false, // Disable backdrop
+            }).show();
             $('.saveDataConfig').each(function () {
                 $(this).attr('data-dismiss', 'modal');
                 // on modal close set the value to the Monaco editor

@@ -16,7 +16,7 @@ function initTextarea() {
     initCssFields();
 }
 
-function speechRecognition() {    
+function speechRecognition() {
     const speechButton = document.getElementById('speech');
     const outputDiv = document.getElementById('output');
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)();
@@ -91,9 +91,9 @@ function initJsonFields() {
             var jsonTree = $(this).find('.json_tree')[0];
             var jsonTreePath = $(this).find('.json_tree_path');
             reloadMappedItems(meta, jsonMappedItems); // load the existing values
-            $(jsonModalHolder).modal({
-                backdrop: false
-            });
+            new bootstrap.Modal(jsonModalHolder, {
+                backdrop: false, // Disable backdrop
+            }).show();
             var saveMapperBtn = $(this).find('.saveJsonMapper')[0];
             $(saveMapperBtn).attr('data-dismiss', 'modal');
             $(jsonModalTitleField).html(jsonFieldName);
