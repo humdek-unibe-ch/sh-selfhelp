@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container-fluid p-0">
-    <nav class="navbar navbar-expand-lg navbar" id="nav-menu">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" id="nav-menu">
         <a class="navbar-brand" href="<?php echo $home_url; ?>">
             <?php echo $home['title']; ?>
         </a>

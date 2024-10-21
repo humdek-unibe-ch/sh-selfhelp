@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<nav class="navbar navbar-expand-lg <?php echo $css ?>">
+<nav class="navbar navbar-expand-lg bg-body-tertiary <?php echo $css ?>">
   <a class="navbar-brand hidden" href="<?php echo $leadingLink['url'] ?>"><?php echo $leadingLink['title'] ?></a>
   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <i class="fas fa-bars"></i>
