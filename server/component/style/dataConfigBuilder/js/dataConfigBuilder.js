@@ -10,11 +10,11 @@ function initDataConfigBuilder() {
     $('.dataConfigBuilderBtn').each(function () {
         var data_config = $("textarea[name*='data_config']")[0];
         $(this).off('click').click(() => {
-            new bootstrap.Modal($(".data_config_builder_modal_holder"), {
+            var modalDataConfig = new bootstrap.Modal($(".data_config_builder_modal_holder"), {
                 backdrop: false, // Disable backdrop
-            }).show();
+            });
+            modalDataConfig.show();
             $('.saveDataConfig').each(function () {
-                $(this).attr('data-dismiss', 'modal');
                 // on modal close set the value to the Monaco editor
                 $(this).click(function () {
                     var val = JSON.stringify(dataConfigEditor.getValue(), null, 3);
@@ -31,6 +31,7 @@ function initDataConfigBuilder() {
                         $('.dataConfigBuilderBtn').addClass('btn-primary');
                         $('.dataConfigBuilderBtn').html('Add Data Config');
                     }
+                    modalDataConfig.hide();
                 })
             });
         });
@@ -126,9 +127,12 @@ function initDataConfigBuilder() {
                     }
                     dataConfigEditor.on('change', () => {
                         $('.data_config_builder').find('select[name*="[field_name]"], select[name*="[table]"]').each(function () {
-                            $(this).data('live-search', true);
-                            $(this).selectpicker();
-                            $(this).selectpicker('refresh');
+                            $(this).selectpicker('destroy');
+                            $(this).selectpicker({
+                                showTick: true,
+                                allowClear: true,
+                                liveSearch: true
+                            });
                         })
                     });
                 });

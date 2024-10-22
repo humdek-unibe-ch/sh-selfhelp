@@ -1,4 +1,4 @@
--- set DB version
+    -- set DB version
 UPDATE version
 SET version = 'v6.10.0';
 

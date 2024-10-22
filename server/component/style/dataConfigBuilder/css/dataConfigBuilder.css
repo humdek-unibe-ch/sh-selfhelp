@@ -153,3 +153,7 @@
 #data_config_builder_modal_holder input {
     border: 1px solid;
 }
+
+.data_config_builder .dropdown-menu.show[data-popper-placement="bottom-start"] {
+    transform: translate(0px, 36px) !important;
+}
