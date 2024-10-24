@@ -3,6 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<a class="text-dark small  <?php echo $active; ?>" href="<?php echo $url; ?>">
+<a class="text-reset small  <?php echo $active; ?>" href="<?php echo $url; ?>">
     <?php echo $page_name; ?>
 </a>
