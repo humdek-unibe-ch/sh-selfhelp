@@ -1,3 +1,8 @@
+# v7.1.0 (Not released)
+### New Feature
+ - update to `Bootstrap` 5.3
+ - update to `json-editor` 2.14.1
+
 # v7.0.23 (Not released)
 ### Bugfix
  - #509 - properly resize `showUserInput` when is inside a collapsed `card`

@@ -157,3 +157,7 @@
 .data_config_builder .dropdown-menu.show[data-popper-placement="bottom-start"] {
     transform: translate(0px, 36px) !important;
 }
+
+.data_config_builder .dropdown-menu.show[data-popper-placement="top-start"] {
+    transform: translate(0px, -36px) !important;
+}

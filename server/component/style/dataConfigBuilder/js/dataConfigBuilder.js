@@ -130,7 +130,7 @@ function initDataConfigBuilder() {
                             $(this).selectpicker('destroy');
                             $(this).selectpicker({
                                 showTick: true,
-                                allowClear: true,
+                                // allowClear: true,
                                 liveSearch: true
                             });
                         })
