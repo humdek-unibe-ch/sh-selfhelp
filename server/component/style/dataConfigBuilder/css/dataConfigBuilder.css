@@ -107,6 +107,7 @@
 .data_config_builder_modal_holder .btn-group button {
     border: solid;
     border-radius: 5px !important;
+    border-color: var(--bs-body-bg);
 }
 
 .data_config_builder_holder {
@@ -160,4 +161,8 @@
 
 .data_config_builder .dropdown-menu.show[data-popper-placement="top-start"] {
     transform: translate(0px, -36px) !important;
+}
+
+.data_config_builder_holder .bg-light{
+    background-color: rgba(var(--bs-body-color), var(--bs-bg-opacity)) !important;
 }
