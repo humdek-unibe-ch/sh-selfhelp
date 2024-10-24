@@ -127,7 +127,6 @@ abstract class BasePage
         $this->css_includes = array(            
             "/css/ext/global.css",   
             "/css/ext/bootstrap.min.css",          
-            // "/css/ext/bootstrap3.3.1.min.css",  
             "/css/ext/fontawesome.min.css",
             "/css/ext/datatables.min.css",
             "/css/ext/bootstrap-select.min.css",
@@ -136,7 +135,7 @@ abstract class BasePage
             "/css/ext/iconselect.css",
             "/css/ext/editor.main.css",
             "/css/ext/query-builder.default.min.css",
-            "/css/ext/query-builder.bootstrap.css",            
+            "/css/ext/query-builder.dark.css",
             "/css/ext/bootstrap4-toggle.min.css",      
             "/css/ext/easymde.min.css",   
             "/css/ext/dataTables.contextualActions.min.css",             

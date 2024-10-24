@@ -2,6 +2,7 @@
 ### New Feature
  - update to `Bootstrap` 5.3
  - update to `json-editor` 2.14.1
+ - update to `jQuery-QueryBuilder` 3.0.0
 
 # v7.0.23 (Not released)
 ### Bugfix

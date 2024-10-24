@@ -26,9 +26,10 @@ function initConditionBuilder() {
         var condition = $("textarea[name*='condition']")[0];
         condBuilderBtns.each(function () {
             $(this).off('click').click(() => {
-                new bootstrap.Modal($(".condition_builder_modal_holder"), {
+                var modalConditionConfig = new bootstrap.Modal($(".condition_builder_modal_holder"), {
                     backdrop: false, // Disable backdrop
-                }).show();
+                });
+                modalConditionConfig.show();
                 $('.saveConditionBuilder').each(function () {
                     $(this).attr('data-dismiss', 'modal');
                     $(this).off('click').click(function () {
@@ -44,6 +45,7 @@ function initConditionBuilder() {
                             $('.conditionBuilderBtn').addClass('btn-primary');
                             $('.conditionBuilderBtn').html('Add Condition');
                         }
+                        modalConditionConfig.hide();
                     })
                 });
             });
@@ -106,12 +108,6 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
                 input: 'select',
                 multiple: true,
                 values: groups,
-                plugin: 'selectpicker',
-                plugin_config: {
-                    liveSearch: true,
-                    width: 'auto',
-                    liveSearchStyle: 'contains',
-                },
                 operators: ['in', 'not_in', 'in_one_of']
             }, {
                 id: 'field',
@@ -177,6 +173,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
                 id: '__keyword__',
                 label: 'Page Keyword',
                 type: 'string',
+                input: 'select',
                 input: 'text',
                 operators: ['equal', 'not_equal']
             }, {
@@ -185,26 +182,14 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
                 type: 'string',
                 input: 'select',
                 operators: ['equal'],
-                values: platforms,
-                plugin: 'selectpicker',
-                plugin_config: {
-                    liveSearch: true,
-                    width: 'auto',
-                    liveSearchStyle: 'contains',
-                }
+                values: platforms
             }, {
                 id: '__language__',
                 label: 'Language',
                 type: 'string',
                 input: 'select',
                 operators: ['equal'],
-                values: languages,
-                plugin: 'selectpicker',
-                plugin_config: {
-                    liveSearch: true,
-                    width: 'auto',
-                    liveSearchStyle: 'contains',
-                }
+                values: languages
             }, {
                 id: '__last_login__',
                 label: 'Last Login',
@@ -232,7 +217,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
     }
 
     if ($('.condition_builder').length > 0) {
-        $('.condition_builder').queryBuilder(queryStructure);
+        var qb = $('.condition_builder').queryBuilder(queryStructure);
     }
 }
 

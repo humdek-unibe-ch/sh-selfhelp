@@ -31,7 +31,7 @@ function init_ui_cms() {
         initUISectionsButtons();
         initSortableElements();
         adjustPropertiesHeight();
-        $('select').selectpicker();
+        // $('select').selectpicker();
         if (collapsedProperties) {
             propertiesCollapse();
             propertiesCollapse();

@@ -11,12 +11,3 @@
 .condition_builder_modal_holder .btn-group {
     margin-bottom: .25rem;
 }
-
-.condition_builder_modal_holder .btn-group button {
-    border: solid;
-    border-radius: 5px !important;
-}
-
-.condition_builder .bootstrap-select {
-    width: auto !important;
-}
