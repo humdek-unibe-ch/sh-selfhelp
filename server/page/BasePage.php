@@ -139,7 +139,7 @@ abstract class BasePage
             "/css/ext/bootstrap4-toggle.min.css",      
             "/css/ext/easymde.min.css",   
             "/css/ext/dataTables.contextualActions.min.css",             
-            "/css/ext/jstree3.3.16.min.css"   
+            "/css/ext/jstree3.3.16.min.css"
         );
         $this->js_includes = array(
             "/js/ext/jquery.min.js",

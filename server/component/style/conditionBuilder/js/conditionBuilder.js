@@ -72,6 +72,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
     delete languages['0000000001']; // remove all languages selection
 
     var queryStructure = {
+        plugins: ["bt-checkbox"],
         icons: {
             add_group: 'fas fa-plus-circle',
             add_rule: 'fas fa-plus',
@@ -105,8 +106,7 @@ async function prepareConditionBuilder(jqueryBuilderJsonInput) {
                 id: 'user_group',
                 label: 'User group',
                 type: 'string',
-                input: 'select',
-                multiple: true,
+                input: 'checkbox',
                 values: groups,
                 operators: ['in', 'not_in', 'in_one_of']
             }, {

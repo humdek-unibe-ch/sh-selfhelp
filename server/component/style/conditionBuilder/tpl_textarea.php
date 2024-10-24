@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="conditionBuilderHolder">
-    <textarea name="<?php echo $this->name; ?>" class="selfhelpTextArea conditionBuilder form-control ">
+    <textarea name="<?php echo $this->name; ?>" class="selfhelpTextArea conditionBuilder form-control d-none">
         <?php echo $this->value; ?>
     </textarea>
     <?php $this->output_builder() ?>

@@ -1,5 +1,5 @@
 .condition_builder_modal_holder .modal-dialog {
-    max-width: 80% !important;
+    max-width: 90% !important;
     z-index: 1000 0;
 }
 
@@ -10,4 +10,12 @@
 
 .condition_builder_modal_holder .btn-group {
     margin-bottom: .25rem;
+}
+
+.condition_builder_modal_holder .query-builder.bt-checkbox-bootstrap-icons .checkbox input[type=checkbox]:checked+label::after {
+    display: none;
+}
+
+.condition_builder_modal_holder .rule-value-container{
+    display: inline-flex !important;
 }
