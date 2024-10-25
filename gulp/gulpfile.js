@@ -135,7 +135,7 @@ const classReplacements = [
     { old: 'form-inline', new: 'd-flex align-items-center' },
     { old: 'form-row', new: 'row' },
     { old: 'jumbotron-fluid', new: 'rounded-0 px-0' },
-    { old: 'jumbotron', new: 'bg-light mb-4 rounded-2 py-5 px-3' },
+    { old: 'jumbotron', new: 'card card-header mb-4 rounded-2 py-5 px-3' },
     { old: 'media-body', new: 'flex-grow-1' },
     { old: 'media', new: 'd-flex' },
     { old: 'dropdown-menu-left', new: 'dropdown-menu-start' },
@@ -205,6 +205,7 @@ async function migrate(cb) {
 
     // Apply class replacements
     classReplacements.forEach(({ old, new: newClass }) => {
+        console.log(old, newClass);
         const regex = new RegExp(`(class\\s*=\\s*['"][^'"]*\\b${old}\\b[^'"]*['"])`, 'g');
         stream = stream.pipe(
             replace(regex, (match) => {

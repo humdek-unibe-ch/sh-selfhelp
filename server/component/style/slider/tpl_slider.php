@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="selfhelp-slider <?php echo $css; ?>">
-    <input type="range" name="<?php echo $this->name; ?>" class="selfhelpSlider custom-range" min="<?php echo $this->min; ?>" max="<?php echo $this->max; ?>" value="<?php echo $this->value; ?>"
+    <input type="range" name="<?php echo $this->name; ?>" class="selfhelpSlider form-range" min="<?php echo $this->min; ?>" max="<?php echo $this->max; ?>" value="<?php echo $this->value; ?>"
     data-value="<?php echo $this->value; ?>"
     data-locked_after_submit="<?php echo $this->locked_after_submit; ?>">
     <div class="slider-legend">

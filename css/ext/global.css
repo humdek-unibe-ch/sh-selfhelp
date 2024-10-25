@@ -27,7 +27,3 @@ html[data-bs-theme="dark"] .btn.dropdown-toggle {
     color: var(--bs-body-color, #f8f9fa); /* Light button text from variable */
     border-color: var(--bs-border-color, #6c757d); /* Dark border from variable */
 }
-
-.jumbotron{
-    background-color: var(--bs-body-color);
-}
