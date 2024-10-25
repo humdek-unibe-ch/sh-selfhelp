@@ -32,6 +32,7 @@ function init_user_theme() {
     if (!$(themeButton).val()) {
         // initialize default theme
         $(themeButton).val(savedTheme);
+        $('#defaultTheme option[value=""]').remove();
         $(themeButton).selectpicker('destroy');
         $(themeButton).selectpicker('render');
     }
