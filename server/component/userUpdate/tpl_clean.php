@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Clean User Data</h1>
         <p>This will remove the user data of user <code><?php echo $this->selected_user['email']; ?></code>. Specifically, this operation will remove all <strong>user activity</strong> as well as all <strong>input data</strong>. User input data is all data that was entered by this user through either a style of type <code>formUserInput</code>, <code>mermaidForm</code>, as well as all information entered during the validation process and in the settings of the user profile (except name, password, and gender).</p>
     </div>

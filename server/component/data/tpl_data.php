@@ -7,7 +7,7 @@
     <?php $this->output_controller_alerts_success(); ?>
     <div class="row">
         <div class="col">
-            <div class="bg-light mb-4 rounded-2 py-5 px-3">
+            <div class="card card-header mb-4 rounded-2 py-5 px-3">
                 <h1>Data</h1>
                 <p>This page shows all input data for all users or for a selected user. If you want to search any text input within the data you can use the global filter
                     of the filter for the specific form. If you want to filter the data for s specific user, find the user in the user table and click on the row. Button 'Cancel'

@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1><?php echo $title[$this->mode]; ?></h1>
         <p>Browse for the file you want to upload and provide a name under which the file will be stored on the server.</p>
     </div>

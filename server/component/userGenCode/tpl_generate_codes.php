@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Generate Validation Codes</h1>
         <p>
             Validation codes are used to let users register themselves.

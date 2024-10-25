@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Unblock User</h1>
         <p>This will unblock the user <code><?php echo $this->selected_user['email']; ?></code>.</p>
     </div>

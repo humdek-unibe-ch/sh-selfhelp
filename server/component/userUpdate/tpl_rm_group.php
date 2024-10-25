@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Remove Group <code><?php echo $group; ?></code> from User <code><?php echo $this->selected_user['email']; ?></code></h1>
         <p>Removing a group from a user will revoke the permissions of the group from the user.</p>
     </div>

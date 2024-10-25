@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3">
     <?php $this->output_controller_alerts_fail(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Remove All User <?php echo $title; ?></h1>
         <?php $this->output_text(); ?>
     </div>

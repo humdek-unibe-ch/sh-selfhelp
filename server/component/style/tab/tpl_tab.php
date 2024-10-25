@@ -7,6 +7,6 @@
     <?php $this->output_icon($icon); ?>
     <?php echo $this->label; ?>
 </button>
-<div class="card card-body bg-light tab-content tab-content-index-<?php echo $this->id; ?> <?php echo $active; ?>">
+<div class="card card-body bg-body-tertiary tab-content tab-content-index-<?php echo $this->id; ?> <?php echo $active; ?>">
     <?php echo $this->output_children(); ?>
 </div>

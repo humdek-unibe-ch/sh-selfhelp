@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3 mb-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Export <?php echo $this->type == 'section' ? 'section' : 'page' ?></h1>
         <p>Export <?php echo $this->type == 'section' ? 'section' : 'page' ?> and all its children as JSON file</p>
     </div>

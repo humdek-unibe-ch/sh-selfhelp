@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container mt-3">
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Add Navigation Section</h1>
         <p>Add a navigation section to the <?php echo $child; ?> list of <?php echo $target; ?></p>
         <p>The root section of a navigation page must always be a <code>navigationContainer</code>, thus, no other option is available.</p>

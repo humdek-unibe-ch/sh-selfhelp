@@ -5,7 +5,7 @@
 ?>
 <div class="container mt-3 <?php echo $this->css; ?>">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1><?php echo $this->title; ?></h1>
     </div>
     <div class="card mb-3">

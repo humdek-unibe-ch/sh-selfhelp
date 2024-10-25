@@ -5,7 +5,7 @@
 ?>
 <div class="container-fluid mt-3">
     <?php $this->output_alert(); ?>
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Add Section</h1>
         <p>Add a section to the <?php echo $child; ?> list of <?php echo $target; ?>
         Either a new section can be created or an already existing section can be chosen.</p>

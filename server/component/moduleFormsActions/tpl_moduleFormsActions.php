@@ -10,7 +10,7 @@
         </div>
         <div class="col">    
             <?php $this->output_alert(); ?>        
-            <div class="bg-light mb-4 rounded-2 py-5 px-3">
+            <div class="card card-header mb-4 rounded-2 py-5 px-3">
                 <h1>Forms Actions</h1>
                 <p>This page shows all actions attached to a form. If you click on the action you can select it.
                 </p>                 

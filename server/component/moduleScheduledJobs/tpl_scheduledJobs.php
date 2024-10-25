@@ -10,7 +10,7 @@
         </div>
         <div class="flex-grow-1 scheduled-jobs-holder">
             <?php $this->output_alert(); ?>
-            <div class="bg-light mb-4 rounded-2 py-5 px-3">
+            <div class="card card-header mb-4 rounded-2 py-5 px-3">
                 <h1>Scheduled Jobs</h1>
                 <p>
                     The table below lists all queued scheduled jobs for the given period.

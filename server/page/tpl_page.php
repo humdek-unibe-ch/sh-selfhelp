@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="de" data-bs-theme="light">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" data-bs-theme="dark">
 <head>
 <title><?php echo $title; ?></title>
 <link rel="icon" type="image/x-icon" href="<?php echo BASE_PATH . '/favicon.ico'; ?>">

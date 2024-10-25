@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class="container mt-3">
-    <div class="bg-light mb-4 rounded-2 py-5 px-3">
+    <div class="card card-header mb-4 rounded-2 py-5 px-3">
         <h1>Remove Section Relation</h1>
         <p>This will remove the section <code><?php echo $del_section; ?></code> from the <?php echo $child; ?> list of <?php echo $target; ?>
  However, it will not delete the section. All data of the section and its subsections will remain intact.</p>

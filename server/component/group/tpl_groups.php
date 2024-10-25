@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<div class="bg-light mb-4 rounded-2 py-5 px-3">
+<div class="card card-header mb-4 rounded-2 py-5 px-3">
     <h1>Group Management</h1>
     <p>
         The card <code>DB Roles</code> list all roles with specific DB access. 
