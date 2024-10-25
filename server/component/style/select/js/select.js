@@ -6,7 +6,7 @@ function initSelect() {
     clearOptionHack();
     $('.bootstrapSelect').selectpicker({
         showTick: true,
-        allowClear: true
+        // allowClear: true
     });
 
     $('.selectImage').each((index, value) => {
