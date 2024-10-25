@@ -5,8 +5,8 @@
 ?>
 <div class="container-fluid bg-body-tertiary p-3 d-flex align-items-center footer-holder">
     <div class="footer flex-grow-1">
-        <?php $this->output_footer_links(); ?>        
+        <?php $this->output_footer_links(); ?>
     </div>
-    <div id = "defaultTheme"><?php $this->output_footer_themes(); ?></div>
-    <div id = "defaultLanguage"><?php $this->output_footer_languages(); ?></div>
+    <div id="defaultTheme" class="me-3"><?php $this->output_footer_themes(); ?></div>
+    <div id="defaultLanguage"><?php $this->output_footer_languages(); ?></div>
 </div>

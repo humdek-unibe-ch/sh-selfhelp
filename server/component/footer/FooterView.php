@@ -56,7 +56,6 @@ class FooterView extends BaseView
         if (count($options) > 1) {
             //show footer only if there are more than 1 language
             $langOptions = new BaseStyleComponent("select", array(
-                // "css" => "text-dark smallOverwitten",
                 "value" => $_SESSION['user_language'],
                 "name" => "default_language_locale",
                 "items" => $options,
@@ -83,7 +82,6 @@ class FooterView extends BaseView
         if (count($options) > 1) {
             //show footer only if there are more than 1 language
             $themeOptions = new BaseStyleComponent("select", array(
-                //"label" => "CMS Content Language",
                 "name" => "theme_mode",
                 "items" => $options,
             ));

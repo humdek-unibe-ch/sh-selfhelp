@@ -27,14 +27,18 @@ function init_user_language() {
 
 function init_user_theme() {
     // Retrieve saved theme from localStorage or use system preference
-    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');    
+    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     var themeButton = $('#defaultTheme select')[0];
     if (!$(themeButton).val()) {
         // initialize default theme
         $(themeButton).val(savedTheme);
         $('#defaultTheme option[value=""]').remove();
+        $('#defaultTheme option[value="light"]').attr('data-content', "<span class='text-nowrap'><i class='fas fa-sun' style='color: var(--bs-warning);'></i> Light</span>");
+        $('#defaultTheme option[value="dark"]').attr('data-content', "<span class='text-nowrap'><i class='fas fa-moon' style='color: var(--bs-secondary);'></i> Dark</span>");
         $(themeButton).selectpicker('destroy');
-        $(themeButton).selectpicker('render');
+        $(themeButton).selectpicker({
+            showTick: true // Show tick for selected options
+        });
     }
 
     // Select the <html> element for setting the theme attribute
