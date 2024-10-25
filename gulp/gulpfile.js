@@ -63,7 +63,7 @@ const DEFAULT_OPTIONS = {
     /** print the path of each generated / modified file to the console */
     verbose: true,
     /** Default glob for files to search in. Default: Search all folder and files recursively */
-    defaultFileGlob: '**/*.{html,js,php,sql}',
+    defaultFileGlob: '**/*.{html,js,php}',
 };
 
 // Arrays for class name replacements and data attribute replacements
