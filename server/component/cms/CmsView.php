@@ -372,7 +372,7 @@ class CmsView extends BaseView
         foreach ($pages as $idx => $page) {
             $position_value .= (string)($idx * 10) . ",";
             if ($current_page != intval($page["id"])) {
-                $pages[$idx]["css"] = "fixed text-muted";
+                $pages[$idx]["css"] = "fixed text-body-secondary";
             }
         }
         $position_value = rtrim($position_value, ",");

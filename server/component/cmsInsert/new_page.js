@@ -51,12 +51,12 @@ $(document).ready(function() {
     $check_pos_list.change(function() {
         if($(this).is(":checked"))
         {
-            $(this).next().removeClass("text-muted");
+            $(this).next().removeClass("text-body-secondary");
             $pos_list.parent().removeClass("d-none");
         }
         else
         {
-            $(this).next().addClass("text-muted");
+            $(this).next().addClass("text-body-secondary");
             $pos_list.parent().addClass("d-none");
         }
     });

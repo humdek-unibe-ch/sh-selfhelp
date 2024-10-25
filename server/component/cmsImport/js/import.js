@@ -6,7 +6,7 @@ function initImport() {
     $('input[name="file"]').off('change').change(function (e) {
         var $label = $(this).next('.custom-file-label');
         $label.html($(this).val());
-        $label.removeClass("text-muted");
+        $label.removeClass("text-body-secondary");
         handleFileSelect(e);
     });
     $('#asset-upload-form').off('submit').submit(function () {

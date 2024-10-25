@@ -82,11 +82,11 @@ function initPageOrder() {
 
     function showHideList(checkbox) {
         if ($(checkbox).is(":checked")) {
-            $(checkbox).next().removeClass("text-muted");
+            $(checkbox).next().removeClass("text-body-secondary");
             pos_list.parent().removeClass("d-none");
         }
         else {
-            $(checkbox).next().addClass("text-muted");
+            $(checkbox).next().addClass("text-body-secondary");
             pos_list.parent().addClass("d-none");
         }
     }

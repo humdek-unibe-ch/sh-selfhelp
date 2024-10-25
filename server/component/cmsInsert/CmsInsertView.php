@@ -44,7 +44,7 @@ class CmsInsertView extends BaseView
         foreach($this->pages as $idx => $page)
         {
             $this->position_value .= (string)($idx * 10) . ",";
-            $this->pages[$idx]["css"] = "fixed text-muted";
+            $this->pages[$idx]["css"] = "fixed text-body-secondary";
         }
 
         $this->pages[] = array("id" => "new", "title" => "New Page");

@@ -63,7 +63,7 @@ const DEFAULT_OPTIONS = {
     /** print the path of each generated / modified file to the console */
     verbose: true,
     /** Default glob for files to search in. Default: Search all folder and files recursively */
-    defaultFileGlob: '**/*.{html,js,php,sql,css}',
+    defaultFileGlob: '**/*.{html,js,php,sql}',
 };
 
 // Arrays for class name replacements and data attribute replacements
@@ -127,8 +127,7 @@ const classReplacements = [
     { old: 'rounded-left', new: 'rounded-start' },
     { old: 'rounded-right', new: 'rounded-end' },
     { old: 'rounded-sm', new: 'rounded-1' },
-    { old: 'rounded-lg', new: 'rounded-3' },
-    { old: 'close', new: 'btn-close' },
+    { old: 'rounded-lg', new: 'rounded-3' },    
     { old: 'form-control-file', new: 'form-control' },
     { old: 'form-control-range', new: 'form-range' },
     { old: 'form-group', new: 'mb-3' },
@@ -205,12 +204,11 @@ async function migrate(cb) {
 
     // Apply class replacements
     classReplacements.forEach(({ old, new: newClass }) => {
-        console.log(old, newClass);
-        const regex = new RegExp(`(class\\s*=\\s*['"][^'"]*\\b${old}\\b[^'"]*['"])`, 'g');
+        const regex = new RegExp(`(<[^>]*class\\s*=\\s*['"][^'"]*)\\b${old}\\b([^'"]*['"])`, 'g');
         stream = stream.pipe(
-            replace(regex, (match) => {
+            replace(regex, function (match, p1, p2) {
                 cssClassChanged++;
-                return match.replace(new RegExp(`\\b${old}\\b`, 'g'), newClass);
+                return p1 + newClass + p2;
             })
         );
     });
@@ -252,6 +250,12 @@ async function migrate(cb) {
     // Write changes to the same source directory
     stream
         .pipe(dest(options.src))
+        .pipe(
+            replace(/(<[^>]*class\s*=\s*['"])\s*\bclose\b\s*(['"])/g, function (match, p1, p2) {
+              cssClassChanged++;
+              return p1 + 'btn-close' + p2;
+            }),
+          )
         .on('data', (data) => {
             if (options.verbose) {
                 console.log(`Wrote file: ${data.path}`);
