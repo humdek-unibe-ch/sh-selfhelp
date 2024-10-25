@@ -3,6 +3,7 @@
  - update to `Bootstrap` 5.3
  - update to `json-editor` 2.14.1
  - update to `jQuery-QueryBuilder` 3.0.0
+ - #489 - add dropdown in the footer to select `dark` or `light` theme. The settings are saved locally in the browser as the default one is taken from the user settings in the OS
 
 # v7.0.23 (Not released)
 ### Bugfix
