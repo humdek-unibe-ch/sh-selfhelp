@@ -259,9 +259,9 @@ function reloadMappedItems(meta, jsonMappedItems) {
     $(jsonMappedItems).empty(); // cleat the mapped items
     for (let item in meta) {
         if (meta.hasOwnProperty(item)) {
-            var row = $('<div/>').addClass('d-flex align-items-center bg-white m-2 p-2 border rounded text-dark');
+            var row = $('<div/>').addClass('d-flex align-items-center m-2 p-2 border rounded');
             var label = $('<label/>').text(item).addClass('mb-0 pl-2 pr-2 mr-2 font-weight-bold');
-            var input = $('<input/>').attr('type', 'text').addClass('rounded border ml-auto border-dark pl-2 pr-2');
+            var input = $('<input/>').attr('type', 'text').addClass('rounded border ml-auto  pl-2 pr-2');
             input.val(meta[item]);
             input.change(function () {
                 // on change add the value in the meta

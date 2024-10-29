@@ -148,7 +148,7 @@ class TextareaView extends FormFieldView
             return;
         }
         $modal = new BaseStyleComponent('modal', array(
-            'title' => 'JSON Mapper <span class="json-mapper-title-field bg-body-tertiary border text-dark btn-sm"></span> <span class="json-mapper-error-status rounded bg-danger text-light btn-sm d-none">Error</span>',
+            'title' => 'JSON Mapper <span class="json-mapper-title-field bg-body-tertiary p-2 border rounded btn-sm"></span> <span class="json-mapper-error-status rounded bg-danger text-light btn-sm d-none">Error</span>',
             "css" => "json_mapper_modal_holder",
             'children' => array(
                 new BaseStyleComponent("div", array(
