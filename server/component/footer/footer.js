@@ -25,59 +25,96 @@ function init_user_language() {
     });
 }
 
+/**
+ * Initializes the user theme by setting the theme according to user preference 
+ * stored in `localStorage` or defaulting to system settings.
+ * Sets up the theme selector UI, default options, and listeners for user interaction.
+ */
 function init_user_theme() {
-    // Retrieve saved theme from localStorage or use system preference
-    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Get the saved theme preference or fallback to system preference if none is stored.
+    const savedTheme = getSystemTheme();
+    
+    // Select the theme dropdown and initialize if not yet set.
     var themeButton = $('#defaultTheme select')[0];
     if (!$(themeButton).val()) {
-        // initialize default theme
+        // Set default theme options in dropdown with icon styling.
         $(themeButton).val(savedTheme);
-        $('#defaultTheme option[value=""]').remove();
-        $('#defaultTheme option[value="light"]').attr('data-content', "<span class='text-nowrap'><i class='fas fa-sun' style='color: var(--bs-warning);'></i> Light</span>");
-        $('#defaultTheme option[value="dark"]').attr('data-content', "<span class='text-nowrap'><i class='fas fa-moon' style='color: var(--bs-secondary);'></i> Dark</span>");
+        $('#defaultTheme option[value=""]').remove();  // Remove any empty option
+        $('#defaultTheme option[value="light"]').attr(
+            'data-content',
+            "<span class='text-nowrap'><i class='fas fa-sun' style='color: var(--bs-warning);'></i> Light</span>"
+        );
+        $('#defaultTheme option[value="dark"]').attr(
+            'data-content',
+            "<span class='text-nowrap'><i class='fas fa-moon' style='color: var(--bs-secondary);'></i> Dark</span>"
+        );
+        $('#defaultTheme option[value="auto"]').attr(
+            'data-content',
+            "<span class='text-nowrap'><i class='fas fa-adjust' style='color: var(--bs-secondary);'></i> Auto</span>"
+        );
+
+        // Destroy any previous selectpicker instance and initialize with a tick mark for selection.
         $(themeButton).selectpicker('destroy');
         $(themeButton).selectpicker({
-            showTick: true // Show tick for selected options
+            showTick: true // Show a tick mark next to the selected theme.
         });
     }
 
-    // Select the <html> element for setting the theme attribute
     const htmlElement = document.documentElement;
 
-    // Set initial theme
-    setTheme(savedTheme);
+    // Apply the initial theme based on saved preference or system default.
+    loadTheme(getTheme());
 
-    // Function to set the theme and save it in localStorage
-    function setTheme(theme) {
-        htmlElement.setAttribute('data-bs-theme', theme);
+    /**
+     * Saves the selected theme preference in `localStorage`.
+     * @param {string} theme - The theme to save ('light', 'dark', or 'auto').
+     */
+    function saveTheme(theme) {
         localStorage.setItem('theme', theme);
     }
 
-    // Function to update the theme based on the system preference
-    function updateTheme() {
-        const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        // Determine the theme based on system settings
-        const theme = isDarkMode ? 'dark' : 'light';
-        setTheme(theme);
+    /**
+     * Applies the specified theme by setting it in the HTML attribute.
+     * @param {string} theme - The theme to apply.
+     */
+    function loadTheme(theme) {
+        htmlElement.setAttribute('data-bs-theme', theme);
     }
 
-    // Function to toggle between light and dark themes
-    function toggleTheme() {
-        const currentTheme = htmlElement.getAttribute('data-bs-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        setTheme(newTheme);
+    /**
+     * Retrieves the saved theme from `localStorage`.
+     * @returns {string} - The saved theme ('dark', 'light', or 'auto').
+     */
+    function getSystemTheme() {
+        var theme = localStorage.getItem('theme');
+        return theme === 'dark' || theme === 'light' ? theme : 'auto';
     }
 
-    // Add an event listener to monitor changes in the user's system theme preferences
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
+    /**
+     * Retrieves the current theme setting, falling back to system preference if 'auto' is selected.
+     * @returns {string} - The active theme ('dark' or 'light') based on user or system settings.
+     */
+    function getTheme() {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark' || theme === 'light') {
+            return theme;
+        } else {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+    }
 
-    // Add an event listener to change the theme when the dropdown value changes
-    $('#defaultTheme select').on('change', function () {
-        const theme = $(this).val(); // Get selected value from dropdown
-        setTheme(theme);
+    // Listen for changes in system color scheme preference, updating the theme if set to 'auto'.
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (getSystemTheme() === 'auto') {
+            loadTheme(getTheme());
+        }
     });
 
-    // Optional: If you want to use toggleTheme() somewhere, you can bind it to a button, e.g.,
-    // $('#themeToggleButton').on('click', toggleTheme);
+    // Update theme when the user changes the selection in the dropdown.
+    $('#defaultTheme select').on('change', function () {
+        const theme = $(this).val(); // Get the selected theme from dropdown
+        saveTheme(theme);            // Save the user-selected theme
+        loadTheme(getTheme());       // Apply the selected or system theme
+    });
 }
+

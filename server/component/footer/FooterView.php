@@ -78,6 +78,10 @@ class FooterView extends BaseView
             "value" => "light",
             "text" => "Light"
         ));
+        array_push($options, array(
+            "value" => "auto",
+            "text" => "Auto"
+        ));
             
         if (count($options) > 1) {
             //show footer only if there are more than 1 language
