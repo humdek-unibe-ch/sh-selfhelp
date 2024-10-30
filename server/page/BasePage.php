@@ -142,6 +142,7 @@ abstract class BasePage
             "/css/ext/jstree3.3.16.min.css"
         );
         $this->js_includes = array(
+            "/js/ext/page.js",
             "/js/ext/jquery.min.js",
             "/js/ext/runtime.js",
             "/js/ext/bootstrap.bundle.min.js",

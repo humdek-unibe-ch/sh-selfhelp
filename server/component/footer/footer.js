@@ -1,9 +1,6 @@
 $(document).ready(function () {
-
     init_user_language();
     init_user_theme();
-
-
 });
 
 function init_user_language() {
