@@ -1,3 +1,8 @@
+# v8.0.0 (Not released)
+### New Feature
+ - make `home` page open access
+ - add `cms-api` for Angular frontend
+
 # v7.1.0 (Not released)
 ### New Feature
  - update to `Bootstrap` 5.3

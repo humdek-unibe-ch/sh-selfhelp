@@ -1,3 +1,22 @@
+-- set DB version
+UPDATE version
+SET version = 'v8.0.0';
+
+-- add action `cms-api` for api calls
+INSERT IGNORE INTO `actions`(`name`) VALUES('cms-api');
+
+-- add page api_get_external
+SET @page_keyword = 'cms-api_get_nav_pages';
+INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (@page_keyword, '/cms-api/[nav:class]/[pages:method]/[web|mobile:mode]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'));
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Get Navigation Pages');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Get Navigation Pages');
+-- open access page
+INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (1, (SELECT id FROM pages WHERE keyword = @page_keyword), '1', '0', '0', '0');
+
+-- make `home` page open access
+INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (1, (SELECT id FROM pages WHERE keyword = 'home'), '1', '0', '0', '0');
+
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_user_acl //
@@ -37,3 +56,5 @@ END
 //
 
 DELIMITER ;
+
+

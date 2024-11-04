@@ -14,6 +14,7 @@ require_once "./server/page/SectionPage.php";
 require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
+require_once "./server/cms-api/CmsApiRequest.php";
 
 function create_exportData_page($services, $selector, $option = null, $id = null)
 {
@@ -88,20 +89,28 @@ class Selfhelp
 
         // Allow from any origin
         if (
-            isset($_SERVER['HTTP_ORIGIN']) &&
-            (
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58:8100') !== false || // used for testing
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
-                strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
+            (isset($_SERVER['HTTP_ORIGIN']) &&
+                (
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:4200') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58:8100') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'https://192.168.0.58:8100') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
+                    strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
+            ) ||
+            isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'http://localhost:4200') !== false
         ) {
             // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
             // you want to allow, and if so:
-            header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+            if (isset($_SERVER['HTTP_ORIGIN'])) {
+                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+            }
+            if (isset($_SERVER['HTTP_REFERER'])) {
+                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_REFERER']}");
+            }
             header('Access-Control-Allow-Methods: GET, POST');
             header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Max-Age: 86400');    // cache for 1 day
@@ -126,6 +135,15 @@ class Selfhelp
     {
         $ajax = new AjaxRequest($services, $class_name, $method_name, $keyword);
         $ajax->print_json();
+    }
+
+    // custom page creation functions
+    private function create_cms_api_request_page($services, $class_name, $method_name, $keyword = null)
+    {
+        $class_name = ucfirst($class_name) . 'CmsApi';
+        $method_name = $_SERVER['REQUEST_METHOD'] . '_' . $method_name;
+        $cmsApi = new CmsApiRequest($services, $class_name, $method_name, $keyword);
+        $cmsApi->return_response();
     }
 
     /**
@@ -193,8 +211,10 @@ class Selfhelp
                 } else {
                     throw new Exception("Cannot call custom function '$function_name'");
                 }
-            } else if ($router->route['target'] == "ajax") {
+            } else if ($router->route['target'] == PAGE_ACTION_AJAX) {
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
+            } else if ($router->route['target'] == PAGE_ACTION_CMS_API) {
+                $this->create_cms_api_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity 
             $router->log_user_activity($debug_start_time, true);
@@ -239,8 +259,10 @@ class Selfhelp
                     $page->output();
                     throw new Exception("Cannot call custom function '$function_name'");
                 }
-            } else if ($router->route['target'] == "ajax") {
+            } else if ($router->route['target'] == PAGE_ACTION_AJAX) {
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
+            } else if ($router->route['target'] == PAGE_ACTION_CMS_API) {
+                $this->create_cms_api_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity
             $router->log_user_activity($debug_start_time);

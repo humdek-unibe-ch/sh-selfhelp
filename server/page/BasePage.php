@@ -735,7 +735,7 @@ abstract class BasePage
      *  The unique identifier of the component.
      */
     public function output_component($key)
-    {
+    {        
         $component = $this->get_component($key);
         if($component != null)
             $component->output_content();
