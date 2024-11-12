@@ -3,6 +3,9 @@
  - make `home` page open access
  - add `cms-api` for Angular frontend
 
+### Bugfix
+ - fix the way that the data is decoded in the `formUserInput` controller
+
 # v7.1.0 (Not released)
 ### New Feature
  - update to `Bootstrap` 5.3
