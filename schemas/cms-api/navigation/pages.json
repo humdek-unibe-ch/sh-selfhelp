@@ -1,0 +1,42 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "id_users": { "type": "integer" },
+        "id_pages": { "type": "integer" },
+        "acl_select": { "type": "integer" },
+        "acl_insert": { "type": "integer" },
+        "acl_update": { "type": "integer" },
+        "acl_delete": { "type": "integer" },
+        "keyword": { "type": "string" },
+        "url": { "type": "string" },
+        "protocol": { "type": "string" },
+        "id_actions": { "type": "integer" },
+        "id_navigation_section": { "type": ["integer", "null"] },
+        "parent": { "type": ["integer", "null"] },
+        "is_headless": { "type": "integer" },
+        "nav_position": { "type": ["integer", "null"] },
+        "footer_position": { "type": ["integer", "null"] },
+        "id_type": { "type": "integer" },
+        "id_pageAccessTypes": { "type": "integer" }
+      },
+      "required": [
+        "id_users",
+        "id_pages",
+        "acl_select",
+        "acl_insert",
+        "acl_update",
+        "acl_delete",
+        "keyword",
+        "url",
+        "protocol",
+        "id_actions",
+        "is_headless",
+        "id_type",
+        "id_pageAccessTypes"
+      ]
+    }
+  }
+  

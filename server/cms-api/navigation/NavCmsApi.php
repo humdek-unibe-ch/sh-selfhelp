@@ -4,7 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+
+use Swaggest\JsonSchema\Schema;
+
 require_once __DIR__ . "/../BaseApiRequest.php";
+require_once __DIR__ . "/../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
 
 /**
  * 
@@ -36,6 +40,15 @@ class NavCmsApi extends BaseApiRequest
         $pages = array_values(array_filter($all_pages, function ($item) use ($remove_type_id) {
             return $item['id_pageAccessTypes'] != $remove_type_id;
         }));
+        // try {
+        //     $schemaObject = Schema::import(
+        //         data: json_decode(file_get_contents(__DIR__ . '/../../../schemas/cms-api/navigation/pages.json')),
+        //     )->in(
+        //          json_decode(json_encode($pages)),
+        //     );
+        // } catch (Exception $e) {
+        //     return 'Error: ' .  $e->getMessage();
+        // }
         return $pages;
     }
 }

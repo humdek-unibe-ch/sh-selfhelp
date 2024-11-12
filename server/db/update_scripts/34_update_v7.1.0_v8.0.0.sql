@@ -17,6 +17,8 @@ INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_inser
 -- make `home` page open access
 INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (1, (SELECT id FROM pages WHERE keyword = 'home'), '1', '0', '0', '0');
 
+
+
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS get_user_acl //
