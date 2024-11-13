@@ -1,3 +1,7 @@
+# v7.0.18.1
+### Bugfix
+ - fix the way that the data is decoded in the formUserInput controller
+
 # v7.0.18
 ### Bugfix
  - ensured that data received from a form is accurately type-checked, with each field's type properly validated and set accordingly.

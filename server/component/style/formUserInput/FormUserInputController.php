@@ -183,10 +183,16 @@ class FormUserInputController extends BaseController
         $this->alert_success = $this->model->get_db_field("alert_success");
         $gump = new GUMP('de');
         $user_input = $this->check_user_input($gump);
-        if (is_array($user_input)) {
-            // if it is array convert it to string and decode special characters
-            $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
-        }   
+        if (is_array($user_input)) {            
+            // $user_input = json_decode(html_entity_decode(json_encode($user_input), ENT_QUOTES | ENT_HTML5, 'UTF-8'), true); // if it is array convert it to string and decode special characters
+            // decode special characters
+            foreach ($user_input as $key => $value) {
+                if(!is_array($user_input[$key])){
+                    // if not array try to html decode
+                    $user_input[$key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                }
+            }
+        } 
         $user_input['trigger_type']= actionTriggerTypes_finished;
         // that info should not be saved
         unset($user_input[DELETE_RECORD_ID]);
