@@ -1,6 +1,6 @@
 <?php
-spl_autoload_register(function ($class_name) {
-    if (substr($class_name, -6) === "CmsApi") {
+spl_autoload_register(callback: function ($class_name) {
+    if (substr(string: $class_name, offset: -6) === "CmsApi") {
         $file_name = $class_name . ".php";
         $directory = __DIR__;
         $file_path = recursiveFileSearch($directory, $file_name);
@@ -13,7 +13,7 @@ spl_autoload_register(function ($class_name) {
 
 function recursiveFileSearch($directory, $file_name)
 {
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
+    $iterator = new RecursiveIteratorIterator(iterator: new RecursiveDirectoryIterator(directory: $directory));
     foreach ($iterator as $file) {
         if ($file->isFile() && $file->getFilename() === $file_name) {
             return $file->getPathname();
@@ -23,16 +23,38 @@ function recursiveFileSearch($directory, $file_name)
 }
 
 /**
- * Class defining the basic functionality of a Cms API request.
+ * @brief Class defining the basic functionality of a CMS API request.
+ * 
+ * This class handles the routing and execution of CMS API requests, including
+ * parameter collection, method validation, and response handling.
  */
+require_once __DIR__ . "/CmsApiResponse.php";
+
 class CmsApiRequest
 {
+    /** @var object Services container instance */
     private $services;
+    
+    /** @var string Name of the API class to be called */
     private $class_name;
+    
+    /** @var string Name of the method to be executed */
     private $method_name;
+    
+    /** @var string Optional keyword parameter */
     private $keyword;
+    
+    /** @var array Collection of request parameters */
     private $params;
 
+    /**
+     * @brief Constructs a new CMS API request instance
+     * 
+     * @param object $services    Services container instance
+     * @param string $class_name  Name of the API class to be called
+     * @param string $method_name Name of the method to be executed (optional)
+     * @param string $keyword     Optional keyword parameter (default: '')
+     */
     public function __construct($services, $class_name, $method_name = null, $keyword = '')
     {
         $this->services = $services;
@@ -42,7 +64,18 @@ class CmsApiRequest
         $this->params = $this->collectParameters();
     }
 
-    private function collectParameters()
+    /**
+     * @brief Collects and processes request parameters from various sources
+     * 
+     * Gathers parameters from:
+     * - Route parameters
+     * - POST data
+     * - GET data
+     * - JSON or URL-encoded request body
+     * 
+     * @return array Processed request parameters
+     */
+    private function collectParameters(): array
     {
         // Collect route parameters
         $params = [...$this->services->get_router()->route['params']];
@@ -57,65 +90,114 @@ class CmsApiRequest
         }
 
         // Parse JSON or URL-encoded input body
-        $inputData = file_get_contents('php://input');
-        parse_str($inputData, $jsonData);
+        $inputData = file_get_contents(filename: 'php://input');
+        parse_str(string: $inputData, result: $jsonData);
 
-        if (!$jsonData || !is_array($jsonData)) {
-            $jsonData = json_decode($inputData, true);
+        if (!$jsonData || !is_array(value: $jsonData)) {
+            $jsonData = json_decode(json: $inputData, associative: true);
         }
 
-        if ($jsonData !== null && json_last_error() === JSON_ERROR_NONE && count($jsonData) > 0) {
+        if ($jsonData !== null && json_last_error() === JSON_ERROR_NONE && count(value: $jsonData) > 0) {
             $params['data'] = $jsonData;
         }
 
         // Decode URL-encoded parameters
         foreach ($params as $key => $value) {
-            if (!is_array($value)) {
-                $params[$key] = urldecode($value);
+            if (!is_array(value: $value)) {
+                $params[$key] = urldecode(string: $value);
             }
         }
 
         return $params;
     }
 
-    public function return_response()
+    /**
+     * @brief Executes the API request and sends the response
+     * 
+     * Validates the requested class and method, authorizes the user,
+     * executes the method with appropriate parameters, and sends the response.
+     * 
+     * @throws Exception When method execution fails
+     * @return void
+     */
+    public function return_response(): void
     {
-        $success = false;
-        $data = null;
-
-        if (class_exists($this->class_name)) {
-            $instance = new $this->class_name($this->services, $this->keyword);
-            $response = $instance->authorizeUser();
-            $instance->init_response($response);
-
-            if (method_exists($instance, $this->method_name)) {
-                $reflection = new ReflectionMethod($instance, $this->method_name);
-
-                if ($reflection->isPublic()) {
-                    $parameters = $reflection->getParameters();
-
-                    // Prepare parameters for method call
-                    $methodParameters = [];
-                    foreach ($parameters as $param) {
-                        $paramName = $param->name;
-                        $methodParameters[] = $this->params[$paramName] ?? ($param->isOptional() ? $param->getDefaultValue() : null);
-                    }
-
-                    // Execute the method
-                    $data = call_user_func_array([$instance, $this->method_name], $methodParameters);
-                    $success = ($data !== null);
-                } else {
-                    $data = "Request '{$this->class_name}' method '{$this->method_name}' is not public";
-                }
-            } else {
-                $data = "Request '{$this->class_name}' has no method '{$this->method_name}'";
-            }
-        } else {
-            $data = "Unknown request class '{$this->class_name}'";
+        if (!class_exists(class: $this->class_name)) {
+            (new CmsApiResponse(
+                404,
+                null,
+                "Unknown request class '{$this->class_name}'"
+            ))->send();
+            return;
         }
 
-        header('Content-Type: application/json');
-        echo json_encode(array("success" => $success, "data" => $data));
+        $instance = new $this->class_name($this->services, $this->keyword);
+        $instance->authorizeUser();
+        // $instance->init_response($response);
+
+        if (!method_exists(object_or_class: $instance, method: $this->method_name)) {
+            (new CmsApiResponse(
+                404,
+                null,
+                "Request '{$this->class_name}' has no method '{$this->method_name}'"
+            ))->send();
+            return;
+        }
+
+        $reflection = new ReflectionMethod(objectOrMethod: $instance, method: $this->method_name);
+        if (!$reflection->isPublic()) {
+            (new CmsApiResponse(
+                403,
+                null,
+                "Request '{$this->class_name}' method '{$this->method_name}' is not public"
+            ))->send();
+            return;
+        }
+
+        // Prepare parameters for method call
+        $methodParameters = $this->prepareMethodParameters(reflection: $reflection);
+
+        // Execute the method
+        try {
+            $result = call_user_func_array([$instance, $this->method_name], $methodParameters);
+
+            if ($result === null) {
+                (new CmsApiResponse(
+                    400,
+                    null,
+                    'Method execution failed'
+                ))->send();
+                return;
+            }
+
+            // Assuming return_response method accepts a response object
+            (new CmsApiResponse(200, $result))->send();        
+        } catch (Exception $e) {
+            (new CmsApiResponse(
+                500,
+                null,
+                $e->getMessage()
+            ))->send();
+        }
+    }
+
+    /**
+     * @brief Prepares parameters for method execution
+     * 
+     * Maps request parameters to method parameters based on reflection data,
+     * handling optional parameters and default values.
+     * 
+     * @param ReflectionMethod $reflection Method reflection instance
+     * @return array Array of prepared parameters for method execution
+     */
+    private function prepareMethodParameters(ReflectionMethod $reflection): array
+    {
+        $methodParameters = [];
+        foreach ($reflection->getParameters() as $param) {
+            $paramName = $param->getName();
+            $methodParameters[] = $this->params[$paramName] ??
+                ($param->isOptional() ? $param->getDefaultValue() : null);
+        }
+        return $methodParameters;
     }
 }
-?>

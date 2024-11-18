@@ -173,8 +173,7 @@ class Selfhelp
                 $page = new SectionPage(
                     $services,
                     $router->route['name'],
-                    $router->route['params'],
-                    true
+                    $router->route['params']
                 );
                 $start_date = date("Y-m-d H:i:s");
                 $res = $page->output_base_content_mobile();
