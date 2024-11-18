@@ -122,62 +122,68 @@ class CmsApiRequest
      */
     public function return_response(): void
     {
-        if (!class_exists(class: $this->class_name)) {
-            (new CmsApiResponse(
-                404,
-                null,
-                "Unknown request class '{$this->class_name}'"
-            ))->send();
-            return;
-        }
-
-        $instance = new $this->class_name($this->services, $this->keyword);
-        $instance->authorizeUser();
-        // $instance->init_response($response);
-
-        if (!method_exists(object_or_class: $instance, method: $this->method_name)) {
-            (new CmsApiResponse(
-                404,
-                null,
-                "Request '{$this->class_name}' has no method '{$this->method_name}'"
-            ))->send();
-            return;
-        }
-
-        $reflection = new ReflectionMethod(objectOrMethod: $instance, method: $this->method_name);
-        if (!$reflection->isPublic()) {
-            (new CmsApiResponse(
-                403,
-                null,
-                "Request '{$this->class_name}' method '{$this->method_name}' is not public"
-            ))->send();
-            return;
-        }
-
-        // Prepare parameters for method call
-        $methodParameters = $this->prepareMethodParameters(reflection: $reflection);
-
-        // Execute the method
+        $debug_start_time = microtime(true);
+        $router = $this->services->get_router();
+        
         try {
-            $result = call_user_func_array([$instance, $this->method_name], $methodParameters);
-
-            if ($result === null) {
-                (new CmsApiResponse(
-                    400,
+            if (!class_exists($this->class_name)) {
+                $response = new CmsApiResponse(
+                    404,
                     null,
-                    'Method execution failed'
-                ))->send();
-                return;
-            }
+                    "Unknown request class '{$this->class_name}'"
+                );
+            } else {
+                $instance = new $this->class_name($this->services, $this->keyword);
+                $instance->authorizeUser();
+                // $instance->init_response($response);
 
-            // Assuming return_response method accepts a response object
-            (new CmsApiResponse(200, $result))->send();        
+                if (!method_exists(object_or_class: $instance, method: $this->method_name)) {
+                    $response = new CmsApiResponse(
+                        404,
+                        null,
+                        "Request '{$this->class_name}' has no method '{$this->method_name}'"
+                    );
+                } else {
+                    $reflection = new ReflectionMethod(objectOrMethod: $instance, method: $this->method_name);
+                    if (!$reflection->isPublic()) {
+                        $response = new CmsApiResponse(
+                            403,
+                            null,
+                            "Request '{$this->class_name}' method '{$this->method_name}' is not public"
+                        );
+                    } else {
+                        // Prepare parameters for method call
+                        $methodParameters = $this->prepareMethodParameters(reflection: $reflection);
+
+                        // Execute the method
+                        $result = call_user_func_array([$instance, $this->method_name], $methodParameters);
+
+                        if ($result === null) {
+                            $response = new CmsApiResponse(
+                                400,
+                                null,
+                                'Method execution failed'
+                            );
+                        } else {
+                            $response = new CmsApiResponse(200, $result);
+                        }
+                    }
+                }
+            }
+            
+            // Add the logging callback
+            $response->addAfterSendCallback(callback: function() use ($router, $debug_start_time): void {
+                $router->log_user_activity($debug_start_time, true);
+            });
+            
+            $response->send();
+            
         } catch (Exception $e) {
-            (new CmsApiResponse(
-                500,
-                null,
-                $e->getMessage()
-            ))->send();
+            $response = new CmsApiResponse(500, null, $e->getMessage());
+            $response->addAfterSendCallback(callback: function() use ($router, $debug_start_time): void {
+                $router->log_user_activity($debug_start_time, true);
+            });
+            $response->send();
         }
     }
 

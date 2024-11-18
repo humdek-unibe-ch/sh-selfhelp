@@ -25,6 +25,8 @@ abstract class BaseApiRequest
 
     protected $services;
 
+    private $debug_start_time;
+
 
     /**
      * @brief Constructs a new BaseApiRequest instance
@@ -43,6 +45,7 @@ abstract class BaseApiRequest
         $this->user_input = $services->get_user_input();
         $this->keyword = $keyword;
         $this->response = new CmsApiResponse();
+        $this->debug_start_time = microtime(true);
     }
 
     /**
@@ -160,6 +163,12 @@ abstract class BaseApiRequest
     protected function send_response($data = null, int $status = 200, ?string $error = null)
     {
         $this->response = new CmsApiResponse($status, $data, $error);
+        $debug_start_time = $this->debug_start_time;
+        $router = $this->services->get_router();
+         // Add the logging callback
+         $this->response->addAfterSendCallback(callback: function() use ($router, $debug_start_time): void {
+            $router->log_user_activity($debug_start_time, true);
+        });
         $this->response->send();
     }
 

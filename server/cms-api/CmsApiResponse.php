@@ -27,6 +27,17 @@ interface CmsApiResponseInterface {
  * with status codes, messages, optional error information, and response data.
  */
 class CmsApiResponse implements CmsApiResponseInterface {
+    private array $afterSendCallbacks = [];
+    
+    /**
+     * Registers a callback to be executed after sending the response
+     * 
+     * @param callable $callback Function to execute after sending response
+     */
+    public function addAfterSendCallback(callable $callback): void {
+        $this->afterSendCallbacks[] = $callback;
+    }
+
     /**
      * Maps HTTP status codes to their corresponding messages
      * 
@@ -94,13 +105,19 @@ class CmsApiResponse implements CmsApiResponseInterface {
     /**
      * Sends the response as JSON
      * 
-     * Sets appropriate headers, HTTP status code, and outputs JSON-encoded response data.
-     * Terminates script execution after sending.
+     * Sets appropriate headers, HTTP status code, outputs JSON-encoded response data,
+     * executes registered callbacks, and terminates script execution.
      */
     public function send(): void {
-        header(header: 'Content-Type: application/json');
-        http_response_code(response_code: $this->status);
-        echo json_encode(value: $this->toArray());
+        header('Content-Type: application/json');
+        http_response_code($this->status);
+        echo json_encode($this->toArray());
+        
+        // Execute all registered callbacks before exit
+        foreach ($this->afterSendCallbacks as $callback) {
+            $callback();
+        }
+        
         exit;
     }
 } 

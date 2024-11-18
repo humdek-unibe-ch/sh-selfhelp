@@ -140,9 +140,9 @@ class Selfhelp
     // custom page creation functions
     private function create_cms_api_request_page($services, $class_name, $method_name, $keyword = null)
     {
-        $class_name = ucfirst($class_name) . 'CmsApi';
+        $class_name = ucfirst(string: $class_name) . 'CmsApi';
         $method_name = $_SERVER['REQUEST_METHOD'] . '_' . $method_name;
-        $cmsApi = new CmsApiRequest($services, $class_name, $method_name, $keyword);
+        $cmsApi = new CmsApiRequest(services: $services, class_name: $class_name, method_name: $method_name, keyword: $keyword);
         $cmsApi->return_response();
     }
 
