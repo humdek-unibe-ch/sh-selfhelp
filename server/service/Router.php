@@ -243,19 +243,21 @@ class Router extends AltoRouter {
      */
     public function log_user_activity($debug_start_time, $mobile = false){
         $sql = "SELECT * FROM pages WHERE id_type = :id AND keyword = :key";
+        $inserted_id = null;
+        
         if ($this->db->query_db_first(
             $sql,
             array(":id" => EXPERIMENT_PAGE_ID, ":key" => $this->route['name'])
         )) {
             //if transaction logs work as expected this should be removed
-            $this->db->insert("user_activity", array(
+            $inserted_id = $this->db->insert("user_activity", array(
                 "id_users" => $_SESSION['id_user'],
                 "url" => $_SERVER['REQUEST_URI'],
                 "exec_time" => (microtime(true) - $debug_start_time),
                 "mobile" => (int)$mobile
             ));
         } else {
-            $this->db->insert("user_activity", array(
+            $inserted_id = $this->db->insert("user_activity", array(
                 "id_users" => $_SESSION['id_user'],
                 "url" => $_SERVER['REQUEST_URI'],
                 "id_type" => 2,
@@ -265,6 +267,8 @@ class Router extends AltoRouter {
                 "mobile" => (int)$mobile
             ));
         }
+        
+        return $inserted_id;
     }
 
     /**

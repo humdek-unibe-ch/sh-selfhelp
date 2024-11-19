@@ -87,6 +87,8 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     protected $interpolation_data;
 
+    protected $condition;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -106,12 +108,21 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record=array())
     {
-        parent::__construct($services);
+        parent::__construct($services);        
         $this->section_id = $id;
         $this->params = $params;
         $this->id_page = $id_page; 
         $this->entry_record = $entry_record;
-        $this->style_name = $this->get_style_name_by_section_id($id);        
+        $this->style_name = $this->get_style_name_by_section_id($id);   
+        if (DEBUG) {
+            PerformanceLogger::startTimer(
+                'style',
+                $this->style_name,
+                [
+                    'section_id' => $id
+                ]
+            );
+        }     
         if(isset($params['parent_id'])){
             $this->parent_id = $params['parent_id'];
         }
@@ -138,7 +149,17 @@ class StyleModel extends BaseModel implements IStyleModel
         if (($this->is_cms_page() || $this->condition_result['result'])) {
             $this->loadChildren($this->entry_record);
         }
-                
+        if (DEBUG && $this->style_name) {
+            PerformanceLogger::endTimer(
+                'style',
+                $this->style_name,
+                [
+                    'section_id' => $this->section_id,
+                    'has_condition' => $this->condition != '',
+                    'has_children' => !empty($this->children)
+                ]
+            );
+        }       
     }
 
     /* Private Methods ********************************************************/    
@@ -447,13 +468,13 @@ class StyleModel extends BaseModel implements IStyleModel
      * @return array The computed condition result.
      */
     public function calc_condition(){
-        $condition = $this->get_db_field('condition', '');
-        if ($condition != '') {
+        $this->condition = $this->get_db_field('condition', '');
+        if ($this->condition != '') {
             if ($this->entry_record) {
-                $condition = $this->get_entry_values($condition);
+                $this->condition = $this->get_entry_values($this->condition);
             }
         }        
-        $this->condition_result = $this->services->get_condition()->compute_condition($condition, null, $this->get_db_field('id'));
+        $this->condition_result = $this->services->get_condition()->compute_condition($this->condition, null, $this->get_db_field('id'));
         return $this->condition_result;
     }    
 

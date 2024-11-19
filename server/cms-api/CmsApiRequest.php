@@ -29,21 +29,22 @@ function recursiveFileSearch($directory, $file_name)
  * parameter collection, method validation, and response handling.
  */
 require_once __DIR__ . "/CmsApiResponse.php";
+require_once __DIR__ . "/../service/PerformanceLogger.php";
 
 class CmsApiRequest
 {
     /** @var object Services container instance */
     private $services;
-    
+
     /** @var string Name of the API class to be called */
     private $class_name;
-    
+
     /** @var string Name of the method to be executed */
     private $method_name;
-    
+
     /** @var string Optional keyword parameter */
     private $keyword;
-    
+
     /** @var array Collection of request parameters */
     private $params;
 
@@ -124,7 +125,7 @@ class CmsApiRequest
     {
         $debug_start_time = microtime(true);
         $router = $this->services->get_router();
-        
+
         try {
             if (!class_exists($this->class_name)) {
                 $response = new CmsApiResponse(
@@ -170,17 +171,29 @@ class CmsApiRequest
                     }
                 }
             }
-            
-            // Add the logging callback
-            $response->addAfterSendCallback(callback: function() use ($router, $debug_start_time): void {
-                $router->log_user_activity($debug_start_time, true);
+
+            // Add the logging callback with performance metrics
+            $response->addAfterSendCallback(function () use ($router, $debug_start_time): void {
+
+                $user_activity_id = $router->log_user_activity($debug_start_time, true);
+
+                if (DEBUG) {
+                    // Collect all style metrics                
+                    $styleMetrics = PerformanceLogger::getAllStyleMetrics();
+                    $this->services->get_db()->insert(
+                        table: 'log_performance',
+                        entries: array(
+                            "log" => json_encode($styleMetrics),
+                            "id_user_activity" => $user_activity_id
+                        )
+                    );
+                }
             });
-            
+
             $response->send();
-            
         } catch (Exception $e) {
             $response = new CmsApiResponse(500, null, $e->getMessage());
-            $response->addAfterSendCallback(callback: function() use ($router, $debug_start_time): void {
+            $response->addAfterSendCallback(callback: function () use ($router, $debug_start_time): void {
                 $router->log_user_activity($debug_start_time, true);
             });
             $response->send();

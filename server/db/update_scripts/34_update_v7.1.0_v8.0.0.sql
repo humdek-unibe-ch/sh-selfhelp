@@ -67,4 +67,9 @@ END
 
 DELIMITER ;
 
-
+CREATE TABLE IF NOT EXISTS `log_performance` (
+  `id_user_activity` int(10) UNSIGNED NOT NULL,
+  `log` LONGTEXT,
+  PRIMARY KEY (`id_user_activity`),
+  FOREIGN KEY (`id_user_activity`) REFERENCES `user_activity`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

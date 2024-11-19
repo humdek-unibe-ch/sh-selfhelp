@@ -2,6 +2,7 @@
 ### New Feature
  - make `home` page open access
  - add `cms-api` for Angular frontend
+ - add performance logger. When enabled it logs the execution time for each style and the conditions and children count.
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
