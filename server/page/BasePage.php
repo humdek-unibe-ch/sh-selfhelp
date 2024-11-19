@@ -600,9 +600,9 @@ abstract class BasePage
     {
         $res = [];
         $login= $this->services->get_login();
-        if($this->render_nav){ 
-            $res['navigation'] = $this->output_component_mobile("nav");
-        }
+        // if($this->render_nav){ 
+        //     $res['navigation'] = $this->output_component_mobile("nav");
+        // }
         if($this->acl_pass)
             $res['content'] = $this->output_content_mobile();
         else if($login->is_logged_in())

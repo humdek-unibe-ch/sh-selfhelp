@@ -116,7 +116,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->style_name = $this->get_style_name_by_section_id($id);   
         if (DEBUG) {
             PerformanceLogger::startTimer(
-                'style',
+                'style-model',
                 $this->style_name,
                 [
                     'section_id' => $id
@@ -151,7 +151,7 @@ class StyleModel extends BaseModel implements IStyleModel
         }
         if (DEBUG && $this->style_name) {
             PerformanceLogger::endTimer(
-                'style',
+                'style-model',
                 $this->style_name,
                 [
                     'section_id' => $this->section_id,
@@ -838,6 +838,10 @@ class StyleModel extends BaseModel implements IStyleModel
     public function set_entry_record($entry_record)
     {
         $this->entry_record = $entry_record;
+    }
+
+    public function get_section_id() {
+        return $this->section_id;
     }
     
 }

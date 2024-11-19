@@ -62,6 +62,14 @@ abstract class StyleView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->style_name = $model->get_style_name();
+        // Start timing the view creation
+        PerformanceLogger::startTimer(
+            'style-view',
+            $this->model->get_style_name(),
+            [
+                'section_id' => $this->model->get_section_id()
+            ]
+        );
         $this->children = array();
         if($model != null)
         {
@@ -80,7 +88,7 @@ abstract class StyleView extends BaseView
                         $this->css .= " highlight";
                 }
             }
-        }
+        }                
     }
 
     /* Protected Methods ******************************************************/
@@ -178,6 +186,13 @@ abstract class StyleView extends BaseView
         if($fail_msgs){
             $style['fail_msgs']  = $fail_msgs;
         }
+        PerformanceLogger::endTimer(
+            'style-view',
+            $this->model->get_style_name(),
+            [
+                'section_id' => $this->model->get_section_id(),   
+            ]
+        );
         return $style;
     }
 
