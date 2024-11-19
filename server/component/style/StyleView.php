@@ -67,7 +67,9 @@ abstract class StyleView extends BaseView
             'style-view',
             $this->model->get_style_name(),
             [
-                'section_id' => $this->model->get_section_id()
+                'section_id' => method_exists($this->model, 'get_section_id') 
+                    ? $this->model->get_section_id() 
+                    : 'NA'
             ]
         );
         $this->children = array();
@@ -190,7 +192,11 @@ abstract class StyleView extends BaseView
             'style-view',
             $this->model->get_style_name(),
             [
-                'section_id' => $this->model->get_section_id(),   
+                'section_id' => method_exists($this->model, 'get_section_id') 
+                    ? $this->model->get_section_id() 
+                    : 'NA',
+                'has_condition' => !empty($this->model->condition),
+                'has_children' => !empty($this->model->children)
             ]
         );
         return $style;
