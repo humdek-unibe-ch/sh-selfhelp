@@ -29,7 +29,7 @@ function recursiveFileSearch($directory, $file_name)
  * parameter collection, method validation, and response handling.
  */
 require_once __DIR__ . "/CmsApiResponse.php";
-require_once __DIR__ . "/../service/PerformanceLogger.php";
+require_once __DIR__ . "/../../service/PerformanceLogger.php";
 
 class CmsApiRequest
 {

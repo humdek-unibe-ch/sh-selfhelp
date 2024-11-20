@@ -14,7 +14,7 @@ require_once "./server/page/SectionPage.php";
 require_once "./server/page/ComponentPage.php";
 require_once "./server/ajax/AjaxRequest.php";
 require_once "./server/callback/CallbackRequest.php";
-require_once "./server/cms-api/CmsApiRequest.php";
+require_once "./server/cms-api/v1/CmsApiRequest.php";
 
 function create_exportData_page($services, $selector, $option = null, $id = null)
 {
