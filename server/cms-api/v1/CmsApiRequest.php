@@ -45,6 +45,9 @@ class CmsApiRequest
     /** @var string Optional keyword parameter */
     private $keyword;
 
+    /** @var string Client type (web/app) making the request */
+    private $client_type;
+
     /** @var array Collection of request parameters */
     private $params;
 
@@ -62,7 +65,36 @@ class CmsApiRequest
         $this->class_name = $class_name;
         $this->method_name = $method_name;
         $this->keyword = $keyword;
+        $this->client_type = $this->determineClientType();
         $this->params = $this->collectParameters();
+    }
+
+    /**
+     * @brief Determines the type of client making the request
+     * 
+     * @return string 'app' for mobile app requests, 'web' for web frontend requests
+     */
+    private function determineClientType(): string
+    {
+        // Check for custom header first
+        $clientHeader = $_SERVER['HTTP_X_CLIENT_TYPE'] ?? '';
+        if ($clientHeader) {
+            return strtolower($clientHeader) === 'app' ? 'app' : 'web';
+        }
+
+        // Fallback to User-Agent check
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        return (strpos($userAgent, 'SelfHelpApp/') !== false) ? 'app' : 'web';
+    }
+
+    /**
+     * @brief Get the client type making the request
+     * 
+     * @return string 'app' or 'web'
+     */
+    public function getClientType(): string
+    {
+        return $this->client_type;
     }
 
     /**

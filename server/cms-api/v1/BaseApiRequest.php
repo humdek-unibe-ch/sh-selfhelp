@@ -6,10 +6,11 @@
 <?php
 
 /**
- * @brief Base class for handling API requests in the CMS
+ * @class BaseApiRequest
+ * @brief Base class for all API request handlers
  * 
- * This abstract class provides core functionality for processing API requests,
- * including authorization, response handling, and access control.
+ * This class provides common functionality and properties for all API requests,
+ * including client type detection and service access.
  */
 abstract class BaseApiRequest
 {
@@ -27,12 +28,11 @@ abstract class BaseApiRequest
 
     private $debug_start_time;
 
-
     /**
-     * @brief Constructs a new BaseApiRequest instance
+     * @brief Constructor for BaseApiRequest
      * 
-     * @param object $services Service container with core dependencies
-     * @param string $keyword Page keyword identifier
+     * @param object $services The service handler instance
+     * @param string $keyword Keyword parameter for the API request
      */
     public function __construct($services, $keyword)
     {
@@ -46,6 +46,37 @@ abstract class BaseApiRequest
         $this->keyword = $keyword;
         $this->response = new CmsApiResponse();
         $this->debug_start_time = microtime(true);
+    }
+
+    /**
+     * @brief Get the client type making the request
+     * 
+     * @return string 'app' or 'web'
+     */
+    protected function getClientType(): string
+    {
+        global $request;
+        return $request->getClientType();
+    }
+
+    /**
+     * @brief Check if request is from mobile app
+     * 
+     * @return bool true if request is from mobile app
+     */
+    protected function isAppRequest(): bool
+    {
+        return $this->getClientType() === 'app';
+    }
+
+    /**
+     * @brief Check if request is from web frontend
+     * 
+     * @return bool true if request is from web frontend
+     */
+    protected function isWebRequest(): bool
+    {
+        return $this->getClientType() === 'web';
     }
 
     /**
