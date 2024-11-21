@@ -81,8 +81,8 @@ class AuthCmsApi extends BaseApiRequest
         // Prepare response data
         if ($success) {
             $responseData = [
-                'target_url' => $this->login->get_last_url(),
-                'user_id' => $this->login->get_user_id()
+                'target_url' => $_SESSION['target_url'],
+                'user_id' => $_SESSION['id_user']
             ];
             $this->success_response($responseData);
         } else {
