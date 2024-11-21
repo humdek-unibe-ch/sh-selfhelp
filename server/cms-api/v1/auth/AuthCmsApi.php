@@ -36,13 +36,12 @@ class AuthCmsApi extends BaseApiRequest
      * 
      * @param string $password The password string entered by the user
      * @param string $user The username or email address entered by the user
-     * @return CmsApiResponse Response object containing login result
      */
-    public function POST_login($password, $user): CmsApiResponse
+    public function POST_login($password, $user): void
     {
-
         if (!$password || !$user) {
-            return new CmsApiResponse(status: 400, data: null, error: "Required credentials are missing");
+            $this->error_response("Required credentials are missing", 400);
+            return;
         }
 
         // Check if user is already logged in
@@ -51,7 +50,8 @@ class AuthCmsApi extends BaseApiRequest
         }
 
         if (!$password) {
-            return new CmsApiResponse(status: 400, data: null, error: "Password is required");
+            $this->error_response("Password is required", 400);
+            return;
         }
 
         $success = false;
@@ -59,9 +59,9 @@ class AuthCmsApi extends BaseApiRequest
 
         // Handle anonymous users login (username-based)
         if ($this->db->is_anonymous_users()) {
-
             if (!$user) {
-                return new CmsApiResponse(status: 400, data: null, error: "Username is required");
+                $this->error_response("Username is required", 400);
+                return;
             }
 
             $success = $this->login->check_credentials_user_name($user, $password);
@@ -69,9 +69,9 @@ class AuthCmsApi extends BaseApiRequest
         }
         // Handle regular login (email-based)
         else {
-
             if (!$user) {
-                return new CmsApiResponse(status: 400, data: null, error: "Email is required");
+                $this->error_response("Email is required", 400);
+                return;
             }
 
             $success = $this->login->check_credentials($user, $password);
@@ -79,19 +79,15 @@ class AuthCmsApi extends BaseApiRequest
         }
 
         // Prepare response data
-        $responseData = null;
         if ($success) {
             $responseData = [
                 'target_url' => $this->login->get_last_url(),
                 'user_id' => $this->login->get_user_id()
             ];
+            $this->success_response($responseData);
+        } else {
+            $this->error_response($message, 401);
         }
-
-        return new CmsApiResponse(
-            status: $success ? 200 : 401,
-            data: $responseData,
-            error: $message
-        );
     }
 }
 ?>

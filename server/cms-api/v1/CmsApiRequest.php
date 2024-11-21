@@ -3,6 +3,7 @@ require_once __DIR__ . "/CmsApiResponse.php";
 require_once __DIR__ . "/../../service/PerformanceLogger.php";
 require_once __DIR__ . "/content/ContentCmsApi.php";
 require_once __DIR__ . "/admin/AdminCmsApi.php";
+require_once __DIR__ . "/auth/AuthCmsApi.php";
 
 /**
  * @brief Class defining the basic functionality of a CMS API request.
@@ -27,9 +28,6 @@ class CmsApiRequest
     /** @var string Client type (web/app) making the request */
     private $client_type;
 
-    /** @var array Collection of request parameters */
-    private $params;
-
     /**
      * @brief Constructs a new CMS API request instance
      * 
@@ -45,7 +43,6 @@ class CmsApiRequest
         $this->method_name = $method_name;
         $this->keyword = $keyword;
         $this->client_type = $this->determineClientType();
-        $this->params = $this->collectParameters();
     }
 
     /**
@@ -77,50 +74,84 @@ class CmsApiRequest
     }
 
     /**
-     * @brief Collects and processes request parameters from various sources
+     * Prepare and validate method parameters
      * 
-     * Gathers parameters from:
-     * - Route parameters
-     * - POST data
-     * - GET data
-     * - JSON or URL-encoded request body
-     * 
-     * @return array Processed request parameters
+     * @param ReflectionMethod $reflection Method reflection
+     * @return array Method parameters
      */
-    private function collectParameters(): array
+    private function prepareMethodParameters(\ReflectionMethod $reflection): array 
     {
-        // Collect route parameters
+        // Get all available parameters from different sources
         $params = [...$this->services->get_router()->route['params']];
-        unset($params['class'], $params['method']);
+        unset($params['class'], $params['method']); // Remove routing parameters
 
-        // Add POST and GET parameters
+        // Collect POST data
         if (!empty($_POST)) {
-            $params['data'] = $_POST;
+            $params = array_merge($params, $_POST);
         }
+
+        // Collect GET data
         if (!empty($_GET)) {
-            $params = array_merge($_GET, $params);
+            $params = array_merge($params, $_GET);
         }
 
-        // Parse JSON or URL-encoded input body
-        $inputData = file_get_contents(filename: 'php://input');
-        parse_str(string: $inputData, result: $jsonData);
+        // Collect JSON/Raw input data
+        $inputData = file_get_contents('php://input');
+        if (!empty($inputData)) {
+            // Try parsing as URL-encoded data first
+            parse_str($inputData, $parsedData);
+            
+            // If not URL-encoded, try JSON
+            if (empty($parsedData)) {
+                $parsedData = json_decode($inputData, true);
+            }
 
-        if (!$jsonData || !is_array(value: $jsonData)) {
-            $jsonData = json_decode(json: $inputData, associative: true);
-        }
-
-        if ($jsonData !== null && json_last_error() === JSON_ERROR_NONE && count(value: $jsonData) > 0) {
-            $params['data'] = $jsonData;
-        }
-
-        // Decode URL-encoded parameters
-        foreach ($params as $key => $value) {
-            if (!is_array(value: $value)) {
-                $params[$key] = urldecode(string: $value);
+            if (!empty($parsedData) && is_array($parsedData)) {
+                $params = array_merge($params, $parsedData);
             }
         }
 
-        return $params;
+        // URL decode non-array values
+        array_walk($params, function(&$value) {
+            if (!is_array($value)) {
+                $value = urldecode($value);
+            }
+        });
+
+        // Get method's required parameters
+        $methodParams = $reflection->getParameters();
+        $requiredParams = [];
+        $optionalParams = [];
+        
+        // Separate required and optional parameters
+        foreach ($methodParams as $param) {
+            if ($param->isOptional()) {
+                $optionalParams[$param->getName()] = $param->getDefaultValue();
+            } else {
+                $requiredParams[] = $param->getName();
+            }
+        }
+
+        // Check for missing required parameters
+        $missingParams = array_diff($requiredParams, array_keys($params));
+        if (!empty($missingParams)) {
+            throw new \InvalidArgumentException(
+                "Missing required parameters: " . implode(', ', $missingParams)
+            );
+        }
+
+        // Build final parameter array in correct order
+        $finalParams = [];
+        foreach ($methodParams as $param) {
+            $paramName = $param->getName();
+            if (isset($params[$paramName])) {
+                $finalParams[] = $params[$paramName];
+            } elseif ($param->isOptional()) {
+                $finalParams[] = $param->getDefaultValue();
+            }
+        }
+
+        return $finalParams;
     }
 
     /**
@@ -156,28 +187,32 @@ class CmsApiRequest
                         "Request '{$this->class_name}' has no method '{$this->method_name}'"
                     );
                 } else {
-                    $reflection = new ReflectionMethod(objectOrMethod: $instance, method: $this->method_name);
+                    // Get reflection of the target class
+                    $reflection = new \ReflectionMethod(
+                        $this->class_name,
+                        $this->method_name
+                    );
+
                     if (!$reflection->isPublic()) {
                         $response = new CmsApiResponse(
-                            403,
+                            400,
                             null,
                             "Request '{$this->class_name}' method '{$this->method_name}' is not public"
                         );
                     } else {
-                        // Prepare parameters for method call
-                        $methodParameters = $this->prepareMethodParameters(reflection: $reflection);
-
-                        // Execute the method
-                        $result = call_user_func_array([$instance, $this->method_name], $methodParameters);
+                        // Get method parameters and execute
+                        $methodParameters = $this->prepareMethodParameters($reflection);
+                        $result = call_user_func_array(
+                            [$instance, $this->method_name],
+                            $methodParameters
+                        );
 
                         if ($result === null) {
-                            $response = new CmsApiResponse(
-                                400,
-                                null,
-                                'Method execution failed'
-                            );
+                            // If no response set, get it from the instance
+                            $response = $instance->get_response();
                         } else {
-                            $response = new CmsApiResponse(200, $result);
+                            // If method returned a response, use it
+                            $response = new CmsApiResponse(status: 200, data: $result);
                         }
                     }
                 }
@@ -201,7 +236,11 @@ class CmsApiRequest
                 }
             });
 
-            $response->send();
+            if ($response instanceof CmsApiResponse) {
+                $response->send();
+            } else {
+                (new CmsApiResponse(200, $response))->send();
+            }
         } catch (Exception $e) {
             $response = new CmsApiResponse(500, null, $e->getMessage());
             $response->addAfterSendCallback(callback: function () use ($router, $debug_start_time): void {
@@ -209,25 +248,5 @@ class CmsApiRequest
             });
             $response->send();
         }
-    }
-
-    /**
-     * @brief Prepares parameters for method execution
-     * 
-     * Maps request parameters to method parameters based on reflection data,
-     * handling optional parameters and default values.
-     * 
-     * @param ReflectionMethod $reflection Method reflection instance
-     * @return array Array of prepared parameters for method execution
-     */
-    private function prepareMethodParameters(ReflectionMethod $reflection): array
-    {
-        $methodParameters = [];
-        foreach ($reflection->getParameters() as $param) {
-            $paramName = $param->getName();
-            $methodParameters[] = $this->params[$paramName] ??
-                ($param->isOptional() ? $param->getDefaultValue() : null);
-        }
-        return $methodParameters;
     }
 }
