@@ -5,10 +5,7 @@
 ?>
 <?php
 
-use Swaggest\JsonSchema\Schema;
-
 require_once __DIR__ . "/../../BaseApiRequest.php";
-require_once __DIR__ . "/../../../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
 
 /**
  * @class NavigationApi
@@ -58,15 +55,6 @@ class NavigationApi extends BaseApiRequest
         $pages = array_values(array: array_filter(array: $all_pages, callback: function ($item) use ($remove_type_id): bool {
             return $item['id_pageAccessTypes'] != $remove_type_id;
         }));
-        // try {
-        //     $schemaObject = Schema::import(
-        //         data: json_decode(file_get_contents(__DIR__ . '/../../../schemas/cms-api/navigation/pages.json')),
-        //     )->in(
-        //          json_decode(json_encode($pages)),
-        //     );
-        // } catch (Exception $e) {
-        //     return 'Error: ' .  $e->getMessage();
-        // }
         return $pages;
     }
 }

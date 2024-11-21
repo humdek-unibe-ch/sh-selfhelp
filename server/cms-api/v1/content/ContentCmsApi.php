@@ -5,12 +5,9 @@
 ?>
 <?php
 
-use Swaggest\JsonSchema\Schema;
-
 require_once __DIR__ . "/../BaseApiRequest.php";
 require_once __DIR__ . "/pages/PagesApi.php";
 require_once __DIR__ . "/navigation/NavigationApi.php";
-require_once __DIR__ . "/../../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
 
 /**
  * @file ContentCmsApi.php
