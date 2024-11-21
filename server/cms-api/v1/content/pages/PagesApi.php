@@ -7,18 +7,18 @@
 
 use Swaggest\JsonSchema\Schema;
 
-require_once __DIR__ . "/../BaseApiRequest.php";
-require_once __DIR__ . "/../../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
+require_once __DIR__ . "/../../BaseApiRequest.php";
+require_once __DIR__ . "/../../../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
 
 /**
- * @class WebPageCmsApi
+ * @class PageCmsApi
  * @brief API handler for web page CMS operations
  * @extends BaseApiRequest
  * 
  * This class handles AJAX calls related to web page content management operations.
  * It provides endpoints for retrieving and managing web page content through the CMS.
  */
-class WebPageCmsApi extends BaseApiRequest
+class PagesApi extends BaseApiRequest
 {
     /**
      * @brief Constructor for WebPageCmsApi

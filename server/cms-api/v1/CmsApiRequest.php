@@ -1,26 +1,8 @@
 <?php
-spl_autoload_register(callback: function ($class_name) {
-    if (substr(string: $class_name, offset: -6) === "CmsApi") {
-        $file_name = $class_name . ".php";
-        $directory = __DIR__;
-        $file_path = recursiveFileSearch($directory, $file_name);
-
-        if ($file_path) {
-            require_once $file_path;
-        }
-    }
-});
-
-function recursiveFileSearch($directory, $file_name)
-{
-    $iterator = new RecursiveIteratorIterator(iterator: new RecursiveDirectoryIterator(directory: $directory));
-    foreach ($iterator as $file) {
-        if ($file->isFile() && $file->getFilename() === $file_name) {
-            return $file->getPathname();
-        }
-    }
-    return false;
-}
+require_once __DIR__ . "/CmsApiResponse.php";
+require_once __DIR__ . "/../../service/PerformanceLogger.php";
+require_once __DIR__ . "/content/ContentCmsApi.php";
+require_once __DIR__ . "/admin/AdminCmsApi.php";
 
 /**
  * @brief Class defining the basic functionality of a CMS API request.
@@ -28,9 +10,6 @@ function recursiveFileSearch($directory, $file_name)
  * This class handles the routing and execution of CMS API requests, including
  * parameter collection, method validation, and response handling.
  */
-require_once __DIR__ . "/CmsApiResponse.php";
-require_once __DIR__ . "/../../service/PerformanceLogger.php";
-
 class CmsApiRequest
 {
     /** @var object Services container instance */
@@ -79,12 +58,12 @@ class CmsApiRequest
         // Check for custom header first
         $clientHeader = $_SERVER['HTTP_X_CLIENT_TYPE'] ?? '';
         if ($clientHeader) {
-            return strtolower($clientHeader) === 'app' ? 'app' : 'web';
+            return strtolower($clientHeader) === pageAccessTypes_mobile ? pageAccessTypes_mobile : pageAccessTypes_web;
         }
 
         // Fallback to User-Agent check
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        return (strpos($userAgent, 'SelfHelpApp/') !== false) ? 'app' : 'web';
+        return (strpos($userAgent, 'SelfHelpApp/') !== false) ? pageAccessTypes_mobile : pageAccessTypes_web;
     }
 
     /**
@@ -166,7 +145,7 @@ class CmsApiRequest
                     "Unknown request class '{$this->class_name}'"
                 );
             } else {
-                $instance = new $this->class_name($this->services, $this->keyword);
+                $instance = new $this->class_name($this->services, $this->keyword, $this->client_type);
                 $instance->authorizeUser();
                 // $instance->init_response($response);
 

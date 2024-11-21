@@ -7,21 +7,21 @@
 
 use Swaggest\JsonSchema\Schema;
 
-require_once __DIR__ . "/../BaseApiRequest.php";
-require_once __DIR__ . "/../../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
+require_once __DIR__ . "/../../BaseApiRequest.php";
+require_once __DIR__ . "/../../../../service/ext/swaggest_json_schema_0.12.39.0_require/vendor/autoload.php";
 
 /**
- * @class NavCmsApi
+ * @class NavigationApi
  * @brief API class for handling navigation-related CMS operations
  * @extends BaseApiRequest
  * 
  * This class provides functionality for handling AJAX calls related to
  * navigation and page management in the CMS system.
  */
-class NavCmsApi extends BaseApiRequest
+class NavigationApi extends BaseApiRequest
 {
     /**
-     * @brief Constructor for NavCmsApi class
+     * @brief Constructor for NavigationApi class
      * 
      * @param object $services The service handler instance which holds all services
      * @param string $keyword Keyword parameter for the API request
@@ -47,7 +47,7 @@ class NavCmsApi extends BaseApiRequest
      * 
      * @note Currently includes commented-out schema validation code
      */
-    public function GET_pages($mode)
+    public function GET_all_routes($mode)
     {
         $sql = "CALL get_user_acl(:uid, -1)";
         $params = array(':uid' => $_SESSION['id_user']);

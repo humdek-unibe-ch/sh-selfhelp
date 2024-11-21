@@ -28,13 +28,15 @@ abstract class BaseApiRequest
 
     private $debug_start_time;
 
+    protected $client_type;
+
     /**
      * @brief Constructor for BaseApiRequest
      * 
      * @param object $services The service handler instance
      * @param string $keyword Keyword parameter for the API request
      */
-    public function __construct($services, $keyword)
+    public function __construct($services, $keyword, $client_type = pageAccessTypes_web)
     {
         $this->services = $services;
         $this->router = $services->get_router();
@@ -46,18 +48,9 @@ abstract class BaseApiRequest
         $this->keyword = $keyword;
         $this->response = new CmsApiResponse();
         $this->debug_start_time = microtime(true);
+        $this->client_type = $client_type;
     }
 
-    /**
-     * @brief Get the client type making the request
-     * 
-     * @return string 'app' or 'web'
-     */
-    protected function getClientType(): string
-    {
-        global $request;
-        return $request->getClientType();
-    }
 
     /**
      * @brief Check if request is from mobile app
@@ -66,7 +59,7 @@ abstract class BaseApiRequest
      */
     protected function isAppRequest(): bool
     {
-        return $this->getClientType() === 'app';
+        return $this->client_type === pageAccessTypes_mobile;
     }
 
     /**
@@ -76,7 +69,7 @@ abstract class BaseApiRequest
      */
     protected function isWebRequest(): bool
     {
-        return $this->getClientType() === 'web';
+        return $this->client_type === pageAccessTypes_web;
     }
 
     /**
@@ -196,8 +189,8 @@ abstract class BaseApiRequest
         $this->response = new CmsApiResponse($status, $data, $error);
         $debug_start_time = $this->debug_start_time;
         $router = $this->services->get_router();
-         // Add the logging callback
-         $this->response->addAfterSendCallback(callback: function() use ($router, $debug_start_time): void {
+        // Add the logging callback
+        $this->response->addAfterSendCallback(callback: function () use ($router, $debug_start_time): void {
             $router->log_user_activity($debug_start_time, true);
         });
         $this->response->send();
