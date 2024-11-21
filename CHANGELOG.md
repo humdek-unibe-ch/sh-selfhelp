@@ -4,6 +4,7 @@
  - add `cms-api` for Angular frontend
  - add performance logger. When enabled it logs the execution time for each style and the conditions and children count. 
  - add support for CMS api versioning. Use v1 for the current version
+ - add `is_open_access` field to `pages`
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller

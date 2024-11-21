@@ -20,10 +20,7 @@ BEGIN
     UNION 
     
     SELECT acl.id_users, acl.id_pages, 
-	CASE
-		WHEN p.id_type = 4 then 1 -- the page is open all grousp should has access for select
-		ELSE acl.acl_select
-	END AS acl_select, 
+	acl. acl_select, 
 	acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword,
 	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
 	p.id_type, p.id_pageAccessTypes
@@ -31,7 +28,18 @@ BEGIN
 	INNER JOIN pages p ON (acl.id_pages = p.id)
     WHERE acl.id_users = param_user_id AND acl.id_pages = (CASE WHEN param_page_id = -1 THEN acl.id_pages ELSE param_page_id END)
 	GROUP BY acl.id_users, acl.id_pages, acl.acl_select, acl.acl_insert, acl.acl_update, acl.acl_delete, p.keyword, p.url, 
-	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type;
+	p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position, p.id_type
+    
+    UNION 
+    
+    -- add open access pages
+    SELECT param_user_id, p.id AS id_pages, 
+	1 AS acl_select, 
+	0 AS acl_insert, 0 AS acl_update, 0 AS acl_delete, p.keyword,
+	p.url, p.protocol, p.id_actions, p.id_navigation_section, p.parent, p.is_headless, p.nav_position,p.footer_position,
+	p.id_type, p.id_pageAccessTypes
+	FROM pages p
+    WHERE p.is_open_access = 1;
     
 END
 //

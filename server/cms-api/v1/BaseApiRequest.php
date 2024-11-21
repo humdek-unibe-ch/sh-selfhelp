@@ -45,6 +45,7 @@ abstract class BaseApiRequest
         $this->nav = $services->get_nav();
         $this->parsedown = $services->get_parsedown();
         $this->user_input = $services->get_user_input();
+        $this->login = $services->get_login();
         $this->keyword = $keyword;
         $this->response = new CmsApiResponse();
         $this->debug_start_time = microtime(true);
