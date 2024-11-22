@@ -10,51 +10,36 @@
  */
 trait JWTAuthMiddleware
 {
-    /** @var array|null Current user's decoded JWT payload */
+    /** @var \stdClass|null Current user's decoded JWT payload */
     private $currentUser = null;
-
-    /** @var array|null User data extracted from JWT token */
-    private $userData = null;
 
     /**
      * @brief Authenticate the current API request
      * 
      * Validates the JWT token from the Authorization header if the page requires authentication.
-     * Skips authentication for open access pages.
+     * Only accepts access tokens for API authentication, as refresh tokens should only be used
+     * to obtain new access tokens through a dedicated refresh endpoint.
      * 
      * @throws Exception If token is missing or invalid for protected pages
      */
     private function authenticateRequest(): void
     {
-
-        // CREATE EXTENDED DB THAT WILL BE FOR API AND SHOULD USE CACHE. LIKE NOW CHECKING IF THE PAGE IS OPEN ACCES AND IT SHOULD BE ADDED TO TYPES PAGES WHICH SHOULD BE CLEARED ON PAGE CHANGES
-
-        // Check if the current page is open access
-        $page = $this->db->query_db_first(
-            "SELECT is_open_access FROM pages WHERE keyword = :keyword LIMIT 1",
-            [':keyword' => $this->keyword]
-        );
-
-        // If page is open access, skip authentication
-        if ($page && $page['is_open_access']) {
-            return;
-        }
-
         $token = $this->getBearerToken();
         if (!$token) {
             throw new Exception('No token provided');
         }
 
-        $jwtService = new JWTService($this->db);
-        $payload = $jwtService->validateToken($token);
+        $jwtService = new JWTService(db: $this->db);
+        $payload = $jwtService->validateToken(token: $token);
 
-        if (!$payload || $payload['type'] !== 'access') {
+        // Ensure only access tokens are used for API authentication
+        // Refresh tokens should only be used with the token refresh endpoint
+        if (!$payload || $payload->type !== 'access') {
             throw new Exception('Invalid token');
         }
 
         // Store user data from token
         $this->currentUser = $payload;
-        $this->userData = $payload['user_data'];
     }
 
     /**
@@ -82,7 +67,7 @@ trait JWTAuthMiddleware
      */
     protected function getUserId(): int
     {
-        return $this->userData['id_user'] ?? GUEST_USER_ID;
+        return $this->currentUser?->user_data?->id_user ?? GUEST_USER_ID;
     }
 
     /**
@@ -92,7 +77,7 @@ trait JWTAuthMiddleware
      */
     protected function getUserLanguage(): string
     {
-        return $this->userData['user_language'] ?? $this->db->get_default_language();
+        return $this->currentUser?->user_data?->user_language ?? $this->db->get_default_language();
     }
 
     /**
@@ -102,7 +87,7 @@ trait JWTAuthMiddleware
      */
     protected function getUserLanguageLocale(): string
     {
-        return $this->userData['user_language_locale'] ?? '';
+        return $this->currentUser?->user_data?->user_language_locale ?? '';
     }
 
     /**
@@ -113,5 +98,38 @@ trait JWTAuthMiddleware
     protected function isLoggedIn(): bool
     {
         return $this->getUserId() !== GUEST_USER_ID;
+    }
+
+    /**
+     * @brief Handle token refresh request
+     * 
+     * Validates a refresh token and generates a new access token if valid.
+     * This should be used in a dedicated refresh token endpoint.
+     * 
+     * @param string $refreshToken The refresh token to validate
+     * @return array Array containing new access token and refresh token
+     * @throws Exception If refresh token is invalid
+     */
+    protected function handleTokenRefresh(string $refreshToken): array
+    {
+        $jwtService = new JWTService(db: $this->db);
+        $payload = $jwtService->validateRefreshToken($refreshToken);
+
+        if (!$payload) {
+            throw new Exception('Invalid refresh token');
+        }
+
+        // Generate new tokens
+        $user = ['id' => $payload->sub] + (array)$payload->user_data;
+        $accessToken = $jwtService->generateAccessToken($user);
+        $newRefreshToken = $jwtService->generateRefreshToken($user);
+
+        // Revoke the old refresh token
+        $jwtService->revokeRefreshToken($refreshToken);
+
+        return [
+            'access_token' => $accessToken,
+            'refresh_token' => $newRefreshToken
+        ];
     }
 }

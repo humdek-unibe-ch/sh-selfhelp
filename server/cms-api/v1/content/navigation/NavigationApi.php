@@ -47,7 +47,7 @@ class NavigationApi extends BaseApiRequest
     public function GET_all_routes($mode)
     {
         $sql = "CALL get_user_acl(:uid, -1)";
-        $params = array(':uid' => $_SESSION['id_user']);
+        $params = array(':uid' => $this->getUserId());
         $all_pages = $this->db->query_db($sql, $params);
         // remove `web` or `mobile`
         $remove_type = $mode == pageAccessTypes_mobile ? pageAccessTypes_web : pageAccessTypes_mobile;
