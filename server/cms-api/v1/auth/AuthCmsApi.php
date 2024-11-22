@@ -20,7 +20,8 @@ require_once __DIR__ . "/../../../service/JWTService.php";
  * regular email-based and anonymous username-based authentication.
  * 
  * Endpoints:
- * - POST /login: Authenticates user credentials and returns JWT token
+ * - POST /login: Authenticates user credentials and returns JWT tokens
+ * - POST /refresh: Refreshes expired access token using refresh token
  */
 class AuthCmsApi extends BaseApiRequest
 {
@@ -45,15 +46,16 @@ class AuthCmsApi extends BaseApiRequest
     /**
      * @brief Handle user login request
      * 
-     * Authenticates user credentials and generates a JWT token upon successful login.
-     * Supports both email and username-based authentication based on system configuration.
+     * Authenticates user credentials and generates JWT tokens upon successful login.
+     * Returns both access token for immediate use and refresh token for obtaining
+     * new access tokens when they expire.
      * 
      * Request Parameters:
      * - user: Username or email address
      * - password: User's password
      * 
      * Response:
-     * - Success: JWT access token with user data
+     * - Success: JWT access and refresh tokens with user data
      * - Error: Authentication error message
      * 
      * @param string $user Username or email
@@ -62,22 +64,55 @@ class AuthCmsApi extends BaseApiRequest
      */
     public function POST_login($user, $password): void
     {
-
         $user = $this->login->validate_user($user, $password);
 
         if (!$user) {
             $this->error_response(error: 'Invalid credentials');
         }
 
-        // Generate access token with user data
-        $accessToken = $this->jwtService->generateAccessToken(user: $user);
+        // Generate access and refresh tokens
+        $accessToken = $this->jwtService->generateAccessToken(user_id: $user['id']);
+        $refreshToken = $this->jwtService->generateRefreshToken(user_id: $user['id']);
 
-        // Return successful response with token
+        // Return successful response with tokens
         $this->success_response([
             'access_token' => $accessToken,
+            'refresh_token' => $refreshToken,
             'expires_in' => 3600,
             'token_type' => 'Bearer'
         ]);
+    }
+
+    /**
+     * @brief Handle token refresh request
+     * 
+     * Validates a refresh token and generates a new access token.
+     * The refresh token remains valid and can be used for future refreshes
+     * until it expires.
+     * 
+     * Request Parameters:
+     * - refresh_token: Valid refresh token
+     * 
+     * Response:
+     * - Success: New access token
+     * - Error: Token validation error message
+     * 
+     * @param string $refresh_token Refresh token to validate
+     * @throws Exception If refresh token is invalid
+     */
+    public function POST_refresh_token($refresh_token): void
+    {
+        try {
+            $accessToken = $this->handleTokenRefresh($refresh_token);
+            
+            $this->success_response([
+                'access_token' => $accessToken,
+                'expires_in' => 3600,
+                'token_type' => 'Bearer'
+            ]);
+        } catch (Exception $e) {
+            $this->error_response(error: $e->getMessage());
+        }
     }
 }
 ?>

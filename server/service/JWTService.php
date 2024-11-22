@@ -46,16 +46,11 @@ class JWTService
      * @param array $user User data array containing id, gender, language preferences
      * @return string Encoded JWT access token
      */
-    public function generateAccessToken(array $user): string
+    public function generateAccessToken(int $user_id): string
     {
         $payload = [
-            'sub' => $user['id'],
+            'sub' => $user_id,
             'type' => 'access',
-            'user_data' => [
-                'id_user' => $user['id'],
-                'user_language' => $user['id_languages'] ?? $this->db->get_default_language(),
-                'user_language_locale' => $this->db->fetch_language($user['id_languages'] ?? $this->db->get_default_language())['locale']
-            ],
             'iat' => time(),
             'exp' => time() + $this->accessTokenExpiration
         ];
@@ -72,10 +67,10 @@ class JWTService
      * @param array $user User data array containing id
      * @return string Encoded JWT refresh token
      */
-    public function generateRefreshToken(array $user): string
+    public function generateRefreshToken(int $user_id): string
     {
         $payload = [
-            'sub' => $user['id'],
+            'sub' => $user_id,
             'type' => 'refresh',
             'iat' => time(),
             'exp' => time() + $this->refreshTokenExpiration
@@ -84,7 +79,7 @@ class JWTService
         $token = JWT::encode($payload, $this->jwtSecret, 'HS256');
 
         // Store refresh token in database
-        $this->storeRefreshToken($user['id'], $token);
+        $this->storeRefreshToken($user_id, $token);
 
         return $token;
     }
@@ -103,8 +98,8 @@ class JWTService
         $tokenHash = hash('sha256', $token);
         $expiresAt = date('Y-m-d H:i:s', time() + $this->refreshTokenExpiration);
 
-        $this->db->insert('refresh_tokens', [
-            'user_id' => $userId,
+        $this->db->insert('refreshTokens', [
+            'id_users' => $userId,
             'token_hash' => $tokenHash,
             'expires_at' => $expiresAt
         ]);
@@ -147,7 +142,7 @@ class JWTService
         // Verify token exists in database
         $tokenHash = hash('sha256', $token);
         $result = $this->db->query_db_first(
-            "SELECT * FROM refresh_tokens 
+            "SELECT * FROM refreshTokens 
              WHERE token_hash = :token_hash 
              AND expires_at > NOW()",
             [':token_hash' => $tokenHash]
@@ -167,7 +162,7 @@ class JWTService
     {
         $tokenHash = hash('sha256', $token);
         $this->db->execute_db(
-            "DELETE FROM refresh_tokens WHERE token_hash = :token_hash",
+            "DELETE FROM refreshTokens WHERE token_hash = :token_hash",
             [':token_hash' => $tokenHash]
         );
     }
@@ -182,7 +177,7 @@ class JWTService
     public function revokeAllUserTokens(int $userId): void
     {
         $this->db->execute_db(
-            "DELETE FROM refresh_tokens WHERE user_id = :user_id",
+            "DELETE FROM refreshTokens WHERE id_users = :user_id",
             [':user_id' => $userId]
         );
     }

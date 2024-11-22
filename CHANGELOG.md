@@ -6,6 +6,7 @@
  - add support for CMS api versioning. Use v1 for the current version
  - add `is_open_access` field to `pages`
  - add JWT auth for the `cms-api`
+ - add `refresh_token` functionality for JWT login for better security
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller

@@ -145,9 +145,9 @@ class CmsApiRequest
         foreach ($methodParams as $param) {
             $paramName = $param->getName();
             if (isset($params[$paramName])) {
-                $finalParams[] = $params[$paramName];
+                $finalParams[$paramName] = $params[$paramName];
             } elseif ($param->isOptional()) {
-                $finalParams[] = $param->getDefaultValue();
+                $finalParams[$paramName] = $param->getDefaultValue();
             }
         }
 

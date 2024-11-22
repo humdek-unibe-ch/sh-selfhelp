@@ -26,7 +26,7 @@ trait JWTAuthMiddleware
     {
         $token = $this->getBearerToken();
         if (!$token) {
-            throw new Exception('No token provided');
+            return;
         }
 
         $jwtService = new JWTService(db: $this->db);
@@ -107,10 +107,10 @@ trait JWTAuthMiddleware
      * This should be used in a dedicated refresh token endpoint.
      * 
      * @param string $refreshToken The refresh token to validate
-     * @return array Array containing new access token and refresh token
+     * @return string New access token
      * @throws Exception If refresh token is invalid
      */
-    protected function handleTokenRefresh(string $refreshToken): array
+    protected function handleTokenRefresh(string $refreshToken): string
     {
         $jwtService = new JWTService(db: $this->db);
         $payload = $jwtService->validateRefreshToken($refreshToken);
@@ -119,17 +119,7 @@ trait JWTAuthMiddleware
             throw new Exception('Invalid refresh token');
         }
 
-        // Generate new tokens
-        $user = ['id' => $payload->sub] + (array)$payload->user_data;
-        $accessToken = $jwtService->generateAccessToken($user);
-        $newRefreshToken = $jwtService->generateRefreshToken($user);
-
-        // Revoke the old refresh token
-        $jwtService->revokeRefreshToken($refreshToken);
-
-        return [
-            'access_token' => $accessToken,
-            'refresh_token' => $newRefreshToken
-        ];
+        // Generate new access token with fresh user data
+        return $jwtService->generateAccessToken(user_id: $payload['sub']);
     }
 }
