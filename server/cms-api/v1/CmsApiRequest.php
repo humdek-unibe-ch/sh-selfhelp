@@ -202,18 +202,11 @@ class CmsApiRequest
                     } else {
                         // Get method parameters and execute
                         $methodParameters = $this->prepareMethodParameters($reflection);
-                        $result = call_user_func_array(
+                        call_user_func_array(
                             [$instance, $this->method_name],
                             $methodParameters
                         );
-
-                        if ($result === null) {
-                            // If no response set, get it from the instance
-                            $response = $instance->get_response();
-                        } else {
-                            // If method returned a response, use it
-                            $response = new CmsApiResponse(status: 200, data: $result);
-                        }
+                        $instance->get_response()->send();  
                     }
                 }
             }

@@ -75,7 +75,7 @@ class AuthCmsApi extends BaseApiRequest
         $refreshToken = $this->jwtService->generateRefreshToken(user_id: $user['id']);
 
         // Return successful response with tokens
-        $this->success_response([
+        $this->response->set_data(data: [
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
             'expires_in' => 3600,
@@ -104,8 +104,8 @@ class AuthCmsApi extends BaseApiRequest
     {
         try {
             $accessToken = $this->handleTokenRefresh($refresh_token);
-            
-            $this->success_response([
+
+            $this->response->set_data(data: [
                 'access_token' => $accessToken,
                 'expires_in' => 3600,
                 'token_type' => 'Bearer'

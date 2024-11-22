@@ -22,10 +22,11 @@ trait JWTAuthMiddleware
      * 
      * @throws Exception If token is missing or invalid for protected pages
      */
-    private function authenticateRequest(): void
+    protected function authenticateRequest(): void
     {
         $token = $this->getBearerToken();
         if (!$token) {
+            $this->response->set_logged_in(false);
             return;
         }
 
@@ -35,11 +36,13 @@ trait JWTAuthMiddleware
         // Ensure only access tokens are used for API authentication
         // Refresh tokens should only be used with the token refresh endpoint
         if (!$payload || $payload->type !== 'access') {
-            throw new Exception('Invalid token');
+            $this->response->set_logged_in(false);
+            return;
         }
 
-        // Store user data from token
+        // Store user data from token and set logged_in status
         $this->currentUser = $payload;
+        $this->response->set_logged_in(true);
     }
 
     /**
@@ -67,27 +70,7 @@ trait JWTAuthMiddleware
      */
     protected function getUserId(): int
     {
-        return $this->currentUser?->user_data?->id_user ?? GUEST_USER_ID;
-    }
-
-    /**
-     * @brief Get the user's preferred language
-     * 
-     * @return string User's language ID or default language if not set
-     */
-    protected function getUserLanguage(): string
-    {
-        return $this->currentUser?->user_data?->user_language ?? $this->db->get_default_language();
-    }
-
-    /**
-     * @brief Get the user's language locale
-     * 
-     * @return string User's language locale or empty string if not set
-     */
-    protected function getUserLanguageLocale(): string
-    {
-        return $this->currentUser?->user_data?->user_language_locale ?? '';
+        return $this->currentUser?->sub ?? GUEST_USER_ID;
     }
 
     /**

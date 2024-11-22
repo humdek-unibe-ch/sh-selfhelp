@@ -49,15 +49,15 @@ class ContentCmsApi extends BaseApiRequest
      * will be formatted according to the client type (web/mobile).
      * 
      * @param string $keyword The unique identifier for the requested page
-     * @return array|null Array containing page content if found, null otherwise
+     * @return void
      * 
      * @example
      * $content = $api->GET_page('homepage');
      */
-    public function GET_page($keyword): array|null
+    public function GET_page($keyword): void
     {
         $pages = new PagesApi(services: $this->services, keyword: $this->keyword);
-        return $pages->GET_page(keyword: $keyword);
+        $this->response->set_data($pages->GET_page(keyword: $keyword));
     }
 
     /**
@@ -66,7 +66,7 @@ class ContentCmsApi extends BaseApiRequest
      * Delegates navigation structure retrieval to the NavigationApi class.
      * Returns routes appropriate for the current client type.
      * 
-     * @return array|null Array of available routes if found, null otherwise
+     * @return void
      * 
      * @example
      * $routes = $api->GET_all_routes();
@@ -74,10 +74,10 @@ class ContentCmsApi extends BaseApiRequest
      * @note The returned structure varies between web and mobile clients
      * to optimize for each platform's needs.
      */
-    public function GET_all_routes(): array|null
+    public function GET_all_routes(): void
     {
         $navigation = new NavigationApi(services: $this->services, keyword: $this->keyword);
-        return $navigation->GET_all_routes(mode: $this->client_type);
+        $this->response->set_data($navigation->GET_all_routes(mode: $this->client_type));
     }
 }
 ?>

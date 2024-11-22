@@ -44,7 +44,7 @@ class NavigationApi extends BaseApiRequest
      * 
      * @note Currently includes commented-out schema validation code
      */
-    public function GET_all_routes($mode)
+    public function GET_all_routes($mode): array
     {
         $sql = "CALL get_user_acl(:uid, -1)";
         $params = array(':uid' => $this->getUserId());

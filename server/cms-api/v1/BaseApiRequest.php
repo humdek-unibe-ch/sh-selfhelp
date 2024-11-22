@@ -96,7 +96,7 @@ abstract class BaseApiRequest
     public function authorizeUser()
     {
         if (!$this->has_access()) {
-            $this->response = new CmsApiResponse(401);
+            $this->response->set_status(status: 401);
             $this->response->send();
             exit; // Add this line to halt further execution
         }
@@ -118,19 +118,9 @@ abstract class BaseApiRequest
      * 
      * @return array The response data
      */
-    public function get_response(): array
+    public function get_response(): CmsApiResponse
     {
-        return $this->response->toArray();
-    }
-
-    /**
-     * @brief Sets the HTTP status code for the response
-     * 
-     * @param int $status The HTTP status code
-     */
-    public function set_status(int $status): void
-    {
-        $this->response = new CmsApiResponse($status, $this->response->toArray()['data']);
+        return $this->response;
     }
 
     /**
@@ -189,8 +179,10 @@ abstract class BaseApiRequest
      * @protected
      */
     protected function send_response($data = null, int $status = 200, ?string $error = null)
-    {
-        $this->response = new CmsApiResponse($status, $data, $error);
+    {        
+        $this->response->set_status($status);
+        $this->response->set_data($data);
+        $this->response->set_error($error);     
         $debug_start_time = $this->debug_start_time;
         $router = $this->services->get_router();
         // Add the logging callback
