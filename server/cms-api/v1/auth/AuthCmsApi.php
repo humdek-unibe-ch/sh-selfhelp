@@ -145,8 +145,8 @@ class AuthCmsApi extends BaseApiRequest
             $this->response->set_logged_in(false);
             
             // Return success response
-            $this->response->setStatus(200)
-                          ->setMessage('Successfully logged out');   
+            $this->response->set_status(200)
+                          ->set_message('Successfully logged out');   
         } catch (Exception $e) {
             $this->error_response($e->getMessage());
         }

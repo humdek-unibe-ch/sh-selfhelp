@@ -131,8 +131,8 @@ abstract class BaseApiRequest
     public function set_error_message(string $error_message): void
     {
         $this->response = new CmsApiResponse(
-            $this->response->toArray()['status'],
-            $this->response->toArray()['data'],
+            $this->response->to_array()['status'],
+            $this->response->to_array()['data'],
             $error_message
         );
     }
@@ -186,7 +186,7 @@ abstract class BaseApiRequest
         $debug_start_time = $this->debug_start_time;
         $router = $this->services->get_router();
         // Add the logging callback
-        $this->response->addAfterSendCallback(callback: function () use ($router, $debug_start_time): void {
+        $this->response->add_after_send_callback(callback: function () use ($router, $debug_start_time): void {
             $router->log_user_activity($debug_start_time, true);
         });
         $this->response->send();

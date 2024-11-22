@@ -212,7 +212,7 @@ class CmsApiRequest
             }
 
             // Add the logging callback with performance metrics
-            $response->addAfterSendCallback(function () use ($router, $debug_start_time): void {
+            $response->add_after_send_callback(function () use ($router, $debug_start_time): void {
 
                 $user_activity_id = $router->log_user_activity($debug_start_time, true);
 
@@ -236,7 +236,7 @@ class CmsApiRequest
             }
         } catch (Exception $e) {
             $response = new CmsApiResponse(500, null, $e->getMessage());
-            $response->addAfterSendCallback(callback: function () use ($router, $debug_start_time): void {
+            $response->add_after_send_callback(callback: function () use ($router, $debug_start_time): void {
                 $router->log_user_activity($debug_start_time, true);
             });
             $response->send();

@@ -12,7 +12,7 @@ interface CmsApiResponseInterface {
      * 
      * @return array The response data as an associative array
      */
-    public function toArray(): array;
+    public function to_array(): array;
 
     /**
      * Sends the response as a JSON HTTP response
@@ -28,7 +28,7 @@ interface CmsApiResponseInterface {
      * @param int $status_code The HTTP status code (e.g. 200, 404, 500)
      * @return static The response object for fluent API
      */
-    public function setStatus(int $status_code): static;
+    public function set_status(int $status_code): static;
     
     /**
      * Sets the message for the response
@@ -36,7 +36,7 @@ interface CmsApiResponseInterface {
      * @param string $message A short description of the response
      * @return static The response object for fluent API
      */
-    public function setMessage(string $message): static;
+    public function set_message(string $message): static;
 
 }
 
@@ -47,15 +47,15 @@ interface CmsApiResponseInterface {
  * with status codes, messages, optional error information, and response data.
  */
 class CmsApiResponse implements CmsApiResponseInterface {
-    private array $afterSendCallbacks = [];
+    private array $after_send_callbacks = [];
     
     /**
      * Registers a callback to be executed after sending the response
      * 
      * @param callable $callback Function to execute after sending response
      */
-    public function addAfterSendCallback(callable $callback): void {
-        $this->afterSendCallbacks[] = $callback;
+    public function add_after_send_callback(callable $callback): void {
+        $this->after_send_callbacks[] = $callback;
     }
 
     /**
@@ -64,7 +64,7 @@ class CmsApiResponse implements CmsApiResponseInterface {
      * @param int $code The HTTP status code
      * @return string The corresponding status message
      */
-    private static function getStatusMessage(int $code): string {
+    private static function get_status_message(int $code): string {
         $messages = [
             200 => 'OK',
             201 => 'Created',
@@ -106,7 +106,7 @@ class CmsApiResponse implements CmsApiResponseInterface {
         ?string $error = null
     ) {
         $this->status = $status;
-        $this->message = self::getStatusMessage($status);
+        $this->message = self::get_status_message($status);
         $this->data = $data;
         $this->error = $error;
     }
@@ -116,7 +116,7 @@ class CmsApiResponse implements CmsApiResponseInterface {
      * 
      * @return array Associative array containing status, message, error, and data
      */
-    public function toArray(): array {
+    public function to_array(): array {
         return [
             'status' => $this->status,
             'message' => $this->message,
@@ -135,10 +135,10 @@ class CmsApiResponse implements CmsApiResponseInterface {
     public function send(): void {
         header('Content-Type: application/json');
         http_response_code($this->status);
-        echo json_encode($this->toArray());
+        echo json_encode($this->to_array());
         
         // Execute all registered callbacks before exit
-        foreach ($this->afterSendCallbacks as $callback) {
+        foreach ($this->after_send_callbacks as $callback) {
             $callback();
         }
         
@@ -158,60 +158,46 @@ class CmsApiResponse implements CmsApiResponseInterface {
     /**
      * Sets the HTTP status code
      * 
-     * @param int $status_code HTTP status code
-     * @return static
+     * @param int $status_code The HTTP status code (e.g. 200, 404, 500)
+     * @return static The response object for fluent API
      */
-    public function setStatus(int $status_code): static {
+    public function set_status(int $status_code): static {
         $this->status = $status_code;
-        $this->message = self::getStatusMessage($status_code);
+        $this->message = self::get_status_message($status_code);
         return $this;
     }
 
     /**
-     * Sets the status message
+     * Sets the message for the response
      * 
-     * @param string $message The status message
-     * @return static
+     * @param string $message A short description of the response
+     * @return static The response object for fluent API
      */
-    public function setMessage(string $message): static {
+    public function set_message(string $message): static {
         $this->message = $message;
         return $this;
-    }
-
-    /**
-     * Sets the HTTP status code
-     * 
-     * @param int $status HTTP status code
-     */
-    public function set_status(int $status): void {
-        $this->status = $status;
-        $this->message = self::getStatusMessage($status);
-    }
-
-    /**
-     * Sets the status message
-     * 
-     * @param string $message The status message
-     */
-    public function set_message(string $message): void {
-        $this->message = $message;
     }
 
     /**
      * Sets the response data
      * 
      * @param mixed $data The response data
+     * @return static The response object for fluent API
      */
-    public function set_data($data): void {
+    public function set_data($data): static {
         $this->data = $data;
+        return $this;
     }
 
     /**
      * Sets the error message
      * 
      * @param string|null $error The error message (optional)
+     * @return static The response object for fluent API
      */
-    public function set_error(?string $error): void {
+    public function set_error(?string $error): static {
         $this->error = $error;
+        return $this;
     }
+
 }       
