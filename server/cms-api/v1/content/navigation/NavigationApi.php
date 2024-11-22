@@ -49,13 +49,13 @@ class NavigationApi extends BaseApiRequest
         $sql = "CALL get_user_acl(:uid, -1)";
         $params = array(':uid' => $this->getUserId());
         $all_pages = $this->db->query_db($sql, $params);
-        // remove `web` or `mobile`
+        // remove web or mobile
         $remove_type = $mode == pageAccessTypes_mobile ? pageAccessTypes_web : pageAccessTypes_mobile;
         $remove_type_id = $this->db->get_lookup_id_by_code(pageAccessTypes, $remove_type);
         $pages = array_values(array: array_filter(array: $all_pages, callback: function ($item) use ($remove_type_id): bool {
-            return $item['id_pageAccessTypes'] != $remove_type_id;
+            return $item['id_pageAccessTypes'] != $remove_type_id && $item['acl_select'] == 1;
         }));
-        return $pages;
+        return $pages;  
     }
 }
 ?>
