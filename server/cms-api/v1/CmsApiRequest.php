@@ -232,7 +232,7 @@ class CmsApiRequest
             if ($response instanceof CmsApiResponse) {
                 $response->send();
             } else {
-                (new CmsApiResponse(200, $response))->send();
+                (new CmsApiResponse(status: 500, data: null))->send();
             }
         } catch (Exception $e) {
             $response = new CmsApiResponse(500, null, $e->getMessage());

@@ -80,7 +80,7 @@ class AuthCmsApi extends BaseApiRequest
         $this->response->set_data(data: [
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
-            'expires_in' => 3600,
+            'expires_in' => $this->jwtService->getAccessTokenExpiration(),
             'token_type' => 'Bearer'
         ]);
     }
@@ -109,7 +109,7 @@ class AuthCmsApi extends BaseApiRequest
 
             $this->response->set_data(data: [
                 'access_token' => $accessToken,
-                'expires_in' => 3600,
+                'expires_in' => $this->jwtService->getAccessTokenExpiration(),
                 'token_type' => 'Bearer'
             ]);
         } catch (Exception $e) {

@@ -181,4 +181,14 @@ class JWTService
             [':user_id' => $userId]
         );
     }
+
+    /**
+     * @brief Get the access token expiration time in seconds
+     * 
+     * @return int The access token expiration time in seconds
+     */
+    public function getAccessTokenExpiration(): int
+    {
+        return $this->accessTokenExpiration;
+    }
 }
