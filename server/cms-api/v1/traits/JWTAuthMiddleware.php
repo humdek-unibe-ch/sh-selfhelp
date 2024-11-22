@@ -55,12 +55,12 @@ trait JWTAuthMiddleware
      */
     private function getBearerToken(): ?string
     {
-        $headers = getallheaders();
-        $auth = $headers['Authorization'] ?? '';
-        if (preg_match('/Bearer\s+(.*)$/i', $auth, $matches)) {
-            return $matches[1];
-        }
-        return null;
+        static $headers = null;
+        $headers ??= getallheaders();
+        
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        return preg_match('/^Bearer\s+(.+)$/i', $auth, $matches) ? $matches[1] : null;
     }
 
     /**
