@@ -81,13 +81,25 @@ END
 DELIMITER ;
 
 
-CREATE TABLE IF NOT EXISTS `log_performance` (
-  `id_user_activity` int(10) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `logPerformance` (
+  `id_user_activity` INT(10) UNSIGNED NOT NULL,
   `log` LONGTEXT,
   PRIMARY KEY (`id_user_activity`),
   FOREIGN KEY (`id_user_activity`) REFERENCES `user_activity`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS refreshTokens (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_users BIGINT NOT NULL,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_users) REFERENCES users(id),
+    INDEX idx_token_hash (token_hash),
+    INDEX idx_user_id (id_users)
+);
+
 
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field
+-- reowork all form data to use drop down for table selection. First the table should be registered by the user. Assign ACL to these dataTables.

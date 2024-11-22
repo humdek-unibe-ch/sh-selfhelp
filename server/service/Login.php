@@ -48,7 +48,7 @@ class Login
      * @param bool $redirect
      *  If true the user is redirected to the current url after login.
      */
-    public function __construct($db, $transaction, $job_scheduler, $store_url=false, $redirect=false)
+    public function __construct($db, $transaction, $job_scheduler, $store_url = false, $redirect = false)
     {
         $this->db = $db;
         $this->store_url = $store_url;
@@ -62,8 +62,9 @@ class Login
      * Check the default user locale and if we have the same we assign it.
      * If there is not the same we check for the same language not locale.
      */
-    private function use_user_locale(){    
-        if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    private function use_user_locale()
+    {
+        if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             return;
         }
         $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
@@ -80,7 +81,7 @@ class Login
      */
     private function init_session()
     {
-        if(PROJECT_NAME !== "") {
+        if (PROJECT_NAME !== "") {
             if (DEBUG) {
                 session_name(PROJECT_NAME);
             } else {
@@ -117,23 +118,23 @@ class Login
         $session_timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 36000;
         ini_set('session.gc_maxlifetime', $session_timeout);
         ini_set('session.cookie_lifetime', $session_timeout);
-        session_start();                
-        if(!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
-        if(!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
-        if(!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
-        if(!isset($_SESSION['language']) || $_SESSION['language'] == '') $_SESSION['language'] = $this->db->get_default_language();
-        if(!isset($_SESSION['user_language']) || $_SESSION['user_language'] == '') $_SESSION['user_language'] = LANGUAGE;        
+        session_start();
+        if (!isset($_SESSION['gender'])) $_SESSION['gender'] = MALE_GENDER_ID;
+        if (!isset($_SESSION['user_gender'])) $_SESSION['user_gender'] = MALE_GENDER_ID;
+        if (!isset($_SESSION['cms_gender'])) $_SESSION['cms_gender'] = MALE_GENDER_ID;
+        if (!isset($_SESSION['language']) || $_SESSION['language'] == '') $_SESSION['language'] = $this->db->get_default_language();
+        if (!isset($_SESSION['user_language']) || $_SESSION['user_language'] == '') $_SESSION['user_language'] = LANGUAGE;
         // $this->use_user_locale();
         if (isset($_SESSION['id_user']) && $_SESSION['id_user'] > 1) {
             // if the user set a language already use it
             $user_language_from_db = $this->db->get_user_language_id($_SESSION['id_user']);
             if ($user_language_from_db) {
                 $_SESSION['user_language'] = $user_language_from_db;
-            }            
+            }
         }
 
-        if(!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
-        if(!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
+        if (!isset($_SESSION['cms_language'])) $_SESSION['cms_language'] = 2;
+        if (!isset($_SESSION['cms_edit_url'])) $_SESSION['cms_edit_url'] = array(
             "pid" => null,
             "sid" => null,
             "ssid" => null
@@ -141,20 +142,17 @@ class Login
         $_SESSION['active_section_id'] = null;
         $_SESSION['project'] = $this->db->get_link_title("home");
         $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];
-        if(!array_key_exists('target_url', $_SESSION))
+        if (!array_key_exists('target_url', $_SESSION))
             $_SESSION['target_url'] = null;
-        if($this->redirect)
+        if ($this->redirect)
             $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
-        if(!$this->is_logged_in())
-        {
+        if (!$this->is_logged_in()) {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
-        }
-        else
-        {
-            if($this->store_url)
+        } else {
+            if ($this->store_url)
                 $this->update_last_url($_SESSION['id_user'], $_SESSION['target_url']);
-            else if($this->redirect)
+            else if ($this->redirect)
                 $this->update_last_url($_SESSION['id_user'], null);
         }
         // session_write_close(); // otherwise it blocks request, check later if session is used anywhere else to assign data.
@@ -170,8 +168,11 @@ class Login
      */
     private function update_last_url($id, $url)
     {
-        $this->db->update_by_ids('users',
-            array('last_url' => $url), array('id' => $id));
+        $this->db->update_by_ids(
+            'users',
+            array('last_url' => $url),
+            array('id' => $id)
+        );
     }
 
     /**
@@ -209,7 +210,7 @@ class Login
             ":user_email" => $email
         ));
         foreach ($scheduledMails as $key => $mail) {
-            $this->job_scheduler->delete_job($mail['id'], $transaction_by);    
+            $this->job_scheduler->delete_job($mail['id'], $transaction_by);
         }
 
         // *********************************************************
@@ -222,7 +223,8 @@ class Login
             ":user_email" => '%' . $email . '%'
         ));
         foreach ($groupScheduledMails as $key => $mail) {
-            $recipients = array_map('trim',
+            $recipients = array_map(
+                'trim',
                 explode(MAIL_SEPARATOR, $mail['recipient_emails'])
             );
             if (($key = array_search($email, $recipients)) !== false) {
@@ -250,20 +252,18 @@ class Login
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
-        if($user && password_verify($password, $user['password']))
-        {
+        if ($user && password_verify($password, $user['password'])) {
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['id_gender'];
             $_SESSION['user_gender'] = $user['id_gender'];
-            if(isset($user['id_languages'])){
-                 $_SESSION['user_language'] = $user['id_languages'];
+            if (isset($user['id_languages'])) {
+                $_SESSION['user_language'] = $user['id_languages'];
             }
             $this->update_timestamp($user['id']);
-            return true;
-        }
-        else
-        {
+            unset($user['password']);
+            return $user;
+        } else {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
             return false;
@@ -287,20 +287,18 @@ class Login
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE user_name = :user_name AND `password` IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':user_name' => $user_name));
-        if($user && password_verify($password, $user['password']))
-        {
+        if ($user && password_verify($password, $user['password'])) {
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['id_gender'];
             $_SESSION['user_gender'] = $user['id_gender'];
-            if(isset($user['id_languages'])){
-                 $_SESSION['user_language'] = $user['id_languages'];
+            if (isset($user['id_languages'])) {
+                $_SESSION['user_language'] = $user['id_languages'];
             }
             $this->update_timestamp($user['id']);
-            return true;
-        }
-        else
-        {
+            unset($user['password']);
+            return $user;
+        } else {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
             return false;
@@ -322,7 +320,6 @@ class Login
             array("password" => password_hash($password, PASSWORD_DEFAULT)),
             array("id" => $_SESSION["id_user"])
         );
-
     }
 
     /**
@@ -396,7 +393,7 @@ class Login
             $this->db->rollback();
             return false;
         }
-    }    
+    }
 
     /**
      * Get the target URL to redirec after login. This is either
@@ -410,21 +407,23 @@ class Login
     public function get_target_url($default_url)
     {
         // if target_url is set use it
-        if($_SESSION['target_url'] !== null)
+        if ($_SESSION['target_url'] !== null)
             return $_SESSION['target_url'];
 
         $url = $_SESSION['target_url'] ?? $default_url;
 
         // if user is not logged in use target_url or fallback
-        if(!$this->is_logged_in())
+        if (!$this->is_logged_in())
             return $url;
 
         $sql = "SELECT last_url FROM users WHERE id = :uid";
-        $url_db = $this->db->query_db_first($sql,
-            array(':uid' => $_SESSION['id_user']));
+        $url_db = $this->db->query_db_first(
+            $sql,
+            array(':uid' => $_SESSION['id_user'])
+        );
 
         // if last_url is set n the DB use it
-        if($url_db['last_url'] != "")
+        if ($url_db['last_url'] != "")
             $url = $url_db['last_url'];
 
         return $url;
@@ -443,19 +442,18 @@ class Login
         $sql = "SELECT u.id, id_genders AS gender, id_languages AS `language` FROM users AS u
             WHERE u.id = :uid AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':uid' => $uid));
-        if($user) {
+        if ($user) {
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['gender'];
             $_SESSION['user_gender'] = $user['gender'];
             $_SESSION['user_language'] = $user['language'];
             $_SESSION['language'] = $user['language'];
-            $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];    
+            $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];
             unset($_SESSION['user_name']); // remove the user name session 
-            $this->db->clear_cache();// clear cache for our user
+            $this->db->clear_cache(); // clear cache for our user
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -480,13 +478,27 @@ class Login
         $_SESSION = array();
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params["path"], $params["domain"],
-                $params["secure"], $params["httponly"]
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
             );
         }
         session_destroy();
         $this->init_session();
+    }
+
+    public function validate_user($user, $password)
+    {
+        if ($this->db->is_anonymous_users()) {
+            return $this->check_credentials_user_name(user_name: $user, password: $password);
+        } else {
+            return $this->check_credentials(email: $user, password: $password);
+        }
     }
 }
 ?>

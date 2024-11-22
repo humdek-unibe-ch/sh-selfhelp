@@ -227,7 +227,7 @@ class CmsApiRequest
                     // Collect all style metrics                
                     $styleMetrics = PerformanceLogger::getAllStyleMetrics();
                     $this->services->get_db()->insert(
-                        table: 'log_performance',
+                        table: 'logPerformance',
                         entries: array(
                             "log" => json_encode($styleMetrics),
                             "id_user_activity" => $user_activity_id

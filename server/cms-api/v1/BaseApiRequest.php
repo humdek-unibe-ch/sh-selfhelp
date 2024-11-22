@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+require_once __DIR__ . '/traits/JWTAuthMiddleware.php';
 
 /**
  * @class BaseApiRequest
@@ -14,6 +15,7 @@
  */
 abstract class BaseApiRequest
 {
+    use JWTAuthMiddleware;
     protected $router;
     protected $db;
     protected $acl;
@@ -50,6 +52,7 @@ abstract class BaseApiRequest
         $this->response = new CmsApiResponse();
         $this->debug_start_time = microtime(true);
         $this->client_type = $client_type;
+        $this->authenticateRequest(); // This will throw an exception if not authenticated
     }
 
 

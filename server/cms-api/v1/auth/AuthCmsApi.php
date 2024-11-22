@@ -8,6 +8,7 @@
 require_once __DIR__ . "/../BaseApiRequest.php";
 require_once __DIR__ . "/../CmsApiResponse.php";
 require_once __DIR__ . "/../../../service/globals.php";
+require_once __DIR__ . "/../../../service/JWTService.php";
 
 /**
  * @class AuthCmsApi
@@ -19,6 +20,7 @@ require_once __DIR__ . "/../../../service/globals.php";
  */
 class AuthCmsApi extends BaseApiRequest
 {
+    private JWTService $jwtService;
 
     /**
      * @brief Constructor for AuthCmsApi class
@@ -29,6 +31,7 @@ class AuthCmsApi extends BaseApiRequest
     public function __construct($services, $keyword)
     {
         parent::__construct(services: $services, keyword: $keyword);
+        $this->jwtService = new JWTService(db: $this->db);
     }
 
     /**
