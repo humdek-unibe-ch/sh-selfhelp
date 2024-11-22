@@ -161,7 +161,7 @@ class JWTService
     public function revokeRefreshToken(string $token): void
     {
         $tokenHash = hash('sha256', $token);
-        $this->db->execute_db(
+        $this->db->query_db(
             "DELETE FROM refreshTokens WHERE token_hash = :token_hash",
             [':token_hash' => $tokenHash]
         );

@@ -74,6 +74,8 @@ class AuthCmsApi extends BaseApiRequest
         $accessToken = $this->jwtService->generateAccessToken(user_id: $user['id']);
         $refreshToken = $this->jwtService->generateRefreshToken(user_id: $user['id']);
 
+        $this->response->set_logged_in(logged_in: true);
+
         // Return successful response with tokens
         $this->response->set_data(data: [
             'access_token' => $accessToken,
@@ -112,6 +114,41 @@ class AuthCmsApi extends BaseApiRequest
             ]);
         } catch (Exception $e) {
             $this->error_response(error: $e->getMessage());
+        }
+    }
+
+    /**
+     * @brief Handle user logout
+     * 
+     * Invalidates both access and refresh tokens, effectively logging out the user
+     * from the system. The refresh token will be revoked from the database.
+     * 
+     * @param string $access_token The current access token to invalidate
+     * @param string $refresh_token The current refresh token to revoke
+     * @throws Exception If token validation fails
+     */
+    public function POST_logout($access_token, $refresh_token): void
+    {
+        try {
+            // Validate both tokens
+            $accessPayload = $this->jwtService->validateToken($access_token);
+            $refreshPayload = $this->jwtService->validateRefreshToken($refresh_token);
+
+            if (!$accessPayload || !$refreshPayload) {
+                throw new Exception('Invalid tokens provided');
+            }
+
+            // Revoke the refresh token from the database
+            $this->jwtService->revokeRefreshToken($refresh_token);
+
+            // Set logged out status
+            $this->response->set_logged_in(false);
+            
+            // Return success response
+            $this->response->setStatus(200)
+                          ->setMessage('Successfully logged out');   
+        } catch (Exception $e) {
+            $this->error_response($e->getMessage());
         }
     }
 }
