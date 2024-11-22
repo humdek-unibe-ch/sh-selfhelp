@@ -15,18 +15,26 @@ require_once __DIR__ . "/../../../service/JWTService.php";
  * @brief API class for handling user authentication
  * @extends BaseApiRequest
  * 
- * This class provides functionality for user login, supporting both
+ * This class provides authentication endpoints for the CMS API, including
+ * user login functionality with JWT token generation. It supports both
  * regular email-based and anonymous username-based authentication.
+ * 
+ * Endpoints:
+ * - POST /login: Authenticates user credentials and returns JWT token
  */
 class AuthCmsApi extends BaseApiRequest
 {
+    /** @var JWTService Service for JWT token operations */
     private JWTService $jwtService;
 
     /**
      * @brief Constructor for AuthCmsApi class
      * 
-     * @param object $services The service handler instance which holds all services
-     * @param string $keyword The keyword identifier for the page (not used)
+     * Initializes the authentication API with necessary services and
+     * sets up the JWT service for token generation.
+     * 
+     * @param object $services Service container with required dependencies
+     * @param string $keyword API endpoint keyword identifier
      */
     public function __construct($services, $keyword)
     {
@@ -35,62 +43,41 @@ class AuthCmsApi extends BaseApiRequest
     }
 
     /**
-     * @brief Handles user login request
+     * @brief Handle user login request
      * 
-     * @param string $password The password string entered by the user
-     * @param string $user The username or email address entered by the user
+     * Authenticates user credentials and generates a JWT token upon successful login.
+     * Supports both email and username-based authentication based on system configuration.
+     * 
+     * Request Parameters:
+     * - user: Username or email address
+     * - password: User's password
+     * 
+     * Response:
+     * - Success: JWT access token with user data
+     * - Error: Authentication error message
+     * 
+     * @param string $user Username or email
+     * @param string $password User password
+     * @throws Exception If credentials are invalid
      */
-    public function POST_login($password, $user): void
+    public function POST_login($user, $password): void
     {
-        if (!$password || !$user) {
-            $this->error_response("Required credentials are missing", 400);
-            return;
+
+        $user = $this->login->validate_user($user, $password);
+
+        if (!$user) {
+            $this->error_response(error: 'Invalid credentials');
         }
 
-        // Check if user is already logged in
-        if ($this->login->is_logged_in()) {
-            $this->login->logout(); // Logout existing session
-        }
+        // Generate access token with user data
+        $accessToken = $this->jwtService->generateAccessToken(user: $user);
 
-        if (!$password) {
-            $this->error_response("Password is required", 400);
-            return;
-        }
-
-        $success = false;
-        $message = "";
-
-        // Handle anonymous users login (username-based)
-        if ($this->db->is_anonymous_users()) {
-            if (!$user) {
-                $this->error_response("Username is required", 400);
-                return;
-            }
-
-            $success = $this->login->check_credentials_user_name($user, $password);
-            $message = $success ? "Login successful" : "Invalid username or password";
-        }
-        // Handle regular login (email-based)
-        else {
-            if (!$user) {
-                $this->error_response("Email is required", 400);
-                return;
-            }
-
-            $success = $this->login->check_credentials($user, $password);
-            $message = $success ? "Login successful" : "Invalid email or password";
-        }
-
-        // Prepare response data
-        if ($success) {
-            $responseData = [
-                'target_url' => $_SESSION['target_url'],
-                'user_id' => $_SESSION['id_user']
-            ];
-            $this->success_response($responseData);
-        } else {
-            $this->error_response($message, 401);
-        }
+        // Return successful response with token
+        $this->success_response([
+            'access_token' => $accessToken,
+            'expires_in' => 3600,
+            'token_type' => 'Bearer'
+        ]);
     }
 }
 ?>
