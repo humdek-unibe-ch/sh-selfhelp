@@ -722,5 +722,10 @@ class Acl
         return $this->set_access_levels($id, $id_page,
             array("update" => false), $is_group);
     }
+
+    public function set_current_user_acls() {
+        $this->current_user_acl = $this->get_access_levels_db_user_all_pages(
+            $_SESSION['id_user']);
+    }   
 }
 ?>

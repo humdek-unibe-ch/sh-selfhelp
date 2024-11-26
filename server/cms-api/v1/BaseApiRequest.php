@@ -53,6 +53,7 @@ abstract class BaseApiRequest
         $this->debug_start_time = microtime(true);
         $this->client_type = $client_type;
         $this->authenticateRequest(); // This will throw an exception if not authenticated
+        $this->acl->set_current_user_acls(); // set the acl now so both token and session can be used
     }
 
 
@@ -85,7 +86,7 @@ abstract class BaseApiRequest
     private function has_access()
     {
         $page_id = $this->db->fetch_page_id_by_keyword($this->keyword);
-        return $this->acl->has_access($_SESSION['id_user'], $page_id, 'select');
+        return $this->acl->has_access($this->getUserId(), $page_id, 'select');
     }
 
     /**
@@ -96,7 +97,7 @@ abstract class BaseApiRequest
     public function authorizeUser()
     {
         if (!$this->has_access()) {
-            $this->response->set_status(status: 401);
+            $this->response->set_status(status_code: 401);
             $this->response->send();
             exit; // Add this line to halt further execution
         }
@@ -164,7 +165,7 @@ abstract class BaseApiRequest
 
         // Check access using ACL
         return $this->acl->has_access(
-            $_SESSION['id_user'],
+            $this->getUserId(),
             $pageId,
             $accessType
         );

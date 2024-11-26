@@ -42,6 +42,7 @@ trait JWTAuthMiddleware
 
         // Store user data from token and set logged_in status
         $this->currentUser = $payload;
+        $_SESSION['id_user'] = $this->getUserId();
         $this->response->set_logged_in(true);
     }
 

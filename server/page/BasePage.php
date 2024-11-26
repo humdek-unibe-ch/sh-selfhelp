@@ -603,6 +603,9 @@ abstract class BasePage
         // if($this->render_nav){ 
         //     $res['navigation'] = $this->output_component_mobile("nav");
         // }
+        $acl = $this->services->get_acl();
+        $this->acl_pass = $acl->has_access($_SESSION['id_user'],
+                $this->id_page, $this->required_access_level);
         if($this->acl_pass)
             $res['content'] = $this->output_content_mobile();
         else if($login->is_logged_in())
