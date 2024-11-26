@@ -35,6 +35,7 @@ class ModuleFormsActionsController extends BaseController
             isset($_POST['config'])
         ) {
             //insert mode
+            unset($_POST['root']); // we dont need it, we have the string json
             $this->insert_action($_POST);
         } else if (
             isset($_POST['mode']) && $_POST['mode'] === UPDATE &&
@@ -44,6 +45,7 @@ class ModuleFormsActionsController extends BaseController
             isset($_POST['config'])
         ) {
             //edit mode
+            unset($_POST['root']); // we dont need it, we have the string json
             $this->update_action($_POST);
         } else if (isset($_POST['mode']) && $_POST['mode'] === DELETE && isset($_POST['deleteActionName']) && isset($_POST['deleteActionId'])) {
             //delete mode

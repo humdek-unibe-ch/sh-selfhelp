@@ -1,6 +1,7 @@
-# v7.0.23 (Not released)
+# v7.1.0
 ### Bugfix
  - #509 - properly resize `showUserInput` when is inside a collapsed `card`
+ - save `formAction` even if the config is really big. 
 
 # v7.0.22
 ### Bugfix
