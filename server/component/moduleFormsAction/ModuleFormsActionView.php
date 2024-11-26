@@ -188,14 +188,6 @@ class ModuleFormsActionView extends BaseView
                             "name" => 'condition',
                             "css" => "d-none"
                         )),
-                        new BaseStyleComponent("JobConfig", array(
-                            "type_input" => "json",
-                            "id" => "config",
-                            "name" => "config",
-                            "value" => isset($this->action["config"]) ? $this->action["config"] : '',
-                            "css" => "jobConfig",
-                            "placeholder" => "",
-                        )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -205,6 +197,14 @@ class ModuleFormsActionView extends BaseView
                             "type_input" => "hidden",
                             "name" => "mode",
                             "value" => $this->mode
+                        )),
+                        new BaseStyleComponent("JobConfig", array(
+                            "type_input" => "json",
+                            "id" => "config",
+                            "name" => "config",
+                            "value" => isset($this->action["config"]) ? $this->action["config"] : '',
+                            "css" => "jobConfig",
+                            "placeholder" => "",
                         ))
                     )
                 )),
