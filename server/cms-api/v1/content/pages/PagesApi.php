@@ -52,7 +52,7 @@ class PagesApi extends BaseApiRequest
      */
     public function GET_page($keyword): array|null
     {
-        if (!$this->checkPageAccess(keyword: $keyword)) {
+        if (!$this->check_page_access(keyword: $keyword)) {
             $this->error_response(
                 error: "No access to page with keyword '{$keyword}'",
                 status: 403

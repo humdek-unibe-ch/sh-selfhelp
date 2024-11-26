@@ -26,7 +26,7 @@ require_once __DIR__ . "/../../../service/JWTService.php";
 class AuthCmsApi extends BaseApiRequest
 {
     /** @var JWTService Service for JWT token operations */
-    private JWTService $jwtService;
+    private JWTService $jwt_service;
 
     /**
      * @brief Constructor for AuthCmsApi class
@@ -40,7 +40,7 @@ class AuthCmsApi extends BaseApiRequest
     public function __construct($services, $keyword)
     {
         parent::__construct(services: $services, keyword: $keyword);
-        $this->jwtService = new JWTService(db: $this->db);
+        $this->jwt_service = new JWTService(db: $this->db);
     }
 
     /**
@@ -62,7 +62,7 @@ class AuthCmsApi extends BaseApiRequest
      * @param string $password User password
      * @throws Exception If credentials are invalid
      */
-    public function POST_login($user, $password): void
+    public function post_login($user, $password): void
     {
         $user = $this->login->validate_user($user, $password);
 
@@ -71,16 +71,16 @@ class AuthCmsApi extends BaseApiRequest
         }
 
         // Generate access and refresh tokens
-        $accessToken = $this->jwtService->generateAccessToken(user_id: $user['id']);
-        $refreshToken = $this->jwtService->generateRefreshToken(user_id: $user['id']);
+        $access_token = $this->jwt_service->generate_access_token(user_id: $user['id']);
+        $refresh_token = $this->jwt_service->generate_refresh_token(user_id: $user['id']);
 
         $this->response->set_logged_in(logged_in: true);
 
         // Return successful response with tokens
         $this->response->set_data(data: [
-            'access_token' => $accessToken,
-            'refresh_token' => $refreshToken,
-            'expires_in' => $this->jwtService->getAccessTokenExpiration(),
+            'access_token' => $access_token,
+            'refresh_token' => $refresh_token,
+            'expires_in' => $this->jwt_service->get_access_token_expiration(),
             'token_type' => 'Bearer'
         ]);
     }
@@ -102,14 +102,14 @@ class AuthCmsApi extends BaseApiRequest
      * @param string $refresh_token Refresh token to validate
      * @throws Exception If refresh token is invalid
      */
-    public function POST_refresh_token($refresh_token): void
+    public function post_refresh_token($refresh_token): void
     {
         try {
-            $accessToken = $this->handleTokenRefresh($refresh_token);
+            $access_token = $this->handle_token_refresh($refresh_token);
 
             $this->response->set_data(data: [
-                'access_token' => $accessToken,
-                'expires_in' => $this->jwtService->getAccessTokenExpiration(),
+                'access_token' => $access_token,
+                'expires_in' => $this->jwt_service->get_access_token_expiration(),
                 'token_type' => 'Bearer'
             ]);
         } catch (Exception $e) {
@@ -127,19 +127,19 @@ class AuthCmsApi extends BaseApiRequest
      * @param string $refresh_token The current refresh token to revoke
      * @throws Exception If token validation fails
      */
-    public function POST_logout($access_token, $refresh_token): void
+    public function post_logout($access_token, $refresh_token): void
     {
         try {
             // Validate both tokens
-            $accessPayload = $this->jwtService->validateToken($access_token);
-            $refreshPayload = $this->jwtService->validateRefreshToken($refresh_token);
+            $access_payload = $this->jwt_service->validate_token($access_token);
+            $refresh_payload = $this->jwt_service->validate_refresh_token($refresh_token);
 
-            if (!$accessPayload || !$refreshPayload) {
+            if (!$access_payload || !$refresh_payload) {
                 throw new Exception('Invalid tokens provided');
             }
 
             // Revoke the refresh token from the database
-            $this->jwtService->revokeRefreshToken($refresh_token);
+            $this->jwt_service->revoke_refresh_token($refresh_token);
 
             // Set logged out status
             $this->response->set_logged_in(false);

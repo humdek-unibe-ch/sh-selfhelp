@@ -15,16 +15,16 @@ use Firebase\JWT\Key;
 class JWTService
 {
     /** @var string Secret key used for JWT token signing */
-    private string $jwtSecret;
+    private string $jwt_secret;
 
     /** @var PageDb Database instance for user data operations */
     private PageDb $db;
 
     /** @var int Access token expiration time in seconds (1 hour) */
-    private int $accessTokenExpiration = 3600;
+    private int $access_token_expiration = 3600;
 
     /** @var int Refresh token expiration time in seconds (30 days) */
-    private int $refreshTokenExpiration = 2592000;
+    private int $refresh_token_expiration = 2592000;
 
     /**
      * @brief Constructor for JWTService
@@ -34,7 +34,7 @@ class JWTService
     public function __construct(PageDb $db)
     {
         $this->db = $db;
-        $this->jwtSecret = getenv('JWT_SECRET') ?: 'your-secret-key';
+        $this->jwt_secret = getenv('JWT_SECRET') ?: 'your-secret-key';
     }
 
     /**
@@ -46,16 +46,16 @@ class JWTService
      * @param array $user User data array containing id, gender, language preferences
      * @return string Encoded JWT access token
      */
-    public function generateAccessToken(int $user_id): string
+    public function generate_access_token(int $user_id): string
     {
         $payload = [
             'sub' => $user_id,
             'type' => 'access',
             'iat' => time(),
-            'exp' => time() + $this->accessTokenExpiration
+            'exp' => time() + $this->access_token_expiration
         ];
 
-        return JWT::encode($payload, $this->jwtSecret, 'HS256');
+        return JWT::encode($payload, $this->jwt_secret, 'HS256');
     }
 
     /**
@@ -67,19 +67,19 @@ class JWTService
      * @param array $user User data array containing id
      * @return string Encoded JWT refresh token
      */
-    public function generateRefreshToken(int $user_id): string
+    public function generate_refresh_token(int $user_id): string
     {
         $payload = [
             'sub' => $user_id,
             'type' => 'refresh',
             'iat' => time(),
-            'exp' => time() + $this->refreshTokenExpiration
+            'exp' => time() + $this->refresh_token_expiration
         ];
 
-        $token = JWT::encode($payload, $this->jwtSecret, 'HS256');
+        $token = JWT::encode($payload, $this->jwt_secret, 'HS256');
 
         // Store refresh token in database
-        $this->storeRefreshToken($user_id, $token);
+        $this->store_refresh_token($user_id, $token);
 
         return $token;
     }
@@ -92,16 +92,16 @@ class JWTService
      * @param int $userId User ID associated with the refresh token
      * @param string $token Refresh token to store
      */
-    private function storeRefreshToken(int $userId, string $token): void
+    private function store_refresh_token(int $user_id, string $token): void
     {
         // Store hash of the token instead of the token itself
-        $tokenHash = hash('sha256', $token);
-        $expiresAt = date('Y-m-d H:i:s', time() + $this->refreshTokenExpiration);
+        $token_hash = hash('sha256', $token);
+        $expires_at = date('Y-m-d H:i:s', time() + $this->refresh_token_expiration);
 
         $this->db->insert('refreshTokens', [
-            'id_users' => $userId,
-            'token_hash' => $tokenHash,
-            'expires_at' => $expiresAt
+            'id_users' => $user_id,
+            'token_hash' => $token_hash,
+            'expires_at' => $expires_at
         ]);
     }
 
@@ -114,10 +114,10 @@ class JWTService
      * @param string $token JWT token to validate
      * @return \stdClass|null Decoded token payload if valid, null if invalid
      */
-    public function validateToken(string $token): ?\stdClass
+    public function validate_token(string $token): ?\stdClass
     {
         try {
-            $key = new Key($this->jwtSecret, 'HS256');
+            $key = new Key($this->jwt_secret, 'HS256');
             return JWT::decode($token, $key);
         } catch (Exception $e) {
             return null;
@@ -132,20 +132,20 @@ class JWTService
      * @param string $token Refresh token to validate
      * @return array|null Decoded token payload if valid, null if invalid
      */
-    public function validateRefreshToken(string $token): ?array
+    public function validate_refresh_token(string $token): ?array
     {
-        $decoded = $this->validateToken($token);
+        $decoded = $this->validate_token($token);
         if (!$decoded || $decoded->type !== 'refresh') {
             return null;
         }
 
         // Verify token exists in database
-        $tokenHash = hash('sha256', $token);
+        $token_hash = hash('sha256', $token);
         $result = $this->db->query_db_first(
             "SELECT * FROM refreshTokens 
              WHERE token_hash = :token_hash 
              AND expires_at > NOW()",
-            [':token_hash' => $tokenHash]
+            [':token_hash' => $token_hash]
         );
 
         return $result ? (array)$decoded : null;
@@ -158,12 +158,12 @@ class JWTService
      * 
      * @param string $token Refresh token to revoke
      */
-    public function revokeRefreshToken(string $token): void
+    public function revoke_refresh_token(string $token): void
     {
-        $tokenHash = hash('sha256', $token);
+        $token_hash = hash('sha256', $token);
         $this->db->query_db(
             "DELETE FROM refreshTokens WHERE token_hash = :token_hash",
-            [':token_hash' => $tokenHash]
+            [':token_hash' => $token_hash]
         );
     }
 
@@ -174,11 +174,11 @@ class JWTService
      * 
      * @param int $userId User ID for which to revoke all tokens
      */
-    public function revokeAllUserTokens(int $userId): void
+    public function revoke_all_user_tokens(int $user_id): void
     {
         $this->db->execute_db(
             "DELETE FROM refreshTokens WHERE id_users = :user_id",
-            [':user_id' => $userId]
+            [':user_id' => $user_id]
         );
     }
 
@@ -187,8 +187,8 @@ class JWTService
      * 
      * @return int The access token expiration time in seconds
      */
-    public function getAccessTokenExpiration(): int
+    public function get_access_token_expiration(): int
     {
-        return $this->accessTokenExpiration;
+        return $this->access_token_expiration;
     }
 }

@@ -22,16 +22,16 @@ trait JWTAuthMiddleware
      * 
      * @throws Exception If token is missing or invalid for protected pages
      */
-    protected function authenticateRequest(): void
+    protected function authenticate_request(): void
     {
-        $token = $this->getBearerToken();
+        $token = $this->get_bearer_token();
         if (!$token) {
             $this->response->set_logged_in(false);
             return;
         }
 
         $jwtService = new JWTService(db: $this->db);
-        $payload = $jwtService->validateToken(token: $token);
+        $payload = $jwtService->validate_token(token: $token);
 
         // Ensure only access tokens are used for API authentication
         // Refresh tokens should only be used with the token refresh endpoint
@@ -42,7 +42,7 @@ trait JWTAuthMiddleware
 
         // Store user data from token and set logged_in status
         $this->currentUser = $payload;
-        $_SESSION['id_user'] = $this->getUserId();
+        $_SESSION['id_user'] = $this->get_user_id();
         $this->response->set_logged_in(true);
     }
 
@@ -54,7 +54,7 @@ trait JWTAuthMiddleware
      * 
      * @return string|null The JWT token if found, null otherwise
      */
-    private function getBearerToken(): ?string
+    private function get_bearer_token(): ?string
     {
         static $headers = null;
         $headers ??= getallheaders();
@@ -69,7 +69,7 @@ trait JWTAuthMiddleware
      * 
      * @return int User ID from token or GUEST_USER_ID if not authenticated
      */
-    protected function getUserId(): int
+    protected function get_user_id(): int
     {
         return $this->currentUser?->sub ?? GUEST_USER_ID;
     }
@@ -79,9 +79,9 @@ trait JWTAuthMiddleware
      * 
      * @return bool True if user is logged in, false otherwise
      */
-    protected function isLoggedIn(): bool
+    protected function is_logged_in(): bool
     {
-        return $this->getUserId() !== GUEST_USER_ID;
+        return $this->get_user_id() !== GUEST_USER_ID;
     }
 
     /**
@@ -94,16 +94,16 @@ trait JWTAuthMiddleware
      * @return string New access token
      * @throws Exception If refresh token is invalid
      */
-    protected function handleTokenRefresh(string $refreshToken): string
+    protected function handle_token_refresh(string $refreshToken): string
     {
         $jwtService = new JWTService(db: $this->db);
-        $payload = $jwtService->validateRefreshToken($refreshToken);
+        $payload = $jwtService->validate_refresh_token($refreshToken);
 
         if (!$payload) {
             throw new Exception('Invalid refresh token');
         }
 
         // Generate new access token with fresh user data
-        return $jwtService->generateAccessToken(user_id: $payload['sub']);
+        return $jwtService->generate_access_token(user_id: $payload['sub']);
     }
 }

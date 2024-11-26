@@ -42,7 +42,7 @@ class CmsApiRequest
         $this->class_name = $class_name;
         $this->method_name = $method_name;
         $this->keyword = $keyword;
-        $this->client_type = $this->determineClientType();
+        $this->client_type = $this->determine_client_type();
     }
 
     /**
@@ -50,7 +50,7 @@ class CmsApiRequest
      * 
      * @return string 'app' for mobile app requests, 'web' for web frontend requests
      */
-    private function determineClientType(): string
+    private function determine_client_type(): string
     {
         // Check for custom header first
         $clientHeader = $_SERVER['HTTP_X_CLIENT_TYPE'] ?? '';
@@ -68,7 +68,7 @@ class CmsApiRequest
      * 
      * @return string 'app' or 'web'
      */
-    public function getClientType(): string
+    public function get_client_type(): string
     {
         return $this->client_type;
     }
@@ -79,7 +79,7 @@ class CmsApiRequest
      * @param ReflectionMethod $reflection Method reflection
      * @return array Method parameters
      */
-    private function prepareMethodParameters(\ReflectionMethod $reflection): array 
+    private function prepare_method_parameters(\ReflectionMethod $reflection): array 
     {
         // Get all available parameters from different sources
         $params = [...$this->services->get_router()->route['params']];
@@ -177,7 +177,7 @@ class CmsApiRequest
                 );
             } else {
                 $instance = new $this->class_name($this->services, $this->keyword, $this->client_type);
-                $instance->authorizeUser();
+                $instance->authorize_user();
                 // $instance->init_response($response);
 
                 if (!method_exists(object_or_class: $instance, method: $this->method_name)) {
@@ -201,7 +201,7 @@ class CmsApiRequest
                         );
                     } else {
                         // Get method parameters and execute
-                        $methodParameters = $this->prepareMethodParameters($reflection);
+                        $methodParameters = $this->prepare_method_parameters($reflection);
                         call_user_func_array(
                             [$instance, $this->method_name],
                             $methodParameters

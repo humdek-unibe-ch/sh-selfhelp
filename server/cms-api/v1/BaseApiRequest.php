@@ -52,7 +52,7 @@ abstract class BaseApiRequest
         $this->response = new CmsApiResponse();
         $this->debug_start_time = microtime(true);
         $this->client_type = $client_type;
-        $this->authenticateRequest(); // This will throw an exception if not authenticated
+        $this->authenticate_request(); // This will throw an exception if not authenticated
         $this->acl->set_current_user_acls(); // set the acl now so both token and session can be used
     }
 
@@ -62,7 +62,7 @@ abstract class BaseApiRequest
      * 
      * @return bool true if request is from mobile app
      */
-    protected function isAppRequest(): bool
+    protected function is_app_request(): bool
     {
         return $this->client_type === pageAccessTypes_mobile;
     }
@@ -72,7 +72,7 @@ abstract class BaseApiRequest
      * 
      * @return bool true if request is from web frontend
      */
-    protected function isWebRequest(): bool
+    protected function is_web_request(): bool
     {
         return $this->client_type === pageAccessTypes_web;
     }
@@ -86,7 +86,7 @@ abstract class BaseApiRequest
     private function has_access()
     {
         $page_id = $this->db->fetch_page_id_by_keyword($this->keyword);
-        return $this->acl->has_access($this->getUserId(), $page_id, 'select');
+        return $this->acl->has_access($this->get_user_id(), $page_id, 'select');
     }
 
     /**
@@ -94,7 +94,7 @@ abstract class BaseApiRequest
      * 
      * @return bool True if authorized, exits with 401 response if unauthorized
      */
-    public function authorizeUser()
+    public function authorize_user()
     {
         if (!$this->has_access()) {
             $this->response->set_status(status_code: 401);
@@ -151,23 +151,23 @@ abstract class BaseApiRequest
      * @brief Checks if the current user has access to a specific page
      * 
      * @param string $keyword The page keyword to check access for
-     * @param string $accessType The type of access to check ('select', 'insert', 'update', 'delete')
+     * @param string $access_type The type of access to check ('select', 'insert', 'update', 'delete')
      * @return bool True if user has access, false otherwise
      */
-    public function checkPageAccess($keyword, $accessType = 'select')
+    public function check_page_access($keyword, $access_type = 'select')
     {
         // Get page ID from keyword
-        $pageId = $this->db->fetch_page_id_by_keyword($keyword);
+        $page_id = $this->db->fetch_page_id_by_keyword($keyword);
 
-        if (!$pageId) {
+        if (!$page_id) {
             return false;
         }
 
         // Check access using ACL
         return $this->acl->has_access(
-            $this->getUserId(),
-            $pageId,
-            $accessType
+            $this->get_user_id(),
+            $page_id,
+            $access_type
         );
     }
 
