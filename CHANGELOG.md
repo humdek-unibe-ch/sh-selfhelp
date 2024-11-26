@@ -1,13 +1,14 @@
-# v7.1.0 (Not released)
+ v7.2.0 (Not released)
 ### New Feature
  - update to `Bootstrap` 5.3
  - update to `json-editor` 2.14.1
  - update to `jQuery-QueryBuilder` 3.0.0
  - #489 - add dropdown in the footer to select `dark`, `light` or `auto` theme. The settings are saved locally in the browser as the default one is taken from the user settings in the OS
 
-# v7.0.23 (Not released)
+# v7.1.0
 ### Bugfix
  - #509 - properly resize `showUserInput` when is inside a collapsed `card`
+ - save `formAction` even if the config is really big. 
 
 # v7.0.22
 ### Bugfix
