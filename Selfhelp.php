@@ -109,7 +109,7 @@ class Selfhelp
                 header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
             }
             if (isset($_SERVER['HTTP_REFERER'])) {
-                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_REFERER']}");
+                // header("Access-Control-Allow-Origin: {$_SERVER['HTTP_REFERER']}");
             }
             header('Access-Control-Allow-Methods: GET, POST');
             header('Access-Control-Allow-Credentials: true');
