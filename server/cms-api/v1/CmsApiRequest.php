@@ -102,7 +102,7 @@ class CmsApiRequest
             parse_str($inputData, $parsedData);
             
             // If not URL-encoded, try JSON
-            if (empty($parsedData)) {
+            if (!empty($parsedData)) {
                 $parsedData = json_decode($inputData, true);
             }
 
@@ -206,7 +206,7 @@ class CmsApiRequest
                             [$instance, $this->method_name],
                             $methodParameters
                         );
-                        $instance->get_response()->send();  
+                        $response = $instance->get_response(); 
                     }
                 }
             }
