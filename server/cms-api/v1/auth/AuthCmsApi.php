@@ -62,7 +62,7 @@ class AuthCmsApi extends BaseApiRequest
      * @param string $password User password
      * @throws Exception If credentials are invalid
      */
-    public function post_login($user, $password): void
+    public function POST_login($user, $password): void
     {
         $user = $this->login->validate_user($user, $password);
 
@@ -102,7 +102,7 @@ class AuthCmsApi extends BaseApiRequest
      * @param string $refresh_token Refresh token to validate
      * @throws Exception If refresh token is invalid
      */
-    public function post_refresh_token($refresh_token): void
+    public function POST_refresh_token($refresh_token): void
     {
         try {
             $access_token = $this->handle_token_refresh($refresh_token);
@@ -127,7 +127,7 @@ class AuthCmsApi extends BaseApiRequest
      * @param string $refresh_token The current refresh token to revoke
      * @throws Exception If token validation fails
      */
-    public function post_logout($access_token, $refresh_token): void
+    public function POST_logout($access_token, $refresh_token): void
     {
         try {
             // Validate both tokens

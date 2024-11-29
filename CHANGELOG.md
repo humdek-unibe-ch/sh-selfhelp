@@ -11,6 +11,11 @@
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
 
+### TODOs
+ - TODO: check the `condition` in the `styleModel` and if it is not met, do not controller or view
+ - TODO: create configuration for dataTables what columns should be accepted, like definitions. Create the dataTable manually and then selected in the style where it should be used. On submission save only the defined columns. If some data is not saved, keep it in the transaction history and show warning to the user
+
+
  v7.2.0 (Not released)
 ### New Feature
  - update to `Bootstrap` 5.3

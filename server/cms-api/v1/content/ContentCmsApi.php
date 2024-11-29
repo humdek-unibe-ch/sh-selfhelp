@@ -60,6 +60,12 @@ class ContentCmsApi extends BaseApiRequest
         $this->response->set_data($pages->GET_page(keyword: $keyword));
     }
 
+    public function PUT_page($keyword): void
+    {
+        $pages = new PagesApi(services: $this->services, keyword: $this->keyword);
+        $this->response->set_data($pages->PUT_page(keyword: $keyword));
+    }
+
     /**
      * @brief Retrieve all available navigation routes
      * 

@@ -75,5 +75,31 @@ class PagesApi extends BaseApiRequest
         );
         return null;
     }
+
+    public function PUT_page($keyword): array|null
+    {
+        if (!$this->check_page_access(keyword: $keyword, access_type: INSERT)) {
+            $this->error_response(
+                error: "No access to add data in page with keyword '{$keyword}'",
+                status: 403
+            );
+        }
+
+        if ($this->router->has_route($keyword)) {
+            $page = new SectionPage(
+                services: $this->services,
+                keyword: $keyword,
+                params: $this->router->route['params']
+            );
+
+            return $page->output_base_content_mobile();
+        }
+
+        $this->error_response(
+            error: "Page with keyword '{$keyword}' not found",
+            status: 404
+        );
+        return null;
+    }
 }
 ?>

@@ -41,10 +41,14 @@ class FormUserInputLogComponent extends BaseComponent
      */
     public function __construct($services, $id, $params, $id_page, $entry_record)
     {
-        $model = new FormUserInputModel($services, $id, $params, $id_page, $entry_record);        
+        $model = new FormUserInputModel($services, $id, $params, $id_page, $entry_record);           
         $controller = null;
-        if(!$model->is_cms_page())
+        if(!$model->is_cms_page()){
+            if(!$model->get_condition_result()['result'])     {
+                return;
+            }
             $controller = new FormUserInputController($model);
+        }
         $view = new FormUserInputView($model, $controller);
         parent::__construct($model, $view, $controller);
     }
