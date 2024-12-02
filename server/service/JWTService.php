@@ -34,7 +34,7 @@ class JWTService
     public function __construct(PageDb $db)
     {
         $this->db = $db;
-        $this->jwt_secret = getenv('JWT_SECRET') ?: 'your-secret-key';
+        $this->jwt_secret = JWT_SECRET;
     }
 
     /**
@@ -192,3 +192,4 @@ class JWTService
         return $this->access_token_expiration;
     }
 }
+
