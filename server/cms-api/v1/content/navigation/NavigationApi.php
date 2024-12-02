@@ -53,8 +53,11 @@ class NavigationApi extends BaseApiRequest
         $remove_type = $mode == pageAccessTypes_mobile ? pageAccessTypes_web : pageAccessTypes_mobile;
         $remove_type_id = $this->db->get_lookup_id_by_code(pageAccessTypes, $remove_type);
         $pages = array_values(array: array_filter(array: $all_pages, callback: function ($item) use ($remove_type_id): bool {
-            // id_type: 3 = core, 4 = experiment, 5 = open
-            return $item['id_pageAccessTypes'] != $remove_type_id && $item['acl_select'] == 1 &&  in_array($item['id_type'], ['3', '4', '5']);
+            // id_type: 2 = core, 3 = experiment, 4 = open
+            return $item['id_pageAccessTypes'] != $remove_type_id && 
+            $item['acl_select'] == 1 &&  
+            $item['id_actions'] == 3 &&
+            in_array($item['id_type'], ['2', '3', '4']);
         }));
         return $pages;
     }
