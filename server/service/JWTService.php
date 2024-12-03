@@ -20,12 +20,6 @@ class JWTService
     /** @var PageDb Database instance for user data operations */
     private PageDb $db;
 
-    /** @var int Access token expiration time in seconds (1 hour) */
-    private int $access_token_expiration = 3600;
-
-    /** @var int Refresh token expiration time in seconds (30 days) */
-    private int $refresh_token_expiration = 2592000;
-
     /**
      * @brief Constructor for JWTService
      * 
@@ -52,7 +46,7 @@ class JWTService
             'sub' => $user_id,
             'type' => 'access',
             'iat' => time(),
-            'exp' => time() + $this->access_token_expiration
+            'exp' => time() + ACCESS_TOKEN_EXPIRATION
         ];
 
         return JWT::encode($payload, $this->jwt_secret, 'HS256');
@@ -73,7 +67,7 @@ class JWTService
             'sub' => $user_id,
             'type' => 'refresh',
             'iat' => time(),
-            'exp' => time() + $this->refresh_token_expiration
+            'exp' => time() + REFRESH_TOKEN_EXPIRATION
         ];
 
         $token = JWT::encode($payload, $this->jwt_secret, 'HS256');
@@ -96,7 +90,7 @@ class JWTService
     {
         // Store hash of the token instead of the token itself
         $token_hash = hash('sha256', $token);
-        $expires_at = date('Y-m-d H:i:s', time() + $this->refresh_token_expiration);
+        $expires_at = date('Y-m-d H:i:s', time() + REFRESH_TOKEN_EXPIRATION);
 
         $this->db->insert('refreshTokens', [
             'id_users' => $user_id,
@@ -182,14 +176,5 @@ class JWTService
         );
     }
 
-    /**
-     * @brief Get the access token expiration time in seconds
-     * 
-     * @return int The access token expiration time in seconds
-     */
-    public function get_access_token_expiration(): int
-    {
-        return $this->access_token_expiration;
-    }
 }
 

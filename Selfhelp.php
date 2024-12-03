@@ -91,7 +91,7 @@ class Selfhelp
         if (
             (isset($_SERVER['HTTP_ORIGIN']) &&
                 (
-                    strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:4200') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:3000') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
@@ -101,7 +101,7 @@ class Selfhelp
                     strpos($_SERVER['HTTP_ORIGIN'], 'https://tpf-test.humdek.unibe.ch') !== false ||
                     strpos($_SERVER['HTTP_ORIGIN'], 'https://selfhelp.philhum.unibe.ch') !== false)
             ) ||
-            isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'http://localhost:4200') !== false
+            isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'http://localhost:3000') !== false
         ) {
             // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
             // you want to allow, and if so:

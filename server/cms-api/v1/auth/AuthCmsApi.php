@@ -80,7 +80,7 @@ class AuthCmsApi extends BaseApiRequest
         $this->response->set_data(data: [
             'access_token' => $access_token,
             'refresh_token' => $refresh_token,
-            'expires_in' => $this->jwt_service->get_access_token_expiration(),
+            'expires_in' => ACCESS_TOKEN_EXPIRATION,
             'token_type' => 'Bearer'
         ]);
     }
@@ -107,9 +107,13 @@ class AuthCmsApi extends BaseApiRequest
         try {
             $access_token = $this->handle_token_refresh($refresh_token);
 
+            if($access_token){
+                $this->response->set_logged_in(logged_in: true);
+            }
+
             $this->response->set_data(data: [
                 'access_token' => $access_token,
-                'expires_in' => $this->jwt_service->get_access_token_expiration(),
+                'expires_in' => ACCESS_TOKEN_EXPIRATION,
                 'token_type' => 'Bearer'
             ]);
         } catch (Exception $e) {
@@ -130,25 +134,31 @@ class AuthCmsApi extends BaseApiRequest
     public function POST_logout($access_token, $refresh_token): void
     {
         try {
-            // Validate both tokens
-            $access_payload = $this->jwt_service->validate_token($access_token);
-            $refresh_payload = $this->jwt_service->validate_refresh_token($refresh_token);
-
-            if (!$access_payload || !$refresh_payload) {
-                throw new Exception('Invalid tokens provided');
+            // Try to validate access token but continue even if it fails
+            try {
+                $access_payload = $this->jwt_service->validate_token($access_token);
+            } catch (Exception $e) {
+                // Ignore access token validation errors
             }
 
-            // Revoke the refresh token from the database
-            $this->jwt_service->revoke_refresh_token($refresh_token);
+            // Validate and revoke refresh token if it exists
+            if ($refresh_token) {
+                try {
+                    $refresh_payload = $this->jwt_service->validate_refresh_token($refresh_token);
+                    $this->jwt_service->revoke_refresh_token($refresh_token);
+                } catch (Exception $e) {
+                    // If refresh token is invalid, we can ignore the error
+                    // The token might already be expired or revoked
+                }
+            }
 
-            // Set logged out status
+            // Always set logged out status and return success
             $this->response->set_logged_in(false);
-            
-            // Return success response
             $this->response->set_status(200)
-                          ->set_message('Successfully logged out');   
+                          ->set_message('Successfully logged out');
         } catch (Exception $e) {
-            $this->error_response($e->getMessage());
+            // This catch block will only trigger for unexpected errors
+            $this->error_response('An unexpected error occurred during logout');
         }
     }
 }
