@@ -57,7 +57,8 @@ class NavigationApi extends BaseApiRequest
             return $item['id_pageAccessTypes'] != $remove_type_id && 
             $item['acl_select'] == 1 &&  
             $item['id_actions'] == 3 &&
-            in_array($item['id_type'], ['2', '3', '4']);
+            in_array($item['id_type'], ['2', '3', '4'])
+            && $item['url']!= '';
         }));
         return $pages;
     }
