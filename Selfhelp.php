@@ -92,6 +92,7 @@ class Selfhelp
             (isset($_SERVER['HTTP_ORIGIN']) &&
                 (
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:3000') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:3001') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://192.168.0.58') !== false || // used for testing
@@ -111,7 +112,7 @@ class Selfhelp
             if (isset($_SERVER['HTTP_REFERER'])) {
                 // header("Access-Control-Allow-Origin: {$_SERVER['HTTP_REFERER']}");
             }
-            header('Access-Control-Allow-Methods: GET, POST');
+            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
             header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Max-Age: 86400');    // cache for 1 day
         }
@@ -121,7 +122,7 @@ class Selfhelp
 
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
                 // may also be using PUT, PATCH, HEAD etc
-                header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+                header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
                 header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
