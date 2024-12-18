@@ -1,3 +1,7 @@
+# v7.1.1
+### Bugfix
+ - correctly check dynamic form values for actions based on the correct trigger type
+
 # v7.1.0
 ### Bugfix
  - #509 - properly resize `showUserInput` when is inside a collapsed `card`

@@ -1351,7 +1351,7 @@ class UserInput
                 $not_modified_action['config'] = json_decode($not_modified_action['config'], true);
 
                 /*************************  CHECK DYNAMIC DATA *********************************************/
-                if ($form_data['trigger_type'] == actionTriggerTypes_finished) {
+                if ($form_data['trigger_type'] == $action['trigger_type_code']) {
                     // when the trigger is finished, we have data and we can use it
                     $check_config = $this->check_config($action['config'], $form_data['form_fields']);
                     $result['check_config'] = $check_config['result'];
