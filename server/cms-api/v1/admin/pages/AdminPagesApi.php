@@ -10,12 +10,22 @@ use Swaggest\JsonSchema\Schema;
 require_once __DIR__ . "/../../BaseApiRequest.php";
 
 /**
- * @class PageCmsApi
- * @brief API handler for web page CMS operations
+ * @class AdminPagesApi
+ * @brief API handler for administrative page management operations
  * @extends BaseApiRequest
  * 
- * This class handles AJAX calls related to web page content management operations.
- * It provides endpoints for retrieving and managing web page content through the CMS.
+ * This class provides functionality for managing pages through the CMS admin interface.
+ * It handles operations such as retrieving, creating, updating, and managing page content
+ * and metadata. All operations require administrative privileges.
+ * 
+ * Security Features:
+ * - Authentication check on all endpoints
+ * - ACL (Access Control List) validation
+ * - Input validation and sanitization
+ * 
+ * @note
+ * This API specifically handles experiment pages (id_type = 3) and enforces
+ * proper access control through ACL checks.
  */
 class AdminPagesApi extends BaseApiRequest
 {
@@ -24,6 +34,10 @@ class AdminPagesApi extends BaseApiRequest
      * 
      * @param object $services The service handler instance which holds all services
      * @param string $keyword The keyword identifier for the page
+     * 
+     * @details
+     * Initializes the admin pages API with necessary services and sets up
+     * the response handler for consistent API responses.
      */
     public function __construct($services, $keyword)
     {
@@ -31,6 +45,28 @@ class AdminPagesApi extends BaseApiRequest
         $this->response = new CmsApiResponse();
     }
 
+    /**
+     * @brief Retrieves all experiment pages accessible to the authenticated user
+     * 
+     * @return array|CmsApiResponse Returns either:
+     *         - array: List of accessible experiment pages if authentication successful
+     *         - CmsApiResponse: Error response if authentication fails
+     * 
+     * @details
+     * This method:
+     * 1. Verifies user authentication
+     * 2. Retrieves user's ACL permissions
+     * 3. Filters pages based on:
+     *    - Page type (experiment pages only)
+     *    - User's access permissions (acl_select = 1)
+     * 
+     * @throws Exception If database query fails
+     * 
+     * @note
+     * - Only returns experiment pages (id_type = 3)
+     * - Requires user to have select permission (acl_select = 1)
+     * - Returns 401 Unauthorized if user is not logged in
+     */
     public function GET_pages(): array|CmsApiResponse
     {
         if (!$this->login->is_logged_in()) {
