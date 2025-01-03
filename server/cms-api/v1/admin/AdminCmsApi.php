@@ -6,6 +6,7 @@
 <?php
 
 require_once __DIR__ . "/../BaseApiRequest.php";
+require_once __DIR__ . "/pages/AdminPagesApi.php";
 
 class AdminCmsApi extends BaseApiRequest
 {
@@ -17,5 +18,11 @@ class AdminCmsApi extends BaseApiRequest
     }
 
     /* Public Methods *********************************************************/
+
+    public function GET_pages(): void
+    {
+        $pages = new AdminPagesApi(services: $this->services, keyword: $this->keyword);
+        $this->response->set_data($pages->GET_pages());
+    }
 }
 ?>

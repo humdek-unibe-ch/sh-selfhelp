@@ -7,6 +7,7 @@
  - add `is_open_access` field to `pages`
  - add JWT auth for the `cms-api`
  - add `refresh_token` functionality for JWT login for better security
+ - remove `open`page type, and all pages from that type were moved to `experiment` with `open_access` flag
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
