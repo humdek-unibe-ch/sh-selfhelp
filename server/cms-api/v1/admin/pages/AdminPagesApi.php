@@ -20,7 +20,7 @@ require_once __DIR__ . "/../../BaseApiRequest.php";
 class AdminPagesApi extends BaseApiRequest
 {
     /**
-     * @brief Constructor for WebPageCmsApi
+     * @brief Constructor for AdminPagesApi
      * 
      * @param object $services The service handler instance which holds all services
      * @param string $keyword The keyword identifier for the page
@@ -28,10 +28,19 @@ class AdminPagesApi extends BaseApiRequest
     public function __construct($services, $keyword)
     {
         parent::__construct(services: $services, keyword: $keyword);
+        $this->response = new CmsApiResponse();
     }
 
-    public function GET_pages(): array
+    public function GET_pages(): array|CmsApiResponse
     {
+        if (!$this->login->is_logged_in()) {
+            $this->error_response(
+                error: "User is not logged in",
+                status: 401
+            );            
+            return null;
+        }
+
         $sql = "CALL get_user_acl(:uid, -1)";
         $params = array(':uid' => $this->get_user_id());
         $all_pages = $this->db->query_db($sql, $params);
