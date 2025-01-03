@@ -164,6 +164,24 @@ CREATE TABLE IF NOT EXISTS refreshTokens (
     INDEX idx_user_id (id_users)
 );
 
+-- remove open type pages and make them experiment pages with open_access flag
+UPDATE pages
+SET id_type = (
+        SELECT id
+        FROM pageType
+        WHERE name = 'experiment'
+    ),
+    is_open_Access = 1
+WHERE id_type = (
+        SELECT id
+        FROM pageType
+        WHERE name = 'open'
+    );
+
+-- delete the open page type
+DELETE FROM pageType
+WHERE name = 'open';
+
 
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field

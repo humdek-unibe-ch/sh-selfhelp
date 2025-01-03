@@ -518,10 +518,6 @@ class Acl
         //    return true;
         $acl = $this->get_access_levels($id, $id_page, $is_group);
         $page = $this->db->fetch_page_by_id($id_page);
-        if (intval($page['id_type']) === OPEN_PAGE_ID){
-            // the page is open access. Anyone should have select
-            $acl['select'] = true;
-        }
         if(isset($acl[$mode]))
             return $acl[$mode];
         return false;

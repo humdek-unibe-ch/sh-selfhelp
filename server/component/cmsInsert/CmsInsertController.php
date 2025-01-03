@@ -74,12 +74,9 @@ class CmsInsertController extends BaseController
             $is_headless = false;
             if(isset($_POST['set-headless']))
                 $is_headless = true;
-            $is_open = false;
-            if(isset($_POST['set-open']))
-                $is_open = true;
 
             $this->pid = $model->create_new_page($this->name, $url, $protocol,
-                intval($type), $position, $is_headless, $is_open,
+                intval($type), $position, $is_headless,
                 $this->model->get_active_page_id(), $_POST['id_pageAccessTypes']);
             if($this->pid)
                 $this->success = true;

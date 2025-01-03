@@ -142,8 +142,7 @@ class Services
             return false;
         }
         return !$this->is_login_page($keyword)
-            && !$this->is_script_page($keyword)
-            && !$this->is_open_page($keyword);
+            && !$this->is_script_page($keyword);
     }
 
     /**
@@ -160,24 +159,6 @@ class Services
             $this->router->map($page['protocol'], $page['url'], $page['action'],
                 $page['keyword']);
         $this->router->update_route();
-    }
-
-    /**
-     * Checks wether the current page is an open page.
-     *
-     * @param string $keyword
-     *  The keyword of the page to check.
-     * @retval bool
-     *  True if the page is an open page, false otherwise.
-     */
-    private function is_open_page($keyword)
-    {
-        $sql = "SELECT * FROM pages WHERE keyword = :kw AND id_type = :type";
-        $res = $this->db->query_db_first($sql, array(':kw' => $keyword,
-            ':type' => OPEN_PAGE_ID));
-        if($res)
-            return true;
-        return false;
     }
 
     /**
