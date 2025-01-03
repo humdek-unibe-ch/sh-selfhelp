@@ -93,6 +93,12 @@ class CmsApiResponse implements CmsApiResponseInterface {
     /** @var bool Indicates if the user is logged in */
     private bool $logged_in = false;
 
+    /** @var string API version */
+    private string $api_version = 'v1';
+
+    /** @var array Meta information */
+    private array $meta;
+
     /**
      * Creates a new API response
      * 
@@ -109,20 +115,25 @@ class CmsApiResponse implements CmsApiResponseInterface {
         $this->message = self::get_status_message($status);
         $this->data = $data;
         $this->error = $error;
+        $this->meta = [
+            'version' => $this->api_version,
+            'timestamp' => date('c')  // ISO 8601 date format
+        ];
     }
 
     /**
      * Converts the response to an array format
      * 
-     * @return array Associative array containing status, message, error, and data
+     * @return array Associative array containing status, message, error, data, and meta information
      */
     public function to_array(): array {
         return [
             'status' => $this->status,
             'message' => $this->message,
             'error' => $this->error,
-            'logged_in' => $this->logged_in,
-            'data' => $this->data          
+            'logged_in' => $this->logged_in,            
+            'meta' => $this->meta,
+            'data' => $this->data
         ];
     }
 
