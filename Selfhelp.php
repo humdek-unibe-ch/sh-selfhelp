@@ -92,6 +92,7 @@ class Selfhelp
             (isset($_SERVER['HTTP_ORIGIN']) &&
                 (
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:3000') !== false || // used for testing
+                    strpos($_SERVER['HTTP_ORIGIN'], 'http://84.75.194.2:3000') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:3001') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'https://localhost:8100') !== false || // used for testing
                     strpos($_SERVER['HTTP_ORIGIN'], 'http://localhost:8100') !== false || // used for testing
