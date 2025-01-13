@@ -41,6 +41,19 @@ class AdminCmsApi extends BaseApiRequest
 
     /* Public Methods *********************************************************/
 
+    public function GET_access(): void
+    {
+        if (!$this->response->is_logged_in()) {
+            $this->error_response(
+                error: "User is not allowed to access this page",
+                status: 403
+            );
+            $this->response->set_data(array("access" => false));
+        } else {
+            $this->response->set_data(array("access" => true));
+        }
+    }
+
     /**
      * @brief Retrieves all accessible pages for the authenticated administrator
      * 
@@ -60,14 +73,7 @@ class AdminCmsApi extends BaseApiRequest
     public function GET_pages(): void
     {
         $pages = new AdminPagesApi(services: $this->services, keyword: $this->keyword);
-        if (!$this->response->is_logged_in()) {
-            $this->error_response(
-                error: "User is not logged in",
-                status: 401
-            );
-        } else {
-            $this->response->set_data($pages->GET_pages());
-        }
+        $this->response->set_data($pages->GET_pages());
     }
 }
 ?>
