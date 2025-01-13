@@ -60,7 +60,14 @@ class AdminCmsApi extends BaseApiRequest
     public function GET_pages(): void
     {
         $pages = new AdminPagesApi(services: $this->services, keyword: $this->keyword);
-        $this->response->set_data($pages->GET_pages());
+        if (!$this->response->is_logged_in()) {
+            $this->error_response(
+                error: "User is not logged in",
+                status: 401
+            );
+        } else {
+            $this->response->set_data($pages->GET_pages());
+        }
     }
 }
 ?>

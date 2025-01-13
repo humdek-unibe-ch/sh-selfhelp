@@ -68,15 +68,7 @@ class AdminPagesApi extends BaseApiRequest
      * - Returns 401 Unauthorized if user is not logged in
      */
     public function GET_pages(): array|CmsApiResponse
-    {
-        if (!$this->login->is_logged_in()) {
-            $this->error_response(
-                error: "User is not logged in",
-                status: 401
-            );            
-            return null;
-        }
-
+    {        
         $sql = "CALL get_user_acl(:uid, -1)";
         $params = array(':uid' => $this->get_user_id());
         $all_pages = $this->db->query_db($sql, $params);

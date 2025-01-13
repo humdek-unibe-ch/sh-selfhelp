@@ -166,6 +166,18 @@ class CmsApiResponse implements CmsApiResponseInterface {
         $this->logged_in = $logged_in;
     }
 
+    
+    /**
+     * Gets the logged_in status
+     * 
+     * @return bool The logged_in status
+     */
+    public function is_logged_in(): bool
+    {
+        return $this->logged_in;
+    }
+
+
     /**
      * Sets the HTTP status code
      * 
