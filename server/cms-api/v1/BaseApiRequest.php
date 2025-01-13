@@ -97,7 +97,7 @@ abstract class BaseApiRequest
     public function authorize_user()
     {
         if (!$this->has_access()) {
-            $this->response->set_status(status_code: 401);
+            $this->response->set_status(status_code: 403);
             $this->response->send();
             exit; // Add this line to halt further execution
         }
