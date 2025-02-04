@@ -18,7 +18,7 @@ Currently available styles include, but are not limited to, alert boxes, buttons
   - `sudo apt update`
   - `sudo apt install apache2`  
   - `sudo apt install mysql-server`
-  - `sudo apt-get install php php-fpm php-mysql libapache2-mod-php libapache2-mod-fcgid php-apcu php-uopz php-mbstring php8-intl -y`
+  - `sudo apt-get install php php-fpm php-mysql libapache2-mod-php libapache2-mod-fcgid php-apcu php-uopz php-mbstring php8-intl php-curl -y`
 ## Install SelfHelp
   - `sudo git clone https://github.com/humdek-unibe-ch/sh-selfhelp.git` __project_name__
   - `cd ` __project_name__
