@@ -1,7 +1,8 @@
 # v7.2.0
 ### New Feature
  - change the config column in formActions to `json`
- - replace `delete_scheduled` property in the config to `clear_existing_jobs_for_record_and_action`
+ - replace `delete_scheduled` property in the config to `clear_existing_jobs_for_record_and_action` - When enabled, if the record is updated, any jobs associated with both the record and this action will have their status updated to 'deleted' before new jobs are scheduled. This ensures that outdated jobs are flagged and no longer executed, while still preserving their historical data.
+ - add `clear_existing_jobs_for_record_and_action` action - When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs. 
 
 # v7.1.0
 ### Bugfix

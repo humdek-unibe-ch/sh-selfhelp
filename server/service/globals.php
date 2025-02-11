@@ -228,6 +228,7 @@ define('ACTION_JOB_TYPE_NOTIFICATION_WITH_REMINDER_FOR_DIARY', 'notification_wit
 define('ACTION_SELECTED_OVERWRITE_VARIABLES', 'selected_overwrite_variables');
 define('ACTION_SELECTED_OVERWRITE_VARIABLES_IMPERSONATE_USER_CODE', 'impersonate_user_code');
 define('ACTION_TARGET_GROUPS', 'target_groups');
+define('ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION', 'clear_existing_jobs_for_action');
 define('ACTION_CLEAR_EXISTING_JOBS_FOR_RECORD_AND_ACTION', 'clear_existing_jobs_for_record_and_action');
 define('ACTION_SELECTED_TARGET_GROUPS', 'selected_target_groups');
 define('ACTION_RANDOMIZE', 'randomize');
