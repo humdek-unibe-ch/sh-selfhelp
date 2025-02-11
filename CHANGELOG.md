@@ -3,7 +3,7 @@
  - change the config column in formActions to `json`
  - replace `delete_scheduled` property in the config to `clear_existing_jobs_for_record_and_action`
 
-
+# v7.1.0
 ### Bugfix
  - correctly check dynamic form values for actions based on the correct trigger type
 
