@@ -1,3 +1,7 @@
+# v7.2.1
+### Bugfix
+ - Fixed Cron Job Email Notifications: Implemented output buffering (ob_start() and ob_end_clean()) to capture and discard any unintended whitespace or output from cron jobs, preventing unnecessary email notifications.
+
 # v7.2.0
 ### New Feature
  - change the config column in formActions to `json`
