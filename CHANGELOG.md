@@ -1,4 +1,8 @@
-# v7.1.1
+# v7.2.0
+### New Feature
+ - change the config column in formActions to `json`
+
+
 ### Bugfix
  - correctly check dynamic form values for actions based on the correct trigger type
 
