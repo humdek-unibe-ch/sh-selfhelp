@@ -1,6 +1,7 @@
 # v7.2.0
 ### New Feature
  - change the config column in formActions to `json`
+ - replace `delete_scheduled` property in the config to `clear_existing_jobs_for_record_and_action`
 
 
 ### Bugfix

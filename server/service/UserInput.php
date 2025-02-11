@@ -1368,7 +1368,7 @@ class UserInput
 
                 if (
                     $form_data['trigger_type'] == actionTriggerTypes_finished && isset($form_data['form_fields'][ENTRY_RECORD_ID]) &&
-                    isset($action['config'][ACTION_DELETE_SCHEDULED]) && $action['config'][ACTION_DELETE_SCHEDULED]
+                    isset($action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_RECORD_AND_ACTION]) && $action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_RECORD_AND_ACTION]
                 ) {
                     // if the trigger type is finished and the record id exists, check for scheduled jobs with that record and move them to status deleted
                     $result['deleted_jobs'] = $this->delete_jobs_for_record_and_action($action['id'], $form_data['form_fields'][ENTRY_RECORD_ID]);

@@ -376,7 +376,7 @@
                         28,
                         29,
                         30
-                    ],                    
+                    ],
                     "options": {
                         "grid_columns": 2,
                         "enum_titles": [
@@ -410,7 +410,7 @@
                             "Every 28th",
                             "Every 29th",
                             "Every 30th"
-                        ]                        
+                        ]
                     },
                     "description": "The frequency at which the event repeats."
                 },
@@ -1153,7 +1153,7 @@
             "default": false,
             "format": "checkbox",
             "options": {
-                "grid_columns": 2
+                "grid_columns": 3
             }
         },
         "overwrite_variables": {
@@ -1162,17 +1162,27 @@
             "default": false,
             "format": "checkbox",
             "options": {
-                "grid_columns": 2
+                "grid_columns": 3
             }
         },
-        "delete_scheduled": {
+        "clear_existing_jobs_for_action": {
             "type": "boolean",
-            "title": "Delete jobs",
-            "description": "Delete already scheduled jobs when a record is updated",
+            "title": "Clear Scheduled Jobs for This Action",
+            "description": "When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.",
             "default": false,
             "format": "checkbox",
             "options": {
-                "grid_columns": 2
+                "grid_columns": 6
+            }
+        },
+        "clear_existing_jobs_for_record_and_action": {
+            "type": "boolean",
+            "title": "Clear Scheduled Jobs for This Action & Record",
+            "description": "When enabled, if the record is updated, any jobs associated with both the record and this action will have their status updated to 'deleted' before new jobs are scheduled. This ensures that outdated jobs are flagged and no longer executed, while still preserving their historical data.",
+            "default": false,
+            "format": "checkbox",
+            "options": {
+                "grid_columns": 6
             }
         },
         "randomizer": {
