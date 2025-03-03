@@ -1,6 +1,6 @@
 # v7.2.2
 ### Bugfix
- - #571 - properly check the conditions when executing a mail to be checked based on the user who entered the record that triggered the action and generating the job. This update corrects the condition check during mail execution. Previously, the system validated the wrong user when determining whether to execute the mail check. The job generation remains unchanged, but now the condition is properly verified using the user who entered the triggering record, ensuring accurate and reliable execution.
+ - #517 - properly check the conditions when executing a mail to be checked based on the user who entered the record that triggered the action and generating the job. This update corrects the condition check during mail execution. Previously, the system validated the wrong user when determining whether to execute the mail check. The job generation remains unchanged, but now the condition is properly verified using the user who entered the triggering record, ensuring accurate and reliable execution.
 
 # v7.2.1
 ### Bugfix
