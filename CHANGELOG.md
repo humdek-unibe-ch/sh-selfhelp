@@ -1,3 +1,7 @@
+# v7.2.2
+### Bugfix
+ - #571 - properly check the conditions when executing a mail to be checked based on the user who entered the record that triggered the action and generating the job. This update corrects the condition check during mail execution. Previously, the system validated the wrong user when determining whether to execute the mail check. The job generation remains unchanged, but now the condition is properly verified using the user who entered the triggering record, ensuring accurate and reliable execution.
+
 # v7.2.1
 ### Bugfix
  - Fixed Cron Job Email Notifications: Implemented output buffering (ob_start() and ob_end_clean()) to capture and discard any unintended whitespace or output from cron jobs, preventing unnecessary email notifications.
@@ -8,7 +12,7 @@
  - replace `delete_scheduled` property in the config to `clear_existing_jobs_for_record_and_action` - When enabled, if the record is updated, any jobs associated with both the record and this action will have their status updated to 'deleted' before new jobs are scheduled. This ensures that outdated jobs are flagged and no longer executed, while still preserving their historical data.
  - add `clear_existing_jobs_for_record_and_action` action - When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs. 
 
-# v7.1.0
+# v7.1.1
 ### Bugfix
  - correctly check dynamic form values for actions based on the correct trigger type
 
