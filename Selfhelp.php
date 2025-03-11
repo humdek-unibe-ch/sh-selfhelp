@@ -38,7 +38,7 @@ class Selfhelp
      * Creating a SelfHelp Instance.
      */
     public function __construct()
-    {
+    {        
         $this->init();
     }
 
@@ -56,6 +56,12 @@ class Selfhelp
             $this->cors();
         }
         $services = new Services();
+        if (DEBUG == 1) {
+            // enable clockwork debugger
+            require_once './server/service/Clockwork.php';
+            // Initialize Clockwork as a global variable for quick access
+            $GLOBALS['clockwork'] = new ClockworkService($services->get_router());
+        }
         if (isset($_POST['mobile']) && $_POST['mobile']) {
             $this->mobile_call($services);
         } else {
@@ -213,7 +219,7 @@ class Selfhelp
     private function web_call($services)
     {
         // call closure or throw 404 status
-        $router = $services->get_router();
+        $router = $services->get_router();        
         $debug_start_time = microtime(true);
         if ($router->route) {
             if ($router->route['target'] == "sections") {
@@ -230,6 +236,7 @@ class Selfhelp
                     $router->route['params']
                 );
                 $page->output();
+                $services->get_clockwork()->info('Page output for component');
             } else if ($router->route['target'] == PAGE_ACTION_BACKEND) {
                 $function_name = "create_" . $router->route['name'] . "_page";
                 if (is_callable($function_name)) {
@@ -243,13 +250,14 @@ class Selfhelp
                 $this->create_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity
-            $router->log_user_activity($debug_start_time);
+            $router->log_user_activity($debug_start_time);            
             $router->get_other_users_editing_this_page();
         } else {
             // no route was matched
             $page = new SectionPage($services, 'missing', array());
             $page->output();
         }
+        $services->get_clockwork()->requestProcessed();
     }
 
 
