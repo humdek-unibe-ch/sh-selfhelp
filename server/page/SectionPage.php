@@ -46,6 +46,7 @@ class SectionPage extends BasePage
      */
     public function __construct($services, $keyword, $params=array())
     {
+        $services->get_clockwork()->startEvent('[SectionPage] keyword:' .$keyword);
         parent::__construct($services, $keyword);
         if(!$this->acl_pass)
             return;
@@ -66,6 +67,7 @@ class SectionPage extends BasePage
                 $this->services, $this->id_navigation_section, $params,
                 $this->id_page));
         }
+        $services->get_clockwork()->endEvent('[SectionPage] keyword:' .$keyword);
     }
 
     /* Protected Methods ******************************************************/
@@ -77,6 +79,7 @@ class SectionPage extends BasePage
      */
     protected function output_content()
     {
+        $this->services->get_clockwork()->startEvent('[WebPage][Output section] keyword:' .$this->keyword);
         $db = $this->services->get_db();
         $was_section_rendered = false;
         if ($this->pageAccessType != pageAccessTypes_mobile) {
@@ -106,6 +109,7 @@ class SectionPage extends BasePage
             $page = new InternalPage($this, "missing");
             $page->output_content();
         }
+        $this->services->get_clockwork()->endEvent('[WebPage][Output section] keyword:' .$this->keyword);
     }
 
     protected function output_content_mobile()

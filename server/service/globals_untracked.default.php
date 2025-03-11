@@ -7,6 +7,7 @@
 define('REDIRECT_ON_LOGIN', true);
 define('PROJECT_NAME', '__project_name__');
 define('DEBUG', 0);
+define('CLOCKWORK_PROFILE', 0);
 define('CORS', true);
 define('LANGUAGE', 2); // German
 #define('BASE_PATH', '/' . PROJECT_NAME);

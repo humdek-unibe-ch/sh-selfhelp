@@ -39,13 +39,24 @@ class ClockworkService
                 'storage_files_path' => __DIR__ . '/../../data/clockwork',
                 'api' => BASE_PATH . '/ClockworkApi.php?request=',
                 'register_helpers' => true,
-                'enable' => DEBUG == 1,
+                'enable' => $this->isEnabled(),
                 'collect_data_always' => true,
-                'database' => true
+                'database' => true,
+                'features' => [
+                    'database' => [
+                        'detect_duplicate_queries' => true,
+                        'log_duplicate_queries' => true,
+                    ],
+                ],
             ]);
         } catch (\Exception $e) {
             error_log('Clockwork initialization failed: ' . $e->getMessage());
         }
+    }
+
+    public function isEnabled(): bool
+    {
+        return defined('CLOCKWORK_PROFILE') && CLOCKWORK_PROFILE == 1;
     }
 
 
@@ -68,7 +79,7 @@ class ClockworkService
      */
     public function info($message, array $context = [])
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -84,7 +95,7 @@ class ClockworkService
      */
     public function warning($message, array $context = [])
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -100,7 +111,7 @@ class ClockworkService
      */
     public function error($message, array $context = [])
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -115,11 +126,11 @@ class ClockworkService
      */
     public function startEvent($name)
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
-        clock($name)->startEvent();
+        clock()->event($name)->start(microtime(true));
     }
 
     /**
@@ -130,11 +141,11 @@ class ClockworkService
      */
     public function endEvent($name)
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
-        clock($name)->endEvent();
+        clock()->event($name)->end(microtime(true));
     }
 
     /**
@@ -146,7 +157,7 @@ class ClockworkService
      */
     public function addData($name, $data)
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -164,7 +175,7 @@ class ClockworkService
      */
     public function addDatabaseQuery($query, array $bindings = [], $duration = 0, $success = true)
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -181,7 +192,7 @@ class ClockworkService
      */
     public function requestProcessed()
     {
-        if (!DEBUG) {
+        if (!$this->isEnabled()) {
             return;
         }
 
