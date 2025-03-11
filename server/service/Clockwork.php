@@ -41,9 +41,8 @@ class ClockworkService
                 'register_helpers' => true,
                 'enable' => DEBUG == 1,
                 'collect_data_always' => true,
-                'database' => true                
-            ]);
-
+                'database' => true,                
+            ]);            
         } catch (\Exception $e) {
             error_log('Clockwork initialization failed: ' . $e->getMessage());
         }
@@ -163,7 +162,7 @@ class ClockworkService
      * @param bool $success Whether the query was successful
      * @return void
      */
-    public function trackDatabaseQuery($query, array $bindings = [], $duration = 0, $success = true)
+    public function addDatabaseQuery($query, array $bindings = [], $duration = 0, $success = true)
     {
         if (!DEBUG) {
             return;
@@ -187,8 +186,8 @@ class ClockworkService
         }
 
         try {
-           $this->clockwork->requestProcessed();
-           ob_end_flush();
+            $this->clockwork->requestProcessed();
+            ob_end_flush();
         } catch (\Exception $e) {
             error_log('Clockwork request processing failed: ' . $e->getMessage());
         }

@@ -39,7 +39,7 @@ class BaseDb {
      * @param string $password: password
      * @param string $names:    charset (optional, default: utf8)
      */
-    public function __construct($server, $dbname, $username, $password, $names="utf8") {
+    public function __construct($server, $dbname, $username, $password, $clockwork, $names="utf8") {
         $this->cache = new Cache();
         try {
             $this->dbh = new ExtendedPdo(
@@ -48,6 +48,7 @@ class BaseDb {
             );
             $this->dbh->setAttribute(PDO::ATTR_ERRMODE,
                 PDO::ERRMODE_EXCEPTION);
+            $this->dbh->set_clockwork($clockwork);
         }
         catch(PDOException $e)
         {

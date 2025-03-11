@@ -95,7 +95,8 @@ class Services
      */
     public function __construct($fullMode = true)
     {
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->clockwork = new ClockworkService();
+        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, $this->clockwork);
 
         $this->router = new Router($this->db, BASE_PATH);
         $this->router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
@@ -128,8 +129,7 @@ class Services
 
         $this->parsedown = new ParsedownExtension($this->router);
         $this->parsedown->setSafeMode(false);
-        $this->hooks = new Hooks($this);
-        $this->clockwork = new ClockworkService();
+        $this->hooks = new Hooks($this);        
     }
 
     /**
