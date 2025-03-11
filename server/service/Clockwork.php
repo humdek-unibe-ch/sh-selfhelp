@@ -37,12 +37,12 @@ class ClockworkService
             ob_start();
             $this->clockwork = Clockwork::init([
                 'storage_files_path' => __DIR__ . '/../../data/clockwork',
-                'api' => BASE_PATH . '/CclockworkApi.php?request=',
+                'api' => BASE_PATH . '/ClockworkApi.php?request=',
                 'register_helpers' => true,
                 'enable' => DEBUG == 1,
                 'collect_data_always' => true,
-                'database' => true,                
-            ]);            
+                'database' => true
+            ]);
         } catch (\Exception $e) {
             error_log('Clockwork initialization failed: ' . $e->getMessage());
         }

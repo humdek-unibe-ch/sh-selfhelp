@@ -9,11 +9,17 @@
 
 // Load Clockwork via Composer autoloader
 require_once __DIR__ . '/server/service/ext/clockwork/vendor/autoload.php';
+require_once __DIR__ . '/server/service/globals_untracked.php';
+
+if (DEBUG != 1) {
+    return;
+}
 
 // Initialize Clockwork
 $clockwork = Clockwork\Support\Vanilla\Clockwork::init([
     'storage_files_path' => __DIR__ . '/data/clockwork',
-    'register_helpers' => true
+    'register_helpers' => true,
+    'enable' => DEBUG == 1,
 ]);
 
 // Handle the Clockwork request and return the appropriate response
