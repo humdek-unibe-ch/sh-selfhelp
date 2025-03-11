@@ -26,8 +26,6 @@ class ClockworkService
     /** @var \Clockwork\Support\Vanilla\Clockwork The Clockwork instance */
     private $clockwork;
 
-    /** @var ClockworkService The singleton instance */
-    private $instance;
 
     /**
      * Private constructor to enforce singleton pattern
@@ -40,7 +38,10 @@ class ClockworkService
             $this->clockwork = Clockwork::init([
                 'storage_files_path' => __DIR__ . '/../../data/clockwork',
                 'api' => BASE_PATH . '/clockwork.php?request=',
-                'register_helpers' => true 
+                'register_helpers' => true,
+                'enable' => DEBUG == 1,
+                'collect_data_always' => true,
+                'database' => true                
             ]);
 
         } catch (\Exception $e) {
@@ -48,19 +49,6 @@ class ClockworkService
         }
     }
 
-    /**
-     * Get the singleton instance
-     * 
-     * @return ClockworkService
-     */
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
 
     /**
      * Get the Clockwork instance

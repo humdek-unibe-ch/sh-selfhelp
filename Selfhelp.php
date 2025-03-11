@@ -56,12 +56,6 @@ class Selfhelp
             $this->cors();
         }
         $services = new Services();
-        if (DEBUG == 1) {
-            // enable clockwork debugger
-            require_once './server/service/Clockwork.php';
-            // Initialize Clockwork as a global variable for quick access
-            $GLOBALS['clockwork'] = new ClockworkService($services->get_router());
-        }
         if (isset($_POST['mobile']) && $_POST['mobile']) {
             $this->mobile_call($services);
         } else {
@@ -236,7 +230,6 @@ class Selfhelp
                     $router->route['params']
                 );
                 $page->output();
-                $services->get_clockwork()->info('Page output for component');
             } else if ($router->route['target'] == PAGE_ACTION_BACKEND) {
                 $function_name = "create_" . $router->route['name'] . "_page";
                 if (is_callable($function_name)) {
