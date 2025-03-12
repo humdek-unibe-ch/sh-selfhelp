@@ -47,6 +47,9 @@ class ClockworkService
                         'detect_duplicate_queries' => true,
                         'log_duplicate_queries' => true,
                     ],
+                    'performance' =>[
+                        "client_metrics" => true
+                    ]
                 ],
             ]);
         } catch (\Exception $e) {
