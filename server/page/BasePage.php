@@ -735,9 +735,12 @@ abstract class BasePage
      */
     public function output_component($key)
     {
+        $this->services->get_clockwork()->startEvent('[BasePage][output_component] key:' .$key);
         $component = $this->get_component($key);
-        if($component != null)
+        if($component != null){
             $component->output_content();
+            $this->services->get_clockwork()->endEvent('[BasePage][output_component] key:' .$key);
+        }
     }
 
     public function output_component_mobile($key)
