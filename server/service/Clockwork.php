@@ -67,7 +67,7 @@ class ClockworkService
         $this->loadRequiredClasses();
 
         $tracked_classes_with_functions = [
-            "BaseView" => ["output_content", "output_content_mobile"]
+            "BaseView" => ["output_content", "output_content_mobile"],
         ];
 
         $clockworkService = $this;
@@ -95,9 +95,6 @@ class ClockworkService
                                         $class = get_class($this);
                                         $clockworkService->startEvent("[$class][$function]");
 
-                                        // The original method has executed already.
-                                        // The original return value is appended as the last argument.
-                                        // $originalReturn = array_pop($args);
                                         $originalReturn = call_user_func_array([$this, $function], $args);
 
                                         // Log after execution.
