@@ -146,6 +146,8 @@ class ClockworkService
         $scanPaths = [
             __DIR__ . '/../component',
             __DIR__ . '/../component/style',
+            __DIR__ . '/../plugins/*/server/component',
+            __DIR__ . '/../plugins/*/server/component/style',
             // Add other important directories as needed
         ];
 
