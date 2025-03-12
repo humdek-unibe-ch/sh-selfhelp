@@ -111,12 +111,22 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->params = $params;
         $this->id_page = $id_page; 
         $this->entry_record = $entry_record;
-        $this->style_name = $this->get_style_name_by_section_id($id);        
-        if(isset($params['parent_id'])){
-            $this->parent_id = $params['parent_id'];
+        $this->initialize();
+                
+    }
+
+    /* Private Methods ********************************************************/    
+
+    public function initialize()
+    {
+        $class = get_class($this);
+        $this->services->get_clockwork()->startEvent("[$class][initialize]");
+        $this->style_name = $this->get_style_name_by_section_id($this->section_id);        
+        if(isset($this->params['parent_id'])){
+            $this->parent_id = $this->params['parent_id'];
         }
-        if(isset($params['relation'])){
-            $this->relation = $params['relation'];
+        if(isset($this->params['relation'])){
+            $this->relation = $this->params['relation'];
         }
         if(!$this->is_cms_page())
         {
@@ -124,10 +134,10 @@ class StyleModel extends BaseModel implements IStyleModel
             $_SESSION['language'] = $_SESSION['user_language'];
         }
         $this->db_fields['id'] = array(
-            "content" => $id,
+            "content" => $this->section_id,
             "type" => "internal",
         );                                
-        $fields = $this->db->fetch_section_fields($id);
+        $fields = $this->db->fetch_section_fields($this->section_id);
         $this->set_db_fields($fields);   
         if(!$this->style_name){
             return;
@@ -138,10 +148,9 @@ class StyleModel extends BaseModel implements IStyleModel
         if (($this->is_cms_page() || $this->condition_result['result'])) {
             $this->loadChildren($this->entry_record);
         }
-                
-    }
-
-    /* Private Methods ********************************************************/    
+        $class = get_class($this);
+        $this->services->get_clockwork()->endEvent("[$class][initialize]");
+    }   
 
     /**
      * Get entries values if there are any set

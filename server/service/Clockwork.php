@@ -67,9 +67,7 @@ class ClockworkService
         $this->loadRequiredClasses();
 
         $tracked_classes_with_functions = [
-            "BaseView"      => ["output_content", "output_content_mobile"],
-            "StyleModel" => ["initialize"],
-            // "StyleView" => ["output_content", "output_content_mobile"],
+            "BaseView" => ["output_content", "output_content_mobile"]
         ];
 
         $clockworkService = $this;
@@ -82,36 +80,36 @@ class ClockworkService
             foreach (get_declared_classes() as $class) {
                 // Check if the class is the base class itself or a subclass of it.
                 if ($class === $baseClass || is_subclass_of($class, $baseClass)) {
-                    // Loop over each function that should be wrapped.
+                    // Loop over each function that should be wrapped.                    
                     foreach ($functions as $function) {
                         try {
-                            if (method_exists($class, $function)) {
-                                $method = new ReflectionMethod($class, $function);
-                                // Apply hook only if the method is declared in the class (not inherited)
-                                if ($method->getDeclaringClass()->getName() === $class) {
-                                    uopz_set_return(
-                                        $class,
-                                        $function,
-                                        function (...$args) use ($clockworkService, $function) {
-                                            // Log before execution.
-                                            $class = get_class($this);
-                                            $clockworkService->startEvent("[$class][$function]");
+                            // if (method_exists($class, $function)) {
+                            $method = new ReflectionMethod($class, $function);
+                            // Apply hook only if the method is declared in the class (not inherited)
+                            if ($method->getDeclaringClass()->getName() === $class) {
+                                uopz_set_return(
+                                    $class,
+                                    $function,
+                                    function (...$args) use ($clockworkService, $function) {
+                                        // Log before execution.
+                                        $class = get_class($this);
+                                        $clockworkService->startEvent("[$class][$function]");
 
-                                            // The original method has executed already.
-                                            // The original return value is appended as the last argument.
-                                            // $originalReturn = array_pop($args);
-                                            $originalReturn = call_user_func_array([$this, $function], $args);
+                                        // The original method has executed already.
+                                        // The original return value is appended as the last argument.
+                                        // $originalReturn = array_pop($args);
+                                        $originalReturn = call_user_func_array([$this, $function], $args);
 
-                                            // Log after execution.
-                                            $clockworkService->endEvent("[$class][$function]");
+                                        // Log after execution.
+                                        $clockworkService->endEvent("[$class][$function]");
 
-                                            // Return the original value.
-                                            return $originalReturn;
-                                        },
-                                        true // Execute original method before calling this callback.
-                                    );
-                                }
+                                        // Return the original value.
+                                        return $originalReturn;
+                                    },
+                                    true // Execute original method before calling this callback.
+                                );
                             }
+                            // }
                         } catch (ReflectionException $e) {
                             // The method does not exist on this class.
                             // You can optionally log or handle this case.
