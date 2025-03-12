@@ -34,6 +34,9 @@ class ClockworkService
     {
         try {
             // Initialize Clockwork using the Vanilla support class
+            if (!$this->isEnabled()) {
+                return;
+            }
             ob_start();
             $this->clockwork = Clockwork::init([
                 'storage_files_path' => __DIR__ . '/../../data/clockwork',
@@ -47,13 +50,45 @@ class ClockworkService
                         'detect_duplicate_queries' => true,
                         'log_duplicate_queries' => true,
                     ],
-                    'performance' =>[
+                    'performance' => [
                         "client_metrics" => true
                     ]
                 ],
             ]);
+            $this->wrap_common_functions();
         } catch (\Exception $e) {
             error_log('Clockwork initialization failed: ' . $e->getMessage());
+        }
+    }
+
+    private function wrap_common_functions()
+    {
+        $clockworkService = $this;
+        foreach (get_declared_classes() as $class) {
+            if (is_subclass_of($class, 'BaseView')) {
+                try {
+                    $method = new ReflectionMethod($class, 'output_content');
+                    // Only apply hook if the method is declared in the class itself.
+                    if ($method->getDeclaringClass()->getName() === $class) {
+                        uopz_set_return($class, 'output_content', function (...$args) use ($clockworkService) {
+                            // Log before. (Note: the original function has already been executed.)
+                            $clockworkService->startEvent('[BaseView][output_content]');
+
+                            // The callback receives all arguments passed to output_content, 
+                            // with the original return value appended as the last parameter.
+                            $originalReturn = array_pop($args);
+
+                            // Log after.
+                            $clockworkService->endEvent('[BaseView][output_content]');
+
+                            // Return the original value.
+                            return $originalReturn;
+                        }, true);
+                    }
+                } catch (ReflectionException $e) {
+                    // The method 'output_content' is not declared in this class.
+                }
+            }
         }
     }
 

@@ -737,21 +737,21 @@ abstract class BasePage
      */
     public function output_component($key)
     {
-        $this->services->get_clockwork()->startEvent('[BasePage][output_component] key:' .$key);
+        $this->services->get_clockwork()->startEvent('[BasePage][output_component] key:' .$key . " keyword: " . $this->keyword);
         $component = $this->get_component($key);
         if ($component != null) {
             $component->output_content();
-            $this->services->get_clockwork()->endEvent('[BasePage][output_component] key:' . $key);
+            $this->services->get_clockwork()->endEvent('[BasePage][output_component] key:' . $key . " keyword: " . $this->keyword);
         }
     }
 
     public function output_component_mobile($key)
     {
-        $this->services->get_clockwork()->startEvent('[BasePage][output_component_mobile] key:' . $key);
+        $this->services->get_clockwork()->startEvent('[BasePage][output_component_mobile] key:' . $key . " keyword: " . $this->keyword);
         $component = $this->get_component($key);
         if ($component != null) {
             return $component->output_content_mobile();
-            $this->services->get_clockwork()->endEvent('[BasePage][output_component_mobile] key:' . $key);
+            $this->services->get_clockwork()->endEvent('[BasePage][output_component_mobile] key:' . $key . " keyword: " . $this->keyword);
         }
     }
 
