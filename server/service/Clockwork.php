@@ -64,6 +64,7 @@ class ClockworkService
     private function wrap_common_functions()
     {
         // Load only the necessary classes instead of all PHP files
+        ob_start();
         $this->loadRequiredClasses();
 
         $tracked_classes_with_functions = [
@@ -115,6 +116,7 @@ class ClockworkService
                 }
             }
         }
+        ob_end_clean();
     }
 
     /**

@@ -6,7 +6,7 @@
 <?php
 require_once __DIR__ . "/../StyleModel.php";
 require_once __DIR__ . "/../StyleComponent.php";
-require_once SERVICE_PATH . "/Navigation.php";
+require_once __DIR__ . "/../../../service/Navigation.php";
 /**
  * This class is used to prepare all data related to the nested list
  * component such that the data can easily be displayed in the view of the

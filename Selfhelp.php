@@ -68,6 +68,7 @@ class Selfhelp
      */
     private function loadPluginGlobals()
     {
+        ob_start();
         if ($handle = opendir(PLUGIN_SERVER_PATH)) {
             while (false !== ($dir = readdir($handle))) {
                 if (filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir") {
@@ -78,6 +79,7 @@ class Selfhelp
                 }
             }
         }
+        ob_end_clean();
     }
 
     /**

@@ -35,7 +35,7 @@ class PageDb extends BaseDb
      * @param string $password
      *  The password of the database user.
      */
-    function __construct($server, $dbname, $username, $password, $clockwork ) {
+    function __construct($server, $dbname, $username, $password, $clockwork = null ) {
         parent::__construct( $server, $dbname, $username, $password, $clockwork );
         // $res = apcu_cache_info();
         // $this->cache->clear_cache();

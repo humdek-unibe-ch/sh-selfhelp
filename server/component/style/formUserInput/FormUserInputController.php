@@ -5,7 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../../BaseController.php";
-require_once SERVICE_PATH . "/ext/Gump.php";
+require_once __DIR__ . "/../../../service/ext/Gump.php";
 /**
  * The controller class of formUserInput style component.
  */

@@ -156,8 +156,7 @@ class ClockworkPDOStatement
 
         $start = microtime(true);
         $result = $this->stmt->execute($params);
-        $duration = (microtime(true) - $start) * 1000;
-
+        $duration = (microtime(true) - $start) * 1000;    
         if ($this->clockwork) {
             $this->clockwork->addDatabaseQuery(
                 $this->query,

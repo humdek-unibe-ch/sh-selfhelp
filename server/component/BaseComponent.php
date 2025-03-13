@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+ob_start();
+
 spl_autoload_register(function ($class_name) {
     $folder = str_replace("Component", "", $class_name);
     $folder = lcfirst(str_replace("View", "", $folder));
@@ -38,6 +40,7 @@ spl_autoload_register(function ($class_name) {
         }
     }
 });
+ob_end_clean();
 /**
  * The class to define the basic functionality of a component.
  */
