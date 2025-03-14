@@ -35,14 +35,15 @@ class ClockworkModel extends BaseModel
     {
         parent::__construct($services, $id, $params);
         if ($this->is_clockwork_enabled()) {
-            $this->clockwork = Clockwork\Support\Vanilla\Clockwork::init([
+            $this->clockwork = Clockwork\Support\Vanilla\Clockwork::init([                
                 'storage_files_path' => __DIR__ . '/../../../data/clockwork',
                 'register_helpers' => true,
+                // 'api' => BASE_PATH . '/admin/clockwork',
                 'enable' => $this->is_clockwork_enabled(),
                 // 'web' => [
                 //     'enable' => true,
-                //     'path' => __DIR__ . '/server/service/ext/clockwork/vendor/itsgoingd/clockwork/Clockwork/Web/public',
-                //     'uri' => 'server/service/ext/clockwork/vendor/itsgoingd/clockwork/Clockwork/Web/public'
+                //     'path' => __DIR__ . '/public/vendor/clockwork',
+                //     'uri' => ''
                 // ]
             ]);
         }
@@ -68,5 +69,11 @@ class ClockworkModel extends BaseModel
         header('Content-Type: application/json');
         $this->clockwork->handleMetadata();
         exit(0);   
+    }
+
+    public function returnWeb()
+    {
+        $this->clockwork->returnWeb();
+        // exit(0);
     }
 }

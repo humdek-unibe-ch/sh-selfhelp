@@ -29,8 +29,10 @@ class ClockworkController extends BaseController
             $this->error_msgs[] = "Clockwork is not enabled";
             return;
         } else {
-            if (isset($_GET['request'])) {                
+            if (isset($_GET['request'])) {
                 return $model->handleMetadata();
+            } else {
+                return $model->returnWeb();
             }
         }
     }
