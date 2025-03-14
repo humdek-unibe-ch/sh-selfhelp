@@ -40,7 +40,7 @@ class ClockworkService
             ob_start();
             $this->clockwork = Clockwork::init([
                 'storage_files_path' => __DIR__ . '/../../data/clockwork',
-                'api' => BASE_PATH . '/ClockworkApi.php?request=',
+                'api' => BASE_PATH . '/admin/clockwork?request=',
                 'register_helpers' => true,
                 'enable' => $this->isEnabled(),
                 'collect_data_always' => true,

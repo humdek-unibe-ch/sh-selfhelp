@@ -140,6 +140,18 @@ class CmsPreferencesView extends BaseView
                     "value" => isset($this->model->get_cmsPreferences()['anonymous_users']) ? $this->model->get_cmsPreferences()['anonymous_users'] : 0,
                     
                 )),),
+            )),
+            new BaseStyleComponent("descriptionItem", array(
+                "title" => "Clockwork",
+                "locale" => "",
+                "help" => "If selected clockwork will be enabled",
+                "children" => array(new BaseStyleComponent("input", array(
+                    "type_input" => "checkbox",
+                    "checkbox_value" => "1",
+                    "name" => "clockwork",
+                    "value" => isset($this->model->get_cmsPreferences()['clockwork']) ? $this->model->get_cmsPreferences()['clockwork'] : 0,
+                    
+                )),),
             ))
         );
         $cmsPreferences = new BaseStyleComponent("card", array(
@@ -209,6 +221,14 @@ class CmsPreferencesView extends BaseView
                     "help" => "If enabled all the users can login with their  <code>User name</code> and <code>password</code>. All new users will not require an email for registration instead the users should answer 2 security questions.",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->model->get_cmsPreferences()['anonymous_users'] == 1 ? "true" : "false"
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Clockwork",
+                    "locale" => "",
+                    "help" => "If selected clockwork will be enabled",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->model->get_cmsPreferences()['clockwork'] == 1 ? "true" : "false"
                     ))),
                 ))
             ),

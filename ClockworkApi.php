@@ -20,7 +20,26 @@ $clockwork = Clockwork\Support\Vanilla\Clockwork::init([
     'storage_files_path' => __DIR__ . '/data/clockwork',
     'register_helpers' => true,
     'enable' => CLOCKWORK_PROFILE == 1,
+    'web' => [
+         'enable' => true,
+         'path' => __DIR__ . '/server/service/ext/clockwork/vendor/itsgoingd/clockwork/Clockwork/Web/public',
+         'uri' => 'server/service/ext/clockwork/vendor/itsgoingd/clockwork/Clockwork/Web/public'
+     ]
 ]);
 
-// Handle the Clockwork request and return the appropriate response
-return $clockwork->handleMetadata();
+// Handle API requests (when the 'request' parameter is present)
+if (isset($_GET['request'])) {
+    header('Content-Type: application/json');
+    return $clockwork->handleMetadata();
+}
+
+// $webUIPath = __DIR__ . '/server/service/ext/clockwork/vendor/itsgoingd/clockwork/index.html';
+// if (file_exists($webUIPath)) {
+//     // Load and display the UI
+//     readfile($webUIPath);
+// } else {
+//     http_response_code(404);
+//     echo "Clockwork Web UI not found.";
+// }
+
+$clockwork->returnWeb();

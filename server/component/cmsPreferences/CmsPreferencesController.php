@@ -29,7 +29,8 @@ class CmsPreferencesController extends BaseController
                 'default_language_id' => $_POST['default_language_id'],
                 'callback_api_key' => $_POST['callback_api_key'],
                 'firebase_config' => $_POST['firebase_config'],
-                'anonymous_users' => isset($_POST['anonymous_users']) ? $_POST['anonymous_users'] : 0
+                'anonymous_users' => isset($_POST['anonymous_users']) ? $_POST['anonymous_users'] : 0,
+                'clockwork' => isset($_POST['clockwork']) ? $_POST['clockwork'] : 0
             )) !== false) {
                 $this->success = true;
                 $this->model->pull_cmsPreferences();

@@ -1,7 +1,9 @@
-# v7.2.3 Not released
+# v7.3.0 Not released
 ### New Feature
  - add `clockwork` to track performance and debugging
  - `assets` folder is now protected from being rewritten with `.htaccess`
+ - add `clockwork` field to `cmsPreference` to enable or disable clockwork
+ - add `clockwork` page that is accessible only by the admin and it returns the clockwork metadata
 
 # v7.2.2
 ### Bugfix
