@@ -32,7 +32,7 @@ class ClockworkController extends BaseController
             if (isset($_GET['request'])) {
                 return $model->handleMetadata();
             } else {
-                return $model->returnWeb();
+                // return $model->returnWeb();
             }
         }
     }

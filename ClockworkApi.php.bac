@@ -19,6 +19,7 @@ if (!(defined('CLOCKWORK_PROFILE') && CLOCKWORK_PROFILE == 1)) {
 $clockwork = Clockwork\Support\Vanilla\Clockwork::init([
     'storage_files_path' => __DIR__ . '/data/clockwork',
     'register_helpers' => true,
+    'api' => BASE_PATH . '/ClockworkApi.php?request=',
     'enable' => CLOCKWORK_PROFILE == 1,
     'web' => [
          'enable' => true,
