@@ -61,6 +61,7 @@ class Selfhelp
         } else {
             $this->web_call($services);
         }
+        $services->get_clockwork()->requestProcessed();
     }
 
     /**
@@ -251,8 +252,7 @@ class Selfhelp
             // no route was matched
             $page = new SectionPage($services, 'missing', array());
             $page->output();
-        }
-        $services->get_clockwork()->requestProcessed();
+        }        
     }
 
 
