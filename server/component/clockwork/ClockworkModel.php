@@ -34,10 +34,6 @@ class ClockworkModel extends BaseModel
     public function __construct($services, $id, $params)
     {
         parent::__construct($services, $id, $params);
-        $cmsPreferences = $this->db->fetch_cmsPreferences()[0];
-        if (isset($cmsPreferences['clockwork']) && $cmsPreferences['clockwork']) {
-            $this->clockwork_enabled = $cmsPreferences['clockwork'];
-        }
         if ($this->is_clockwork_enabled()) {
             $this->clockwork = Clockwork\Support\Vanilla\Clockwork::init([
                 'storage_files_path' => __DIR__ . '/../../../data/clockwork',
@@ -64,7 +60,7 @@ class ClockworkModel extends BaseModel
      */
     public function is_clockwork_enabled(): bool
     {
-        return $this->clockwork_enabled == 1;
+        return $this->get_services()->get_clockwork()->isEnabled();
     }
 
     public function handleMetadata()
