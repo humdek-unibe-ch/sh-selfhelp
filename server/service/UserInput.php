@@ -1368,10 +1368,17 @@ class UserInput
 
                 if (
                     $form_data['trigger_type'] == actionTriggerTypes_finished && isset($form_data['form_fields'][ENTRY_RECORD_ID]) &&
-                    isset($action['config'][ACTION_DELETE_SCHEDULED]) && $action['config'][ACTION_DELETE_SCHEDULED]
+                    isset($action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_RECORD_AND_ACTION]) && $action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_RECORD_AND_ACTION]
                 ) {
                     // if the trigger type is finished and the record id exists, check for scheduled jobs with that record and move them to status deleted
                     $result['deleted_jobs'] = $this->delete_jobs_for_record_and_action($action['id'], $form_data['form_fields'][ENTRY_RECORD_ID]);
+                }
+
+                if (
+                    isset($action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION]) && $action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION]
+                ) {
+                    // When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.
+                    $result['deleted_jobs'] = $this->delete_jobs_for_action($action['id']);
                 }
 
 
@@ -1593,6 +1600,52 @@ class UserInput
             }
         }
         return $form_values;
+    }
+
+    /**
+     * Deletes all queued jobs associated with a specific form action
+     * 
+     * @param int $action_id The ID of the form action whose jobs should be deleted
+     * @return array List of job IDs that were marked as deleted
+     * 
+     * @note This function:
+     * - Finds all queued jobs linked to the given form action
+     * - Updates their status to 'deleted' in the scheduledJobs table
+     * - Creates system transactions to log the deletions
+     * 
+     * @see scheduledJobs
+     * @see scheduledJobs_formActions
+     */
+    private function delete_jobs_for_action($action_id)
+    {
+        $job_status_deleted = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_deleted);
+        $job_status_queued = $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued);
+        $sql = 'SELECT id
+        FROM scheduledJobs sj
+        INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
+        WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued;';
+        $jobs_ids = $this->db->query_db($sql, array(
+            ":action_id" => $action_id,
+            ":job_status_queued" => $job_status_queued
+        ));
+        foreach ($jobs_ids as $key => $value) {
+            $this->transaction->add_transaction(
+                transactionTypes_delete,
+                transactionBy_by_system,
+                $_SESSION['id_user'],
+                $this->transaction::TABLE_SCHEDULED_JOBS,
+                $value['id'],
+                false
+            );
+            $this->db->update_by_ids(
+                "scheduledJobs",
+                array(
+                    "id_jobStatus" => $job_status_deleted
+                ),
+                array('id' => $value['id'])
+            );
+        }
+        return $jobs_ids;
     }
 
     /**

@@ -16,7 +16,7 @@ require_once __DIR__ . "/../service/JobScheduler.php";
 require_once __DIR__ . "/../service/Services.php";
 
 $plugins_folder = realpath(__DIR__ . '/../plugins/');
-
+ob_start();
 if ($plugins_folder !== false && is_dir($plugins_folder)) {
     if ($handle = opendir($plugins_folder)) {
         // Loop through the plugins folder
@@ -61,6 +61,7 @@ if ($plugins_folder !== false && is_dir($plugins_folder)) {
         closedir($handle);
     }
 }
+ob_end_clean();
 
 
 /**
@@ -104,8 +105,6 @@ class ScheduledJobsQueue
         $this->job_scheduler->check_queue_and_execute(transactionBy_by_cron_job);
     }
 }
-
 $scheduledJobsQueue = new ScheduledJobsQueue();
 $scheduledJobsQueue->check_queue();
-
 ?>

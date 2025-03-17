@@ -247,6 +247,7 @@ abstract class BasePage
      */
     private function collect_plugin_includes()
     {
+        $this->services->get_clockwork()->startEvent('[BasePage][collect_plugin_includes]');
         $js_includes = array();
         $css_includes = array();
         if(DEBUG){
@@ -314,6 +315,7 @@ abstract class BasePage
         sort($css_includes);
         $this->js_includes = array_merge($this->js_includes, $js_includes);
         $this->css_includes = array_merge($this->css_includes, $css_includes);
+        $this->services->get_clockwork()->endEvent('[BasePage][collect_plugin_includes]');
     }
 
     /**
@@ -738,17 +740,27 @@ abstract class BasePage
      *  The unique identifier of the component.
      */
     public function output_component($key)
+<<<<<<< HEAD
     {        
+=======
+    {
+        $this->services->get_clockwork()->startEvent('[BasePage][output_component] key:' .$key . " keyword: " . $this->keyword);
+>>>>>>> main
         $component = $this->get_component($key);
-        if($component != null)
+        if ($component != null) {
             $component->output_content();
+            $this->services->get_clockwork()->endEvent('[BasePage][output_component] key:' . $key . " keyword: " . $this->keyword);
+        }
     }
 
     public function output_component_mobile($key)
     {
+        $this->services->get_clockwork()->startEvent('[BasePage][output_component_mobile] key:' . $key . " keyword: " . $this->keyword);
         $component = $this->get_component($key);
-        if($component != null)
+        if ($component != null) {
             return $component->output_content_mobile();
+            $this->services->get_clockwork()->endEvent('[BasePage][output_component_mobile] key:' . $key . " keyword: " . $this->keyword);
+        }
     }
 
     /**

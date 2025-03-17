@@ -39,7 +39,7 @@ class Selfhelp
      * Creating a SelfHelp Instance.
      */
     public function __construct()
-    {
+    {        
         $this->init();
     }
 
@@ -62,6 +62,7 @@ class Selfhelp
         } else {
             $this->web_call($services);
         }
+        $services->get_clockwork()->requestProcessed();
     }
 
     /**
@@ -69,6 +70,7 @@ class Selfhelp
      */
     private function loadPluginGlobals()
     {
+        ob_start();
         if ($handle = opendir(PLUGIN_SERVER_PATH)) {
             while (false !== ($dir = readdir($handle))) {
                 if (filetype(PLUGIN_SERVER_PATH . '/' . $dir) == "dir") {
@@ -79,6 +81,7 @@ class Selfhelp
                 }
             }
         }
+        ob_end_clean();
     }
 
     /**
@@ -234,7 +237,7 @@ class Selfhelp
     private function web_call($services)
     {
         // call closure or throw 404 status
-        $router = $services->get_router();
+        $router = $services->get_router();        
         $debug_start_time = microtime(true);
         if ($router->route) {
             if ($router->route['target'] == "sections") {
@@ -266,13 +269,13 @@ class Selfhelp
                 $this->create_cms_api_request_page($services, $router->route['params']['class'], $router->route['params']['method'], $router->route['name']);
             }
             // log user activity
-            $router->log_user_activity($debug_start_time);
+            $router->log_user_activity($debug_start_time);            
             $router->get_other_users_editing_this_page();
         } else {
             // no route was matched
             $page = new SectionPage($services, 'missing', array());
             $page->output();
-        }
+        }        
     }
 
 

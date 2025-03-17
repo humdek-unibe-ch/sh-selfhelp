@@ -22,6 +22,8 @@ class ExtendedPdo extends PDO
      */
     protected $_transactionDepth = 0;
 
+    protected $clockwork;
+
 
     /**
      * Test if database driver support savepoints
@@ -36,7 +38,6 @@ class ExtendedPdo extends PDO
         );
     }
 
-
     /**
      * Start transaction
      *
@@ -49,7 +50,7 @@ class ExtendedPdo extends PDO
             $result = parent::beginTransaction();
         } else {
             $this->exec("SAVEPOINT LEVEL{$this->_transactionDepth}");
-            $result = true; // Assuming SAVEPOINT execution is successful
+            $result = true;
         }
 
         $this->_transactionDepth++;
@@ -70,7 +71,7 @@ class ExtendedPdo extends PDO
             $result = parent::commit();
         } else {
             $this->exec("RELEASE SAVEPOINT LEVEL{$this->_transactionDepth}");
-            $result = true; // Assuming RELEASE SAVEPOINT execution is successful
+            $result = true;
         }
 
         return $result;
@@ -95,10 +96,99 @@ class ExtendedPdo extends PDO
             $result = parent::rollBack();
         } else {
             $this->exec("ROLLBACK TO SAVEPOINT LEVEL{$this->_transactionDepth}");
-            $result = true; // Assuming ROLLBACK TO SAVEPOINT execution is successful
+            $result = true;
         }
 
         return $result;
     }
+
+    /**
+     * Set Clockwork instance for query timing
+     * 
+     * @param mixed $clockwork Clockwork instance
+     * @return void
+     */
+    public function set_clockwork($clockwork)
+    {
+        $this->clockwork = $clockwork;
+    }
+
+    /**
+     * Prepare a statement for execution
+     * 
+     * @param string $query The SQL query to prepare
+     * @param array $options Driver-specific options
+     * @return PDOStatement|false
+     */
+    #[\ReturnTypeWillChange]
+    public function prepare($query, $options = [])
+    {
+        $stmt = parent::prepare($query, $options);
+        
+        if ($stmt && $this->clockwork) {
+            return new ClockworkPDOStatement($stmt, $query, $this->clockwork);
+        }
+        
+        return $stmt;
+    }
 }
 ?>
+
+<?php
+
+class ClockworkPDOStatement
+{
+    private PDOStatement $stmt;
+    private string $query;
+    private $clockwork;
+    private array $params = [];
+
+    public function __construct(PDOStatement $stmt, string $query, $clockwork = null)
+    {
+        $this->stmt = $stmt;
+        $this->query = $query;
+        $this->clockwork = $clockwork;
+    }
+
+    public function execute(?array $params = null): bool
+    {
+        $this->params = $params ?? [];
+
+        $start = microtime(true);
+        $result = $this->stmt->execute($params);
+        $duration = (microtime(true) - $start) * 1000;    
+        if ($this->clockwork) {
+            $this->clockwork->addDatabaseQuery(
+                $this->query,
+                $this->params,
+                $duration,
+                $result
+            );
+        }
+
+        return $result;
+    }
+
+    #[\ReturnTypeWillChange]
+    public function fetchAll($fetch_style = PDO::FETCH_ASSOC)
+    {
+        return $this->stmt->fetchAll($fetch_style);
+    }
+
+    public function __call($name, $arguments)
+    {
+        return $this->stmt->$name(...$arguments);
+    }
+
+    public function bindParam($key, &$value, $data_type = PDO::PARAM_STR, $length = null, $driver_options = null): bool
+    {
+        $this->params[$key] = $value;
+        return $this->stmt->bindParam($key, $value, $data_type, $length, $driver_options);
+    }
+
+    public function bindValue($key, $value, $data_type = PDO::PARAM_STR): bool
+    {
+        $this->params[$key] = $value;
+        return $this->stmt->bindValue($key, $value, $data_type);
+    }
+}

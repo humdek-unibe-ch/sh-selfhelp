@@ -329,5 +329,16 @@ abstract class BaseView
             $missing_styles->output_content();
         }
     }
+
+    public function __call($method, $args) {
+        if ($method === 'output_content') {
+            error_log("Before output_content");
+            $result = call_user_func_array([$this->instance, $method], $args);
+            error_log("After output_content");
+            return $result;
+        }
+        // Delegate other methods normally
+        return call_user_func_array([$this->instance, $method], $args);
+    }
 }
 ?>

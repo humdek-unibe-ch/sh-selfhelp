@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
+ob_start();
 spl_autoload_register(function ($class_name) {
     if (strpos($class_name, "Callback") === 0) {
         if (file_exists(__DIR__ . '/' . $class_name . ".php")) {
@@ -20,6 +21,7 @@ spl_autoload_register(function ($class_name) {
         }
     }
 });
+ob_end_clean();
 
 /**
  * The class to define the basic functionality of an ajax request.

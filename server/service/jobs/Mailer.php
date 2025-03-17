@@ -49,12 +49,14 @@ class Mailer extends BasicJob
      * Info for the mail queue entry
      * @param string  $sent_by  
      * the type which the email queue sent was triggered
-     * @param int $user_id  
+     * @param int $sender_id  
      * the user who sent the email, null if it was automated
-     * @retval boolean
+     * @param int $receiver_id
+     * the user who will receive the email, the one for whom the email was generated
+     * @return boolean
      *  return if mail was sent successfully
      */
-    private function send_mail_single($mail_info, $sent_by, $condition, $user_id)
+    private function send_mail_single($mail_info, $sent_by, $condition, $sender_id, $receiver_id)
     {
         $from = array(
             'address' => $mail_info['from_email'],
@@ -87,7 +89,7 @@ class Mailer extends BasicJob
                 $this->transaction->add_transaction(
                     transactionTypes_send_notification_fail,
                     $sent_by,
-                    $user_id,
+                    $sender_id,
                     $this->transaction::TABLE_SCHEDULED_JOBS,
                     $mail_info['id'],
                     false,
@@ -95,7 +97,7 @@ class Mailer extends BasicJob
                 );
                 return false;
             }
-            if ($this->check_condition($condition, $user_info_id)) {
+            if ($this->check_condition($condition, $receiver_id)) {
                 if ($user_name) {
                     $msg = str_replace('@user_name', $user_name, $msg);
                 }
@@ -106,7 +108,7 @@ class Mailer extends BasicJob
                 $this->transaction->add_transaction(
                     $res ? transactionTypes_send_mail_ok : transactionTypes_send_mail_fail,
                     $sent_by,
-                    $user_id,
+                    $sender_id,
                     $this->transaction::TABLE_SCHEDULED_JOBS,
                     $mail_info['id'],
                     false,
@@ -116,7 +118,7 @@ class Mailer extends BasicJob
                 $this->transaction->add_transaction(
                     transactionTypes_send_notification_fail,
                     $sent_by,
-                    $user_id,
+                    $sender_id,
                     $this->transaction::TABLE_SCHEDULED_JOBS,
                     $mail_info['id'],
                     false,
@@ -239,15 +241,19 @@ class Mailer extends BasicJob
      * Send mail from the queue
      * @param int $sj_id the scheduledJob id from where we will take the information for the fields that we will send
      * @param string  $sent_by  the type which the email queue sent was triggered
-     * @param int $user_id  the user who sent the email, null if it was automated
+     * @param int $sender_id  the user who sent the email, null if it was automated
      * @retval boolean
      *  return if mail was sent successfully
      */
-    public function send_entry($sj_id, $sent_by, $condition, $user_id = null)
+    public function send_entry($sj_id, $sent_by, $condition, $sender_id = null)
     {
         $mail_info = $this->db->select_by_uid('view_mailQueue', $sj_id);
         if ($mail_info) {
-            return $this->send_mail_single($mail_info, $sent_by, $condition, $user_id);
+            $receiver_id = $this->db->query_db_first(
+                'SELECT id_users FROM scheduledJobs_users WHERE id_scheduledJobs = :id_scheduledJobs',
+                array(':id_scheduledJobs' => $sj_id)
+            );
+            return $this->send_mail_single($mail_info, $sent_by, $condition, $sender_id, $receiver_id['id_users']);
         } else {
             return false;
         }

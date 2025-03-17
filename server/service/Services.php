@@ -17,6 +17,7 @@ require_once __DIR__ . "/Transaction.php";
 require_once __DIR__ . "/JobScheduler.php";
 require_once __DIR__ . "/conditions/Condition.php";
 require_once __DIR__ . "/Hooks.php";
+require_once __DIR__ . "/Clockwork.php";
 
 /**
  * The service handler class. This class holds all service instances. The
@@ -83,13 +84,19 @@ class Services
     private $condition;
 
     /**
+     * The Clockwork service instance to handle debugging.
+     */
+    private $clockwork;
+
+    /**
      * @param bool $fullMode
      * By default it is full mode and load all services. In some cases for cronjobs we do not need all the services and then we can select $fullMode false
      * The constructor.
      */
     public function __construct($fullMode = true)
     {
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->clockwork = new ClockworkService();
+        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, $this->clockwork);
 
         $this->router = new Router($this->db, BASE_PATH);
         $this->router->addMatchTypes(array('v' => '[A-Za-z_]+[A-Za-z_0-9]*'));
@@ -122,7 +129,7 @@ class Services
 
         $this->parsedown = new ParsedownExtension($this->router);
         $this->parsedown->setSafeMode(false);
-        $this->hooks = new Hooks($this);
+        $this->hooks = new Hooks($this);        
     }
 
     /**
@@ -361,5 +368,16 @@ class Services
     {
         $this->nav = $nav;
     }    
+
+    /**
+     * Get the service class Clockwork.
+     *
+     * @retval object
+     *  The Clockwork service class.
+     */
+    public function get_clockwork()
+    {
+        return $this->clockwork;
+    }
 }
 ?>

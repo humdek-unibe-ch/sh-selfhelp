@@ -75,6 +75,8 @@ class StyleComponent extends BaseComponent
      */
     public function __construct($services, $id, $params=array(), $id_page=-1, $entry_record = array(), $manual_style = array())
     {
+        $class = get_class($this);
+        $services->get_clockwork()->startEvent("[$class][__construct][$id]");
         $this->id_section = $id;
         if(isset($params['parent_id'])){
             $this->parent_id = $params['parent_id'];
@@ -131,6 +133,7 @@ class StyleComponent extends BaseComponent
         }
         $view = $this->style->get_view();
         parent::__construct($model, $view);
+        $services->get_clockwork()->endEvent("[$class][__construct][$id]");
     }
 
     /* Public Methods *********************************************************/

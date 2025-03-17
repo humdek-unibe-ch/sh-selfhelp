@@ -17,12 +17,33 @@
  - TODO: create configuration for dataTables what columns should be accepted, like definitions. Create the dataTable manually and then selected in the style where it should be used. On submission save only the defined columns. If some data is not saved, keep it in the transaction history and show warning to the user
 
 
- v7.2.0 (Not released)
+ version for Bootstrap 5 (Not released)
 ### New Feature
  - update to `Bootstrap` 5.3
  - update to `json-editor` 2.14.1
  - update to `jQuery-QueryBuilder` 3.0.0
  - #489 - add dropdown in the footer to select `dark`, `light` or `auto` theme. The settings are saved locally in the browser as the default one is taken from the user settings in the OS
+
+# v7.3.0
+### New Feature
+ - add `clockwork` to track performance and debugging
+ - `assets` folder is now protected from being rewritten with `.htaccess` 
+ - add `clockwork` page that is accessible only by the admin and it returns the clockwork metadata
+ - log the `debug` info with with clockwork
+
+# v7.2.2
+### Bugfix
+ - #517 - properly check the conditions when executing a mail to be checked based on the user who entered the record that triggered the action and generating the job. This update corrects the condition check during mail execution. Previously, the system validated the wrong user when determining whether to execute the mail check. The job generation remains unchanged, but now the condition is properly verified using the user who entered the triggering record, ensuring accurate and reliable execution.
+
+# v7.2.1
+### Bugfix
+ - Fixed Cron Job Email Notifications: Implemented output buffering (ob_start() and ob_end_clean()) to capture and discard any unintended whitespace or output from cron jobs, preventing unnecessary email notifications.
+
+# v7.2.0
+### New Feature
+ - change the config column in formActions to `json`
+ - replace `delete_scheduled` property in the config to `clear_existing_jobs_for_record_and_action` - When enabled, if the record is updated, any jobs associated with both the record and this action will have their status updated to 'deleted' before new jobs are scheduled. This ensures that outdated jobs are flagged and no longer executed, while still preserving their historical data.
+ - add `clear_existing_jobs_for_record_and_action` action - When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs. 
 
 # v7.1.1
 ### Bugfix

@@ -253,8 +253,8 @@
 [data-schemapath="root.repeat_until_date"],
 [data-schemapath="root.target_groups"],
 [data-schemapath="root.overwrite_variables"],
-[data-schemapath="root.delete_scheduled"] {
-    margin: 10px 0;
+[data-schemapath="root.clear_scheduled_jobs"] {
+    margin: 10px 0;    
 }
 
 #jobConfig [data-schemapath*="schedule_time"] h3 {
