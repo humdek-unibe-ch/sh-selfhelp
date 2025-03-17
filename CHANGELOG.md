@@ -1,4 +1,4 @@
-# v7.3.0 Not released
+# v7.3.0
 ### New Feature
  - add `clockwork` to track performance and debugging
  - `assets` folder is now protected from being rewritten with `.htaccess` 
