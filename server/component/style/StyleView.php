@@ -156,6 +156,8 @@ abstract class StyleView extends BaseView
             $res = $this->model->get_condition_result();
             $debug_data = $this->model->get_debug_data();
             $this->model->get_services()->get_clockwork()->info($debug_data['field']['section_name'], $debug_data);
+            $this->model->get_services()->get_clockwork()->startEvent('Debug:'. $debug_data['field']['section_name']);
+            $this->model->get_services()->get_clockwork()->endEvent('Debug:'. $debug_data['field']['section_name']);
             echo '<pre class="alert alert-warning data-debug" data-debug="' . htmlspecialchars(json_encode($debug_data), ENT_QUOTES, 'UTF-8'). '">';
             var_dump($res);
             echo "</pre>";
