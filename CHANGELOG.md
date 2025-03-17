@@ -3,6 +3,7 @@
  - add `clockwork` to track performance and debugging
  - `assets` folder is now protected from being rewritten with `.htaccess` 
  - add `clockwork` page that is accessible only by the admin and it returns the clockwork metadata
+ - log the `debug` info with with clockwork
 
  TODO:
  - add logging in the debug outputs
