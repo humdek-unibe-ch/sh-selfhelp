@@ -5,12 +5,6 @@
  - add `clockwork` page that is accessible only by the admin and it returns the clockwork metadata
  - log the `debug` info with with clockwork
 
- TODO:
- - add logging in the debug outputs
- - add clockwork ui
- -  clear the clockwork api
- - rename `clockwork` to `clockworkService`
-
 # v7.2.2
 ### Bugfix
  - #517 - properly check the conditions when executing a mail to be checked based on the user who entered the record that triggered the action and generating the job. This update corrects the condition check during mail execution. Previously, the system validated the wrong user when determining whether to execute the mail check. The job generation remains unchanged, but now the condition is properly verified using the user who entered the triggering record, ensuring accurate and reliable execution.
