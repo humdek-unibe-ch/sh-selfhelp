@@ -32,7 +32,9 @@ class ClockworkController extends BaseController
             if (isset($_GET['request'])) {
                 return $model->handleMetadata();
             } else {
-                // return $model->returnWeb();
+                $this->success = true;
+                $this->success_msgs[] = "Clockwork is enabled";
+                return;
             }
         }
     }
