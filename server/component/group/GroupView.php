@@ -40,7 +40,7 @@ class GroupView extends BaseView
     {
         parent::__construct($model, $controller);
         $this->mode = $mode;
-        $this->selected_group = $this->model->get_selected_group();
+        $this->selected_group = $this->model->fetch_group($this->model->get_gid());
     }
 
     /* Private Methods ********************************************************/
@@ -57,10 +57,7 @@ class GroupView extends BaseView
     /**
      * Render the button to create a new group.
      */
-    private function output_button()
-    {
-        
-    }
+    private function output_button() {}
 
     /**
      * Render the group delete card.
@@ -80,8 +77,10 @@ class GroupView extends BaseView
                 )),
                 new BaseStyleComponent("button", array(
                     "label" => "Delete Group",
-                    "url" => $this->model->get_link_url("groupDelete",
-                        array("gid" => $this->selected_group['id'])),
+                    "url" => $this->model->get_link_url(
+                        "groupDelete",
+                        array("gid" => $this->selected_group['id'])
+                    ),
                     "type" => "danger",
                 )),
             )
@@ -94,11 +93,11 @@ class GroupView extends BaseView
      */
     private function output_group_manipulation()
     {
-        if($this->mode == "update")
+        if ($this->mode == "update")
             $this->output_group_simple_acl_form();
         else
             $this->output_group_simple_acl();
-        if($this->model->can_delete_group())
+        if ($this->model->can_delete_group())
             $this->output_group_delete();
     }
 
@@ -108,9 +107,11 @@ class GroupView extends BaseView
     private function output_group_simple_acl()
     {
         $url_edit = "";
-        if($this->model->can_modify_group_acl())
-            $url_edit = $this->model->get_link_url("groupUpdate",
-                array('gid' => $this->selected_group['id']));
+        if ($this->model->can_modify_group_acl())
+            $url_edit = $this->model->get_link_url(
+                "groupUpdate",
+                array('gid' => $this->selected_group['id'])
+            );
         $table = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
@@ -139,14 +140,17 @@ class GroupView extends BaseView
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "label" => "Update Group",
-                    "url" => $this->model->get_link_url("groupUpdate",
+                    "url" => $this->model->get_link_url(
+                        "groupUpdate",
                         array(
                             "gid" => $this->selected_group['id'],
                         )
                     ),
                     "type" => "warning",
-                    "url_cancel" => $this->model->get_link_url("groupSelect",
-                        array("gid" => $this->selected_group['id'])),
+                    "url_cancel" => $this->model->get_link_url(
+                        "groupSelect",
+                        array("gid" => $this->selected_group['id'])
+                    ),
                     "children" => array(
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
@@ -172,22 +176,20 @@ class GroupView extends BaseView
      */
     private function output_groups()
     {
-        if($this->model->can_create_new_group())
-        {
+        if ($this->model->can_create_new_group()) {
             $button = new BaseStyleComponent("button", array(
                 "label" => "Create New DB Role",
-                "url" => $this->model->get_link_url("groupInsert", array("type"=>groupTypes_db_role)),
+                "url" => $this->model->get_link_url("groupInsert", array("type" => groupTypes_db_role)),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
             $button->output_content();
         }
 
-        if($this->model->can_create_new_group())
-        {
+        if ($this->model->can_create_new_group()) {
             $button = new BaseStyleComponent("button", array(
                 "label" => "Create New Group",
-                "url" => $this->model->get_link_url("groupInsert", array("type"=>groupTypes_group)),
+                "url" => $this->model->get_link_url("groupInsert", array("type" => groupTypes_group)),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
@@ -207,7 +209,7 @@ class GroupView extends BaseView
                 "search_text" => 'Search'
             )))
         ));
-        $db_roles->output_content();        
+        $db_roles->output_content();
 
         $groups = new BaseStyleComponent("card", array(
             "css" => "mb-3",
@@ -230,7 +232,7 @@ class GroupView extends BaseView
      */
     private function output_main_content()
     {
-        if($this->selected_group != null)
+        if ($this->selected_group != null)
             require __DIR__ . "/tpl_group.php";
         else
             require __DIR__ . "/tpl_groups.php";
@@ -255,15 +257,101 @@ class GroupView extends BaseView
     }
 
     /**
+     * Render preferences wrapper.
+     */
+    private function output_group()
+    {
+        if ($this->model->get_services()->get_router()->current_route['name'] == "groupUpdate") {
+            $this->output_group_form_edit();
+        } else {
+            $this->output_group_form_view();
+        }
+    }
+
+    private function output_group_form_view()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "title" => ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " &nbsp;  <code> " . $this->selected_group['name'] . "</code>",
+            "url_edit" => $this->model->get_link_url("groupUpdate", array("gid" => $this->selected_group['id'])),
+            "children" => array(
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " Name",
+                    "help" => "The name of the group",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->selected_group['name']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " Description",
+                    "help" => "The description of the group",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->selected_group['desc']
+                    ))),
+                ))
+            )
+        ));
+        $card->output_content();
+    }
+
+    private function output_group_form_edit()
+    {
+        $card = new BaseStyleComponent("card", array(
+            "css" => "mb-3",
+            "is_expanded" => true,
+            "is_collapsible" => false,
+            "type" => "warning",
+            "title" => "Update " . ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " &nbsp;  <code> " . $this->selected_group['name'] . "</code>",
+            "url_edit" => $this->model->get_link_url("groupUpdate", array("gid" => $this->selected_group['id'])),
+            "children" => array(new BaseStyleComponent("form", array(
+                "label" => "Update",
+                "url" => $this->model->get_link_url("groupUpdate", array("gid" => $this->selected_group['id'])),
+                "url_cancel" => $this->model->get_link_url("groupSelect", array("gid" => $this->selected_group['id'])),
+                "type" => "warning",
+                "children" => array(
+                    new BaseStyleComponent("descriptionItem", array(
+                        "title" => ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " Name",
+                        "help" => "The name of the group",
+                        "locale" => "",
+                        "children" => array(new BaseStyleComponent("rawText", array(
+                            "text" => $this->selected_group['name']
+                        ))),
+                    )),
+                    new BaseStyleComponent("input", array(
+                        "type_input" => "hidden",
+                        "name" => "update_group",
+                        "value" => 1,
+                    )),
+                    new BaseStyleComponent("textarea", array(
+                        "help" => "The description of the group",
+                        "label" => ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " Description",
+                        "type_input" => "text",
+                        "name" => "desc",
+                        "value" => $this->selected_group['desc'],
+                        "placeholder" => "Enter description",
+                    ))
+                ),
+                "css" => ""
+            ))),
+
+        ));
+        $card->output_content();
+    }
+
+    /**
      * Render the ACL list with edit mode.
      */
     private function output_group_acl_custom()
     {
-        if($this->mode == "updateCustom")
+        if ($this->mode == "updateCustom")
             $this->output_group_acl_custom_form();
         else
             $this->output_group_acl_custom_table();
-        if($this->model->can_delete_group())
+        if ($this->model->can_delete_group())
             $this->output_group_delete();
     }
 
@@ -277,18 +365,21 @@ class GroupView extends BaseView
             "is_expanded" => true,
             "is_collapsible" => false,
             "type" => "warning",
-            "title" => "Modify Group" .  $this->selected_group['name'] . " ACL",
+            "title" => "Modify ACL for " . ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " &nbsp; <code>" .  $this->selected_group['name'] . "</code>",
             "children" => array(
                 new BaseStyleComponent("form", array(
                     "label" => "Update Group",
-                    "url" => $this->model->get_link_url("groupUpdateCustom",
+                    "url" => $this->model->get_link_url(
+                        "groupUpdateCustom",
                         array(
                             "gid" => $this->selected_group['id'],
                         )
                     ),
                     "type" => "warning",
-                    "url_cancel" => $this->model->get_link_url("groupSelect",
-                        array("gid" => $this->selected_group['id'])),
+                    "url_cancel" => $this->model->get_link_url(
+                        "groupSelect",
+                        array("gid" => $this->selected_group['id'])
+                    ),
                     "children" => array(
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
@@ -315,15 +406,17 @@ class GroupView extends BaseView
     private function output_group_acl_custom_table()
     {
         $url_edit = "";
-        if($this->model->can_modify_group_acl())
-            $url_edit = $this->model->get_link_url("groupUpdateCustom",
-                array('gid' => $this->selected_group['id']));
+        if ($this->model->can_modify_group_acl())
+            $url_edit = $this->model->get_link_url(
+                "groupUpdateCustom",
+                array('gid' => $this->selected_group['id'])
+            );
         $table = new BaseStyleComponent("card", array(
             "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
             "url_edit" => $url_edit,
-            "title" => "Group " .  $this->selected_group['name'] . " ACL",
+            "title" => "ACL for " . ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " &nbsp; <code>" .  $this->selected_group['name'] . "</code>",
             "children" => array(new BaseStyleComponent("acl", array(
                 "title" => "Function",
                 "items" => $this->model->get_acl_selected_group()
@@ -341,8 +434,8 @@ class GroupView extends BaseView
     {
         require __DIR__ . "/tpl_main.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }

@@ -49,7 +49,7 @@ class GroupModel extends BaseModel
         parent::__construct($services);
         $this->gid = $gid;
         $this->selected_group = null;
-        if($gid != null) $this->selected_group = $this->fetch_group($gid);
+        if ($gid != null) $this->selected_group = $this->fetch_group($gid);
         $this->gacl = $this->fetch_acl_by_id($gid, true);
         $this->uacl = $this->fetch_acl_by_id($_SESSION['id_user'], false);
     }
@@ -67,14 +67,14 @@ class GroupModel extends BaseModel
      *   'name':    The name of the group.
      *   'desc':    The description of the group.
      */
-    private function fetch_group($gid)
+    public function fetch_group($gid)
     {
         $sql = "SELECT g.name, g.description, l.lookup_code AS group_type 
                 FROM `groups` AS g
                 INNER JOIN lookups l ON (g.id_group_types = l.id)
                 WHERE g.id = :gid";
         $res = $this->db->query_db_first($sql, array(":gid" => $gid));
-        if(!$res) return null;
+        if (!$res) return null;
         return array(
             "id" => $gid,
             "name" => $res['name'],
@@ -168,7 +168,7 @@ class GroupModel extends BaseModel
                             "delete" => false,
                         )
                     );
-                }                
+                }
             }
         }
         return $acl;
@@ -210,20 +210,17 @@ class GroupModel extends BaseModel
     private function get_access($acl, $type, $lvl)
     {
         $res = true;
-        if($lvl != "select")
+        if ($lvl != "select")
             $res &= $this->get_cms_mod_access($acl);
 
         $pages = $this->fetch_pages_by_type($type);
-        if(count($pages) === 0) $res = false;
-        foreach($pages as $page)
-        {
-            if($page["id_actions"] == null)
-            {
+        if (count($pages) === 0) $res = false;
+        foreach ($pages as $page) {
+            if ($page["id_actions"] == null) {
                 // it's a link, can only be selected and updated
-                if($lvl == "select" || $lvl == "update")
+                if ($lvl == "select" || $lvl == "update")
                     $res &= $acl[$page["keyword"]]["acl"][$lvl];
-            }
-            else
+            } else
                 $res &= $acl[$page["keyword"]]["acl"][$lvl];
         }
         return $res;
@@ -260,7 +257,7 @@ class GroupModel extends BaseModel
     {
         $res = true;
         // if($lvl == "select")
-            // $res &= $acl["request"]["acl"]["select"];
+        // $res &= $acl["request"]["acl"]["select"];
         $res &= $this->get_access($acl, "core", $lvl);
         return $res;
     }
@@ -281,13 +278,10 @@ class GroupModel extends BaseModel
         $res = $acl["admin-link"]["acl"]["select"];
         $res &= $acl["asset" . ucfirst($lvl)]["acl"]["select"];
         $res &= $acl["asset" . ucfirst($lvl)]["acl"][$lvl];
-        if($lvl == "select")
-        {
+        if ($lvl == "select") {
             $res &= $acl["export"]["acl"]["select"];
             $res &= $acl["exportData"]["acl"]["select"];
-        }
-        else if($lvl == "delete")
-        {
+        } else if ($lvl == "delete") {
             $res &= $acl["exportDelete"]["acl"]["delete"];
         }
         return $res;
@@ -341,8 +335,7 @@ class GroupModel extends BaseModel
         $res = $acl["admin-link"]["acl"]["select"];
         $res &= $acl["cms" . ucfirst($lvl)]["acl"]["select"];
         $res &= $acl["cms" . ucfirst($lvl)]["acl"][$lvl];
-        if($lvl == "select" || $lvl == "update")
-        {
+        if ($lvl == "select" || $lvl == "update") {
             $res &= $acl["email"]["acl"]["select"];
             $res &= $acl["email"]["acl"][$lvl];
         }
@@ -365,12 +358,11 @@ class GroupModel extends BaseModel
         $res = $acl["admin-link"]["acl"]["select"];
         $res &= $acl["user" . ucfirst($lvl)]["acl"]["select"];
         $res &= $acl["user" . ucfirst($lvl)]["acl"][$lvl];
-        if($lvl == "select" || $lvl == "update")
-        {
+        if ($lvl == "select" || $lvl == "update") {
             $res &= $acl["group" . ucfirst($lvl)]["acl"]["select"];
             $res &= $acl["group" . ucfirst($lvl)]["acl"][$lvl];
         }
-        if($lvl == "select" || $lvl == "insert")
+        if ($lvl == "select" || $lvl == "insert")
             $res &= $acl["userGenCode"]["acl"][$lvl];
         return $res;
     }
@@ -386,19 +378,16 @@ class GroupModel extends BaseModel
      */
     private function set_access($type, $lvl)
     {
-        if($lvl != "select")
+        if ($lvl != "select")
             $this->set_cms_mod_access();
 
         $pages = $this->fetch_pages_by_type($type);
-        foreach($pages as $page)
-        {
-            if($page["id_actions"] == null)
-            {
+        foreach ($pages as $page) {
+            if ($page["id_actions"] == null) {
                 // it's a link, can only be selected and updated
-                if($lvl == "select" || $lvl == "update")
+                if ($lvl == "select" || $lvl == "update")
                     $this->gacl[$page["keyword"]]["acl"][$lvl] = true;
-            }
-            else
+            } else
                 $this->gacl[$page["keyword"]]["acl"][$lvl] = true;
         }
     }
@@ -425,8 +414,10 @@ class GroupModel extends BaseModel
      */
     public function can_create_new_group()
     {
-        return $this->acl->has_access_insert($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("groupInsert"));
+        return $this->acl->has_access_insert(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("groupInsert")
+        );
     }
 
     /**
@@ -437,8 +428,10 @@ class GroupModel extends BaseModel
      */
     public function can_delete_group($id = null)
     {
-        return $this->acl->has_access_delete($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("groupDelete"));
+        return $this->acl->has_access_delete(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("groupDelete")
+        );
     }
 
     /**
@@ -449,10 +442,12 @@ class GroupModel extends BaseModel
      */
     public function can_modify_group_acl()
     {
-        if($this->selected_group['id'] === ADMIN_GROUP_ID)
+        if ($this->selected_group['id'] === ADMIN_GROUP_ID)
             return false;
-        return $this->acl->has_access_update($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("groupUpdate"));
+        return $this->acl->has_access_update(
+            $_SESSION['id_user'],
+            $this->db->fetch_page_id_by_keyword("groupUpdate")
+        );
     }
 
     /**
@@ -480,21 +475,25 @@ class GroupModel extends BaseModel
      */
     public function dump_acl_table($gid = null)
     {
-        if($gid == null) $gid = $this->gid;
+        if ($gid == null) $gid = $this->gid;
         $res = true;
-        foreach($this->gacl as $key => $acl)
-        {
+        foreach ($this->gacl as $key => $acl) {
             $pid = $this->db->fetch_page_id_by_keyword($key);
-            foreach($acl["acl"] as $lvl => $val)
-            {
+            foreach ($acl["acl"] as $lvl => $val) {
                 $grant_method = "grant_access_" . $lvl;
                 $revoke_method = "revoke_access_" . $lvl;
-                if($val)
-                    $res &= $this->acl->$grant_method($gid, $pid,
-                        $_SESSION['id_user']);
+                if ($val)
+                    $res &= $this->acl->$grant_method(
+                        $gid,
+                        $pid,
+                        $_SESSION['id_user']
+                    );
                 else
-                    $res &= $this->acl->$revoke_method($gid, $pid,
-                        $_SESSION['id_user']);
+                    $res &= $this->acl->$revoke_method(
+                        $gid,
+                        $pid,
+                        $_SESSION['id_user']
+                    );
             }
         }
         return $res;
@@ -516,9 +515,10 @@ class GroupModel extends BaseModel
      *
      * @retval array
      *  See UserModel::fetch_acl_by_id.
-     */  
-    public function get_admin_group_rights(){
-       return $this->fetch_acl_by_id(ADMIN_GROUP_ID, true);
+     */
+    public function get_admin_group_rights()
+    {
+        return $this->fetch_acl_by_id(ADMIN_GROUP_ID, true);
     }
 
     /**
@@ -526,9 +526,10 @@ class GroupModel extends BaseModel
      *
      * @retval array
      *  See UserModel::fetch_acl_by_id.
-     */  
-    public function get_user_acl($uid){
-       return $this->fetch_acl_by_id($uid, false);
+     */
+    public function get_user_acl($uid)
+    {
+        return $this->fetch_acl_by_id($uid, false);
     }
 
     /**
@@ -607,7 +608,7 @@ class GroupModel extends BaseModel
      */
     public function get_simple_acl_current_user()
     {
-        return $this->get_simple_acl($this->uacl);        
+        return $this->get_simple_acl($this->uacl);
     }
 
     /**
@@ -646,8 +647,7 @@ class GroupModel extends BaseModel
     public function get_groups($group_type = groupTypes_group)
     {
         $res = array();
-        foreach($this->fetch_groups($group_type) as $group)
-        {
+        foreach ($this->fetch_groups($group_type) as $group) {
             $id = intval($group["id"]);
             $res[] = array(
                 "id" => $id,
@@ -675,8 +675,8 @@ class GroupModel extends BaseModel
      */
     public function init_acl_table()
     {
-        foreach($this->gacl as $key => $acl)
-            foreach($acl["acl"] as $lvl => $val)
+        foreach ($this->gacl as $key => $acl)
+            foreach ($acl["acl"] as $lvl => $val)
                 $this->gacl[$key]["acl"][$lvl] = false;
     }
 
@@ -723,7 +723,7 @@ class GroupModel extends BaseModel
     public function set_core_access($lvl)
     {
         // if($lvl == "select")
-            // $this->gacl["request"]["acl"]["select"] = true;
+        // $this->gacl["request"]["acl"]["select"] = true;
         $this->set_access("core", $lvl);
     }
 
@@ -739,13 +739,10 @@ class GroupModel extends BaseModel
         $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["asset" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["asset" . ucfirst($lvl)]["acl"][$lvl] = true;
-        if($lvl == "select")
-        {
+        if ($lvl == "select") {
             $this->gacl["export"]["acl"]["select"] = true;
             $this->gacl["exportData"]["acl"]["select"] = true;
-        }
-        else if($lvl == "delete")
-        {
+        } else if ($lvl == "delete") {
             $this->gacl["exportDelete"]["acl"]["delete"] = true;
         }
     }
@@ -789,7 +786,7 @@ class GroupModel extends BaseModel
         $this->gacl["group" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["group" . ucfirst($lvl)]["acl"][$lvl] = true;
         $this->gacl["userGenCode"]["acl"]["select"] = true;
-        if($lvl === "insert")
+        if ($lvl === "insert")
             $this->gacl["userGenCode"]["acl"][$lvl] = true;
     }
 
@@ -805,8 +802,7 @@ class GroupModel extends BaseModel
         $this->gacl["admin-link"]["acl"]["select"] = true;
         $this->gacl["cms" . ucfirst($lvl)]["acl"]["select"] = true;
         $this->gacl["cms" . ucfirst($lvl)]["acl"][$lvl] = true;
-        if($lvl == "select" || $lvl == "update")
-        {
+        if ($lvl == "select" || $lvl == "update") {
             $this->gacl["email"]["acl"]["select"] = true;
             $this->gacl["email"]["acl"][$lvl] = true;
         }
@@ -820,8 +816,27 @@ class GroupModel extends BaseModel
      * @param string $lvl
      *  The level of access to be set e.g. select, insert, update, or delete.
      */
-    public function set_custom_access_for_group($page, $lvl){
+    public function set_custom_access_for_group($page, $lvl)
+    {
         $this->gacl[$page]["acl"][$lvl] = true;
+    }
+
+    /**
+     * Update the group.
+     *
+     * @return bool
+     *  True if the update was successful, false otherwise.
+     */
+    public function update_group()
+    {
+        if (!isset($_POST["desc"])) {
+            return false;
+        }
+        return $this->db->update_by_ids(
+            "`groups`",
+            array("description" => $_POST["desc"]),
+            array("id" => $this->gid)
+        );
     }
 }
 ?>

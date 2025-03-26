@@ -11,10 +11,8 @@
    </div>
 </div>
 <div>
+   <?php $this->output_group(); ?>
+</div>
+<div>
    <?php $this->output_group_acl_custom(); ?>
 </div>
-<?php /*    
-<div class="col-auto">
-   <!-- I find it confusing if I show both options. I will hide it for now -->
-   <?php $this->output_group_manipulation(); ?>
-</div>*/ ?>

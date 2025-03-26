@@ -21,23 +21,17 @@ class GroupUpdateController extends GroupController
     public function __construct($model)
     {
         parent::__construct($model);
-        if(isset($_POST['update_acl']))
+        if(isset($_POST['update_group']))
         {
-            if(!$this->check_posted_acl())
-            {
-                $this->fail = true;
-                $this->error_msgs[] = "Cannot assign the selected rights: Permission denied.";
-                return;
-            }
-            if($this->update_group_acl())
+            if($this->update_group())
             {
                 $this->success = true;
-                $this->success_msgs[] = "Successfully updated the group ACL.";
+                $this->success_msgs[] = "Successfully updated the group.";
             }
             else
             {
                 $this->fail = true;
-                $this->error_msgs[] = "Failed to update the group ACL.";
+                $this->error_msgs[] = "Failed to update the group.";
             }
         }
     }
