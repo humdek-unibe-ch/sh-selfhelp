@@ -1,6 +1,6 @@
 # v7.3.1 Not released
 ### New Feature
- - update group
+ - update group functionality
 
 # v7.3.0
 ### New Feature

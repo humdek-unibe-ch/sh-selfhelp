@@ -46,6 +46,7 @@ class GroupModel extends BaseModel
      */
     public function __construct($services, $gid)
     {
+        // TODO: Fully check with the refactoring
         parent::__construct($services);
         $this->gid = $gid;
         $this->selected_group = null;
@@ -211,7 +212,7 @@ class GroupModel extends BaseModel
     {
         $res = true;
         if ($lvl != "select")
-            $res &= $this->get_cms_mod_access($acl);
+            $res &= $this->can_modify_group_acl();
 
         $pages = $this->fetch_pages_by_type($type);
         if (count($pages) === 0) $res = false;
@@ -442,11 +443,11 @@ class GroupModel extends BaseModel
      */
     public function can_modify_group_acl()
     {
-        if ($this->selected_group['id'] === ADMIN_GROUP_ID)
+        if ($this->selected_group && $this->selected_group['id'] === ADMIN_GROUP_ID)
             return false;
         return $this->acl->has_access_update(
             $_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("groupUpdate")
+            $this->db->fetch_page_id_by_keyword("groupUpdateCustom")
         );
     }
 
@@ -543,15 +544,6 @@ class GroupModel extends BaseModel
     public function get_simple_acl($acl)
     {
         $sgacl = array();
-        $sgacl["core"] = array(
-            "name" => "Core Content",
-            "acl" => array(
-                "select" => $this->get_core_access($acl, "select"),
-                "insert" => $this->get_core_access($acl, "insert"),
-                "update" => $this->get_core_access($acl, "update"),
-                "delete" => $this->get_core_access($acl, "delete"),
-            ),
-        );
         $sgacl["experiment"] = array(
             "name" => "Experiment Content",
             "acl" => array(
@@ -561,42 +553,53 @@ class GroupModel extends BaseModel
                 "delete" => $this->get_experiment_access($acl, "delete"),
             ),
         );
-        $sgacl["open"] = array(
-            "name" => "Open Content",
-            "acl" => array(
-                "select" => $this->get_open_access($acl, "select"),
-                "insert" => $this->get_open_access($acl, "insert"),
-                "update" => $this->get_open_access($acl, "update"),
-                "delete" => $this->get_open_access($acl, "delete"),
-            ),
-        );
-        $sgacl["page"] = array(
-            "name" => "Page Management",
-            "acl" => array(
-                "select" => $this->get_page_access($acl, "select"),
-                "insert" => $this->get_page_access($acl, "insert"),
-                "update" => $this->get_page_access($acl, "update"),
-                "delete" => $this->get_page_access($acl, "delete"),
-            ),
-        );
-        $sgacl["user"] = array(
-            "name" => "User Management",
-            "acl" => array(
-                "select" => $this->get_user_access($acl, "select"),
-                "insert" => $this->get_user_access($acl, "insert"),
-                "update" => $this->get_user_access($acl, "update"),
-                "delete" => $this->get_user_access($acl, "delete"),
-            ),
-        );
-        $sgacl["data"] = array(
-            "name" => "Data Management",
-            "acl" => array(
-                "select" => $this->get_data_access($acl, "select"),
-                "insert" => $this->get_data_access($acl, "insert"),
-                "update" => $this->get_data_access($acl, "update"),
-                "delete" => $this->get_data_access($acl, "delete"),
-            ),
-        );
+        if (!($this->selected_group && $this->selected_group['group_type'] == groupTypes_group)) {
+            $sgacl["core"] = array(
+                "name" => "Core Content",
+                "acl" => array(
+                    "select" => $this->get_core_access($acl, "select"),
+                    "insert" => $this->get_core_access($acl, "insert"),
+                    "update" => $this->get_core_access($acl, "update"),
+                    "delete" => $this->get_core_access($acl, "delete"),
+                ),
+            );
+            $sgacl["open"] = array(
+                "name" => "Open Content",
+                "acl" => array(
+                    "select" => $this->get_open_access($acl, "select"),
+                    "insert" => $this->get_open_access($acl, "insert"),
+                    "update" => $this->get_open_access($acl, "update"),
+                    "delete" => $this->get_open_access($acl, "delete"),
+                ),
+            );
+            $sgacl["page"] = array(
+                "name" => "Page Management",
+                "acl" => array(
+                    "select" => $this->get_page_access($acl, "select"),
+                    "insert" => $this->get_page_access($acl, "insert"),
+                    "update" => $this->get_page_access($acl, "update"),
+                    "delete" => $this->get_page_access($acl, "delete"),
+                ),
+            );
+            $sgacl["user"] = array(
+                "name" => "User Management",
+                "acl" => array(
+                    "select" => $this->get_user_access($acl, "select"),
+                    "insert" => $this->get_user_access($acl, "insert"),
+                    "update" => $this->get_user_access($acl, "update"),
+                    "delete" => $this->get_user_access($acl, "delete"),
+                ),
+            );
+            $sgacl["data"] = array(
+                "name" => "Data Management",
+                "acl" => array(
+                    "select" => $this->get_data_access($acl, "select"),
+                    "insert" => $this->get_data_access($acl, "insert"),
+                    "update" => $this->get_data_access($acl, "update"),
+                    "delete" => $this->get_data_access($acl, "delete"),
+                ),
+            );
+        }
         return $sgacl;
     }
 

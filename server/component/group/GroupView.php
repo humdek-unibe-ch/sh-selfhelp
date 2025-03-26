@@ -331,6 +331,7 @@ class GroupView extends BaseView
                         "label" => ($this->selected_group['group_type'] == groupTypes_db_role ? 'DB Role' : 'Group') . " Description",
                         "type_input" => "text",
                         "name" => "desc",
+                        "required" => true,
                         "value" => $this->selected_group['desc'],
                         "placeholder" => "Enter description",
                     ))
