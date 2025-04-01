@@ -107,7 +107,7 @@ class Login
             } else {
                 session_set_cookie_params(
                     [
-                        'secure' => true,
+                        'secure' => DEBUG ? false : true,
                         'samesite' => 'Lax'
                     ]
                 );
