@@ -859,9 +859,11 @@ class UserInput
      * The ID corresponding to the trigger type.
      * @param array|null $updateBasedOn
      * Optional parameter to specify the field name for updating the record instead of inserting.
+     * @param bool $own_entries_only
+     * If true, only the own entries will be updated.
      * @return bool
      */
-    private function save_row($transaction_by, $table_name, $data, $id_triggerType_id, $updateBasedOn = null)
+    private function save_row($transaction_by, $table_name, $data, $id_triggerType_id, $updateBasedOn = null, $own_entries_only = true)
     {
         unset($data['trigger_type']); // do not save trigger_type as string, now is saved with id in the row
         if (!isset($data['id_users'])) {
@@ -883,7 +885,7 @@ class UserInput
             $record = $this->get_data(
                 $id_table,
                 $filter,
-                ($data['id_users'] > 1), // if there is user we update only own data
+                $own_entries_only, // if there is user we update only own data
                 $data['id_users'],
                 true
             );
@@ -1186,10 +1188,12 @@ class UserInput
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
      * @param array|null $updateBasedOn
      * Optional parameter to specify the field name for updating the record instead of inserting.     
+     * @param boolean $own_entries_only
+     * If true, only the own entries will be updated.
      * @return array | false
      * return array with the result containing result and message
      */
-    public function save_data($transaction_by, $table_name, $data, $updateBasedOn = null)
+    public function save_data($transaction_by, $table_name, $data, $updateBasedOn = null, $own_entries_only = true)
     {
         try {
             $this->db->begin_transaction();
@@ -1210,7 +1214,7 @@ class UserInput
                 }
             } else {
                 $id_actionTriggerTypes =  $this->get_trigger_type_id($data);
-                $res = $this->save_row($transaction_by, $table_name, $data, $id_actionTriggerTypes, $updateBasedOn);
+                $res = $this->save_row($transaction_by, $table_name, $data, $id_actionTriggerTypes, $updateBasedOn, $own_entries_only);
             }
 
             /**************** Check jobs ***************************************/

@@ -1,6 +1,7 @@
 # v7.3.1 Not released
 ### New Feature
  - update group functionality
+ - add `own_entries_only` parameter to `save_row` method, now we can save_data for all users if explicitly enabled. Used for sharing a record between users.
 
 # v7.3.0
 ### New Feature
