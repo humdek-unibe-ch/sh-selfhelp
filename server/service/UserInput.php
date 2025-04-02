@@ -886,7 +886,7 @@ class UserInput
                 $id_table,
                 $filter,
                 $own_entries_only, // if there is user we update only own data
-                $data['id_users'],
+                $own_entries_only ? $data['id_users'] : null,
                 true
             );
             if ($record) {
