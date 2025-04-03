@@ -1,3 +1,7 @@
+# v7.4.0
+### New Feature
+ - add `own_entries_only` parameter to `entryRecordDelete` style. When enabled the user can only delete their own entries.
+
 # v7.3.1
 ### New Feature
  - update group functionality
