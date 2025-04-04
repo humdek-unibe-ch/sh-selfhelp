@@ -804,6 +804,7 @@ class StyleModel extends BaseModel implements IStyleModel
         $user_email = $this->db->fetch_user_email();
         $global_vars = array(
                 '@user_code' => $user_code,
+                '@id_users' => $_SESSION['id_user'],
                 '@project' => $_SESSION['project'],
                 '@user' => $user_name,
                 '@user_email' => $user_email,

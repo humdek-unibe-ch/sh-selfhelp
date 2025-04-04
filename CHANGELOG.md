@@ -1,3 +1,7 @@
+# v7.4.1
+### New Feature
+ - add `@id_users` as global variable accessible for dynamic content, comparison, load, etc
+
 # v7.4.0
 ### New Feature
  - add `own_entries_only` parameter to `entryRecordDelete` style. When enabled the user can only delete their own entries.
