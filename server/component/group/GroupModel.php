@@ -838,7 +838,7 @@ class GroupModel extends BaseModel
         }
         return $this->db->update_by_ids(
             "`groups`",
-            array("description" => $_POST["desc"]),
+            array("description" => $_POST["desc"], "requires_2fa" => isset($_POST["requires_2fa"]) ? $_POST["requires_2fa"] : 0),
             array("id" => $this->gid)
         );
     }
