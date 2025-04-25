@@ -693,18 +693,21 @@ class GroupModel extends BaseModel
      *  The description of the group to be added.
      * @param string $group_type
      * The group type that we want to create: group or db_role
+     * @param int $requires_2fa
+     *  Whether the group requires 2FA or not.
      * @return int
      *  The id of the new group or false if the process failed.
      */
-    public function insert_new_group($name, $desc, $group_type)
+    public function insert_new_group($name, $desc, $group_type, $requires_2fa)
     {
         return $this->db->insert("`groups`", array(
             "name" => $name,
             "description" => $desc,
-            "id_group_types" => $this->db->get_lookup_id_by_code(groupTypes, $group_type)
+            "id_group_types" => $this->db->get_lookup_id_by_code(groupTypes, $group_type),
+            "requires_2fa" => $requires_2fa ? 1 : 0,
         ));
     }
-
+    
     /**
      * Checks whether a group can be added by the current user.
      *

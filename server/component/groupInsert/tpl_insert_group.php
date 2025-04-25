@@ -22,6 +22,10 @@
                             <label>Description</label>
                             <textarea class="form-control" name="desc" placeholder="Enter description" required><?php echo $_POST['desc'] ?? ""; ?></textarea>
                         </div>
+                        <div class="d-flex flex-column align-items-start mb-3">
+                            <label class="">2FA Required</label>
+                            <input type="checkbox" class="" name="requires_2fa" value="1">
+                        </div>
                         <?php $this->output_acl_tmpl(); ?>
                         <button type="submit" class="btn btn-primary">Create</button>
                         <a href="<?php echo $cancel_url; ?>" class="btn btn-secondary float-right">Cancel</a>

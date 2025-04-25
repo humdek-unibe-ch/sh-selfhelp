@@ -47,7 +47,7 @@ class GroupInsertController extends GroupController
                 return;
             }
             $this->gid = $this->model->insert_new_group($_POST['name'],
-                $_POST['desc'], $group_type);
+                $_POST['desc'], $group_type, $_POST['requires_2fa'] ?? 0);
             if($this->gid && $this->update_group_acl($this->gid))
                 $this->success = true;
             else

@@ -1,4 +1,4 @@
-# v7.5.0
+# v7.5.0 Not released
 ### New Feature
  - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
 
