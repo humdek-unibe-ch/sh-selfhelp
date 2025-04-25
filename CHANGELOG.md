@@ -1,3 +1,7 @@
+# v7.5.0
+### New Feature
+ - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
+
 # v7.4.1
 ### New Feature
  - add `@id_users` as global variable accessible for dynamic content, comparison, load, etc
