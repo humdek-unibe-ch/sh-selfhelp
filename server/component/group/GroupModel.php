@@ -70,7 +70,7 @@ class GroupModel extends BaseModel
      */
     public function fetch_group($gid)
     {
-        $sql = "SELECT g.name, g.description, l.lookup_code AS group_type 
+        $sql = "SELECT g.name, g.description, l.lookup_code AS group_type, g.requires_2fa 
                 FROM `groups` AS g
                 INNER JOIN lookups l ON (g.id_group_types = l.id)
                 WHERE g.id = :gid";
@@ -80,7 +80,8 @@ class GroupModel extends BaseModel
             "id" => $gid,
             "name" => $res['name'],
             "desc" => $res['description'],
-            "group_type" => $res['group_type']
+            "group_type" => $res['group_type'],
+            "requires_2fa" => $res['requires_2fa']
         );
     }
 

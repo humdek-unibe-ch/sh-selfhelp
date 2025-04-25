@@ -292,6 +292,14 @@ class GroupView extends BaseView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->selected_group['desc']
                     ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "2FA Required",
+                    "locale" => "",
+                    "help" => "If enabled users should login with 2FA enabled.",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->selected_group['requires_2fa'] == 1 ? "true" : "false"
+                    ))),
                 ))
             )
         ));
@@ -334,6 +342,18 @@ class GroupView extends BaseView
                         "required" => true,
                         "value" => $this->selected_group['desc'],
                         "placeholder" => "Enter description",
+                    )),
+                    new BaseStyleComponent("descriptionItem", array(
+                        "title" => "2FA Required",
+                        "locale" => "",
+                        "help" => "If enabled users should login with 2FA enabled.",
+                        "children" => array(new BaseStyleComponent("input", array(
+                            "type_input" => "checkbox",
+                            "checkbox_value" => "1",
+                            "name" => "requires_2fa",
+                            "value" => isset($this->selected_group['requires_2fa']) ? $this->selected_group['requires_2fa'] : 0,
+
+                        )),),
                     ))
                 ),
                 "css" => ""
