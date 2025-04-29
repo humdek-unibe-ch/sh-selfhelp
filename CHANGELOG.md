@@ -1,6 +1,7 @@
 # v7.5.0 Not released
 ### New Feature
  - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
+ - for `json` field type, if decode failed or still a string (likely double-encoded) then try to strip slashes and decode again
 
 # v7.4.1
 ### New Feature

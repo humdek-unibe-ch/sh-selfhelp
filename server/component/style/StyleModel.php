@@ -421,7 +421,16 @@ class StyleModel extends BaseModel implements IStyleModel
                     // if the style is select then strip slashes
                     $field['content']  = $field['content'] ? json_decode(stripslashes($field['content']), true) : array();
                 } else {
-                    $field['content']  = $field['content'] ? json_decode($field['content'], true) : array();
+                    $decoded = json_decode($field['content'], true);
+
+                    // If decode failed or still a string (likely double-encoded)
+                    if (json_last_error() !== JSON_ERROR_NONE || is_string($decoded)) {
+                        $stripped = stripslashes($field['content']);
+                        $decoded = json_decode($stripped, true);
+                    }
+                
+                    // Assign only if final decode succeeded
+                    $field['content'] = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : array();
                 }                
                 if(isset($field['meta']) && $field['meta']){
                     $field['meta'] = json_decode($field['meta'], true);
