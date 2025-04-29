@@ -1,6 +1,8 @@
 # v7.5.0 Not released
 ### New Feature
  - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
+ - add table `users_2fa_codes` to store 2FA codes
+ - adjust procedure `add_table_column` and `drop_table_column` to add or drop a column from a table to work with special keywords used for table or column names
  - for `json` field type, if decode failed or still a string (likely double-encoded) then try to strip slashes and decode again
 
 # v7.4.1
