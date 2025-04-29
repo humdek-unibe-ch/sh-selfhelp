@@ -99,6 +99,8 @@ define('PF_EMAIL_REMINDER_SUBJECT', 'email_reminder_subject');
 define('PF_EMAIL_ACTIVATE_EMAIL_ADDRESS', 'email_activate_email_address');
 define('PF_EMAIL_DELETE_PROFILE', 'email_delete_profile');
 define('PF_EMAIL_DELETE_PROFILE_SUBJECT', 'email_delete_profile_subject');
+define('PF_EMAIL_2FA_SUBJECT', 'email_2fa_subject');
+define('PF_EMAIL_2FA', 'email_2fa');
 define('PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS', 'email_delete_profile_email_address');
 define('PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS_NOTIFICATION_COPY', 'email_delete_profile_email_address_notification_copy');
 define('PF_GLOBAL_CUSTOM_CSS', 'custom_css');

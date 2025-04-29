@@ -255,7 +255,7 @@ class Login
             if($this->is_2fa_required($user['id'])){
                 // the user is in a group that requires 2fa
                 $this->generate_2fa_code($user['id'], $email);
-                return '2fa';
+                // return '2fa';
             }
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
@@ -494,16 +494,23 @@ class Login
         $this->init_session();
     }
 
+    /**
+     * Check whether the user is logged in by ckecking for a user id in the
+     * session variable.
+     *
+     * @retval bool
+     *  true if the user is logged in, false otherwise.
+     */
     function is_2fa_required($user_id){
-        $sql = "SELECT g.id FROM users AS u
-        LEFT JOIN user_groups AS ug ON ug.id_user = u.id
-        LEFT JOIN groups AS g ON g.id = ug.id_group
-        WHERE u.id = :user_id AND g.id = :group_id";
+        $sql = "SELECT SUM(g.requires_2fa) AS requires_2fa
+                FROM users u 
+                INNER JOIN users_groups ug ON (ug.id_users = u.id)
+                INNER JOIN `groups` g ON (ug.id_groups = g.id)
+                WHERE u.id = :user_id";
         $result = $this->db->query_db_first($sql, array(
             ':user_id' => $user_id,
-            ':group_id' => $this->db->get_lookup_id_by_code(groups, group_2fa_required)
         ));
-        return $result ? true : false;
+        return $result && $result['requires_2fa'] > 0;
     }
 
     function generate_2fa_code($user_id, $email){
@@ -525,8 +532,8 @@ class Login
             "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
             "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
             "recipient_emails" => $email,
-            "subject" => $email_templates[PF_EMAIL_DELETE_PROFILE_SUBJECT],
-            "body" => $email_templates[PF_EMAIL_DELETE_PROFILE],
+            "subject" => $email_templates[PF_EMAIL_2FA_SUBJECT],
+            "body" => $email_templates[PF_EMAIL_2FA],
             "is_html" => 1,
             "description" => "Email Notification - 2FA Code"
         );
