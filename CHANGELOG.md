@@ -5,6 +5,9 @@
  - adjust procedure `add_table_column` and `drop_table_column` to add or drop a column from a table to work with special keywords used for table or column names
  - for `json` field type, if decode failed or still a string (likely double-encoded) then try to strip slashes and decode again
 
+### Bugfix
+ - properly delete jobs for action with enabled option `Clear Scheduled Jobs for This Action`. Before it deleted all jobs based on this action, now only jobs for the current user are deleted.
+
 # v7.4.1
 ### New Feature
  - add `@id_users` as global variable accessible for dynamic content, comparison, load, etc

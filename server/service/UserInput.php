@@ -1381,7 +1381,7 @@ class UserInput
                 if (
                     isset($action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION]) && $action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION]
                 ) {
-                    // When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.
+                    // When enabled, all jobs already scheduled for this action and user will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.
                     $result['deleted_jobs'] = $this->delete_jobs_for_action($action['id']);
                 }
 
@@ -1627,10 +1627,12 @@ class UserInput
         $sql = 'SELECT id
         FROM scheduledJobs sj
         INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-        WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued;';
+        INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
+        WHERE sju.id_users = :id_users AND sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued;';
         $jobs_ids = $this->db->query_db($sql, array(
             ":action_id" => $action_id,
-            ":job_status_queued" => $job_status_queued
+            ":job_status_queued" => $job_status_queued,
+            ":id_users" => $_SESSION['id_user']
         ));
         foreach ($jobs_ids as $key => $value) {
             $this->transaction->add_transaction(
