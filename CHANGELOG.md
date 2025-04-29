@@ -9,6 +9,7 @@
 
 ### Bugfix
  - properly delete jobs for action with enabled option `Clear Scheduled Jobs for This Action`. Before it deleted all jobs based on this action, now only jobs for the current user are deleted.
+ - properly check if the user has access to delete a page
 
 # v7.4.1
 ### New Feature
