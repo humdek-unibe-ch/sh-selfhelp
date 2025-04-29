@@ -96,3 +96,15 @@ If you did not attempt to sign in, you can safely ignore this message or contact
 
 *This is an automated message. Please do not reply to it.*
 ');
+
+-- add 2fa page
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'two-factor-authentication', '/two-factor-authentication', 'GET|POST', '0000000003', NULL, NULL, '1', NULL, NULL, '0000000002', (SELECT id FROM lookups WHERE type_code = "pageAccessTypes" AND lookup_code = "mobile_and_web"));
+SET @id_page = (SELECT id FROM pages WHERE keyword = 'two-factor-authentication');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('label'), '0000000002', 'Two-Factor Authentication');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('title'), '0000000002', 'Two-Factor Authentication');
+
+-- add the guest user to the page `two-factor-authentication`
+INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (0000000001, @id_page, 1, 0, 0, 0);
+-- add the admin group to the page `two-factor-authentication` to update and select
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '1', '0');

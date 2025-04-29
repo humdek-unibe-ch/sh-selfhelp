@@ -82,6 +82,7 @@ define('SH_MAINTENANCE', 'maintenance');
 define('SH_EMAIL', 'email');
 define('SH_GLOBAL_CSS', 'sh_global_css');
 define('SH_SECURITY_QUESTIONS', 'sh_security_questions');
+define('SH_TWO_FACTOR_AUTHENTICATION', 'two-factor-authentication');
 
 /* Style Types */
 define('STYLE_TYPE_INTERNAL', 'internal');

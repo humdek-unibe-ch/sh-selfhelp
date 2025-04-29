@@ -255,7 +255,7 @@ class Login
             if($this->is_2fa_required($user['id'])){
                 // the user is in a group that requires 2fa
                 $this->generate_2fa_code($user, $email);
-                // return '2fa';
+                return '2fa';
             }
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
@@ -514,7 +514,15 @@ class Login
         return $result && $result['requires_2fa'] > 0;
     }
 
-    function    generate_2fa_code($user, $email){
+    /**
+     * Generate a 2fa code for the user and send it to the user's email.
+     *
+     * @param array $user
+     *  The user array.
+     * @param string $email
+     *  The email address of the user.
+     */
+    function generate_2fa_code($user, $email){
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
         $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
         $this->db->insert('2fa_codes', array(
@@ -543,7 +551,7 @@ class Login
             "is_html" => 1,
             "description" => "Email Notification - 2FA Code"
         );
-        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_system);
+        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
     }
 }
 ?>
