@@ -71,3 +71,28 @@ CREATE TABLE IF NOT EXISTS `users_2fa_codes` (
     is_used BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_users) REFERENCES users(id) ON DELETE CASCADE
 );
+
+SET @id_page = (SELECT id FROM pages WHERE keyword = 'email');
+
+-- add field `email_2fa_subject`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_2fa_subject', get_field_type_id('markdown'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_2fa_subject'), NULL, 'Subject text for the email which is sent when a user tries to login with 2fa enabled');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('email_2fa_subject'), '0000000002', '@project - validation code');
+
+-- add field `email_2fa`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_2fa', get_field_type_id('markdown'), '1');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_2fa'), NULL, 'Body text for the email which is sent when a user tries to login with 2fa enabled. `{{2fa_code}}` is used as a keyword where the code will be replaced in the email text.');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('email_2fa'), '0000000002', 'Hi {{user_name}},
+
+To complete your login, please use the following verification code:
+
+**{{2fa_code}}**
+
+This code will expire in 10 minutes.
+
+If you did not attempt to sign in, you can safely ignore this message or contact our support team.
+
+---
+
+*This is an automated message. Please do not reply to it.*
+');

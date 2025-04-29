@@ -252,6 +252,11 @@ class Login
         $user = $this->db->query_db_first($sql, array(':email' => $email));
         if($user && password_verify($password, $user['password']))
         {
+            if($this->is_2fa_required($user['id'])){
+                // the user is in a group that requires 2fa
+                $this->generate_2fa_code($user['id'], $email);
+                return '2fa';
+            }
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['id_gender'];
@@ -487,6 +492,45 @@ class Login
         }
         session_destroy();
         $this->init_session();
+    }
+
+    function is_2fa_required($user_id){
+        $sql = "SELECT g.id FROM users AS u
+        LEFT JOIN user_groups AS ug ON ug.id_user = u.id
+        LEFT JOIN groups AS g ON g.id = ug.id_group
+        WHERE u.id = :user_id AND g.id = :group_id";
+        $result = $this->db->query_db_first($sql, array(
+            ':user_id' => $user_id,
+            ':group_id' => $this->db->get_lookup_id_by_code(groups, group_2fa_required)
+        ));
+        return $result ? true : false;
+    }
+
+    function generate_2fa_code($user_id, $email){
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+        $this->db->insert('2fa_codes', array(
+            'user_id' => $user_id,
+            'code' => $code,
+            'expires_at' => $expiresAt
+        ));
+
+        $email_templates = $this->db->fetch_page_info(SH_EMAIL);
+
+        $mail = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+            "from_email" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "recipient_emails" => $email,
+            "subject" => $email_templates[PF_EMAIL_DELETE_PROFILE_SUBJECT],
+            "body" => $email_templates[PF_EMAIL_DELETE_PROFILE],
+            "is_html" => 1,
+            "description" => "Email Notification - 2FA Code"
+        );
+        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_system);
     }
 }
 ?>
