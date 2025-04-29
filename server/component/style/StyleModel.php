@@ -808,18 +808,8 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function get_global_vars()
     {
-        $user_name = $this->db->fetch_user_name();
-        $user_code = $this->db->get_user_code();
-        $user_email = $this->db->fetch_user_email();
-        $global_vars = array(
-                '@user_code' => $user_code,
-                '@id_users' => $_SESSION['id_user'],
-                '@project' => $_SESSION['project'],
-                '@user' => $user_name,
-                '@user_email' => $user_email,
-                '__keyword__' => $this->router->get_keyword_from_url(),
-                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
-            );
+        $global_vars = $this->db->get_global_vars();
+        $global_vars['__keyword__'] = $this->router->get_keyword_from_url();
         foreach ($this->params as $key => $value) {
             $global_vars['__' . $key . '__'] = $value;
         }

@@ -246,7 +246,7 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT u.id, u.password, g.name AS gender, g.id AS id_gender, id_languages FROM users AS u
+        $sql = "SELECT u.id, u.password, u.`name` AS user_name, g.name AS gender, g.id AS id_gender, id_languages FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
@@ -254,12 +254,13 @@ class Login
         {
             if($this->is_2fa_required($user['id'])){
                 // the user is in a group that requires 2fa
-                $this->generate_2fa_code($user['id'], $email);
+                $this->generate_2fa_code($user, $email);
                 // return '2fa';
             }
             $_SESSION['logged_in'] = true;
             $_SESSION['id_user'] = $user['id'];
             $_SESSION['gender'] = $user['id_gender'];
+            $_SESSION['user_name'] = $user['user_name'];
             $_SESSION['user_gender'] = $user['id_gender'];
             if(isset($user['id_languages'])){
                  $_SESSION['user_language'] = $user['id_languages'];
@@ -513,16 +514,21 @@ class Login
         return $result && $result['requires_2fa'] > 0;
     }
 
-    function generate_2fa_code($user_id, $email){
+    function    generate_2fa_code($user, $email){
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
         $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
         $this->db->insert('2fa_codes', array(
-            'user_id' => $user_id,
+            'user_id' => $user['id'],
             'code' => $code,
             'expires_at' => $expiresAt
         ));
 
         $email_templates = $this->db->fetch_page_info(SH_EMAIL);
+        $global_vars = $this->db->get_global_vars();
+        $global_vars['@2fa_code'] = $code;
+        $global_vars['@user'] = $user['user_name'];
+        $subject = $this->db->replace_calced_values($email_templates[PF_EMAIL_2FA_SUBJECT], $global_vars);
+        $body = $this->db->replace_calced_values($email_templates[PF_EMAIL_2FA], $global_vars);
 
         $mail = array(
             "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
@@ -532,8 +538,8 @@ class Login
             "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
             "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
             "recipient_emails" => $email,
-            "subject" => $email_templates[PF_EMAIL_2FA_SUBJECT],
-            "body" => $email_templates[PF_EMAIL_2FA],
+            "subject" => $subject,
+            "body" => $body,
             "is_html" => 1,
             "description" => "Email Notification - 2FA Code"
         );
