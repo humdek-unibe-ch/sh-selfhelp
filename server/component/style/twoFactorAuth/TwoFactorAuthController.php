@@ -19,10 +19,10 @@ class TwoFactorAuthController extends BaseController
     private $resent;
 
     /**
-     * The constructor. Handles 2FA code verification and resend requests.
+     * Constructor for the TwoFactorAuthController.
      *
      * @param object $model
-     *  The model instance of the two-factor auth component.
+     *  The model instance.
      */
     public function __construct($model)
     {
@@ -34,13 +34,13 @@ class TwoFactorAuthController extends BaseController
             exit;
         }
 
-        $this->failed = false;
+        // Check for verification_failed in URL parameters
+        $this->failed = isset($_GET['verification_failed']);
         $this->resent = false;
 
-        // Handle code verification
+        // Handle verification request
         if (isset($_POST['type']) && $_POST['type'] == '2fa_verify') {
             $code = '';
-            // Combine the 6 digits from individual inputs
             for ($i = 1; $i <= 6; $i++) {
                 if (isset($_POST['digit_' . $i])) {
                     $code .= $_POST['digit_' . $i];
@@ -52,6 +52,16 @@ class TwoFactorAuthController extends BaseController
                 exit;
             } else {
                 $this->failed = true;
+                
+                // Check if verification_failed parameter already exists
+                $redirectUrl = $_SERVER['REQUEST_URI'];
+                if (strpos($redirectUrl, 'verification_failed=') === false) {
+                    // Add the parameter only if it doesn't exist
+                    $redirectUrl .= (strpos($redirectUrl, '?') ? '&' : '?') . 'verification_failed=1';
+                }
+                
+                header('Location: ' . $redirectUrl);
+                exit;
             }
         }
 
