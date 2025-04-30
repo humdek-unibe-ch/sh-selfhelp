@@ -122,3 +122,23 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 UPDATE `groups`
 SET requires_2fa = 1
 WHERE `name` = 'admin';
+
+-- add `stefan.kodzhabashev@unibe.ch` as admin
+INSERT IGNORE INTO users (email, `name`, id_status, `password`) VALUES ('stefan.kodzhabashev@unibe.ch','Stefan Kodzhabashev', (SELECT id from userStatus WHERE `name` = 'active' LIMIT 0,1), '$2y$10$PKWjEEoCoTrr8SkKU9EkU.p.AC7qCZeFoEEcVPi3mrOXKGOBXn4vq');
+INSERT IGNORE INTO validation_codes (`code`, id_users) VALUES ('admin_stefan', (SELECT id FROM users WHERE email = 'stefan.kodzhabashev@unibe.ch'));
+INSERT IGNORE INTO users_groups (id_users, id_groups) VALUES ((SELECT id FROM users WHERE email = 'stefan.kodzhabashev@unibe.ch'), (SELECT id FROM `groups` WHERE `name` = 'admin' LIMIT 0,1));
+
+-- add `simon.maurer@unibe.ch` as admin
+INSERT IGNORE INTO users (email, `name`, id_status) VALUES ('simon.maurer@unibe.ch','Simon Maurer', (SELECT id from userStatus WHERE `name` = 'invited' LIMIT 0,1));
+INSERT IGNORE INTO validation_codes (`code`, id_users) VALUES ('admin_simon', (SELECT id FROM users WHERE email = 'simon.maurer@unibe.ch'));
+INSERT IGNORE INTO users_groups (id_users, id_groups) VALUES ((SELECT id FROM users WHERE email = 'simon.maurer@unibe.ch'), (SELECT id FROM `groups` WHERE `name` = 'admin' LIMIT 0,1));
+
+-- add `walter.siegenthaler@unibe.ch` as admin
+INSERT IGNORE INTO users (email, `name`, id_status) VALUES ('walter.siegenthaler@unibe.ch','Walter Siegenthaler', (SELECT id from userStatus WHERE `name` = 'invited' LIMIT 0,1));
+INSERT IGNORE INTO validation_codes (`code`, id_users) VALUES ('admin_walter', (SELECT id FROM users WHERE email = 'walter.siegenthaler@unibe.ch'));
+INSERT IGNORE INTO users_groups (id_users, id_groups) VALUES ((SELECT id FROM users WHERE email = 'walter.siegenthaler@unibe.ch'), (SELECT id FROM `groups` WHERE `name` = 'admin' LIMIT 0,1));
+
+-- add `samuel.stucky@unibe.ch` as admin
+INSERT IGNORE INTO users (email, `name`, id_status) VALUES ('samuel.stucky@unibe.ch','Samuel Stucky@unibe', (SELECT id from userStatus WHERE `name` = 'invited' LIMIT 0,1));
+INSERT IGNORE INTO validation_codes (`code`, id_users) VALUES ('admin_samuel', (SELECT id FROM users WHERE email = 'samuel.stucky@unibe.ch'));
+INSERT IGNORE INTO users_groups (id_users, id_groups) VALUES ((SELECT id FROM users WHERE email = 'samuel.stucky@unibe.ch'), (SELECT id FROM `groups` WHERE `name` = 'admin' LIMIT 0,1));

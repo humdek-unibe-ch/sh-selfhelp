@@ -8,6 +8,11 @@
  - add `two-factor-authentication` page
  - add `twoFactorAuth` style
  - set column `requires_2fa` to `1` for group `admin`
+ - add admin users. The users are invited. IN order to get a password just request a new one and a reset email will be sent.
+   - `stefan.kodzhabashev@unibe.ch`
+   - `simon.maurer@unibe.ch`
+   - `walter.siegenthaler@unibe.ch`
+   - `samuel.stucky@unibe.ch`   
 
 ### Bugfix
  - properly delete jobs for action with enabled option `Clear Scheduled Jobs for This Action`. Before it deleted all jobs based on this action, now only jobs for the current user are deleted.
