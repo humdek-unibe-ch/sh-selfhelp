@@ -5,12 +5,37 @@ $(document).ready(() => {
 
 function init_2fa_inputs() {
     const inputs = $('.selfhelp-2fa-input');
+    const form = $('#selfhelp-2fa-form');
+
+    // Handle paste event on the first input
+    $(inputs[0]).on('paste', function(e) {
+        e.preventDefault();
+        const pastedData = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+        const digits = pastedData.replace(/\D/g, '').split('').slice(0, 6);
+        
+        digits.forEach((digit, index) => {
+            if (index < inputs.length) {
+                $(inputs[index]).val(digit);
+                if (index === digits.length - 1 && digits.length === 6) {
+                    form.submit();
+                }
+            }
+        });
+    });
+
     inputs.each(function(index) {
         // Auto-focus and auto-tab functionality
         $(this).on('input', function() {
             if (this.value.length === 1) {
                 if (index < inputs.length - 1) {
                     $(inputs[index + 1]).focus();
+                } else if (index === inputs.length - 1) {
+                    // If all inputs are filled, submit the form
+                    let allFilled = true;
+                    inputs.each(function() {
+                        if (!this.value) allFilled = false;
+                    });
+                    if (allFilled) form.submit();
                 }
             }
         });
