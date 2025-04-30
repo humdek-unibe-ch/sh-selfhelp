@@ -6,6 +6,7 @@
  - for `json` field type, if decode failed or still a string (likely double-encoded) then try to strip slashes and decode again
  - add `email_2fa` and `email_2fa_subject` fields to `email` page
  - add `two-factor-authentication` page
+ - add `twoFactorAuth` style
 
 ### Bugfix
  - properly delete jobs for action with enabled option `Clear Scheduled Jobs for This Action`. Before it deleted all jobs based on this action, now only jobs for the current user are deleted.

@@ -108,3 +108,12 @@ INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_lang
 INSERT IGNORE INTO `acl_users` (`id_users`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES (0000000001, @id_page, 1, 0, 0, 0);
 -- add the admin group to the page `two-factor-authentication` to update and select
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', @id_page, '1', '0', '1', '0');
+
+-- add twoFactorAuth style
+INSERT IGNORE INTO `styles` (`id`, `name`, `id_type`, `id_group`, `description`) 
+VALUES (NULL, 'twoFactorAuth', (SELECT id FROM styleType WHERE `name` = 'component' LIMIT 1), (SELECT id FROM styleGroup WHERE `name` = 'Admin' LIMIT 1), 'Provides a form for two-factor authentication where users can enter their verification code.');
+
+-- add mandatory style fields
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) VALUES
+(get_style_id('twoFactorAuth'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.', 0, 0),
+(get_style_id('twoFactorAuth'), get_field_id('mobile_css'), NULL, 'Allows to assign mobile CSS classes to the root item of the style.', 0, 0);
