@@ -1,0 +1,15 @@
+/* Styles for the Two-Factor Authentication component */
+
+/* Style for digit input boxes */
+.selfhelp-2fa-input {
+    width: 45px;
+    height: 50px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .selfhelp-2fa-input {
+        width: 35px;
+        height: 40px;
+    }
+}

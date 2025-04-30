@@ -21,7 +21,6 @@
                                 <input type="text"
                                     name="digit_<?php echo $i; ?>"
                                     class="form-control mx-1 text-center selfhelp-2fa-input font-weight-bold h4"
-                                    style="width: 45px; height: 50px;"
                                     maxlength="1"
                                     required
                                     pattern="[0-9]"
