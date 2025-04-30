@@ -117,3 +117,8 @@ VALUES (NULL, 'twoFactorAuth', (SELECT id FROM styleType WHERE `name` = 'compone
 INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) VALUES
 (get_style_id('twoFactorAuth'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.', 0, 0),
 (get_style_id('twoFactorAuth'), get_field_id('mobile_css'), NULL, 'Allows to assign mobile CSS classes to the root item of the style.', 0, 0);
+
+-- set column `requires_2fa` to `1` for group `admin`
+UPDATE `groups`
+SET requires_2fa = 1
+WHERE `name` = 'admin';
