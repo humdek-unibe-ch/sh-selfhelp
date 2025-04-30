@@ -60,7 +60,7 @@ class TwoFactorAuthModel extends StyleModel
         
         if (!empty($result)) {
             // Mark the code as used
-            $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array(':id' => $result['id']));
+            $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array('id' => $result['id']));
             $this->login->log_user($_SESSION['2fa_user']);
             return true;
         }
