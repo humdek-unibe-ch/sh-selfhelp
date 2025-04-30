@@ -83,6 +83,8 @@ define('SH_EMAIL', 'email');
 define('SH_GLOBAL_CSS', 'sh_global_css');
 define('SH_SECURITY_QUESTIONS', 'sh_security_questions');
 define('SH_TWO_FACTOR_AUTHENTICATION', 'two-factor-authentication');
+define('SH_LOGIN', 'login');
+define('SH_HOME', 'home');
 
 /* Style Types */
 define('STYLE_TYPE_INTERNAL', 'internal');

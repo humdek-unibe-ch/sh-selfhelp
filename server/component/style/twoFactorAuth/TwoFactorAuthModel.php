@@ -38,28 +38,6 @@ class TwoFactorAuthModel extends StyleModel
     /* Public Methods *********************************************************/
 
     /**
-     * Get the style name for this component.
-     *
-     * @return string
-     *  The name of the style.
-     */
-    public function get_style_name()
-    {
-        return "twoFactorAuth";
-    }
-
-    /**
-     * Get the verification code length.
-     *
-     * @return int
-     *  The length of the verification code.
-     */
-    public function get_code_length()
-    {
-        return $this->code_length;
-    }
-
-    /**
      * Verify a 2FA code.
      *
      * @param string $code
@@ -67,22 +45,36 @@ class TwoFactorAuthModel extends StyleModel
      * @return bool
      *  True if the code is valid, false otherwise.
      */
-    public function verify_code($code)
-    {
-        // TODO: Implement actual code verification
-        return strlen($code) === $this->code_length;
+    public function verify_2fa_code($code)
+    {        
+        // Get the latest unexpired and unused code for this user
+        $query = "SELECT * FROM users_2fa_codes 
+                 WHERE id_users = :id_users
+                 AND code = :code 
+                 AND expires_at > NOW() 
+                 AND is_used = FALSE 
+                 ORDER BY created_at DESC 
+                 LIMIT 1";
+        
+        $result = $this->db->query_db_first($query, array(':id_users' => $_SESSION['2fa_user']['id'], ':code' => $code));
+        
+        if (!empty($result)) {
+            // Mark the code as used
+            $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array(':id' => $result['id']));
+            $this->login->log_user($_SESSION['2fa_user']);
+            return true;
+        }
+        
+        return false;
     }
 
     /**
-     * Resend a 2FA code.
-     *
-     * @return bool
-     *  True if the code was sent successfully, false otherwise.
+     * A wrapper function for the method Login::get_last_url of the login
+     * service.
      */
-    public function resend_code()
+    public function get_target_url()
     {
-        // TODO: Implement actual code resending
-        return true;
+        return $this->login->get_target_url($this->router->generate('home'));
     }
 }
 ?>

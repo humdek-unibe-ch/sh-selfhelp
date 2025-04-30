@@ -54,7 +54,7 @@ class TwoFactorAuthView extends StyleView
     public function output_content()
     {
         $controller = $this->controller;
-        $code_remaining_time = 5*60;
+        $code_remaining_time = TWO_FA_EXPIRATION * 60;
         require __DIR__ . "/tpl_twoFactorAuth.php";
     }
 }

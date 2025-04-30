@@ -27,6 +27,13 @@ class TwoFactorAuthController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
+
+        // if 2fa_user is not set in the session redirect to login
+        if (!isset($_SESSION['2fa_user'])) {
+            header('Location: ' . $model->get_link_url(SH_LOGIN));
+            exit;
+        }
+
         $this->failed = false;
         $this->resent = false;
 
@@ -42,6 +49,7 @@ class TwoFactorAuthController extends BaseController
             
             if (strlen($code) === 6 && $model->verify_2fa_code($code)) {
                 header('Location: ' . $model->get_target_url());
+                exit;
             } else {
                 $this->failed = true;
             }

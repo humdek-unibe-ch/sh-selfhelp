@@ -144,7 +144,12 @@ class Login
         if(!array_key_exists('target_url', $_SESSION))
             $_SESSION['target_url'] = null;
         if($this->redirect)
-            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
+        {
+            if (strpos($_SERVER['REQUEST_URI'], SH_TWO_FACTOR_AUTHENTICATION) === false) {
+                // Only set target_url if we're not on the 2FA page
+                $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
+            }
+        }
         if(!$this->is_logged_in())
         {
             $_SESSION['logged_in'] = false;
@@ -255,17 +260,10 @@ class Login
             if($this->is_2fa_required($user['id'])){
                 // the user is in a group that requires 2fa
                 $this->generate_2fa_code($user, $email);
+                $_SESSION['2fa_user'] = $user;
                 return '2fa';
             }
-            $_SESSION['logged_in'] = true;
-            $_SESSION['id_user'] = $user['id'];
-            $_SESSION['gender'] = $user['id_gender'];
-            $_SESSION['user_name'] = $user['user_name'];
-            $_SESSION['user_gender'] = $user['id_gender'];
-            if(isset($user['id_languages'])){
-                 $_SESSION['user_language'] = $user['id_languages'];
-            }
-            $this->update_timestamp($user['id']);
+            $this->log_user($user);
             return true;
         }
         else
@@ -524,9 +522,9 @@ class Login
      */
     function generate_2fa_code($user, $email){
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-        $this->db->insert('2fa_codes', array(
-            'user_id' => $user['id'],
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+' . TWO_FA_EXPIRATION . ' minutes'));
+        $this->db->insert('users_2fa_codes', array(
+            'id_users' => $user['id'],
             'code' => $code,
             'expires_at' => $expiresAt
         ));
@@ -552,6 +550,25 @@ class Login
             "description" => "Email Notification - 2FA Code"
         );
         $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
+    }
+
+    /**
+     * Log the user in.
+     *
+     * @param array $user
+     *  The user array.
+     */
+    public function log_user($user)
+    {
+        $_SESSION['logged_in'] = true;
+        $_SESSION['id_user'] = $user['id'];
+        $_SESSION['gender'] = $user['id_gender'];
+        $_SESSION['user_name'] = $user['user_name'];
+        $_SESSION['user_gender'] = $user['id_gender'];
+        if(isset($user['id_languages'])){
+                $_SESSION['user_language'] = $user['id_languages'];
+        }
+        $this->update_timestamp($user['id']);
     }
 }
 ?>
