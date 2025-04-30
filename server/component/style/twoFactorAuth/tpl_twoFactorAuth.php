@@ -12,15 +12,9 @@
                     <h3 class="card-title text-center mb-4">Two-Factor Authentication</h3>
                     <p class="text-center">Please enter the 6-digit code sent to your email</p>
                     
-                    <?php if ($controller->has_verification_failed()): ?>
+                    <?php if ($controller && $controller->has_verification_failed()): ?>
                     <div class="alert alert-danger" role="alert">
                         Invalid verification code. Please try again.
-                    </div>
-                    <?php endif; ?>
-
-                    <?php if ($controller->was_code_resent()): ?>
-                    <div class="alert alert-success" role="alert">
-                        A new code has been sent to your email.
                     </div>
                     <?php endif; ?>
 
@@ -39,17 +33,12 @@
                             <?php endfor; ?>
                         </div>
                         
-                        <div class="text-center">
+                        <div class="d-none text-center">
                             <button type="submit" class="btn btn-primary px-4">Verify</button>
                         </div>
                     </form>
 
                     <div class="mt-4 text-center">
-                        <p class="mb-2">Didn't receive the code?</p>
-                        <form method="post" class="d-inline">
-                            <input type="hidden" name="type" value="2fa_resend">
-                            <button type="submit" class="btn btn-link">Resend Code</button>
-                        </form>
                         <div class="small text-muted mt-2">
                             Code expires in <span id="selfhelp-2fa-timer" data-time-remaining="<?php echo $code_remaining_time ?>">5:00</span>
                         </div>
