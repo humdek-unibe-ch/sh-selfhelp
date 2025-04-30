@@ -35,7 +35,8 @@ class TwoFactorAuthController extends BaseController
         }
 
         // Check for verification_failed in URL parameters
-        $this->failed = isset($_GET['verification_failed']);
+        $this->fail = isset($_GET['verification_failed']);
+        $this->error_msgs[] = $this->model->get_db_field('alert_fail', 'Invalid verification code. Please try again.');
         $this->resent = false;
 
         // Handle verification request
