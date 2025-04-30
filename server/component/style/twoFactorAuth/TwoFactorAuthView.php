@@ -32,22 +32,32 @@ class TwoFactorAuthView extends StyleView
     /* Public Methods *********************************************************/
 
     /**
-     * Get js include files required for this view.
+     * Get css include files required for this component. This overrides the
+     * parent implementation.
      *
-     * @param array $local
-     *  An array of include files that can be passed from a class implementing
-     *  this base class.
      * @retval array
-     *  An array of js include files the view requires.
+     *  An array of css include files the component requires.
      */
-    public function get_js_includes($local = array())
+    public function get_css_includes($local = array())
     {
-        return array_merge(
-            parent::get_js_includes($local),
-            array("/component/style/twoFactorAuth/js/twoFactorAuth.js")
-        );
+        $local = array(__DIR__ . "/css/twoFactorAuth.css");
+        return parent::get_css_includes($local);
     }
 
+    /**
+     * Get js include files required for this component. This overrides the
+     * parent implementation.
+     *
+     * @retval array
+     *  An array of js include files the component requires.
+     */
+    public function get_js_includes($local = array())
+    {   
+        if(empty($local)){
+            $local = array(__DIR__ . "/js/twoFactorAuth.js");
+        }
+        return parent::get_js_includes($local);
+    }
     /**
      * Render the component view.
      */
