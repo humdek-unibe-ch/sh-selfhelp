@@ -100,6 +100,14 @@ SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
  - run the `sql` files in the correct order from folder `server/db/update_scripts`.
  - after update clear the `cache`. Now as a workaround it could be done from page `cms->preferences`,  on save of this page the cache is cleared
 
+## Admin Accounts
+After all SQL scripts are installed, you can add administrator accounts with the following SQL commands:
+ - `stefan.kodzhabashev@unibe.ch` is added as admin
+ - `simon.maurer@unibe.ch` is added as admin
+ - `walter.siegenthaler@unibe.ch` is added as admin
+ - `samuel.stucky@unibe.ch` is added as admin
+
+Note: These accounts are specifically for University of Bern administrators. If you are not affiliated with the University of Bern, please remove these accounts.
 
 ## Code check
  - for code check use [PHPStan](https://phpstan.org)
