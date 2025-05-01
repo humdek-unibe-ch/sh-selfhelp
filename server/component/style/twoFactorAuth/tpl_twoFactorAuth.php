@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 
-<div class="container mt-5">
+<div class="container mt-5 <?php echo $this->css; ?>">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">

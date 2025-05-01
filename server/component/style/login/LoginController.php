@@ -51,8 +51,15 @@ class LoginController extends BaseController
             if (isset($_POST['type']) && $_POST['type'] == 'login' && isset($_POST['email']) && isset($_POST['password'])) {
                 $res = $model->check_login_credentials($_POST['email'], $_POST['password']);
                 if ($res === '2fa') {
-                    // redirect to 2fa page
-                    header('Location: ' . $model->get_link_url(SH_TWO_FACTOR_AUTHENTICATION));
+                    if (isset($_POST['mobile']) && $_POST['mobile']) {
+                        // set device id for the user
+                        $device_token = isset($_POST['device_token']) ? $_POST['device_token'] : 'web';
+                        $device_id = isset($_POST['device_id']) ? $_POST['device_id'] : 'web';
+                        $res = $this->model->set_device_id_and_token($device_id, $device_token);
+                    } else {
+                        // redirect to 2fa page
+                        header('Location: ' . $model->get_link_url(SH_TWO_FACTOR_AUTHENTICATION));
+                    }
                 } else if ($res) {
                     if (isset($_POST['mobile']) && $_POST['mobile']) {
                         // set device id for the user

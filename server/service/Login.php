@@ -268,6 +268,7 @@ class Login
         }
         else
         {
+            unset($_SESSION['2fa_user']);
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
             return false;
