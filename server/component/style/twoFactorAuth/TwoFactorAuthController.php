@@ -52,6 +52,10 @@ class TwoFactorAuthController extends BaseController
                 header('Location: ' . $model->get_target_url());
                 exit;
             } else {
+                if(isset($_POST['mobile']) && $_POST['mobile']){
+                    echo json_encode(['success' => false, 'message' => 'Invalid verification code. Please try again.']);
+                    exit;
+                }
                 $this->failed = true;
                 
                 // Check if verification_failed parameter already exists

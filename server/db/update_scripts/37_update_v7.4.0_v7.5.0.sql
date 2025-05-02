@@ -115,13 +115,24 @@ VALUES (NULL, 'twoFactorAuth', (SELECT id FROM styleType WHERE `name` = 'compone
 -- add field `2fa_label_expiration` 
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'label_expiration_2fa', get_field_type_id('markdown-inline'), '1');
 -- add twoFactorAuth style fields
-INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) VALUES
-(get_style_id('twoFactorAuth'), get_field_id('label_expiration_2fa'), 'Code expires in', 'The text that appears before the timer showing how much time is left before the verification code expires.', 0, 0),
-(get_style_id('twoFactorAuth'), get_field_id('alert_fail'), 'Invalid verification code. Please try again.', 'The alert text that appears when the user enters invalid code.', 0, 0),
-(get_style_id('twoFactorAuth'), get_field_id('label'), 'Two-Factor Authentication', 'The main heading displayed at the top of the two-factor authentication form.', 0, 0),
-(get_style_id('twoFactorAuth'), get_field_id('text_md'), 'Please enter the 6-digit code sent to your email', 'The instruction text shown to users explaining what they need to do to complete the two-factor authentication process.', 0, 0),
-(get_style_id('twoFactorAuth'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.', 0, 0),
-(get_style_id('twoFactorAuth'), get_field_id('css_mobile'), NULL, 'Allows to assign mobile CSS classes to the root item of the style.', 0, 0);
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) 
+VALUES (get_style_id('twoFactorAuth'), get_field_id('label_expiration_2fa'), 'Code expires in', 'The text that appears before the timer showing how much time is left before the verification code expires.', 0, 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) 
+VALUES (get_style_id('twoFactorAuth'), get_field_id('alert_fail'), 'Invalid verification code. Please try again.', 'The alert text that appears when the user enters invalid code.', 0, 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) 
+VALUES (get_style_id('twoFactorAuth'), get_field_id('label'), 'Two-Factor Authentication', 'The main heading displayed at the top of the two-factor authentication form.', 0, 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) 
+VALUES (get_style_id('twoFactorAuth'), get_field_id('text_md'), 'Please enter the 6-digit code sent to your email', 'The instruction text shown to users explaining what they need to do to complete the two-factor authentication process.', 0, 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) 
+VALUES (get_style_id('twoFactorAuth'), get_field_id('css'), NULL, 'Allows to assign CSS classes to the root item of the style.', 0, 0);
+
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`, `disabled`, `hidden`) 
+VALUES (get_style_id('twoFactorAuth'), get_field_id('css_mobile'), NULL, 'Allows to assign mobile CSS classes to the root item of the style.', 0, 0);
+
 
 -- set column `requires_2fa` to `1` for group `admin`
 UPDATE `groups`
