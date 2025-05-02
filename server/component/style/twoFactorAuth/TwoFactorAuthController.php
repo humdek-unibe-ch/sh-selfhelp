@@ -48,7 +48,7 @@ class TwoFactorAuthController extends BaseController
                 }
             }
             
-            if (strlen($code) === 6 && $model->verify_2fa_code($code)) {
+            if ($model->verify_2fa_code($code)) {
                 if(isset($_POST['mobile']) && $_POST['mobile']){
                     echo json_encode(['success' => true, 'message' => 'Verification code verified successfully.']);
                     exit;

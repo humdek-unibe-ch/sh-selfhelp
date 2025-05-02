@@ -77,7 +77,7 @@ SET @id_page = (SELECT id FROM pages WHERE keyword = 'email');
 -- add field `email_2fa_subject`
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_2fa_subject', get_field_type_id('markdown'), '1');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'emails' LIMIT 0,1), get_field_id('email_2fa_subject'), NULL, 'Subject text for the email which is sent when a user tries to login with 2fa enabled');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('email_2fa_subject'), '0000000002', '{{@project}} - validation code');
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, get_field_id('email_2fa_subject'), '0000000002', '{{@project}} - verification code');
 
 -- add field `email_2fa`
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'email_2fa', get_field_type_id('markdown'), '1');
