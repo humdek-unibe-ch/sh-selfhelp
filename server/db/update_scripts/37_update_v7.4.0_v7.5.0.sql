@@ -158,3 +158,15 @@ INSERT IGNORE INTO users_groups (id_users, id_groups) VALUES ((SELECT id FROM us
 INSERT IGNORE INTO users (email, `name`, id_status) VALUES ('samuel.stucky@unibe.ch','Samuel Stucky@unibe', (SELECT id from userStatus WHERE `name` = 'invited' LIMIT 0,1));
 INSERT IGNORE INTO validation_codes (`code`, id_users) VALUES ('admin_samuel', (SELECT id FROM users WHERE email = 'samuel.stucky@unibe.ch'));
 INSERT IGNORE INTO users_groups (id_users, id_groups) VALUES ((SELECT id FROM users WHERE email = 'samuel.stucky@unibe.ch'), (SELECT id FROM `groups` WHERE `name` = 'admin' LIMIT 0,1));
+
+-- add two-factio-authenitcation section
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (get_style_id('twoFactorAuth'), 'twoFactorAuth-twoFactorAuth', NULL);
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (get_style_id('twoFactorAuth'), 'twoFactorAuth-twoFactorAuth', NULL);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'twoFactorAuth-twoFactorAuth'), get_field_id('label_expiration_2fa'), 0000000002, 0000000001, 'Code expires in'),
+((SELECT id FROM sections WHERE `name` = 'twoFactorAuth-twoFactorAuth'), get_field_id('alert_fail'), 0000000002, 0000000001, 'Invalid verification code. Please try again.'),
+((SELECT id FROM sections WHERE `name` = 'twoFactorAuth-twoFactorAuth'), get_field_id('label'), 0000000002, 0000000001, 'Two-Factor Authentication'),
+((SELECT id FROM sections WHERE `name` = 'twoFactorAuth-twoFactorAuth'), get_field_id('text_md'), 0000000002, 0000000001, 'Please enter the 6-digit code sent to your email');
+
+INSERT IGNORE INTO `pages_sections` (`id_pages`, `id_sections`, `position`) VALUES
+((SELECT id FROM pages WHERE `keyword` = "two-factor-authentication"), (SELECT id FROM sections WHERE `name` = 'twoFactorAuth-twoFactorAuth'), 0);
