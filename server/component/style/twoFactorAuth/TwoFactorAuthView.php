@@ -64,7 +64,8 @@ class TwoFactorAuthView extends StyleView
     public function output_content()
     {
         $controller = $this->controller;
-        $code_remaining_time = TWO_FA_EXPIRATION * 60;
+        $expiration_minutes = defined('TWO_FA_EXPIRATION') ? TWO_FA_EXPIRATION : 10;
+        $code_remaining_time = $expiration_minutes * 60;
         $label_expiration_2fa = $this->model->get_db_field('label_expiration_2fa', 'Code expires in');
         $label = $this->model->get_db_field('label', 'Two-Factor Authentication');
         $text_md = $this->model->get_db_field('text_md', 'Please enter the 6-digit code sent to your email');

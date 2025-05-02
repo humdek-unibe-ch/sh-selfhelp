@@ -654,7 +654,7 @@ class CmsModel extends BaseModel
                 $children = array();
             $id_root = $this->id_root_section;
             $id_child = $id;
-            if($this->page_info['id_navigation_section'] == null)
+            if($this->page_info && $this->page_info['id_navigation_section'] == null)
             {
                 $id_root = $id;
                 $id_child = null;

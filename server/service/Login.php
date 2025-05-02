@@ -523,7 +523,9 @@ class Login
      */
     function generate_2fa_code($user, $email){
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+' . TWO_FA_EXPIRATION . ' minutes'));
+        // Check if TWO_FA_EXPIRATION is defined, otherwise use default value of 10
+        $expiration_minutes = defined('TWO_FA_EXPIRATION') ? TWO_FA_EXPIRATION : 10;
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+' . $expiration_minutes . ' minutes'));
         $this->db->insert('users_2fa_codes', array(
             'id_users' => $user['id'],
             'code' => $code,
