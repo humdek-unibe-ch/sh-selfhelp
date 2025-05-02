@@ -570,7 +570,7 @@ class Login
         $_SESSION['user_gender'] = $user['id_gender'];
         if(isset($user['id_languages'])){
                 $_SESSION['user_language'] = $user['id_languages'];
-        }
+        }        
         $this->update_timestamp($user['id']);
     }
 }

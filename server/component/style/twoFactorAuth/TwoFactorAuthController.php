@@ -74,33 +74,6 @@ class TwoFactorAuthController extends BaseController
                 exit;
             }
         }
-
-        // Handle resend request
-        if (isset($_POST['type']) && $_POST['type'] == '2fa_resend') {
-            $this->resent = $model->resend_2fa_code();
-        }
-    }
-
-    /**
-     * Returns the verification failure status.
-     *
-     * @retval bool
-     *  true if the verification has failed, false otherwise.
-     */
-    public function has_verification_failed()
-    {
-        return $this->failed;
-    }
-
-    /**
-     * Returns the code resend status.
-     *
-     * @retval bool
-     *  true if the code was resent successfully, false otherwise.
-     */
-    public function was_code_resent()
-    {
-        return $this->resent;
     }
 }
 ?>
