@@ -1,4 +1,4 @@
-# v7.5.0 Not released
+# v7.5.0
 ### New Feature
  - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
  - add table `users_2fa_codes` to store 2FA codes
