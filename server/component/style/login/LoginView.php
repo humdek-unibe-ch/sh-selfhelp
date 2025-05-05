@@ -146,5 +146,10 @@ class LoginView extends StyleView
         }
     }
 
+    public function output_external_auth()
+    {
+        
+    }   
+
 }
 ?>

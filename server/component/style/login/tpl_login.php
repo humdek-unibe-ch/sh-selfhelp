@@ -22,5 +22,6 @@
             <button type="submit" class="w-100 btn btn-<?php echo $this->type; ?>"><?php echo $this->login_label; ?></button>
         </form>
         <a href="<?php echo $reset_url; ?>" class="small float-right text-<?php echo $this->type; ?>"><?php echo $this->reset_label; ?></a>
+        <?php $this->output_external_auth(); ?>
     </div>
 </div>

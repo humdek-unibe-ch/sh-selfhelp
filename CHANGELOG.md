@@ -1,3 +1,7 @@
+# v7.5.1
+### New Feature
+ - prepare output for `external auth`
+
 # v7.5.0
 ### New Feature
  - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
