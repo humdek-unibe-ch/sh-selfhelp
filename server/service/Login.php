@@ -187,7 +187,7 @@ class Login
      * @retval int
      *  The number of affected rows or false on failure.
      */
-    private function update_timestamp($id)
+    public function update_timestamp($id)
     {
         $sql = "UPDATE users SET last_login = now()
             WHERE id = :id";
