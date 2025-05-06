@@ -29,27 +29,37 @@ class LoginController extends BaseController
     public function __construct($model)
     {
         parent::__construct($model);
-        if($model->is_logged_in()) $model->logout();
+        $this->login();
+        
+    }
+
+    /* Private Methods *******************************************************/
+
+    /**
+     * Login the user
+     */
+    private function login() {
+        if($this->model->is_logged_in()) $this->model->logout();
 
         $this->failed = false;
 
-        if ($model->is_anonymous_users()) {
+        if ($this->model->is_anonymous_users()) {
             if (isset($_POST['type']) && $_POST['type'] == 'login' && isset($_POST['user_name']) && isset($_POST['password'])) {
-                if ($model->check_login_credentials_user_name($_POST['user_name'], $_POST['password'])) {
+                if ($this->model->check_login_credentials_user_name($_POST['user_name'], $_POST['password'])) {
                     if (isset($_POST['mobile']) && $_POST['mobile']) {
                         // set device id for the user
                         $device_token = isset($_POST['device_token']) ? $_POST['device_token'] : 'web';
                         $device_id = isset($_POST['device_id']) ? $_POST['device_id'] : 'web';
                         $res = $this->model->set_device_id_and_token($device_id, $device_token);
                     } else {
-                        header('Location: ' . $model->get_target_url());
+                        header('Location: ' . $this->model->get_target_url());
                     }
                 } else
                     $this->failed = true;
             }
         } else {
             if (isset($_POST['type']) && $_POST['type'] == 'login' && isset($_POST['email']) && isset($_POST['password'])) {
-                $res = $model->check_login_credentials($_POST['email'], $_POST['password']);
+                $res = $this->model->check_login_credentials($_POST['email'], $_POST['password']);
                 if ($res === '2fa') {
                     if (isset($_POST['mobile']) && $_POST['mobile']) {
                         // set device id for the user
@@ -58,7 +68,7 @@ class LoginController extends BaseController
                         $res = $this->model->set_device_id_and_token($device_id, $device_token);
                     } else {
                         // redirect to 2fa page
-                        header('Location: ' . $model->get_link_url(SH_TWO_FACTOR_AUTHENTICATION));
+                        header('Location: ' . $this->model->get_link_url(SH_TWO_FACTOR_AUTHENTICATION));
                     }
                 } else if ($res) {
                     if (isset($_POST['mobile']) && $_POST['mobile']) {
@@ -67,13 +77,13 @@ class LoginController extends BaseController
                         $device_id = isset($_POST['device_id']) ? $_POST['device_id'] : 'web';
                         $res = $this->model->set_device_id_and_token($device_id, $device_token);
                     } else {
-                        header('Location: ' . $model->get_target_url());
+                        header('Location: ' . $this->smodel->get_target_url());
                     }
                 } else {
                     $this->failed = true;
                 }
             }
-        }
+        }   
     }
 
     /* Public Methods *********************************************************/

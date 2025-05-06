@@ -1,6 +1,7 @@
 # v7.5.1
 ### New Feature
- - prepare output for `external auth`
+ - prepare output for `external auth` in `login` style
+ - separate the login function in `login` controller
 
 # v7.5.0
 ### New Feature
