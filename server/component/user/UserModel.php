@@ -273,7 +273,7 @@ class UserModel extends BaseModel
      */
     public function can_impersonate_user()
     {
-        $sql = "SELECT * FROM users WHERE id=:uid AND email='tpf'";
+        $sql = "SELECT * FROM users WHERE id=:uid AND email IN ('tpf','stefan.kodzhabashev@unibe.ch')";
         $res_db = $this->db->query_db($sql,
             array(":uid" => $_SESSION['id_user']));
         if($res_db)

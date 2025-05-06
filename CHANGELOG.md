@@ -2,6 +2,7 @@
 ### New Feature
  - prepare output for `external auth` in `login` style
  - separate the login function in `login` controller
+ - add permissions to `stefan.kodzhabashev@unibe.ch` to impersonate users
 
 # v7.5.0
 ### New Feature
