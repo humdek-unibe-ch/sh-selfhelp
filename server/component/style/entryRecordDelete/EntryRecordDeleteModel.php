@@ -55,7 +55,8 @@ class EntryRecordDeleteModel extends StyleModel
      */
     public function delete_record($record_id)
     {
-        return $this->user_input->delete_data($record_id);
+        return $this->user_input->delete_data($record_id, $this->get_db_field("own_entries_only", 1));
+;
     }
 
 }

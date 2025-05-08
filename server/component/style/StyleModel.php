@@ -113,7 +113,6 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->params = $params;
         $this->id_page = $id_page; 
         $this->entry_record = $entry_record;
-<<<<<<< HEAD
         $this->style_name = $this->get_style_name_by_section_id($id);   
         if (DEBUG) {
             PerformanceLogger::startTimer(
@@ -126,13 +125,15 @@ class StyleModel extends BaseModel implements IStyleModel
         }     
         if(isset($params['parent_id'])){
             $this->parent_id = $params['parent_id'];
-=======
+        }
         $this->initialize();
                 
     }
 
     /* Private Methods ********************************************************/    
 
+    
+     
     public function initialize()
     {
         $class = get_class($this);
@@ -140,7 +141,6 @@ class StyleModel extends BaseModel implements IStyleModel
         $this->style_name = $this->get_style_name_by_section_id($this->section_id);        
         if(isset($this->params['parent_id'])){
             $this->parent_id = $this->params['parent_id'];
->>>>>>> main
         }
         if(isset($this->params['relation'])){
             $this->relation = $this->params['relation'];
@@ -165,7 +165,6 @@ class StyleModel extends BaseModel implements IStyleModel
         if (($this->is_cms_page() || $this->condition_result['result'])) {
             $this->loadChildren($this->entry_record);
         }
-<<<<<<< HEAD
         if (DEBUG && $this->style_name) {
             PerformanceLogger::endTimer(
                 'style-model',
@@ -177,14 +176,11 @@ class StyleModel extends BaseModel implements IStyleModel
                 ]
             );
         }       
-    }
-
-    /* Private Methods ********************************************************/    
-=======
         $class = get_class($this);
         $this->services->get_clockwork()->endEvent("[$class][initialize]");
-    }   
->>>>>>> main
+    }
+
+    /* Private Methods ********************************************************/                
 
     /**
      * Get entries values if there are any set
@@ -455,7 +451,16 @@ class StyleModel extends BaseModel implements IStyleModel
                     // if the style is select then strip slashes
                     $field['content']  = $field['content'] ? json_decode(stripslashes($field['content']), true) : array();
                 } else {
-                    $field['content']  = $field['content'] ? json_decode($field['content'], true) : array();
+                    $decoded = json_decode($field['content'], true);
+
+                    // If decode failed or still a string (likely double-encoded)
+                    if (json_last_error() !== JSON_ERROR_NONE || is_string($decoded)) {
+                        $stripped = stripslashes($field['content']);
+                        $decoded = json_decode($stripped, true);
+                    }
+                
+                    // Assign only if final decode succeeded
+                    $field['content'] = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : array();
                 }                
                 if(isset($field['meta']) && $field['meta']){
                     $field['meta'] = json_decode($field['meta'], true);
@@ -833,17 +838,8 @@ class StyleModel extends BaseModel implements IStyleModel
      */
     public function get_global_vars()
     {
-        $user_name = $this->db->fetch_user_name();
-        $user_code = $this->db->get_user_code();
-        $user_email = $this->db->fetch_user_email();
-        $global_vars = array(
-                '@user_code' => $user_code,
-                '@project' => $_SESSION['project'],
-                '@user' => $user_name,
-                '@user_email' => $user_email,
-                '__keyword__' => $this->router->get_keyword_from_url(),
-                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
-            );
+        $global_vars = $this->db->get_global_vars();
+        $global_vars['__keyword__'] = $this->router->get_keyword_from_url();
         foreach ($this->params as $key => $value) {
             $global_vars['__' . $key . '__'] = $value;
         }

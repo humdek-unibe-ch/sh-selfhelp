@@ -899,5 +899,25 @@ class PageDb extends BaseDb
         }
     }
 
+    /**
+     * Retrieves global variables for use within the application.
+     * @return array An array containing global variables such as user code, project, user name, keywords, and platform.
+     */
+    public function get_global_vars()
+    {
+        $user_name = $this->fetch_user_name();
+        $user_code = $this->get_user_code();
+        $user_email = $this->fetch_user_email();
+        $global_vars = array(
+                '@user_code' => $user_code,
+                '@id_users' => $_SESSION['id_user'],
+                '@project' => $_SESSION['project'],
+                '@user' => $user_name,
+                '@user_email' => $user_email,
+                '__platform__' => (isset($_POST['mobile']) && $_POST['mobile']) ? pageAccessTypes_mobile : pageAccessTypes_web
+            );
+        return $global_vars;
+    } 
+
 }
 ?>

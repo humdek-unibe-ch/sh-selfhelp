@@ -654,7 +654,7 @@ class CmsModel extends BaseModel
                 $children = array();
             $id_root = $this->id_root_section;
             $id_child = $id;
-            if($this->page_info['id_navigation_section'] == null)
+            if($this->page_info && $this->page_info['id_navigation_section'] == null)
             {
                 $id_root = $id;
                 $id_child = null;
@@ -1012,8 +1012,7 @@ class CmsModel extends BaseModel
      */
     public function can_delete_page()
     {
-        return $this->acl->has_access_delete($_SESSION['id_user'],
-            $this->db->fetch_page_id_by_keyword("cmsDelete"));
+        return $this->acl->has_access_delete($_SESSION['id_user'], $this->db->fetch_page_id_by_keyword("cmsDelete"));
     }
 
     /**
@@ -1141,6 +1140,9 @@ class CmsModel extends BaseModel
     public function delete_page($pid)
     {
         $res = true;
+        $acl = $this->can_delete_page() && $this->acl->has_access($_SESSION['id_user'], $pid, "delete");
+        if(!$acl)
+            return false;
         $info = $this->get_page_info($pid);
         if($info['id_navigation_section'] != null)
             $res = $this->delete_section($info['id_navigation_section']);

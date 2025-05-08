@@ -100,6 +100,27 @@ SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
  - run the `sql` files in the correct order from folder `server/db/update_scripts`.
  - after update clear the `cache`. Now as a workaround it could be done from page `cms->preferences`,  on save of this page the cache is cleared
 
+## Admin Accounts
+After all SQL scripts are installed, you should add an administrator account with the following SQL commands (replace the values with your information):
+
+```sql
+-- Add your email as admin
+INSERT IGNORE INTO users (email, `name`, id_status) 
+VALUES ('your.email@example.com', 'Your Name', (SELECT id from userStatus WHERE `name` = 'invited' LIMIT 0,1));
+
+-- Create validation code for password reset
+INSERT IGNORE INTO validation_codes (`code`, id_users) 
+VALUES ('admin_setup', (SELECT id FROM users WHERE email = 'your.email@example.com'));
+
+-- Add user to admin group
+INSERT IGNORE INTO users_groups (id_users, id_groups) 
+VALUES ((SELECT id FROM users WHERE email = 'your.email@example.com'), 
+        (SELECT id FROM `groups` WHERE `name` = 'admin' LIMIT 0,1));
+```
+
+After running these commands, you can use the password reset functionality with your email to set up your admin account.
+
+Note: If you are affiliated with the University of Bern, specific admin accounts may already be configured.
 
 ## Code check
  - for code check use [PHPStan](https://phpstan.org)

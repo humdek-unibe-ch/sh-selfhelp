@@ -125,6 +125,10 @@ class GroupController extends BaseController
         }
         return $this->model->dump_acl_table($gid);
     }
+    protected function update_group()
+    {
+        return $this->model->update_group();
+    }
 
 }
 ?>

@@ -108,7 +108,7 @@ class Login
             } else {
                 session_set_cookie_params(
                     [
-                        'secure' => true,
+                        'secure' => DEBUG ? false : true,
                         'samesite' => 'Lax'
                     ]
                 );
@@ -144,9 +144,15 @@ class Login
         $_SESSION['user_language_locale'] = $this->db->fetch_language($_SESSION['user_language'])['locale'];
         if (!array_key_exists('target_url', $_SESSION))
             $_SESSION['target_url'] = null;
-        if ($this->redirect)
-            $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
-        if (!$this->is_logged_in()) {
+        if($this->redirect)
+        {
+            if (strpos($_SERVER['REQUEST_URI'], SH_TWO_FACTOR_AUTHENTICATION) === false) {
+                // Only set target_url if we're not on the 2FA page
+                $_SESSION['target_url'] = $_SERVER['REQUEST_URI'];
+            }
+        }
+        if(!$this->is_logged_in())
+        {
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
         } else {
@@ -183,7 +189,7 @@ class Login
      * @retval int
      *  The number of affected rows or false on failure.
      */
-    private function update_timestamp($id)
+    public function update_timestamp($id)
     {
         $sql = "UPDATE users SET last_login = now()
             WHERE id = :id";
@@ -248,22 +254,24 @@ class Login
      */
     public function check_credentials($email, $password)
     {
-        $sql = "SELECT u.id, u.password, g.name AS gender, g.id AS id_gender, id_languages FROM users AS u
+        $sql = "SELECT u.id, u.password, u.`name` AS user_name, g.name AS gender, g.id AS id_gender, id_languages FROM users AS u
             LEFT JOIN genders AS g ON g.id = u.id_genders
             WHERE email = :email AND password IS NOT NULL AND blocked <> '1'";
         $user = $this->db->query_db_first($sql, array(':email' => $email));
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['logged_in'] = true;
-            $_SESSION['id_user'] = $user['id'];
-            $_SESSION['gender'] = $user['id_gender'];
-            $_SESSION['user_gender'] = $user['id_gender'];
-            if (isset($user['id_languages'])) {
-                $_SESSION['user_language'] = $user['id_languages'];
+        if($user && password_verify($password, $user['password']))
+        {
+            if($this->is_2fa_required($user['id'])){
+                // the user is in a group that requires 2fa
+                $this->generate_2fa_code($user, $email);
+                $_SESSION['2fa_user'] = $user;
+                return '2fa';
             }
-            $this->update_timestamp($user['id']);
-            unset($user['password']);
-            return $user;
-        } else {
+            $this->log_user($user);
+            return true;
+        }
+        else
+        {
+            unset($_SESSION['2fa_user']);
             $_SESSION['logged_in'] = false;
             $_SESSION['id_user'] = GUEST_USER_ID;
             return false;
@@ -490,6 +498,86 @@ class Login
         }
         session_destroy();
         $this->init_session();
+    }
+
+    /**
+     * Check whether the user is logged in by ckecking for a user id in the
+     * session variable.
+     *
+     * @retval bool
+     *  true if the user is logged in, false otherwise.
+     */
+    function is_2fa_required($user_id){
+        $sql = "SELECT SUM(g.requires_2fa) AS requires_2fa
+                FROM users u 
+                INNER JOIN users_groups ug ON (ug.id_users = u.id)
+                INNER JOIN `groups` g ON (ug.id_groups = g.id)
+                WHERE u.id = :user_id";
+        $result = $this->db->query_db_first($sql, array(
+            ':user_id' => $user_id,
+        ));
+        return $result && $result['requires_2fa'] > 0;
+    }
+
+    /**
+     * Generate a 2fa code for the user and send it to the user's email.
+     *
+     * @param array $user
+     *  The user array.
+     * @param string $email
+     *  The email address of the user.
+     */
+    function generate_2fa_code($user, $email){
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); // 6-digit code
+        // Check if TWO_FA_EXPIRATION is defined, otherwise use default value of 10
+        $expiration_minutes = defined('TWO_FA_EXPIRATION') ? TWO_FA_EXPIRATION : 10;
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+' . $expiration_minutes . ' minutes'));
+        $this->db->insert('users_2fa_codes', array(
+            'id_users' => $user['id'],
+            'code' => $code,
+            'expires_at' => $expiresAt
+        ));
+
+        $email_templates = $this->db->fetch_page_info(SH_EMAIL);
+        $global_vars = $this->db->get_global_vars();
+        $global_vars['@2fa_code'] = $code;
+        $global_vars['@user'] = $user['user_name'];
+        $subject = $this->db->replace_calced_values($email_templates[PF_EMAIL_2FA_SUBJECT], $global_vars);
+        $body = $this->db->replace_calced_values($email_templates[PF_EMAIL_2FA], $global_vars);
+
+        $mail = array(
+            "id_jobTypes" => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_email),
+            "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
+            "date_to_be_executed" => date('Y-m-d H:i:s', time()),
+            "from_email" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "from_name" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "reply_to" => $email_templates[PF_EMAIL_DELETE_PROFILE_EMAIL_ADDRESS],
+            "recipient_emails" => $email,
+            "subject" => $subject,
+            "body" => $body,
+            "is_html" => 1,
+            "description" => "Email Notification - 2FA Code"
+        );
+        $this->job_scheduler->add_and_execute_job($mail, transactionBy_by_user);
+    }
+
+    /**
+     * Log the user in.
+     *
+     * @param array $user
+     *  The user array.
+     */
+    public function log_user($user)
+    {
+        $_SESSION['logged_in'] = true;
+        $_SESSION['id_user'] = $user['id'];
+        $_SESSION['gender'] = $user['id_gender'];
+        $_SESSION['user_name'] = $user['user_name'];
+        $_SESSION['user_gender'] = $user['id_gender'];
+        if(isset($user['id_languages'])){
+                $_SESSION['user_language'] = $user['id_languages'];
+        }        
+        $this->update_timestamp($user['id']);
     }
 
     public function validate_user($user, $password)

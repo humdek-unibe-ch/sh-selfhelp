@@ -16,13 +16,51 @@
  - TODO: check the `condition` in the `styleModel` and if it is not met, do not controller or view
  - TODO: create configuration for dataTables what columns should be accepted, like definitions. Create the dataTable manually and then selected in the style where it should be used. On submission save only the defined columns. If some data is not saved, keep it in the transaction history and show warning to the user
 
-
- version for Bootstrap 5 (Not released)
+### version for Bootstrap 5 (Not released)
 ### New Feature
  - update to `Bootstrap` 5.3
  - update to `json-editor` 2.14.1
  - update to `jQuery-QueryBuilder` 3.0.0
  - #489 - add dropdown in the footer to select `dark`, `light` or `auto` theme. The settings are saved locally in the browser as the default one is taken from the user settings in the OS
+
+# v7.5.1
+### New Feature
+ - prepare output for `external auth` in `login` style
+ - separate the login function in `login` controller
+ - add permissions to `stefan.kodzhabashev@unibe.ch` to impersonate users
+
+# v7.5.0
+### New Feature
+ - add `requires_2fa` parameter to `groups` style. When enabled the user must enable 2FA to access the group.
+ - add table `users_2fa_codes` to store 2FA codes
+ - adjust procedure `add_table_column` and `drop_table_column` to add or drop a column from a table to work with special keywords used for table or column names
+ - for `json` field type, if decode failed or still a string (likely double-encoded) then try to strip slashes and decode again
+ - add `email_2fa` and `email_2fa_subject` fields to `email` page
+ - add `two-factor-authentication` page
+ - add `twoFactorAuth` style
+ - set column `requires_2fa` to `1` for group `admin`
+ - add admin users. The users are invited. IN order to get a password just request a new one and a reset email will be sent.
+   - `stefan.kodzhabashev@unibe.ch`
+   - `simon.maurer@unibe.ch`
+   - `walter.siegenthaler@unibe.ch`
+   - `samuel.stucky@unibe.ch`   
+
+### Bugfix
+ - properly delete jobs for action with enabled option `Clear Scheduled Jobs for This Action`. Before it deleted all jobs based on this action, now only jobs for the current user are deleted.
+ - properly check if the user has access to delete a page
+
+# v7.4.1
+### New Feature
+ - add `@id_users` as global variable accessible for dynamic content, comparison, load, etc
+
+# v7.4.0
+### New Feature
+ - add `own_entries_only` parameter to `entryRecordDelete` style. When enabled the user can only delete their own entries.
+
+# v7.3.1
+### New Feature
+ - update group functionality
+ - add `own_entries_only` parameter to `save_row` method, now we can save_data for all users if explicitly enabled. Used for sharing a record between users.
 
 # v7.3.0
 ### New Feature

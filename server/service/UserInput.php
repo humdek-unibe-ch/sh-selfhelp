@@ -859,9 +859,11 @@ class UserInput
      * The ID corresponding to the trigger type.
      * @param array|null $updateBasedOn
      * Optional parameter to specify the field name for updating the record instead of inserting.
+     * @param bool $own_entries_only
+     * If true, only the own entries will be updated.
      * @return bool
      */
-    private function save_row($transaction_by, $table_name, $data, $id_triggerType_id, $updateBasedOn = null)
+    private function save_row($transaction_by, $table_name, $data, $id_triggerType_id, $updateBasedOn = null, $own_entries_only = true)
     {
         unset($data['trigger_type']); // do not save trigger_type as string, now is saved with id in the row
         if (!isset($data['id_users'])) {
@@ -883,8 +885,8 @@ class UserInput
             $record = $this->get_data(
                 $id_table,
                 $filter,
-                ($data['id_users'] > 1), // if there is user we update only own data
-                $data['id_users'],
+                $own_entries_only, // if there is user we update only own data
+                $own_entries_only ? $data['id_users'] : null,
                 true
             );
             if ($record) {
@@ -1186,10 +1188,12 @@ class UserInput
      * The data that we want to save - associative array which contains "name of the column" => "value of the column"
      * @param array|null $updateBasedOn
      * Optional parameter to specify the field name for updating the record instead of inserting.     
+     * @param boolean $own_entries_only
+     * If true, only the own entries will be updated.
      * @return array | false
      * return array with the result containing result and message
      */
-    public function save_data($transaction_by, $table_name, $data, $updateBasedOn = null)
+    public function save_data($transaction_by, $table_name, $data, $updateBasedOn = null, $own_entries_only = true)
     {
         try {
             $this->db->begin_transaction();
@@ -1210,7 +1214,7 @@ class UserInput
                 }
             } else {
                 $id_actionTriggerTypes =  $this->get_trigger_type_id($data);
-                $res = $this->save_row($transaction_by, $table_name, $data, $id_actionTriggerTypes, $updateBasedOn);
+                $res = $this->save_row($transaction_by, $table_name, $data, $id_actionTriggerTypes, $updateBasedOn, $own_entries_only);
             }
 
             /**************** Check jobs ***************************************/
@@ -1377,7 +1381,7 @@ class UserInput
                 if (
                     isset($action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION]) && $action['config'][ACTION_CLEAR_EXISTING_JOBS_FOR_ACTION]
                 ) {
-                    // When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.
+                    // When enabled, all jobs already scheduled for this action and user will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.
                     $result['deleted_jobs'] = $this->delete_jobs_for_action($action['id']);
                 }
 
@@ -1623,10 +1627,12 @@ class UserInput
         $sql = 'SELECT id
         FROM scheduledJobs sj
         INNER JOIN scheduledJobs_formActions sjfa ON (sj.id = sjfa.id_scheduledJobs)
-        WHERE sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued;';
+        INNER JOIN scheduledJobs_users sju ON (sj.id = sju.id_scheduledJobs)
+        WHERE sju.id_users = :id_users AND sjfa.id_formActions = :action_id AND id_jobStatus = :job_status_queued;';
         $jobs_ids = $this->db->query_db($sql, array(
             ":action_id" => $action_id,
-            ":job_status_queued" => $job_status_queued
+            ":job_status_queued" => $job_status_queued,
+            ":id_users" => $_SESSION['id_user']
         ));
         foreach ($jobs_ids as $key => $value) {
             $this->transaction->add_transaction(

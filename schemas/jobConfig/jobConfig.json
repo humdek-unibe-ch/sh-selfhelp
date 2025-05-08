@@ -1168,7 +1168,7 @@
         "clear_existing_jobs_for_action": {
             "type": "boolean",
             "title": "Clear Scheduled Jobs for This Action",
-            "description": "When enabled, all jobs already scheduled for this action will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.",
+            "description": "When enabled, all jobs already scheduled for this action and user will have their status updated to 'deleted' before new jobs are scheduled. This prevents duplicates and conflicts while keeping a historical record of the jobs.",
             "default": false,
             "format": "checkbox",
             "options": {

@@ -11,7 +11,7 @@ BEGIN
 			AND `COLUMN_NAME` = param_column 
 		) = 0,
         "SELECT 'Column does not exist'",
-        CONCAT('ALTER TABLE ', param_table, ' DROP COLUMN ', param_column, ' ;')
+        CONCAT('ALTER TABLE `', param_table, '` DROP COLUMN `', param_column, '` ;')
     ));
 	PREPARE st FROM @sqlstmt;
 	EXECUTE st;
