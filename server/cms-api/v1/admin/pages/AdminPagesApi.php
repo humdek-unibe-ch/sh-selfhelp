@@ -80,4 +80,5 @@ class AdminPagesApi extends BaseApiRequest
         }));
         return $pages;
     }
+    
 }

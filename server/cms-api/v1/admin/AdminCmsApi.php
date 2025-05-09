@@ -7,6 +7,7 @@
 
 require_once __DIR__ . "/../BaseApiRequest.php";
 require_once __DIR__ . "/pages/AdminPagesApi.php";
+require_once __DIR__ . "/pages/AdminPageDetailApi.php";
 
 /**
  * @class AdminCmsApi
@@ -74,6 +75,30 @@ class AdminCmsApi extends BaseApiRequest
     {
         $pages = new AdminPagesApi(services: $this->services, keyword: $this->keyword);
         $this->response->set_data($pages->GET_pages());
+    }
+    
+    /**
+     * @brief Retrieves all sections and content for a specific page by keyword
+     * 
+     * @param string $page_keyword The keyword of the page to retrieve sections for
+     * @return void Response is handled through CmsApiResponse
+     * 
+     * @details
+     * This endpoint:
+     * 1. Creates an instance of AdminPagesApi to handle page operations
+     * 2. Retrieves the complete page structure with all sections and fields
+     * 3. Returns the structured JSON data through the response object
+     * 
+     * @note
+     * - Requires authenticated access
+     * - Returns 404 Not Found if page doesn't exist
+     * - Returns 403 Forbidden if user doesn't have access to the page
+     * - Returns 200 OK with page structure if successful
+     */
+    public function GET_page_fields($page_keyword): void
+    {
+        $pages_api = new AdminPageDetailApi(services: $this->services, keyword: $this->keyword);
+        $this->response->set_data($pages_api->GET_page_fields($page_keyword));
     }
 }
 ?>
