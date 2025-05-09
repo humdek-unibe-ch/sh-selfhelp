@@ -68,6 +68,15 @@ class AuthCmsApi extends BaseApiRequest
 
         if (!$user) {
             $this->error_response(error: 'Invalid credentials');
+        } else if ($user == '2fa') {
+            // Return successful response with tokens
+            $this->response->set_data(data: [
+                'two_factor' => [
+                    "required" => true,
+                    "id_users" => $_SESSION['2fa_user']['id'],
+                ]
+            ]);
+            return;
         }
 
         // Generate access and refresh tokens
@@ -83,6 +92,47 @@ class AuthCmsApi extends BaseApiRequest
             'expires_in' => ACCESS_TOKEN_EXPIRATION,
             'token_type' => 'Bearer'
         ]);
+    }
+
+    /**
+     * @brief Handle two-factor authentication
+     * 
+     * Verifies the provided 2FA code and generates access and refresh tokens
+     * upon successful verification.
+     * 
+     * Request Parameters:
+     * - code: 2FA verification code
+     * 
+     * Response:
+     * - Success: JWT access and refresh tokens with user data
+     * - Error: Authentication error message
+     * 
+     * @param string $code 2FA verification code
+     * @throws Exception If verification fails
+     */
+    public function POST_two_factor_verify($code, $id_users): void
+    {
+        $_SESSION['2fa_user']['id'] = $id_users;
+        $result = $this->login->verify_2fa_code($code);
+
+        if (!$result) {
+            $this->error_response(error: 'Invalid credentials');
+            return;
+        } else {
+            // Generate access and refresh tokens
+            $access_token = $this->jwt_service->generate_access_token(user_id: $_SESSION['id_user']);
+            $refresh_token = $this->jwt_service->generate_refresh_token(user_id: $_SESSION['id_user']);
+
+            $this->response->set_logged_in(logged_in: true);
+
+            // Return successful response with tokens
+            $this->response->set_data(data: [
+                'access_token' => $access_token,
+                'refresh_token' => $refresh_token,
+                'expires_in' => ACCESS_TOKEN_EXPIRATION,
+                'token_type' => 'Bearer'
+            ]);
+        }
     }
 
     /**
@@ -107,7 +157,7 @@ class AuthCmsApi extends BaseApiRequest
         try {
             $access_token = $this->handle_token_refresh($refresh_token);
 
-            if($access_token){
+            if ($access_token) {
                 $this->response->set_logged_in(logged_in: true);
             }
 
@@ -155,7 +205,7 @@ class AuthCmsApi extends BaseApiRequest
             // Always set logged out status and return success
             $this->response->set_logged_in(false);
             $this->response->set_status(200)
-                          ->set_message('Successfully logged out');
+                ->set_message('Successfully logged out');
         } catch (Exception $e) {
             // This catch block will only trigger for unexpected errors
             $this->error_response('An unexpected error occurred during logout');

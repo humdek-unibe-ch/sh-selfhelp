@@ -264,10 +264,10 @@ class Login
                 // the user is in a group that requires 2fa
                 $this->generate_2fa_code($user, $email);
                 $_SESSION['2fa_user'] = $user;
-                return '2fa';
+                return '2fa'; // TODO: catch 2fa in the new auth api
             }
             $this->log_user($user);
-            return true;
+            return $user;
         }
         else
         {
@@ -569,11 +569,17 @@ class Login
      */
     public function log_user($user)
     {
-        $_SESSION['logged_in'] = true;
-        $_SESSION['id_user'] = $user['id'];
-        $_SESSION['gender'] = $user['id_gender'];
-        $_SESSION['user_name'] = $user['user_name'];
-        $_SESSION['user_gender'] = $user['id_gender'];
+        if(!isset($_SESSION['2fa_user']['id_users'])){
+            $sql = "SELECT u.id, u.id_genders AS id_genders, u.id_languages, u.`name` AS user_name 
+            FROM users AS u
+            WHERE u.id = :uid AND password IS NOT NULL AND blocked <> '1'";
+            $user = $this->db->query_db_first($sql, array(':uid' => $user['id']));
+        }
+            $_SESSION['logged_in'] = true;
+            $_SESSION['id_user'] = $user['id'];
+            $_SESSION['gender'] = $user['id_genders'];
+            $_SESSION['user_name'] = $user['user_name'];
+            $_SESSION['user_gender'] = $user['id_genders'];
         if(isset($user['id_languages'])){
                 $_SESSION['user_language'] = $user['id_languages'];
         }        
@@ -587,6 +593,37 @@ class Login
         } else {
             return $this->check_credentials(email: $user, password: $password);
         }
+    }
+
+    /**
+     * Verify a 2FA code.
+     *
+     * @param string $code
+     *  The code to verify.
+     * @return bool
+     *  True if the code is valid, false otherwise.
+     */
+    public function verify_2fa_code($code)
+    {        
+        // Get the latest unexpired and unused code for this user
+        $query = "SELECT * FROM users_2fa_codes 
+                 WHERE id_users = :id_users
+                 AND code = :code 
+                 AND expires_at > NOW() 
+                 AND is_used = FALSE 
+                 ORDER BY created_at DESC 
+                 LIMIT 1";
+        
+        $result = $this->db->query_db_first($query, array(':id_users' => $_SESSION['2fa_user']['id'], ':code' => $code));
+        
+        if (!empty($result)) {
+            // Mark the code as used
+            $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array('id' => $result['id']));
+            $this->log_user($_SESSION['2fa_user']);
+            return true;
+        }
+        
+        return false;
     }
 }
 ?>

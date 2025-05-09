@@ -47,25 +47,7 @@ class TwoFactorAuthModel extends StyleModel
      */
     public function verify_2fa_code($code)
     {        
-        // Get the latest unexpired and unused code for this user
-        $query = "SELECT * FROM users_2fa_codes 
-                 WHERE id_users = :id_users
-                 AND code = :code 
-                 AND expires_at > NOW() 
-                 AND is_used = FALSE 
-                 ORDER BY created_at DESC 
-                 LIMIT 1";
-        
-        $result = $this->db->query_db_first($query, array(':id_users' => $_SESSION['2fa_user']['id'], ':code' => $code));
-        
-        if (!empty($result)) {
-            // Mark the code as used
-            $this->db->update_by_ids('users_2fa_codes', array('is_used' => true), array('id' => $result['id']));
-            $this->login->log_user($_SESSION['2fa_user']);
-            return true;
-        }
-        
-        return false;
+        return $this->login->verify_2fa_code($code);
     }
 
     /**
