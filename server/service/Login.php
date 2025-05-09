@@ -570,7 +570,7 @@ class Login
     public function log_user($user)
     {
         if(!isset($_SESSION['2fa_user']['id_users'])){
-            $sql = "SELECT u.id, u.id_genders AS id_genders, u.id_languages, u.`name` AS user_name 
+            $sql = "SELECT u.id, u.id_genders AS id_genders, u.id_languages, u.`name` AS user_name, last_url 
             FROM users AS u
             WHERE u.id = :uid AND password IS NOT NULL AND blocked <> '1'";
             $user = $this->db->query_db_first($sql, array(':uid' => $user['id']));
@@ -580,6 +580,7 @@ class Login
             $_SESSION['gender'] = $user['id_genders'];
             $_SESSION['user_name'] = $user['user_name'];
             $_SESSION['user_gender'] = $user['id_genders'];
+            $_SESSION['last_url'] = $user['last_url'];
         if(isset($user['id_languages'])){
                 $_SESSION['user_language'] = $user['id_languages'];
         }        

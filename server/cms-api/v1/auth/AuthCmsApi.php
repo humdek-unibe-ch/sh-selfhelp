@@ -67,7 +67,7 @@ class AuthCmsApi extends BaseApiRequest
         $user = $this->login->validate_user($user, $password);
 
         if (!$user) {
-            $this->error_response(error: 'Invalid credentials');
+            $this->error_response(error: 'Invalid credentials', status: 401);
         } else if ($user == '2fa') {
             // Return successful response with tokens
             $this->response->set_data(data: [
@@ -116,7 +116,7 @@ class AuthCmsApi extends BaseApiRequest
         $result = $this->login->verify_2fa_code($code);
 
         if (!$result) {
-            $this->error_response(error: 'Invalid credentials');
+            $this->error_response(error: 'Invalid credentials', status: 200);
             return;
         } else {
             // Generate access and refresh tokens
@@ -130,7 +130,8 @@ class AuthCmsApi extends BaseApiRequest
                 'access_token' => $access_token,
                 'refresh_token' => $refresh_token,
                 'expires_in' => ACCESS_TOKEN_EXPIRATION,
-                'token_type' => 'Bearer'
+                'token_type' => 'Bearer',
+                'redirect_to' => isset($_SESSION['last_url']) ? $_SESSION['last_url'] : $this->router->generate('home')
             ]);
         }
     }
@@ -164,7 +165,7 @@ class AuthCmsApi extends BaseApiRequest
             $this->response->set_data(data: [
                 'access_token' => $access_token,
                 'expires_in' => ACCESS_TOKEN_EXPIRATION,
-                'token_type' => 'Bearer'
+                'token_type' => 'Bearer',
             ]);
         } catch (Exception $e) {
             $this->error_response(error: $e->getMessage());
