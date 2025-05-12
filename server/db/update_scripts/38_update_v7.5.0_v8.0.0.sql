@@ -303,7 +303,12 @@ VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('titl
 
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT id FROM `groups` WHERE `name` = 'admin'), (SELECT id FROM pages WHERE keyword = @page_keyword), '1', '0', '0', '0');
 
+-- add column `is_system`, where if enabled the page is system and it should not be delete it or change its properties. Only its content fields can be edited
+CALL add_table_column('pages', 'is_system', 'TINYINT DEFAULT 0');
 
+UPDATE pages
+SET is_system = 1
+WHERE keyword IN ("login", "home", "profile", "missing", "no_access", "no_access_guest", "agb", "impressum", "disclaimer", "validate", "reset_password", "two-factor-authentication");
 
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field
