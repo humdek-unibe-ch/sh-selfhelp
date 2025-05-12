@@ -27,6 +27,7 @@ trait JWTAuthMiddleware
         $token = $this->get_bearer_token();
         if (!$token) {
             $this->response->set_logged_in(false);
+            $_SESSION['id_user'] = GUEST_USER_ID;
             return;
         }
 
@@ -37,6 +38,7 @@ trait JWTAuthMiddleware
         // Refresh tokens should only be used with the token refresh endpoint
         if (!$payload || $payload->type !== 'access') {
             $this->response->set_logged_in(false);
+            $_SESSION['id_user'] = GUEST_USER_ID;
             return;
         }
 
