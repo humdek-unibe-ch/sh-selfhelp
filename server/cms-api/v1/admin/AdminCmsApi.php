@@ -99,6 +99,20 @@ class AdminCmsApi extends BaseApiRequest
     {
         $pages_api = new AdminPageDetailApi(services: $this->services, keyword: $this->keyword);
         $this->response->set_data($pages_api->GET_page_fields($page_keyword));
+    }    
+    
+    /**
+     * @brief Retrieves sections for a specific page and returns them in a nested hierarchical structure
+     * 
+     * @param string $page_keyword The keyword of the page to retrieve sections for
+     * @return void Response is handled through CmsApiResponse
+     */
+    public function GET_page_sections($page_keyword): void
+    {
+        $pages_api = new AdminPageDetailApi(services: $this->services, keyword: $this->keyword);
+        $sections = $pages_api->GET_page_sections($page_keyword);            
+        $this->response->set_data($sections);
     }
+
 }
 ?>

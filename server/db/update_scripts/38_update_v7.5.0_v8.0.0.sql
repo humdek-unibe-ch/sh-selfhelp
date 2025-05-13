@@ -310,6 +310,91 @@ UPDATE pages
 SET is_system = 1
 WHERE keyword IN ("login", "home", "profile", "missing", "no_access", "no_access_guest", "agb", "impressum", "disclaimer", "validate", "reset_password", "two-factor-authentication");
 
+CALL drop_foreign_key('sections', 'sections_fk_owner');
+CALL drop_table_column('sections', 'owner');
+
+-- Register the new API endpoint for retrieving page sections
+SET @page_keyword = 'cms-api_v1_admin_page_sections';
+
+-- Add the page entry for the new API endpoint
+INSERT IGNORE INTO `pages` (`keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`, `is_open_access`) 
+VALUES (@page_keyword, '/cms-api/v1/[admin:class]/[page_sections:method]/[v:page_keyword]', 'GET', (SELECT id FROM actions WHERE `name` = 'cms-api' LIMIT 0,1), NULL, NULL, '0', NULL, NULL, (SELECT id FROM pageType WHERE `name` = 'intern' LIMIT 0,1), (SELECT id FROM lookups WHERE lookup_code = 'mobile_and_web'), 0);
+
+-- Add translations for the page title in English
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
+VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000001', 'Get Page Sections');
+
+-- Add translations for the page title in German
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) 
+VALUES ((SELECT id FROM pages WHERE keyword = @page_keyword), get_field_id('title'), '0000000002', 'Get Page Sections');
+
+INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ((SELECT id FROM `groups` WHERE `name` = 'admin'), (SELECT id FROM pages WHERE keyword = @page_keyword), '1', '0', '0', '0');
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS `get_page_sections_hierarchical` //
+
+CREATE PROCEDURE `get_page_sections_hierarchical`(IN page_id INT)
+BEGIN
+    WITH RECURSIVE section_hierarchy AS (
+        -- Base case: get top-level sections for the page
+        SELECT 
+            s.id,
+            s.`name`,
+            s.id_styles,
+            st.`name` AS style_name,
+            ps.`position`,
+            0 AS `level`,
+            CAST(s.id AS CHAR(200)) AS `path`
+        FROM pages_sections ps
+        JOIN sections s ON ps.id_sections = s.id
+        JOIN styles st ON s.id_styles = st.id
+        LEFT JOIN sections_hierarchy sh ON s.id = sh.child
+        WHERE ps.id_pages = page_id
+        AND sh.parent IS NULL
+        
+        UNION ALL
+        
+        -- Recursive case: get children of sections
+        SELECT 
+            s.id,
+            s.`name`,
+            s.id_styles,
+            st.`name` AS style_name,
+            sh.position,
+            h.`level` + 1,
+            CONCAT(h.`path`, ',', s.id) AS `path`
+        FROM section_hierarchy h
+        JOIN sections_hierarchy sh ON h.id = sh.parent
+        JOIN sections s ON sh.child = s.id
+        JOIN styles st ON s.id_styles = st.id
+    )
+    
+    -- Select the result
+    SELECT 
+        id,
+        `name`,
+        id_styles,
+        style_name,
+        position,
+        `level`,
+        `path`
+    FROM section_hierarchy
+    ORDER BY `path`, `position`;
+END //
+
+DELIMITER ;
+
+
+
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field
 -- reowork all form data to use drop down for table selection. First the table should be registered by the user. Assign ACL to these dataTables.
+-- remove the gender
+-- pages should be moved to routes, then create link to lages, then link to pages_configurations (something else), refactor types, actions and all. Check this sql
+SELECT pft.id_fields, f.`name` AS field_name, pft.id_languages, pft.content, f.display, ft.id as field_id, ft.`name` as style_name, ft.position, pf.*, pft.*
+FROM pages_fields_translation pft
+INNER JOIN `fields` f ON pft.id_fields = f.id
+INNER JOIN `fieldType` ft ON ft.id = f.id_type
+LEFT JOIN `pages_fields` pf ON (pf.id_pages = pft.id_pages AND pf.id_fields = f.id)
+WHERE pft.id_pages = 96

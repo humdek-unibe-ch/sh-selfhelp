@@ -9,6 +9,8 @@
  - add `refresh_token` functionality for JWT login for better security
  - remove `open`page type, and all pages from that type were moved to `experiment` with `open_access` flag
  - add column `is_system`, where if enabled the page is system and it should not be delete it or change its properties. Only its content fields can be edited
+ - remove column `owner` from `sections`
+ - add function `get_page_sections_hierarchical` in `SQL` and use it in `AdminPageDetailApi.php`
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller

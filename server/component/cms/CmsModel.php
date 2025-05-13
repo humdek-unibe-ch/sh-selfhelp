@@ -321,11 +321,10 @@ class CmsModel extends BaseModel
             LEFT JOIN pages_sections AS ps ON s.id = ps.id_sections
             LEFT JOIN sections_navigation AS sn ON s.id = sn.child
             WHERE sh.child IS NULL AND ps.id_sections IS NULL
-            AND sn.child IS NULL AND (s.owner IS NULL OR s.owner = :uid)
+            AND sn.child IS NULL
             AND st.id_type <> 3 $where
             ORDER BY s.name";
         $sections_db = $this->db->query_db($sql, array(
-            ":uid" => $_SESSION["id_user"],
             ":sid" => NAVIGATION_CONTAINER_STYLE_ID,
         ));
         foreach($sections_db as $section)
@@ -364,7 +363,7 @@ class CmsModel extends BaseModel
      *  A prepared hierarchical array of section items such that it can
      *  be passed to a list style.
      */
-    private function fetch_page_sections()
+    public function fetch_page_sections()
     {
         $page_sections = $this->db->fetch_page_sections_by_id($this->id_page);
         return $this->prepare_section_list($page_sections);

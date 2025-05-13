@@ -35,6 +35,49 @@ class AdminPageDetailApi extends BaseApiRequest
         $this->response = new CmsApiResponse();
     }
 
+    /** Private methods */
+    /**
+     * @brief Transforms a flat array of sections into a nested hierarchical structure
+     * 
+     * @param array $sections Flat array of section objects with level and path properties
+     * @return array Nested array with children properly nested under their parents
+     */
+    private function buildNestedSections(array $sections): array
+    {
+        // Create a map of sections by ID for quick lookup
+        $sectionsById = [];
+        $rootSections = [];
+        
+        // First pass: index all sections by ID
+        foreach ($sections as $section) {
+            $section['children'] = [];
+            $sectionsById[$section['id']] = $section;
+        }
+        
+        // Second pass: build the hierarchy
+        foreach ($sections as $section) {
+            $id = $section['id'];
+            
+            // If it's a root section (level 0), add to root array
+            if ($section['level'] === 0) {
+                $rootSections[] = &$sectionsById[$id];
+            } else {
+                // Find parent using the path
+                $pathParts = explode(',', $section['path']);
+                if (count($pathParts) >= 2) {
+                    $parentId = (int)$pathParts[count($pathParts) - 2];
+                    
+                    // If parent exists, add this as its child
+                    if (isset($sectionsById[$parentId])) {
+                        $sectionsById[$parentId]['children'][] = &$sectionsById[$id];
+                    }
+                }
+            }
+        }
+        
+        return $rootSections;
+    }
+
     /**
      * @brief Retrieves sections and structure for a specific page by keyword
      * 
@@ -102,146 +145,12 @@ class AdminPageDetailApi extends BaseApiRequest
         }
     }
 
-    /**
-     * @brief Get basic page information
-     * 
-     * @param int $page_id The ID of the page
-     * @return array Basic page information
-     */
-    private function get_page_info(int $page_id): array
+    public function GET_page_sections($page_keyword): array
     {
-        $sql = "SELECT id, keyword, url, protocol, id_actions, parent, is_headless, 
-                      nav_position, footer_position, id_type, id_pageAccessTypes, is_open_access
-                FROM pages 
-                WHERE id = :page_id";
-
-        $page = $this->db->query_db_first($sql, [':page_id' => $page_id]);
-
-        if (!$page) {
-            throw new Exception("Page not found");
-        }
-
-        return $page;
-    }
-
-    /**
-     * @brief Get section hierarchy for a page
-     * 
-     * @param int $page_id The ID of the page
-     * @return array Hierarchical structure of sections
-     */
-    private function get_page_sections_hierarchy(int $page_id): array
-    {
-        // Get the root sections for this page
-        $sql = "SELECT s.id, s.name as section_name, s.id_styles, st.name as style_name 
-                FROM sections s
-                JOIN pages_sections ps ON s.id = ps.id_sections
-                JOIN styles st ON s.id_styles = st.id
-                WHERE ps.id_pages = :page_id AND ps.relation = 'page'
-                ORDER BY ps.position";
-
-        $root_sections = $this->db->query_db($sql, [':page_id' => $page_id]);
-
-        // Build full section hierarchy
-        $sections = [];
-        foreach ($root_sections as $section) {
-            $section_data = [
-                'id' => $section['id'],
-                'name' => $section['section_name'],
-                'style' => [
-                    'id' => $section['id_styles'],
-                    'name' => $section['style_name']
-                ],
-                'fields' => $this->get_section_fields($section['id']),
-                'children' => $this->get_section_children($section['id'])
-            ];
-
-            $sections[] = $section_data;
-        }
-
-        return $sections;
-    }
-
-    /**
-     * @brief Get all fields for a section with translations
-     * 
-     * @param int $section_id The ID of the section
-     * @return array Section fields with translations
-     */
-    private function get_section_fields(int $section_id): array
-    {
-        $sql = "SELECT sft.id_fields, f.name as field_name, sft.id_languages, 
-                       sft.id_genders, sft.content, sft.meta
-                FROM sections_fields_translation sft
-                JOIN fields f ON sft.id_fields = f.id
-                WHERE sft.id_sections = :section_id";
-
-        $fields = $this->db->query_db($sql, [':section_id' => $section_id]);
-
-        // Organize fields by name, language and gender
-        $organized_fields = [];
-        foreach ($fields as $field) {
-            $field_name = $field['field_name'];
-            $language_id = $field['id_languages'];
-            $gender_id = $field['id_genders'];
-
-            if (!isset($organized_fields[$field_name])) {
-                $organized_fields[$field_name] = [];
-            }
-
-            if (!isset($organized_fields[$field_name][$language_id])) {
-                $organized_fields[$field_name][$language_id] = [];
-            }
-
-            $field_data = [
-                'id' => $field['id_fields'],
-                'content' => $field['content']
-            ];
-
-            if ($field['meta']) {
-                $field_data['meta'] = json_decode($field['meta'], true);
-            }
-
-            $organized_fields[$field_name][$language_id][$gender_id] = $field_data;
-        }
-
-        return $organized_fields;
-    }
-
-    /**
-     * @brief Get child sections recursively
-     * 
-     * @param int $parent_section_id The ID of the parent section
-     * @return array Child sections with their data and children
-     */
-    private function get_section_children(int $parent_section_id): array
-    {
-        $sql = "SELECT s.id, s.name as section_name, s.id_styles, st.name as style_name 
-                FROM sections s
-                JOIN sections_sections ss ON s.id = ss.id_sections
-                JOIN styles st ON s.id_styles = st.id
-                WHERE ss.id_sections_parent = :parent_id
-                ORDER BY ss.position";
-
-        $children = $this->db->query_db($sql, [':parent_id' => $parent_section_id]);
-
-        $child_sections = [];
-        foreach ($children as $child) {
-            $child_data = [
-                'id' => $child['id'],
-                'name' => $child['section_name'],
-                'style' => [
-                    'id' => $child['id_styles'],
-                    'name' => $child['style_name']
-                ],
-                'fields' => $this->get_section_fields($child['id']),
-                'children' => $this->get_section_children($child['id'])
-            ];
-
-            $child_sections[] = $child_data;
-        }
-
-        return $child_sections;
+        $page_id = $this->db->fetch_page_id_by_keyword($page_keyword);
+        $sql = "CALL get_page_sections_hierarchical(:page_id);";
+        $sections = $this->db->query_db($sql, [':page_id' => $page_id]);        
+        return $this->buildNestedSections($sections);
     }
 }
 ?>

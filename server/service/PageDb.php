@@ -300,7 +300,7 @@ class PageDb extends BaseDb
         if ($get_result !== false) {
             return $get_result;
         } else {
-            $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name, s.owner,
+            $sql = "SELECT ps.id_sections AS id, s.id_styles, s.name,
             ps.position, p.id AS parent_id, '" . RELATION_PAGE_CHILDREN . "' AS relation
             FROM pages_sections AS ps
             LEFT JOIN pages AS p ON ps.id_pages = p.id
