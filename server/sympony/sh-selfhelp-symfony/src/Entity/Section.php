@@ -83,56 +83,12 @@ class Section
         return $this->sectionFields;
     }
 
-    public function addSectionField(SectionField $sectionField): self
-    {
-        if (!$this->sectionFields->contains($sectionField)) {
-            $this->sectionFields[] = $sectionField;
-            $sectionField->setSection($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSectionField(SectionField $sectionField): self
-    {
-        if ($this->sectionFields->removeElement($sectionField)) {
-            // set the owning side to null (unless already changed)
-            if ($sectionField->getSection() === $this) {
-                $sectionField->setSection(null);
-            }
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, PageSection>
      */
     public function getPageSections(): Collection
     {
         return $this->pageSections;
-    }
-
-    public function addPageSection(PageSection $pageSection): self
-    {
-        if (!$this->pageSections->contains($pageSection)) {
-            $this->pageSections[] = $pageSection;
-            $pageSection->setSection($this);
-        }
-
-        return $this;
-    }
-
-    public function removePageSection(PageSection $pageSection): self
-    {
-        if ($this->pageSections->removeElement($pageSection)) {
-            // set the owning side to null (unless already changed)
-            if ($pageSection->getSection() === $this) {
-                $pageSection->setSection(null);
-            }
-        }
-
-        return $this;
     }
 
     /**

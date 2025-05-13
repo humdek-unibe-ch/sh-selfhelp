@@ -209,28 +209,6 @@ class Page
         return $this->pageSections;
     }
 
-    public function addPageSection(PageSection $pageSection): self
-    {
-        if (!$this->pageSections->contains($pageSection)) {
-            $this->pageSections[] = $pageSection;
-            $pageSection->setPage($this);
-        }
-
-        return $this;
-    }
-
-    public function removePageSection(PageSection $pageSection): self
-    {
-        if ($this->pageSections->removeElement($pageSection)) {
-            // set the owning side to null (unless already changed)
-            if ($pageSection->getPage() === $this) {
-                $pageSection->setPage(null);
-            }
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, PageField>
      */
@@ -239,25 +217,4 @@ class Page
         return $this->pageFields;
     }
 
-    public function addPageField(PageField $pageField): self
-    {
-        if (!$this->pageFields->contains($pageField)) {
-            $this->pageFields[] = $pageField;
-            $pageField->setPage($this);
-        }
-
-        return $this;
-    }
-
-    public function removePageField(PageField $pageField): self
-    {
-        if ($this->pageFields->removeElement($pageField)) {
-            // set the owning side to null (unless already changed)
-            if ($pageField->getPage() === $this) {
-                $pageField->setPage(null);
-            }
-        }
-
-        return $this;
-    }
 }

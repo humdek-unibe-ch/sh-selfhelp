@@ -20,5 +20,25 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # Explicitly define our custom services
+    App\Service\ACLService:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    App\Service\PageService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $security: '@security.helper'
+            $aclService: '@App\Service\ACLService'
+
+    # Controller services
+    App\Controller\Api\V1\Admin\PageController:
+        arguments:
+            $pageService: '@App\Service\PageService'
+            
+    App\Controller\Api\V1\Admin\PageSectionController:
+        arguments:
+            $pageService: '@App\Service\PageService'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

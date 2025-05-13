@@ -1,0 +1,9 @@
+api_v1:
+    resource: ../../src/Controller/Api/V1/
+    type: annotation
+    prefix: /cms-api/v1
+
+api_admin:
+    resource: ../../src/Controller/Api/V1/Admin/
+    type: annotation
+    prefix: /cms-api/v1/admin

@@ -6,8 +6,8 @@ use App\Entity\Page;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Security;
 
 /**
  * Page service
@@ -45,29 +45,13 @@ class PageService
         }
         
         // Check if user has access to the page
-        if (!$this->aclService->hasAccess($this->security->getUser()->getId(), $page->getId(), 'select')) {
+        if (!$this->aclService->hasAccess($this->security->getUser()->getUserIdentifier(), $page->getId(), 'select')) {
             throw new AccessDeniedException('Access denied');
-        }
-        
-        // Get page fields
-        $fields = [];
-        foreach ($page->getPageFields() as $pageField) {
-            $fieldName = $pageField->getField()->getName();
-            $languageId = $pageField->getLanguage()->getId();
-            
-            if (!isset($fields[$fieldName])) {
-                $fields[$fieldName] = [];
-            }
-            
-            $fields[$fieldName][$languageId] = [
-                'id' => $pageField->getField()->getId(),
-                'content' => $pageField->getContent()
-            ];
-        }
+        }                
         
         return [
             'page' => [
-                'fields' => $fields,
+                'fields' => [],
                 'page_id' => $page->getId(),
                 'page_keyword' => $page->getKeyword()
             ]
@@ -91,7 +75,7 @@ class PageService
         }
         
         // Check if user has access to the page
-        if (!$this->aclService->hasAccess($this->security->getUser()->getId(), $page->getId(), 'select')) {
+        if (!$this->aclService->hasAccess($this->security->getUser()->getUserIdentifier(), $page->getId(), 'select')) {
             throw new AccessDeniedException('Access denied');
         }
         

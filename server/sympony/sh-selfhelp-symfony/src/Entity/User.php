@@ -109,9 +109,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    /**
+     * @see UserInterface
+     * 
+     * This method is no longer needed as of Symfony 6.0, but is kept for compatibility with older versions
+     * Modern password hashers handle their own salt, so this method can return null
+     */
+    public function getSalt(): ?string
+    {
+        return null;
     }
 
     public function getFirstName(): ?string
