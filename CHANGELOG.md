@@ -11,6 +11,7 @@
  - add column `is_system`, where if enabled the page is system and it should not be delete it or change its properties. Only its content fields can be edited
  - remove column `owner` from `sections`
  - add function `get_page_sections_hierarchical` in `SQL` and use it in `AdminPageDetailApi.php`
+ - add `slug` type in the `router`
 
 ### Bugfix
  - fix the way that the data is decoded in the `formUserInput` controller
