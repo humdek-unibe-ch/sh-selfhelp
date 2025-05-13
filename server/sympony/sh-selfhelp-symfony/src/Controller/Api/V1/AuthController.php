@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\V1\Auth;
+namespace App\Controller\Api\V1;
 
 use App\Entity\User;
 use App\Service\JWTService;
