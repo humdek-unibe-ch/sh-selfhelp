@@ -1,0 +1,16 @@
+# config/routes/selfhelp_api.yaml
+selfhelp_api:
+    resource: 'api.yaml'
+    prefix:   '/cms-api'
+
+# Define api route resources
+selfhelp_api_controllers:
+    resource: ../../src/Controller/Api/V1/
+    type: attribute
+    prefix: '/cms-api'
+
+# Define admin route resources
+selfhelp_admin_controllers:
+    resource: ../../src/Controller/Api/V1/Admin/
+    type: attribute
+    prefix: '/cms-api/admin'

@@ -17,7 +17,7 @@ class ACLService
      */
     public function __construct(
         private readonly Connection $connection,
-        // private readonly Security $security
+        private readonly Security $security
     ) {
     }
 

@@ -1,0 +1,5 @@
+# Dynamic routes loaded from database
+api_dynamic:
+    resource: .
+    type: api_database
+    prefix: /cms-api

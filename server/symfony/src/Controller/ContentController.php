@@ -7,38 +7,40 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthController extends AbstractController
+class ContentController extends AbstractController
 {
     /**
-     * Login endpoint
+     * Get all pages
      */
-    public function login(Request $request): JsonResponse
+    public function getAllPages(Request $request): JsonResponse
     {
         // Empty implementation for now
         return $this->createApiResponse([
-            'message' => 'Login endpoint (placeholder)'
+            'message' => 'Get all pages endpoint (placeholder)'
         ]);
     }
 
     /**
-     * Refresh token endpoint
+     * Get page by keyword
      */
-    public function refreshToken(Request $request): JsonResponse
+    public function getPage(string $page_keyword, Request $request): JsonResponse
     {
         // Empty implementation for now
         return $this->createApiResponse([
-            'message' => 'Refresh token endpoint (placeholder)'
+            'message' => 'Get page endpoint (placeholder)',
+            'page_keyword' => $page_keyword
         ]);
     }
 
     /**
-     * Logout endpoint
+     * Update page
      */
-    public function logout(Request $request): JsonResponse
+    public function updatePage(string $page_keyword, Request $request): JsonResponse
     {
         // Empty implementation for now
         return $this->createApiResponse([
-            'message' => 'Logout endpoint (placeholder)'
+            'message' => 'Update page endpoint (placeholder)',
+            'page_keyword' => $page_keyword
         ]);
     }
 

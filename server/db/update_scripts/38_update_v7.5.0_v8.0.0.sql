@@ -401,6 +401,33 @@ DROP TABLE IF EXISTS `deprecated_user_input_record`;
 DROP VIEW IF EXISTS view_form;
 DROP VIEW IF EXISTS view_user_input;
 
+CREATE TABLE IF NOT EXISTS `api_routes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `route_name` VARCHAR(100) NOT NULL,
+  `path` VARCHAR(255) NOT NULL,
+  `controller` VARCHAR(255) NOT NULL,
+  `methods` VARCHAR(50) NOT NULL,
+  `requirements` JSON NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_route_name` (`route_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT IGNORE INTO `api_routes`
+  (`route_name`,`path`,`controller`,`methods`,`requirements`)
+VALUES
+  ('auth_login',                 '/auth/login',                      'App\\Controller\\AuthController::login',        'GET',  NULL),
+  ('auth_refresh',               '/auth/refresh-token',              'App\\Controller\\AuthController::refreshToken', 'GET',  NULL),
+  ('auth_logout',                '/auth/logout',                     'App\\Controller\\AuthController::logout',       'GET',  NULL),
+
+  ('content_pages',              '/pages',                           'App\\Controller\\ContentController::getAllPages','GET',  NULL),
+  ('content_page',               '/pages/{page_keyword}',            'App\\Controller\\ContentController::getPage',    'GET',  JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+')),
+  ('content_update_page',        '/pages/{page_keyword}',            'App\\Controller\\ContentController::updatePage','PUT',  JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+')),
+
+  ('admin_get_pages',            '/admin/pages',                     'App\\Controller\\AdminController::getPages',     'GET',  NULL),
+  ('admin_page_fields',          '/admin/pages/{page_keyword}/fields','App\\Controller\\AdminController::getPageFields','GET',  JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+')),
+  ('admin_page_sections',        '/admin/pages/{page_keyword}/sections','App\\Controller\\AdminController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'));
+
+
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field
 -- reowork all form data to use drop down for table selection. First the table should be registered by the user. Assign ACL to these dataTables.
