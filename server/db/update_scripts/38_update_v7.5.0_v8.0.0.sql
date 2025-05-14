@@ -386,6 +386,20 @@ END //
 DELIMITER ;
 
 
+CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables');
+CALL drop_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_scheduledJobs');
+ALTER TABLE scheduledJobs_reminders
+ADD PRIMARY KEY (id_scheduledJobs, id_dataTables);
+CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_dataTables', 'id_dataTables', '`dataTables` (`id`)');        
+CALL add_foreign_key('scheduledJobs_reminders', 'scheduledJobs_reminders_id_scheduledJobs', 'id_scheduledJobs', '`scheduledJobs` (`id`)');        
+
+DROP TABLE IF EXISTS `deprecated_formActions_external`;
+DROP TABLE IF EXISTS `deprecated_formActions_internal`;
+DROP TABLE IF EXISTS `deprecated_user_input`;
+DROP TABLE IF EXISTS `deprecated_user_input_record`;
+
+DROP VIEW IF EXISTS view_form;
+DROP VIEW IF EXISTS view_user_input;
 
 -- shoudl remove is_fluid from container style
 -- create new page onpen access use new field

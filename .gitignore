@@ -16,8 +16,6 @@ js/*
 server/plugins/*
 !server/plugins/README.md
 server/db/install_selfhelp.sql
-composer.json
-composer.lock
 phpstan.neon
 !assets/.htaccess
 data/*
