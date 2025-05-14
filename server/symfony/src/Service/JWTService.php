@@ -6,7 +6,6 @@ use App\Entity\RefreshToken;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -60,24 +59,18 @@ class JWTService
     /**
      * Generate a refresh token
      * 
-     * @param int $userId The user ID
+     * @param User $user The user entity
      * @return string The generated refresh token
      */
-    public function generateRefreshToken(int $userId): string
+    public function generateRefreshToken(User $user): string
     {
-        $user = $this->entityManager->getRepository(User::class)->find($userId);
-        
-        if (!$user) {
-            throw new AuthenticationException('User not found');
-        }
-        
         // Generate a random token
         $tokenString = bin2hex(random_bytes(32));
         
         // Create a new refresh token
         $refreshToken = new RefreshToken();
         $refreshToken->setUser($user);
-        $refreshToken->setToken($tokenString);
+        $refreshToken->setTokenHash($tokenString);
         $refreshToken->setExpiresAt(new \DateTime('+30 days'));
         
         // Save to database

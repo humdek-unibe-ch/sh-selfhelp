@@ -5,123 +5,35 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'refresh_tokens')]
+#[ORM\Table(name: 'refreshTokens')]
 class RefreshToken
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
-    private ?string $token = null;
-
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'id_users', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: 'token_hash', type: 'string', length: 255)]
+    private ?string $tokenHash = null;
+
+    #[ORM\Column(name: 'expires_at', type: 'datetime')]
     private ?\DateTimeInterface $expiresAt = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: true, options: ["default" => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeInterface $createdAt = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-
-    /**
-     * @param string $token
-     * @return $this
-     */
-    public function setToken(string $token): self
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
-    /**
-     * @return User|null
-     */
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param User|null $user
-     * @return $this
-     */
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * @return \DateTimeInterface|null
-     */
-    public function getExpiresAt(): ?\DateTimeInterface
-    {
-        return $this->expiresAt;
-    }
-
-    /**
-     * @param \DateTimeInterface $expiresAt
-     * @return $this
-     */
-    public function setExpiresAt(\DateTimeInterface $expiresAt): self
-    {
-        $this->expiresAt = $expiresAt;
-
-        return $this;
-    }
-
-    /**
-     * @return \DateTimeInterface|null
-     */
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * @param \DateTimeInterface $createdAt
-     * @return $this
-     */
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    /**
-     * Check if the token is expired
-     * 
-     * @return bool
-     */
-    public function isExpired(): bool
-    {
-        return $this->expiresAt < new \DateTime();
-    }
+    // --- Getters and Setters ---
+    public function getId(): ?int { return $this->id; }
+    public function getUser(): ?User { return $this->user; }
+    public function setUser(?User $user): self { $this->user = $user; return $this; }
+    public function getTokenHash(): ?string { return $this->tokenHash; }
+    public function setTokenHash(?string $tokenHash): self { $this->tokenHash = $tokenHash; return $this; }
+    public function getExpiresAt(): ?\DateTimeInterface { return $this->expiresAt; }
+    public function setExpiresAt(?\DateTimeInterface $expiresAt): self { $this->expiresAt = $expiresAt; return $this; }
+    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
+    public function setCreatedAt(?\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }
 }

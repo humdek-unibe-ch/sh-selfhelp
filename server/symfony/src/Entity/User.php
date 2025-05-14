@@ -2,178 +2,96 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[ORM\Column(type: 'string', length: 100, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'json')]
-    private array $roles = [];
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $name = null;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $password = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $twoFactorSecret = null;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $id_genders = null;
 
-    #[ORM\Column(type: 'boolean')]
-    private bool $twoFactorEnabled = false;
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
+    private bool $blocked = false;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $username = null;
+    #[ORM\Column(type: 'integer', nullable: true, options: ['default' => 1])]
+    private ?int $id_status = 1;
 
-    /**
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
+    private bool $intern = false;
 
-    /**
-     * @return string|null
-     */
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    private ?string $token = null;
 
-    /**
-     * @param string $email
-     * @return $this
-     */
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $id_languages = null;
 
-        return $this;
-    }
+    #[ORM\Column(type: 'boolean', options: ['default' => 1])]
+    private bool $is_reminded = true;
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $last_login = null;
 
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $last_url = null;
 
-        return array_unique($roles);
-    }
+    #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
+    private ?string $user_name = null;
 
-    /**
-     * @param array $roles
-     * @return $this
-     */
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
+    // Not persisted: for 2FA runtime state
+    private bool $twoFactorRequired = false;
 
-        return $this;
-    }
+    // --- Getters and Setters ---
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
+    public function getId(): ?int { return $this->id; }
+    public function getEmail(): ?string { return $this->email; }
+    public function setEmail(?string $email): self { $this->email = $email; return $this; }
+    public function getName(): ?string { return $this->name; }
+    public function setName(?string $name): self { $this->name = $name; return $this; }
+    public function getPassword(): ?string { return $this->password; }
+    public function setPassword(?string $password): self { $this->password = $password; return $this; }
+    public function getIdGenders(): ?int { return $this->id_genders; }
+    public function setIdGenders(?int $id_genders): self { $this->id_genders = $id_genders; return $this; }
+    public function isBlocked(): bool { return $this->blocked; }
+    public function setBlocked(bool $blocked): self { $this->blocked = $blocked; return $this; }
+    public function getIdStatus(): ?int { return $this->id_status; }
+    public function setIdStatus(?int $id_status): self { $this->id_status = $id_status; return $this; }
+    public function isIntern(): bool { return $this->intern; }
+    public function setIntern(bool $intern): self { $this->intern = $intern; return $this; }
+    public function getToken(): ?string { return $this->token; }
+    public function setToken(?string $token): self { $this->token = $token; return $this; }
+    public function getIdLanguages(): ?int { return $this->id_languages; }
+    public function setIdLanguages(?int $id_languages): self { $this->id_languages = $id_languages; return $this; }
+    public function isReminded(): bool { return $this->is_reminded; }
+    public function setIsReminded(bool $is_reminded): self { $this->is_reminded = $is_reminded; return $this; }
+    public function getLastLogin(): ?\DateTimeInterface { return $this->last_login; }
+    public function setLastLogin(?\DateTimeInterface $last_login): self { $this->last_login = $last_login; return $this; }
+    public function getLastUrl(): ?string { return $this->last_url; }
+    public function setLastUrl(?string $last_url): self { $this->last_url = $last_url; return $this; }
+    public function getUserName(): ?string { return $this->user_name; }
+    public function setUserName(?string $user_name): self { $this->user_name = $user_name; return $this; }
 
-    /**
-     * @param string $password
-     * @return $this
-     */
-    public function setPassword(string $password): self
-    {
-        $this->password = $password;
+    // 2FA runtime property
+    public function isTwoFactorRequired(): bool { return $this->twoFactorRequired; }
+    public function setTwoFactorRequired(bool $required): self { $this->twoFactorRequired = $required; return $this; }
 
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-    /**
-     * @param string|null $username
-     * @return $this
-     */
-    public function setUsername(?string $username): self
-    {
-        $this->username = $username;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTwoFactorSecret(): ?string
-    {
-        return $this->twoFactorSecret;
-    }
-
-    /**
-     * @param string|null $twoFactorSecret
-     * @return $this
-     */
-    public function setTwoFactorSecret(?string $twoFactorSecret): self
-    {
-        $this->twoFactorSecret = $twoFactorSecret;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTwoFactorEnabled(): bool
-    {
-        return $this->twoFactorEnabled;
-    }
-
-    /**
-     * @param bool $twoFactorEnabled
-     * @return $this
-     */
-    public function setTwoFactorEnabled(bool $twoFactorEnabled): self
-    {
-        $this->twoFactorEnabled = $twoFactorEnabled;
-
-        return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-    }
+    public function getRoles(): array { return ['ROLE_USER']; }
+    public function eraseCredentials(): void { }
+    public function getUserIdentifier(): string { return $this->email; }
 }

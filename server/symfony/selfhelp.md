@@ -2,6 +2,42 @@
 
 This guide explains how to add API routes to the database for dynamic loading in the SH-Selfhelp Symfony backend. **All routes are now dynamically loaded from the database.** You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
 
+## JWT Key Pair Generation for Token Authentication
+
+If you encounter errors like `Unable to create a signed JWT from the given configuration`, you must generate the required PEM keys for JWT authentication.
+
+**Step-by-step instructions:**
+
+1. **Create the JWT key directory:**
+   ```bash
+   mkdir -p config/jwt
+   ```
+   (This should be run from the Symfony project root.)
+
+2. **Generate the private key:**
+   ```bash
+   openssl genrsa -out config/jwt/private.pem 4096
+   ```
+
+3. **Generate the public key:**
+   ```bash
+   openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
+   ```
+
+4. **(Optional) Use a passphrase for production:**
+   ```bash
+   openssl genrsa -aes256 -out config/jwt/private.pem 4096
+   openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
+   ```
+   Then set your passphrase in `.env` as `JWT_PASSPHRASE=your_passphrase`.
+
+5. **Update configuration:**
+   Ensure your `lexik_jwt_authentication.yaml` or equivalent config points to these keys and uses the correct passphrase.
+
+**Notes:**
+- Both `private.pem` and `public.pem` must be readable by the PHP process.
+- These steps are required for initial installation and whenever the keys are missing or need to be rotated.
+
 ## Overview
 
 Dynamic API routes are stored in the `api_routes` database table and loaded by the custom loader (`ApiRouteLoader`). Each route entry defines the HTTP path, controller, method(s), and optional requirements (e.g., parameter regexes). The entity representing a route is `App\Entity\ApiRoute`.
