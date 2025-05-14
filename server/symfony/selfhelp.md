@@ -1,6 +1,6 @@
 # Adding API Routes to the Database
 
-This guide explains how to add API routes to the database for dynamic loading in the SH-Selfhelp Symfony backend. This approach allows you to manage routes without editing YAML or PHP files, enabling runtime updates and flexible route management.
+This guide explains how to add API routes to the database for dynamic loading in the SH-Selfhelp Symfony backend. **All routes are now dynamically loaded from the database.** You do not need to edit YAML, PHP, or use fixtures/commands for route registration. To add or modify an API route, simply insert or update the relevant entry in the `api_routes` table.
 
 ## Overview
 
@@ -14,29 +14,6 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 - `requirements`: (Optional) JSON string for parameter requirements (e.g., `{ "page_keyword": "[A-Za-z0-9_-]+" }`)
 
 ## How to Add a Route
-
-### 1. Using Doctrine Fixtures (Recommended for Dev/Initial Setup)
-
-Edit `src/DataFixtures/ApiRouteFixtures.php` and add your route to the `$routesData` array:
-
-```php
-// Example entry in ApiRouteFixtures.php
-[
-    'name' => 'content_page',
-    'path' => '/pages/{page_keyword}',
-    'controller' => 'App\\Controller\\ContentController::getPage',
-    'methods' => 'GET',
-    'requirements' => '{"page_keyword": "[A-Za-z0-9_-]+"}'
-],
-```
-
-**Steps:**
-1. Add your route entry to `$routesData` in `ApiRouteFixtures.php`.
-2. Run:
-   ```sh
-   php bin/console doctrine:fixtures:load
-   ```
-   This will populate the `api_routes` table with your new route.
 
 ### 2. Manually Inserting into the Database
 
@@ -55,16 +32,6 @@ VALUES (
 
 - Double backslashes (`\\`) are required in the `controller` field for PHP namespace escaping.
 - The `requirements` field is a JSON object (or NULL if not needed).
-
-### 3. Using the Import Command
-
-If you have a CSV or external source of routes, you can write a script or use the included command:
-
-```sh
-php bin/console app:import-api-routes
-```
-
-This command (`ImportApiRoutesCommand`) will read from the `api_routes` table and import (update) the Symfony route collection. You can customize this command for bulk imports.
 
 ## Example Route Entry
 
@@ -105,4 +72,4 @@ This command (`ImportApiRoutesCommand`) will read from the `api_routes` table an
 
 ---
 
-For more advanced usage, see `src/Entity/ApiRoute.php`, `src/Routing/ApiRouteLoader.php`, and `src/Command/ImportApiRoutesCommand.php`.
+For more advanced usage, see `src/Entity/ApiRoute.php`
