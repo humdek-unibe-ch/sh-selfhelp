@@ -31,23 +31,29 @@ class ApiRouteLoader extends Loader
         $routes = new RouteCollection();
         
         // Load routes from database
-        $dbRoutes = $this->apiRouteRepository->findAllRoutes();
+        $dbRoutes = $this->apiRouteRepository->findAllRoutesByVersion('v1');
         
         foreach ($dbRoutes as $dbRoute) {
-            $path = $dbRoute->getPath();
+            // Always prepend version to the path
+            $version = $dbRoute->getVersion();
+            $path = $version . $dbRoute->getPath();
             $defaults = [
                 '_controller' => $dbRoute->getController(),
             ];
             
             // Parse methods (GET, POST, etc.)
             $methods = explode(',', $dbRoute->getMethods());
-            
-            // Parse requirements if any
-            $requirements = $dbRoute->getRequirementsArray();
-            
+
+            // Requirements and params are now arrays
+            $requirements = $dbRoute->getRequirements() ?? [];
+            $params = $dbRoute->getParams() ?? [];
+
+            // Attach params as a default for controller access
+            $defaults['_params'] = $params;
+
             // Create the route
-            $route = new Route($path, $defaults, $requirements ?? [], [], '', [], $methods);
-            $routes->add($dbRoute->getName(), $route);
+            $route = new Route($path, $defaults, $requirements, [], '', [], $methods);
+            $routes->add($dbRoute->getRouteName(), $route);
         }
 
         $this->isLoaded = true;

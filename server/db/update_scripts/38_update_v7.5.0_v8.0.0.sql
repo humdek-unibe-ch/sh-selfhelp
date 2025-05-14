@@ -401,31 +401,32 @@ DROP TABLE IF EXISTS `deprecated_user_input_record`;
 DROP VIEW IF EXISTS view_form;
 DROP VIEW IF EXISTS view_user_input;
 
-CREATE TABLE IF NOT EXISTS `api_routes` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `route_name` VARCHAR(100) NOT NULL,
-  `path` VARCHAR(255) NOT NULL,
-  `controller` VARCHAR(255) NOT NULL,
-  `methods` VARCHAR(50) NOT NULL,
-  `requirements` JSON NULL,
+DROP TABLE IF EXISTS `api_routes`;
+CREATE TABLE `api_routes` (
+  `id`           INT             NOT NULL AUTO_INCREMENT,
+  `route_name`   VARCHAR(100)    NOT NULL,
+  `version`      VARCHAR(10)     NOT NULL DEFAULT 'v1',
+  `path`         VARCHAR(255)    NOT NULL,
+  `controller`   VARCHAR(255)    NOT NULL,
+  `methods`      VARCHAR(50)     NOT NULL,
+  `requirements` JSON            NULL,
+  `params`       JSON            NULL COMMENT 'Expected parameters: name → {in: body|query, required: bool}',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_route_name` (`route_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  UNIQUE KEY `uniq_route_name_version` (`route_name`, `version`),
+  UNIQUE KEY `uniq_version_path` (`version`, `path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `api_routes`
-  (`route_name`,`path`,`controller`,`methods`,`requirements`)
-VALUES
-  ('auth_login',                 '/auth/login',                      'App\\Controller\\AuthController::login',        'GET',  NULL),
-  ('auth_refresh',               '/auth/refresh-token',              'App\\Controller\\AuthController::refreshToken', 'GET',  NULL),
-  ('auth_logout',                '/auth/logout',                     'App\\Controller\\AuthController::logout',       'GET',  NULL),
-
-  ('content_pages',              '/pages',                           'App\\Controller\\ContentController::getAllPages','GET',  NULL),
-  ('content_page',               '/pages/{page_keyword}',            'App\\Controller\\ContentController::getPage',    'GET',  JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+')),
-  ('content_update_page',        '/pages/{page_keyword}',            'App\\Controller\\ContentController::updatePage','PUT',  JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+')),
-
-  ('admin_get_pages',            '/admin/pages',                     'App\\Controller\\AdminController::getPages',     'GET',  NULL),
-  ('admin_page_fields',          '/admin/pages/{page_keyword}/fields','App\\Controller\\AdminController::getPageFields','GET',  JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+')),
-  ('admin_page_sections',        '/admin/pages/{page_keyword}/sections','App\\Controller\\AdminController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'));
+INSERT IGNORE INTO `api_routes` (`route_name`,`version`,`path`,`controller`,`methods`,`requirements`,`params`) VALUES
+('auth_login','v1','/auth/login','App\\Controller\\AuthController::login','POST',NULL,JSON_OBJECT('user',JSON_OBJECT('in','body','required',true),'password',JSON_OBJECT('in','body','required',true))),
+('auth_two_factor_verify','v1','/auth/two-factor-verify','App\\Controller\\AuthController::two_factor_verify','POST',NULL,JSON_OBJECT('code',JSON_OBJECT('in','body','required',true),'id_users',JSON_OBJECT('in','body','required',true))),
+('auth_refresh_token','v1','/auth/refresh-token','App\\Controller\\AuthController::refresh_token','POST',NULL,JSON_OBJECT('refresh_token',JSON_OBJECT('in','body','required',true))),
+('auth_logout','v1','/auth/logout','App\\Controller\\AuthController::logout','POST',NULL,JSON_OBJECT('access_token',JSON_OBJECT('in','body','required',false),'refresh_token',JSON_OBJECT('in','body','required',false))),
+('content_pages','v1','/pages','App\\Controller\\ContentController::getAllPages','GET',NULL,NULL),
+('content_page','v1','/pages/{page_keyword}','App\\Controller\\ContentController::getPage','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('content_update_page','v1','/pages/{page_keyword}','App\\Controller\\ContentController::updatePage','PUT',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),JSON_OBJECT('body',JSON_OBJECT('in','body','required',true))),
+('admin_get_pages','v1','/admin/pages','App\\Controller\\AdminController::getPages','GET',NULL,NULL),
+('admin_page_fields','v1','/admin/pages/{page_keyword}/fields','App\\Controller\\AdminController::getPageFields','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL),
+('admin_page_sections','v1','/admin/pages/{page_keyword}/sections','App\\Controller\\AdminController::getPageSections','GET',JSON_OBJECT('page_keyword','[A-Za-z0-9_-]+'),NULL);
 
 
 -- shoudl remove is_fluid from container style

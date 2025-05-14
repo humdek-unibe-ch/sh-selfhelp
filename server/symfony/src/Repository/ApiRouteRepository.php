@@ -16,14 +16,12 @@ class ApiRouteRepository extends ServiceEntityRepository
         parent::__construct($registry, ApiRoute::class);
     }
 
-    /**
-     * Find all active API routes
-     * 
-     * @return ApiRoute[]
-     */
-    public function findAllRoutes(): array
+    // In ApiRouteRepository
+    public function findAllRoutesByVersion(string $version): array
     {
         return $this->createQueryBuilder('r')
+            ->where('r.version = :version')
+            ->setParameter('version', $version)
             ->orderBy('r.id', 'ASC')
             ->getQuery()
             ->getResult();

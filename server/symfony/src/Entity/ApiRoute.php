@@ -14,8 +14,8 @@ class ApiRoute
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'route_name', length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(name: 'route_name', length: 100, unique: true)]
+    private ?string $route_name = null;
 
     #[ORM\Column(length: 255)]
     private ?string $path = null;
@@ -23,25 +23,31 @@ class ApiRoute
     #[ORM\Column(length: 255)]
     private ?string $controller = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 50)]
     private ?string $methods = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $requirements = null;
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $requirements = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $params = null;
+
+    #[ORM\Column(length: 10)]
+    private ?string $version = 'v1';
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getRouteName(): ?string
     {
-        return $this->name;
+        return $this->route_name;
     }
 
-    public function setName(string $name): self
+    public function setRouteName(string $route_name): self
     {
-        $this->name = $name;
+        $this->route_name = $route_name;
         return $this;
     }
 
@@ -78,26 +84,36 @@ class ApiRoute
         return $this;
     }
 
-    public function getRequirements(): ?string
+    public function getRequirements(): ?array
     {
         return $this->requirements;
     }
 
-    public function setRequirements(?string $requirements): self
+    public function setRequirements(?array $requirements): self
     {
         $this->requirements = $requirements;
         return $this;
     }
 
-    /**
-     * Convert the requirements string to an array
-     */
-    public function getRequirementsArray(): ?array
+    public function getParams(): ?array
     {
-        if (empty($this->requirements)) {
-            return null;
-        }
-        
-        return json_decode($this->requirements, true);
+        return $this->params;
+    }
+
+    public function setParams(?array $params): self
+    {
+        $this->params = $params;
+        return $this;
+    }
+
+    public function getVersion(): ?string
+    {
+        return $this->version;
+    }
+
+    public function setVersion(string $version): self
+    {
+        $this->version = $version;
+        return $this;
     }
 }
