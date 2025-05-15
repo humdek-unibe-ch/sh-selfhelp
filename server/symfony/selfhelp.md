@@ -76,6 +76,285 @@ Dynamic API routes are stored in the `api_routes` database table and loaded by t
 
 ## ACL Integration (2025-05-15)
 
+## Doctrine Entity Attribute Mapping (2025-05-15)
+
+**This section lists all Doctrine entity attributes in `src/Entity` for onboarding and reference.**
+
+### Action
+- `id`: int (PK)
+- `name`: string (unique)
+
+### ApiRoute
+- `id`: int (PK)
+- `route_name`: string (unique)
+- `path`: string
+- `controller`: string
+- `methods`: string
+- `requirements`: json/array (nullable)
+- `params`: json/array (nullable)
+- `version`: string (default 'v1')
+
+### Lookup
+- `id`: int (PK)
+- `name`: string (unique)
+- `lookup_code`: string
+- `lookup_value`: string
+- `lookup_type`: string
+
+### Page
+- `id`: int (PK)
+- `name`: string (unique)
+- `keyword`: string (unique)
+- `id_type`: int (FK to PageType)
+- `id_navigation_section`: int (nullable)
+- `parent`: int (nullable)
+- `is_headless`: bool
+- `nav_position`: int
+- `footer_position`: int
+- `is_system`: bool
+
+### PageType
+- `id`: int (PK)
+- `name`: string (unique)
+
+### Chat
+- `id`: int (PK)
+- `id_snd`: int
+- `id_rcv`: int (nullable)
+- `content`: text
+- `timestamp`: datetime
+- `id_rcv_group`: int
+
+### ChatRecipiant
+- `id_users`: int (PK)
+- `id_chat`: int (PK)
+- `id_room_users`: int (nullable)
+- `is_new`: bool (default 1)
+
+### CmsPreference
+- `id`: int (PK)
+- `callback_api_key`: string (nullable, length 500)
+- `default_language_id`: int (nullable)
+- `anonymous_users`: int (default 0)
+- `firebase_config`: string (nullable, length 10000)
+
+### CodesGroup
+- `code`: string (PK, length 16)
+- `id_groups`: int (PK)
+
+### DataCell
+- `id_dataRows`: int (PK)
+- `id_dataCols`: int (PK)
+- `value`: text
+
+### DataCol
+- `id`: int (PK)
+- `name`: string (nullable, length 255)
+- `id_dataTables`: int (nullable)
+
+### DataRow
+- `id`: int (PK)
+- `id_dataTables`: int (nullable)
+- `timestamp`: datetime
+- `id_users`: int (nullable)
+- `id_actionTriggerTypes`: int (nullable)
+
+### DataTable
+- `id`: int (PK)
+- `name`: string (length 100)
+- `timestamp`: datetime
+- `displayName`: string (nullable, length 1000)
+
+### Field
+- `id`: int (PK)
+- `name`: string (length 100)
+- `id_type`: int
+- `display`: bool (default 1)
+
+### FieldType
+- `id`: int (PK)
+- `name`: string (length 100)
+- `position`: int
+
+### FormAction
+- `id`: int (PK)
+- `name`: string (length 200)
+- `id_formProjectActionTriggerTypes`: int
+- `config`: text (nullable)
+- `id_dataTables`: int (nullable)
+
+### Gender
+- `id`: int (PK)
+- `name`: string (length 20)
+
+### Group
+- `id`: int (PK)
+- `name`: string (length 100)
+- `description`: string (length 250)
+- `id_group_types`: int (nullable)
+- `requires_2fa`: bool (default 0)
+
+### Hook
+- `id`: int (PK)
+- `id_hookTypes`: int
+- `name`: string (nullable, length 100)
+- `description`: string (nullable, length 1000)
+- `class`: string (length 100)
+- `function`: string (length 100)
+- `exec_class`: string (length 100)
+- `exec_function`: string (length 100)
+- `priority`: int (default 10)
+
+### Language
+- `id`: int (PK)
+- `locale`: string (length 5)
+- `language`: string (length 100)
+- `csv_separator`: string (length 1, default ',')
+
+### Library
+- `id`: int (PK)
+- `name`: string (nullable, length 250)
+- `version`: string (nullable, length 500)
+- `license`: string (nullable, length 1000)
+- `comments`: string (nullable, length 1000)
+
+### MailAttachment
+- `id`: int (PK)
+- `id_mailQueue`: int
+- `attachment_name`: string (nullable, length 1000)
+- `attachment_path`: string (length 1000)
+- `attachment_url`: string (length 1000)
+- `template_path`: string (length 1000, default '')
+
+### MailQueue
+- `id`: int (PK)
+- `from_email`: string (length 100)
+- `from_name`: string (length 100)
+- `reply_to`: string (length 100)
+- `recipient_emails`: text
+- `cc_emails`: string (nullable, length 1000)
+- `bcc_emails`: string (nullable, length 1000)
+- `subject`: string (length 1000)
+- `body`: text
+- `is_html`: bool (default 1)
+
+### Notification
+- `id`: int (PK)
+- `subject`: string (length 1000)
+- `body`: text
+- `url`: string (nullable, length 100)
+
+### Plugin
+- `id`: int (PK)
+- `name`: string (nullable, length 100)
+- `version`: string (nullable, length 500)
+
+### QualtricsProject
+- `id`: int (PK)
+- `name`: string (length 200)
+- `description`: string (nullable, length 1000)
+- `qualtrics_api`: string (nullable, length 100)
+- `api_library_id`: string (nullable, length 100)
+- `api_mailing_group_id`: string (nullable, length 100)
+- `created_on`: datetime
+- `edited_on`: datetime
+
+### QualtricsSurvey
+- `id`: int (PK)
+- `name`: string (length 200)
+- `description`: string (nullable, length 1000)
+- `qualtrics_survey_id`: string (nullable, length 100)
+- `id_qualtricsSurveyTypes`: int
+- `participant_variable`: string (nullable, length 100)
+- `group_variable`: int (default 0)
+- `created_on`: datetime
+- `edited_on`: datetime
+- `config`: text (nullable)
+
+### QualtricsSurveysResponse
+- `id`: int (PK)
+- `id_users`: int
+- `id_surveys`: int
+- `id_qualtricsProjectActionTriggerTypes`: int
+- `survey_response_id`: string (nullable, length 100)
+- `started_on`: datetime
+- `edited_on`: datetime
+
+### ScheduledJob
+- `id`: int (PK)
+- `id_jobTypes`: int
+- `id_jobStatus`: int
+- `description`: string (nullable, length 1000)
+- `date_create`: datetime
+- `date_to_be_executed`: datetime (nullable)
+- `date_executed`: datetime (nullable)
+- `config`: string (nullable, length 1000)
+
+### ScheduledJobsFormAction
+- `id_scheduledJobs`: int (PK)
+- `id_formActions`: int (PK)
+- `id_dataRows`: int (nullable)
+
+### ScheduledJobsMailQueue
+- `id_scheduledJobs`: int (PK)
+- `id_mailQueue`: int (PK)
+
+### ScheduledJobsNotification
+- `id_scheduledJobs`: int (PK)
+- `id_notifications`: int (PK)
+
+### ScheduledJobsQualtricsAction
+- `id_scheduledJobs`: int (PK)
+- `id_qualtricsActions`: int (PK)
+
+### RefreshToken
+- `id`: bigint (PK)
+- `user`: FK to User
+- `token_hash`: string
+- `expires_at`: datetime
+- `created_at`: datetime
+
+### Section
+- `id`: int (PK)
+- `style`: FK to Style
+- `name`: string (unique)
+
+### Style
+- `id`: int (PK)
+- `name`: string (unique)
+- `type`: FK to StyleType
+- `group`: FK to StyleGroup
+- `description`: text (nullable)
+
+### StyleGroup
+- `id`: int (PK)
+- `name`: string (unique)
+- `description`: text (nullable)
+- `position`: int (nullable)
+
+### StyleType
+- `id`: int (PK)
+- `name`: string
+
+### User
+- `id`: int (PK)
+- `email`: string (unique)
+- `name`: string (nullable)
+- `password`: string (nullable)
+- `id_genders`: int (nullable)
+- `id_languages`: int (nullable)
+- `id_status`: int (nullable)
+- `blocked`: bool
+- `intern`: bool
+- `last_login`: datetime (nullable)
+- `last_url`: string (nullable)
+- `user_name`: string (nullable)
+- `is_reminded`: bool
+- `token`: string (nullable)
+- `twoFactorRequired`: bool
+- `id_userTypes`: int (nullable)
+
+
 ### Canonical ACL Source: get_user_acl Stored Procedure
 
 ### Global User Context Service
